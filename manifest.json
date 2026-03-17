@@ -1,0 +1,22 @@
+{
+  "name": "은혜의말씀",
+  "short_name": "은혜의말씀",
+  "description": "성경 66권 절별 목회주석 앱",
+  "start_url": "/gomna-bible/gomna_blue.html",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#B8860B",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
