@@ -1,5 +1,3 @@
-const pastorCommentaryData = window.pastorCommentaryData || {};
-
 pastorCommentaryData["예레미야_1_1"] = {
     본문내용: "베냐민 땅 아나돗의 제사장들 중 힐기야의 아들 예레미야의 말이라",
     표1_원어분석: [

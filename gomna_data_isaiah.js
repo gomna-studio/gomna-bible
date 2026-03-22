@@ -1,5 +1,3 @@
-const pastorCommentaryData = window.pastorCommentaryData || {};
-
 pastorCommentaryData["이사야_1_1"] = {
     본문내용: "아모스의 아들 이사야가 유다와 예루살렘에 관하여 본 계시라 유다 왕 웃시야와 요담과 아하스와 히스기야 시대에라",
     표1_원어분석: [

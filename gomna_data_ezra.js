@@ -1,5 +1,3 @@
-const pastorCommentaryData = window.pastorCommentaryData || {};
-
 // 에스라 pastorCommentaryData
 pastorCommentaryData["에스라_1_1"] = {
     본문내용: "바사 왕 고레스 원년에 여호와께서 예레미야의 입을 통하여 하신 말씀을 이루시려고 바사 왕 고레스의 마음을 감동시키시매 그가 온 나라에 공포도 하고 조서도 내려 이르되",

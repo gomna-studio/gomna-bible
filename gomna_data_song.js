@@ -1,5 +1,3 @@
-const pastorCommentaryData = window.pastorCommentaryData || {};
-
 pastorCommentaryData["아가_1_1"] = {
     본문내용: "솔로몬의 아가라",
     표1_원어분석: [

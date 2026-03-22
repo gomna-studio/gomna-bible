@@ -1,5 +1,3 @@
-const pastorCommentaryData = window.pastorCommentaryData || {};
-
 pastorCommentaryData["전도서_1_1"] = {
     본문내용: "다윗의 아들 예루살렘 왕 전도자의 말씀이라",
     표1_원어분석: [

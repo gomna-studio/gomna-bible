@@ -1,6 +1,3 @@
-const pastorCommentaryData = window.pastorCommentaryData || {};
-
-
 pastorCommentaryData["느헤미야_1_1"] = {
     본문내용: "하가랴의 아들 느헤미야의 말이라 아닥사스다 왕 이십년 기슬르월에 내가 수산 궁에 있더니",
     표1_원어분석: [

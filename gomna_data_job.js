@@ -1,5 +1,3 @@
-const pastorCommentaryData = window.pastorCommentaryData || {};
-
 pastorCommentaryData["욥기_1_1"] = {
     본문내용: "우스 땅에 욥이라 이름하는 사람이 있었는데 그 사람은 순전하고 정직하여 하나님을 경외하며 악에서 떠난 자더라",
     표1_원어분석: [

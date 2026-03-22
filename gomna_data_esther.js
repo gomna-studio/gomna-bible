@@ -1,7 +1,3 @@
-const pastorCommentaryData = window.pastorCommentaryData || {};
-
-
-
 // 에스더 pastorCommentaryData
 pastorCommentaryData["에스더_1_1"] = {
     본문내용: "아하수에로 왕 때의 일이라 아하수에로는 인도로부터 구스까지 백이십칠 지방을 다스리는 왕이라",
