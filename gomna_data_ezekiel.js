@@ -1,5 +1,4 @@
-const pastorCommentaryData = window.pastorCommentaryData || {};
-Object.assign(pastorCommentaryData, {
+var pastorCommentaryData = window.pastorCommentaryData || {};
 pastorCommentaryData["에스겔_16_1"] = {
     본문내용: "여호와의 말씀이 내게 임하여 이르시되",
     표1_원어분석: [
