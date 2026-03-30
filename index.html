@@ -258418,7 +258418,7 @@ function selectBook(name, chapters, testament) {
   document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
   document.getElementById('chapterView').classList.add('active');
   var html = '<div class="back-bar"><button class="list-btn" onclick="goBack(\'book\')">← 목록으로</button></div><div style="text-align:center;font-size:18px;font-weight:700;padding:16px 0">' + name + '</div><div class="chapter-grid">';
-  for(var i = 1; i <= chapters; i++) { html += '<button class="chapter-btn" onclick="selectChapter(' + i + ')">' + i + '장</button>'; }
+  for(var i = 1; i <= chapters; i++) { html += '<button class="chapter-btn" onclick="selectChapter(' + i + ')">' + i + (currentBook.name === '시편' ? '편' : '장') + '</button>'; }
   html += '</div>';
   document.getElementById('chapterView').innerHTML = html;
 }
@@ -258441,7 +258441,7 @@ function renderVerses() {
   currentVerseCount = verses.length;
   
   var html = '<div class="verse-header"><span class="verse-title">' + currentBook.name + ' ' + currentChapter + '장</span><div class="verse-nav"><button class="nav-btn" onclick="prevChapter()"' + (currentChapter <= 1 ? ' disabled' : '') + '>◀ 이전장</button><button class="nav-btn" onclick="nextChapter()"' + (currentChapter >= currentBook.chapters ? ' disabled' : '') + '>다음장 ▶</button></div></div>';
-  html += '<div class="back-bar"><button class="list-btn" onclick="goBack(\'chapter\')">← 장 선택으로</button></div>';
+  html += '<div class="back-bar"><button class="list-btn" onclick="goBack(\'chapter\')">← ' + (currentBook.name === '시편' ? '편' : '장') + ' 선택으로</button></div>';
   html += '<div class="range-selector"><select id="startVerse" onchange="updateEndVerse()">';
   for(var i = 1; i <= verses.length; i++) html += '<option value="' + i + '">' + i + '절부터</option>';
   html += '</select><span>~</span><select id="endVerse">';
