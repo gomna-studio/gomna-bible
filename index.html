@@ -258325,6 +258325,20 @@ function findBook(data, bookName) {
   return null;
 }
 
+function isPsalmsBook(bookName) {
+  return bookName === '시편';
+}
+
+function getChapterUnit(bookName) {
+  return isPsalmsBook(bookName) ? '편' : '장';
+}
+
+function getDisplayedChapterCount(bookData) {
+  if(!bookData || !bookData.chapters) return 0;
+  if(isPsalmsBook(bookData.name)) return Math.min(bookData.chapters.length, 150);
+  return bookData.chapters.length;
+}
+
 function renderOldTestament() {
   if(!oldTestamentData) return;
   var categories = {
@@ -258340,7 +258354,9 @@ function renderOldTestament() {
     categories[catName].forEach(function(bookName) {
       var bookData = findBook(oldTestamentData, bookName);
       if(bookData) {
-        html += '<button class="book-btn" onclick="selectBook(\'' + bookData.name + '\',' + bookData.chapters.length + ',\'old\')"><div class="name">' + bookData.name + '</div><div class="chapters">' + bookData.chapters.length + '장</div></button>';
+        var chapterCount = getDisplayedChapterCount(bookData);
+        var chapterUnit = getChapterUnit(bookData.name);
+        html += '<button class="book-btn" onclick="selectBook(\'' + bookData.name + '\',' + chapterCount + ',\'old\')"><div class="name">' + bookData.name + '</div><div class="chapters">' + chapterCount + chapterUnit + '</div></button>';
       }
     });
     html += '</div>';
@@ -258363,7 +258379,9 @@ function renderNewTestament() {
     categories[catName].forEach(function(bookName) {
       var bookData = findBook(newTestamentData, bookName);
       if(bookData) {
-        html += '<button class="book-btn" onclick="selectBook(\'' + bookData.name + '\',' + bookData.chapters.length + ',\'new\')"><div class="name">' + bookData.name + '</div><div class="chapters">' + bookData.chapters.length + '장</div></button>';
+        var chapterCount = getDisplayedChapterCount(bookData);
+        var chapterUnit = getChapterUnit(bookData.name);
+        html += '<button class="book-btn" onclick="selectBook(\'' + bookData.name + '\',' + chapterCount + ',\'new\')"><div class="name">' + bookData.name + '</div><div class="chapters">' + chapterCount + chapterUnit + '</div></button>';
       }
     });
     html += '</div>';
@@ -258373,8 +258391,8 @@ function renderNewTestament() {
 
 function getAllBooks() {
   var all = [];
-  if(oldTestamentData && oldTestamentData.books) oldTestamentData.books.forEach(function(b) { all.push({name: b.name, chapters: b.chapters.length, testament: 'old'}); });
-  if(newTestamentData && newTestamentData.books) newTestamentData.books.forEach(function(b) { all.push({name: b.name, chapters: b.chapters.length, testament: 'new'}); });
+  if(oldTestamentData && oldTestamentData.books) oldTestamentData.books.forEach(function(b) { all.push({name: b.name, chapters: getDisplayedChapterCount(b), testament: 'old'}); });
+  if(newTestamentData && newTestamentData.books) newTestamentData.books.forEach(function(b) { all.push({name: b.name, chapters: getDisplayedChapterCount(b), testament: 'new'}); });
   return all;
 }
 
@@ -258392,7 +258410,7 @@ function showAllBooks(btn) {
   btn.classList.add('active');
   var all = getAllBooks();
   var html = '<div class="filtered-title">전체 성경 (' + all.length + '권)</div><div class="book-grid">';
-  all.forEach(function(b) { html += '<button class="book-btn" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + '장</div></button>'; });
+  all.forEach(function(b) { html += '<button class="book-btn" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + getChapterUnit(b.name) + '</div></button>'; });
   html += '</div>';
   document.getElementById('filteredBooks').innerHTML = html;
 }
@@ -258403,7 +258421,7 @@ function filterByConsonant(c, btn) {
   var all = getAllBooks();
   var filtered = all.filter(function(b) { return getInitialConsonant(b.name) === c; });
   var html = filtered.length === 0 ? '<div class="empty-state"><div class="msg">해당 자음으로 시작하는 책이 없습니다</div></div>' : '<div class="filtered-title">\'' + c + '\'으로 시작 (' + filtered.length + '권)</div><div class="book-grid">';
-  filtered.forEach(function(b) { html += '<button class="book-btn" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + '장</div></button>'; });
+  filtered.forEach(function(b) { html += '<button class="book-btn" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + getChapterUnit(b.name) + '</div></button>'; });
   if(filtered.length > 0) html += '</div>';
   document.getElementById('filteredBooks').innerHTML = html;
 }
@@ -258415,11 +258433,13 @@ function getInitialConsonant(str) {
 }
 
 function selectBook(name, chapters, testament) {
-  currentBook = {name: name, chapters: chapters, testament: testament};
+  var displayChapters = isPsalmsBook(name) ? Math.min(chapters, 150) : chapters;
+  var chapterUnit = getChapterUnit(name);
+  currentBook = {name: name, chapters: displayChapters, testament: testament};
   document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
   document.getElementById('chapterView').classList.add('active');
   var html = '<div class="back-bar"><button class="list-btn" onclick="goBack(\'book\')">← 목록으로</button></div><div style="text-align:center;font-size:18px;font-weight:700;padding:16px 0">' + name + '</div><div class="chapter-grid">';
-  for(var i = 1; i <= chapters; i++) { html += '<button class="chapter-btn" onclick="selectChapter(' + i + ')">' + i + (currentBook.name === '시편' ? '편' : '장') + '</button>'; }
+  for(var i = 1; i <= displayChapters; i++) { html += '<button class="chapter-btn" onclick="selectChapter(' + i + ')">' + i + chapterUnit + '</button>'; }
   html += '</div>';
   document.getElementById('chapterView').innerHTML = html;
 }
@@ -258441,8 +258461,9 @@ function renderVerses() {
   var verses = chapterData.verses;
   currentVerseCount = verses.length;
   
-  var html = '<div class="verse-header"><span class="verse-title">' + currentBook.name + ' ' + currentChapter + '장</span><div class="verse-nav"><button class="nav-btn" onclick="prevChapter()"' + (currentChapter <= 1 ? ' disabled' : '') + '>◀ 이전장</button><button class="nav-btn" onclick="nextChapter()"' + (currentChapter >= currentBook.chapters ? ' disabled' : '') + '>다음장 ▶</button></div></div>';
-  html += '<div class="back-bar"><button class="list-btn" onclick="goBack(\'chapter\')">← ' + (currentBook.name === '시편' ? '편' : '장') + ' 선택으로</button></div>';
+  var chapterUnit = getChapterUnit(currentBook.name);
+  var html = '<div class="verse-header"><span class="verse-title">' + currentBook.name + ' ' + currentChapter + chapterUnit + '</span><div class="verse-nav"><button class="nav-btn" onclick="prevChapter()"' + (currentChapter <= 1 ? ' disabled' : '') + '>◀ 이전' + chapterUnit + '</button><button class="nav-btn" onclick="nextChapter()"' + (currentChapter >= currentBook.chapters ? ' disabled' : '') + '>다음' + chapterUnit + ' ▶</button></div></div>';
+  html += '<div class="back-bar"><button class="list-btn" onclick="goBack(\'chapter\')">← ' + chapterUnit + ' 선택으로</button></div>';
   html += '<div class="range-selector"><select id="startVerse" onchange="updateEndVerse()">';
   for(var i = 1; i <= verses.length; i++) html += '<option value="' + i + '">' + i + '절부터</option>';
   html += '</select><span>~</span><select id="endVerse">';
@@ -258570,6 +258591,7 @@ function showCommentary(verseNum) {
   var prevVerse = verseNum - 1;
   var nextVerse = verseNum + 1;
 
+  var chapterUnit = getChapterUnit(bookName);
   // 2줄 네비게이션 헤더 생성
   var content = '<div class="commentary-verse-ref">';
   
@@ -258580,9 +258602,9 @@ function showCommentary(verseNum) {
   bottomNav += '</div>';
   // 1줄: 이전장/다음장
   content += '<div class="commentary-nav-row">';
-  content += '<button class="commentary-nav-btn" onclick="goToChapterCommentary(' + prevChapter + ')"' + (prevChapter < 1 ? ' disabled' : '') + '>◀ ' + prevChapter + '장</button>';
+  content += '<button class="commentary-nav-btn" onclick="goToChapterCommentary(' + prevChapter + ')"' + (prevChapter < 1 ? ' disabled' : '') + '>◀ ' + prevChapter + chapterUnit + '</button>';
   content += '<span style="font-size:12px;opacity:0.8;">' + bookName + '</span>';
-  content += '<button class="commentary-nav-btn" onclick="goToChapterCommentary(' + nextChapter + ')"' + (nextChapter > currentBook.chapters ? ' disabled' : '') + '>' + nextChapter + '장 ▶</button>';
+  content += '<button class="commentary-nav-btn" onclick="goToChapterCommentary(' + nextChapter + ')"' + (nextChapter > currentBook.chapters ? ' disabled' : '') + '>' + nextChapter + chapterUnit + ' ▶</button>';
   content += '</div>';
   // 2줄: 이전절/현재절/다음절
   content += '<div class="commentary-nav-row">';
@@ -258770,8 +258792,8 @@ function showVersePopup(refText) {
 
     // 패턴1: "책장:절" 또는 "책 장:절" (예: 시136:7-9, 시 136:7)
     var match1 = singleRef.match(/^([가-힣a-zA-Z]+)\s*(\d+):(.+)$/);
-    // 패턴2: "책장장" (예: 창10장, 창5장)
-    var match2 = singleRef.match(/^([가-힣a-zA-Z]+)\s*(\d+)장$/);
+    // 패턴2: "책장장/책편편" (예: 창10장, 시23편)
+    var match2 = singleRef.match(/^([가-힣a-zA-Z]+)\s*(\d+)(장|편)$/);
 
     if(match1) {
       abbrev = match1[1];
@@ -258809,14 +258831,14 @@ function showVersePopup(refText) {
     }
 
     if(!bookData) {
-      allHtml += '<div style="margin:10px 0; padding:8px; background:#f5f5f5; border-radius:4px;"><strong style="color:#1565C0;">' + bookName + ' ' + chapter + (verseRange ? ':' + verseRange : (bookName === '시편' ? '편' : '장')) + '</strong><p style="color:#888; margin:4px 0 0 0;">해당 성경 데이터를 찾을 수 없습니다.</p></div>';
+      allHtml += '<div style="margin:10px 0; padding:8px; background:#f5f5f5; border-radius:4px;"><strong style="color:#1565C0;">' + bookName + ' ' + chapter + (verseRange ? ':' + verseRange : getChapterUnit(bookName)) + '</strong><p style="color:#888; margin:4px 0 0 0;">해당 성경 데이터를 찾을 수 없습니다.</p></div>';
       continue;
     }
 
     // 장 데이터 찾기
     var chapterData = bookData.chapters[chapter - 1];
     if(!chapterData) {
-      allHtml += '<div style="margin:10px 0; padding:8px; background:#f5f5f5; border-radius:4px;"><strong style="color:#1565C0;">' + bookName + ' ' + chapter + '장</strong><p style="color:#888; margin:4px 0 0 0;">해당 장을 찾을 수 없습니다.</p></div>';
+      allHtml += '<div style="margin:10px 0; padding:8px; background:#f5f5f5; border-radius:4px;"><strong style="color:#1565C0;">' + bookName + ' ' + chapter + getChapterUnit(bookName) + '</strong><p style="color:#888; margin:4px 0 0 0;">해당 ' + getChapterUnit(bookName) + '을(를) 찾을 수 없습니다.</p></div>';
       continue;
     }
 
@@ -258838,7 +258860,7 @@ function showVersePopup(refText) {
     }
 
     // 본문 생성
-    var sectionTitle = bookName + ' ' + chapter + (verseRange ? ':' + verseRange : (bookName === '시편' ? '편' : '장'));
+    var sectionTitle = bookName + ' ' + chapter + (verseRange ? ':' + verseRange : getChapterUnit(bookName));
     allHtml += '<div style="margin:10px 0; padding:8px; background:#f5f5f5; border-radius:4px;"><strong style="color:#1565C0;">' + sectionTitle + '</strong>';
 
     var hasContent = false;
@@ -258877,7 +258899,7 @@ function parseBibleRefs(text) {
   var regex1 = new RegExp('((' + bookPattern + ')\\s*(\\d+):(\\d+(?:-\\d+)?))', 'g');
 
   // 패턴2: 책이름 장장 (예: 창5장, 욥38장)
-  var regex2 = new RegExp('((' + bookPattern + ')\\s*(\\d+)장)', 'g');
+  var regex2 = new RegExp('((' + bookPattern + ')\\s*(\\d+)(장|편))', 'g');
 
   // 먼저 장:절 패턴 처리
   text = text.replace(regex1, function(match, full, book, chapter, verse) {
@@ -258889,7 +258911,7 @@ function parseBibleRefs(text) {
   text = text.replace(regex2, function(match, full, book, chapter) {
     // 이미 span 태그 안에 있으면 건드리지 않음
     if(match.indexOf('onclick') > -1) return match;
-    var ref = book + chapter + (book === '시편' ? '편' : '장');
+    var ref = book + chapter + (book === '시편' || book === '시' ? '편' : '장');
     return '<span onclick="showVersePopup(\'' + ref + '\')" style="color:#1565C0; text-decoration:underline; cursor:pointer;">' + match + '</span>';
   });
 
@@ -259111,7 +259133,7 @@ function goToVerse(book, chapter, verse, testament) {
   var data = testament === 'old' ? oldTestamentData : newTestamentData;
   var bookData = findBook(data, book);
   if(bookData) {
-    currentBook = {name: book, chapters: bookData.chapters.length, testament: testament};
+    currentBook = {name: book, chapters: getDisplayedChapterCount(bookData), testament: testament};
     currentChapter = chapter;
     document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
     document.getElementById('verseView').classList.add('active');

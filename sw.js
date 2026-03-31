@@ -1,6 +1,6 @@
-const CACHE_NAME = 'gomna-v1';
+const CACHE_NAME = 'gomna-v2';
 const urlsToCache = [
-  '/gomna-bible/gomna_blue.html',
+  '/gomna-bible/index.html',
   '/gomna-bible/favicon.png'
 ];
 
