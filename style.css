@@ -206,3 +206,4 @@ footer {
 .gomna-nav-links a:hover{color:#fff;}
 @media(max-width:768px){.gomna-nav{flex-wrap:nowrap;overflow:hidden;}.gomna-nav-links{gap:1rem;}.gomna-nav-links a{font-size:0.75rem;white-space:nowrap;}}
 @media(max-width:768px){.gomna-nav{flex-wrap:nowrap;overflow:hidden;}.gomna-nav-links{gap:1rem;}.gomna-nav-links a{font-size:0.75rem;white-space:nowrap;}}
+@media(max-width:600px){.gomna-nav-links{display:none;}}
