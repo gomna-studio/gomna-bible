@@ -176,7 +176,7 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-seri
   }
 }
 </script>
-<link rel="manifest" href="manifest">
+<link rel="manifest" href="manifest.json">
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/gomna-bible/sw.js");}</script>
 <script type="text/javascript">(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","vxpnb5ay5l");</script>
 <link rel="stylesheet" href="/style.css"></head>
@@ -258516,9 +258516,9 @@ function loadCommentaryData() {
 function findCommentaryFile(folder, bookName, chapter) {
   var possibleFiles = [];
   for(var i = 1; i <= 50; i++) {
-    possibleFiles.push(folder + '/' + bookName.substring(0,2) + '_' + bookName + '_ch' + i + '_' + (i+5) + '');
-    possibleFiles.push(folder + '/01_' + bookName + '_ch' + i + '_' + (i+5) + '');
-    possibleFiles.push(folder + '/' + bookName + '_' + i + '장~' + (i+5) + '장');
+    possibleFiles.push(folder + '/' + bookName.substring(0,2) + '_' + bookName + '_ch' + i + '_' + (i+5) + '.json');
+    possibleFiles.push(folder + '/01_' + bookName + '_ch' + i + '_' + (i+5) + '.json');
+    possibleFiles.push(folder + '/' + bookName + '_' + i + '장~' + (i+5) + '장.json');
   }
   
   var xhr = new XMLHttpRequest();
@@ -258526,12 +258526,12 @@ function findCommentaryFile(folder, bookName, chapter) {
   try {
     xhr.send();
     if(xhr.status === 200) {
-      var files = xhr.responseText.match(/href="([^"]+\)"/g);
+      var files = xhr.responseText.match(/href="([^"]+\.json)"/g);
       if(files) {
         files.forEach(function(f) {
           var fileName = f.replace('href="', '').replace('"', '');
           fetch(folder + '/' + fileName)
-            .then(function(r) { return r(); })
+            .then(function(r) { return r.json(); })
             .then(function(data) {
               if(data.chapters) {
                 data.chapters.forEach(function(ch) {
@@ -259165,4 +259165,4 @@ function changeFont(delta) {
   </div>
 </div></body>
 </html>
-
+.json
