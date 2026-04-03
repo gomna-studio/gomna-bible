@@ -120,7 +120,8 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-seri
 .fav-item .remove-btn{background:#FFEBEE;border:1px solid #FFCDD2;color:#C62828;padding:6px 14px;border-radius:18px;font-size:11px;font-family:inherit;cursor:pointer}
 .popup-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;justify-content:center;align-items:center}
 .popup-overlay.show{display:flex}
-#commentaryPopup.popup-overlay{background:transparent !important;}
+#commentaryPopup.popup-overlay{background:transparent;pointer-events:none}
+#commentaryPopup .popup-box{pointer-events:auto}
 .popup-box{background:#fff;border-radius:20px;padding:28px 24px;width:90%;max-width:420px;max-height:90vh;overflow-y:auto;text-align:center}
 .popup-title{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--primary)}
 .font-control{display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:28px}
