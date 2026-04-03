@@ -198,3 +198,9 @@ footer {
   section { padding: 64px 24px; }
   .hero { padding: 120px 24px 80px; }
 }
+.gomna-nav{position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(10,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.07);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;}
+.gomna-nav-logo{font-family:monospace;color:#fff;font-size:0.9rem;text-decoration:none;font-weight:700;}
+.gomna-nav-logo span{color:#3b82f6;}
+.gomna-nav-links{display:flex;gap:2rem;}
+.gomna-nav-links a{color:#9090a8;font-size:0.82rem;text-decoration:none;}
+.gomna-nav-links a:hover{color:#fff;}
