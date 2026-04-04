@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>곰나스튜디오 — 가치를 구조로 설계하는 1인 개발 스튜디오</title>
+  <meta name="description" content="곰나스튜디오는 실제로 작동하는 서비스와 지속 가능한 운영 구조를 동시에 설계합니다." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --bg:       #0a0a0f;
+      --bg2:      #111118;
+      --bg3:      #16161f;
+      --border:   rgba(255,255,255,0.07);
+      --border2:  rgba(255,255,255,0.13);
+      --accent:   #2563eb;
+      --accent2:  #3b82f6;
+      --accent-g: #60a5fa;
+      --text:     #f0f0f5;
+      --text2:    #9090a8;
+      --text3:    #5a5a72;
+      --white:    #ffffff;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: #3A1D0D;
+      border-bottom: 1px solid rgba(184, 117, 31, 0.45);
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+      min-height: 60px;
+      display: flex; align-items: center;
+    }
+    .nav-inner {
+      max-width: 1080px; margin: 0 auto; padding: 12px 24px;
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px 16px;
+    }
+    .nav-logo {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9rem; font-weight: 500;
+      color: #f5e6d3; letter-spacing: 0.05em;
+    }
+    .nav-logo span { color: #B8751F; }
+    .nav-links {
+      display: flex; gap: 1.25rem 1.5rem; flex-wrap: wrap;
+      list-style: none; align-items: center; justify-content: flex-end;
+      margin: 0; padding: 0;
+    }
+    .nav-links a {
+      font-size: 0.82rem;
+      color: rgba(245, 230, 211, 0.82);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #e8c88a; }
+    .nav-links a.active {
+      color: #B8751F;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-color: rgba(184, 117, 31, 0.85);
+    }
+
+    /* HERO */
+    .hero {
+      padding: 160px 24px 120px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 400px;
+      background: radial-gradient(ellipse at center top, rgba(37,99,235,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      background: rgba(37,99,235,0.15);
+      border: 1px solid rgba(37,99,235,0.4);
+      color: var(--accent-g);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem; letter-spacing: 0.15em;
+      border-radius: 4px; margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 700; line-height: 1.2;
+      letter-spacing: -0.03em; color: var(--white);
+      margin-bottom: 28px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--accent2), var(--accent-g));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-main {
+      max-width: 640px; margin: 0 auto 14px;
+      font-size: 1rem; color: var(--text2); line-height: 1.8;
+    }
+    .hero-sub {
+      max-width: 620px; margin: 0 auto;
+      font-size: 0.9rem; color: var(--text3); line-height: 1.8;
+    }
+    .hero-buttons {
+      margin-top: 40px; display: flex; gap: 12px;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px;
+      background: var(--accent); color: #fff;
+      font-size: 0.88rem; font-weight: 600; border-radius: 8px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 26px;
+      border: 1px solid var(--border2);
+      color: var(--text); font-size: 0.88rem; font-weight: 500; border-radius: 8px;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--accent2); background: rgba(37,99,235,0.08); transform: translateY(-1px); }
+
+    /* WHY GOMNA */
+    .why-gomna { background: var(--bg2); padding: 96px 24px; }
+    .why-inner { max-width: 1080px; margin: 0 auto; }
+
+    .why-stars {
+      display: flex; gap: 12px;
+      margin: 48px 0; flex-wrap: wrap;
+    }
+    .why-star {
+      flex: 1; min-width: 140px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .why-star:hover { border-color: rgba(37,99,235,0.5); transform: translateY(-3px); }
+    .star-letter {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 2rem; font-weight: 500;
+      color: var(--accent-g);
+      line-height: 1; margin-bottom: 10px;
+    }
+    .star-name {
+      font-size: 0.78rem; color: var(--text3);
+      letter-spacing: 0.05em;
+    }
+
+    .why-content {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+    .why-block p {
+      font-size: 0.95rem; color: var(--text2);
+      line-height: 1.9; margin-bottom: 16px;
+    }
+    .why-block p:last-child { margin-bottom: 0; }
+    .why-block strong { color: var(--white); font-weight: 500; }
+
+    /* STATS */
+    .stats { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg2); }
+    .stats-inner {
+      max-width: 1080px; margin: 0 auto; padding: 0 24px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+    }
+    .stat-item {
+      padding: 36px 24px; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.9rem; font-weight: 500;
+      color: var(--accent-g); line-height: 1; margin-bottom: 8px;
+    }
+    .stat-label { font-size: 0.78rem; color: var(--text3); line-height: 1.5; }
+
+    /* SECTION BASE */
+    section { padding: 96px 24px; }
+    .section-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--accent2); margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700; color: var(--white);
+      letter-spacing: -0.025em; line-height: 1.3; margin-bottom: 16px;
+    }
+    .section-desc {
+      font-size: 0.95rem; color: var(--text2);
+      line-height: 1.85; max-width: 580px;
+    }
+
+    /* PROJECT */
+    .project { background: var(--bg2); }
+    .project-inner {
+      max-width: 1080px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 64px; align-items: start;
+    }
+    .project-text .section-desc { max-width: 100%; margin-bottom: 14px; }
+    .project-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+    }
+    .project-card-header {
+      background: linear-gradient(135deg, rgba(37,99,235,0.2), rgba(37,99,235,0.05));
+      border-bottom: 1px solid var(--border);
+      padding: 28px;
+    }
+    .project-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem; color: var(--accent-g);
+      letter-spacing: 0.1em; margin-bottom: 8px;
+    }
+    .project-card-header h3 { font-size: 1.1rem; font-weight: 700; color: var(--white); }
+    .project-stats { display: grid; grid-template-columns: repeat(2, 1fr); }
+    .p-stat {
+      padding: 20px 24px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .p-stat:nth-child(2), .p-stat:nth-child(4) { border-right: none; }
+    .p-stat:nth-child(3), .p-stat:nth-child(4) { border-bottom: none; }
+    .p-stat-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.2rem; font-weight: 500;
+      color: var(--accent-g); margin-bottom: 4px;
+    }
+    .p-stat-label { font-size: 0.75rem; color: var(--text3); line-height: 1.5; }
+
+    /* TECH */
+    .tech { background: var(--bg2); }
+    .tech-inner { max-width: 1080px; margin: 0 auto; }
+    .tech-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; margin-top: 48px;
+    }
+    .tech-cell {
+      background: var(--bg2);
+      padding: 28px 32px;
+      display: flex; align-items: flex-start; gap: 20px;
+      transition: background 0.2s;
+    }
+    .tech-cell:hover { background: var(--bg3); }
+    .tech-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem; color: var(--accent2);
+      letter-spacing: 0.08em; white-space: nowrap;
+      padding-top: 2px; min-width: 110px;
+    }
+    .tech-val { font-size: 0.88rem; color: var(--text2); line-height: 1.7; }
+    .tech-val strong { color: var(--text); font-weight: 500; }
+
+    /* STRUCTURE */
+    .structure { background: var(--bg2); }
+    .structure-inner { max-width: 1080px; margin: 0 auto; }
+    .structure-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 16px; margin-top: 48px;
+    }
+    .str-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: 28px 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .str-card:hover { border-color: rgba(37,99,235,0.4); transform: translateY(-3px); }
+    .str-icon {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem; color: var(--accent2);
+      letter-spacing: 0.1em; margin-bottom: 16px; display: block;
+    }
+    .str-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+    .str-desc { font-size: 0.83rem; color: var(--text2); line-height: 1.75; }
+
+    /* METRICS */
+    .metrics { background: var(--bg); }
+    .metrics-inner { max-width: 1080px; margin: 0 auto; }
+    .metrics-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 16px; margin-top: 48px;
+    }
+    .metric-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: 28px 20px; text-align: center;
+    }
+    .metric-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.6rem; font-weight: 500;
+      color: var(--accent-g); margin-bottom: 8px;
+    }
+    .metric-label { font-size: 0.78rem; color: var(--text3); line-height: 1.5; }
+
+    /* FUTURE */
+    .future { background: var(--bg2); }
+    .future-inner { max-width: 1080px; margin: 0 auto; }
+    .future-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 16px; margin-top: 48px;
+    }
+    .future-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: 32px 24px;
+      transition: border-color 0.2s;
+    }
+    .future-card:hover { border-color: rgba(37,99,235,0.4); }
+    .future-emoji { font-size: 1.5rem; margin-bottom: 16px; display: block; }
+    .future-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+    .future-desc { font-size: 0.83rem; color: var(--text2); line-height: 1.75; }
+
+    .feature-tags {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin-top: 16px;
+    }
+    .ftag {
+      font-size: 0.75rem; font-weight: 500;
+      color: var(--accent-g);
+      background: rgba(37,99,235,0.12);
+      border: 1px solid rgba(37,99,235,0.25);
+      border-radius: 4px;
+      padding: 5px 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    /* PROJECT DETAIL */
+    .project-section { background: #f8fbff; padding: 100px 20px; }
+    .section-header { text-align: center; max-width: 860px; margin: 0 auto 50px; }
+    .section-badge {
+      display: inline-block; padding: 6px 14px;
+      background: #e8f0ff; color: #2563eb;
+      font-size: 13px; font-weight: 700;
+      border-radius: 999px; margin-bottom: 16px;
+    }
+    .section-header h2 { font-size: 38px; line-height: 1.3; margin-bottom: 18px; color: #111827; }
+    .section-intro { font-size: 17px; line-height: 1.8; color: #5b6472; }
+    .project-detail-grid {
+      display: grid; grid-template-columns: 1.5fr 1fr;
+      gap: 28px; align-items: start;
+      max-width: 1080px; margin: 0 auto;
+    }
+    .project-main-card, .project-side-card {
+      background: #ffffff;
+      border: 1px solid #e5eaf2;
+      border-radius: 24px; padding: 32px;
+      box-shadow: 0 10px 30px rgba(37,99,235,0.06);
+    }
+    .project-main-card h3, .project-side-card h3 {
+      font-size: 24px; margin-bottom: 18px; color: #111827;
+      font-family: 'Noto Sans KR', sans-serif; letter-spacing: 0;
+    }
+    .project-main-card p { font-size: 16px; line-height: 1.9; color: #5b6472; margin-bottom: 16px; }
+    .pd-metrics {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 16px; margin-top: 28px;
+    }
+    .pd-metric {
+      background: #f7faff; border: 1px solid #e5edf9;
+      border-radius: 18px; padding: 20px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .pd-metric strong { font-size: 22px; color: #2563eb; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; }
+    .pd-metric span { font-size: 15px; line-height: 1.6; color: #4b5563; }
+    .stack-item { padding: 18px 0; border-bottom: 1px solid #edf1f6; }
+    .stack-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .stack-item h4 { font-size: 16px; margin-bottom: 6px; color: #111827; font-family: 'Noto Sans KR', sans-serif; }
+    .stack-item p { margin: 0; color: #5b6472; line-height: 1.7; font-size: 15px; }
+
+    /* NEXT CHAPTER DIVIDER */
+    .next-chapter-divider {
+      display: flex; align-items: center; gap: 32px;
+      margin: 72px 0 56px;
+    }
+    .nc-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(37,99,235,0.4), transparent);
+    }
+    .nc-label { text-align: center; flex-shrink: 0; }
+    .nc-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem; color: var(--accent2);
+      letter-spacing: 0.15em; display: block; margin-bottom: 10px;
+    }
+    .nc-title {
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--white); margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .nc-desc {
+      font-size: 0.85rem; color: var(--text3);
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.05em;
+    }
+
+    /* RND */
+    .rnd { background: var(--bg); padding: 96px 24px; }
+    .rnd-inner { max-width: 1080px; margin: 0 auto; }
+
+    .rnd-overview {
+      display: flex; flex-direction: column; gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      margin: 48px 0;
+    }
+    .rnd-overview-item {
+      display: flex; align-items: flex-start; gap: 24px;
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      transition: background 0.2s;
+    }
+    .rnd-overview-item:last-child { border-bottom: none; }
+    .rnd-overview-item:hover { background: var(--bg3); }
+    .rnd-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem; font-weight: 500;
+      color: var(--accent2); min-width: 24px;
+      padding-top: 2px;
+    }
+    .rnd-overview-title { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+    .rnd-overview-title span { font-weight: 400; color: var(--text3); }
+    .rnd-overview-desc { font-size: 0.83rem; color: var(--text3); line-height: 1.6; }
+
+    .rnd-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 16px; margin-bottom: 48px;
+    }
+    .rnd-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 32px 28px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .rnd-card:hover { border-color: rgba(37,99,235,0.4); transform: translateY(-3px); }
+    .rnd-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem; font-weight: 500;
+      color: var(--accent-g);
+      background: rgba(37,99,235,0.12);
+      border: 1px solid rgba(37,99,235,0.25);
+      border-radius: 4px; padding: 4px 10px;
+      display: inline-block; margin-bottom: 16px;
+      letter-spacing: 0.1em;
+    }
+    .rnd-card-title {
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--white); line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .rnd-card-title span { font-size: 0.78rem; color: var(--text3); font-weight: 400; }
+    .rnd-card-desc { font-size: 0.83rem; color: var(--text2); line-height: 1.8; margin-bottom: 12px; }
+    .rnd-list {
+      list-style: none; margin-top: 16px;
+      display: flex; flex-direction: column; gap: 8px;
+      border-top: 1px solid var(--border); padding-top: 16px;
+    }
+    .rnd-list li {
+      font-size: 0.78rem; color: var(--text3);
+      padding-left: 14px; position: relative; line-height: 1.6;
+    }
+    .rnd-list li::before {
+      content: '—'; position: absolute; left: 0;
+      color: var(--accent2); font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .rnd-closing {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent2);
+      border-radius: 0 12px 12px 0;
+      padding: 28px 32px;
+    }
+    .rnd-closing-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem; color: var(--accent2);
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .rnd-closing-text { font-size: 0.92rem; color: var(--text2); line-height: 1.9; }
+    .cta {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      text-align: center; padding: 100px 24px;
+      position: relative; overflow: hidden;
+    }
+    .cta::before {
+      content: '';
+      position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse, rgba(37,99,235,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta .section-title { margin: 0 auto 16px; }
+    .cta .section-desc { margin: 0 auto 36px; text-align: center; }
+    .cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* FOOTER */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 48px 24px;
+    }
+    .footer-inner {
+      max-width: 1080px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1.5rem;
+    }
+    .footer-logo { font-family: 'IBM Plex Mono', monospace; font-size: 0.88rem; color: var(--white); }
+    .footer-logo span { color: var(--accent2); }
+    .footer-tagline { font-size: 0.78rem; color: var(--text3); margin-top: 4px; }
+    .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-links a { font-size: 0.8rem; color: var(--text3); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { font-size: 0.75rem; color: var(--text3); }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .stat-item:nth-child(2) { border-right: none; }
+      .stat-item:nth-child(3) { border-right: 1px solid var(--border); }
+      .why-content { grid-template-columns: 1fr; }
+      .why-star { min-width: 100px; }
+      .project-detail-grid { grid-template-columns: 1fr; }
+      .pd-metrics { grid-template-columns: 1fr; }
+      .section-header h2 { font-size: 30px; }
+      .tech-grid { grid-template-columns: 1fr; }
+      .structure-grid, .future-grid, .rnd-grid { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+      .nav-inner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 14px 16px;
+        gap: 12px;
+      }
+      .nav-links {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: nowrap;
+        gap: 12px;
+      }
+      .nav-links a { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav aria-label="주요 메뉴">
+  <div class="nav-inner">
+    <a href="/studio" class="nav-logo">GOMNA<span>.</span>STUDIO</a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/studio" class="active">Studio</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <span class="hero-badge">GOMNA STUDIO</span>
+    <h1>
+      가치를 구조로 구현하는<br>
+      <em>1인 개발 스튜디오</em>
+    </h1>
+    <p class="hero-main">
+      곰나 스튜디오는 단순한 제작을 넘어, 실제로 작동하는 웹앱 서비스와
+      지속 가능한 운영 구조를 함께 설계합니다.
+    </p>
+    <p class="hero-sub">
+      반복 가능하고 확장 가능한 시스템을 구축하는 것을 핵심으로 하며,
+      웹 서비스, AI 확장, 브랜드 신뢰까지 하나의 구조로 연결합니다.
+    </p>
+    <div class="hero-buttons">
+      <a href="/" class="btn-primary">은혜의말씀 바로가기</a>
+      <a href="#why-gomna" class="btn-secondary">Why GOMNA?</a>
+    </div>
+  </div>
+</section>
+
+<!-- WHY GOMNA -->
+<section class="why-gomna" id="why-gomna">
+  <div class="why-inner">
+    <div class="section-tag">// Why GOMNA?</div>
+    <h2 class="section-title">다섯 개의 별이 만든<br>하나의 별자리</h2>
+
+    <div class="why-stars">
+      <div class="why-star">
+        <span class="star-letter">G</span>
+        <span class="star-name">Google</span>
+      </div>
+      <div class="why-star">
+        <span class="star-letter">O</span>
+        <span class="star-name">OpenAI</span>
+      </div>
+      <div class="why-star">
+        <span class="star-letter">M</span>
+        <span class="star-name">Microsoft</span>
+      </div>
+      <div class="why-star">
+        <span class="star-letter">N</span>
+        <span class="star-name">NVIDIA</span>
+      </div>
+      <div class="why-star">
+        <span class="star-letter">A</span>
+        <span class="star-name">Anthropic</span>
+      </div>
+    </div>
+
+    <div class="why-content">
+      <div class="why-block">
+        <p>
+          Google, OpenAI, Microsoft, NVIDIA, Anthropic—<br>
+          AI 시대를 이끄는 다섯 개의 별.<br>
+          그 별들이 만들어낸 하나의 별자리.
+        </p>
+        <p>
+          이 거대한 기업들은 시대의 방향을 이끄는 중심축이자,
+          새로운 가능성을 밝히는 기준점과도 같은 존재들입니다.
+        </p>
+      </div>
+      <div class="why-block">
+        <p>
+          곰나 스튜디오는 이 별자리 아래에서,
+          <strong>1인 개발자 역시 하나의 별이 될 수 있다는 가능성</strong>에서 시작되었습니다.
+        </p>
+        <p>
+          거대한 기술의 흐름 속에서도, 개인의 아이디어와 실행력이 서비스가 되고,
+          그 서비스가 곧 사업이 되어 확장될 수 있다는 믿음.
+        </p>
+        <p>
+          그리고 언젠가, 그 별자리 곁에 나란히 설 수 있다는 비전을 담고 있습니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECT -->
+<section class="project">
+  <div class="project-inner">
+    <div class="project-text">
+      <div class="section-tag">// 대표 프로젝트</div>
+      <h2 class="section-title">은혜의말씀</h2>
+      <p class="section-desc">
+        성경 66권 절별 주석 데이터를 기반으로, 말씀과 해설을 더 쉽고 직관적으로 접근할 수 있게 설계한 웹앱 프로젝트입니다.
+      </p>
+      <p class="section-desc">
+        목회자, 신학생, 성도들이 성경 본문과 주석을 더 빠르게 연결하고, 설교와 묵상 준비를 더 효율적으로 할 수 있도록 돕기 위해 시작되었습니다.
+      </p>
+      <p class="section-desc" style="margin-top:12px;">
+        방대한 데이터를 단순히 쌓는 것이 아니라, 실제 사용 흐름 안에서 즉시 접근할 수 있도록 웹 구조와 콘텐츠 구조를 함께 설계하고 있습니다.
+      </p>
+
+      <div class="project-feature">
+        <p class="section-desc" style="margin-top:24px;">
+          '은혜의말씀'은 성경 각 절마다 9개 분석 표를 기반으로 한 구조화된 주석을 제공하는 것이 특징입니다.
+          사용자는 특정 구절을 선택하는 즉시, 원어 분석부터 교차 참조에 이르는 9개 영역의 정보를 하나의 화면에서 통합적으로 확인할 수 있습니다.
+        </p>
+        <div class="feature-tags">
+          <span class="ftag">원어 분석</span>
+          <span class="ftag">역사적 배경</span>
+          <span class="ftag">신학적 의미</span>
+          <span class="ftag">예표론</span>
+          <span class="ftag">매튜 헨리 주석</span>
+          <span class="ftag">설교 자료</span>
+          <span class="ftag">찬송가 추천</span>
+          <span class="ftag">상담 적용</span>
+          <span class="ftag">교차 참조</span>
+        </div>
+        <p class="section-desc" style="margin-top:16px;">
+          성경 전체 31,102절에 동일한 분석 구조를 적용해 생성된 주석 데이터는 약 28만 건에 달하며,
+          이는 종이 주석서 수십 권 분량의 정보를 하나의 플랫폼에 통합한 수준입니다.
+          성경 전권을 절 단위의 9개 분석 구조로 제공하는 시도는 세계적으로도 드문 형태라 할 수 있습니다.
+        </p>
+        <p class="section-desc" style="margin-top:12px;">
+          또한 본 서비스는 정적 구조 기반으로 구현되어, 별도의 서버 연산 없이도 데이터가 즉시 표시됩니다.
+          이를 통해 네트워크 부담을 최소화하면서, 사용자는 원하는 구절의 주석 정보를 지연 없이 확인할 수 있습니다.
+        </p>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-card-header">
+        <div class="project-name">PROJECT_01</div>
+        <h3>은혜의말씀 (Words of Grace)</h3>
+      </div>
+      <div class="project-stats">
+        <div class="p-stat">
+          <div class="p-stat-num">66권</div>
+          <div class="p-stat-label">성경 전체를 향한<br>구조 설계</div>
+        </div>
+        <div class="p-stat">
+          <div class="p-stat-num">절별</div>
+          <div class="p-stat-label">본문 중심<br>해설 데이터 구축</div>
+        </div>
+        <div class="p-stat">
+          <div class="p-stat-num">웹앱</div>
+          <div class="p-stat-label">브라우저에서<br>바로 접근 가능</div>
+        </div>
+        <div class="p-stat">
+          <div class="p-stat-num">AI</div>
+          <div class="p-stat-label">설교·묵상 기능으로<br>이어질 기반</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS + METRICS -->
+
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">66권</div>
+      <div class="stat-label">성경 전체를 향한<br>구조 설계</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">절별</div>
+      <div class="stat-label">본문 중심<br>해설 데이터 구축</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">웹앱</div>
+      <div class="stat-label">브라우저에서<br>바로 접근 가능</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">AI</div>
+      <div class="stat-label">설교·묵상 기능으로<br>이어질 기반</div>
+    </div>
+  </div>
+</div>
+
+
+<section class="metrics">
+  <div class="metrics-inner">
+    <div class="section-tag">// 1인 기업 플랫폼 확장 전략</div>
+    <h2 class="section-title">DB 없는 구조를 기반으로 실현된<br>확장형 플랫폼 설계</h2>
+    <p class="section-desc">
+      초기에는 백엔드(Backend) 의존도를 최소화하고, 정교하게 설계된 JSON 데이터 구조를 중심으로 플랫폼을 구성합니다.
+      이후 서비스의 성장에 따라 백엔드와 기능을 유연하게 확장할 수 있도록 설계되어,
+      운영 효율성을 유지하면서도 1인 개발 환경에서 수만 개의 콘텐츠를 안정적으로 서비스할 수 있는 구조를 구현합니다.
+    </p>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-num">30,000+</div>
+        <div class="metric-label">성경 절별 데이터<br>66권 전체 아카이브</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">₩0</div>
+        <div class="metric-label">유지비<br>정적 호스팅 최적화</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">66권</div>
+        <div class="metric-label">성경 전체<br>방대한 아카이브 구축</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">딸깍</div>
+        <div class="metric-label">루틴<br>AI 기반 자동화 공정</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STRUCTURE + TECH -->
+
+<section class="structure">
+  <div class="structure-inner">
+    <div class="section-tag">// 설계 철학</div>
+    <h2 class="section-title">가치를 구조로 구현합니다</h2>
+    <p class="section-desc">
+      곰나 스튜디오는 1인 기업이 가질 수 있는 최적의 효율을 고민하고,
+      그 고민을 '구조'로 구현하여 지속 가능한 가치를 창출하는 데 집중합니다.
+    </p>
+    <div class="structure-grid">
+      <div class="str-card">
+        <span class="str-icon">01 — 웹 서비스 제작</span>
+        <div class="str-title">실전에서 작동하는 결과물</div>
+        <p class="str-desc">정적 웹앱부터 플랫폼형 구조까지, 실전에서 작동하는 결과물을 중심으로 구현합니다.</p>
+      </div>
+      <div class="str-card">
+        <span class="str-icon">02 — AI 기반 확장</span>
+        <div class="str-title">확장 가능한 구조 설계</div>
+        <p class="str-desc">단순한 정보 제공을 넘어 AI 기능과 결합할 수 있는 구조를 설계합니다. 검색, 생성, 추천, 구독 모델까지 자연스럽게 확장되는 흐름을 고려합니다.</p>
+      </div>
+      <div class="str-card">
+        <span class="str-icon">03 — 브랜드와 신뢰 설계</span>
+        <div class="str-title">신뢰를 축적하는 브랜드</div>
+        <p class="str-desc">서비스 그 자체에 그치지 않고, 누가 만들었으며 어떤 철학으로 운영되는지까지 구조 안에 담아냅니다. 이를 통해 사용자와의 신뢰를 축적하는 브랜드를 함께 설계합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+  <div class="tech-inner">
+    <div class="section-tag">// 기술 스택</div>
+    <h2 class="section-title">사용하는 기술들</h2>
+    <p class="section-desc">최소한의 도구로, 최대한의 결과를 냅니다.</p>
+    <div class="tech-grid">
+      <div class="tech-cell">
+        <span class="tech-label">Frontend</span>
+        <span class="tech-val"><strong>HTML, CSS, JavaScript</strong></span>
+      </div>
+      <div class="tech-cell">
+        <span class="tech-label">Data Structure</span>
+        <span class="tech-val"><strong>JSON</strong> 기반 콘텐츠 구성</span>
+      </div>
+      <div class="tech-cell">
+        <span class="tech-label">Deployment</span>
+        <span class="tech-val"><strong>GitHub Pages</strong> 기반 배포</span>
+      </div>
+      <div class="tech-cell">
+        <span class="tech-label">Workflow</span>
+        <span class="tech-val"><strong>AI 보조 개발</strong> + 반복 개선 중심 제작</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISION + NEXT CHAPTER -->
+<section class="future">
+  <div class="future-inner">
+    <div class="section-tag">// VISION</div>
+    <h2 class="section-title">세상의 모든 언어로<br>말씀을 연결합니다</h2>
+    <p class="section-desc">
+      곰나 스튜디오의 기술은 현재를 넘어 더 넓은 세계와 깊은 개인의 삶으로 향합니다.
+    </p>
+    <div class="future-grid">
+      <div class="future-card">
+        <span class="future-emoji">🌍</span>
+        <div class="future-title">글로벌 멀티 랭귀지 (Multi Language)</div>
+        <p class="future-desc">효율적인 JSON 구조를 바탕으로 언어 팩(Pack)만 추가하여 전 세계 누구나 자기 나라 말로 성경을 연구하는 환경을 만듭니다.</p>
+      </div>
+      <div class="future-card">
+        <span class="future-emoji">🤖</span>
+        <div class="future-title">개인 맞춤형 AI 비서</div>
+        <p class="future-desc">사용자의 읽기 패턴을 분석하여 개개인의 상황에 가장 적합한 말씀과 주석을 제안하는 지능형 묵상을 설계합니다.</p>
+      </div>
+      <div class="future-card">
+        <span class="future-emoji">🔓</span>
+        <div class="future-title">오픈 API 생태계</div>
+        <p class="future-desc">우리가 구축한 정교한 데이터를 개방하여 더 많은 개발자와 교회가 기술의 혜택을 누릴 수 있도록 돕습니다.</p>
+      </div>
+    </div>
+
+    <!-- NEXT CHAPTER DIVIDER -->
+    <div class="next-chapter-divider">
+      <div class="nc-line"></div>
+      <div class="nc-label">
+        <span class="nc-tag">// Next Chapter</span>
+        <h3 class="nc-title">곰나의 다음 챕터</h3>
+        <p class="nc-desc">이건 시작에 불과합니다.</p>
+      </div>
+      <div class="nc-line"></div>
+    </div>
+
+    <div class="rnd-grid">
+      <div class="rnd-card">
+        <div class="rnd-badge">GEO</div>
+        <div class="rnd-card-title">지오-콘텐츠 매핑<br><span>(Geo-Content Mapping)</span></div>
+        <p class="rnd-card-desc">
+          성경 속 사건이 일어난 실제 위도와 경도 좌표를 현대 지도 위에 정밀하게 매칭하여,
+          사용자가 특정 지점을 선택하는 순간 해당 사건의 현장으로 이동하는 듯한 경험을 제공합니다.
+        </p>
+        <ul class="rnd-list">
+          <li>실제 지리 좌표 기반 사건 연결</li>
+          <li>지도 인터랙션을 통한 공간 탐색</li>
+          <li>본문과 장소의 직관적 연결</li>
+        </ul>
+      </div>
+      <div class="rnd-card">
+        <div class="rnd-badge">3D</div>
+        <div class="rnd-card-title">디지털 트윈 성경 지리<br><span>(Digital Twin Bible Geography)</span></div>
+        <p class="rnd-card-desc">
+          이스라엘과 중동 지역의 실제 지형 데이터를 기반으로 성경의 공간을 3차원으로 재구성하여,
+          사용자가 성경 속 인물의 시점에서 지형을 조망하거나 가상으로 이동하며 체험할 수 있도록 설계합니다.
+        </p>
+        <ul class="rnd-list">
+          <li>실지형 기반 3D 공간 재구성</li>
+          <li>인물 시점 중심의 탐험 경험</li>
+          <li>지형과 사건의 입체적 결합</li>
+        </ul>
+      </div>
+      <div class="rnd-card">
+        <div class="rnd-badge">TIME</div>
+        <div class="rnd-card-title">타임라인 기반 공간 렌더링<br><span>(Timeline-based Spatial Rendering)</span></div>
+        <p class="rnd-card-desc">
+          성경의 시간 흐름과 실제 장소를 결합하여, 사건이 일어난 순서와 이동 경로를 시각적으로
+          재현합니다. 사건이 언제 어디서 어떻게 이어졌는지를 흐름 안에서 이해하게 됩니다.
+        </p>
+        <ul class="rnd-list">
+          <li>시간 흐름과 장소의 동시 표현</li>
+          <li>이동 경로 중심의 사건 재구성</li>
+          <li>현장감 있는 시각적 스토리 구조</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rnd-closing">
+      <div class="rnd-closing-tag">곰나 스튜디오의 비전</div>
+      <p class="rnd-closing-text">
+        이 기술들은 단순한 기능 목록이 아니라, 성경을 "읽는 대상"에서 "탐험하는 경험"으로 확장하기 위한
+        핵심 연구 방향입니다. 궁극적으로는 전 세계 사용자가 연결되는 성경 기반 몰입형 플랫폼의 기초를 구축하고자 합니다.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="section-tag">// 지금 바로</div>
+  <h2 class="section-title">말씀을 펼쳐보세요</h2>
+  <p class="section-desc">
+    말씀의 의미는 더 깊어지고,<br>
+    묵상은 당신 안에서 이어집니다.<br>
+    은혜의말씀은 지금 무료로 이용 가능합니다.
+  </p>
+  <div class="cta-buttons">
+    <a href="/" class="btn-primary">은혜의말씀 바로가기</a>
+    <a href="/contact" class="btn-secondary">Contact / 문의</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">GOMNA<span>.</span>STUDIO</div>
+      <div class="footer-tagline">가치를 구조로 구현하는 1인 개발 스튜디오</div>
+    </div>
+    <div class="footer-links">
+      <a href="/">은혜의말씀</a>
+      <a href="/about">소개</a>
+      <a href="/contact">Contact / 문의</a>
+      <a href="/privacy">개인정보처리방침</a>
+      <a href="/terms">이용약관</a>
+    </div>
+    <div class="footer-copy">© 2025 곰나스튜디오 · 대표 이덕규</div>
+  </div>
+</footer>
+
+</body>
+</html>

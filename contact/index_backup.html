@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact | GOMNA Studio</title>
+  <meta name="description" content="곰나 스튜디오에 문의하세요. 이메일, 카카오 채널, 유튜브로 연결됩니다." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --bg:       #0a0a0f;
+      --bg2:      #111118;
+      --bg3:      #16161f;
+      --border:   rgba(255,255,255,0.07);
+      --border2:  rgba(255,255,255,0.13);
+      --accent:   #2563eb;
+      --accent2:  #3b82f6;
+      --accent-g: #60a5fa;
+      --text:     #f0f0f5;
+      --text2:    #9090a8;
+      --text3:    #5a5a72;
+      --white:    #ffffff;
+    }
+
+    body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: #3A1D0D;
+      border-bottom: 1px solid rgba(184, 117, 31, 0.45);
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+      min-height: 60px;
+      display: flex; align-items: center;
+    }
+    .nav-inner {
+      max-width: 1080px; margin: 0 auto; padding: 12px 24px;
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px 16px;
+    }
+    .nav-logo {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9rem; font-weight: 500;
+      color: #f5e6d3; letter-spacing: 0.05em;
+    }
+    .nav-logo span { color: #B8751F; }
+    .nav-links {
+      display: flex; gap: 1.25rem 1.5rem; flex-wrap: wrap;
+      list-style: none; align-items: center; justify-content: flex-end;
+      margin: 0; padding: 0;
+    }
+    .nav-links a {
+      font-size: 0.82rem;
+      color: rgba(245, 230, 211, 0.82);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #e8c88a; }
+    .nav-links a.active {
+      color: #B8751F;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-color: rgba(184, 117, 31, 0.85);
+    }
+
+    /* HERO */
+    .hero {
+      padding: 160px 24px 80px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 350px;
+      background: radial-gradient(ellipse at center top, rgba(37,99,235,0.13) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .section-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 16px; display: block;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700; line-height: 1.25;
+      letter-spacing: -0.03em; color: var(--white);
+      margin-bottom: 20px;
+    }
+    .hero p { font-size: 0.95rem; color: var(--text2); line-height: 1.9; }
+
+    /* CONTACT CARDS */
+    .contact-section { padding: 40px 24px 100px; }
+    .contact-inner { max-width: 720px; margin: 0 auto; }
+
+    .contact-grid {
+      display: flex; flex-direction: column; gap: 16px;
+      margin-bottom: 48px;
+    }
+    .contact-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 32px;
+      display: flex; align-items: center; gap: 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .contact-card:hover { border-color: rgba(37,99,235,0.4); transform: translateX(4px); }
+    .contact-card.disabled {
+      opacity: 0.5; cursor: default;
+    }
+    .contact-card.disabled:hover { border-color: var(--border); transform: none; }
+
+    .contact-icon {
+      width: 48px; height: 48px; flex-shrink: 0;
+      background: rgba(37,99,235,0.12);
+      border: 1px solid rgba(37,99,235,0.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+    .contact-info { flex: 1; }
+    .contact-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem; color: var(--accent2);
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 6px; display: block;
+    }
+    .contact-value {
+      font-size: 1rem; font-weight: 500;
+      color: var(--white); margin-bottom: 4px;
+    }
+    .contact-desc { font-size: 0.8rem; color: var(--text3); line-height: 1.5; }
+
+    .contact-arrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9rem; color: var(--text3);
+      transition: color 0.2s, transform 0.2s;
+    }
+    .contact-card:hover .contact-arrow { color: var(--accent-g); transform: translateX(4px); }
+
+    .coming-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; color: var(--text3);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px; padding: 3px 8px;
+      letter-spacing: 0.08em;
+    }
+
+    /* DIVIDER */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+
+    /* INFO BOX */
+    .info-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent2);
+      border-radius: 0 10px 10px 0;
+      padding: 24px 28px;
+      margin-bottom: 16px;
+    }
+    .info-box-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem; color: var(--accent2);
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 10px; display: block;
+    }
+    .info-box p { font-size: 0.88rem; color: var(--text2); line-height: 1.85; }
+
+    /* FOOTER */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+    }
+    .footer-inner {
+      max-width: 1080px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-logo { font-family: 'IBM Plex Mono', monospace; font-size: 0.88rem; color: var(--white); }
+    .footer-logo span { color: var(--accent2); }
+    .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-links a { font-size: 0.8rem; color: var(--text3); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { font-size: 0.75rem; color: var(--text3); }
+
+    @media (max-width: 768px) {
+      .contact-card { padding: 20px; gap: 16px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+      .nav-inner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 14px 16px;
+        gap: 12px;
+      }
+      .nav-links {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: nowrap;
+        gap: 12px;
+      }
+      .nav-links a { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav aria-label="주요 메뉴">
+  <div class="nav-inner">
+    <a href="/studio" class="nav-logo">GOMNA<span>.</span>STUDIO</a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/studio">Studio</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/contact" class="active">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="section-tag">// Contact / 문의</span>
+  <h1>곰나 스튜디오에<br>연락하세요</h1>
+  <p>
+    이메일 또는 카카오 채널로 언제든지 문의하실 수 있습니다.
+  </p>
+</section>
+
+<!-- CONTACT CARDS -->
+<section class="contact-section">
+  <div class="contact-inner">
+
+    <div class="contact-grid">
+
+      <!-- 이메일 -->
+      <a href="mailto:gomnastudio@gmail.com" class="contact-card">
+        <div class="contact-icon">✉</div>
+        <div class="contact-info">
+          <span class="contact-label">Email</span>
+          <div class="contact-value">gomnastudio@gmail.com</div>
+          <div class="contact-desc">이메일로 직접 문의하실 수 있습니다.</div>
+        </div>
+        <span class="contact-arrow">→</span>
+      </a>
+
+      <!-- 카카오 채널 -->
+      <a href="http://pf.kakao.com/_PaKxdX" target="_blank" class="contact-card">
+        <div class="contact-icon">💬</div>
+        <div class="contact-info">
+          <span class="contact-label">Kakao Channel / 카카오 채널</span>
+          <div class="contact-value">은혜의말씀 (Words of Grace)</div>
+          <div class="contact-desc">카카오 채널로 말씀 관련 문의를 남겨주세요.</div>
+        </div>
+        <span class="contact-arrow">→</span>
+      </a>
+
+      <!-- 유튜브 -->
+      <a href="https://www.youtube.com/@GomnaStudio" target="_blank" class="contact-card">
+        <div class="contact-icon">▶</div>
+        <div class="contact-info">
+          <span class="contact-label">YouTube / 유튜브</span>
+          <div class="contact-value">youtube.com/@GomnaStudio</div>
+          <div class="contact-desc">곰나 스튜디오의 영상 콘텐츠를 확인하세요.</div>
+        </div>
+        <span class="contact-arrow">→</span>
+      </a>
+
+    </div>
+
+    <hr class="section-divider" />
+
+    <div class="info-box">
+      <span class="info-box-label">// 안내</span>
+      <p>
+        카카오 채널은 현재 비즈니스 심사 진행 중입니다.<br>
+        심사 완료 후 채팅 기능이 활성화됩니다.<br>
+        그 전까지는 이메일로 문의해 주시면 빠르게 답변드리겠습니다.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">GOMNA<span>.</span>STUDIO</div>
+    </div>
+    <div class="footer-links">
+      <a href="/studio">스튜디오</a>
+      <a href="/about">소개</a>
+      <a href="/">은혜의말씀</a>
+      <a href="/privacy">개인정보처리방침</a>
+      <a href="/terms">이용약관</a>
+    </div>
+    <div class="footer-copy">© 2025 곰나스튜디오 · 대표 이덕규</div>
+  </div>
+</footer>
+
+</body>
+</html>
