@@ -223,8 +223,9 @@
     .project-inner {
       max-width: 1080px; margin: 0 auto;
       display: grid; grid-template-columns: 1fr 1fr;
-      gap: 64px; align-items: start;
+      gap: 64px; align-items: start; } @media(max-width:768px){ .project-inner{ grid-template-columns:1fr; gap:32px; }
     }
+    @media(max-width:768px){ .project-inner{ grid-template-columns:1fr; gap:32px; } }
     .project-text .section-desc { max-width: 100%; margin-bottom: 14px; }
     .project-card {
       background: var(--bg3);
@@ -575,7 +576,7 @@
       }
       .nav-links a { font-size: 12px; }
     }
-  </style>
+  @media(max-width:768px){.project-inner{grid-template-columns:1fr;gap:32px;}}</style>
 </head>
 <body>
 
