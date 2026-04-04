@@ -1,9 +1,8 @@
-const CACHE_NAME = 'gomna-v6';
+const CACHE_NAME = 'gomna-v4';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/favicon.png',
-  '/og_image.png'
+  '/gomna-bible/index.html',
+  '/gomna-bible/favicon.png',
+  '/gomna-bible/og_image.png'
 ];
 
 self.addEventListener('install', event => {
@@ -19,12 +18,16 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.filter(name => name !== CACHE_NAME).map(name => caches.delete(name))
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
-  );
+  if (event.request.url.endsWith('.js')) {
+    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+  } else {
+    event.respondWith(
+      caches.match(event.request).then(response => response || fetch(event.request))
+    );
+  }
 });
