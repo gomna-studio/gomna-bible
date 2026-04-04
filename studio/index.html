@@ -565,17 +565,15 @@
         align-items: center;
         text-align: center;
         padding: 14px 16px;
+        gap: 12px;
       }
       .nav-links {
         width: 100%;
         justify-content: center;
-        gap: 0.65rem 1rem;
+        flex-wrap: nowrap;
+        gap: 12px;
       }
-      .nav-links a { font-size: 0.78rem; }
-    }
-    @media (max-width: 400px) {
-      .nav-links { gap: 0.5rem 0.75rem; }
-      .nav-links a { font-size: 0.72rem; }
+      .nav-links a { font-size: 12px; }
     }
   </style>
 </head>
@@ -588,7 +586,7 @@
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
       <li><a href="/studio" class="active">Studio</a></li>
-      <li><a href="/about">About GOMNA</a></li>
+      <li><a href="/about">About</a></li>
       <li><a href="/contact">Contact</a></li>
     </ul>
   </div>
