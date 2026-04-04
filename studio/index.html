@@ -43,24 +43,41 @@
     /* NAV */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(10,10,15,0.85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      height: 60px; display: flex; align-items: center;
+      background: #3A1D0D;
+      border-bottom: 1px solid rgba(184, 117, 31, 0.45);
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+      min-height: 60px;
+      display: flex; align-items: center;
     }
     .nav-inner {
-      max-width: 1080px; margin: 0 auto; padding: 0 24px;
+      max-width: 1080px; margin: 0 auto; padding: 12px 24px;
       width: 100%; display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px 16px;
     }
     .nav-logo {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.9rem; font-weight: 500;
-      color: var(--white); letter-spacing: 0.05em;
+      color: #f5e6d3; letter-spacing: 0.05em;
     }
-    .nav-logo span { color: var(--accent2); }
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
-    .nav-links a { font-size: 0.82rem; color: var(--text2); transition: color 0.2s; }
-    .nav-links a:hover, .nav-links a.active { color: var(--white); }
+    .nav-logo span { color: #B8751F; }
+    .nav-links {
+      display: flex; gap: 1.25rem 1.5rem; flex-wrap: wrap;
+      list-style: none; align-items: center; justify-content: flex-end;
+      margin: 0; padding: 0;
+    }
+    .nav-links a {
+      font-size: 0.82rem;
+      color: rgba(245, 230, 211, 0.82);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #e8c88a; }
+    .nav-links a.active {
+      color: #B8751F;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-color: rgba(184, 117, 31, 0.85);
+    }
 
     /* HERO */
     .hero {
@@ -544,21 +561,36 @@
       .structure-grid, .future-grid, .rnd-grid { grid-template-columns: 1fr; }
       .metrics-grid { grid-template-columns: repeat(2, 1fr); }
       .footer-inner { flex-direction: column; align-items: flex-start; }
-      .nav-links { gap: 1.2rem; }
+      .nav-inner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 14px 16px;
+      }
+      .nav-links {
+        width: 100%;
+        justify-content: center;
+        gap: 0.65rem 1rem;
+      }
+      .nav-links a { font-size: 0.78rem; }
+    }
+    @media (max-width: 400px) {
+      .nav-links { gap: 0.5rem 0.75rem; }
+      .nav-links a { font-size: 0.72rem; }
     }
   </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav>
+<nav aria-label="주요 메뉴">
   <div class="nav-inner">
     <a href="/studio" class="nav-logo">GOMNA<span>.</span>STUDIO</a>
     <ul class="nav-links">
-      <li><a href="/studio" class="active">스튜디오</a></li>
-      <li><a href="/about">소개</a></li>
-      <li><a href="/">은혜의말씀</a></li>
-      <li><a href="/contact">Contact / 문의</a></li>
+      <li><a href="/">Home</a></li>
+      <li><a href="/studio" class="active">Studio</a></li>
+      <li><a href="/about">About GOMNA</a></li>
+      <li><a href="/contact">Contact</a></li>
     </ul>
   </div>
 </nav>
