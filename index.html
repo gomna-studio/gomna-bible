@@ -259112,7 +259112,8 @@ function doSearch() {
     if(!data || !data.books) return;
     data.books.forEach(function(book) {
       book.chapters.forEach(function(chapter) {
-        chapter.verses.forEach(function(verse) {
+        if(!chapter.verses) return;
+          chapter.verses.forEach(function(verse) {
           if(verse.text.indexOf(query) >= 0) {
             results.push({ref: book.name + ' ' + chapter.chapter + ':' + verse.verse, text: verse.text, book: book.name, chapter: chapter.chapter, verse: verse.verse, testament: idx === 0 ? 'old' : 'new'});
           }
