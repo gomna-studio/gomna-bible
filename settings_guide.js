@@ -7,6 +7,7 @@ var title=box.querySelector(".popup-title");
 var fontCtrl=box.querySelector(".font-control");
 var closeBtn=box.querySelector(".popup-close");
 if(!title||!fontCtrl||!closeBtn)return;
+window.changeFont=function(d){var el=document.getElementById("fontDisplay");if(!el)return;var cur=parseInt(el.textContent)||17;var nv=cur+d;if(nv<11)nv=11;if(nv>30)nv=30;el.textContent=nv+"px";document.querySelectorAll(".bible-text,.verse-text,.content-area").forEach(function(e){e.style.fontSize=nv+"px";});};
 var menu=document.createElement("div");
 menu.id="settingsMenu";
 var btn1=document.createElement("div");
