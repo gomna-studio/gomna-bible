@@ -243,13 +243,20 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-seri
 </div>
 <div class="popup-overlay" id="settingsPopup">
   <div class="popup-box">
-    <div class="popup-title">⚙️ 글자 크기 설정</div>
-    <div class="font-control">
-      <button class="font-btn" onclick="changeFont(-1)">−</button>
-      <span class="font-size-display" id="fontDisplay">17px</span>
-      <button class="font-btn" onclick="changeFont(1)">+</button>
+    <div class="popup-title" id="settingsTitle">⚙️ 설정</div>
+    <div id="settingsMenu">
+      <div onclick="showFontSettings()" style="padding:14px 16px;border-bottom:1px solid rgba(0,0,0,0.08);display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:15px;color:#4A2511"><span>📏 글자 크기 설정</span><span style="color:#ccc;font-size:18px">›</span></div>
+      <div onclick="location.href='/guide#how-to-use'" style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:15px;color:#4A2511"><span>📖 사용자 가이드</span><span style="color:#ccc;font-size:18px">›</span></div>
     </div>
-    <div style="margin-top:12px;text-align:center"><a href="/guide#how-to-use" style="display:inline-block;padding:8px 16px;color:#B8751F;font-size:13px;text-decoration:none;border:1px solid #B8751F;border-radius:8px;background:transparent">📖 사용자 가이드</a></div>
+    <div id="fontSettingsView" style="display:none">
+      <div onclick="showSettingsMenu()" style="padding:10px 16px;cursor:pointer;font-size:13px;color:#B8751F">‹ 뒤로</div>
+      <div style="text-align:center;padding:8px 0;font-size:14px;font-weight:600;color:#4A2511">📏 글자 크기 설정</div>
+      <div class="font-control">
+        <button class="font-btn" onclick="changeFont(-1)">-</button>
+        <span class="font-size-display" id="fontDisplay">17px</span>
+        <button class="font-btn" onclick="changeFont(1)">+</button>
+      </div>
+    </div>
     <button class="popup-close" onclick="closeSettings()">닫기</button>
   </div>
 </div>
@@ -259149,6 +259156,17 @@ function goToVerse(book, chapter, verse, testament) {
   }
 }
 
+
+function showFontSettings(){
+  document.getElementById('settingsMenu').style.display='none';
+  document.getElementById('fontSettingsView').style.display='block';
+  document.getElementById('settingsTitle').textContent='📏 글자 크기';
+}
+function showSettingsMenu(){
+  document.getElementById('settingsMenu').style.display='block';
+  document.getElementById('fontSettingsView').style.display='none';
+  document.getElementById('settingsTitle').textContent='⚙️ 설정';
+}
 function openSettings() { document.getElementById('settingsPopup').classList.add('show'); }
 function closeSettings() { document.getElementById('settingsPopup').classList.remove('show'); }
 function changeFont(delta) {
