@@ -680,7 +680,7 @@ body {
 
 <!-- CH8 -->
 <div class="divider"></div>
-<section class="chapter reveal">
+<section class="chapter reveal" id="how-to-use">
   <span class="chapter-num">Chapter 08</span>
   <h2>이렇게 사용하세요</h2>
   <p class="chapter-en">How to Use</p>
@@ -821,5 +821,5 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 reveals.forEach(el => observer.observe(el));
 </script>
-</body>
+<script>if(location.hash==="#how-to-use"){var secs=document.querySelectorAll("section.chapter");for(var i=0;i<secs.length;i++){var num=secs[i].querySelector(".chapter-num");if(num){var t=num.textContent.trim();if(t.indexOf("08")<0&&t.indexOf("09")<0&&t.indexOf("10")<0&&t.indexOf("11")<0){secs[i].style.display="none";var prev=secs[i].previousElementSibling;if(prev&&prev.classList.contains("divider"))prev.style.display="none";}}}document.getElementById("how-to-use").scrollIntoView();}</script></body>
 </html>
