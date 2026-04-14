@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gomna-v18';
+const CACHE_NAME = 'gomna-v19';
 const urlsToCache = [
   '/',
   '/index.html',
