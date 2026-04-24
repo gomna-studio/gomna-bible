@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><link rel="icon" type="image/x-icon" href="favicon.ico"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>개인정보처리방침 - 은혜의말씀 (Words of Grace)</title>
 <meta name="description" content="은혜의말씀 웹 앱 개인정보처리방침 - Privacy Policy">
 <meta name="robots" content="index, follow">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="apple-touch-icon" href="favicon.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
@@ -24,6 +28,18 @@
     --radius:   14px;
   }
 
+  [data-theme="light"] {
+    --bg:       #faf7f0;
+    --bg2:      #f0ebe0;
+    --gold:     #a87a25;
+    --gold-lt:  #8c6520;
+    --gold-dim: rgba(168,122,37,0.10);
+    --text:     #2a2418;
+    --muted:    #6b5d4a;
+    --border:   rgba(168,122,37,0.25);
+    --card:     rgba(0,0,0,0.025);
+  }
+
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior: smooth; }
 
@@ -35,6 +51,7 @@
     font-size: 14px;
     line-height: 1.95;
     min-height: 100vh;
+    transition: background 0.3s ease, color 0.3s ease;
   }
 
   .site-header {
@@ -45,11 +62,18 @@
     padding: 0 24px;
     height: 60px;
     display: flex; align-items: center; gap: 12px;
+    transition: background 0.3s ease;
+  }
+  [data-theme="light"] .site-header {
+    background: rgba(250,247,240,0.94);
   }
   .site-header img { width:36px; height:36px; border-radius:9px; object-fit:cover; }
   .brand { font-family:'Noto Serif KR',serif; font-size:15px; font-weight:600; color:var(--gold-lt); }
   .brand span { display:block; font-family:'Noto Sans KR',sans-serif; font-size:10px; font-weight:300; color:var(--muted); letter-spacing:1px; }
-  .back-btn { margin-left:auto; color:var(--gold); font-size:12px; text-decoration:none; border:1px solid var(--border); padding:6px 16px; border-radius:20px; transition:all .2s; }
+  .header-actions { margin-left:auto; display:flex; align-items:center; gap:8px; }
+  .theme-btn { background:transparent; border:1px solid var(--border); color:var(--gold); width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+  .theme-btn:hover { background:var(--gold); color:var(--bg); }
+  .back-btn { color:var(--gold); font-size:12px; text-decoration:none; border:1px solid var(--border); padding:6px 16px; border-radius:20px; transition:all .2s; }
   .back-btn:hover { background:var(--gold); color:var(--bg); }
 
   .hero { background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%); border-bottom:1px solid var(--border); padding:52px 24px 44px; text-align:center; }
@@ -112,14 +136,17 @@
 <header class="site-header">
   <img src="favicon.png" alt="은혜의말씀" width="36" height="36">
   <div class="brand">은혜의말씀<span>WORDS OF GRACE</span></div>
-  <a class="back-btn" href="/">← 홈으로</a>
+  <div class="header-actions">
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="테마 전환" aria-label="다크/라이트 모드 전환">🌓</button>
+    <a class="back-btn" href="/">← 홈으로</a>
+  </div>
 </header>
 
 <div class="hero">
   <div class="hero-tag">PRIVACY POLICY</div>
   <h1>개인정보처리방침</h1>
   <div class="hero-meta">
-    <strong>시행일자: 2026년 3월 22일</strong><br>
+    <strong>시행일자: 2026년 4월 28일</strong><br>
     본 방침은 관련 법령 또는 서비스 정책 변경 시 업데이트될 수 있습니다.
   </div>
 </div>
@@ -129,7 +156,7 @@
   <nav class="toc">
     <div class="toc-title">— 목차 (TABLE OF CONTENTS)</div>
     <ol>
-      <li><a href="#s1">서비스 및 운영자 정보</a></li>
+      <li><a href="#s1">서비스 및 회사 정보</a></li>
       <li><a href="#s2">수집하는 정보 및 수집 방법</a></li>
       <li><a href="#s3">데이터 로컬 저장 방식</a></li>
       <li><a href="#s4">제3자 서비스 이용 (광고 및 분석)</a></li>
@@ -143,15 +170,15 @@
   </nav>
 
   <div class="sec" id="s1">
-    <div class="sec-head"><div class="sec-num">1</div><div class="sec-title">서비스 및 운영자 정보</div></div>
+    <div class="sec-head"><div class="sec-num">1</div><div class="sec-title">서비스 및 회사 정보</div></div>
     <div class="sec-body">
-      <p>은혜의말씀(Words of Grace)은 성경 말씀을 깊이 연구하고자 하는 목회자, 신학생, 성도들을 위한 무료 성경 주석 웹 앱 서비스입니다.</p>
+      <p>은혜의말씀 (Words of Grace)은 성경 말씀을 깊이 연구하고자 하는 목회자, 신학생, 성도들을 위한 무료 성경 주석 웹 앱 서비스입니다.</p>
       <table class="tbl">
-        <tr><td class="lb">운영 주체</td><td>곰나 스튜디오 (Gomna Studio)</td></tr>
+        <tr><td class="lb">운영 주체</td><td>Gomna Studio, Inc. (델라웨어 C-Corp, 미국)</td></tr>
         <tr><td class="lb">서비스명</td><td>은혜의말씀 (Words of Grace)</td></tr>
         <tr><td class="lb">서비스 주소</td><td>https://gomnastudio.com/</td></tr>
         <tr><td class="lb">문의 이메일</td><td>gomnastudio@gmail.com</td></tr>
-        <tr><td class="lb">방침 시행일</td><td>2026년 3월 22일</td></tr>
+        <tr><td class="lb">방침 시행일</td><td>2026년 4월 28일</td></tr>
       </table>
     </div>
   </div>
@@ -201,7 +228,7 @@
         <li>개인정보처리방침: <a class="ext" href="https://policies.google.com/privacy" target="_blank">policies.google.com/privacy</a></li>
       </ul>
 
-      <p class="sub-label">■ Microsoft Clarity (마이크로소프트 클래러티)</p>
+      <p class="sub-label">■ Microsoft Clarity (마이크로소프트 클래리티)</p>
       <ul class="ul">
         <li>사용자의 클릭 패턴 및 스크롤 행동을 익명으로 분석하여 서비스를 개선합니다.</li>
         <li>개인정보처리방침: <a class="ext" href="https://privacy.microsoft.com" target="_blank">privacy.microsoft.com</a></li>
@@ -289,9 +316,9 @@
   </div>
 
   <div class="contact">
-    <h3><img src="favicon.png" alt="" style="width:32px;height:32px;border-radius:8px;vertical-align:middle;margin-right:8px;">개인정보 보호 책임자 및 문의</h3>
+    <h3><img src="favicon.png" alt="" style="width:32px;height:32px;border-radius:8px;vertical-align:middle;margin-right:8px;">개인정보 관련 문의</h3>
     <p style="font-size:13px; color:var(--muted); margin-bottom:10px;">서비스 이용 중 개인정보와 관련된 문의사항은 아래로 연락해 주시기 바랍니다.</p>
-    <p style="font-size:13px; color:var(--text); margin-bottom:10px;"><strong>개인정보 보호 책임자: 곰나 스튜디오 (Gomna Studio)</strong></p>
+    <p style="font-size:13px; color:var(--text); margin-bottom:10px;"><strong>담당: Gomna Studio, Inc. (델라웨어 C-Corp, USA)</strong></p>
     <a href="mailto:gomnastudio@gmail.com">gomnastudio@gmail.com</a>
     <p>영업일 기준 3일 이내 답변</p>
   </div>
@@ -299,9 +326,35 @@
 </div>
 
 <footer>
-  © 2026 은혜의말씀 (Words of Grace) · Gomna Studio · All rights reserved.<br>
-  본 방침은 2026년 3월 22일부터 시행됩니다.
+  © 2026 은혜의말씀 (Words of Grace) · Gomna Studio, Inc. · All rights reserved.<br>
+  본 방침은 2026년 4월 28일부터 시행됩니다.
 </footer>
+
+<script>
+  // 페이지 로드 시 저장된 테마 적용
+  (function() {
+    const saved = localStorage.getItem('gomna_theme') || 'dark';
+    if (saved === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      const btn = document.getElementById('themeBtn');
+      if (btn) btn.textContent = '☀️';
+    }
+  })();
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const btn = document.getElementById('themeBtn');
+    if (current === 'light') {
+      document.documentElement.removeAttribute('data-theme');
+      btn.textContent = '🌓';
+      localStorage.setItem('gomna_theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      btn.textContent = '☀️';
+      localStorage.setItem('gomna_theme', 'light');
+    }
+  }
+</script>
 
 </body>
 </html>
