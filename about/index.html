@@ -26,22 +26,64 @@
       --text2:    #9090a8;
       --text3:    #5a5a72;
       --white:    #ffffff;
+      --nav-bg:   #1E293B;
+    }
+
+    [data-theme="light"] {
+      --bg:       #faf7f0;
+      --bg2:      #f0ebe0;
+      --bg3:      #e8e1d4;
+      --border:   rgba(168,122,37,0.18);
+      --border2:  rgba(168,122,37,0.32);
+      --accent:   #B8751F;
+      --accent2:  #8c6520;
+      --accent-g: #a87a25;
+      --text:     #2a2418;
+      --text2:    #5a5042;
+      --text3:    #8a7d68;
+      --white:    #1a1610;
+      --nav-bg:   #f0ebe0;
     }
 
     *, body { font-family: 'Noto Sans KR', sans-serif; }
-    body { background: var(--bg); color: var(--text); line-height: 1.7; overflow-x: hidden; }
+    body { background: var(--bg); color: var(--text); line-height: 1.7; overflow-x: hidden; transition: background 0.3s ease, color 0.3s ease; }
+
+    .theme-btn {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--accent2);
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      padding: 0;
+      line-height: 1;
+    }
+    .theme-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
     a { text-decoration: none; color: inherit; }
     .container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
 
     /* NAV */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: #1E293B;
+      background: var(--nav-bg);
       border-bottom: 1px solid rgba(184, 117, 31, 0.45);
       box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
       min-height: 60px;
       display: flex; align-items: center;
+      transition: background 0.3s ease;
     }
+    [data-theme="light"] .nav-logo { color: #2a2418; }
+    [data-theme="light"] .nav-links a { color: rgba(42,36,24,0.82); }
+    [data-theme="light"] .nav-links a:hover { color: #8c6520; }
     .nav-inner {
       max-width: 1080px; margin: 0 auto; padding: 12px 24px;
       width: 100%; display: flex; align-items: center; justify-content: space-between;
@@ -321,6 +363,7 @@
       <li><a href="/about" class="active">About</a></li>
       <li><a href="/contact">Contact</a></li>
           <li><a href="/guide">User Guide</a></li>
+      <li><button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="테마 전환" aria-label="다크/라이트 모드 전환">🌓</button></li>
     </ul>
   </div>
 </nav>
@@ -460,9 +503,33 @@
       <a href="/privacy">개인정보처리방침</a>
       <a href="/terms">이용약관</a>
     </div>
-    <div class="footer-copy">© 2025 Gomna Studio, Inc.</div>
+    <div class="footer-copy">© 2026 Gomna Studio, Inc.</div>
   </div>
 </footer>
+
+<script>
+  (function() {
+    const saved = localStorage.getItem('gomna_theme') || 'dark';
+    if (saved === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      const btn = document.getElementById('themeBtn');
+      if (btn) btn.textContent = '☀️';
+    }
+  })();
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const btn = document.getElementById('themeBtn');
+    if (current === 'light') {
+      document.documentElement.removeAttribute('data-theme');
+      btn.textContent = '🌓';
+      localStorage.setItem('gomna_theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      btn.textContent = '☀️';
+      localStorage.setItem('gomna_theme', 'light');
+    }
+  }
+</script>
 
 </body>
 </html>
