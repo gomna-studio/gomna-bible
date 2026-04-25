@@ -938,6 +938,16 @@ reveals.forEach(el => observer.observe(el));
 <!-- QR 코드 라이브러리 (CDN) -->
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
+<!-- 카카오 SDK -->
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"
+        integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka"
+        crossorigin="anonymous"></script>
+<script>
+  if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+    Kakao.init('fe56d790f77b9210314935348fe4986a');
+  }
+</script>
+
 <script>
   // 페이지 로드 시 QR 코드 자동 생성
   window.addEventListener('DOMContentLoaded', function() {
@@ -954,18 +964,34 @@ reveals.forEach(el => observer.observe(el));
     }
   });
 
-  // 카카오톡 공유 (시스템 공유 시트로 카카오톡 선택 가능)
+  // 카카오톡 공유 (Kakao SDK - 미리보기 카드 포함)
   function shareToKakao() {
-    if (navigator.share) {
-      navigator.share({
-        title: '은혜의말씀 (Words of Grace)',
-        text: '성경 66권 절별 주석 - 매튜헨리 주석 + 9개 표 분석',
-        url: 'https://gomnastudio.com'
-      }).catch(err => console.log('공유 취소'));
-    } else {
-      copyLink();
-      alert('카카오톡에 직접 링크를 붙여넣어주세요.\n링크가 복사되었습니다!');
+    if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
+      alert('카카오 SDK 로딩 중입니다. 잠시 후 다시 시도해주세요.');
+      return;
     }
+
+    Kakao.Share.sendDefault({
+      objectType: 'feed',
+      content: {
+        title: '은혜의말씀 (Words of Grace)',
+        description: '성경 66권 절별 주석 - 매튜헨리 + 9개 표 분석을 무료로 만나보세요',
+        imageUrl: 'https://gomnastudio.com/apple-touch-icon.png',
+        link: {
+          mobileWebUrl: 'https://gomnastudio.com',
+          webUrl: 'https://gomnastudio.com',
+        },
+      },
+      buttons: [
+        {
+          title: '바로 펼쳐보기',
+          link: {
+            mobileWebUrl: 'https://gomnastudio.com',
+            webUrl: 'https://gomnastudio.com',
+          },
+        },
+      ],
+    });
   }
 
   // 링크 복사
