@@ -761,8 +761,11 @@ body {
   <p class="chapter-en">Add to Home Screen</p>
   <p>매일 말씀을 여는 가장 쉬운 방법입니다.</p>
 
+  <!-- 플랫폼 카드 컨테이너 (데스크탑 2열 / 모바일 1열) -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:24px; margin:32px 0; align-items:start;">
+
   <!-- iPhone 카드 -->
-  <div style="background:var(--bg2); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin:32px 0;">
+  <div style="background:var(--bg2); border:1px solid var(--border); border-radius:16px; overflow:hidden;">
 
     <!-- 헤더 -->
     <div style="background:linear-gradient(135deg, rgba(184,117,31,0.14), rgba(184,117,31,0.02)); padding:20px 24px; border-bottom:1px solid var(--border);">
@@ -837,7 +840,7 @@ body {
   </div>
 
   <!-- Android 카드 -->
-  <div style="background:var(--bg2); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin:32px 0;">
+  <div style="background:var(--bg2); border:1px solid var(--border); border-radius:16px; overflow:hidden;">
 
     <!-- 헤더 -->
     <div style="background:linear-gradient(135deg, rgba(184,117,31,0.14), rgba(184,117,31,0.02)); padding:20px 24px; border-bottom:1px solid var(--border);">
@@ -902,6 +905,9 @@ body {
     </div>
 
   </div>
+
+  </div>
+  <!-- /플랫폼 카드 컨테이너 -->
 </section>
 
 <!-- CH10 -->
