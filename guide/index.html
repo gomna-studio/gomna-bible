@@ -757,38 +757,150 @@ body {
 <div class="divider"></div>
 <section class="chapter reveal">
   <span class="chapter-num">Chapter 09</span>
-  <h2>홈 화면에 앱처럼 설치하기</h2>
+  <h2>스마트폰 홈 화면에 앱처럼 설치하기</h2>
   <p class="chapter-en">Add to Home Screen</p>
   <p>매일 말씀을 여는 가장 쉬운 방법입니다.</p>
 
-  <div class="install-tabs">
-    <div class="install-tab active" onclick="switchInstall('iphone')">🍎 아이폰</div>
-    <div class="install-tab" onclick="switchInstall('android')">🤖 안드로이드</div>
+  <!-- iPhone 카드 -->
+  <div style="background:var(--bg2); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin:32px 0;">
+
+    <!-- 헤더 -->
+    <div style="background:linear-gradient(135deg, rgba(184,117,31,0.14), rgba(184,117,31,0.02)); padding:20px 24px; border-bottom:1px solid var(--border);">
+      <div style="font-size:1.05rem; font-weight:700; color:var(--ivory);">🍎 아이폰 (Safari)</div>
+    </div>
+
+    <!-- 단계 -->
+    <div style="padding:8px 24px 24px;">
+
+      <div style="display:flex; gap:16px; align-items:flex-start; margin:24px 0;">
+        <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">1</div>
+        <div style="flex:1; padding-top:4px; font-size:0.92rem; color:var(--text); line-height:1.7;">
+          <strong style="color:var(--ivory2);">Safari</strong>에서 <strong style="color:var(--ivory2);">gomnastudio.com</strong>을 엽니다
+        </div>
+      </div>
+
+      <div style="display:flex; gap:16px; align-items:flex-start; margin:24px 0;">
+        <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">2</div>
+        <div style="flex:1; padding-top:4px;">
+          <p style="font-size:0.92rem; color:var(--text); line-height:1.7; margin-bottom:14px;">화면 하단 가운데의 <strong style="color:var(--ivory2);">점 3개 버튼</strong>을 터치합니다</p>
+          <div style="text-align:center; padding:14px; background:rgba(255,255,255,0.03); border-radius:10px;">
+            <svg width="100" height="170" viewBox="0 0 120 200" xmlns="http://www.w3.org/2000/svg" aria-label="iPhone 점 3개 버튼 위치">
+              <rect x="10" y="10" width="100" height="180" rx="14" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
+              <rect x="16" y="20" width="88" height="160" rx="6" fill="rgba(255,255,255,0.04)"/>
+              <circle cx="50" cy="170" r="3.5" fill="#B8751F"/>
+              <circle cx="60" cy="170" r="3.5" fill="#B8751F"/>
+              <circle cx="70" cy="170" r="3.5" fill="#B8751F"/>
+            </svg>
+            <p style="font-size:0.78rem; color:var(--text2); margin-top:8px;">점 3개 버튼 (하단 가운데)</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:16px; align-items:flex-start; margin:24px 0;">
+        <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">3</div>
+        <div style="flex:1; padding-top:4px; font-size:0.92rem; color:var(--text); line-height:1.7;">
+          <strong style="color:var(--ivory2);">공유 버튼</strong> (⬆️ 네모 + 화살표 아이콘)을 터치합니다
+        </div>
+      </div>
+
+      <div style="display:flex; gap:16px; align-items:flex-start; margin:24px 0;">
+        <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">4</div>
+        <div style="flex:1; padding-top:4px; font-size:0.92rem; color:var(--text); line-height:1.7;">
+          아래로 스크롤하여 <strong style="color:var(--ivory2);">"홈 화면에 추가"</strong>를 선택합니다
+        </div>
+      </div>
+
+      <div style="display:flex; gap:16px; align-items:flex-start; margin:24px 0;">
+        <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">5</div>
+        <div style="flex:1; padding-top:4px; font-size:0.92rem; color:var(--text); line-height:1.7;">
+          <strong style="color:var(--ivory2);">"은혜의말씀"</strong> 이름을 확인하고 <strong style="color:var(--ivory2);">"추가"</strong>를 터치합니다
+        </div>
+      </div>
+
+      <div style="display:flex; gap:16px; align-items:flex-start; margin:24px 0;">
+        <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">6</div>
+        <div style="flex:1; padding-top:4px; font-size:0.92rem; color:var(--text); line-height:1.7;">
+          홈 화면에 <strong style="color:var(--ivory2);">은혜의말씀 아이콘</strong>이 생성됩니다 ✨
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 경고 박스 -->
+    <div style="background:rgba(255,255,255,0.04); border-top:1px solid var(--border); padding:16px 24px;">
+      <p style="font-size:0.85rem; color:var(--text); line-height:1.75;">
+        <strong style="color:var(--gold);">⚠️ 중요:</strong> 반드시 <strong style="color:var(--ivory2);">Safari</strong>에서 진행하세요.<br>
+        <span style="color:var(--text2);">Chrome에서는 작동하지 않습니다</span>
+      </p>
+    </div>
+
   </div>
 
-  <div class="install-content active" id="iphone">
-    <div class="install-steps">
-      <div class="install-step"><strong>사파리(Safari)</strong>에서 gomnastudio.com을 엽니다</div>
-      <div class="install-step">"은혜의말씀" 화면의 하단 <strong>점 3개 버튼</strong> 터치 👉 <strong>공유 버튼</strong>(네모에서 화살표 올라가는 아이콘)을 터치 👉</div>
-      <div class="install-step">아래로 스크롤하여 <strong>"홈 화면에 추가"</strong>를 터치 👉</div>
-      <div class="install-step"><strong>"은혜의말씀"</strong> 이름을 확인하고 <strong>"추가"</strong>를 터치 👉</div>
-      <div class="install-step">스마트폰 홈 화면에 <strong>은혜의말씀 아이콘</strong>이 생깁니다</div>
-    </div>
-    <div class="respect-box" style="margin-top:16px">
-      <p style="font-style:normal;font-size:0.82rem;color:var(--text)"><strong style="color:var(--gold)">⚠️ 중요:</strong> 아이폰에서 홈 화면에 아이콘 추가 시 반드시 사파리(Safari)에서 해야 합니다. 크롬에서는 홈 화면 추가가 안 됩니다.</p>
-    </div>
-  </div>
+  <!-- Android 카드 -->
+  <div style="background:var(--bg2); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin:32px 0;">
 
-  <div class="install-content" id="android">
-    <div class="install-steps">
-      <div class="install-step"><strong>크롬(Chrome)</strong>에서 gomnastudio.com을 엽니다</div>
-      <div class="install-step">"은혜의말씀" 화면의 우측 상단 <strong>점 3개 버튼</strong> 터치 👉</div>
-      <div class="install-step"><strong>"홈 화면에 추가"</strong> 👉 또는 <strong>"앱 설치"</strong> 👉 이름 확인</div>
-      <div class="install-step">홈 화면에 <strong>은혜의말씀 아이콘</strong>이 생깁니다</div>
+    <!-- 헤더 -->
+    <div style="background:linear-gradient(135deg, rgba(184,117,31,0.14), rgba(184,117,31,0.02)); padding:20px 24px; border-bottom:1px solid var(--border);">
+      <div style="font-size:1.05rem; font-weight:700; color:var(--ivory);">🤖 안드로이드 (Chrome)</div>
     </div>
-    <div class="respect-box" style="margin-top:16px">
-      <p style="font-style:normal;font-size:0.82rem;color:var(--text)"><strong style="color:var(--gold)">⚠️ 중요:</strong> 안드로이드폰에서 홈 화면에 아이콘 추가 시 반드시 크롬(Chrome)에서 해야 합니다. 삼성 인터넷에서도 가능합니다.</p>
+
+    <!-- 단계 -->
+    <div style="padding:8px 24px 24px;">
+
+      <div style="display:flex; gap:16px; align-items:flex-start; margin:24px 0;">
+        <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">1</div>
+        <div style="flex:1; padding-top:4px; font-size:0.92rem; color:var(--text); line-height:1.7;">
+          <strong style="color:var(--ivory2);">Chrome</strong>에서 <strong style="color:var(--ivory2);">gomnastudio.com</strong>을 엽니다
+        </div>
+      </div>
+
+      <div style="display:flex; gap:16px; align-items:flex-start; margin:24px 0;">
+        <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">2</div>
+        <div style="flex:1; padding-top:4px;">
+          <p style="font-size:0.92rem; color:var(--text); line-height:1.7; margin-bottom:14px;">화면 우측 상단의 <strong style="color:var(--ivory2);">점 3개 버튼</strong>을 터치합니다</p>
+          <div style="text-align:center; padding:14px; background:rgba(255,255,255,0.03); border-radius:10px;">
+            <svg width="100" height="170" viewBox="0 0 120 200" xmlns="http://www.w3.org/2000/svg" aria-label="Android 점 3개 버튼 위치">
+              <rect x="10" y="10" width="100" height="180" rx="14" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
+              <rect x="16" y="20" width="88" height="160" rx="6" fill="rgba(255,255,255,0.04)"/>
+              <circle cx="95" cy="32" r="3.5" fill="#B8751F"/>
+              <circle cx="95" cy="42" r="3.5" fill="#B8751F"/>
+              <circle cx="95" cy="52" r="3.5" fill="#B8751F"/>
+            </svg>
+            <p style="font-size:0.78rem; color:var(--text2); margin-top:8px;">점 3개 버튼 (우측 상단)</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:16px; align-items:flex-start; margin:24px 0;">
+        <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">3</div>
+        <div style="flex:1; padding-top:4px; font-size:0.92rem; color:var(--text); line-height:1.7;">
+          <strong style="color:var(--ivory2);">"홈 화면에 추가"</strong> 또는 <strong style="color:var(--ivory2);">"앱 설치"</strong>를 선택합니다
+        </div>
+      </div>
+
+      <div style="display:flex; gap:16px; align-items:flex-start; margin:24px 0;">
+        <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">4</div>
+        <div style="flex:1; padding-top:4px; font-size:0.92rem; color:var(--text); line-height:1.7;">
+          이름을 확인하고 <strong style="color:var(--ivory2);">"추가"</strong>를 터치합니다
+        </div>
+      </div>
+
+      <div style="display:flex; gap:16px; align-items:flex-start; margin:24px 0;">
+        <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">5</div>
+        <div style="flex:1; padding-top:4px; font-size:0.92rem; color:var(--text); line-height:1.7;">
+          홈 화면에 <strong style="color:var(--ivory2);">은혜의말씀 아이콘</strong>이 생성됩니다 ✨
+        </div>
+      </div>
+
     </div>
+
+    <!-- 안내 박스 -->
+    <div style="background:rgba(255,255,255,0.04); border-top:1px solid var(--border); padding:16px 24px;">
+      <p style="font-size:0.85rem; color:var(--text); line-height:1.75;">
+        <strong style="color:var(--gold);">✓</strong> <strong style="color:var(--ivory2);">Chrome</strong> 또는 <strong style="color:var(--ivory2);">Samsung Internet</strong>에서 가능합니다
+      </p>
+    </div>
+
   </div>
 </section>
 
