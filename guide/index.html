@@ -6,7 +6,7 @@
 <title>은혜의말씀이 탄생하기까지 — Words of Grace</title>
 <meta name="description" content="성경 66권, 31,102절 전체를 절별로 풀어낸 성경 해설 플랫폼. 은혜의말씀의 신앙과 연구의 기록.">
 <link rel="icon" href="/favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700;900&family=Noto+Sans+KR:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700;900&family=Noto+Sans+KR:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #08090c;
@@ -64,29 +64,65 @@ body {
 }
 
 /* ── NAV ── */
-.nav {
+nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   background: var(--nav-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 24px;
-  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(184, 117, 31, 0.45);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+  min-height: 60px;
+  display: flex; align-items: center;
   transition: background 0.3s ease;
 }
+[data-theme="light"] .nav-logo { color: #2a2418; }
+[data-theme="light"] .nav-links a { color: rgba(42,36,24,0.82); }
+[data-theme="light"] .nav-links a:hover { color: #8c6520; }
+.nav-inner {
+  max-width: 1080px; margin: 0 auto; padding: 12px 24px;
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px 16px;
+}
 .nav-logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.85rem; font-weight: 600;
-  color: var(--gold); letter-spacing: 0.08em;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem; font-weight: 500;
+  color: #f5e6d3; letter-spacing: 0.05em;
   text-decoration: none;
 }
-.nav-logo span { color: var(--gold-light); }
-.nav-back {
-  font-size: 0.78rem; color: var(--text2);
-  text-decoration: none; transition: color 0.3s;
+.nav-logo span { color: #B8751F; }
+.nav-links {
+  display: flex; gap: 1.25rem 1.5rem; flex-wrap: wrap;
+  list-style: none; align-items: center; justify-content: flex-end;
+  margin: 0; padding: 0;
 }
-.nav-back:hover { color: var(--gold); }
-.nav-actions { display: flex; align-items: center; gap: 10px; }
+.nav-links a {
+  font-size: 0.82rem;
+  color: rgba(245, 230, 211, 0.82);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: #e8c88a; }
+.nav-links a.active {
+  color: #B8751F;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: rgba(184, 117, 31, 0.85);
+}
+@media (max-width: 768px) {
+  .nav-inner {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .nav-links {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+  .nav-links a { font-size: 12px; }
+}
 .theme-btn {
   background: transparent;
   border: 1px solid var(--border);
@@ -556,11 +592,16 @@ body {
 <body>
 
 <!-- NAV -->
-<nav class="nav">
-  <a href="/" class="nav-logo">은혜의말씀 바로가기</a>
-  <div class="nav-actions">
-    <a href="/studio/" class="nav-back">← 회사 소개로</a>
-    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="테마 전환" aria-label="다크/라이트 모드 전환">🌓</button>
+<nav aria-label="주요 메뉴">
+  <div class="nav-inner">
+    <a href="/studio" class="nav-logo">GOMNA<span>.</span>STUDIO</a>
+    <ul class="nav-links">
+      <li><a href="/studio">Studio</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/contact">Contact</a></li>
+      <li><a href="/guide" class="active">User Guide</a></li>
+      <li><button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="테마 전환" aria-label="다크/라이트 모드 전환">🌓</button></li>
+    </ul>
   </div>
 </nav>
 
