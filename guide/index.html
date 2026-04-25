@@ -800,6 +800,35 @@ body {
   <p class="chapter-en">Share the Grace</p>
   <p><strong>은혜는 나눌수록 커집니다.</strong></p>
   <p>카카오톡으로 <strong>gomnastudio.com</strong> 링크를 보내면, 상대방은 파란 글씨를 터치하는 것만으로 "은혜의말씀" 웹앱을 바로 펼칠 수 있습니다.</p>
+
+  <div class="share-section" style="margin-top:30px; padding:24px; background:rgba(255,255,255,0.03); border-radius:12px; text-align:center;">
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+
+      <!-- 버튼 1: 카카오톡 -->
+      <button onclick="shareToKakao()" style="display:flex; align-items:center; gap:8px; padding:12px 20px; background:#FEE500; color:#191919; border:none; border-radius:50px; cursor:pointer; font-size:14px; font-weight:600; transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <span style="font-size:18px;">💬</span>
+        <span>카카오톡으로 공유</span>
+      </button>
+
+      <!-- 버튼 2: 링크 복사 -->
+      <button onclick="copyLink()" id="copyBtn" style="display:flex; align-items:center; gap:8px; padding:12px 20px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:50px; cursor:pointer; font-size:14px; font-weight:600; transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <span style="font-size:18px;">📋</span>
+        <span id="copyBtnText">링크 복사</span>
+      </button>
+
+      <!-- 버튼 3: 시스템 공유 -->
+      <button onclick="shareNative()" style="display:flex; align-items:center; gap:8px; padding:12px 20px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:50px; cursor:pointer; font-size:14px; font-weight:600; transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <span style="font-size:18px;">📤</span>
+        <span>다른 앱으로 공유</span>
+      </button>
+
+    </div>
+
+    <p style="margin-top:16px; font-size:12px; color:rgba(255,255,255,0.5);">
+      공유 주소: <span style="color:#c9973a;">gomnastudio.com</span>
+    </p>
+  </div>
+
   <p>직접 만나는 자리에서는 QR코드를 보여주세요.</p>
   <div style="text-align:center;margin:24px 0">
     <img src="data:image/png;base64,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" alt="은혜의말씀 QR코드" style="width:180px;height:180px;border-radius:12px;background:#fff;padding:8px">
@@ -892,6 +921,56 @@ reveals.forEach(el => observer.observe(el));
       document.documentElement.setAttribute('data-theme', 'light');
       btn.textContent = '☀️';
       localStorage.setItem('gomna_theme', 'light');
+    }
+  }
+</script>
+<script>
+  // 카카오톡 공유 (시스템 공유 시트에서 카카오톡 선택 가능)
+  function shareToKakao() {
+    if (navigator.share) {
+      navigator.share({
+        title: '은혜의말씀 (Words of Grace)',
+        text: '성경 66권 절별 주석 - 매튜헨리 주석 + 9개 표 분석',
+        url: 'https://gomnastudio.com'
+      }).catch(err => console.log('공유 취소'));
+    } else {
+      copyLink();
+      alert('카카오톡에 직접 링크를 붙여넣어주세요.\n링크가 복사되었습니다!');
+    }
+  }
+
+  // 링크 복사
+  function copyLink() {
+    const url = 'https://gomnastudio.com';
+    navigator.clipboard.writeText(url).then(() => {
+      const btnText = document.getElementById('copyBtnText');
+      const originalText = btnText.textContent;
+      btnText.textContent = '✓ 복사됨!';
+      setTimeout(() => {
+        btnText.textContent = originalText;
+      }, 2000);
+    }).catch(err => {
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert('링크가 복사되었습니다!');
+    });
+  }
+
+  // 시스템 네이티브 공유
+  function shareNative() {
+    if (navigator.share) {
+      navigator.share({
+        title: '은혜의말씀 (Words of Grace)',
+        text: '성경 66권 절별 주석 - 매튜헨리 주석 + 9개 표 분석을 무료로 만나보세요',
+        url: 'https://gomnastudio.com'
+      }).catch(err => console.log('공유 취소'));
+    } else {
+      copyLink();
+      alert('이 브라우저는 직접 공유를 지원하지 않습니다.\n링크가 복사되었으니 원하는 곳에 붙여넣어 주세요.');
     }
   }
 </script>
