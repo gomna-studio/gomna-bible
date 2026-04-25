@@ -111,6 +111,68 @@
       text-underline-offset: 4px;
       text-decoration-color: rgba(184, 117, 31, 0.85);
     }
+    @keyframes gs-app-shine {
+      0% { background-position: -150% center; }
+      60% { background-position: 250% center; }
+      100% { background-position: 250% center; }
+    }
+    @keyframes gs-app-bounce {
+      0%, 50%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(5px, -5px); }
+    }
+    @keyframes gs-app-underline {
+      0% { width: 0; left: 0; opacity: 0; }
+      20% { opacity: 1; }
+      60% { width: 100%; left: 0; opacity: 1; }
+      80% { width: 0; left: 100%; opacity: 1; }
+      100% { width: 0; left: 100%; opacity: 0; }
+    }
+    .gs-app-link {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      position: relative;
+      margin: 0 12px;
+    }
+    .gs-app-link:hover { transform: scale(1.05); }
+    .gs-app-text {
+      position: relative;
+      background: linear-gradient(90deg, #B8751F 0%, #B8751F 40%, #FFD700 50%, #B8751F 60%, #B8751F 100%);
+      background-size: 250% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gs-app-shine 6s linear infinite;
+    }
+    .gs-app-text::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      height: 1.5px;
+      background: #D4A056;
+      animation: gs-app-underline 3s ease-in-out infinite;
+    }
+    .gs-app-arrow {
+      display: inline-block;
+      color: #B8751F;
+      animation: gs-app-bounce 1s ease-in-out infinite;
+    }
+    .gs-app-link:hover .gs-app-text {
+      background: linear-gradient(90deg, #D4A056 0%, #D4A056 40%, #FFEB3B 50%, #D4A056 60%, #D4A056 100%);
+      background-size: 250% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: brightness(1.2);
+    }
+    .gs-app-link:hover .gs-app-arrow { color: #D4A056; filter: brightness(1.3); }
 
     /* HERO */
     .hero {
@@ -253,10 +315,12 @@
       .nav-links {
         width: 100%;
         justify-content: center;
-        flex-wrap: nowrap;
-        gap: 12px;
+        flex-wrap: wrap;
+        gap: 10px 12px;
       }
       .nav-links a { font-size: 12px; }
+      .gs-app-link { font-size: 12px; margin: 0; gap: 4px; }
+      .gs-app-text::after { bottom: -2px; }
     }
   </style>
 </head>
@@ -271,6 +335,10 @@
       <li><a href="/about">About</a></li>
       <li><a href="/contact" class="active">Contact</a></li>
       <li><a href="/guide">User Guide</a></li>
+      <li><a href="/" class="gs-app-link">
+        <span class="gs-app-text">은혜의말씀 바로가기</span>
+        <span class="gs-app-arrow">↗</span>
+      </a></li>
       <li><button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="테마 전환" aria-label="다크/라이트 모드 전환">🌓</button></li>
     </ul>
   </div>
