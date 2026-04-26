@@ -86,8 +86,9 @@
       box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
       min-height: 60px;
       display: flex; align-items: center;
-      transition: background 0.3s ease;
+      transition: background 0.3s ease, transform 0.3s ease;
     }
+    nav.nav-hidden { transform: translateY(-100%); }
     [data-theme="light"] .nav-logo { color: #2a2418; }
     [data-theme="light"] .nav-links a { color: rgba(42,36,24,0.82); }
     [data-theme="light"] .nav-links a:hover { color: #8c6520; }
@@ -1111,6 +1112,39 @@
       localStorage.setItem('gomna_theme', 'light');
     }
   }
+  // Hide-on-scroll header (mobile only)
+  (function() {
+    const nav = document.querySelector('nav');
+    if (!nav) return;
+    let lastY = 0, ticking = false;
+    const threshold = 50;
+    function update() {
+      const y = window.scrollY || window.pageYOffset;
+      const diff = y - lastY;
+      if (window.innerWidth > 768) {
+        nav.classList.remove('nav-hidden');
+        lastY = y; ticking = false;
+        return;
+      }
+      if (y < 10) {
+        nav.classList.remove('nav-hidden');
+      } else if (Math.abs(diff) > threshold) {
+        if (diff > 0) nav.classList.add('nav-hidden');
+        else nav.classList.remove('nav-hidden');
+        lastY = y;
+      }
+      ticking = false;
+    }
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 768) nav.classList.remove('nav-hidden');
+    });
+  })();
 </script>
 
 </body>
