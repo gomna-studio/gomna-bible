@@ -259251,19 +259251,20 @@ function changeFont(delta) {
   </div>
 </div><script src="settings_guide.js"></script>
 <!-- ==========================
-쿠키 배너 (최종 완성형 - 골드 디자인 v2)
-- 분석 쿠키: 자동 체크 (서비스 개선용)
-- 광고 쿠키: 수동 선택 (맞춤형 광고용)
-- 디자인: 사이트 골드/크림 색상 통일
-- 링크: /privacy.html (단일 파일 구조)
-위치: index.html의 </body> 바로 위에 삽입
-주의: 기존 GA4 코드가 <head>나 <body>에 따로 있으면 반드시 삭제
+쿠키 배너 (최종 v3 - 간결 + 모두 동의)
+- "서비스 개선" 자동 체크
+- "맞춤 광고" 미체크
+- "모두 동의" 버튼 클릭 1번으로 모두 ON
+- "거부" 버튼 = 모두 OFF
+- 모바일/데스크톱 자동 반응형
 ========================== -->
 <div id="cookie-banner" style="
 position:fixed;
 bottom:20px;
 right:20px;
+left:auto;
 width:340px;
+max-width:calc(100vw - 40px);
 background:rgba(255,251,240,0.96);
 backdrop-filter:blur(12px);
 -webkit-backdrop-filter:blur(12px);
@@ -259282,34 +259283,34 @@ box-sizing:border-box;
     🍪 쿠키 사용 안내
   </div>
   <div style="margin-bottom:14px;color:#6B5028;">
-    더 나은 서비스 제공을 위해 쿠키를 사용합니다.
+    더 나은 서비스를 위해 쿠키를 사용합니다.
     <a href="/privacy.html" style="color:#8B6914;text-decoration:underline;">자세히</a>
   </div>
   <div style="margin-bottom:14px;">
     <label style="display:flex;align-items:center;margin-bottom:8px;cursor:pointer;color:#5D4516;">
       <input type="checkbox" id="analyticsToggle" checked style="margin-right:8px;accent-color:#B8860B;">
-      <span><strong>분석 쿠키</strong> <span style="color:#8B6914;">(서비스 개선용)</span></span>
+      <span>서비스 개선</span>
     </label>
     <label style="display:flex;align-items:center;cursor:pointer;color:#5D4516;">
       <input type="checkbox" id="marketingToggle" style="margin-right:8px;accent-color:#B8860B;">
-      <span><strong>광고 쿠키</strong> <span style="color:#8B6914;">(맞춤형 광고용)</span></span>
+      <span>맞춤 광고</span>
     </label>
   </div>
   <div style="display:flex;gap:8px;">
-    <button type="button" onclick="acceptSelectedCookies()" style="
-    flex:1;
-    padding:10px;
+    <button type="button" onclick="acceptAllCookies()" style="
+    flex:1.5;
+    padding:11px;
     background:#B8860B;
     color:#fff;
     border:none;
     border-radius:8px;
     cursor:pointer;
     font-weight:600;
-    font-size:13px;
-    ">동의</button>
+    font-size:14px;
+    ">모두 동의</button>
     <button type="button" onclick="rejectCookies()" style="
     flex:1;
-    padding:10px;
+    padding:11px;
     background:#fff;
     color:#5D4516;
     border:0.5px solid rgba(184,134,11,0.4);
@@ -259319,6 +259320,19 @@ box-sizing:border-box;
     ">거부</button>
   </div>
 </div>
+
+<style>
+@media (max-width: 480px) {
+  #cookie-banner {
+    bottom: 0 !important;
+    right: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+}
+</style>
 
 <script>
 const savedConsent = localStorage.getItem('cookieChoice');
@@ -259333,10 +259347,10 @@ if (!savedConsent) {
   }
 }
 
-function acceptSelectedCookies() {
+function acceptAllCookies() {
   const consent = {
-    analytics: document.getElementById('analyticsToggle').checked,
-    marketing: document.getElementById('marketingToggle').checked,
+    analytics: true,
+    marketing: true,
     timestamp: new Date().toISOString()
   };
   saveAndApply(consent);
