@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-1K6DBVER5W"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag("js", new Date());
-  gtag("config", "G-1K6DBVER5W");
-</script>
 <meta charset="UTF-8">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="favicon.png">
@@ -259257,5 +259249,138 @@ function changeFont(delta) {
     Gomna Studio, Inc. (델라웨어 C-Corp, USA)<br>
     이메일: gomnastudio@gmail.com
   </div>
-</div><script src="settings_guide.js"></script></body>
+</div><script src="settings_guide.js"></script>
+<!-- ==========================
+쿠키 배너 (최종 완성형 - 골드 디자인 v2)
+- 분석 쿠키: 자동 체크 (서비스 개선용)
+- 광고 쿠키: 수동 선택 (맞춤형 광고용)
+- 디자인: 사이트 골드/크림 색상 통일
+- 링크: /privacy.html (단일 파일 구조)
+위치: index.html의 </body> 바로 위에 삽입
+주의: 기존 GA4 코드가 <head>나 <body>에 따로 있으면 반드시 삭제
+========================== -->
+<div id="cookie-banner" style="
+position:fixed;
+bottom:20px;
+right:20px;
+width:340px;
+background:rgba(255,251,240,0.96);
+backdrop-filter:blur(12px);
+-webkit-backdrop-filter:blur(12px);
+color:#5D4516;
+padding:18px;
+border-radius:16px;
+box-shadow:0 10px 30px rgba(139,105,20,0.25);
+border:0.5px solid rgba(184,134,11,0.3);
+display:none;
+z-index:9999;
+font-size:13px;
+line-height:1.5;
+box-sizing:border-box;
+">
+  <div style="margin-bottom:12px;font-weight:600;font-size:14px;color:#5D4516;">
+    🍪 쿠키 사용 안내
+  </div>
+  <div style="margin-bottom:14px;color:#6B5028;">
+    더 나은 서비스 제공을 위해 쿠키를 사용합니다.
+    <a href="/privacy.html" style="color:#8B6914;text-decoration:underline;">자세히</a>
+  </div>
+  <div style="margin-bottom:14px;">
+    <label style="display:flex;align-items:center;margin-bottom:8px;cursor:pointer;color:#5D4516;">
+      <input type="checkbox" id="analyticsToggle" checked style="margin-right:8px;accent-color:#B8860B;">
+      <span><strong>분석 쿠키</strong> <span style="color:#8B6914;">(서비스 개선용)</span></span>
+    </label>
+    <label style="display:flex;align-items:center;cursor:pointer;color:#5D4516;">
+      <input type="checkbox" id="marketingToggle" style="margin-right:8px;accent-color:#B8860B;">
+      <span><strong>광고 쿠키</strong> <span style="color:#8B6914;">(맞춤형 광고용)</span></span>
+    </label>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button type="button" onclick="acceptSelectedCookies()" style="
+    flex:1;
+    padding:10px;
+    background:#B8860B;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:13px;
+    ">동의</button>
+    <button type="button" onclick="rejectCookies()" style="
+    flex:1;
+    padding:10px;
+    background:#fff;
+    color:#5D4516;
+    border:0.5px solid rgba(184,134,11,0.4);
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13px;
+    ">거부</button>
+  </div>
+</div>
+
+<script>
+const savedConsent = localStorage.getItem('cookieChoice');
+if (!savedConsent) {
+  document.getElementById('cookie-banner').style.display = 'block';
+} else {
+  try {
+    applyConsent(JSON.parse(savedConsent));
+  } catch (error) {
+    localStorage.removeItem('cookieChoice');
+    document.getElementById('cookie-banner').style.display = 'block';
+  }
+}
+
+function acceptSelectedCookies() {
+  const consent = {
+    analytics: document.getElementById('analyticsToggle').checked,
+    marketing: document.getElementById('marketingToggle').checked,
+    timestamp: new Date().toISOString()
+  };
+  saveAndApply(consent);
+}
+
+function rejectCookies() {
+  const consent = {
+    analytics: false,
+    marketing: false,
+    timestamp: new Date().toISOString()
+  };
+  saveAndApply(consent);
+}
+
+function saveAndApply(consent) {
+  localStorage.setItem('cookieChoice', JSON.stringify(consent));
+  document.getElementById('cookie-banner').style.display = 'none';
+  applyConsent(consent);
+}
+
+function applyConsent(consent) {
+  if (consent.analytics) loadAnalytics();
+  if (consent.marketing) loadAds();
+}
+
+function loadAnalytics() {
+  if (window.analyticsLoaded) return;
+  window.analyticsLoaded = true;
+  var script = document.createElement('script');
+  script.src = 'https://www.googletagmanager.com/gtag/js?id=G-1K6DBVER5W';
+  script.async = true;
+  document.head.appendChild(script);
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', 'G-1K6DBVER5W');
+}
+
+function loadAds() {
+  if (window.adsLoaded) return;
+  window.adsLoaded = true;
+  // 7월 AdSense 승인 후 광고 스크립트는 여기에만 삽입
+}
+</script>
+</body>
 </html>
