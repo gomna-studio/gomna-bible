@@ -144,10 +144,10 @@
       if (box) box.classList.remove('cat-collapsed');
 
       if (timer) clearTimeout(timer);
-      timer = setTimeout(hide, 4500);
+      timer = setTimeout(hide, 6000);
     }
 
-    timer = setTimeout(hide, 4900);
+    timer = setTimeout(hide, 6000);
     btn.addEventListener('click', showAgain);
   }
 
