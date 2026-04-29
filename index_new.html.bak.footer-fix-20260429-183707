@@ -114,14 +114,13 @@ body{background:linear-gradient(170deg,#c89849 0%,#a87a35 60%,#8a6228 100%);min-
 .welcome-line2{font-size:calc(var(--font-size,17px) * 12 / 17);font-style:italic;opacity:0;letter-spacing:.4px;line-height:1.7;color:#ffe8b8}
 .word{display:inline-block;opacity:0;transform:translateY(8px);animation:wordIn .5s ease forwards}
 @keyframes wordIn{to{opacity:1;transform:translateY(0)}}
-.imprint-bottom{margin-top:18px;padding-top:14px;padding-bottom:30px;border-top:.5px solid rgba(255,255,255,.18);text-align:center}
+.imprint-bottom{margin-top:18px;padding-top:14px;border-top:.5px solid rgba(255,255,255,.18);text-align:center}
 @keyframes gs-shine{0%{background-position:250% center}60%{background-position:-150% center}100%{background-position:-150% center}}
 @keyframes gs-bounce{0%,50%,100%{transform:translate(0,0)}25%{transform:translate(5px,-5px)}}
 @keyframes gs-underline{0%{width:0;left:0;opacity:0}20%{opacity:1}60%{width:100%;left:0;opacity:1}80%{width:0;left:100%;opacity:1}100%{width:0;left:100%;opacity:0}}
-.gs-link{font-family:monospace;font-size:11px;font-weight:400;letter-spacing:0.05em;display:inline-flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;text-decoration:none;cursor:pointer;transition:transform 0.3s ease;position:relative;padding:8px 0;max-width:100%}
+.gs-link{font-family:monospace;font-size:11px;font-weight:400;letter-spacing:0.05em;display:inline-flex;align-items:center;gap:4px;text-decoration:none;cursor:pointer;transition:transform 0.3s ease;position:relative;padding:8px 0}
 .gs-link:hover{transform:scale(1.05)}
 .gs-text{position:relative;background:linear-gradient(90deg,#1a1a1a 0%,#1a1a1a 40%,#FFD700 50%,#1a1a1a 60%,#1a1a1a 100%);background-size:250% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gs-shine 40s linear infinite}
-.gs-text{white-space:normal}
 .gs-text::after{content:'';position:absolute;bottom:-2px;height:1px;background:#1a1a1a;animation:gs-underline 6s ease-in-out infinite}
 .gs-arrow{display:inline-block;color:#1a1a1a;animation:gs-bounce 1s ease-in-out infinite}
 .overlay{position:fixed;inset:0;background:rgba(20,12,4,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:none;align-items:flex-end;z-index:100}
