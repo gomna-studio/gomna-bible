@@ -151,6 +151,17 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-seri
 .commentary-nav-btn:disabled{opacity:0.4;cursor:not-allowed}
 .commentary-nav-btn:disabled:hover{background:transparent}
 .commentary-current-ref{font-size:17px;font-weight:700}
+html.reader-hide-chrome #appTopChrome{display:none!important}
+.reader-sheet-tabs{display:none;flex-wrap:nowrap;align-items:flex-end;gap:14px;padding:12px 14px 0;background:#faf6ed;border-bottom:0.5px solid rgba(180,140,90,.3);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;position:sticky;top:0;z-index:90;box-sizing:border-box}
+.reader-sheet-tabs::-webkit-scrollbar{display:none}
+html.reader-hide-chrome .reader-sheet-tabs{display:flex}
+.reader-sheet-tabs .reader-tab{font-size:14px;font-weight:500;color:#a89890;padding:6px 0 12px;background:none;border:none;font-family:inherit;cursor:pointer;white-space:nowrap;position:relative;flex-shrink:0}
+.reader-sheet-tabs .reader-tab.active{color:#3d2818;font-weight:600}
+.reader-sheet-tabs .reader-tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2.5px;background:#8b5e2c;border-radius:1.5px}
+.reader-sheet-tabs .reader-tab.reader-home{color:#8b5e2c;font-weight:500}
+.reader-sheet-tabs .reader-nav-end{margin-left:auto;display:flex;align-items:flex-end;gap:8px;flex-shrink:0}
+.reader-sheet-tabs .reader-close{background:rgba(0,0,0,.07);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1;color:#3d2818;padding:0;flex-shrink:0}
+
 </style>
 <script type="application/ld+json">
 {
@@ -172,7 +183,8 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-seri
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js");}</script>
 <script type="text/javascript">(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","vxpnb5ay5l");</script>
 <body>
-<div class="phone-frame"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
+<script>(function(){try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
+<div class="phone-frame"><div id="appTopChrome"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
   <span class="gs-text">Gomna Studio, Inc.</span>
   <span class="gs-arrow">↗</span>
 </a></div><style>
@@ -291,6 +303,17 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-seri
     <button class="tab" data-tab="new" onclick="switchTab('new')">신약</button>
     <button class="tab" data-tab="easy" onclick="switchTab('easy')">쉬운찾기</button>
     <button class="tab" data-tab="fav" onclick="switchTab('fav')">내 보관함</button>
+  </nav>
+  </div>
+  <nav id="readerNav" class="reader-sheet-tabs" aria-label="성경 메뉴">
+    <button type="button" class="reader-tab" data-reader-tab="old" onclick="location.href='index.html?testament=old'">구약</button>
+    <button type="button" class="reader-tab" data-reader-tab="new" onclick="location.href='index.html?testament=new'">신약</button>
+    <button type="button" class="reader-tab" data-reader-tab="easy" onclick="location.href='index.html?easy'">쉬운찾기</button>
+    <button type="button" class="reader-tab" data-reader-tab="fav" onclick="location.href='index.html?favorites'">내 보관함</button>
+    <div class="reader-nav-end">
+      <button type="button" class="reader-tab reader-home" onclick="location.href='index_new.html'">← 홈으로</button>
+      <button type="button" class="reader-close" onclick="location.href='index_new.html'" aria-label="닫기">✕</button>
+    </div>
   </nav>
   <main class="content">
     <div class="view active" id="oldView"><div class="loading-state"><div class="spinner"></div><div>성경 데이터 로딩중...</div></div></div>
@@ -258349,10 +258372,6 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = pastorCommentaryData;
 }
 </script>
-</script>
-</script>
-</script>
-</script>
 
 <script>
 // oldTestamentData는 old_testament.js에서 로드됨
@@ -258367,6 +258386,106 @@ var favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
 
 // 주석 파일 매핑
 
+
+
+function syncReaderNavActive() {
+  try {
+    var tab = typeof currentTab === 'string' ? currentTab : 'old';
+    document.querySelectorAll('#readerNav .reader-tab').forEach(function(el) {
+      el.classList.toggle('active', el.getAttribute('data-reader-tab') === tab);
+    });
+  } catch (e) {}
+}
+
+function applyNavigationFromQuery() {
+  var p;
+  try { p = new URLSearchParams(location.search); } catch (e) { return; }
+  var book = (p.get('book') || '').trim();
+  var chapterRaw = p.get('chapter');
+  var chapterNum = chapterRaw != null && chapterRaw !== '' ? parseInt(chapterRaw, 10) : NaN;
+
+  if (book) {
+    var testamentParam = p.get('testament');
+    var bookData = null;
+    var testament = 'old';
+    if (testamentParam === 'new') {
+      bookData = findBook(newTestamentData, book);
+      testament = 'new';
+    } else if (testamentParam === 'old') {
+      bookData = findBook(oldTestamentData, book);
+      testament = 'old';
+    } else {
+      bookData = findBook(oldTestamentData, book);
+      if (bookData) testament = 'old';
+      else {
+        bookData = findBook(newTestamentData, book);
+        testament = 'new';
+      }
+    }
+    if (!bookData) return;
+    currentTab = testament;
+    var chCount = getDisplayedChapterCount(bookData);
+    if (chapterRaw != null && chapterRaw !== '' && !isNaN(chapterNum) && chapterNum >= 1) {
+      currentBook = { name: book, chapters: chCount, testament: testament };
+      currentChapter = chapterNum;
+      document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+      document.getElementById('verseView').classList.add('active');
+      renderVerses();
+      loadCommentaryData();
+    } else {
+      selectBook(book, chCount, testament);
+    }
+    updateHeaderBtns(currentTab);
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    var activeTab = document.querySelector('.tab[data-tab="' + currentTab + '"]');
+    if (activeTab) activeTab.classList.add('active');
+    syncReaderNavActive();
+    return;
+  }
+
+  if (p.has('easy')) {
+    switchTab('easy');
+    syncReaderNavActive();
+    return;
+  }
+  if (p.has('favorites')) {
+    switchTab('fav');
+    syncReaderNavActive();
+    return;
+  }
+
+  var qRaw = (p.get('q') || '').trim();
+  if (qRaw) {
+    var si = document.getElementById('searchInput');
+    if (si) si.value = qRaw;
+    switchTab('search');
+    doSearch();
+    syncReaderNavActive();
+    return;
+  }
+  if (p.get('focus') === 'search') {
+    switchTab('search');
+    syncReaderNavActive();
+    return;
+  }
+  var testamentOnly = p.get('testament');
+  if (testamentOnly === 'old' || testamentOnly === 'new') {
+    switchTab(testamentOnly);
+    syncReaderNavActive();
+  }
+}
+
+function runDeferredUrlNavigation() {
+  function run() {
+    try { applyNavigationFromQuery(); } catch (e) {}
+    syncReaderNavActive();
+  }
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(function() { setTimeout(run, 0); });
+  } else {
+    setTimeout(run, 0);
+  }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
   loadBibleData();
@@ -258383,6 +258502,7 @@ function initializeApp() {
   renderEasyFind();
   renderFavorites();
   document.getElementById('searchInput').addEventListener('keypress', function(e) { if(e.key === 'Enter') doSearch(); });
+  runDeferredUrlNavigation();
 }
 
 function switchTab(tab) {
@@ -258393,6 +258513,7 @@ function switchTab(tab) {
   document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
   document.getElementById(tab + 'View').classList.add('active');
   updateHeaderBtns(tab);
+  syncReaderNavActive();
 }
 
 function updateHeaderBtns(tab) {
@@ -259154,9 +259275,7 @@ function goBack(to) {
 }
 
 function goHome() {
-  switchTab('old');
-  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
-  document.getElementById('oldView').classList.add('active');
+  window.location.href = 'index_new.html';
 }
 
 function toggleFav(book, chapter, verse, text) {
