@@ -135,14 +135,6 @@ body{background:linear-gradient(170deg,#c89849 0%,#a87a35 60%,#8a6228 100%);min-
 .toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(20,12,4,.92);color:#fff5e0;padding:12px 22px;border-radius:20px;font-size:13px;font-weight:500;z-index:200;display:none;box-shadow:0 4px 20px rgba(0,0,0,.3);max-width:90%;text-align:center}
 .toast.show{display:block;animation:toastIn .3s ease}
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,-40%)}to{opacity:1;transform:translate(-50%,-50%)}}
-.popup-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:300;justify-content:center;align-items:center}
-.popup-overlay.show{display:flex}
-.popup-box{background:#fff;border-radius:20px;padding:28px 24px;width:90%;max-width:420px;max-height:90vh;overflow-y:auto;text-align:center}
-.popup-title{font-size:18px;font-weight:700;margin-bottom:16px;color:#4A2511}
-.font-control{display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:28px}
-.font-btn{width:48px;height:48px;border-radius:50%;border:2px solid #4A2511;background:#fff;color:#4A2511;font-size:22px;font-weight:700;cursor:pointer}
-.font-size-display{font-size:20px;font-weight:700;min-width:60px}
-.popup-close{width:100%;padding:14px;background:#B8751F;color:#fff;border:none;border-radius:25px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit}
 @media (max-width:480px){.container{padding:16px 14px 22px}}
 </style>
 </head>
@@ -270,17 +262,6 @@ body{background:linear-gradient(170deg,#c89849 0%,#a87a35 60%,#8a6228 100%);min-
   </div>
 </div>
 <div class="toast" id="toast"></div>
-<div class="popup-overlay" id="settingsPopup">
-  <div class="popup-box">
-    <div class="popup-title">⚙️ 글자 크기 설정</div>
-    <div class="font-control">
-      <button class="font-btn" onclick="changeFont(-1)">−</button>
-      <span class="font-size-display" id="fontDisplay">17px</span>
-      <button class="font-btn" onclick="changeFont(1)">+</button>
-    </div>
-    <button class="popup-close" onclick="closeSettings()">닫기</button>
-  </div>
-</div>
 <script>
 const oldData=[{cat:'📜 모세오경',books:[['창세기',50],['출애굽기',40],['레위기',27],['민수기',36],['신명기',34]]},{cat:'📜 역사서',books:[['여호수아',24],['사사기',21],['룻기',4],['사무엘상',31],['사무엘하',24],['열왕기상',22],['열왕기하',25],['역대상',29],['역대하',36],['에스라',10],['느헤미야',13],['에스더',10]]},{cat:'📜 시가서',books:[['욥기',42],['시편',150],['잠언',31],['전도서',12],['아가',8]]},{cat:'📜 대선지서',books:[['이사야',66],['예레미야',52],['예레미야애가',5],['에스겔',48],['다니엘',12]]},{cat:'📜 소선지서',books:[['호세아',14],['요엘',3],['아모스',9],['오바댜',1],['요나',4],['미가',7],['나훔',3],['하박국',3],['스바냐',3],['학개',2],['스가랴',14],['말라기',4]]}];
 const newData=[{cat:'📖 복음서',books:[['마태복음',28],['마가복음',16],['누가복음',24],['요한복음',21]]},{cat:'📖 역사서',books:[['사도행전',28]]},{cat:'📖 바울서신',books:[['로마서',16],['고린도전서',16],['고린도후서',13],['갈라디아서',6],['에베소서',6],['빌립보서',4],['골로새서',4],['데살로니가전서',5],['데살로니가후서',3],['디모데전서',6],['디모데후서',4],['디도서',3],['빌레몬서',1]]},{cat:'📖 일반서신',books:[['히브리서',13],['야고보서',5],['베드로전서',5],['베드로후서',3],['요한일서',5],['요한이서',1],['요한삼서',1],['유다서',1]]},{cat:'📖 예언서',books:[['요한계시록',22]]}];
@@ -288,14 +269,11 @@ const allBooks=[['창세기',50],['출애굽기',40],['레위기',27],['민수�
 const consonants=['전체','ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅎ'];
 function getConsonant(name){const c=name.charCodeAt(0);if(c<0xAC00||c>0xD7A3)return null;const idx=Math.floor((c-0xAC00)/588);const map=['ㄱ','ㄱ','ㄴ','ㄷ','ㄷ','ㄹ','ㅁ','ㅂ','ㅂ','ㅅ','ㅅ','ㅇ','ㅈ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];return map[idx]||null;}
 let currentCons='전체';
-var fontSize = 17;
 const hour=new Date().getHours();
 let greetText='— 좋은 아침입니다 —';
 if(hour>=12&&hour<18)greetText='— 평안한 오후입니다 —';
 else if(hour>=18||hour<5)greetText='— 고요한 저녁입니다 —';
 document.getElementById('greeting').textContent=greetText;
-var _fd=document.getElementById('fontDisplay');
-if(_fd) _fd.textContent=fontSize+'px';
 function playVerseAnimation(){const tag=document.getElementById('verse-tag');const text=document.getElementById('verse-text');const ref=document.getElementById('verse-ref');[tag,text,ref].forEach(el=>{el.style.animation='none';el.style.opacity='0';el.style.transform='translateY(10px)';});void tag.offsetWidth;setTimeout(()=>{tag.style.animation='textRise 1.1s cubic-bezier(.22,.7,.3,1) forwards';},50);setTimeout(()=>{text.style.animation='textRise 1.2s cubic-bezier(.22,.7,.3,1) forwards';},450);setTimeout(()=>{ref.style.animation='textRise 1s cubic-bezier(.22,.7,.3,1) forwards';},950);}
 function staggerWords(elId,text,baseDelay){const el=document.getElementById(elId);const chars=text.split('');el.style.opacity='1';el.innerHTML=chars.map((c,i)=>{if(c===' ')return ' ';return '<span class="word" style="animation-delay:'+(baseDelay+i*55)+'ms">'+c+'</span>';}).join('');}
 function playWelcomeAnimation(){staggerWords('welcome1','은혜의말씀 안에서',0);staggerWords('welcome2','하나님의 놀라운 세계가 펼쳐집니다',800);}
@@ -327,10 +305,8 @@ function clickBook(name){window.location.href='index.html?book='+encodeURICompon
 function activateSearch(){const i=document.getElementById('homeSearchInput');if(i)i.focus();}
 function submitSearch(e){if(e)e.preventDefault();const i=document.getElementById('homeSearchInput');const q=i?i.value.trim():'';if(!q){activateSearch();return;}window.location.href='index.html?q='+encodeURIComponent(q);}
 function topic(name){window.location.href='index.html?q='+encodeURIComponent(name);}
-function openSettings(){var p=document.getElementById('settingsPopup');if(p)p.classList.add('show');}
-function closeSettings(){var p=document.getElementById('settingsPopup');if(p)p.classList.remove('show');}
+function openSettings(){toast('⚙️ 설정 화면 (다음 단계에서 실제 연결)');}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
-<script src="settings_guide.js"></script>
 </body>
 </html>
