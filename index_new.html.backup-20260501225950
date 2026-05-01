@@ -311,7 +311,14 @@ function playVerseAndCheck(){
 setTimeout(()=>{playVerseAnimation();setInterval(playVerseAndCheck,8000);},1000);
 setTimeout(()=>{playWelcomeAnimation();},3000);
 function openBible(testament){
-  window.location.href='index.html?testament='+encodeURIComponent(testament);
+  const book=document.getElementById('book-'+testament);
+  if(!book) return;
+  if(book.classList.contains('opening')) return;
+  book.classList.add('opening');
+  // 애니메이션(약 1초) 후에만 index.html로 이동
+  setTimeout(function(){
+    window.location.href='index.html?testament='+encodeURIComponent(testament);
+  },1100);
 }
 function openEasy(initialCons){const lamp=document.getElementById('lamp');if(lamp&&lamp.classList.contains('lit'))return;if(easyOpenTimer)clearTimeout(easyOpenTimer);if(lamp)lamp.classList.add('lit');easyOpenTimer=setTimeout(()=>{easyOpenTimer=null;switchTab('easy',initialCons);document.getElementById('overlay').classList.add('show');},900);}
 function closeSheet(){if(easyOpenTimer){clearTimeout(easyOpenTimer);easyOpenTimer=null;}document.getElementById('overlay').classList.remove('show');setTimeout(()=>{document.getElementById('book-old').classList.remove('opening');document.getElementById('book-new').classList.remove('opening');const lamp=document.getElementById('lamp');if(lamp)lamp.classList.remove('lit');},400);}

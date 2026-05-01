@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#a87a35">
 <title>은혜의말씀</title>
-<link rel="icon" type="image/png" href="favicon.png?v=3">
-<link rel="apple-touch-icon" href="favicon.png?v=3">
-<link rel="icon" type="image/x-icon" href="favicon.ico?v=3">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=3">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=3">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=3">
+<link rel="icon" type="image/png" href="favicon.png?v=2">
+<link rel="apple-touch-icon" href="favicon.png?v=2">
+<link rel="icon" type="image/x-icon" href="favicon.ico?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=2">
 <meta name="description" content="은혜의말씀 - 성경 66권 절별 목회주석 앱. 원어분석·역사적배경·신학적의미·설교자료 제공">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <!-- Open Graph 메타 태그 (공유용) -->
@@ -52,7 +52,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 .card:active{transform:scale(.97)}
 .card.old{background:#f3eadb;color:#000}
 .card.new{background:#f3eadb;color:#000}
-.card.easy{background:#c1a679;color:#000}
+.card.easy{background:#d4994c;color:#000}
 .stage{flex:1;width:100%;display:flex;align-items:center;justify-content:center;perspective:900px;position:relative}
 .book{width:78%;height:80%;position:relative;transform-style:preserve-3d}
 .b-closed{position:absolute;inset:0;border-radius:2px 6px 6px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .35s ease,transform .5s cubic-bezier(.4,0,.2,1);overflow:hidden;padding:0 6px}
@@ -87,11 +87,6 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 .lamp.lit .lamp-flame-inner{animation:flameD 1.2s ease-in-out infinite .8s;transform-origin:50% 100%}
 @keyframes flameD{0%,100%{transform:scale(1,1) skewX(0deg)}25%{transform:scale(.92,1.06) skewX(-2deg)}50%{transform:scale(1.06,.96) skewX(1.5deg)}75%{transform:scale(.96,1.03) skewX(-1deg)}}
 @keyframes glowB{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
-@keyframes fadeInStaggerEasy{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.easy-keypad{width:75%;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;align-content:center}
-.easy-key{border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;font-size:15px;font-weight:500;color:#1f1408;background:#fff;border-radius:4px;aspect-ratio:1;padding:0;opacity:0;animation:fadeInStaggerEasy .5s ease forwards;transition:transform .2s ease;-webkit-tap-highlight-color:transparent}
-.easy-key:hover{transform:scale(1.1)}
-.easy-key-all{font-size:11px;font-weight:500;color:#4a3818;background:rgba(255,255,255,.4)}
 .label{text-align:center;width:100%;margin-top:6px}
 .name{font-size:calc(var(--font-size,17px) * 14 / 17);font-weight:500;letter-spacing:-0.2px;line-height:1.1}
 .desc{font-size:calc(var(--font-size,17px) * 10 / 17);opacity:.78;margin-top:3px}
@@ -173,7 +168,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 <div class="container">
   <div class="greeting" id="greeting">— 좋은 아침입니다 —</div>
   <div class="header">
-    <img src="favicon.png?v=3" alt="은혜의말씀" class="logo-img">
+    <img src="assets/images/app-icon.png" alt="은혜의말씀" class="logo-img">
     <div class="title-block">
       <div class="title">은혜의말씀</div>
       <div class="sub">Holy Bible · Korean Revised</div>
@@ -194,22 +189,42 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
     </div>
     <div class="card easy" onclick="openEasy()">
       <div class="stage">
-        <div class="easy-keypad">
-          <button type="button" class="easy-key" style="animation-delay:0s" onclick="event.stopPropagation();openEasy('ㄱ')" aria-label="ㄱ으로 시작">ㄱ</button>
-          <button type="button" class="easy-key" style="animation-delay:.05s" onclick="event.stopPropagation();openEasy('ㄴ')" aria-label="ㄴ으로 시작">ㄴ</button>
-          <button type="button" class="easy-key" style="animation-delay:.1s" onclick="event.stopPropagation();openEasy('ㄷ')" aria-label="ㄷ으로 시작">ㄷ</button>
-          <button type="button" class="easy-key" style="animation-delay:.15s" onclick="event.stopPropagation();openEasy('ㄹ')" aria-label="ㄹ으로 시작">ㄹ</button>
-          <button type="button" class="easy-key" style="animation-delay:.2s" onclick="event.stopPropagation();openEasy('ㅁ')" aria-label="ㅁ으로 시작">ㅁ</button>
-          <button type="button" class="easy-key" style="animation-delay:.25s" onclick="event.stopPropagation();openEasy('ㅂ')" aria-label="ㅂ으로 시작">ㅂ</button>
-          <button type="button" class="easy-key" style="animation-delay:.3s" onclick="event.stopPropagation();openEasy('ㅅ')" aria-label="ㅅ으로 시작">ㅅ</button>
-          <button type="button" class="easy-key" style="animation-delay:.35s" onclick="event.stopPropagation();openEasy('ㅇ')" aria-label="ㅇ으로 시작">ㅇ</button>
-          <button type="button" class="easy-key" style="animation-delay:.4s" onclick="event.stopPropagation();openEasy('ㅈ')" aria-label="ㅈ으로 시작">ㅈ</button>
-          <button type="button" class="easy-key" style="animation-delay:.45s" onclick="event.stopPropagation();openEasy('ㅊ')" aria-label="ㅊ으로 시작">ㅊ</button>
-          <button type="button" class="easy-key" style="animation-delay:.5s" onclick="event.stopPropagation();openEasy('ㅎ')" aria-label="ㅎ으로 시작">ㅎ</button>
-          <button type="button" class="easy-key easy-key-all" style="animation-delay:.55s" onclick="event.stopPropagation();openEasy()" aria-label="전체 성경">전체</button>
+        <div class="lamp-wrap">
+          <div class="lamp" id="lamp">
+            <svg viewBox="0 0 150 110">
+              <defs>
+                <linearGradient id="bM" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stop-color="#d4ad75"/><stop offset="22%" stop-color="#b8904f"/><stop offset="55%" stop-color="#8a6534"/><stop offset="85%" stop-color="#54391a"/><stop offset="100%" stop-color="#332108"/></linearGradient>
+                <linearGradient id="bS" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="rgba(40,25,8,0.45)"/><stop offset="20%" stop-color="rgba(0,0,0,0)"/><stop offset="78%" stop-color="rgba(0,0,0,0)"/><stop offset="100%" stop-color="rgba(40,25,8,0.45)"/></linearGradient>
+                <radialGradient id="hL" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff5cc" stop-opacity="0.95"/><stop offset="28%" stop-color="#ffd87a" stop-opacity="0.6"/><stop offset="60%" stop-color="#ffa040" stop-opacity="0.18"/><stop offset="100%" stop-color="#ff7020" stop-opacity="0"/></radialGradient>
+                <linearGradient id="fO" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stop-color="#fff0a0"/><stop offset="40%" stop-color="#ffb840"/><stop offset="100%" stop-color="#ff7020"/></linearGradient>
+                <linearGradient id="fI" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="60%" stop-color="#fff5d0"/><stop offset="100%" stop-color="#ffd060"/></linearGradient>
+                <radialGradient id="sT" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0a0502"/><stop offset="60%" stop-color="rgba(20,10,3,0.6)"/><stop offset="100%" stop-color="rgba(20,10,3,0)"/></radialGradient>
+              </defs>
+              <ellipse class="lamp-glow" cx="115" cy="38" rx="60" ry="55" fill="url(#hL)" filter="blur(2px)"/>
+              <ellipse cx="58" cy="92" rx="52" ry="3.5" fill="rgba(20,10,5,0.45)" filter="blur(1.2px)"/>
+              <path d="M 100 60 Q 100 53 106 52 L 132 53 Q 142 54 142 62 Q 142 70 132 71 L 106 70 Q 100 69 100 62 Z" fill="url(#bM)" stroke="#1a0d04" stroke-width="0.7"/>
+              <ellipse cx="138" cy="62" rx="3.5" ry="4" fill="#0a0502"/>
+              <ellipse cx="138" cy="56" rx="8" ry="5" fill="url(#sT)" opacity="0.7"/>
+              <path d="M 14 70 Q 14 48 32 45 L 80 45 Q 96 45 100 53 L 100 70 Q 100 84 90 88 L 28 88 Q 14 84 14 70 Z" fill="url(#bM)" stroke="#1a0d04" stroke-width="0.9"/>
+              <path d="M 14 70 Q 14 48 32 45 L 80 45 Q 96 45 100 53 L 100 70 Q 100 84 90 88 L 28 88 Q 14 84 14 70 Z" fill="url(#bS)"/>
+              <ellipse cx="57" cy="46" rx="30" ry="4.5" fill="#0a0502"/>
+              <ellipse cx="57" cy="45.5" rx="27" ry="3" fill="#1a0d04"/>
+              <path d="M 30 44 Q 32 32 42 30 Q 50 28 52 38" fill="none" stroke="url(#bM)" stroke-width="3.5" stroke-linecap="round"/>
+              <path d="M 30 44 Q 32 32 42 30 Q 50 28 52 38" fill="none" stroke="rgba(20,10,5,0.5)" stroke-width="0.6" stroke-linecap="round"/>
+              <path d="M 16 60 Q 56 70 100 60" fill="none" stroke="rgba(40,22,8,0.42)" stroke-width="0.6"/>
+              <path d="M 18 70 Q 56 79 98 70" fill="none" stroke="rgba(40,22,8,0.38)" stroke-width="0.55"/>
+              <ellipse cx="38" cy="60" rx="16" ry="4" fill="rgba(255,225,170,0.22)"/>
+              <line x1="138" y1="58" x2="138" y2="50" stroke="#0a0502" stroke-width="1.5"/>
+              <g class="lamp-flame-grp">
+                <path class="lamp-flame-outer" d="M 138 50 Q 128 36 134 22 Q 138 14 138 8 Q 138 14 142 22 Q 148 36 138 50 Z" fill="url(#fO)"/>
+                <path class="lamp-flame-inner" d="M 138 48 Q 134 38 136 28 Q 138 22 138 18 Q 138 22 140 28 Q 142 38 138 48 Z" fill="url(#fI)"/>
+                <ellipse cx="138" cy="40" rx="1.6" ry="4" fill="#fff" opacity="0.94"/>
+              </g>
+            </svg>
+          </div>
         </div>
       </div>
-      <div class="label"><div class="name">말씀 바로찾기</div><div class="desc">자음별로 ›</div></div>
+      <div class="label"><div class="name">쉬운찾기</div><div class="desc">자음별로 ›</div></div>
     </div>
     <div class="card new" onclick="openBible('new')">
       <div class="stage">
@@ -288,7 +303,6 @@ const oldData=[{cat:'📜 모세오경',books:[['창세기',50],['출애굽기',
 const newData=[{cat:'📖 복음서',books:[['마태복음',28],['마가복음',16],['누가복음',24],['요한복음',21]]},{cat:'📖 역사서',books:[['사도행전',28]]},{cat:'📖 바울서신',books:[['로마서',16],['고린도전서',16],['고린도후서',13],['갈라디아서',6],['에베소서',6],['빌립보서',4],['골로새서',4],['데살로니가전서',5],['데살로니가후서',3],['디모데전서',6],['디모데후서',4],['디도서',3],['빌레몬서',1]]},{cat:'📖 일반서신',books:[['히브리서',13],['야고보서',5],['베드로전서',5],['베드로후서',3],['요한일서',5],['요한이서',1],['요한삼서',1],['유다서',1]]},{cat:'📖 예언서',books:[['요한계시록',22]]}];
 const allBooks=[['창세기',50],['출애굽기',40],['레위기',27],['민수기',36],['신명기',34],['여호수아',24],['사사기',21],['룻기',4],['사무엘상',31],['사무엘하',24],['열왕기상',22],['열왕기하',25],['역대상',29],['역대하',36],['에스라',10],['느헤미야',13],['에스더',10],['욥기',42],['시편',150],['잠언',31],['전도서',12],['아가',8],['이사야',66],['예레미야',52],['예레미야애가',5],['에스겔',48],['다니엘',12],['호세아',14],['요엘',3],['아모스',9],['오바댜',1],['요나',4],['미가',7],['나훔',3],['하박국',3],['스바냐',3],['학개',2],['스가랴',14],['말라기',4],['마태복음',28],['마가복음',16],['누가복음',24],['요한복음',21],['사도행전',28],['로마서',16],['고린도전서',16],['고린도후서',13],['갈라디아서',6],['에베소서',6],['빌립보서',4],['골로새서',4],['데살로니가전서',5],['데살로니가후서',3],['디모데전서',6],['디모데후서',4],['디도서',3],['빌레몬서',1],['히브리서',13],['야고보서',5],['베드로전서',5],['베드로후서',3],['요한일서',5],['요한이서',1],['요한삼서',1],['유다서',1],['요한계시록',22]];
 const consonants=['전체','ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅎ'];
-let easyOpenTimer=null;
 function getConsonant(name){const c=name.charCodeAt(0);if(c<0xAC00||c>0xD7A3)return null;const idx=Math.floor((c-0xAC00)/588);const map=['ㄱ','ㄱ','ㄴ','ㄷ','ㄷ','ㄹ','ㅁ','ㅂ','ㅂ','ㅅ','ㅅ','ㅇ','ㅈ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];return map[idx]||null;}
 let currentCons='전체';
 var fontSize = 17;
@@ -311,12 +325,19 @@ function playVerseAndCheck(){
 setTimeout(()=>{playVerseAnimation();setInterval(playVerseAndCheck,8000);},1000);
 setTimeout(()=>{playWelcomeAnimation();},3000);
 function openBible(testament){
-  window.location.href='index.html?testament='+encodeURIComponent(testament);
+  const book=document.getElementById('book-'+testament);
+  if(!book) return;
+  if(book.classList.contains('opening')) return;
+  book.classList.add('opening');
+  // 애니메이션(약 1초) 후에만 index.html로 이동
+  setTimeout(function(){
+    window.location.href='index.html?testament='+encodeURIComponent(testament);
+  },1100);
 }
-function openEasy(initialCons){const lamp=document.getElementById('lamp');if(lamp&&lamp.classList.contains('lit'))return;if(easyOpenTimer)clearTimeout(easyOpenTimer);if(lamp)lamp.classList.add('lit');easyOpenTimer=setTimeout(()=>{easyOpenTimer=null;switchTab('easy',initialCons);document.getElementById('overlay').classList.add('show');},900);}
-function closeSheet(){if(easyOpenTimer){clearTimeout(easyOpenTimer);easyOpenTimer=null;}document.getElementById('overlay').classList.remove('show');setTimeout(()=>{document.getElementById('book-old').classList.remove('opening');document.getElementById('book-new').classList.remove('opening');const lamp=document.getElementById('lamp');if(lamp)lamp.classList.remove('lit');},400);}
+function openEasy(){const lamp=document.getElementById('lamp');if(lamp.classList.contains('lit'))return;lamp.classList.add('lit');setTimeout(()=>{switchTab('easy');document.getElementById('overlay').classList.add('show');},900);}
+function closeSheet(){document.getElementById('overlay').classList.remove('show');setTimeout(()=>{document.getElementById('book-old').classList.remove('opening');document.getElementById('book-new').classList.remove('opening');document.getElementById('lamp').classList.remove('lit');},400);}
 function closeIfBg(e){if(e.target.id==='overlay')closeSheet();}
-function switchTab(tab,easyInitialCons){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));const b=document.getElementById('sheet-body');if(tab==='old'){b.innerHTML=oldData.map(c=>'<div class="cat"><div class="cat-title">'+c.cat+'</div><div class="book-grid">'+c.books.map(bk=>'<button class="book-item" onclick="clickBook(\''+bk[0]+'\')">'+bk[0]+'<small>'+bk[1]+'장</small></button>').join('')+'</div></div>').join('');}else if(tab==='new'){b.innerHTML=newData.map(c=>'<div class="cat"><div class="cat-title">'+c.cat+'</div><div class="book-grid">'+c.books.map(bk=>'<button class="book-item" onclick="clickBook(\''+bk[0]+'\')">'+bk[0]+'<small>'+bk[1]+'장</small></button>').join('')+'</div></div>').join('');}else if(tab==='easy'){currentCons=(easyInitialCons!==undefined&&easyInitialCons!==null)?easyInitialCons:'전체';renderEasy();}else{b.innerHTML='<div class="bookmark-empty"><div class="icon">★</div>아직 저장한 말씀이 없습니다.<br>마음에 닿은 구절을 ★로 저장해보세요.</div>';}b.scrollTop=0;}
+function switchTab(tab){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));const b=document.getElementById('sheet-body');if(tab==='old'){b.innerHTML=oldData.map(c=>'<div class="cat"><div class="cat-title">'+c.cat+'</div><div class="book-grid">'+c.books.map(bk=>'<button class="book-item" onclick="clickBook(\''+bk[0]+'\')">'+bk[0]+'<small>'+bk[1]+'장</small></button>').join('')+'</div></div>').join('');}else if(tab==='new'){b.innerHTML=newData.map(c=>'<div class="cat"><div class="cat-title">'+c.cat+'</div><div class="book-grid">'+c.books.map(bk=>'<button class="book-item" onclick="clickBook(\''+bk[0]+'\')">'+bk[0]+'<small>'+bk[1]+'장</small></button>').join('')+'</div></div>').join('');}else if(tab==='easy'){currentCons='전체';renderEasy();}else{b.innerHTML='<div class="bookmark-empty"><div class="icon">★</div>아직 저장한 말씀이 없습니다.<br>마음에 닿은 구절을 ★로 저장해보세요.</div>';}b.scrollTop=0;}
 function renderEasy(){const filtered=currentCons==='전체'?allBooks:allBooks.filter(bk=>getConsonant(bk[0])===currentCons);const b=document.getElementById('sheet-body');const labelText=currentCons==='전체'?'전체 성경 (66권)':currentCons+'으로 시작하는 책 ('+filtered.length+'권)';b.innerHTML='<div class="cons-grid">'+consonants.map(c=>'<button class="cons'+(c===currentCons?' active':'')+'" onclick="setCons(\''+c+'\')">'+c+'</button>').join('')+'</div><div class="cons-label">'+labelText+'</div><div class="book-grid">'+filtered.map(bk=>'<button class="book-item" onclick="clickBook(\''+bk[0]+'\')">'+bk[0]+'<small>'+bk[1]+'장</small></button>').join('')+'</div>';}
 function setCons(c){currentCons=c;renderEasy();}
 function clickBook(name){window.location.href='index.html?book='+encodeURIComponent(name);}

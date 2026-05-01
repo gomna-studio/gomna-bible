@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#a87a35">
 <title>은혜의말씀</title>
-<link rel="icon" type="image/png" href="favicon.png?v=3">
-<link rel="apple-touch-icon" href="favicon.png?v=3">
-<link rel="icon" type="image/x-icon" href="favicon.ico?v=3">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=3">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=3">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=3">
+<link rel="icon" type="image/png" href="favicon.png?v=2">
+<link rel="apple-touch-icon" href="favicon.png?v=2">
+<link rel="icon" type="image/x-icon" href="favicon.ico?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=2">
 <meta name="description" content="은혜의말씀 - 성경 66권 절별 목회주석 앱. 원어분석·역사적배경·신학적의미·설교자료 제공">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <!-- Open Graph 메타 태그 (공유용) -->
@@ -173,7 +173,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 <div class="container">
   <div class="greeting" id="greeting">— 좋은 아침입니다 —</div>
   <div class="header">
-    <img src="favicon.png?v=3" alt="은혜의말씀" class="logo-img">
+    <img src="assets/images/app-icon.png" alt="은혜의말씀" class="logo-img">
     <div class="title-block">
       <div class="title">은혜의말씀</div>
       <div class="sub">Holy Bible · Korean Revised</div>
@@ -205,8 +205,11 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
           <button type="button" class="easy-key" style="animation-delay:.35s" onclick="event.stopPropagation();openEasy('ㅇ')" aria-label="ㅇ으로 시작">ㅇ</button>
           <button type="button" class="easy-key" style="animation-delay:.4s" onclick="event.stopPropagation();openEasy('ㅈ')" aria-label="ㅈ으로 시작">ㅈ</button>
           <button type="button" class="easy-key" style="animation-delay:.45s" onclick="event.stopPropagation();openEasy('ㅊ')" aria-label="ㅊ으로 시작">ㅊ</button>
-          <button type="button" class="easy-key" style="animation-delay:.5s" onclick="event.stopPropagation();openEasy('ㅎ')" aria-label="ㅎ으로 시작">ㅎ</button>
-          <button type="button" class="easy-key easy-key-all" style="animation-delay:.55s" onclick="event.stopPropagation();openEasy()" aria-label="전체 성경">전체</button>
+          <button type="button" class="easy-key" style="animation-delay:.5s" onclick="event.stopPropagation();openEasy('ㅋ')" aria-label="ㅋ으로 시작">ㅋ</button>
+          <button type="button" class="easy-key" style="animation-delay:.55s" onclick="event.stopPropagation();openEasy('ㅌ')" aria-label="ㅌ으로 시작">ㅌ</button>
+          <button type="button" class="easy-key" style="animation-delay:.6s" onclick="event.stopPropagation();openEasy('ㅍ')" aria-label="ㅍ으로 시작">ㅍ</button>
+          <button type="button" class="easy-key" style="animation-delay:.65s" onclick="event.stopPropagation();openEasy('ㅎ')" aria-label="ㅎ으로 시작">ㅎ</button>
+          <button type="button" class="easy-key easy-key-all" style="animation-delay:.7s" onclick="event.stopPropagation();openEasy()" aria-label="전체 성경">전체</button>
         </div>
       </div>
       <div class="label"><div class="name">말씀 바로찾기</div><div class="desc">자음별로 ›</div></div>
@@ -287,7 +290,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 const oldData=[{cat:'📜 모세오경',books:[['창세기',50],['출애굽기',40],['레위기',27],['민수기',36],['신명기',34]]},{cat:'📜 역사서',books:[['여호수아',24],['사사기',21],['룻기',4],['사무엘상',31],['사무엘하',24],['열왕기상',22],['열왕기하',25],['역대상',29],['역대하',36],['에스라',10],['느헤미야',13],['에스더',10]]},{cat:'📜 시가서',books:[['욥기',42],['시편',150],['잠언',31],['전도서',12],['아가',8]]},{cat:'📜 대선지서',books:[['이사야',66],['예레미야',52],['예레미야애가',5],['에스겔',48],['다니엘',12]]},{cat:'📜 소선지서',books:[['호세아',14],['요엘',3],['아모스',9],['오바댜',1],['요나',4],['미가',7],['나훔',3],['하박국',3],['스바냐',3],['학개',2],['스가랴',14],['말라기',4]]}];
 const newData=[{cat:'📖 복음서',books:[['마태복음',28],['마가복음',16],['누가복음',24],['요한복음',21]]},{cat:'📖 역사서',books:[['사도행전',28]]},{cat:'📖 바울서신',books:[['로마서',16],['고린도전서',16],['고린도후서',13],['갈라디아서',6],['에베소서',6],['빌립보서',4],['골로새서',4],['데살로니가전서',5],['데살로니가후서',3],['디모데전서',6],['디모데후서',4],['디도서',3],['빌레몬서',1]]},{cat:'📖 일반서신',books:[['히브리서',13],['야고보서',5],['베드로전서',5],['베드로후서',3],['요한일서',5],['요한이서',1],['요한삼서',1],['유다서',1]]},{cat:'📖 예언서',books:[['요한계시록',22]]}];
 const allBooks=[['창세기',50],['출애굽기',40],['레위기',27],['민수기',36],['신명기',34],['여호수아',24],['사사기',21],['룻기',4],['사무엘상',31],['사무엘하',24],['열왕기상',22],['열왕기하',25],['역대상',29],['역대하',36],['에스라',10],['느헤미야',13],['에스더',10],['욥기',42],['시편',150],['잠언',31],['전도서',12],['아가',8],['이사야',66],['예레미야',52],['예레미야애가',5],['에스겔',48],['다니엘',12],['호세아',14],['요엘',3],['아모스',9],['오바댜',1],['요나',4],['미가',7],['나훔',3],['하박국',3],['스바냐',3],['학개',2],['스가랴',14],['말라기',4],['마태복음',28],['마가복음',16],['누가복음',24],['요한복음',21],['사도행전',28],['로마서',16],['고린도전서',16],['고린도후서',13],['갈라디아서',6],['에베소서',6],['빌립보서',4],['골로새서',4],['데살로니가전서',5],['데살로니가후서',3],['디모데전서',6],['디모데후서',4],['디도서',3],['빌레몬서',1],['히브리서',13],['야고보서',5],['베드로전서',5],['베드로후서',3],['요한일서',5],['요한이서',1],['요한삼서',1],['유다서',1],['요한계시록',22]];
-const consonants=['전체','ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅎ'];
+const consonants=['전체','ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
 let easyOpenTimer=null;
 function getConsonant(name){const c=name.charCodeAt(0);if(c<0xAC00||c>0xD7A3)return null;const idx=Math.floor((c-0xAC00)/588);const map=['ㄱ','ㄱ','ㄴ','ㄷ','ㄷ','ㄹ','ㅁ','ㅂ','ㅂ','ㅅ','ㅅ','ㅇ','ㅈ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];return map[idx]||null;}
 let currentCons='전체';
@@ -311,7 +314,14 @@ function playVerseAndCheck(){
 setTimeout(()=>{playVerseAnimation();setInterval(playVerseAndCheck,8000);},1000);
 setTimeout(()=>{playWelcomeAnimation();},3000);
 function openBible(testament){
-  window.location.href='index.html?testament='+encodeURIComponent(testament);
+  const book=document.getElementById('book-'+testament);
+  if(!book) return;
+  if(book.classList.contains('opening')) return;
+  book.classList.add('opening');
+  // 애니메이션(약 1초) 후에만 index.html로 이동
+  setTimeout(function(){
+    window.location.href='index.html?testament='+encodeURIComponent(testament);
+  },1100);
 }
 function openEasy(initialCons){const lamp=document.getElementById('lamp');if(lamp&&lamp.classList.contains('lit'))return;if(easyOpenTimer)clearTimeout(easyOpenTimer);if(lamp)lamp.classList.add('lit');easyOpenTimer=setTimeout(()=>{easyOpenTimer=null;switchTab('easy',initialCons);document.getElementById('overlay').classList.add('show');},900);}
 function closeSheet(){if(easyOpenTimer){clearTimeout(easyOpenTimer);easyOpenTimer=null;}document.getElementById('overlay').classList.remove('show');setTimeout(()=>{document.getElementById('book-old').classList.remove('opening');document.getElementById('book-new').classList.remove('opening');const lamp=document.getElementById('lamp');if(lamp)lamp.classList.remove('lit');},400);}
