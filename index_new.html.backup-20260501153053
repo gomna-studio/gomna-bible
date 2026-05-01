@@ -26,7 +26,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#000}
-body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-height:100vh;overflow-x:hidden;position:relative}
+body{background:linear-gradient(170deg,#d6b277 0%,#be9b68 60%,#a7895e 100%);min-height:100vh;overflow-x:hidden;position:relative}
 .particles{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
 .particle{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,235,180,.7) 0%,rgba(255,200,120,.2) 60%,transparent 100%);filter:blur(1.5px);opacity:0;animation:floatUp 12s linear infinite}
 .particle:nth-child(1){left:10%;width:8px;height:8px;animation-delay:0s;animation-duration:13s}
