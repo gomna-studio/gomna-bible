@@ -652,7 +652,62 @@ nav.nav-hidden { transform: translateY(-100%); }
   .hero { padding: 100px 20px 60px; }
   .nine-grid { grid-template-columns: 1fr; }
 }
-</style>
+
+/* Anchor Navigation */
+html { scroll-behavior: smooth; }
+.anchor-nav {
+  background: #FFFBF0;
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(184, 134, 11, 0.2);
+  border-bottom: 1px solid rgba(184, 134, 11, 0.2);
+  position: sticky;
+  top: 56px;
+  z-index: 50;
+  padding: 12px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.anchor-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+.anchor-nav-inner::-webkit-scrollbar { display: none; }
+.anchor-link {
+  color: #5D4516;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+.anchor-link:hover {
+  background: rgba(184, 134, 11, 0.12);
+  color: #B8860B;
+}
+.anchor-dot {
+  color: rgba(184, 134, 11, 0.4);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+section[id], div[id="us-location"] { scroll-margin-top: 120px; }
+@media (max-width: 768px) {
+  .anchor-nav { top: 50px; padding: 8px 0; }
+  .anchor-nav-inner { justify-content: flex-start; padding: 0 16px; }
+  .anchor-link { font-size: 12px; padding: 5px 10px; }
+  section[id], div[id="us-location"] { scroll-margin-top: 100px; }
+}
+
+  </style>
 </head>
 <body>
 
@@ -673,6 +728,23 @@ nav.nav-hidden { transform: translateY(-100%); }
     </ul>
   </div>
 </nav>
+
+<!-- Anchor Navigation -->
+<div class="anchor-nav" aria-label="Section Navigation">
+  <div class="anchor-nav-inner">
+    <a href="#how-to-use" class="anchor-link">사용 가이드</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="#install" class="anchor-link">앱 설치</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="#share" class="anchor-link">공유하기</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="#faq" class="anchor-link">자주 묻는 질문</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="#story" class="anchor-link">개발 이야기</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="#us-location" class="anchor-link">U.S. Location</a>
+  </div>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -716,7 +788,7 @@ nav.nav-hidden { transform: translateY(-100%); }
 
 <!-- CH2 -->
 <div class="divider"></div>
-<section class="chapter reveal">
+<section class="chapter reveal" id="install">
   <span class="chapter-num">Chapter 02</span>
   <h2>스마트폰 홈 화면에 앱처럼 설치하기</h2>
   <p class="chapter-en">Add to Home Screen</p>
@@ -873,7 +945,7 @@ nav.nav-hidden { transform: translateY(-100%); }
 
 <!-- CH3 -->
 <div class="divider"></div>
-<section class="chapter reveal">
+<section class="chapter reveal" id="share">
   <span class="chapter-num">Chapter 03</span>
   <h2>친구에게 공유하기</h2>
   <p class="chapter-en">Share with Friends</p>
@@ -958,7 +1030,7 @@ nav.nav-hidden { transform: translateY(-100%); }
 
 <!-- CH4 -->
 <div class="divider"></div>
-<section class="chapter reveal">
+<section class="chapter reveal" id="faq">
   <span class="chapter-num">Chapter 04</span>
   <h2>자주 묻는 질문</h2>
   <p class="chapter-en">FAQ</p>
@@ -992,7 +1064,7 @@ nav.nav-hidden { transform: translateY(-100%); }
 
 <!-- CH5 -->
 <div class="divider"></div>
-<section class="chapter reveal">
+<section class="chapter reveal" id="story">
   <span class="chapter-num">Chapter 05</span>
   <h2>시작 — 말씀을 이해하는 길을 다시 세웠습니다</h2>
   <p class="chapter-en">A New Way to Encounter Scripture</p>
@@ -1358,6 +1430,7 @@ reveals.forEach(el => observer.observe(el));
   }
 </script>
 <!-- ========== HQ Map (Auto-inserted) ========== -->
+<div id="us-location"></div>
 
   <!-- ========== HQ Map ========== -->
   <div style="
