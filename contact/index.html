@@ -323,6 +323,61 @@
       .gs-app-link { font-size: 5px; margin: 0; gap: 4px; }
       .gs-app-text::after { bottom: -2px; }
     }
+  
+/* Anchor Navigation */
+html { scroll-behavior: smooth; }
+.anchor-nav {
+  background: #FFFBF0;
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(184, 134, 11, 0.2);
+  border-bottom: 1px solid rgba(184, 134, 11, 0.2);
+  position: sticky;
+  top: 56px;
+  z-index: 50;
+  padding: 12px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.anchor-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+.anchor-nav-inner::-webkit-scrollbar { display: none; }
+.anchor-link {
+  color: #5D4516;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+.anchor-link:hover {
+  background: rgba(184, 134, 11, 0.12);
+  color: #B8860B;
+}
+.anchor-dot {
+  color: rgba(184, 134, 11, 0.4);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+section[id], div[id="us-location"] { scroll-margin-top: 120px; }
+@media (max-width: 768px) {
+  .anchor-nav { top: 50px; padding: 8px 0; }
+  .anchor-nav-inner { justify-content: flex-start; padding: 0 16px; }
+  .anchor-link { font-size: 12px; padding: 5px 10px; }
+  section[id], div[id="us-location"] { scroll-margin-top: 100px; }
+}
+
   </style>
 </head>
 <body>
@@ -345,6 +400,19 @@
   </div>
 </nav>
 
+<!-- Anchor Navigation -->
+<div class="anchor-nav" aria-label="Section Navigation">
+  <div class="anchor-nav-inner">
+    <a href="#inquiry" class="anchor-link">문의</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="https://pf.kakao.com/_bxgXjX" target="_blank" rel="noopener" class="anchor-link">카카오채널</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="https://www.youtube.com/@GomnaStudio" target="_blank" rel="noopener" class="anchor-link">YouTube</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="#us-location" class="anchor-link">U.S. Location</a>
+  </div>
+</div>
+
 <!-- HERO -->
 <section class="hero">
   <span class="section-tag">// CONTACT</span>
@@ -355,7 +423,7 @@
 </section>
 
 <!-- CONTACT CARDS -->
-<section class="contact-section">
+<section class="contact-section" id="inquiry">
   <div class="contact-inner">
 
     <div class="contact-grid">
@@ -401,6 +469,7 @@
 
 <!-- FOOTER -->
 <!-- ========== HQ Map (Auto-inserted) ========== -->
+<div id="us-location"></div>
 
   <!-- ========== HQ Map ========== -->
   <div style="
