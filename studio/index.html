@@ -684,7 +684,60 @@
       .gs-app-link { font-size: 5px; margin: 0; gap: 4px; }
       .gs-app-text::after { bottom: -2px; }
     }
-  @media(max-width:768px){.project-inner{grid-template-columns:1fr;gap:32px;}}</style>
+  @media(max-width:768px){.project-inner{grid-template-columns:1fr;gap:32px;}}
+/* ========== Anchor Navigation ========== */
+html { scroll-behavior: smooth; }
+.anchor-nav {
+  background: rgba(15, 15, 18, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(201, 151, 58, 0.15);
+  position: sticky;
+  top: 56px;
+  z-index: 50;
+  padding: 10px 0;
+}
+.anchor-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+.anchor-nav-inner::-webkit-scrollbar { display: none; }
+.anchor-link {
+  color: #C9973A;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+.anchor-link:hover {
+  background: rgba(201, 151, 58, 0.1);
+  color: #E5B158;
+}
+.anchor-dot {
+  color: rgba(201, 151, 58, 0.4);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+section[id] { scroll-margin-top: 120px; }
+@media (max-width: 768px) {
+  .anchor-nav { top: 50px; padding: 8px 0; }
+  .anchor-nav-inner { justify-content: flex-start; padding: 0 16px; }
+  .anchor-link { font-size: 12px; padding: 5px 10px; }
+  section[id] { scroll-margin-top: 100px; }
+}
+
+  </style>
 </head>
 <body>
 
@@ -705,6 +758,21 @@
     </ul>
   </div>
 </nav>
+
+<!-- ========== Anchor Navigation (Auto-inserted) ========== -->
+<div class="anchor-nav" aria-label="섹션 바로가기">
+  <div class="anchor-nav-inner">
+    <a href="#why-gomna" class="anchor-link">Why GOMNA</a>
+    <span class="anchor-dot">·</span>
+    <a href="#project" class="anchor-link">대표 프로젝트</a>
+    <span class="anchor-dot">·</span>
+    <a href="#platform" class="anchor-link">플랫폼 설계</a>
+    <span class="anchor-dot">·</span>
+    <a href="#philosophy" class="anchor-link">설계 철학</a>
+    <span class="anchor-dot">·</span>
+    <a href="#vision" class="anchor-link">비전</a>
+  </div>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -788,7 +856,7 @@
 </section>
 
 <!-- PROJECT -->
-<section class="project">
+<section class="project" id="project">
   <div class="project-inner">
     <div class="project-text">
       <div class="section-tag">// 대표 프로젝트</div>
@@ -881,7 +949,7 @@
 </div>
 
 
-<section class="metrics">
+<section class="metrics" id="platform">
   <div class="metrics-inner">
     <div class="section-tag">// 1인 기업 플랫폼 확장 전략</div>
     <h2 class="section-title">DB 없는 구조를 기반으로 실현된<br>확장형 플랫폼 설계</h2>
@@ -913,7 +981,7 @@
 
 <!-- STRUCTURE + TECH -->
 
-<section class="structure">
+<section class="structure" id="philosophy">
   <div class="structure-inner">
     <div class="section-tag">// 설계 철학</div>
     <h2 class="section-title">가치를 구조로 구현합니다</h2>
@@ -968,7 +1036,7 @@
 </section>
 
 <!-- VISION + NEXT CHAPTER -->
-<section class="future">
+<section class="future" id="vision">
   <div class="future-inner">
     <div class="section-tag">// VISION</div>
     <h2 class="section-title">세상의 모든 언어로<br>말씀을 연결합니다</h2>
