@@ -685,16 +685,18 @@
       .gs-app-text::after { bottom: -2px; }
     }
   @media(max-width:768px){.project-inner{grid-template-columns:1fr;gap:32px;}}
-/* ========== Anchor Navigation ========== */
+/* Anchor Navigation */
 html { scroll-behavior: smooth; }
 .anchor-nav {
-  background: rgba(15, 15, 18, 0.95);
+  background: #FFFBF0;
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(201, 151, 58, 0.15);
+  border-top: 1px solid rgba(184, 134, 11, 0.2);
+  border-bottom: 1px solid rgba(184, 134, 11, 0.2);
   position: sticky;
   top: 56px;
   z-index: 50;
-  padding: 10px 0;
+  padding: 12px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .anchor-nav-inner {
   max-width: 1200px;
@@ -710,9 +712,9 @@ html { scroll-behavior: smooth; }
 }
 .anchor-nav-inner::-webkit-scrollbar { display: none; }
 .anchor-link {
-  color: #C9973A;
+  color: #5D4516;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
   padding: 6px 12px;
   border-radius: 6px;
@@ -721,20 +723,20 @@ html { scroll-behavior: smooth; }
   flex-shrink: 0;
 }
 .anchor-link:hover {
-  background: rgba(201, 151, 58, 0.1);
-  color: #E5B158;
+  background: rgba(184, 134, 11, 0.12);
+  color: #B8860B;
 }
 .anchor-dot {
-  color: rgba(201, 151, 58, 0.4);
+  color: rgba(184, 134, 11, 0.4);
   font-size: 12px;
   flex-shrink: 0;
 }
-section[id] { scroll-margin-top: 120px; }
+section[id], div[id="us-location"] { scroll-margin-top: 120px; }
 @media (max-width: 768px) {
   .anchor-nav { top: 50px; padding: 8px 0; }
   .anchor-nav-inner { justify-content: flex-start; padding: 0 16px; }
   .anchor-link { font-size: 12px; padding: 5px 10px; }
-  section[id] { scroll-margin-top: 100px; }
+  section[id], div[id="us-location"] { scroll-margin-top: 100px; }
 }
 
   </style>
