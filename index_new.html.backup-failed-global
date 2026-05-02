@@ -52,7 +52,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 .card:active{transform:scale(.97)}
 .card.old{background:#f3eadb;color:#000}
 .card.new{background:#f3eadb;color:#000}
-.card.easy{background:#c1a679;color:#000}
+.card.easy{background:#c1a679;color:#000;container-type:inline-size}
 .stage{flex:1;width:100%;display:flex;align-items:center;justify-content:center;perspective:900px;position:relative}
 .book{width:78%;height:80%;position:relative;transform-style:preserve-3d}
 .b-closed{position:absolute;inset:0;border-radius:2px 6px 6px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .35s ease,transform .5s cubic-bezier(.4,0,.2,1);overflow:hidden;padding:0 6px}
@@ -88,12 +88,11 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 @keyframes flameD{0%,100%{transform:scale(1,1) skewX(0deg)}25%{transform:scale(.92,1.06) skewX(-2deg)}50%{transform:scale(1.06,.96) skewX(1.5deg)}75%{transform:scale(.96,1.03) skewX(-1deg)}}
 @keyframes glowB{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
 @keyframes fadeInStaggerEasy{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.easy-keypad{margin:0 auto;display:grid;align-content:center;box-sizing:border-box;max-width:100%}
-.easy-keypad.ko-keypad{width:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
-.easy-keypad.auto-keypad{width:100%;grid-template-columns:repeat(auto-fill,minmax(28px,1fr));gap:6px;justify-content:center}
-.easy-key{border:none;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;align-content:center;justify-content:center;font-family:inherit;font-size:clamp(9px,3.2vw,15px);font-weight:500;color:#1f1408;background:#fff;border-radius:4px;aspect-ratio:1;padding:2px 4px;line-height:1.1;text-align:center;overflow-wrap:anywhere;word-break:break-word;hyphens:auto;-webkit-hyphens:auto;opacity:0;animation:fadeInStaggerEasy .5s ease forwards;transition:transform .2s ease;-webkit-tap-highlight-color:transparent;min-width:0;overflow-x:hidden}
+.easy-keypad{width:100%;max-width:100%;box-sizing:border-box;padding:0 2px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(26px,min(1fr,46px)));gap:clamp(3px,1.2vw,5px);align-content:center;justify-content:center}
+.easy-key{border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;font-size:clamp(10px,2.8vw,15px);font-weight:500;color:#1f1408;background:#fff;border-radius:4px;aspect-ratio:1;padding:0;opacity:0;animation:fadeInStaggerEasy .5s ease forwards;transition:transform .2s ease;-webkit-tap-highlight-color:transparent;min-width:0;width:100%;max-width:46px;margin-inline:auto}
 .easy-key:hover{transform:scale(1.1)}
 .easy-key-all{font-size:11px;font-weight:500;color:#4a3818;background:rgba(255,255,255,.4)}
+.card.easy .name{font-size:clamp(11px,3.2vw,14px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .label{text-align:center;width:100%;margin-top:6px}
 .name{font-size:calc(var(--font-size,17px) * 14 / 17);font-weight:500;letter-spacing:-0.2px;line-height:1.1}
 .desc{font-size:calc(var(--font-size,17px) * 10 / 17);opacity:.78;margin-top:3px}
@@ -167,12 +166,12 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 .font-btn{width:48px;height:48px;border-radius:50%;border:2px solid #4A2511;background:#fff;color:#4A2511;font-size:22px;font-weight:700;cursor:pointer}
 .font-size-display{font-size:20px;font-weight:700;min-width:60px;color:#4A2511}
 .popup-close{width:100%;padding:14px;background:#B8751F;color:#fff;border:none;border-radius:25px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit}
-@media (max-width:480px){
-  .container{padding:16px 14px 22px}
-  .card.easy{padding-left:5px;padding-right:5px}
-  .card.easy .easy-keypad.ko-keypad{gap:4px}
-  .card.easy .easy-key{font-size:clamp(8px,3.8vw,14px)}
+@supports (width:1cqw){
+  .card.easy .easy-keypad{gap:clamp(3px,1.5cqw,5px)}
+  .card.easy .easy-key{font-size:clamp(10px,5.5cqw,15px)}
+  .card.easy .name{font-size:clamp(11px,4.5cqw,14px)}
 }
+@media (max-width:480px){.container{padding:16px 14px 22px}}
 </style>
 </head>
 <body>
@@ -201,7 +200,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
     </div>
     <div class="card easy" onclick="openEasy()">
       <div class="stage">
-        <div class="easy-keypad ko-keypad">
+        <div class="easy-keypad">
           <button type="button" class="easy-key" style="animation-delay:0s" onclick="event.stopPropagation();openEasy('ㄱ')" aria-label="ㄱ으로 시작">ㄱ</button>
           <button type="button" class="easy-key" style="animation-delay:.05s" onclick="event.stopPropagation();openEasy('ㄴ')" aria-label="ㄴ으로 시작">ㄴ</button>
           <button type="button" class="easy-key" style="animation-delay:.1s" onclick="event.stopPropagation();openEasy('ㄷ')" aria-label="ㄷ으로 시작">ㄷ</button>

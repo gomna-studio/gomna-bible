@@ -91,7 +91,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 .easy-keypad{margin:0 auto;display:grid;align-content:center;box-sizing:border-box;max-width:100%}
 .easy-keypad.ko-keypad{width:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
 .easy-keypad.auto-keypad{width:100%;grid-template-columns:repeat(auto-fill,minmax(28px,1fr));gap:6px;justify-content:center}
-.easy-key{border:none;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;align-content:center;justify-content:center;font-family:inherit;font-size:clamp(9px,3.2vw,15px);font-weight:500;color:#1f1408;background:#fff;border-radius:4px;aspect-ratio:1;padding:2px 4px;line-height:1.1;text-align:center;overflow-wrap:anywhere;word-break:break-word;hyphens:auto;-webkit-hyphens:auto;opacity:0;animation:fadeInStaggerEasy .5s ease forwards;transition:transform .2s ease;-webkit-tap-highlight-color:transparent;min-width:0;overflow-x:hidden}
+.easy-key{border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;font-size:clamp(12px,3.2vw,15px);font-weight:500;color:#1f1408;background:#fff;border-radius:4px;aspect-ratio:1;padding:0;opacity:0;animation:fadeInStaggerEasy .5s ease forwards;transition:transform .2s ease;-webkit-tap-highlight-color:transparent;min-width:0}
 .easy-key:hover{transform:scale(1.1)}
 .easy-key-all{font-size:11px;font-weight:500;color:#4a3818;background:rgba(255,255,255,.4)}
 .label{text-align:center;width:100%;margin-top:6px}
@@ -171,7 +171,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
   .container{padding:16px 14px 22px}
   .card.easy{padding-left:5px;padding-right:5px}
   .card.easy .easy-keypad.ko-keypad{gap:4px}
-  .card.easy .easy-key{font-size:clamp(8px,3.8vw,14px)}
+  .card.easy .easy-key{font-size:clamp(11px,3.8vw,14px)}
 }
 </style>
 </head>
