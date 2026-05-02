@@ -414,6 +414,61 @@
       .gs-app-link { font-size: 5px; margin: 0; gap: 4px; }
       .gs-app-text::after { bottom: -2px; }
     }
+  
+/* Anchor Navigation */
+html { scroll-behavior: smooth; }
+.anchor-nav {
+  background: #FFFBF0;
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(184, 134, 11, 0.2);
+  border-bottom: 1px solid rgba(184, 134, 11, 0.2);
+  position: sticky;
+  top: 56px;
+  z-index: 50;
+  padding: 12px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.anchor-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+.anchor-nav-inner::-webkit-scrollbar { display: none; }
+.anchor-link {
+  color: #5D4516;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+.anchor-link:hover {
+  background: rgba(184, 134, 11, 0.12);
+  color: #B8860B;
+}
+.anchor-dot {
+  color: rgba(184, 134, 11, 0.4);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+section[id], div[id="us-location"] { scroll-margin-top: 120px; }
+@media (max-width: 768px) {
+  .anchor-nav { top: 50px; padding: 8px 0; }
+  .anchor-nav-inner { justify-content: flex-start; padding: 0 16px; }
+  .anchor-link { font-size: 12px; padding: 5px 10px; }
+  section[id], div[id="us-location"] { scroll-margin-top: 100px; }
+}
+
   </style>
 </head>
 <body>
@@ -436,6 +491,23 @@
   </div>
 </nav>
 
+<!-- Anchor Navigation -->
+<div class="anchor-nav" aria-label="Section Navigation">
+  <div class="anchor-nav-inner">
+    <a href="#who" class="anchor-link">About Me</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="#why" class="anchor-link">Why GOMNA</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="#what" class="anchor-link">What I Build</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="#how" class="anchor-link">How I Build</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="#proof" class="anchor-link">Proof</a>
+    <span class="anchor-dot">&middot;</span>
+    <a href="#us-location" class="anchor-link">U.S. Location</a>
+  </div>
+</div>
+
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
@@ -450,7 +522,7 @@
 </section>
 
 <!-- WHO I AM -->
-<section class="who">
+<section class="who" id="who">
   <div class="who-inner">
     <span class="section-tag">// About Me</span>
     <h2>About Me</h2>
@@ -463,7 +535,7 @@
 </section>
 
 <!-- WHY GOMNA -->
-<section class="why">
+<section class="why" id="why">
   <div class="section-block">
     <span class="section-tag">// Why GOMNA</span>
     <h2>Why GOMNA</h2>
@@ -479,7 +551,7 @@
 </section>
 
 <!-- WHAT I BUILD -->
-<section class="what">
+<section class="what" id="what">
   <div class="section-block">
     <span class="section-tag">// What I Build</span>
     <h2>What I Build</h2>
@@ -496,7 +568,7 @@
 </section>
 
 <!-- HOW I BUILD -->
-<section class="how">
+<section class="how" id="how">
   <div class="section-block">
     <span class="section-tag">// How I Build</span>
     <h2>How I Build</h2>
@@ -508,7 +580,7 @@
 </section>
 
 <!-- PROOF -->
-<section class="proof">
+<section class="proof" id="proof">
   <div class="section-block">
     <span class="section-tag">// Proof</span>
     <h2>Proof</h2>
@@ -560,6 +632,7 @@
 
 <!-- FOOTER -->
 <!-- ========== HQ Map (Auto-inserted) ========== -->
+<div id="us-location"></div>
 
   <!-- ========== HQ Map ========== -->
   <div style="
