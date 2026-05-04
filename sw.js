@@ -1,7 +1,8 @@
-const CACHE_NAME = 'gomna-v20';
+const CACHE_NAME = 'gomna-v21';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/reader.html',
   '/favicon.png'
 ];
 
