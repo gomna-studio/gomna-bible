@@ -174,9 +174,12 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
   .card.easy .easy-keypad.ko-keypad{gap:4px}
   .card.easy .easy-key{font-size:clamp(8px,3.8vw,14px)}
 }
+/* touch feedback: iOS scale + opacity */
+.card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,.gs-link:active,.cat:active,button:active{transform:scale(0.96);opacity:0.85;transition:transform 0.1s ease,opacity 0.1s ease}
 </style>
 </head>
 <body>
+<script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
 <div class="particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div>
 <div class="container">
   <div class="greeting" id="greeting">— 좋은 아침입니다 —</div>

@@ -23,6 +23,9 @@
 <title>은혜의 말씀</title>
 <style>
 :root{--primary:#4A2511;--primary-dark:#3A1D0D;--gold:#B8751F;--gold-light:#D4A056;--cream:#FDF8F3;--text:#1A0F0A;--text-light:#3D2817;--border:#D5C8BB;--font-size:17px}
+/* touch feedback: iOS scale + opacity */
+.card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,.gs-link:active,.cat:active,button:active{transform:scale(0.96);opacity:0.85;transition:transform 0.1s ease,opacity 0.1s ease}
+
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-serif;background:#f5f5f5;color:var(--text);font-size:var(--font-size);line-height:1.6;font-weight:500}
 .phone-frame{max-width:420px;margin:0 auto 0;min-height:100vh;background:#fff;box-shadow:0 0 30px rgba(0,0,0,0.15);position:relative;overflow:hidden}
@@ -183,6 +186,8 @@ html.reader-hide-chrome .reader-sheet-tabs{display:flex}
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js");}</script>
 <script type="text/javascript">(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","vxpnb5ay5l");</script>
 <body>
+<!-- haptic-tap-feedback -->
+<script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
 <script>(function(){try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
 <div class="phone-frame"><div id="appTopChrome"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
   <span class="gs-text">Gomna Studio, Inc.</span>
