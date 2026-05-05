@@ -196,6 +196,13 @@ html.reader-verse-active main.content{padding-bottom:70px}
 .verse-cell.disabled{opacity:0.3;pointer-events:none}
 .verse-range-btn-all{padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#B8860B,#9a7018);color:#fff;width:100%}
 .verse-range-apply{padding:14px;border-radius:12px;background:#3d2818;color:#fff;border:none;font-weight:700;cursor:pointer;font-family:inherit;font-size:15px;width:100%;margin-top:4px}
+.verse-range-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 16px;align-items:start}
+.verse-range-column{display:flex;flex-direction:column;min-width:0}
+.verse-range-column-label{font-size:12px;font-weight:500;color:#5a3818;margin-bottom:6px;text-align:center;margin-top:0}
+.verse-range-column-scroll{max-height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
+.verse-range-split .verse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:0}
+.verse-range-split .verse-cell{min-height:38px;font-size:12px}
+
 /* verse-read-header */
 .verse-read-header{display:none;align-items:center;gap:8px;background:#faf6ed;padding:12px 14px;border-bottom:0.5px solid rgba(180,140,90,.35);box-sizing:border-box;width:100%}
 .verse-read-spacer{width:32px;height:32px;min-width:32px;flex-shrink:0;pointer-events:none}
@@ -259399,10 +259406,15 @@ function getVerseRangeModalHtml() {
     '<div id="verseRangePanelAll">' +
     '<button type="button" class="verse-range-btn-all" id="verseRangeModalAllBtn">전체 보기</button></div>' +
     '<div id="verseRangePanelRange" style="display:none">' +
-    '<p class="verse-range-range-label">시작 절을 선택하세요</p>' +
-    '<div class="verse-grid" id="verseRangeStartGrid"></div>' +
-    '<p class="verse-range-range-label">끝 절을 선택하세요</p>' +
-    '<div class="verse-grid" id="verseRangeEndGrid"></div>' +
+    '<div class="verse-range-split">' +
+    '<div class="verse-range-column">' +
+    '<p class="verse-range-column-label">시작 절</p>' +
+    '<div class="verse-range-column-scroll">' +
+    '<div class="verse-grid" id="verseRangeStartGrid"></div></div></div>' +
+    '<div class="verse-range-column">' +
+    '<p class="verse-range-column-label">끝 절</p>' +
+    '<div class="verse-range-column-scroll">' +
+    '<div class="verse-grid" id="verseRangeEndGrid"></div></div></div></div>' +
     '<p class="verse-range-preview" id="verseRangePreviewText"></p>' +
     '<button type="button" class="verse-range-apply" id="verseRangeApplyBtn">📖 말씀 보기</button></div></div>';
 }
