@@ -293,6 +293,7 @@ html.reader-verse-active main.content{padding-bottom:70px}
 <!-- haptic-tap-feedback -->
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
 <script>(function(){try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
+<script>document.addEventListener('click', function(e) { console.log('[CAPTURE]', e.target.tagName, e.target.id, e.target.className, 'at', e.clientX, e.clientY); }, true);</script>
 <div class="phone-frame"><div id="appTopChrome"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
   <span class="gs-text">Gomna Studio, Inc.</span>
   <span class="gs-arrow">↗</span>
@@ -259819,6 +259820,14 @@ function openVerseRangeModal() {
   modal.classList.add('active');
   modal.setAttribute('aria-hidden', 'false');
   attachVerseRangeModalListeners();
+  console.log('[DIAG] handleVerseRangeAllApply:', typeof window.handleVerseRangeAllApply);
+  var b = document.getElementById('verseRangeModalAllBtn');
+  if (b) {
+    var r = b.getBoundingClientRect();
+    console.log('[DIAG] btn rect:', r.left, r.top, r.width, r.height);
+    var hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    console.log('[DIAG] hit at center:', hit ? (hit.tagName + '#' + hit.id + '.' + hit.className) : 'null');
+  }
 }
 
 function closeVerseRangeModal() {
