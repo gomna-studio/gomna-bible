@@ -259617,8 +259617,8 @@ function getVerseRangeModalHtml() {
   verseRangeSelEnd = opt4RangeEnd;
   return '<div class="reader-verse-range-actions">' +
     '<div class="verse-range-mode-tabs">' +
-    '<button type="button" class="active" id="verseRangeModeAllBtn" onclick="setVerseRangeModeExternal(\'all\')">전체 보기</button>' +
-    '<button type="button" id="verseRangeModeRangeBtn" onclick="setVerseRangeModeExternal(\'range\')">절 범위 선택</button></div>' +
+    '<button type="button" class="active" id="verseRangeModeAllBtn" onclick="setVerseRangeModeExternal(\'all\', true)">전체 보기</button>' +
+    '<button type="button" id="verseRangeModeRangeBtn" onclick="setVerseRangeModeExternal(\'range\', true)">절 범위 선택</button></div>' +
     '<div class="verse-range-modal-scroll">' +
     '<div id="verseRangePanelAll">' +
     '<p class="verse-range-all-note">현재 장 전체 절이 표시됩니다.</p></div>' +
@@ -259634,7 +259634,6 @@ function getVerseRangeModalHtml() {
     '<div class="verse-grid" id="verseRangeEndGrid"></div></div></div></div>' +
     '<p class="verse-range-preview" id="verseRangePreviewText"></p></div></div>' +
     '<div class="verse-range-modal-footer">' +
-    '<button type="button" class="verse-range-btn-all" id="verseRangeModalAllBtn" onclick="handleVerseRangeAllApply()">📖 말씀 보기</button>' +
     '<button type="button" class="verse-range-apply" id="verseRangeApplyBtn" style="display:none">📖 말씀 보기</button></div></div>';
 }
 
@@ -259696,12 +259695,11 @@ function verseRangeRenderEndGrid() {
   host.innerHTML = html;
 }
 
-function setVerseRangeModeExternal(mode) {
+function setVerseRangeModeExternal(mode, fromUser) {
   var modeAll = document.getElementById('verseRangeModeAllBtn');
   var modeRange = document.getElementById('verseRangeModeRangeBtn');
   var panelAll = document.getElementById('verseRangePanelAll');
   var panelRange = document.getElementById('verseRangePanelRange');
-  var bAll = document.getElementById('verseRangeModalAllBtn');
   var bAp = document.getElementById('verseRangeApplyBtn');
 
   if (!modeAll || !modeRange || !panelAll || !panelRange) return;
@@ -259712,8 +259710,10 @@ function setVerseRangeModeExternal(mode) {
     modeRange.classList.remove('active');
     panelAll.style.display = 'block';
     panelRange.style.display = 'none';
-    if (bAll) bAll.style.display = '';
     if (bAp) bAp.style.display = 'none';
+    if (fromUser) {
+      handleVerseRangeAllApply();
+    }
     return;
   }
 
@@ -259722,7 +259722,6 @@ function setVerseRangeModeExternal(mode) {
   modeAll.classList.remove('active');
   panelRange.style.display = 'block';
   panelAll.style.display = 'none';
-  if (bAll) bAll.style.display = 'none';
   if (bAp) bAp.style.display = '';
   verseRangeSelStart = 0;
   verseRangeSelEnd = 0;
@@ -259756,7 +259755,7 @@ function attachVerseRangeModalListeners() {
   if (allBtn) allBtn.onclick = handleVerseRangeAllApply;
   // mode 탭은 inline onclick(setVerseRangeModeExternal)만 사용
   // 초기 상태를 전체 보기로 명시
-  setVerseRangeModeExternal('all');
+  setVerseRangeModeExternal('all', false);
   verseRangeRenderStartGrid();
   verseRangeRenderEndGrid();
   verseRangeRefreshPreview();
@@ -259821,12 +259820,12 @@ function openVerseRangeModal() {
   modal.setAttribute('aria-hidden', 'false');
   attachVerseRangeModalListeners();
   console.log('[DIAG] handleVerseRangeAllApply:', typeof window.handleVerseRangeAllApply);
-  var b = document.getElementById('verseRangeModalAllBtn');
+  var b = document.getElementById('verseRangeApplyBtn');
   if (b) {
     var r = b.getBoundingClientRect();
-    console.log('[DIAG] btn rect:', r.left, r.top, r.width, r.height);
+    console.log('[DIAG] apply btn rect:', r.left, r.top, r.width, r.height);
     var hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-    console.log('[DIAG] hit at center:', hit ? (hit.tagName + '#' + hit.id + '.' + hit.className) : 'null');
+    console.log('[DIAG] hit at apply center:', hit ? (hit.tagName + '#' + hit.id + '.' + hit.className) : 'null');
   }
 }
 
