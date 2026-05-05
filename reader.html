@@ -259487,6 +259487,10 @@ function unifiedBcApplyChapter(ch) {
   closeUnifiedBookChapterModal();
   renderVerses();
   loadCommentaryData();
+  var commentaryPopupEl = document.getElementById('commentaryPopup');
+  if (commentaryPopupEl && commentaryPopupEl.classList.contains('show')) {
+    showCommentary(1);
+  }
 }
 
 function openUnifiedBookChapterModal() {
