@@ -54,7 +54,7 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-seri
 .header-btn.easy-btn .btn-label{font-size:14px;font-weight:700}
 .header-btn:active{transform:scale(0.97);opacity:0.9}
 .search-bar{position:relative}
-.search-bar input{width:100%;padding:14px 50px 14px 18px;border:0.5px solid #C9B8A8;border-radius:30px;font-size:15px;font-family:inherit;background:#FFFCF7;color:#1A0F0A;font-weight:500}
+.search-bar input{width:100%;padding:14px 50px 14px 18px;border:0.5px solid #C9B8A8;border-radius:30px;font-size:16px;font-family:inherit;background:#FFFCF7;color:#1A0F0A;font-weight:500}
 .search-bar input::placeholder{color:#5C4A3A}
 .search-bar input:focus{outline:none;border-color:var(--gold);background:#fff}
 .search-bar .search-icon{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:40px;height:40px;background:linear-gradient(180deg,#E8A849 0%,#D4943C 100%);border:none;border-radius:50%;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -185,7 +185,7 @@ nav.tabs {
 .verse-range-label{font-size:11px;color:#999;font-weight:500}
 .verse-range-main{font-size:15px;font-weight:600;color:#3d2818}
 .verse-range-change{font-size:14px;font-weight:600;color:#B8860B;flex-shrink:0;margin-left:8px}
-.opt4-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;width:100%;background:#faf6ed;border-top:0.5px solid rgba(180,140,90,.35);padding:10px 12px;box-sizing:border-box;z-index:95;gap:10px;align-items:stretch}
+.opt4-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;width:100%;background:#faf6ed;border-top:0.5px solid rgba(180,140,90,.35);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0)) 12px;box-sizing:border-box;z-index:95;gap:10px;align-items:stretch}
 html.reader-verse-active .opt4-bottom-bar{display:flex}
 html.reader-verse-active main.content{padding-bottom:70px}
 .opt4-bottom-prev,.opt4-bottom-next{flex:1;background:#fff;border:1px solid #E8E0D8;border-radius:12px;padding:12px 6px;font-size:13px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit}
