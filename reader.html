@@ -210,12 +210,16 @@ html.reader-verse-active main.content{padding-bottom:70px}
 .verse-cell.disabled{opacity:0.3;pointer-events:none}
 .verse-range-btn-all{padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#B8860B,#9a7018);color:#fff;width:100%}
 .verse-range-apply{padding:14px;border-radius:12px;background:#c89849;color:#fff;border:none;font-weight:700;cursor:pointer;font-family:inherit;font-size:15px;width:100%;margin-top:0;-webkit-tap-highlight-color:transparent}.verse-range-apply:active{background:#a87a35}
-.verse-range-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 12px;align-items:start}
+.verse-range-split{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:12px 0 12px;align-items:stretch}
 .verse-range-column{display:flex;flex-direction:column;min-width:0}
+.verse-range-column:first-child{padding-right:8px;border-right:1px solid #e0d8cc}
+.verse-range-column:last-child{padding-left:8px}
 .verse-range-column-label{font-size:12px;font-weight:500;color:#5a3818;margin-bottom:6px;text-align:center;margin-top:0}
 .verse-range-column-scroll{max-height:none;overflow:visible;min-height:0}
 .verse-range-split .verse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:0}
 .verse-range-split .verse-cell{min-height:38px;font-size:12px}
+.verse-range-split .verse-cell.verse-cell--range-mid{background:#c89849;color:#fff;border-color:#a87a35;font-weight:600}
+.verse-range-split .verse-cell.verse-cell--range-end{background:#a87a35;color:#fff;border-color:#8f6b2c;font-weight:700}
 
 .unified-bc-overlay{display:none;position:fixed;inset:0;z-index:225;background:rgba(0,0,0,.45);align-items:flex-end;justify-content:center;box-sizing:border-box}
 .unified-bc-overlay.active{display:flex}
@@ -259641,13 +259645,23 @@ function verseRangeRefreshPreview() {
   }
 }
 
+function verseRangeRangeClass(v) {
+  var s = verseRangeSelStart, e = verseRangeSelEnd;
+  if (s <= 0) return '';
+  if (e > 0 && e >= s) {
+    if (v < s || v > e) return '';
+    return (v === s || v === e) ? ' verse-cell--range-end' : ' verse-cell--range-mid';
+  }
+  return (v === s) ? ' verse-cell--range-end' : '';
+}
+
 function verseRangeRenderStartGrid() {
   var host = document.getElementById('verseRangeStartGrid');
   if (!host) return;
   var html = '';
   for (var v = 1; v <= verseRangeModalMax; v++) {
-    var sel = (v === verseRangeSelStart) ? ' selected' : '';
-    html += '<button type="button" class="verse-cell' + sel + '" data-v="' + v + '">' + v + '</button>';
+    var rc = verseRangeRangeClass(v);
+    html += '<button type="button" class="verse-cell' + rc + '" data-v="' + v + '">' + v + '</button>';
   }
   host.innerHTML = html;
 }
@@ -259660,9 +259674,9 @@ function verseRangeRenderEndGrid() {
   for (var v = 1; v <= verseRangeModalMax; v++) {
     var isDis = start <= 0 || v < start;
     var dis = isDis ? ' disabled' : '';
-    var sel = (!isDis && v === verseRangeSelEnd && start > 0) ? ' selected' : '';
+    var rc = (!isDis) ? verseRangeRangeClass(v) : '';
     var disAttr = isDis ? ' disabled' : '';
-    html += '<button type="button" class="verse-cell' + dis + sel + '"' + disAttr + ' data-v="' + v + '">' + v + '</button>';
+    html += '<button type="button" class="verse-cell' + dis + rc + '"' + disAttr + ' data-v="' + v + '">' + v + '</button>';
   }
   host.innerHTML = html;
 }
@@ -259728,6 +259742,7 @@ function attachVerseRangeModalListeners() {
       if (verseRangeSelStart <= 0 || v < verseRangeSelStart) return;
       verseRangeSelEnd = v;
       verseRangeRenderEndGrid();
+      verseRangeRenderStartGrid();
       verseRangeRefreshPreview();
     });
   }
