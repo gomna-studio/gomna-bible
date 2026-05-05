@@ -201,7 +201,7 @@ html.reader-verse-active main.content{padding-bottom:70px}
 .verse-range-modal-body{padding:0;overflow:hidden;display:flex;flex-direction:column;flex:1;min-height:0;-webkit-overflow-scrolling:touch}
 .reader-verse-range-actions{display:flex;flex-direction:column;gap:12px;padding:12px 16px;padding-bottom:0;flex:1;min-height:0;overflow:hidden;box-sizing:border-box}
 .verse-range-modal-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:calc(90vh - 240px);touch-action:pan-y}
-.verse-range-modal-footer{flex-shrink:0;padding:12px 16px calc(16px + env(safe-area-inset-bottom,0));margin:0 -16px 0;background:#faf6ed;border-top:1px solid rgba(180,140,90,.22);box-sizing:content-box}
+.verse-range-modal-footer{flex-shrink:0;padding:12px 16px calc(16px + env(safe-area-inset-bottom,0));margin:0 -16px 0;background:#faf6ed;border-top:1px solid rgba(180,140,90,.22);box-sizing:content-box;position:relative;z-index:2;pointer-events:auto}
 .verse-range-all-note{margin:0;font-size:13px;color:#5a3818;line-height:1.5;opacity:0.92}
 .verse-range-mode-tabs{display:flex;gap:8px;margin-bottom:0;flex-shrink:0}
 .verse-range-mode-tabs button{flex:1;padding:12px;border-radius:12px;border:1px solid #E8E0D8;background:#fff;font-weight:600;cursor:pointer;font-family:inherit;color:#5C4A3A;font-size:14px}
@@ -213,7 +213,7 @@ html.reader-verse-active main.content{padding-bottom:70px}
 .verse-cell:active{transform:scale(0.92);transition:all 0.15s}
 .verse-cell.selected{background:#c89849;color:#fff;border-color:#a87a35}
 .verse-cell.disabled{opacity:0.3;pointer-events:none}
-.verse-range-btn-all{padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#B8860B,#9a7018);color:#fff;width:100%}
+.verse-range-btn-all{padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#B8860B,#9a7018);color:#fff;width:100%;position:relative;z-index:3;pointer-events:auto}
 .verse-range-apply{padding:14px;border-radius:12px;background:#c89849;color:#fff;border:none;font-weight:700;cursor:pointer;font-family:inherit;font-size:15px;width:100%;margin-top:0;-webkit-tap-highlight-color:transparent}.verse-range-apply:active{background:#a87a35}
 .verse-range-split{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:12px 0 12px;align-items:stretch}
 .verse-range-column{display:flex;flex-direction:column;min-width:0}
@@ -259748,8 +259748,11 @@ function handleVerseRangeAllApply() {
   updateVerseRangeBoxLabel();
   closeVerseRangeModal();
 }
+window.handleVerseRangeAllApply = handleVerseRangeAllApply;
 
 function attachVerseRangeModalListeners() {
+  var allBtn = document.getElementById('verseRangeModalAllBtn');
+  if (allBtn) allBtn.onclick = handleVerseRangeAllApply;
   // mode 탭은 inline onclick(setVerseRangeModeExternal)만 사용
   // 초기 상태를 전체 보기로 명시
   setVerseRangeModeExternal('all');
