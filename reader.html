@@ -259645,6 +259645,15 @@ function verseRangeRefreshPreview() {
   }
 }
 
+function verseRangeUpdateApplyBtnState() {
+  var applyBtn = document.getElementById('verseRangeApplyBtn');
+  if (!applyBtn) return;
+  var ok = verseRangeSelStart > 0 && verseRangeSelEnd > 0 && verseRangeSelEnd >= verseRangeSelStart;
+  applyBtn.disabled = !ok;
+  applyBtn.style.opacity = ok ? '1' : '0.45';
+  applyBtn.style.cursor = ok ? 'pointer' : 'not-allowed';
+}
+
 function verseRangeRangeClass(v) {
   var s = verseRangeSelStart, e = verseRangeSelEnd;
   if (s <= 0) return '';
@@ -259716,11 +259725,18 @@ function attachVerseRangeModalListeners() {
       var bAp = document.getElementById('verseRangeApplyBtn');
       if (bAll) bAll.style.display = 'none';
       if (bAp) bAp.style.display = '';
+      verseRangeSelStart = 0;
+      verseRangeSelEnd = 0;
+      verseRangeRenderStartGrid();
+      verseRangeRenderEndGrid();
+      verseRangeRefreshPreview();
+      verseRangeUpdateApplyBtnState();
     });
   }
   verseRangeRenderStartGrid();
   verseRangeRenderEndGrid();
   verseRangeRefreshPreview();
+  verseRangeUpdateApplyBtnState();
   var startHost = document.getElementById('verseRangeStartGrid');
   if (startHost) {
     startHost.addEventListener('click', function(ev) {
@@ -259731,6 +259747,7 @@ function attachVerseRangeModalListeners() {
       verseRangeRenderStartGrid();
       verseRangeRenderEndGrid();
       verseRangeRefreshPreview();
+      verseRangeUpdateApplyBtnState();
     });
   }
   var endHost = document.getElementById('verseRangeEndGrid');
@@ -259744,6 +259761,7 @@ function attachVerseRangeModalListeners() {
       verseRangeRenderEndGrid();
       verseRangeRenderStartGrid();
       verseRangeRefreshPreview();
+      verseRangeUpdateApplyBtnState();
     });
   }
   var applyBtn = document.getElementById('verseRangeApplyBtn');
