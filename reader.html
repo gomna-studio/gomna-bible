@@ -259633,7 +259633,7 @@ function getVerseRangeModalHtml() {
     '<div class="verse-grid" id="verseRangeEndGrid"></div></div></div></div>' +
     '<p class="verse-range-preview" id="verseRangePreviewText"></p></div></div>' +
     '<div class="verse-range-modal-footer">' +
-    '<button type="button" class="verse-range-btn-all" id="verseRangeModalAllBtn">📖 말씀 보기</button>' +
+    '<button type="button" class="verse-range-btn-all" id="verseRangeModalAllBtn" onclick="handleVerseRangeAllApply()">📖 말씀 보기</button>' +
     '<button type="button" class="verse-range-apply" id="verseRangeApplyBtn" style="display:none">📖 말씀 보기</button></div></div>';
 }
 
@@ -259731,39 +259731,26 @@ function setVerseRangeModeExternal(mode) {
   verseRangeUpdateApplyBtnState();
 }
 
+function handleVerseRangeAllApply() {
+  console.log('[ALL CLICK] before:', { opt4RangeStart: opt4RangeStart, opt4RangeEnd: opt4RangeEnd, currentVerseCount: currentVerseCount });
+  opt4RangeStart = 1;
+  opt4RangeEnd = currentVerseCount;
+  applyRange(1, currentVerseCount);
+  var _allItems = document.querySelectorAll('.verse-item');
+  var _blockCount = 0;
+  var _noneCount = 0;
+  _allItems.forEach(function(item) {
+    var d = item.style.display;
+    if (d === 'none') _noneCount++;
+    else if (d === 'block' || d === '') _blockCount++;
+  });
+  console.log('[ALL CLICK] after:', { opt4RangeStart: opt4RangeStart, opt4RangeEnd: opt4RangeEnd, blockCount: _blockCount, noneCount: _noneCount });
+  updateVerseRangeBoxLabel();
+  closeVerseRangeModal();
+}
+
 function attachVerseRangeModalListeners() {
-  var allBtn = document.getElementById('verseRangeModalAllBtn');
-  if (allBtn) {
-    allBtn.addEventListener('click', function() {
-      console.log('[ALL CLICK] before:', { opt4RangeStart: opt4RangeStart, opt4RangeEnd: opt4RangeEnd, currentVerseCount: currentVerseCount });
-      opt4RangeStart = 1;
-      opt4RangeEnd = currentVerseCount;
-      applyRange(1, currentVerseCount);
-      var _allItems = document.querySelectorAll('.verse-item');
-      var _blockCount = 0;
-      var _noneCount = 0;
-      _allItems.forEach(function(item) {
-        var d = item.style.display;
-        if (d === 'none') _noneCount++;
-        else if (d === 'block' || d === '') _blockCount++;
-      });
-      console.log('[ALL CLICK] after:', { opt4RangeStart: opt4RangeStart, opt4RangeEnd: opt4RangeEnd, blockCount: _blockCount, noneCount: _noneCount });
-      updateVerseRangeBoxLabel();
-      closeVerseRangeModal();
-    });
-  }
-  var modeAll = document.getElementById('verseRangeModeAllBtn');
-  var modeRange = document.getElementById('verseRangeModeRangeBtn');
-  if (modeAll) {
-    modeAll.addEventListener('click', function() {
-      setVerseRangeModeExternal('all');
-    });
-  }
-  if (modeRange) {
-    modeRange.addEventListener('click', function() {
-      setVerseRangeModeExternal('range');
-    });
-  }
+  // mode 탭은 inline onclick(setVerseRangeModeExternal)만 사용
   // 초기 상태를 전체 보기로 명시
   setVerseRangeModeExternal('all');
   verseRangeRenderStartGrid();
