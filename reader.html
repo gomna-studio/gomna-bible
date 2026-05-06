@@ -461,6 +461,7 @@ html.reader-verse-active main.content{padding-bottom:70px}
     <div class="view" id="newView"><div class="loading-state"><div class="spinner"></div><div>성경 데이터 로딩중...</div></div></div>
     <div class="view" id="easyView"></div>
     <div class="view" id="searchView">
+      <button type="button" id="readerBackToTextBtn" class="reader-back-to-text" onclick="returnToReader()" style="display:none">← 본문으로</button>
       <div class="reader-search-bar">
         <input type="text" id="searchInputReader" class="reader-search-input" placeholder="성경 말씀 찾기 (예: 사랑, 믿음, 소망)" onkeypress="if(event.key==='Enter'){doSearchFromReader();return false;}">
         <button type="button" class="reader-search-btn" onclick="doSearchFromReader()" aria-label="검색">🔍</button>
@@ -258538,6 +258539,7 @@ var commentaryCache = {};
 var currentTab = 'old';
 var currentBook = null;
 var currentChapter = null;
+var lastReaderReturn = null;
 var currentVerseCount = 0;
 var opt4RangeStart = 1;
 var opt4RangeEnd = 1;
@@ -258672,6 +258674,12 @@ function initializeApp() {
 }
 
 function switchTab(tab) {
+  if (tab === 'search') {
+    var vvEl = document.getElementById('verseView');
+    if (vvEl && vvEl.classList.contains('active') && currentBook && currentChapter) {
+      lastReaderReturn = {book: currentBook.name, chapter: currentChapter, testament: currentBook.testament};
+    }
+  }
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
   var activeTab = document.querySelector('.tab[data-tab="' + tab + '"]');
@@ -258684,6 +258692,8 @@ function switchTab(tab) {
   if (tab === 'search') {
     var siR = document.getElementById('searchInputReader');
     if (siR) setTimeout(function(){ try{ siR.focus(); }catch(e){} }, 0);
+    var backBtn = document.getElementById('readerBackToTextBtn');
+    if (backBtn) backBtn.style.display = lastReaderReturn ? '' : 'none';
   }
 }
 
@@ -259972,6 +259982,14 @@ function doSearchFromReader() {
   }
 }
 
+function returnToReader() {
+  if (!lastReaderReturn) return;
+  var r = lastReaderReturn;
+  if (typeof goToVerse === 'function') {
+    goToVerse(r.book, r.chapter, 1, r.testament);
+  }
+}
+
 function goToVerse(book, chapter, verse, testament) {
   var data = testament === 'old' ? oldTestamentData : newTestamentData;
   var bookData = findBook(data, book);
@@ -260090,6 +260108,8 @@ box-sizing:border-box;
 .reader-search-input:focus{border-color:#8b6508;box-shadow:0 0 0 2px rgba(184,134,11,0.15)}
 .reader-search-btn{width:44px;height:44px;border:none;border-radius:8px;background:#B8860B;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 44px;padding:0}
 .reader-search-btn:active{background:#8b6508}
+.reader-back-to-text{display:flex;align-items:center;justify-content:center;width:calc(100% - 24px);min-height:44px;margin:12px 12px 0;padding:0 16px;background:#fff;color:#B8860B;border:2px solid #B8860B;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-appearance:none;appearance:none}
+.reader-back-to-text:active{background:#B8860B;color:#fff}
 </style>
 
 <script>
