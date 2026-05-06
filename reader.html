@@ -258833,7 +258833,7 @@ function renderVerses() {
   currentVerseCount = verses.length;
   
   var chapterUnit = getChapterUnit(currentBook.name);
-  var html = '<div class="verse-range-box" id="verseRangeBoxBtn"><span class="verse-range-box-inner"><span class="verse-range-label">절 범위</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-actions"><button type="button" class="verse-range-action" onclick="openVerseRangeModal()"><span class="verse-range-circle">절</span> 범위 선택 ▼</button><button type="button" class="verse-range-action" onclick="openVersePickModalPlaceholder()"><span class="verse-range-circle">절</span> 골라보기 ▼</button></span></div>';
+  var html = '<div class="verse-range-box" id="verseRangeBoxBtn"><span class="verse-range-box-inner"><span class="verse-range-label">절 범위</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-actions"><button type="button" class="verse-range-action" onclick="openVerseRangeModal()"><span class="verse-range-circle">절</span> 범위 선택 ▼</button></span></div>';
   html += '<div class="verse-list" id="verseList">';
   
   verses.forEach(function(v) {
@@ -259794,10 +259794,6 @@ function attachVerseRangeModalListeners() {
       closeVerseRangeModal();
     });
   }
-}
-
-function openVersePickModalPlaceholder() {
-  alert('골라보기 기능은 다음 단계에서 곧 구현됩니다. 잠시만 기다려주세요.');
 }
 
 function openVerseRangeModal() {
