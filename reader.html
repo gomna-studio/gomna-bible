@@ -259620,12 +259620,12 @@ function getVerseRangeModalHtml() {
   verseRangeSelEnd = opt4RangeEnd;
   return '<div class="reader-verse-range-actions">' +
     '<div class="verse-range-mode-tabs">' +
-    '<button type="button" class="active" id="verseRangeModeAllBtn" onclick="setVerseRangeModeExternal(\'all\', true)">전체 보기</button>' +
-    '<button type="button" id="verseRangeModeRangeBtn" onclick="setVerseRangeModeExternal(\'range\', true)">절 범위 선택</button></div>' +
+    '<button type="button" id="verseRangeModeAllBtn" onclick="setVerseRangeModeExternal(\'all\', true)">전체 보기</button>' +
+    '<button type="button" class="active" id="verseRangeModeRangeBtn" onclick="setVerseRangeModeExternal(\'range\', true)">절 범위 선택</button></div>' +
     '<div class="verse-range-modal-scroll">' +
-    '<div id="verseRangePanelAll">' +
+    '<div id="verseRangePanelAll" style="display:none">' +
     '<p class="verse-range-all-note">현재 장 전체 절이 표시됩니다.</p></div>' +
-    '<div id="verseRangePanelRange" style="display:none">' +
+    '<div id="verseRangePanelRange">' +
     '<div class="verse-range-split">' +
     '<div class="verse-range-column">' +
     '<p class="verse-range-column-label">시작 절</p>' +
@@ -259745,8 +259745,8 @@ function attachVerseRangeModalListeners() {
   var allBtn = document.getElementById('verseRangeModalAllBtn');
   if (allBtn) allBtn.onclick = handleVerseRangeAllApply;
   // mode 탭은 inline onclick(setVerseRangeModeExternal)만 사용
-  // 초기 상태를 전체 보기로 명시
-  setVerseRangeModeExternal('all', false);
+  // 초기 상태를 절 범위 선택으로 명시
+  setVerseRangeModeExternal('range', false);
   verseRangeRenderStartGrid();
   verseRangeRenderEndGrid();
   verseRangeRefreshPreview();
