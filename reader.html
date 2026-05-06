@@ -166,12 +166,15 @@ html.reader-hide-chrome #appTopChrome{display:none!important}
 .reader-sheet-tabs{display:none;flex-wrap:nowrap;align-items:flex-end;gap:14px;padding:12px 14px 0;background:#faf6ed;border-bottom:0.5px solid rgba(180,140,90,.3);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;position:sticky;top:0;z-index:90;box-sizing:border-box}
 .reader-sheet-tabs::-webkit-scrollbar{display:none}
 html.reader-hide-chrome .reader-sheet-tabs{display:flex}
-.reader-sheet-tabs .reader-tab{font-size:17px;font-weight:600;color:#5a3818;padding:6px 0 12px;background:none;border:none;font-family:inherit;cursor:pointer;white-space:nowrap;position:relative;flex-shrink:0}
+.reader-sheet-tabs .reader-tab{font-size:17px;font-weight:600;color:#5a3818;padding:8px 2px 12px;background:none;border:none;font-family:inherit;cursor:pointer;white-space:nowrap;position:relative;flex-shrink:0;min-height:44px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .15s ease, opacity .15s ease, background-color .15s ease;border-radius:8px}
 .reader-sheet-tabs .reader-tab.active{color:#3d2818;font-weight:600}
 .reader-sheet-tabs .reader-tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2.5px;background:#8b5e2c;border-radius:1.5px}
 .reader-sheet-tabs .reader-tab.reader-home{color:#8b5e2c;font-weight:500}
+.reader-sheet-tabs .reader-tab:active{transform:scale(0.95);opacity:0.7;background-color:rgba(139,94,44,0.14)}
+.reader-sheet-tabs .reader-close:active{transform:scale(0.95);opacity:0.7;background-color:rgba(139,94,44,0.28)}
+.verse-read-more:active{transform:scale(0.95);opacity:0.7;background-color:rgba(139,94,44,0.28)}
 .reader-sheet-tabs .reader-nav-end{margin-left:auto;display:flex;align-items:flex-end;gap:16px;flex-shrink:0}
-.reader-sheet-tabs .reader-close{background:rgba(139, 94, 44, 0.18);border:none;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:18px;line-height:1;color:#3d2818;padding:0;flex-shrink:0}
+.reader-sheet-tabs .reader-close{background:rgba(139, 94, 44, 0.18);border:none;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:18px;line-height:1;color:#3d2818;padding:0;flex-shrink:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .15s ease, opacity .15s ease, background-color .15s ease}
 
 /* option4-legacy-ui-cleanup */
 header.header,
@@ -182,9 +185,9 @@ nav.tabs {
 .verse-range-box{width:100%;text-align:left;background:#fff;border:0.5px solid rgba(180,140,90,.55);border-radius:10px;padding:11px 14px;margin:0 -16px 16px;display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
 .verse-range-box:active{opacity:0.92}
 .verse-range-box-inner{display:flex;flex-direction:column;align-items:flex-start;gap:2px;flex:1;min-width:0}
-.verse-range-label{font-size:11px;color:#999;font-weight:500}
+.verse-range-label{font-size:13px;color:#5a3818;font-weight:600}
 .verse-range-main{font-size:15px;font-weight:600;color:#3d2818}
-.verse-range-change{font-size:14px;font-weight:600;color:#B8860B;flex-shrink:0;margin-left:8px}
+.verse-range-change{font-size:14px;font-weight:600;color:#B8860B;white-space:nowrap;flex-shrink:0;margin-left:8px}
 .opt4-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;width:100%;background:#faf6ed;border-top:0.5px solid rgba(180,140,90,.35);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0)) 12px;box-sizing:border-box;z-index:95;gap:10px;align-items:stretch}
 html.reader-verse-active .opt4-bottom-bar{display:flex}
 html.reader-verse-active main.content{padding-bottom:70px}
@@ -255,12 +258,12 @@ html.reader-verse-active main.content{padding-bottom:70px}
 /* verse-read-header */
 .verse-read-header{display:none;align-items:center;gap:8px;background:#faf6ed;padding:12px 14px;border-bottom:0.5px solid rgba(180,140,90,.35);box-sizing:border-box;width:100%}
 .verse-read-spacer{width:32px;height:32px;min-width:32px;flex-shrink:0;pointer-events:none}
-.verse-read-more{width:44px;height:44px;min-width:44px;padding:0;border:none;background:rgba(139, 94, 44, 0.18);font-size:24px;color:#3d2818;cursor:pointer;font-family:inherit;line-height:1;border-radius:50%;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.verse-read-more{width:44px;height:44px;min-width:44px;padding:0;border:none;background:rgba(139, 94, 44, 0.18);font-size:24px;color:#3d2818;cursor:pointer;font-family:inherit;line-height:1;border-radius:50%;display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .15s ease, opacity .15s ease, background-color .15s ease}
 .verse-read-title{flex:1;min-width:0;border:none;background:transparent;font-size:16px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit;padding:8px 12px;display:flex;align-items:center;justify-content:center;gap:0;border-radius:8px;-webkit-tap-highlight-color:transparent}
 .verse-read-title:hover{background:rgba(200,152,73,.15)}
 .verse-read-title:active{background:rgba(200,152,73,.22)}
 .verse-read-title-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.verse-read-caret{font-size:11px;color:#8b5e2c;margin-left:6px;flex-shrink:0;font-weight:700}
+.verse-read-caret{font-size:14px;color:#B8860B;margin-left:6px;flex-shrink:0;font-weight:600}
 .verse-read-more-overlay{display:none;position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.4);align-items:flex-end;justify-content:center;box-sizing:border-box}
 .verse-read-more-overlay.active{display:flex}
 .verse-read-more-sheet{background:#faf6ed;border-radius:16px 16px 0 0;width:100%;max-width:480px;margin:0 auto;box-shadow:0 -4px 24px rgba(0,0,0,.12);overflow:hidden}
@@ -258827,7 +258830,7 @@ function renderVerses() {
   currentVerseCount = verses.length;
   
   var chapterUnit = getChapterUnit(currentBook.name);
-  var html = '<button type="button" class="verse-range-box" id="verseRangeBoxBtn" onclick="openVerseRangeModal()" aria-label="절 범위 변경"><span class="verse-range-box-inner"><span class="verse-range-label">절 범위</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-change">변경 ▼</span></button>';
+  var html = '<button type="button" class="verse-range-box" id="verseRangeBoxBtn" onclick="openVerseRangeModal()" aria-label="절 범위 변경"><span class="verse-range-box-inner"><span class="verse-range-label">절 범위</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-change">절 선택해서 보기 ▼</span></button>';
   html += '<div class="verse-list" id="verseList">';
   
   verses.forEach(function(v) {
