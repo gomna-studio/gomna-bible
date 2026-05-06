@@ -468,7 +468,10 @@ html.reader-verse-active main.content{padding-bottom:70px}
       </div>
       <div id="searchResultsArea"><div class="empty-state"><div class="icon">🔍</div><div class="msg">검색어를 입력하세요</div></div></div>
     </div>
-    <div class="view" id="favView"><div class="empty-state"><div class="icon">📁</div><div class="msg">저장된 말씀이 없습니다</div></div></div>
+    <div class="view" id="favView">
+      <button type="button" id="readerBackToTextBtnFav" class="reader-back-to-text" onclick="returnToReader()" style="display:none">← 본문으로</button>
+      <div id="favResultsArea"><div class="empty-state"><div class="icon">📁</div><div class="msg">저장된 말씀이 없습니다</div></div></div>
+    </div>
     <div class="view" id="chapterView"></div>
     <div class="view" id="verseView"></div>
   </main>
@@ -258674,7 +258677,7 @@ function initializeApp() {
 }
 
 function switchTab(tab) {
-  if (tab === 'search') {
+  if (tab === 'search' || tab === 'fav') {
     var vvEl = document.getElementById('verseView');
     if (vvEl && vvEl.classList.contains('active') && currentBook && currentChapter) {
       lastReaderReturn = {book: currentBook.name, chapter: currentChapter, testament: currentBook.testament};
@@ -258694,6 +258697,10 @@ function switchTab(tab) {
     if (siR) setTimeout(function(){ try{ siR.focus(); }catch(e){} }, 0);
     var backBtn = document.getElementById('readerBackToTextBtn');
     if (backBtn) backBtn.style.display = lastReaderReturn ? '' : 'none';
+  }
+  if (tab === 'fav') {
+    var backBtnFav = document.getElementById('readerBackToTextBtnFav');
+    if (backBtnFav) backBtnFav.style.display = lastReaderReturn ? '' : 'none';
   }
 }
 
@@ -259923,7 +259930,7 @@ function toggleFav(book, chapter, verse, text) {
 }
 
 function renderFavorites() {
-  var container = document.getElementById('favView');
+  var container = document.getElementById('favResultsArea');
   if(favorites.length === 0) {
     container.innerHTML = '<div class="empty-state"><div class="icon">📁</div><div class="msg">저장된 말씀이 없습니다</div></div>';
     return;
