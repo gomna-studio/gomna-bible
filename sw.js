@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gomna-v22';
+const CACHE_NAME = 'gomna-v23';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -19,7 +19,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.filter(name => name !== CACHE_NAME).map(name => caches.delete(name))
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
