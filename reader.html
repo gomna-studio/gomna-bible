@@ -188,6 +188,7 @@ nav.tabs {
 .verse-range-label{font-size:13px;color:#5a3818;font-weight:600}
 .verse-range-main{font-size:15px;font-weight:600;color:#3d2818}
 .verse-range-change{font-size:14px;font-weight:700;color:#B8860B;white-space:nowrap;flex-shrink:0;margin-left:8px}
+.verse-range-circle{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;background:#B8860B;color:#fff;border-radius:50%;font-size:11px;font-weight:700;line-height:1;margin-right:4px;vertical-align:middle}
 .opt4-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;width:100%;background:#faf6ed;border-top:0.5px solid rgba(180,140,90,.35);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0)) 12px;box-sizing:border-box;z-index:95;gap:10px;align-items:stretch}
 html.reader-verse-active .opt4-bottom-bar{display:flex}
 html.reader-verse-active main.content{padding-bottom:70px}
@@ -258830,7 +258831,7 @@ function renderVerses() {
   currentVerseCount = verses.length;
   
   var chapterUnit = getChapterUnit(currentBook.name);
-  var html = '<button type="button" class="verse-range-box" id="verseRangeBoxBtn" onclick="openVerseRangeModal()" aria-label="절 범위 변경"><span class="verse-range-box-inner"><span class="verse-range-label">절 범위</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-change">절 선택해서 보기 ▼</span></button>';
+  var html = '<button type="button" class="verse-range-box" id="verseRangeBoxBtn" onclick="openVerseRangeModal()" aria-label="절 범위 변경"><span class="verse-range-box-inner"><span class="verse-range-label">절 범위</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-change"><span class="verse-range-circle">절</span> 선택해서 보기 ▼</span></button>';
   html += '<div class="verse-list" id="verseList">';
   
   verses.forEach(function(v) {
