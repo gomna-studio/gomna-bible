@@ -460,7 +460,13 @@ html.reader-verse-active main.content{padding-bottom:70px}
     <div class="view active" id="oldView"><div class="loading-state"><div class="spinner"></div><div>성경 데이터 로딩중...</div></div></div>
     <div class="view" id="newView"><div class="loading-state"><div class="spinner"></div><div>성경 데이터 로딩중...</div></div></div>
     <div class="view" id="easyView"></div>
-    <div class="view" id="searchView"><div class="empty-state"><div class="icon">🔍</div><div class="msg">검색어를 입력하세요</div></div></div>
+    <div class="view" id="searchView">
+      <div class="reader-search-bar">
+        <input type="text" id="searchInputReader" class="reader-search-input" placeholder="성경 말씀 찾기 (예: 사랑, 믿음, 소망)" onkeypress="if(event.key==='Enter'){doSearchFromReader();return false;}">
+        <button type="button" class="reader-search-btn" onclick="doSearchFromReader()" aria-label="검색">🔍</button>
+      </div>
+      <div id="searchResultsArea"><div class="empty-state"><div class="icon">🔍</div><div class="msg">검색어를 입력하세요</div></div></div>
+    </div>
     <div class="view" id="favView"><div class="empty-state"><div class="icon">📁</div><div class="msg">저장된 말씀이 없습니다</div></div></div>
     <div class="view" id="chapterView"></div>
     <div class="view" id="verseView"></div>
@@ -258616,6 +258622,8 @@ function applyNavigationFromQuery() {
   if (qRaw) {
     var si = document.getElementById('searchInput');
     if (si) si.value = qRaw;
+    var siNew = document.getElementById('searchInputReader');
+    if (siNew) siNew.value = qRaw;
     switchTab('search');
     doSearch();
     syncReaderNavActive();
@@ -258673,6 +258681,10 @@ function switchTab(tab) {
   updateHeaderBtns(tab);
   syncReaderNavActive();
   updateOpt4BottomBar();
+  if (tab === 'search') {
+    var siR = document.getElementById('searchInputReader');
+    if (siR) setTimeout(function(){ try{ siR.focus(); }catch(e){} }, 0);
+  }
 }
 
 function updateHeaderBtns(tab) {
@@ -259938,7 +259950,7 @@ function doSearch() {
     });
   });
   
-  var container = document.getElementById('searchView');
+  var container = document.getElementById('searchResultsArea');
   if(results.length === 0) {
     container.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><div class="msg">"' + query + '" 검색 결과가 없습니다</div></div>';
     return;
@@ -259949,6 +259961,15 @@ function doSearch() {
     html += '<div class="search-result" onclick="goToVerse(\'' + r.book + '\',' + r.chapter + ',' + r.verse + ',\'' + r.testament + '\')"><div class="ref">' + r.ref + '</div><div class="text">' + highlighted + '</div></div>';
   });
   container.innerHTML = html;
+}
+
+function doSearchFromReader() {
+  var newInput = document.getElementById('searchInputReader');
+  var oldInput = document.getElementById('searchInput');
+  if (newInput && oldInput) {
+    oldInput.value = newInput.value;
+    doSearch();
+  }
 }
 
 function goToVerse(book, chapter, verse, testament) {
@@ -260063,6 +260084,12 @@ box-sizing:border-box;
     border-radius: 16px 16px 0 0 !important;
   }
 }
+.reader-search-bar{display:flex;gap:8px;padding:12px;align-items:center;background:#fff;border-bottom:1px solid #f0e8d8}
+.reader-search-input{flex:1;height:44px;padding:0 12px;font-size:16px;border:2px solid #B8860B;border-radius:8px;outline:none;color:#5a4a1a;background:#fffef7;-webkit-appearance:none;appearance:none}
+.reader-search-input::placeholder{color:#c9b27a}
+.reader-search-input:focus{border-color:#8b6508;box-shadow:0 0 0 2px rgba(184,134,11,0.15)}
+.reader-search-btn{width:44px;height:44px;border:none;border-radius:8px;background:#B8860B;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 44px;padding:0}
+.reader-search-btn:active{background:#8b6508}
 </style>
 
 <script>
