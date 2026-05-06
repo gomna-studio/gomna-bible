@@ -54,6 +54,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 .card.old{background:#f3eadb;color:#000}
 .card.new{background:#f3eadb;color:#000}
 .card.easy{background:#c1a679;color:#000}
+button.card{border:0;margin:0;font-family:inherit;font-size:inherit;color:inherit;text-align:inherit;line-height:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation;width:100%;-webkit-appearance:none;appearance:none}
 .stage{flex:1;width:100%;display:flex;align-items:center;justify-content:center;perspective:900px;position:relative}
 .book{width:78%;height:80%;position:relative;transform-style:preserve-3d}
 .b-closed{position:absolute;inset:0;border-radius:2px 6px 6px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .35s ease,transform .5s cubic-bezier(.4,0,.2,1);overflow:hidden;padding:0 6px}
@@ -194,7 +195,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
     </button>
   </div>
   <div class="cards">
-    <div class="card old" onclick="openBible('old')">
+    <button type="button" class="card old" onclick="openBible('old')">
       <div class="stage">
         <div class="book" id="book-old">
           <div class="b-closed faded"><div class="b-title-en">HOLY<br>BIBLE</div><div class="b-line-en"></div><div class="b-sub-en">Korean Revised</div></div>
@@ -202,7 +203,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
         </div>
       </div>
       <div class="label"><div class="name">구약 39권</div><div class="desc">장과 절로 ›</div></div>
-    </div>
+    </button>
     <div class="card easy" onclick="openEasy()">
       <div class="stage">
         <div class="easy-keypad ko-keypad">
@@ -222,7 +223,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
       </div>
       <div class="label"><div class="name">말씀 바로찾기</div><div class="desc">자음별로 ›</div></div>
     </div>
-    <div class="card new" onclick="openBible('new')">
+    <button type="button" class="card new" onclick="openBible('new')">
       <div class="stage">
         <div class="book" id="book-new">
           <div class="b-closed rose"><div class="b-title-en">HOLY<br>BIBLE</div><div class="b-line-en"></div><div class="b-sub-en">Korean Revised</div></div>
@@ -230,7 +231,7 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
         </div>
       </div>
       <div class="label"><div class="name">신약 27권</div><div class="desc">장과 절로 ›</div></div>
-    </div>
+    </button>
   </div>
   <form class="search" id="homeSearchForm" onsubmit="submitSearch(event)" onclick="activateSearch()">
     <input id="homeSearchInput" class="search-input" type="search" placeholder="성경 말씀 찾기 (예: 사랑, 믿음)" aria-label="성경 검색어 입력" autocomplete="off">
