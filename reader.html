@@ -259868,7 +259868,7 @@ function shareVerse(vn) {
   var text = '📖 ' + currentBook.name + ' ' + currentChapter + ':' + vn + '\n\n' + verseData.text + '\n\n- 은혜의말씀 앱';
   
   if(navigator.share) {
-    navigator.share({ title: '은혜의말씀', text: text });
+    navigator.share({ title: '은혜의말씀', text: text, url: 'https://gomnastudio.com/' });
   } else if(navigator.clipboard) {
     navigator.clipboard.writeText(text).then(function() { alert('클립보드에 복사되었습니다!'); });
   } else {
