@@ -27,6 +27,8 @@
       --text3:    #5a5a72;
       --white:    #ffffff;
       --nav-bg:   #1E293B;
+      --studio-nav-height: 56px;
+      --studio-anchor-bar: 52px;
     }
 
     [data-theme="light"] {
@@ -429,7 +431,7 @@ html { scroll-behavior: smooth; }
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .anchor-nav-inner {
-  max-width: 1200px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
@@ -463,10 +465,13 @@ html { scroll-behavior: smooth; }
 }
 section[id], div[id="us-location"] { scroll-margin-top: 120px; }
 @media (max-width: 768px) {
-  .anchor-nav { top: 50px; padding: 8px 0; }
+  body { padding-top: var(--studio-nav-height); }
+  .anchor-nav { position: relative; top: 0; padding: 8px 0; }
   .anchor-nav-inner { justify-content: flex-start; padding: 0 16px; }
   .anchor-link { font-size: 12px; padding: 5px 10px; }
-  section[id], div[id="us-location"] { scroll-margin-top: 100px; }
+  section[id], div[id="us-location"] {
+    scroll-margin-top: calc(var(--studio-nav-height) + var(--studio-anchor-bar) + 8px);
+  }
 }
 
   </style>
@@ -734,6 +739,29 @@ section[id], div[id="us-location"] { scroll-margin-top: 120px; }
       localStorage.setItem('gomna_theme', 'light');
     }
   }
+  // Sync mobile nav/anchor heights to CSS vars (desktop keeps current layout baseline)
+  (function() {
+    const nav = document.querySelector('nav');
+    if (!nav) return;
+    const desktopNavTop = 56;
+    function syncNavHeight() {
+      const navH = Math.ceil(nav.getBoundingClientRect().height);
+      const anchor = document.querySelector('.anchor-nav');
+      const anchorH = anchor ? Math.ceil(anchor.getBoundingClientRect().height) : 52;
+      const isMobile = window.innerWidth <= 768;
+      document.documentElement.style.setProperty('--studio-nav-height', (isMobile ? navH : desktopNavTop) + 'px');
+      document.documentElement.style.setProperty('--studio-anchor-bar', Math.max(anchorH, 44) + 'px');
+    }
+    syncNavHeight();
+    window.addEventListener('resize', syncNavHeight, { passive: true });
+    window.addEventListener('orientationchange', syncNavHeight, { passive: true });
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(syncNavHeight);
+      ro.observe(nav);
+      const anchor = document.querySelector('.anchor-nav');
+      if (anchor) ro.observe(anchor);
+    }
+  })();
   // Hide-on-scroll header (mobile only)
   (function() {
     const nav = document.querySelector('nav');

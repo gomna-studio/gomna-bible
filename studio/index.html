@@ -27,6 +27,9 @@
       --text3:    #5a5a72;
       --white:    #ffffff;
       --nav-bg:   #1E293B;
+      /* Fixed nav height (updated via JS for wrapped mobile header) */
+      --studio-nav-height: 60px;
+      --studio-anchor-bar: 52px;
     }
 
     [data-theme="light"] {
@@ -52,6 +55,8 @@
       line-height: 1.7;
       overflow-x: hidden;
       transition: background 0.3s ease, color 0.3s ease;
+      /* Reserve space for position:fixed nav so in-flow content (e.g. anchor bar) is not hidden under it */
+      padding-top: var(--studio-nav-height);
     }
 
     .theme-btn {
@@ -693,13 +698,13 @@ html { scroll-behavior: smooth; }
   border-top: 1px solid rgba(184, 134, 11, 0.2);
   border-bottom: 1px solid rgba(184, 134, 11, 0.2);
   position: sticky;
-  top: 56px;
+  top: var(--studio-nav-height);
   z-index: 50;
   padding: 12px 0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .anchor-nav-inner {
-  max-width: 1200px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
@@ -731,12 +736,13 @@ html { scroll-behavior: smooth; }
   font-size: 12px;
   flex-shrink: 0;
 }
-section[id], div[id="us-location"] { scroll-margin-top: 120px; }
+section[id], div[id="us-location"] {
+  scroll-margin-top: calc(var(--studio-nav-height) + var(--studio-anchor-bar) + 8px);
+}
 @media (max-width: 768px) {
-  .anchor-nav { top: 50px; padding: 8px 0; }
+  .anchor-nav { position: relative; top: 0; padding: 8px 0; }
   .anchor-nav-inner { justify-content: flex-start; padding: 0 16px; }
   .anchor-link { font-size: 12px; padding: 5px 10px; }
-  section[id], div[id="us-location"] { scroll-margin-top: 100px; }
 }
 
   </style>
@@ -1244,6 +1250,29 @@ section[id], div[id="us-location"] { scroll-margin-top: 120px; }
       localStorage.setItem('gomna_theme', 'light');
     }
   }
+  // Sync fixed nav height → CSS vars (mobile header wraps to multiple rows)
+  (function() {
+    const nav = document.querySelector('nav');
+    if (!nav) return;
+    function syncNavHeight() {
+      const h = Math.ceil(nav.getBoundingClientRect().height);
+      document.documentElement.style.setProperty('--studio-nav-height', h + 'px');
+      const anchor = document.querySelector('.anchor-nav');
+      if (anchor) {
+        const ah = Math.ceil(anchor.getBoundingClientRect().height);
+        document.documentElement.style.setProperty('--studio-anchor-bar', Math.max(ah, 44) + 'px');
+      }
+    }
+    syncNavHeight();
+    window.addEventListener('resize', syncNavHeight, { passive: true });
+    window.addEventListener('orientationchange', syncNavHeight, { passive: true });
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(syncNavHeight);
+      ro.observe(nav);
+      const anchor = document.querySelector('.anchor-nav');
+      if (anchor) ro.observe(anchor);
+    }
+  })();
   // Hide-on-scroll header (mobile only)
   (function() {
     const nav = document.querySelector('nav');
