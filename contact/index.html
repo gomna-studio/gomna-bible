@@ -234,7 +234,7 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 1.2rem;
     }
-    .contact-info { flex: 1; }
+    .contact-info { flex: 1; min-width: 0; }
     .contact-label {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.7rem; color: var(--accent2);
@@ -244,6 +244,7 @@
     .contact-value {
       font-size: 1rem; font-weight: 500;
       color: var(--white); margin-bottom: 4px;
+      overflow-wrap: anywhere;
     }
     .contact-desc { font-size: 0.8rem; color: var(--text3); line-height: 1.5; }
 
