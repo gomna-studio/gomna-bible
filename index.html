@@ -234,6 +234,18 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
   .easy-key.cat-key .cat-label{font-size:8.5px;line-height:1.2}
   .easy-key.cat-key .cat-count{font-size:5.5px;line-height:1.1}
 }
+/* 320px 이하 (iPhone SE 1세대, Android XS, Galaxy Fold 접힘 등 초소형 화면)
+   에서는 행 높이가 13.5px 이하라 두 줄 표시 시 받침이 잘림.
+   카운트(N권)를 숨겨 라벨만 표시 → 한 줄로 들어가 잘림 0px 보장. */
+@media (max-width:340px){
+  .easy-key.cat-key .cat-count{display:none}
+  .easy-key.cat-key .cat-label{font-size:9.5px;line-height:1.25;padding:0}
+}
+/* 300px 이하 (Galaxy Fold 접힘 등 극초소형) — 행 높이 ≈8px라 더 작게 */
+@media (max-width:300px){
+  .easy-key.cat-key{padding:0 1px}
+  .easy-key.cat-key .cat-label{font-size:7.5px;line-height:1.05;letter-spacing:-0.5px}
+}
 /* touch feedback: iOS scale + opacity (strong) */
 .card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,.gs-link:active,button:active{transform: scale(0.90); opacity: 0.65; filter: brightness(0.85) saturate(1.3); background-color: rgba(200, 152, 73, 0.15); transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease, background-color 0.15s ease}
 </style>
