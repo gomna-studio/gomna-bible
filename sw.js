@@ -4,7 +4,7 @@
 //   - STATIC: HTML/JS/CSS/매니페스트/기본 아이콘 — 코드 변경 시 버전 bump
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 
-const STATIC_CACHE = 'gomna-static-v40';
+const STATIC_CACHE = 'gomna-static-v42';
 const DATA_CACHE   = 'gomna-data-v1';
 
 const STATIC_URLS = [
@@ -22,7 +22,9 @@ const STATIC_URLS = [
   '/favicon-32x32.png',
   '/apple-touch-icon.png',
   '/icon-192.png',
-  '/icon-512.png'
+  '/icon-512.png',
+  '/assets/globe_3d_256.webp',
+  '/assets/globe_3d_128.png'
 ];
 
 self.addEventListener('install', event => {

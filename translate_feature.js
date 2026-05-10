@@ -796,21 +796,18 @@
   // Styles
   // ------------------------------------------------------------------
   const CSS = '\
-.gt-btn{width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:transparent;border:none;padding:0;margin-right:2px;font-family:inherit}\
-.gt-btn svg{width:26px;height:26px;overflow:visible;transition:transform .4s ease;filter:drop-shadow(0 1px 1px rgba(60,40,20,.18))}\
-.gt-btn .gt-globe-fill{fill:url(#gtVintGrad)}\
-.gt-btn .gt-globe-edge{fill:none;stroke:#3d2810;stroke-width:3;stroke-linejoin:round}\
-.gt-btn .gt-ink{fill:#3d2810;opacity:.65}\
-.gt-btn .gt-ring{fill:none;stroke:#3d2810;stroke-width:3;opacity:.92;stroke-linecap:round}\
-.gt-btn .gt-axis{stroke:#3d2810;stroke-width:2.6;stroke-linecap:round;fill:none;opacity:.78}\
-.gt-btn .gt-spin{transform-origin:32px 32px;animation:gtVintageRot 16s linear infinite;will-change:transform}\
-@keyframes gtVintageRot{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}\
-@media (prefers-reduced-motion:reduce){.gt-btn .gt-spin{animation:none}}\
-.gt-btn:hover svg{transform:scale(1.08)}\
-.gt-btn:hover .gt-spin{animation-duration:10s}\
-.gt-btn:active svg{transform:scale(.94)}\
-.gt-btn.gt-on-dark{background:rgba(255,255,255,.15);width:36px;height:36px;border-radius:50%}\
-.gt-btn.gt-on-dark svg{width:22px;height:22px}\
+.gt-btn{position:relative;isolation:isolate;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:transparent;border:none;padding:0;margin-right:2px;font-family:inherit;border-radius:50%;-webkit-tap-highlight-color:transparent}\
+.gt-btn::after{content:"";position:absolute;top:50%;left:50%;width:40px;height:40px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(150,205,255,.55) 18%,rgba(120,180,255,.32) 38%,rgba(255,225,160,.18) 58%,rgba(255,225,160,0) 75%);filter:blur(2px);z-index:0;pointer-events:none;animation:gtGlobeBreath 3.6s ease-in-out infinite;will-change:opacity,transform}\
+.gt-btn .gt-globe-img{position:relative;z-index:1;width:30px;height:30px;border-radius:50%;display:block;object-fit:cover;animation:gtGlobeSpin 30s linear infinite;will-change:transform;filter:drop-shadow(0 1px 2px rgba(0,0,0,.22)) drop-shadow(0 0 3px rgba(140,200,255,.35));transition:filter .3s ease, width .2s ease, height .2s ease}\
+@keyframes gtGlobeSpin{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}\
+@keyframes gtGlobeBreath{0%,100%{opacity:.78;transform:translate(-50%,-50%) scale(.96)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}}\
+@media (prefers-reduced-motion:reduce){.gt-btn .gt-globe-img{animation:none}.gt-btn::after{animation:none;opacity:.85}}\
+.gt-btn:hover .gt-globe-img{animation-duration:14s;filter:drop-shadow(0 2px 4px rgba(0,0,0,.28)) drop-shadow(0 0 6px rgba(140,200,255,.55))}\
+.gt-btn:hover::after{animation-duration:2.2s}\
+.gt-btn:active .gt-globe-img{transform:scale(.92)}\
+.gt-btn.gt-on-dark{background:rgba(255,255,255,.15);width:36px;height:36px}\
+.gt-btn.gt-on-dark .gt-globe-img{width:26px;height:26px}\
+.gt-btn.gt-on-dark::after{width:36px;height:36px;background:radial-gradient(circle,rgba(180,220,255,.6) 18%,rgba(140,200,255,.35) 40%,rgba(255,225,160,.15) 60%,rgba(255,225,160,0) 78%)}\
 .gt-modal{position:fixed;inset:0;display:none;z-index:9999;align-items:center;justify-content:center;padding:20px;background:rgba(20,12,4,.78);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}\
 .gt-modal.show{display:flex;animation:gtFadeIn .3s ease}\
 @keyframes gtFadeIn{from{opacity:0}to{opacity:1}}\
@@ -1013,30 +1010,9 @@
       globe.title = '언어 / Language';
       globe.setAttribute('aria-label', '언어 선택');
       globe.innerHTML =
-        '<svg viewBox="0 0 64 64" aria-hidden="true">' +
-          '<defs>' +
-            '<radialGradient id="gtVintGrad" cx="40%" cy="38%" r="62%">' +
-              '<stop offset="0%"  stop-color="#fbeed0"/>' +
-              '<stop offset="55%" stop-color="#e0bd80"/>' +
-              '<stop offset="100%" stop-color="#9a6f31"/>' +
-            '</radialGradient>' +
-            '<clipPath id="gtGlobeClip"><circle cx="32" cy="32" r="26"/></clipPath>' +
-          '</defs>' +
-          '<circle class="gt-globe-fill" cx="32" cy="32" r="26"/>' +
-          '<ellipse class="gt-ring" cx="32" cy="32" rx="26" ry="11"/>' +
-          '<line class="gt-axis" x1="32" y1="6"  x2="32" y2="58"/>' +
-          '<line class="gt-axis" x1="6"  y1="32" x2="58" y2="32"/>' +
-          '<g class="gt-spin">' +
-            '<g clip-path="url(#gtGlobeClip)">' +
-              '<path class="gt-ink" d="M 18 22 q 4 -2 8 1 q 2 3 -1 5 q -5 1 -7 -2 z"/>' +
-              '<path class="gt-ink" d="M 32 16 q 6 -2 10 1 q 2 3 -2 5 q -7 1 -8 -3 z"/>' +
-              '<path class="gt-ink" d="M 40 36 q 6 -1 9 2 q 1 4 -5 6 q -7 0 -6 -5 z"/>' +
-              '<path class="gt-ink" d="M 18 40 q 5 0 8 3 q 0 4 -5 5 q -6 0 -6 -5 z"/>' +
-            '</g>' +
-            '<ellipse class="gt-ring" cx="32" cy="32" rx="11" ry="26"/>' +
-          '</g>' +
-          '<circle class="gt-globe-edge" cx="32" cy="32" r="26"/>' +
-        '</svg>';
+        '<img class="gt-globe-img" src="assets/globe_3d_256.webp" ' +
+        'alt="" aria-hidden="true" decoding="async" loading="eager" ' +
+        'onerror="this.onerror=null;this.src=\'assets/globe_3d_128.png\';">';
       globe.addEventListener('click', openModal);
       btn.parentNode.insertBefore(globe, btn);
       injected = true;
