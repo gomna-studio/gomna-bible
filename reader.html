@@ -99,7 +99,18 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-seri
 .action-btn:active{background:#EDE6DE}
 .action-btn.fav-btn.active{background:#FFF3E0;border-color:#FFB74D;color:#E65100}
 .consonant-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
+.consonant-grid.cat-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto repeat(5,minmax(0,1fr));grid-auto-flow:column;gap:7px;margin-bottom:14px}
+.consonant-grid.cat-grid .cat-all{grid-column:1 / -1;grid-row:1}
+.consonant-grid.cat-grid .cat-col-header{grid-row:2;text-align:center;font-size:12px;font-weight:700;color:#8a6332;padding:4px 0 2px;letter-spacing:0.3px;border-bottom:1px solid rgba(184,134,11,0.18);user-select:none;cursor:default}
+.consonant-grid.cat-grid .cat-col-header.cat-col-ot{grid-column:1;grid-row:2}
+.consonant-grid.cat-grid .cat-col-header.cat-col-nt{grid-column:2;grid-row:2}
 .consonant-btn{background:#fff;border:0.5px solid #E0D6CC;border-radius:14px;padding:18px 8px;text-align:center;font-size:20px;font-weight:600;color:#3D2817;font-family:inherit;cursor:pointer}
+.consonant-btn.cat-btn{padding:8px 10px;font-size:13.5px;font-weight:600;line-height:1.2;display:flex;flex-direction:column-reverse;align-items:center;justify-content:center;gap:1px;text-align:center;word-break:keep-all;min-width:0;min-height:54px}
+.consonant-btn.cat-btn.cat-all{min-height:50px;padding:9px 12px}
+.consonant-btn.cat-btn .cat-foreign-line{display:block;font-size:11px;font-weight:500;line-height:1.15;letter-spacing:-0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;opacity:0.78}
+.consonant-btn.cat-btn .cat-label{font-size:14px;font-weight:600;line-height:1.2;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+body[data-i18n-mode="foreign"] .consonant-btn.cat-btn .cat-foreign-line{display:none}
+body[data-i18n-mode="foreign"] .consonant-btn.cat-btn .cat-label{font-size:14.5px;font-weight:600;opacity:1;white-space:normal;text-overflow:clip;overflow:visible;line-height:1.2}
 .consonant-btn:active{background:#F8F4EF}
 .consonant-btn.active{background:#C9943C;color:#fff;border-color:#C9943C}
 .filtered-books{margin-top:16px}
@@ -194743,73 +194754,48 @@ var newTestamentData = {
 
 // ===== 새로운 목회자용 주석 데이터 (9개 표 형식) =====
 var pastorCommentaryData = {};
+
+// ── Lazy-load: 책별 주석 데이터는 사용자가 '말씀풀이'를 열 때만 동적 로드 ──
+// 첫 방문 시 ~270 MB 다운로드를 → 평균 5–15 MB로 감소시킴.
+var _commentaryLoaded = {"역대하": true}; // 역대하는 아래 인라인 데이터로 이미 로드됨
+var _commentaryPromises = {};
+var BOOK_FILE_MAP = {
+  "창세기":"genesis","출애굽기":"exodus","레위기":"leviticus","민수기":"numbers","신명기":"deuteronomy",
+  "여호수아":"joshua","사사기":"judges","룻기":"ruth","사무엘상":"1samuel","사무엘하":"2samuel",
+  "열왕기상":"1kings","열왕기하":"2kings","역대상":"1chronicles","역대하":"2chronicles",
+  "에스라":"ezra","느헤미야":"nehemiah","에스더":"esther","욥기":"job","시편":"psalms",
+  "잠언":"proverbs","전도서":"ecclesiastes","아가":"song","이사야":"isaiah","예레미야":"jeremiah",
+  "예레미야애가":"lamentations","에스겔":"ezekiel","다니엘":"daniel","호세아":"hosea",
+  "요엘":"joel","아모스":"amos","오바댜":"obadiah","요나":"jonah","미가":"micah",
+  "나훔":"nahum","하박국":"habakkuk","스바냐":"zephaniah","학개":"haggai",
+  "스가랴":"zechariah","말라기":"malachi","마태복음":"matthew","마가복음":"mark",
+  "누가복음":"luke","요한복음":"john","사도행전":"acts","로마서":"romans",
+  "고린도전서":"1corinthians","고린도후서":"2corinthians","갈라디아서":"galatians",
+  "에베소서":"ephesians","빌립보서":"philippians","골로새서":"colossians",
+  "데살로니가전서":"1thessalonians","데살로니가후서":"2thessalonians",
+  "디모데전서":"1timothy","디모데후서":"2timothy","디도서":"titus","빌레몬서":"philemon",
+  "히브리서":"hebrews","야고보서":"james","베드로전서":"1peter","베드로후서":"2peter",
+  "요한일서":"1john","요한이서":"2john","요한삼서":"3john","유다서":"jude","요한계시록":"revelation"
+};
+
+function loadPastorCommentary(bookName) {
+  if (_commentaryLoaded[bookName]) return Promise.resolve();
+  if (_commentaryPromises[bookName]) return _commentaryPromises[bookName];
+  var fileBase = BOOK_FILE_MAP[bookName];
+  if (!fileBase) return Promise.resolve();
+  _commentaryPromises[bookName] = new Promise(function(resolve) {
+    var s = document.createElement('script');
+    s.src = 'gomna_data_' + fileBase + '.js';
+    s.async = true;
+    s.onload = function() { _commentaryLoaded[bookName] = true; resolve(); };
+    s.onerror = function() { resolve(); };
+    document.head.appendChild(s);
+  });
+  return _commentaryPromises[bookName];
+}
+
 </script>
-<script src="gomna_data_genesis.js"></script>
-<script src="gomna_data_exodus.js"></script>
-<script src="gomna_data_leviticus.js"></script>
-<script src="gomna_data_numbers.js"></script>
-<script src="gomna_data_deuteronomy.js"></script>
-<script src="gomna_data_joshua.js"></script>
-<script src="gomna_data_judges.js"></script>
-<script src="gomna_data_ruth.js"></script>
-<script src="gomna_data_1samuel.js"></script>
-<script src="gomna_data_2samuel.js"></script>
-<script src="gomna_data_1kings.js"></script>
-<script src="gomna_data_2kings.js"></script>
-<script src="gomna_data_1chronicles.js"></script>
-<script src="gomna_data_2chronicles.js"></script>
-<script src="gomna_data_ezra.js"></script>
-<script src="gomna_data_nehemiah.js"></script>
-<script src="gomna_data_esther.js"></script>
-<script src="gomna_data_job.js"></script>
-<script src="gomna_data_psalms.js"></script>
-<script src="gomna_data_proverbs.js"></script>
-<script src="gomna_data_ecclesiastes.js"></script>
-<script src="gomna_data_song.js"></script>
-<script src="gomna_data_isaiah.js"></script>
-<script src="gomna_data_jeremiah.js"></script>
-<script src="gomna_data_lamentations.js"></script>
-<script src="gomna_data_ezekiel.js"></script>
-<script src="gomna_data_daniel.js"></script>
-<script src="gomna_data_hosea.js"></script>
-<script src="gomna_data_joel.js"></script>
-<script src="gomna_data_amos.js"></script>
-<script src="gomna_data_obadiah.js"></script>
-<script src="gomna_data_micah.js"></script>
-<script src="gomna_data_nahum.js"></script>
-<script src="gomna_data_habakkuk.js"></script>
-<script src="gomna_data_zephaniah.js"></script>
-<script src="gomna_data_haggai.js"></script>
-<script src="gomna_data_zechariah.js"></script>
-<script src="gomna_data_jonah.js"></script>
-<script src="gomna_data_malachi.js"></script>
-<script src="gomna_data_matthew.js"></script>
-<script src="gomna_data_mark.js"></script>
-<script src="gomna_data_luke.js"></script>
-<script src="gomna_data_john.js"></script>
-<script src="gomna_data_acts.js"></script>
-<script src="gomna_data_romans.js"></script>
-<script src="gomna_data_1corinthians.js"></script>
-<script src="gomna_data_2corinthians.js"></script>
-<script src="gomna_data_galatians.js"></script>
-<script src="gomna_data_ephesians.js"></script>
-<script src="gomna_data_philippians.js"></script>
-<script src="gomna_data_colossians.js"></script>
-<script src="gomna_data_1thessalonians.js"></script>
-<script src="gomna_data_2thessalonians.js"></script>
-<script src="gomna_data_1timothy.js"></script>
-<script src="gomna_data_2timothy.js"></script>
-<script src="gomna_data_titus.js"></script>
-<script src="gomna_data_philemon.js"></script>
-<script src="gomna_data_hebrews.js"></script>
-<script src="gomna_data_james.js"></script>
-<script src="gomna_data_1peter.js"></script>
-<script src="gomna_data_2peter.js"></script>
-<script src="gomna_data_1john.js"></script>
-<script src="gomna_data_2john.js"></script>
-<script src="gomna_data_3john.js"></script>
-<script src="gomna_data_jude.js"></script>
-<script src="gomna_data_revelation.js"></script>
+
 
 <script>
 // 역대하 pastorCommentaryData
@@ -258795,28 +258781,128 @@ function getAllBooks() {
   return all;
 }
 
+function _getCurTL() {
+  var m = (document.cookie || '').match(/(?:^|;\s*)googtrans=([^;]+)/);
+  if(!m) return null;
+  var v = decodeURIComponent(m[1]).split('/');
+  return v[2] || null;
+}
+function _allLbl(lang) {
+  return ({en:'All Books',es:'Todos los libros',pt:'Todos os livros','zh-CN':'全部书卷','zh':'全部书卷','zh-TW':'全部書卷',fr:'Tous les livres',de:'Alle Bücher',ja:'すべて',vi:'Tất cả sách'}[lang]) || '전체 성경';
+}
+function _escR(s) {
+  return String(s||'').replace(/[&<>"\']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"\'":'&#39;'}[m];});
+}
+
 function renderEasyFind() {
-  var consonants = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅎ'];
-  var html = '<div class="consonant-grid"><button class="consonant-btn active" onclick="showAllBooks(this)">전체</button>';
-  consonants.forEach(function(c) { html += '<button class="consonant-btn" onclick="filterByConsonant(\'' + c + '\',this)">' + c + '</button>'; });
+  var cats = (window.GomnaBibleCategories && window.GomnaBibleCategories.list) || null;
+  if(!cats) {
+    var consonants = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅎ'];
+    var html = '<div class="consonant-grid"><button class="consonant-btn active" onclick="showAllBooks(this)">전체</button>';
+    consonants.forEach(function(c) { html += '<button class="consonant-btn" onclick="filterByConsonant(\'' + c + '\',this)">' + c + '</button>'; });
+    html += '</div><div class="filtered-books" id="filteredBooks"></div>';
+    document.getElementById('easyView').innerHTML = html;
+    showAllBooks(document.querySelector('.consonant-btn.active'));
+    return;
+  }
+  // Layout spec (matches user's hand-drawn sketch):
+  //   Row 1: ★ 전체 성경 (grid-column:1/-1, spans both cols)
+  //   Row 2: [구약]  [신약]  (column headers, small text)
+  //   Rows 3-7 (col 1): 모세오경, 역사서, 시가서, 대선지서, 소선지서
+  //   Rows 3-7 (col 2): 복음서, 사도행전, 바울서신, 공동서신, 계시록
+  //   The 10 category buttons are placed by grid-auto-flow:column (column-first).
+  // No emojis anywhere in the rendered HTML.
+  var lang = _getCurTL();
+  var isKorean = !lang || lang === 'ko';
+  var allKoText = '전체 성경';
+  var allLabelText = isKorean ? allKoText : _allLbl(lang);
+  // Headers: current language only (single line).
+  var otHdrMap = {ko:'구약',en:'Old Testament',es:'Antiguo Testamento',pt:'Antigo Testamento','zh-CN':'旧约','zh':'旧约','zh-TW':'舊約',fr:'Ancien Testament',de:'Altes Testament',ja:'旧約',vi:'Cựu Ước'};
+  var ntHdrMap = {ko:'신약',en:'New Testament',es:'Nuevo Testamento',pt:'Novo Testamento','zh-CN':'新约','zh':'新约','zh-TW':'新約',fr:'Nouveau Testament',de:'Neues Testament',ja:'新約',vi:'Tân Ước'};
+  var otHdrText = otHdrMap[lang] || otHdrMap['ko'];
+  var ntHdrText = ntHdrMap[lang] || ntHdrMap['ko'];
+
+  // Build everything inside ONE grid container.
+  var html = '<!-- gomna-easy v27 :: 7-row grid w/ OT|NT headers, no emojis -->';
+  html += '<div class="consonant-grid cat-grid">';
+  // Row 1: ★ 전체 (spans both cols via CSS grid-column:1/-1)
+  html += '<button class="consonant-btn cat-btn cat-all active" onclick="showAllBooks(this)" translate="no">';
+  html += '<span class="cat-foreign-line">All Books</span>';
+  html += '<span class="cat-label">' + _escR(allLabelText) + '</span>';
+  html += '</button>';
+  // Row 2: column headers (구약 left, 신약 right)
+  html += '<div class="cat-col-header cat-col-ot" data-i18n-testament="ot" translate="no">' + _escR(otHdrText) + '</div>';
+  html += '<div class="cat-col-header cat-col-nt" data-i18n-testament="nt" translate="no">' + _escR(ntHdrText) + '</div>';
+  // Rows 3-7: 10 category buttons in OT-then-NT document order.
+  // grid-auto-flow:column places them column-first, skipping rows 1-2 which
+  // are already occupied by the ★ banner span and the headers.
+  cats.forEach(function(c) {
+    var key = c[0];
+    var enText = window.GomnaBibleCategories.getLabel(key, 'en');
+    var labelText = isKorean
+      ? window.GomnaBibleCategories.getLabel(key, 'ko')
+      : window.GomnaBibleCategories.getLabel(key, lang);
+    html += '<button class="consonant-btn cat-btn" onclick="filterByCategory(\'' + key + '\',this)" translate="no">';
+    html += '<span class="cat-foreign-line" data-i18n-cat-foreign="' + key + '">' + _escR(enText) + '</span>';
+    html += '<span class="cat-label" data-i18n-cat-name="' + key + '">' + _escR(labelText) + '</span>';
+    html += '</button>';
+  });
   html += '</div><div class="filtered-books" id="filteredBooks"></div>';
   document.getElementById('easyView').innerHTML = html;
-  showAllBooks(document.querySelector('.consonant-btn.active'));
+
+  // Run the i18n pass so the body[data-i18n-mode] flag is in sync with the
+  // current language. CSS handles the actual line-visibility flip.
+  if (typeof window.GomnaApplyUiI18n === 'function') {
+    try { window.GomnaApplyUiI18n(lang); } catch(e) {}
+  }
+  showAllBooks(document.querySelector('.consonant-btn.cat-all'));
 }
 
 function showAllBooks(btn) {
   document.querySelectorAll('.consonant-btn').forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
   var all = getAllBooks();
-  var html = '<div class="filtered-title">전체 성경 (' + all.length + '권)</div><div class="book-grid">';
+  var lang = _getCurTL();
+  var isKorean = !lang || lang === 'ko';
+  // Korean mode → "All Books · 전체 성경 (66)"; foreign mode → that language only.
+  var titleText = isKorean
+    ? ('전체 성경 · All Books (' + all.length + ')')
+    : (_allLbl(lang) + ' (' + all.length + ')');
+  var html = '<div class="filtered-title" translate="no">' + _escR(titleText) + '</div><div class="book-grid">';
   all.forEach(function(b) { html += '<button class="book-btn" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + getChapterUnit(b.name) + '</div></button>'; });
   html += '</div>';
   document.getElementById('filteredBooks').innerHTML = html;
 }
 
+function filterByCategory(key, btn) {
+  if(!window.GomnaBibleCategories) return;
+  document.querySelectorAll('.consonant-btn').forEach(function(b) { b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  var all = getAllBooks();
+  var bookSet = {};
+  window.GomnaBibleCategories.getBooks(key).forEach(function(n){ bookSet[n] = 1; });
+  var filtered = all.filter(function(b) { return !!bookSet[b.name]; });
+  var lang = _getCurTL();
+  var isKorean = !lang || lang === 'ko';
+  var titleText;
+  if (isKorean) {
+    var enLabel = window.GomnaBibleCategories.getLabel(key, 'en');
+    var koLabel = window.GomnaBibleCategories.getLabel(key, 'ko');
+    titleText = koLabel + ' · ' + enLabel + ' (' + filtered.length + ')';
+  } else {
+    titleText = window.GomnaBibleCategories.getLabel(key, lang) + ' (' + filtered.length + ')';
+  }
+  var html = filtered.length === 0
+    ? '<div class="empty-state"><div class="msg">해당 분류에 책이 없습니다</div></div>'
+    : '<div class="filtered-title" translate="no">' + _escR(titleText) + '</div><div class="book-grid">';
+  filtered.forEach(function(b) { html += '<button class="book-btn" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + getChapterUnit(b.name) + '</div></button>'; });
+  if(filtered.length > 0) html += '</div>';
+  document.getElementById('filteredBooks').innerHTML = html;
+}
+
 function filterByConsonant(c, btn) {
   document.querySelectorAll('.consonant-btn').forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
   var all = getAllBooks();
   var filtered = all.filter(function(b) { return getInitialConsonant(b.name) === c; });
   var html = filtered.length === 0 ? '<div class="empty-state"><div class="msg">해당 자음으로 시작하는 책이 없습니다</div></div>' : '<div class="filtered-title">\'' + c + '\'으로 시작 (' + filtered.length + '권)</div><div class="book-grid">';
@@ -258980,6 +259066,17 @@ function goToChapterCommentary(chapter) {
 
 function showCommentary(verseNum) {
   var bookName = currentBook.name;
+  // ── Lazy-load guard: 처음 호출 시 commentary 데이터를 가져오고 다시 호출 ──
+  if (typeof _commentaryLoaded !== 'undefined' && !_commentaryLoaded[bookName] && BOOK_FILE_MAP[bookName]) {
+    var _ttl = document.getElementById('commentaryTitle');
+    var _cnt = document.getElementById('commentaryContent');
+    var _pop = document.getElementById('commentaryPopup');
+    if (_ttl) _ttl.textContent = '📖 말씀풀이';
+    if (_cnt) _cnt.innerHTML = '<div class="empty-state"><div class="icon">📖</div><div class="msg">주석 데이터를 불러오는 중...</div></div>';
+    if (_pop) _pop.classList.add('show');
+    loadPastorCommentary(bookName).then(function() { showCommentary(verseNum); });
+    return;
+  }
   var chapter = currentChapter;
   var dataKey = bookName + '_' + chapter + '_' + verseNum;
 
@@ -260181,5 +260278,6 @@ function loadAds() {
   // 7월 AdSense 승인 후 광고 스크립트는 여기에만 삽입
 }
 </script>
+<script src="translate_feature.js" defer></script>
 </body>
 </html>
