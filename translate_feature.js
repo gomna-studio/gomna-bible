@@ -324,7 +324,9 @@
   const UI_LABELS = {
     'find_word':    ['말씀 바로찾기',  'Find the Word',     'Buscar Palabra',      'Encontre a Palavra', '寻找经文',     'Trouver la Parole',  'Wort finden',       'み言葉を探す',     'Tìm Lời'],
     'by_category':  ['분류별로 ›',     'By category ›',     'Por categoría ›',     'Por categoria ›',    '按分类 ›',     'Par catégorie ›',    'Nach Kategorie ›',  'カテゴリ別 ›',     'Theo phân loại ›'],
-    'choose_category': ['분류 선택',     'Choose category',   'Elige categoría',     'Escolha categoria',  '选择分类',     'Choisir catégorie',  'Kategorie wählen',  'カテゴリを選択',   'Chọn phân loại']
+    'choose_category': ['분류 선택',     'Choose category',   'Elige categoría',     'Escolha categoria',  '选择分类',     'Choisir catégorie',  'Kategorie wählen',  'カテゴリを選択',   'Chọn phân loại'],
+    'verse_view_other':['다른 날짜 보기','View other dates',  'Ver otras fechas',    'Ver outras datas',   '查看其他日期',  'Voir d\'autres dates','Andere Daten ansehen','他の日付を見る',  'Xem ngày khác'],
+    'verse_back_today':['오늘로 돌아가기','Back to today',     'Volver a hoy',        'Voltar para hoje',   '回到今天',     'Retour à aujourd\'hui','Zurück zu heute',  '今日に戻る',       'Quay lại hôm nay']
   };
 
   // Welcome message translations. Index 0 = ko, 1 = en, etc.
@@ -603,6 +605,78 @@
   }
 
   window.GomnaApplyUiI18n = applyUiTextI18n;
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Daily-verse i18n helpers (used by index.html "오늘의 말씀" feature).
+  // Strategy (Plan C — hybrid):
+  //   • Verse body text (the actual scripture)  → translated by Google
+  //     Translate widget (we drop translate="no" on the body element).
+  //   • Verse reference (e.g. "마태복음 11:28") → we translate the Korean
+  //     book name with our own 66-book table so it always reads
+  //     "Matthew 11:28" / "Mateo 11:28" / "馬太福音 11:28" etc., regardless
+  //     of whether Google's widget has scanned that line yet.
+  //   • Verse tag ("오늘의 말씀" / "X월 Y일의 말씀") → custom locale-aware
+  //     formatting using Intl.DateTimeFormat for the date portion.
+  // ─────────────────────────────────────────────────────────────────────
+
+  const VERSE_TODAY_LABEL = {
+    'ko': '오늘의 말씀',
+    'en': "Today's Word",
+    'es': 'Palabra de Hoy',
+    'pt': 'Palavra de Hoje',
+    'zh': '今日金句', 'zh-CN': '今日金句', 'zh-TW': '今日金句',
+    'fr': 'Parole du Jour',
+    'de': 'Wort des Tages',
+    'ja': '今日のみことば',
+    'vi': 'Lời Hôm Nay'
+  };
+
+  function _localeFor(lang) {
+    const m = {
+      'ko':'ko-KR','en':'en-US','es':'es-ES','pt':'pt-BR',
+      'zh':'zh-CN','zh-CN':'zh-CN','zh-TW':'zh-TW',
+      'fr':'fr-FR','de':'de-DE','ja':'ja-JP','vi':'vi-VN'
+    };
+    return m[lang] || 'ko-KR';
+  }
+
+  function translateVerseTag(d, lang, isToday) {
+    const code = lang || 'ko';
+    if (isToday) return VERSE_TODAY_LABEL[code] || VERSE_TODAY_LABEL.ko;
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+    let fmt;
+    try {
+      fmt = new Intl.DateTimeFormat(_localeFor(code),
+              { month: 'long', day: 'numeric' }).format(d);
+    } catch (e) {
+      fmt = m + '/' + day;
+    }
+    switch (code) {
+      case 'ko':                              return m + '월 ' + day + '일의 말씀';
+      case 'en':                              return 'Word for ' + fmt;
+      case 'es':                              return 'Palabra para el ' + fmt;
+      case 'pt':                              return 'Palavra para ' + fmt;
+      case 'zh': case 'zh-CN': case 'zh-TW':  return m + '月' + day + '日的金句';
+      case 'fr':                              return 'Parole pour le ' + fmt;
+      case 'de':                              return 'Wort für den ' + fmt;
+      case 'ja':                              return m + '月' + day + '日のみことば';
+      case 'vi':                              return 'Lời cho ngày ' + day + ' tháng ' + m;
+      default:                                return m + '월 ' + day + '일의 말씀';
+    }
+  }
+
+  // Exposed for index.html's _setVerseDOM(). Translates the Korean book
+  // name embedded in a reference like "마태복음 11:28" → "Matthew 11:28".
+  window.GomnaTranslateBookRef = function (refKo, lang) {
+    if (!refKo) return refKo;
+    return translateBookText(refKo, lang || window.__gomnaLastLang || 'ko');
+  };
+
+  window.GomnaTranslateVerseTag = function (d, isToday, lang) {
+    if (!d) return '';
+    return translateVerseTag(d, lang || window.__gomnaLastLang || 'ko', !!isToday);
+  };
 
   // Common-prefix safety: longest names first so that "예레미야애가"
   // matches before "예레미야".
