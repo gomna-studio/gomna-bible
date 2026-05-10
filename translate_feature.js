@@ -384,6 +384,7 @@
   // Targets elements marked with data-i18n-category, data-i18n-cat-short,
   // data-i18n-ui, or data-i18n-welcome attributes.
   function applyUiTextI18n(lang) {
+    window.__gomnaLastLang = lang;
     const idx = getLangIdx(lang);
 
     // Body-level mode flag.
@@ -505,6 +506,100 @@
     if (typeof window.__gomnaOnLangApplied === 'function') {
       try { window.__gomnaOnLangApplied(lang, idx); } catch (e) { /* ignore */ }
     }
+
+    // Auto-shrink category labels so foreign-language text never overflows
+    // its button. Long labels (e.g. German "Geschichtsbücher",
+    // French "Pentateuque") are clipped at the card boundary because words
+    // can't break. Strategy: 1) shrink the font down to a readable minimum,
+    // 2) if still overflowing, swap to the matching CATEGORY_SHORT label,
+    // 3) shrink that short label too if it still doesn't fit.
+    autoShrinkCategoryLabels(idx, lang);
+  }
+
+  function autoShrinkCategoryLabels(idx, lang) {
+    if (typeof document === 'undefined') return;
+    const isForeign = !!(lang && lang !== 'ko');
+    // Match both index.html (.easy-key.cat-key) and reader.html (.consonant-btn.cat-btn).
+    document.querySelectorAll('.cat-label[data-i18n-cat-name]').forEach(function (lbl) {
+      const btn = lbl.closest('.easy-key.cat-key, .consonant-btn.cat-btn, button, .cat-btn');
+      if (!btn) return;
+      const cnt = btn.querySelector('.cat-count');
+      const k   = lbl.getAttribute('data-i18n-cat-name');
+      const longLabel  = (CATEGORY_LABELS[k] || [])[idx] || lbl.textContent;
+      const shortLabel = (CATEGORY_SHORT[k]  || [])[idx] || longLabel;
+
+      // Reset to long label and clear any inline font-size from a previous
+      // language so the CSS-determined max applies.
+      lbl.textContent = longLabel;
+      lbl.style.fontSize = '';
+      // In Korean mode the CSS already keeps things tight; nothing to shrink.
+      if (!isForeign) return;
+
+      const csMax = parseFloat(getComputedStyle(lbl).fontSize) || 11.5;
+      const minFont = 6;
+      // Reset cnt's inline display we may have hidden on a previous run.
+      if (cnt) cnt.style.display = '';
+
+      function fits() {
+        const node = lbl.firstChild;
+        if (!node || node.nodeType !== Node.TEXT_NODE) return true;
+        const r = document.createRange();
+        r.selectNodeContents(node);
+        const tr = r.getBoundingClientRect();
+        const br = btn.getBoundingClientRect();
+        const tol = 0.5;
+        if (tr.right  > br.right  + tol) return false;
+        if (tr.left   < br.left   - tol) return false;
+        if (tr.top    < br.top    - tol) return false;
+        if (tr.bottom > br.bottom + tol) return false;
+        if (cnt && getComputedStyle(cnt).display !== 'none') {
+          const cr = cnt.getBoundingClientRect();
+          if (cr.bottom > br.bottom + tol) return false;
+          if (cr.top    < br.top    - tol) return false;
+        }
+        return true;
+      }
+      function shrink() {
+        let cur = csMax;
+        while (!fits() && cur > minFont) {
+          cur -= 0.25;
+          lbl.style.fontSize = cur + 'px';
+        }
+      }
+
+      // Pass 1: shrink long label until it fits or hits min.
+      shrink();
+      // Pass 2: still overflowing → fall back to short label and re-shrink.
+      if (!fits() && shortLabel && shortLabel !== longLabel) {
+        lbl.textContent = shortLabel;
+        lbl.style.fontSize = '';
+        shrink();
+      }
+      // Pass 3: last resort — hide the small "N권" count line to free up
+      // vertical space (very narrow screens / unbreakable phrases like
+      // Vietnamese "Tiểu Tiên Tri"). Keeps the most important info (the
+      // category name) legible at the cost of the secondary count.
+      if (!fits() && cnt && getComputedStyle(cnt).display !== 'none') {
+        cnt.style.display = 'none';
+        lbl.style.fontSize = '';
+        shrink();
+      }
+    });
+  }
+
+  // Re-run auto-shrink when the viewport changes (orientation / split-view).
+  // Throttle with requestAnimationFrame so we never run on every resize tick.
+  let __shrinkRaf = 0;
+  if (typeof window !== 'undefined') {
+    window.addEventListener('resize', function () {
+      const lang = window.__gomnaLastLang;
+      if (!lang) return;
+      if (__shrinkRaf) cancelAnimationFrame(__shrinkRaf);
+      __shrinkRaf = requestAnimationFrame(function () {
+        __shrinkRaf = 0;
+        autoShrinkCategoryLabels(getLangIdx(lang), lang);
+      });
+    });
   }
 
   window.GomnaApplyUiI18n = applyUiTextI18n;
