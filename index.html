@@ -97,16 +97,20 @@ button.card{border:0;margin:0;font-family:inherit;font-size:inherit;color:inheri
 .easy-keypad.cat-keypad{width:100%;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(5,minmax(0,1fr));grid-auto-flow:column;gap:3px;align-content:stretch}
 .easy-keypad.auto-keypad{width:100%;grid-template-columns:repeat(auto-fill,minmax(28px,1fr));gap:6px;justify-content:center}
 .easy-key{border:none;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;align-content:center;justify-content:center;font-family:inherit;font-size:clamp(9px,3.2vw,15px);font-weight:500;color:#1f1408;background:#fff;border-radius:4px;aspect-ratio:1;padding:2px 4px;line-height:1.1;text-align:center;overflow-wrap:anywhere;word-break:break-word;hyphens:auto;-webkit-hyphens:auto;opacity:0;animation:fadeInStaggerEasy .5s ease forwards;transition:transform .2s ease;-webkit-tap-highlight-color:transparent;min-width:0;overflow-x:hidden}
-.easy-key.cat-key{aspect-ratio:auto;padding:6px 4px 7px;flex-direction:column-reverse;flex-wrap:nowrap;gap:0;min-height:0;justify-content:center;align-items:center;overflow:visible}
-.easy-key.cat-key .cat-label{font-size:clamp(9.5px,2.35vw,12.5px);font-weight:600;line-height:1.35;color:#3d2818;text-align:center;word-break:keep-all;white-space:nowrap;overflow:visible;max-width:100%;padding:1px 0 2px}
-.easy-key.cat-key .cat-count{display:block;font-size:clamp(6px,1.2vw,7.5px);font-weight:500;line-height:1.15;color:#a87a35;text-align:center;letter-spacing:-0.2px;white-space:nowrap;overflow:visible;max-width:100%;margin-top:2px}
+.easy-key.cat-key{aspect-ratio:auto;padding:1px 4px;flex-direction:column-reverse;flex-wrap:nowrap;gap:0;min-height:0;justify-content:center;align-items:center;overflow:visible}
+.easy-key.cat-key .cat-label{font-size:clamp(9px,2.3vw,12px);font-weight:600;line-height:1.2;color:#3d2818;text-align:center;word-break:keep-all;white-space:nowrap;overflow:visible;max-width:100%;padding:0;letter-spacing:-0.2px}
+.easy-key.cat-key .cat-count{display:block;font-size:clamp(5.5px,1.2vw,7.5px);font-weight:500;line-height:1.1;color:#a87a35;text-align:center;letter-spacing:-0.2px;white-space:nowrap;overflow:visible;max-width:100%;margin-top:0}
 .easy-key.cat-key .cat-foreign-line{display:none}
 body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,2.2vw,11.5px);font-weight:600;color:#3d2818;white-space:normal;text-overflow:clip;overflow:visible;line-height:1.1;word-break:normal;overflow-wrap:normal;-webkit-hyphens:none;hyphens:none}
 /* Match the keypad's TOP and BOTTOM exactly to the .book covers in the
    neighbouring cards. .book uses height:80% inside .stage with the
-   parent's align-items:center vertically centring it. By giving the
-   keypad the same height:80% we get pixel-perfect alignment with the
-   book covers on either side. */
+   parent's align-items:center vertically centring it. The .stage uses
+   flex:1 in its parent .card, so we must give .stage min-height:0 to
+   prevent it from being pushed taller by the keypad's content (default
+   flex min-height:auto would let stage grow). With this, both .book
+   and .cat-keypad resolve their height:80% against the SAME .stage
+   height, giving pixel-perfect alignment across all 3 cards. */
+.card.easy .stage{min-height:0;overflow:hidden}
 .card.easy .easy-keypad.cat-keypad{flex:none;width:100%;height:80%;min-height:0;grid-template-rows:repeat(5,minmax(0,1fr));align-content:stretch;gap:3px}
 .card.easy .easy-keypad.cat-keypad > .easy-key.cat-key{min-height:0;height:100%}
 .easy-key:hover{transform:scale(1.1)}
@@ -221,14 +225,14 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
   .card.easy{padding-left:5px;padding-right:5px}
   .card.easy .easy-keypad.ko-keypad{gap:4px}
   .card.easy .easy-key{font-size:clamp(8px,3.8vw,14px)}
-  .easy-key.cat-key{padding:5px 3px 6px}
-  .easy-key.cat-key .cat-label{font-size:11px;line-height:1.3}
-  .easy-key.cat-key .cat-count{font-size:6.5px;line-height:1.15;margin-top:2px}
+  .easy-key.cat-key{padding:1px 3px}
+  .easy-key.cat-key .cat-label{font-size:9.5px;line-height:1.2}
+  .easy-key.cat-key .cat-count{font-size:6px;line-height:1.1;margin-top:0}
 }
 @media (max-width:360px){
-  .easy-key.cat-key{padding:4px 2px 5px}
-  .easy-key.cat-key .cat-label{font-size:10px;line-height:1.3}
-  .easy-key.cat-key .cat-count{font-size:6px}
+  .easy-key.cat-key{padding:0 2px}
+  .easy-key.cat-key .cat-label{font-size:8.5px;line-height:1.2}
+  .easy-key.cat-key .cat-count{font-size:5.5px;line-height:1.1}
 }
 /* touch feedback: iOS scale + opacity (strong) */
 .card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,.gs-link:active,button:active{transform: scale(0.90); opacity: 0.65; filter: brightness(0.85) saturate(1.3); background-color: rgba(200, 152, 73, 0.15); transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease, background-color 0.15s ease}
