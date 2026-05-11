@@ -156,11 +156,12 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .cal-cell.empty{visibility:hidden;cursor:default}
 .cal-cell:hover{background:rgba(200,152,73,.18)}
 .cal-cell.today{outline:1.5px solid #c89849;outline-offset:-1.5px;font-weight:700}
-.cal-cell.selected{background:#5a3818;color:#fff;font-weight:700}
-.cal-cell.selected:hover{background:#7a4f28}
+.cal-cell.selected{background:#e4d2b4;color:#3d2818;font-weight:700;box-shadow:inset 0 0 0 1px rgba(180,140,90,.25)}
+.cal-cell.selected:hover{background:#dac49f}
 .cal-cell.sun{color:#c2434a}
 .cal-cell.sat{color:#1d5e8a}
-.cal-cell.selected.sun,.cal-cell.selected.sat{color:#fff}
+.cal-cell.selected.sun{color:#a82e35}
+.cal-cell.selected.sat{color:#165a85}
 .cal-hint{font-size:11px;color:#8a6e4a;text-align:center;margin-bottom:14px;line-height:1.4}
 @keyframes textRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .welcome{text-align:center;padding:18px 8px 14px;font-family:Georgia,serif;color:#000}
@@ -220,6 +221,8 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .font-btn{width:48px;height:48px;border-radius:50%;border:2px solid #4A2511;background:#fff;color:#4A2511;font-size:22px;font-weight:700;cursor:pointer}
 .font-size-display{font-size:20px;font-weight:700;min-width:60px;color:#4A2511}
 .popup-close{width:100%;padding:14px;background:#B8751F;color:#fff;border:none;border-radius:25px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit}
+.verse-cal-box .popup-close{background:linear-gradient(180deg,#f8efd8,#ecd9a6);color:#4a3626;border:1px solid rgba(184,152,100,.4);box-shadow:0 1px 4px rgba(100,72,30,.1)}
+.verse-cal-box .popup-close:hover{filter:brightness(1.02)}
 @media (max-width:480px){
   .container{padding:16px 14px 22px}
   .card.easy{padding-left:5px;padding-right:5px}
@@ -248,6 +251,7 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 }
 /* touch feedback: iOS scale + opacity (strong) */
 .card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,.gs-link:active,button:active{transform: scale(0.90); opacity: 0.65; filter: brightness(0.85) saturate(1.3); background-color: rgba(200, 152, 73, 0.15); transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease, background-color 0.15s ease}
+.verse-cal-box .popup-close:active{transform:scale(.96);opacity:.94;filter:none;background:linear-gradient(180deg,#f0e4c8,#e3cf95);background-color:#e3cf95}
 </style>
 </head>
 <body>
