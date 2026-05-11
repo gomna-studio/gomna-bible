@@ -1,5 +1,14 @@
 *.bak.*
 .DS_Store
+**/.DS_Store
 Thumbs.db
 *.log
 __pycache__/
+*.pyc
+*.tmp
+.tmp/
+.cache/
+*.swp
+*~
+.env.local
+*_backup.html

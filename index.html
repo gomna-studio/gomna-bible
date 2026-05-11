@@ -30,14 +30,6 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#000}
 body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-height:100vh;overflow-x:hidden;position:relative}
-.particles{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
-.particle{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,235,180,.7) 0%,rgba(255,200,120,.2) 60%,transparent 100%);filter:blur(1.5px);opacity:0;animation:floatUp 12s linear infinite}
-.particle:nth-child(1){left:10%;width:8px;height:8px;animation-delay:0s;animation-duration:13s}
-.particle:nth-child(2){left:30%;width:5px;height:5px;animation-delay:2s;animation-duration:15s}
-.particle:nth-child(3){left:55%;width:10px;height:10px;animation-delay:4s;animation-duration:11s}
-.particle:nth-child(4){left:75%;width:6px;height:6px;animation-delay:1s;animation-duration:14s}
-.particle:nth-child(5){left:88%;width:7px;height:7px;animation-delay:6s;animation-duration:12s}
-@keyframes floatUp{0%{bottom:-20px;opacity:0}10%{opacity:.65}90%{opacity:.55}100%{bottom:110%;opacity:0}}
 .container{max-width:520px;margin:0 auto;padding:18px 16px 24px;position:relative;z-index:1;min-height:100vh}
 .greeting{font-family:Georgia,'Times New Roman',serif;font-size:calc(var(--font-size,17px) * 13 / 17);font-style:italic;text-align:center;letter-spacing:.5px;margin-bottom:16px;color:#000;opacity:0;animation:fadeInDown 1.2s ease .3s forwards}
 @keyframes fadeInDown{from{opacity:0;transform:translateY(-6px)}to{opacity:.92;transform:translateY(0)}}
@@ -164,19 +156,40 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .cal-cell.selected.sat{color:#165a85}
 .cal-hint{font-size:11px;color:#8a6e4a;text-align:center;margin-bottom:14px;line-height:1.4}
 @keyframes textRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* 오늘의 말씀: 아래→위, 과한 가속 없이 천천히 감속 */
+@keyframes verseRise{from{opacity:0;transform:translate3d(0,9px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 .welcome{text-align:center;padding:18px 8px 14px;font-family:Georgia,serif;color:#000}
 .welcome-line1{font-size:calc(var(--font-size,17px) * 13 / 17);font-style:italic;opacity:0;letter-spacing:.5px;line-height:1.7;margin-bottom:6px;color:#000}
 .welcome-line2{font-size:calc(var(--font-size,17px) * 12 / 17);font-style:italic;opacity:0;letter-spacing:.4px;line-height:1.7;color:#000}
 .word{display:inline-block;opacity:0;transform:translateY(8px);animation:wordIn .5s ease forwards}
 @keyframes wordIn{to{opacity:1;transform:translateY(0)}}
 .imprint-bottom{margin-top:18px;padding-top:14px;padding-bottom:30px;border-top:.5px solid rgba(255,255,255,.18);text-align:center}
-@keyframes gs-bounce{0%,50%,100%{transform:translate(0,0)}25%{transform:translate(5px,-5px)}}
-@keyframes gs-underline{0%{width:0;left:0;opacity:0}20%{opacity:1}60%{width:100%;left:0;opacity:1}80%{width:0;left:100%;opacity:1}100%{width:0;left:100%;opacity:0}}
-.gs-link{font-family:monospace;font-size:11px;font-weight:400;letter-spacing:0.05em;display:inline-flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;text-decoration:none;cursor:pointer;transition:transform 0.3s ease;position:relative;padding:8px 0;max-width:100%}
-.gs-link:hover{transform:scale(1.05)}
-.gs-text{position:relative;color:#000;white-space:normal}
-.gs-text::after{content:'';position:absolute;bottom:-2px;height:1px;background:#000;animation:gs-underline 6s ease-in-out infinite}
-.gs-arrow{display:inline-block;color:#000;animation:gs-bounce 1s ease-in-out infinite}
+@keyframes gs-imprint-underline{
+  0%{width:0;left:0;opacity:0}
+  14%{width:0;left:0;opacity:1}
+  52%{width:100%;left:0;opacity:1}
+  70%{width:0;left:100%;opacity:1}
+  76%{width:0;left:100%;opacity:0}
+  100%{width:0;left:100%;opacity:0}
+}
+@keyframes gs-arrow-gentle{
+  0%,14%{transform:translate(0,0);opacity:.72}
+  28%{transform:translate(1.6px,-1.3px);opacity:.95}
+  42%{transform:translate(3px,-2.5px);opacity:1}
+  56%{transform:translate(1.4px,-1.1px);opacity:.92}
+  70%,100%{transform:translate(0,0);opacity:.72}
+}
+.gs-link{font-family:monospace;font-size:11px;font-weight:400;letter-spacing:0.05em;display:inline-flex;align-items:center;justify-content:center;gap:5px;max-width:100%;min-height:40px;padding:10px 14px;margin:-4px 0;text-decoration:none;cursor:pointer;transition:transform 0.35s ease;position:relative;border-radius:8px;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.gs-link:hover{transform:scale(1.02)}
+.gs-text{display:inline-block;position:relative;color:#000;white-space:normal}
+.gs-text::after{content:'';position:absolute;bottom:-3px;left:0;height:1.2px;width:0;border-radius:1px;background:linear-gradient(90deg,rgba(45,35,25,0) 0%,rgba(45,35,25,.22) 10%,rgba(45,35,25,.62) 50%,rgba(45,35,25,.22) 90%,rgba(45,35,25,0) 100%);animation:gs-imprint-underline 16s linear infinite}
+.gs-arrow{display:inline-block;font-size:10px;line-height:1;color:rgba(45,35,25,.58);transform:translateZ(0);animation:gs-arrow-gentle 2.75s ease-in-out infinite;transition:color .4s ease;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+@media (hover:hover){.gs-link:hover .gs-arrow{color:rgba(45,35,25,.78)}}
+.gs-link:focus-visible .gs-arrow{color:rgba(45,35,25,.78)}
+@media (prefers-reduced-motion:reduce){
+  .gs-text::after{animation:none!important;width:100%!important;left:0!important;opacity:0.55!important;height:1px;background:linear-gradient(90deg,rgba(0,0,0,.08) 0%,rgba(0,0,0,.34) 50%,rgba(0,0,0,.08) 100%)}
+  .gs-arrow{animation:none}
+}
 .overlay{position:fixed;inset:0;background:rgba(20,12,4,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:none;align-items:flex-end;z-index:100}
 .overlay.show{display:flex;animation:fadeIn .35s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -256,7 +269,6 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 </head>
 <body>
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
-<div class="particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div>
 <div class="container">
   <div class="greeting" id="greeting">— 좋은 아침입니다 —</div>
   <div class="header">
@@ -343,10 +355,7 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
     <div class="welcome-line2" id="welcome2" data-i18n-welcome="line2" data-text="하나님의 놀라운 세계가 펼쳐집니다"></div>
   </div>
   <div class="imprint-bottom">
-    <a class="gs-link" href="/studio">
-      <span class="gs-text">Delaware C-Corp Gomna Studio, Inc.</span>
-      <span class="gs-arrow">↗</span>
-    </a>
+    <a class="gs-link" href="/studio" aria-label="Gomna Studio, Inc. 스튜디오 페이지"><span class="gs-text" translate="no">Gomna Studio, Inc.</span><span class="gs-arrow" aria-hidden="true">↗</span></a>
   </div>
 </div>
 <div class="overlay" id="overlay" onclick="closeIfBg(event)">
@@ -405,7 +414,7 @@ else if(hour>=18||hour<5)greetText='— 고요한 저녁입니다 —';
 document.getElementById('greeting').textContent=greetText;
 var _fd=document.getElementById('fontDisplay');
 if(_fd) _fd.textContent=fontSize+'px';
-function playVerseAnimation(){const tag=document.getElementById('verse-tag');const text=document.getElementById('verse-text');const ref=document.getElementById('verse-ref');[tag,text,ref].forEach(el=>{el.style.animation='none';el.style.opacity='0';el.style.transform='translateY(10px)';});void tag.offsetWidth;setTimeout(()=>{tag.style.animation='textRise 1.1s cubic-bezier(.22,.7,.3,1) forwards';},50);setTimeout(()=>{text.style.animation='textRise 1.2s cubic-bezier(.22,.7,.3,1) forwards';},450);setTimeout(()=>{ref.style.animation='textRise 1s cubic-bezier(.22,.7,.3,1) forwards';},950);}
+function playVerseAnimation(){const tag=document.getElementById('verse-tag');const text=document.getElementById('verse-text');const ref=document.getElementById('verse-ref');const ease='cubic-bezier(0.25, 0.46, 0.45, 1)';[tag,text,ref].forEach(el=>{el.style.animation='none';el.style.opacity='0';el.style.transform='translate3d(0,9px,0)';});void tag.offsetWidth;setTimeout(()=>{tag.style.animation='verseRise 1.15s '+ease+' forwards';},60);setTimeout(()=>{text.style.animation='verseRise 1.35s '+ease+' forwards';},420);setTimeout(()=>{ref.style.animation='verseRise 1.1s '+ease+' forwards';},920);}
 function staggerWords(elId,text,baseDelay){const el=document.getElementById(elId);if(!el)return;const chars=String(text||'').split('');el.style.opacity='1';el.innerHTML=chars.map((c,i)=>{if(c===' ')return ' ';return '<span class="word" style="animation-delay:'+(baseDelay+i*55)+'ms">'+c+'</span>';}).join('');}
 function playWelcomeAnimation(){var w1=document.getElementById('welcome1');var w2=document.getElementById('welcome2');var t1=(w1&&w1.dataset&&w1.dataset.text)||'은혜의말씀 안에서';var t2=(w2&&w2.dataset&&w2.dataset.text)||'하나님의 놀라운 세계가 펼쳐집니다';staggerWords('welcome1',t1,0);staggerWords('welcome2',t2,800);}
 window.playWelcomeAnimation=playWelcomeAnimation;
