@@ -162,11 +162,11 @@
   // Region header labels. Column order matches BOOK_LANG_IDX:
   // 0:ko 1:en 2:es 3:pt 4:zh 5:fr 6:de 7:ja 8:vi
   const REGION_LABELS = {
-    asia:     ['아시아',            'Asia',                       'Asia',                          'Ásia',                          '亚洲',         'Asie',                       'Asien',                     'アジア',                 'Châu Á'],
-    seasia:   ['동남아·오세아니아',  'SE Asia & Oceania',          'Sudeste Asiático y Oceanía',    'Sudeste Asiático e Oceania',    '东南亚·大洋洲', 'Asie du SE & Océanie',       'Südostasien & Ozeanien',    '東南アジア・オセアニア',  'ĐNÁ & Châu Đại Dương'],
-    americas: ['아메리카',          'Americas',                   'América',                       'Américas',                      '美洲',         'Amériques',                  'Amerika',                   '南北アメリカ',           'Châu Mỹ'],
-    europe:   ['유럽',              'Europe',                     'Europa',                        'Europa',                        '欧洲',         'Europe',                     'Europa',                    'ヨーロッパ',             'Châu Âu'],
-    africa:   ['아프리카',          'Africa',                     'África',                        'África',                        '非洲',         'Afrique',                    'Afrika',                    'アフリカ',               'Châu Phi']
+    asia:     ['아시아',            'Asia',                       'Asia',                          'Ásia',                          '亚洲',         'Asie',                       'Asien',                     'アジア',                 'Châu Á',                'एशिया',                          'Asia',                  'Asya',                         'Asia',                              'Asië'],
+    seasia:   ['동남아·오세아니아',  'SE Asia & Oceania',          'Sudeste Asiático y Oceanía',    'Sudeste Asiático e Oceania',    '东南亚·大洋洲', 'Asie du SE & Océanie',       'Südostasien & Ozeanien',    '東南アジア・オセアニア',  'ĐNÁ & Châu Đại Dương',  'दक्षिण-पूर्व एशिया · ओशिनिया',  'Asia Tenggara & Oseania', 'Timog-silangang Asya · Oseanya', 'Asia ya Kusini Mashariki · Oceania', 'Suidoos-Asië & Oseanië'],
+    americas: ['아메리카',          'Americas',                   'América',                       'Américas',                      '美洲',         'Amériques',                  'Amerika',                   '南北アメリカ',           'Châu Mỹ',                'अमेरिका',                       'Amerika',                'Amerika',                       'Amerika',                            'Amerika'],
+    europe:   ['유럽',              'Europe',                     'Europa',                        'Europa',                        '欧洲',         'Europe',                     'Europa',                    'ヨーロッパ',             'Châu Âu',                'यूरोप',                          'Eropa',                  'Europa',                        'Ulaya',                              'Europa'],
+    africa:   ['아프리카',          'Africa',                     'África',                        'África',                        '非洲',         'Afrique',                    'Afrika',                    'アフリカ',               'Châu Phi',               'अफ्रीका',                        'Afrika',                 'Africa',                        'Afrika',                             'Afrika']
   };
 
   // Per-language anchor country — used to highlight the user's current
@@ -230,79 +230,80 @@
   // ----------------------------------------------------------------
   // Row tuple: [ko, en, es, pt, zh, fr, de, ja, vi]
   const BIBLE_BOOK_NAMES = [
-    ['창세기', 'Genesis', 'Génesis', 'Gênesis', '创世记', 'Genèse', '1. Mose', '創世記', 'Sáng Thế Ký'],
-    ['출애굽기', 'Exodus', 'Éxodo', 'Êxodo', '出埃及记', 'Exode', '2. Mose', '出エジプト記', 'Xuất Ê-díp-tô Ký'],
-    ['레위기', 'Leviticus', 'Levítico', 'Levítico', '利未记', 'Lévitique', '3. Mose', 'レビ記', 'Lê-vi Ký'],
-    ['민수기', 'Numbers', 'Números', 'Números', '民数记', 'Nombres', '4. Mose', '民数記', 'Dân Số Ký'],
-    ['신명기', 'Deuteronomy', 'Deuteronomio', 'Deuteronômio', '申命记', 'Deutéronome', '5. Mose', '申命記', 'Phục Truyền Luật Lệ Ký'],
-    ['여호수아', 'Joshua', 'Josué', 'Josué', '约书亚记', 'Josué', 'Josua', 'ヨシュア記', 'Giô-suê'],
-    ['사사기', 'Judges', 'Jueces', 'Juízes', '士师记', 'Juges', 'Richter', '士師記', 'Các Quan Xét'],
-    ['룻기', 'Ruth', 'Rut', 'Rute', '路得记', 'Ruth', 'Rut', 'ルツ記', 'Ru-tơ'],
-    ['사무엘상', '1 Samuel', '1 Samuel', '1 Samuel', '撒母耳记上', '1 Samuel', '1. Samuel', 'サムエル記第一', '1 Sa-mu-ên'],
-    ['사무엘하', '2 Samuel', '2 Samuel', '2 Samuel', '撒母耳记下', '2 Samuel', '2. Samuel', 'サムエル記第二', '2 Sa-mu-ên'],
-    ['열왕기상', '1 Kings', '1 Reyes', '1 Reis', '列王纪上', '1 Rois', '1. Könige', '列王記第一', '1 Các Vua'],
-    ['열왕기하', '2 Kings', '2 Reyes', '2 Reis', '列王纪下', '2 Rois', '2. Könige', '列王記第二', '2 Các Vua'],
-    ['역대상', '1 Chronicles', '1 Crónicas', '1 Crônicas', '历代志上', '1 Chroniques', '1. Chronik', '歴代誌第一', '1 Sử Ký'],
-    ['역대하', '2 Chronicles', '2 Crónicas', '2 Crônicas', '历代志下', '2 Chroniques', '2. Chronik', '歴代誌第二', '2 Sử Ký'],
-    ['에스라', 'Ezra', 'Esdras', 'Esdras', '以斯拉记', 'Esdras', 'Esra', 'エズラ記', 'E-xơ-ra'],
-    ['느헤미야', 'Nehemiah', 'Nehemías', 'Neemias', '尼希米记', 'Néhémie', 'Nehemia', 'ネヘミヤ記', 'Nê-hê-mi'],
-    ['에스더', 'Esther', 'Ester', 'Ester', '以斯帖记', 'Esther', 'Ester', 'エステル記', 'Ê-xơ-tê'],
-    ['욥기', 'Job', 'Job', 'Jó', '约伯记', 'Job', 'Hiob', 'ヨブ記', 'Gióp'],
-    ['시편', 'Psalms', 'Salmos', 'Salmos', '诗篇', 'Psaumes', 'Psalmen', '詩篇', 'Thi Thiên'],
-    ['잠언', 'Proverbs', 'Proverbios', 'Provérbios', '箴言', 'Proverbes', 'Sprüche', '箴言', 'Châm Ngôn'],
-    ['전도서', 'Ecclesiastes', 'Eclesiastés', 'Eclesiastes', '传道书', 'Ecclésiaste', 'Prediger', '伝道者の書', 'Truyền Đạo'],
-    ['아가', 'Song of Songs', 'Cantares', 'Cânticos', '雅歌', 'Cantique des Cantiques', 'Hohelied', '雅歌', 'Nhã Ca'],
-    ['이사야', 'Isaiah', 'Isaías', 'Isaías', '以赛亚书', 'Ésaïe', 'Jesaja', 'イザヤ書', 'Ê-sai'],
-    ['예레미야애가', 'Lamentations', 'Lamentaciones', 'Lamentações', '耶利米哀歌', 'Lamentations', 'Klagelieder', '哀歌', 'Ca Thương'],
-    ['예레미야', 'Jeremiah', 'Jeremías', 'Jeremias', '耶利米书', 'Jérémie', 'Jeremia', 'エレミヤ書', 'Giê-rê-mi'],
-    ['에스겔', 'Ezekiel', 'Ezequiel', 'Ezequiel', '以西结书', 'Ézéchiel', 'Hesekiel', 'エゼキエル書', 'Ê-xê-chi-ên'],
-    ['다니엘', 'Daniel', 'Daniel', 'Daniel', '但以理书', 'Daniel', 'Daniel', 'ダニエル書', 'Đa-ni-ên'],
-    ['호세아', 'Hosea', 'Oseas', 'Oséias', '何西阿书', 'Osée', 'Hosea', 'ホセア書', 'Ô-sê'],
-    ['요엘', 'Joel', 'Joel', 'Joel', '约珥书', 'Joël', 'Joel', 'ヨエル書', 'Giô-ên'],
-    ['아모스', 'Amos', 'Amós', 'Amós', '阿摩司书', 'Amos', 'Amos', 'アモス書', 'A-mốt'],
-    ['오바댜', 'Obadiah', 'Abdías', 'Obadias', '俄巴底亚书', 'Abdias', 'Obadja', 'オバデヤ書', 'Áp-đia'],
-    ['요나', 'Jonah', 'Jonás', 'Jonas', '约拿书', 'Jonas', 'Jona', 'ヨナ書', 'Giô-na'],
-    ['미가', 'Micah', 'Miqueas', 'Miquéias', '弥迦书', 'Michée', 'Micha', 'ミカ書', 'Mi-chê'],
-    ['나훔', 'Nahum', 'Nahúm', 'Naum', '那鸿书', 'Nahum', 'Nahum', 'ナホム書', 'Na-hum'],
-    ['하박국', 'Habakkuk', 'Habacuc', 'Habacuque', '哈巴谷书', 'Habacuc', 'Habakuk', 'ハバクク書', 'Ha-ba-cúc'],
-    ['스바냐', 'Zephaniah', 'Sofonías', 'Sofonias', '西番雅书', 'Sophonie', 'Zephanja', 'ゼパニヤ書', 'Sô-phô-ni'],
-    ['학개', 'Haggai', 'Hageo', 'Ageu', '哈该书', 'Aggée', 'Haggai', 'ハガイ書', 'A-ghê'],
-    ['스가랴', 'Zechariah', 'Zacarías', 'Zacarias', '撒迦利亚书', 'Zacharie', 'Sacharja', 'ゼカリヤ書', 'Xa-cha-ri'],
-    ['말라기', 'Malachi', 'Malaquías', 'Malaquias', '玛拉基书', 'Malachie', 'Maleachi', 'マラキ書', 'Ma-la-chi'],
-    ['마태복음', 'Matthew', 'Mateo', 'Mateus', '马太福音', 'Matthieu', 'Matthäus', 'マタイの福音書', 'Ma-thi-ơ'],
-    ['마가복음', 'Mark', 'Marcos', 'Marcos', '马可福音', 'Marc', 'Markus', 'マルコの福音書', 'Mác'],
-    ['누가복음', 'Luke', 'Lucas', 'Lucas', '路加福音', 'Luc', 'Lukas', 'ルカの福音書', 'Lu-ca'],
-    ['요한복음', 'John', 'Juan', 'João', '约翰福音', 'Jean', 'Johannes', 'ヨハネの福音書', 'Giăng'],
-    ['사도행전', 'Acts', 'Hechos', 'Atos', '使徒行传', 'Actes', 'Apostelgeschichte', '使徒の働き', 'Công Vụ Các Sứ Đồ'],
-    ['로마서', 'Romans', 'Romanos', 'Romanos', '罗马书', 'Romains', 'Römer', 'ローマ人への手紙', 'Rô-ma'],
-    ['고린도전서', '1 Corinthians', '1 Corintios', '1 Coríntios', '哥林多前书', '1 Corinthiens', '1. Korinther', 'コリント人への第一の手紙', '1 Cô-rinh-tô'],
-    ['고린도후서', '2 Corinthians', '2 Corintios', '2 Coríntios', '哥林多后书', '2 Corinthiens', '2. Korinther', 'コリント人への第二の手紙', '2 Cô-rinh-tô'],
-    ['갈라디아서', 'Galatians', 'Gálatas', 'Gálatas', '加拉太书', 'Galates', 'Galater', 'ガラテヤ人への手紙', 'Ga-la-ti'],
-    ['에베소서', 'Ephesians', 'Efesios', 'Efésios', '以弗所书', 'Éphésiens', 'Epheser', 'エペソ人への手紙', 'Ê-phê-sô'],
-    ['빌립보서', 'Philippians', 'Filipenses', 'Filipenses', '腓立比书', 'Philippiens', 'Philipper', 'ピリピ人への手紙', 'Phi-líp'],
-    ['골로새서', 'Colossians', 'Colosenses', 'Colossenses', '歌罗西书', 'Colossiens', 'Kolosser', 'コロサイ人への手紙', 'Cô-lô-se'],
-    ['데살로니가전서', '1 Thessalonians', '1 Tesalonicenses', '1 Tessalonicenses', '帖撒罗尼迦前书', '1 Thessaloniciens', '1. Thessalonicher', 'テサロニケ人への第一の手紙', '1 Tê-sa-lô-ni-ca'],
-    ['데살로니가후서', '2 Thessalonians', '2 Tesalonicenses', '2 Tessalonicenses', '帖撒罗尼迦后书', '2 Thessaloniciens', '2. Thessalonicher', 'テサロニケ人への第二の手紙', '2 Tê-sa-lô-ni-ca'],
-    ['디모데전서', '1 Timothy', '1 Timoteo', '1 Timóteo', '提摩太前书', '1 Timothée', '1. Timotheus', 'テモテへの第一の手紙', '1 Ti-mô-thê'],
-    ['디모데후서', '2 Timothy', '2 Timoteo', '2 Timóteo', '提摩太后书', '2 Timothée', '2. Timotheus', 'テモテへの第二の手紙', '2 Ti-mô-thê'],
-    ['디도서', 'Titus', 'Tito', 'Tito', '提多书', 'Tite', 'Titus', 'テトスへの手紙', 'Tít'],
-    ['빌레몬서', 'Philemon', 'Filemón', 'Filemom', '腓利门书', 'Philémon', 'Philemon', 'ピレモンへの手紙', 'Phi-lê-môn'],
-    ['히브리서', 'Hebrews', 'Hebreos', 'Hebreus', '希伯来书', 'Hébreux', 'Hebräer', 'ヘブル人への手紙', 'Hê-bơ-rơ'],
-    ['야고보서', 'James', 'Santiago', 'Tiago', '雅各书', 'Jacques', 'Jakobus', 'ヤコブの手紙', 'Gia-cơ'],
-    ['베드로전서', '1 Peter', '1 Pedro', '1 Pedro', '彼得前书', '1 Pierre', '1. Petrus', 'ペテロの第一の手紙', '1 Phi-e-rơ'],
-    ['베드로후서', '2 Peter', '2 Pedro', '2 Pedro', '彼得后书', '2 Pierre', '2. Petrus', 'ペテロの第二の手紙', '2 Phi-e-rơ'],
-    ['요한일서', '1 John', '1 Juan', '1 João', '约翰一书', '1 Jean', '1. Johannes', 'ヨハネの第一の手紙', '1 Giăng'],
-    ['요한이서', '2 John', '2 Juan', '2 João', '约翰二书', '2 Jean', '2. Johannes', 'ヨハネの第二の手紙', '2 Giăng'],
-    ['요한삼서', '3 John', '3 Juan', '3 João', '约翰三书', '3 Jean', '3. Johannes', 'ヨハネの第三の手紙', '3 Giăng'],
-    ['유다서', 'Jude', 'Judas', 'Judas', '犹大书', 'Jude', 'Judas', 'ユダの手紙', 'Giu-đe'],
-    ['요한계시록', 'Revelation', 'Apocalipsis', 'Apocalipse', '启示录', 'Apocalypse', 'Offenbarung', 'ヨハネの黙示録', 'Khải Huyền']
+['창세기', 'Genesis', 'Génesis', 'Gênesis', '创世记', 'Genèse', '1. Mose', '創世記', 'Sáng Thế Ký', 'उत्पत्ति', 'Kejadian', 'Genesis', 'Mwanzo', 'Genesis'],
+    ['출애굽기', 'Exodus', 'Éxodo', 'Êxodo', '出埃及记', 'Exode', '2. Mose', '出エジプト記', 'Xuất Ê-díp-tô Ký', 'निर्गमन', 'Keluaran', 'Exodo', 'Kutoka', 'Eksodus'],
+    ['레위기', 'Leviticus', 'Levítico', 'Levítico', '利未记', 'Lévitique', '3. Mose', 'レビ記', 'Lê-vi Ký', 'लैव्यव्यवस्था', 'Imamat', 'Levitico', 'Mambo ya Walawi', 'Levitikus'],
+    ['민수기', 'Numbers', 'Números', 'Números', '民数记', 'Nombres', '4. Mose', '民数記', 'Dân Số Ký', 'गिनती', 'Bilangan', 'Mga Bilang', 'Hesabu', 'Numeri'],
+    ['신명기', 'Deuteronomy', 'Deuteronomio', 'Deuteronômio', '申命记', 'Deutéronome', '5. Mose', '申命記', 'Phục Truyền Luật Lệ Ký', 'व्यवस्थाविवरण', 'Ulangan', 'Deuteronomio', 'Kumbukumbu la Torati', 'Deuteronomium'],
+    ['여호수아', 'Joshua', 'Josué', 'Josué', '约书亚记', 'Josué', 'Josua', 'ヨシュア記', 'Giô-suê', 'यहोशू', 'Yosua', 'Josue', 'Yoshua', 'Josua'],
+    ['사사기', 'Judges', 'Jueces', 'Juízes', '士师记', 'Juges', 'Richter', '士師記', 'Các Quan Xét', 'न्यायियों', 'Hakim-hakim', 'Mga Hukom', 'Waamuzi', 'Rigters'],
+    ['룻기', 'Ruth', 'Rut', 'Rute', '路得记', 'Ruth', 'Rut', 'ルツ記', 'Ru-tơ', 'रूत', 'Rut', 'Ruth', 'Ruthu', 'Rut'],
+    ['사무엘상', '1 Samuel', '1 Samuel', '1 Samuel', '撒母耳记上', '1 Samuel', '1. Samuel', 'サムエル記第一', '1 Sa-mu-ên', '1 शमूएल', '1 Samuel', '1 Samuel', '1 Samweli', '1 Samuel'],
+    ['사무엘하', '2 Samuel', '2 Samuel', '2 Samuel', '撒母耳记下', '2 Samuel', '2. Samuel', 'サムエル記第二', '2 Sa-mu-ên', '2 शमूएल', '2 Samuel', '2 Samuel', '2 Samweli', '2 Samuel'],
+    ['열왕기상', '1 Kings', '1 Reyes', '1 Reis', '列王纪上', '1 Rois', '1. Könige', '列王記第一', '1 Các Vua', '1 राजाओं', '1 Raja-raja', '1 Mga Hari', '1 Wafalme', '1 Konings'],
+    ['열왕기하', '2 Kings', '2 Reyes', '2 Reis', '列王纪下', '2 Rois', '2. Könige', '列王記第二', '2 Các Vua', '2 राजाओं', '2 Raja-raja', '2 Mga Hari', '2 Wafalme', '2 Konings'],
+    ['역대상', '1 Chronicles', '1 Crónicas', '1 Crônicas', '历代志上', '1 Chroniques', '1. Chronik', '歴代誌第一', '1 Sử Ký', '1 इतिहास', '1 Tawarikh', '1 Mga Cronica', '1 Mambo ya Nyakati', '1 Kronieke'],
+    ['역대하', '2 Chronicles', '2 Crónicas', '2 Crônicas', '历代志下', '2 Chroniques', '2. Chronik', '歴代誌第二', '2 Sử Ký', '2 इतिहास', '2 Tawarikh', '2 Mga Cronica', '2 Mambo ya Nyakati', '2 Kronieke'],
+    ['에스라', 'Ezra', 'Esdras', 'Esdras', '以斯拉记', 'Esdras', 'Esra', 'エズラ記', 'E-xơ-ra', 'एज्रा', 'Ezra', 'Ezra', 'Ezra', 'Esra'],
+    ['느헤미야', 'Nehemiah', 'Nehemías', 'Neemias', '尼希米记', 'Néhémie', 'Nehemia', 'ネヘミヤ記', 'Nê-hê-mi', 'नहेमायाह', 'Nehemia', 'Nehemias', 'Nehemia', 'Nehemia'],
+    ['에스더', 'Esther', 'Ester', 'Ester', '以斯帖记', 'Esther', 'Ester', 'エステル記', 'Ê-xơ-tê', 'एस्तेर', 'Ester', 'Ester', 'Esta', 'Ester'],
+    ['욥기', 'Job', 'Job', 'Jó', '约伯记', 'Job', 'Hiob', 'ヨブ記', 'Gióp', 'अय्यूब', 'Ayub', 'Job', 'Ayubu', 'Job'],
+    ['시편', 'Psalms', 'Salmos', 'Salmos', '诗篇', 'Psaumes', 'Psalmen', '詩篇', 'Thi Thiên', 'भजन संहिता', 'Mazmur', 'Mga Awit', 'Zaburi', 'Psalms'],
+    ['잠언', 'Proverbs', 'Proverbios', 'Provérbios', '箴言', 'Proverbes', 'Sprüche', '箴言', 'Châm Ngôn', 'नीतिवचन', 'Amsal', 'Mga Kawikaan', 'Mithali', 'Spreuke'],
+    ['전도서', 'Ecclesiastes', 'Eclesiastés', 'Eclesiastes', '传道书', 'Ecclésiaste', 'Prediger', '伝道者の書', 'Truyền Đạo', 'सभोपदेशक', 'Pengkhotbah', 'Mangangaral', 'Mhubiri', 'Prediker'],
+    ['아가', 'Song of Songs', 'Cantares', 'Cânticos', '雅歌', 'Cantique des Cantiques', 'Hohelied', '雅歌', 'Nhã Ca', 'श्रेष्ठगीत', 'Kidung Agung', 'Awit ni Solomon', 'Wimbo Ulio Bora', 'Hooglied'],
+    ['이사야', 'Isaiah', 'Isaías', 'Isaías', '以赛亚书', 'Ésaïe', 'Jesaja', 'イザヤ書', 'Ê-sai', 'यशायाह', 'Yesaya', 'Isaias', 'Isaya', 'Jesaja'],
+    ['예레미야애가', 'Lamentations', 'Lamentaciones', 'Lamentações', '耶利米哀歌', 'Lamentations', 'Klagelieder', '哀歌', 'Ca Thương', 'विलापगीत', 'Ratapan', 'Panaghoy', 'Maombolezo', 'Klaagliedere'],
+    ['예레미야', 'Jeremiah', 'Jeremías', 'Jeremias', '耶利米书', 'Jérémie', 'Jeremia', 'エレミヤ書', 'Giê-rê-mi', 'यिर्मयाह', 'Yeremia', 'Jeremias', 'Yeremia', 'Jeremia'],
+    ['에스겔', 'Ezekiel', 'Ezequiel', 'Ezequiel', '以西结书', 'Ézéchiel', 'Hesekiel', 'エゼキエル書', 'Ê-xê-chi-ên', 'यहेजकेल', 'Yehezkiel', 'Ezekiel', 'Ezekieli', 'Esegiël'],
+    ['다니엘', 'Daniel', 'Daniel', 'Daniel', '但以理书', 'Daniel', 'Daniel', 'ダニエル書', 'Đa-ni-ên', 'दानिय्येल', 'Daniel', 'Daniel', 'Danieli', 'Daniël'],
+    ['호세아', 'Hosea', 'Oseas', 'Oséias', '何西阿书', 'Osée', 'Hosea', 'ホセア書', 'Ô-sê', 'होशे', 'Hosea', 'Oseas', 'Hosea', 'Hosea'],
+    ['요엘', 'Joel', 'Joel', 'Joel', '约珥书', 'Joël', 'Joel', 'ヨエル書', 'Giô-ên', 'योएल', 'Yoel', 'Joel', 'Yoeli', 'Joël'],
+    ['아모스', 'Amos', 'Amós', 'Amós', '阿摩司书', 'Amos', 'Amos', 'アモス書', 'A-mốt', 'आमोस', 'Amos', 'Amos', 'Amosi', 'Amos'],
+    ['오바댜', 'Obadiah', 'Abdías', 'Obadias', '俄巴底亚书', 'Abdias', 'Obadja', 'オバデヤ書', 'Áp-đia', 'ओबद्याह', 'Obaja', 'Obadias', 'Obadia', 'Obadja'],
+    ['요나', 'Jonah', 'Jonás', 'Jonas', '约拿书', 'Jonas', 'Jona', 'ヨナ書', 'Giô-na', 'योना', 'Yunus', 'Jonas', 'Yona', 'Jona'],
+    ['미가', 'Micah', 'Miqueas', 'Miquéias', '弥迦书', 'Michée', 'Micha', 'ミカ書', 'Mi-chê', 'मीका', 'Mikha', 'Mikas', 'Mika', 'Miga'],
+    ['나훔', 'Nahum', 'Nahúm', 'Naum', '那鸿书', 'Nahum', 'Nahum', 'ナホム書', 'Na-hum', 'नहूम', 'Nahum', 'Nahum', 'Nahumu', 'Nahum'],
+    ['하박국', 'Habakkuk', 'Habacuc', 'Habacuque', '哈巴谷书', 'Habacuc', 'Habakuk', 'ハバクク書', 'Ha-ba-cúc', 'हबक्कूक', 'Habakuk', 'Habakuk', 'Habakuki', 'Habakuk'],
+    ['스바냐', 'Zephaniah', 'Sofonías', 'Sofonias', '西番雅书', 'Sophonie', 'Zephanja', 'ゼパニヤ書', 'Sô-phô-ni', 'सपन्याह', 'Zefanya', 'Sofonias', 'Sefania', 'Sefanja'],
+    ['학개', 'Haggai', 'Hageo', 'Ageu', '哈该书', 'Aggée', 'Haggai', 'ハガイ書', 'A-ghê', 'हाग्गै', 'Hagai', 'Hageo', 'Hagai', 'Haggai'],
+    ['스가랴', 'Zechariah', 'Zacarías', 'Zacarias', '撒迦利亚书', 'Zacharie', 'Sacharja', 'ゼカリヤ書', 'Xa-cha-ri', 'जकर्याह', 'Zakharia', 'Zacarias', 'Zekaria', 'Sagaria'],
+    ['말라기', 'Malachi', 'Malaquías', 'Malaquias', '玛拉基书', 'Malachie', 'Maleachi', 'マラキ書', 'Ma-la-chi', 'मलाकी', 'Maleakhi', 'Malakias', 'Malaki', 'Maleagi'],
+    ['마태복음', 'Matthew', 'Mateo', 'Mateus', '马太福音', 'Matthieu', 'Matthäus', 'マタイの福音書', 'Ma-thi-ơ', 'मत्ती', 'Matius', 'Mateo', 'Mathayo', 'Matteus'],
+    ['마가복음', 'Mark', 'Marcos', 'Marcos', '马可福音', 'Marc', 'Markus', 'マルコの福音書', 'Mác', 'मरकुस', 'Markus', 'Marcos', 'Marko', 'Markus'],
+    ['누가복음', 'Luke', 'Lucas', 'Lucas', '路加福音', 'Luc', 'Lukas', 'ルカの福音書', 'Lu-ca', 'लूका', 'Lukas', 'Lucas', 'Luka', 'Lukas'],
+    ['요한복음', 'John', 'Juan', 'João', '约翰福音', 'Jean', 'Johannes', 'ヨハネの福音書', 'Giăng', 'यूहन्ना', 'Yohanes', 'Juan', 'Yohana', 'Johannes'],
+    ['사도행전', 'Acts', 'Hechos', 'Atos', '使徒行传', 'Actes', 'Apostelgeschichte', '使徒の働き', 'Công Vụ Các Sứ Đồ', 'प्रेरितों के काम', 'Kisah Para Rasul', 'Mga Gawa', 'Matendo ya Mitume', 'Handelinge'],
+    ['로마서', 'Romans', 'Romanos', 'Romanos', '罗马书', 'Romains', 'Römer', 'ローマ人への手紙', 'Rô-ma', 'रोमियों', 'Roma', 'Mga Taga-Roma', 'Warumi', 'Romeine'],
+    ['고린도전서', '1 Corinthians', '1 Corintios', '1 Coríntios', '哥林多前书', '1 Corinthiens', '1. Korinther', 'コリント人への第一の手紙', '1 Cô-rinh-tô', '1 कुरिन्थियों', '1 Korintus', '1 Mga Taga-Corinto', '1 Wakorintho', '1 Korintiërs'],
+    ['고린도후서', '2 Corinthians', '2 Corintios', '2 Coríntios', '哥林多后书', '2 Corinthiens', '2. Korinther', 'コリント人への第二の手紙', '2 Cô-rinh-tô', '2 कुरिन्थियों', '2 Korintus', '2 Mga Taga-Corinto', '2 Wakorintho', '2 Korintiërs'],
+    ['갈라디아서', 'Galatians', 'Gálatas', 'Gálatas', '加拉太书', 'Galates', 'Galater', 'ガラテヤ人への手紙', 'Ga-la-ti', 'गलातियों', 'Galatia', 'Mga Taga-Galacia', 'Wagalatia', 'Galasiërs'],
+    ['에베소서', 'Ephesians', 'Efesios', 'Efésios', '以弗所书', 'Éphésiens', 'Epheser', 'エペソ人への手紙', 'Ê-phê-sô', 'इफिसियों', 'Efesus', 'Mga Taga-Efeso', 'Waefeso', 'Efesiërs'],
+    ['빌립보서', 'Philippians', 'Filipenses', 'Filipenses', '腓立比书', 'Philippiens', 'Philipper', 'ピリピ人への手紙', 'Phi-líp', 'फिलिप्पियों', 'Filipi', 'Mga Taga-Filipos', 'Wafilipi', 'Filippense'],
+    ['골로새서', 'Colossians', 'Colosenses', 'Colossenses', '歌罗西书', 'Colossiens', 'Kolosser', 'コロサイ人への手紙', 'Cô-lô-se', 'कुलुस्सियों', 'Kolose', 'Mga Taga-Colosas', 'Wakolosai', 'Kolossense'],
+    ['데살로니가전서', '1 Thessalonians', '1 Tesalonicenses', '1 Tessalonicenses', '帖撒罗尼迦前书', '1 Thessaloniciens', '1. Thessalonicher', 'テサロニケ人への第一の手紙', '1 Tê-sa-lô-ni-ca', '1 थिस्सलुनीकियों', '1 Tesalonika', '1 Mga Taga-Tesalonica', '1 Wathesalonike', '1 Tessalonisense'],
+    ['데살로니가후서', '2 Thessalonians', '2 Tesalonicenses', '2 Tessalonicenses', '帖撒罗尼迦后书', '2 Thessaloniciens', '2. Thessalonicher', 'テサロニケ人への第二の手紙', '2 Tê-sa-lô-ni-ca', '2 थिस्सलुनीकियों', '2 Tesalonika', '2 Mga Taga-Tesalonica', '2 Wathesalonike', '2 Tessalonisense'],
+    ['디모데전서', '1 Timothy', '1 Timoteo', '1 Timóteo', '提摩太前书', '1 Timothée', '1. Timotheus', 'テモテへの第一の手紙', '1 Ti-mô-thê', '1 तीमुथियुस', '1 Timotius', '1 Timoteo', '1 Timotheo', '1 Timoteus'],
+    ['디모데후서', '2 Timothy', '2 Timoteo', '2 Timóteo', '提摩太后书', '2 Timothée', '2. Timotheus', 'テモテへの第二の手紙', '2 Ti-mô-thê', '2 तीमुथियुस', '2 Timotius', '2 Timoteo', '2 Timotheo', '2 Timoteus'],
+    ['디도서', 'Titus', 'Tito', 'Tito', '提多书', 'Tite', 'Titus', 'テトスへの手紙', 'Tít', 'तीतुस', 'Titus', 'Tito', 'Tito', 'Titus'],
+    ['빌레몬서', 'Philemon', 'Filemón', 'Filemom', '腓利门书', 'Philémon', 'Philemon', 'ピレモンへの手紙', 'Phi-lê-môn', 'फिलेमोन', 'Filemon', 'Filemon', 'Filemoni', 'Filemon'],
+    ['히브리서', 'Hebrews', 'Hebreos', 'Hebreus', '希伯来书', 'Hébreux', 'Hebräer', 'ヘブル人への手紙', 'Hê-bơ-rơ', 'इब्रानियों', 'Ibrani', 'Mga Hebreo', 'Waebrania', 'Hebreërs'],
+    ['야고보서', 'James', 'Santiago', 'Tiago', '雅各书', 'Jacques', 'Jakobus', 'ヤコブの手紙', 'Gia-cơ', 'याकूब', 'Yakobus', 'Santiago', 'Yakobo', 'Jakobus'],
+    ['베드로전서', '1 Peter', '1 Pedro', '1 Pedro', '彼得前书', '1 Pierre', '1. Petrus', 'ペテロの第一の手紙', '1 Phi-e-rơ', '1 पतरस', '1 Petrus', '1 Pedro', '1 Petro', '1 Petrus'],
+    ['베드로후서', '2 Peter', '2 Pedro', '2 Pedro', '彼得后书', '2 Pierre', '2. Petrus', 'ペテロの第二の手紙', '2 Phi-e-rơ', '2 पतरस', '2 Petrus', '2 Pedro', '2 Petro', '2 Petrus'],
+    ['요한일서', '1 John', '1 Juan', '1 João', '约翰一书', '1 Jean', '1. Johannes', 'ヨハネの第一の手紙', '1 Giăng', '1 यूहन्ना', '1 Yohanes', '1 Juan', '1 Yohana', '1 Johannes'],
+    ['요한이서', '2 John', '2 Juan', '2 João', '约翰二书', '2 Jean', '2. Johannes', 'ヨハネの第二の手紙', '2 Giăng', '2 यूहन्ना', '2 Yohanes', '2 Juan', '2 Yohana', '2 Johannes'],
+    ['요한삼서', '3 John', '3 Juan', '3 João', '约翰三书', '3 Jean', '3. Johannes', 'ヨハネの第三の手紙', '3 Giăng', '3 यूहन्ना', '3 Yohanes', '3 Juan', '3 Yohana', '3 Johannes'],
+    ['유다서', 'Jude', 'Judas', 'Judas', '犹大书', 'Jude', 'Judas', 'ユダの手紙', 'Giu-đe', 'यहूदा', 'Yudas', 'Judas', 'Yuda', 'Judas'],
+    ['요한계시록', 'Revelation', 'Apocalipsis', 'Apocalipse', '启示录', 'Apocalypse', 'Offenbarung', 'ヨハネの黙示録', 'Khải Huyền', 'प्रकाशितवाक्य', 'Wahyu', 'Pahayag', 'Ufunuo wa Yohana', 'Openbaring']
   ];
 
   // Map a Google Translate language code → column index in the row above.
   const BOOK_LANG_IDX = {
     'en': 1, 'es': 2, 'pt': 3,
     'zh-CN': 4, 'zh': 4, 'zh-TW': 4,
-    'fr': 5, 'de': 6, 'ja': 7, 'vi': 8
+    'fr': 5, 'de': 6, 'ja': 7, 'vi': 8,
+    'hi': 9, 'id': 10, 'tl': 11, 'sw': 12, 'af': 13
   };
 
   // Same column mapping is reused for category/UI/welcome i18n tables below.
@@ -331,39 +332,39 @@
 
   // Long category labels (for modal titles). Order: ko, en, es, pt, zh, fr, de, ja, vi
   const CATEGORY_LABELS = {
-    'pentateuch':       ['모세오경',   'Pentateuch',         'Pentateuco',           'Pentateuco',           '摩西五经',  'Pentateuque',           'Pentateuch',          'モーセ五書', 'Ngũ Kinh Môi-se'],
-    'history_ot':       ['역사서',     'History',            'Históricos',           'Históricos',           '历史书',    'Livres historiques',    'Geschichtsbücher',    '歴史書',     'Sách Lịch Sử'],
-    'wisdom':           ['시가서',     'Wisdom',             'Sapienciales',         'Sapienciais',          '诗歌智慧书', 'Livres de sagesse',     'Weisheitsliteratur',  '詩歌・知恵',  'Sách Văn Thơ'],
-    'major_prophets':   ['대선지서',   'Major Prophets',     'Profetas Mayores',     'Profetas Maiores',     '大先知书',  'Grands Prophètes',      'Große Propheten',     '大預言書',   'Đại Tiên Tri'],
-    'minor_prophets':   ['소선지서',   'Minor Prophets',     'Profetas Menores',     'Profetas Menores',     '小先知书',  'Petits Prophètes',      'Kleine Propheten',    '小預言書',   'Tiểu Tiên Tri'],
-    'gospels':          ['복음서',     'Gospels',            'Evangelios',           'Evangelhos',           '福音书',    'Évangiles',             'Evangelien',          '福音書',     'Sách Phúc Âm'],
-    'acts':             ['사도행전',   'Acts',               'Hechos',               'Atos',                 '使徒行传',  'Actes',                 'Apostelgeschichte',   '使徒の働き', 'Công Vụ Sứ Đồ'],
-    'pauline':          ['바울서신',   'Pauline Epistles',   'Cartas Paulinas',      'Cartas Paulinas',      '保罗书信',  'Épîtres pauliniennes',  'Paulusbriefe',        'パウロ書簡', 'Thư Phao-lô'],
-    'general_epistles': ['공동서신',   'General Epistles',   'Cartas Generales',     'Cartas Gerais',        '普通书信',  'Épîtres générales',     'Katholische Briefe',  '公同書簡',   'Thư Tổng Quát'],
-    'revelation':       ['계시록',     'Revelation',         'Apocalipsis',          'Apocalipse',           '启示录',    'Apocalypse',            'Offenbarung',         '黙示録',     'Sách Khải Huyền']
+    'pentateuch': ['모세오경',   'Pentateuch',         'Pentateuco',           'Pentateuco',           '摩西五经',  'Pentateuque',           'Pentateuch',          'モーセ五書', 'Ngũ Kinh Môi-se', 'मूसा की पाँच पुस्तकें', 'Lima Kitab Musa', 'Pentateuko', 'Pentateuko (Vitabu Vitano vya Musa)', 'Pentateug'],
+    'history_ot': ['역사서',     'History',            'Históricos',           'Históricos',           '历史书',    'Livres historiques',    'Geschichtsbücher',    '歴史書',     'Sách Lịch Sử', 'ऐतिहासिक पुस्तकें', 'Kitab-kitab Sejarah', 'Mga Aklat Pangkasaysayan', 'Vitabu vya Historia', 'Historiese Boeke'],
+    'wisdom': ['시가서',     'Wisdom',             'Sapienciales',         'Sapienciais',          '诗歌智慧书', 'Livres de sagesse',     'Weisheitsliteratur',  '詩歌・知恵',  'Sách Văn Thơ', 'काव्य पुस्तकें', 'Kitab Hikmat', 'Mga Aklat ng Karunungan', 'Vitabu vya Hekima', 'Wysheidsboeke'],
+    'major_prophets': ['대선지서',   'Major Prophets',     'Profetas Mayores',     'Profetas Maiores',     '大先知书',  'Grands Prophètes',      'Große Propheten',     '大預言書',   'Đại Tiên Tri', 'बड़े भविष्यवक्ता', 'Nabi-nabi Besar', 'Mga Pangunahing Propeta', 'Manabii Wakuu', 'Groot Profete'],
+    'minor_prophets': ['소선지서',   'Minor Prophets',     'Profetas Menores',     'Profetas Menores',     '小先知书',  'Petits Prophètes',      'Kleine Propheten',    '小預言書',   'Tiểu Tiên Tri', 'छोटे भविष्यवक्ता', 'Nabi-nabi Kecil', 'Mga Maliliit na Propeta', 'Manabii Wadogo', 'Klein Profete'],
+    'gospels': ['복음서',     'Gospels',            'Evangelios',           'Evangelhos',           '福音书',    'Évangiles',             'Evangelien',          '福音書',     'Sách Phúc Âm', 'सुसमाचार', 'Injil', 'Mga Ebanghelyo', 'Injili', 'Evangelies'],
+    'acts': ['사도행전',   'Acts',               'Hechos',               'Atos',                 '使徒行传',  'Actes',                 'Apostelgeschichte',   '使徒の働き', 'Công Vụ Sứ Đồ', 'प्रेरितों के काम', 'Kisah Para Rasul', 'Mga Gawa', 'Matendo ya Mitume', 'Handelinge'],
+    'pauline': ['바울서신',   'Pauline Epistles',   'Cartas Paulinas',      'Cartas Paulinas',      '保罗书信',  'Épîtres pauliniennes',  'Paulusbriefe',        'パウロ書簡', 'Thư Phao-lô', 'पौलुस की पत्रियाँ', 'Surat-surat Paulus', 'Mga Sulat ni Pablo', 'Nyaraka za Paulo', 'Paulus se Briewe'],
+    'general_epistles': ['공동서신',   'General Epistles',   'Cartas Generales',     'Cartas Gerais',        '普通书信',  'Épîtres générales',     'Katholische Briefe',  '公同書簡',   'Thư Tổng Quát', 'सामान्य पत्रियाँ', 'Surat-surat Umum', 'Pangkalahatang Sulat', 'Nyaraka za Kawaida', 'Algemene Briewe'],
+    'revelation': ['계시록',     'Revelation',         'Apocalipsis',          'Apocalipse',           '启示录',    'Apocalypse',            'Offenbarung',         '黙示録',     'Sách Khải Huyền', 'प्रकाशितवाक्य', 'Wahyu', 'Pahayag', 'Ufunuo', 'Openbaring']
   };
 
   // Short category labels (for tight keypad buttons). Same column order.
   const CATEGORY_SHORT = {
-    'pentateuch':       ['모세오경',   'Pentateuch',  'Pentat.',     'Pentat.',     '五经',     'Pentat.',       'Pentat.',     'モーセ五書', 'Ngũ Kinh'],
-    'history_ot':       ['역사서',     'History',     'Histórico',   'Histórico',   '历史',     'Histor.',       'Hist.',       '歴史書',     'Sử Ký'],
-    'wisdom':           ['시가서',     'Wisdom',      'Sapienc.',    'Sapienc.',    '诗歌',     'Sagesse',       'Weisheit',    '詩歌書',     'Văn Thơ'],
-    'major_prophets':   ['대선지서',   'Maj. Proph.', 'Prof. May.',  'Prof. Mai.',  '大先知',   'Gd. Proph.',    'Gr. Proph.',  '大預言',     'Đại Tiên Tri'],
-    'minor_prophets':   ['소선지서',   'Min. Proph.', 'Prof. Men.',  'Prof. Men.',  '小先知',   'Pt. Proph.',    'Kl. Proph.',  '小預言',     'Tiểu Tiên Tri'],
-    'gospels':          ['복음서',     'Gospels',     'Evangelios',  'Evangelhos',  '福音',     'Évangiles',     'Evangelien',  '福音書',     'Phúc Âm'],
-    'acts':             ['사도행전',   'Acts',        'Hechos',      'Atos',        '使徒',     'Actes',         'Apostelg.',   '使徒',       'Công Vụ'],
-    'pauline':          ['바울서신',   'Pauline',     'Paulinas',    'Paulinas',    '保罗书信', 'Pauliniennes',  'Paulus.',     'パウロ書簡', 'Thư Phao-lô'],
-    'general_epistles': ['공동서신',   'General',     'Generales',   'Gerais',      '普通书信', 'Générales',     'Kathol.',     '公同書簡',   'Thư Chung'],
-    'revelation':       ['계시록',     'Revelation',  'Apocalipsis', 'Apocalipse',  '启示录',   'Apocalypse',    'Offenbarung', '黙示録',     'Khải Huyền']
+    'pentateuch': ['모세오경',   'Pentateuch',  'Pentat.',     'Pentat.',     '五经',     'Pentat.',       'Pentat.',     'モーセ五書', 'Ngũ Kinh', 'पंचग्रंथ', 'Pentateukh', 'Pentateuko', 'Pentateuko', 'Pentateug'],
+    'history_ot': ['역사서',     'History',     'Histórico',   'Histórico',   '历史',     'Histor.',       'Hist.',       '歴史書',     'Sử Ký', 'इतिहास', 'Sejarah', 'Kasaysayan', 'Historia', 'Geskiedenis'],
+    'wisdom': ['시가서',     'Wisdom',      'Sapienc.',    'Sapienc.',    '诗歌',     'Sagesse',       'Weisheit',    '詩歌書',     'Văn Thơ', 'काव्य', 'Hikmat', 'Karunungan', 'Hekima', 'Wysheid'],
+    'major_prophets': ['대선지서',   'Maj. Proph.', 'Prof. May.',  'Prof. Mai.',  '大先知',   'Gd. Proph.',    'Gr. Proph.',  '大預言',     'Đại Tiên Tri', 'बड़े नबी', 'Nabi Besar', 'Maj. Propeta', 'Manabii Wakuu', 'Groot Profete'],
+    'minor_prophets': ['소선지서',   'Min. Proph.', 'Prof. Men.',  'Prof. Men.',  '小先知',   'Pt. Proph.',    'Kl. Proph.',  '小預言',     'Tiểu Tiên Tri', 'छोटे नबी', 'Nabi Kecil', 'Min. Propeta', 'Manabii Wadogo', 'Klein Profete'],
+    'gospels': ['복음서',     'Gospels',     'Evangelios',  'Evangelhos',  '福音',     'Évangiles',     'Evangelien',  '福音書',     'Phúc Âm', 'सुसमाचार', 'Injil', 'Ebanghelyo', 'Injili', 'Evangelies'],
+    'acts': ['사도행전',   'Acts',        'Hechos',      'Atos',        '使徒',     'Actes',         'Apostelg.',   '使徒',       'Công Vụ', 'प्रेरितों', 'Kisah', 'Gawa', 'Matendo', 'Handelinge'],
+    'pauline': ['바울서신',   'Pauline',     'Paulinas',    'Paulinas',    '保罗书信', 'Pauliniennes',  'Paulus.',     'パウロ書簡', 'Thư Phao-lô', 'पौलुस', 'Paulus', 'Pablo', 'Paulo', 'Paulus'],
+    'general_epistles': ['공동서신',   'General',     'Generales',   'Gerais',      '普通书信', 'Générales',     'Kathol.',     '公同書簡',   'Thư Chung', 'सामान्य', 'Umum', 'Pangkalahatan', 'Kawaida', 'Algemeen'],
+    'revelation': ['계시록',     'Revelation',  'Apocalipsis', 'Apocalipse',  '启示录',   'Apocalypse',    'Offenbarung', '黙示録',     'Khải Huyền', 'प्रकाशित', 'Wahyu', 'Pahayag', 'Ufunuo', 'Openbaring']
   };
 
   // UI label translations. Same column order: ko, en, es, pt, zh, fr, de, ja, vi
   const UI_LABELS = {
-    'find_word':    ['말씀 바로찾기',  'Find the Word',     'Buscar Palabra',      'Encontre a Palavra', '寻找经文',     'Trouver la Parole',  'Wort finden',       'み言葉を探す',     'Tìm Lời'],
-    'by_category':  ['분류별로 ›',     'By category ›',     'Por categoría ›',     'Por categoria ›',    '按分类 ›',     'Par catégorie ›',    'Nach Kategorie ›',  'カテゴリ別 ›',     'Theo phân loại ›'],
-    'choose_category': ['분류 선택',     'Choose category',   'Elige categoría',     'Escolha categoria',  '选择分类',     'Choisir catégorie',  'Kategorie wählen',  'カテゴリを選択',   'Chọn phân loại'],
-    'verse_view_other':['다른 날짜 보기','View other dates',  'Ver otras fechas',    'Ver outras datas',   '查看其他日期',  'Voir d\'autres dates','Andere Daten ansehen','他の日付を見る',  'Xem ngày khác'],
-    'verse_back_today':['오늘로 돌아가기','Back to today',     'Volver a hoy',        'Voltar para hoje',   '回到今天',     'Retour à aujourd\'hui','Zurück zu heute',  '今日に戻る',       'Quay lại hôm nay']
+    'find_word': ['말씀 바로찾기',  'Find the Word',     'Buscar Palabra',      'Encontre a Palavra', '寻找经文',     'Trouver la Parole',  'Wort finden',       'み言葉を探す',     'Tìm Lời', 'वचन ढूँढें', 'Cari Firman', 'Hanapin ang Salita', 'Tafuta Neno', 'Vind die Woord'],
+    'by_category': ['분류별로 ›',     'By category ›',     'Por categoría ›',     'Por categoria ›',    '按分类 ›',     'Par catégorie ›',    'Nach Kategorie ›',  'カテゴリ別 ›',     'Theo phân loại ›', 'श्रेणी अनुसार ›', 'Per kategori ›', 'Ayon sa kategorya ›', 'Kwa kategoria ›', 'Volgens kategorie ›'],
+    'choose_category': ['분류 선택',     'Choose category',   'Elige categoría',     'Escolha categoria',  '选择分类',     'Choisir catégorie',  'Kategorie wählen',  'カテゴリを選択',   'Chọn phân loại', 'श्रेणी चुनें', 'Pilih kategori', 'Pumili ng kategorya', 'Chagua kategoria', 'Kies kategorie'],
+    'verse_view_other': ['다른 날짜 보기','View other dates',  'Ver otras fechas',    'Ver outras datas',   '查看其他日期',  'Voir d\'autres dates','Andere Daten ansehen','他の日付を見る',  'Xem ngày khác', 'अन्य तिथियाँ देखें', 'Lihat tanggal lain', 'Tingnan ang ibang petsa', 'Ona tarehe nyingine', 'Bekyk ander datums'],
+    'verse_back_today': ['오늘로 돌아가기','Back to today',     'Volver a hoy',        'Voltar para hoje',   '回到今天',     'Retour à aujourd\'hui','Zurück zu heute',  '今日に戻る',       'Quay lại hôm nay', 'आज पर वापस', 'Kembali ke hari ini', 'Bumalik sa ngayon', 'Rudi leo', 'Terug na vandag']
   };
 
   // Welcome message translations. Index 0 = ko, 1 = en, etc.
@@ -377,7 +378,12 @@
       'Dans les Paroles de Grâce,',
       'In den Worten der Gnade,',
       '恵みの言葉の中で、',
-      'Trong Lời Ân Điển,'
+      'Trong Lời Ân Điển,',
+      'अनुग्रह के वचनों में,',
+      'Dalam Sabda Anugerah,',
+      'Sa mga Salita ng Biyaya,',
+      'Katika Maneno ya Neema,',
+      'In die Woorde van Genade,'
     ],
     line2: [
       '하나님의 놀라운 세계가 펼쳐집니다',
@@ -388,7 +394,12 @@
       'le monde merveilleux de Dieu se déploie.',
       'entfaltet sich Gottes wunderbare Welt.',
       '神の素晴らしい世界が広がります。',
-      'thế giới kỳ diệu của Đức Chúa Trời mở ra.'
+      'thế giới kỳ diệu của Đức Chúa Trời mở ra.',
+      'परमेश्वर का अद्भुत संसार खुलता है।',
+      'dunia ajaib Tuhan terbentang.',
+      'ang kahanga-hangang mundo ng Diyos ay nabubuksan.',
+      'ulimwengu wa ajabu wa Mungu hufunuliwa.',
+      'ontvou God se wonderlike wêreld.'
     ]
   };
 
@@ -480,9 +491,11 @@
     // Old / New Testament column headers — single line in current language.
     const TESTAMENT_LABELS = {
       ot: ['구약', 'Old Testament', 'Antiguo Testamento', 'Antigo Testamento',
-           '旧约', 'Ancien Testament', 'Altes Testament', '旧約', 'Cựu Ước'],
+           '旧约', 'Ancien Testament', 'Altes Testament', '旧約', 'Cựu Ước',
+           'पुराना नियम', 'Perjanjian Lama', 'Lumang Tipan', 'Agano la Kale', 'Ou Testament'],
       nt: ['신약', 'New Testament', 'Nuevo Testamento', 'Novo Testamento',
-           '新约', 'Nouveau Testament', 'Neues Testament', '新約', 'Tân Ước']
+           '新约', 'Nouveau Testament', 'Neues Testament', '新約', 'Tân Ước',
+           'नया नियम', 'Perjanjian Baru', 'Bagong Tipan', 'Agano Jipya', 'Nuwe Testament']
     };
     document.querySelectorAll('[data-i18n-testament]').forEach(function (el) {
       const k = el.getAttribute('data-i18n-testament');
@@ -498,12 +511,17 @@
       const num = String(n);
       const one = num === '1';
       switch (l) {
-        case 'en':    return num + (one ? ' book'  : ' books');
-        case 'es':    return num + (one ? ' libro' : ' libros');
-        case 'pt':    return num + (one ? ' livro' : ' livros');
-        case 'fr':    return num + (one ? ' livre' : ' livres');
-        case 'de':    return num + (one ? ' Buch'  : ' Bücher');
-        case 'vi':    return num + (one ? ' sách'  : ' sách');
+        case 'en':    return num + (one ? ' book'   : ' books');
+        case 'es':    return num + (one ? ' libro'  : ' libros');
+        case 'pt':    return num + (one ? ' livro'  : ' livros');
+        case 'fr':    return num + (one ? ' livre'  : ' livres');
+        case 'de':    return num + (one ? ' Buch'   : ' Bücher');
+        case 'vi':    return num + (one ? ' sách'   : ' sách');
+        case 'hi':    return num + (one ? ' पुस्तक'  : ' पुस्तकें');
+        case 'id':    return num + ' kitab';
+        case 'tl':    return num + (one ? ' aklat'  : ' aklat');
+        case 'sw':    return num + (one ? ' kitabu' : ' vitabu');
+        case 'af':    return num + (one ? ' boek'   : ' boeke');
         case 'zh-CN':
         case 'zh':
         case 'zh-TW': return num + '卷';
@@ -665,14 +683,20 @@
     'fr': 'Parole du Jour',
     'de': 'Wort des Tages',
     'ja': '今日のみことば',
-    'vi': 'Lời Hôm Nay'
+    'vi': 'Lời Hôm Nay',
+    'hi': 'आज का वचन',
+    'id': 'Firman Hari Ini',
+    'tl': 'Salita ng Araw',
+    'sw': 'Neno la Leo',
+    'af': 'Woord van die Dag'
   };
 
   function _localeFor(lang) {
     const m = {
       'ko':'ko-KR','en':'en-US','es':'es-ES','pt':'pt-BR',
       'zh':'zh-CN','zh-CN':'zh-CN','zh-TW':'zh-TW',
-      'fr':'fr-FR','de':'de-DE','ja':'ja-JP','vi':'vi-VN'
+      'fr':'fr-FR','de':'de-DE','ja':'ja-JP','vi':'vi-VN',
+      'hi':'hi-IN','id':'id-ID','tl':'tl-PH','sw':'sw-KE','af':'af-ZA'
     };
     return m[lang] || 'ko-KR';
   }
@@ -699,6 +723,11 @@
       case 'de':                              return 'Wort für den ' + fmt;
       case 'ja':                              return m + '月' + day + '日のみことば';
       case 'vi':                              return 'Lời cho ngày ' + day + ' tháng ' + m;
+      case 'hi':                              return fmt + ' का वचन';
+      case 'id':                              return 'Firman untuk ' + fmt;
+      case 'tl':                              return 'Salita para sa ' + fmt;
+      case 'sw':                              return 'Neno la ' + fmt;
+      case 'af':                              return 'Woord vir ' + fmt;
       default:                                return m + '월 ' + day + '일의 말씀';
     }
   }

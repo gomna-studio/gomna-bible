@@ -290,7 +290,7 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
           <button type="button" class="easy-key cat-key" style="animation-delay:.45s" onclick="event.stopPropagation();openCategory('revelation')" aria-label="Revelation"><span class="cat-count" data-cat-count="1" translate="no">1권</span><span class="cat-label" data-i18n-cat-name="revelation">계시록</span></button>
         </div>
       </div>
-      <div class="label"><div class="name" data-i18n-ui="find_word">말씀 바로찾기</div><div class="desc" data-i18n-ui="by_category">분류별로 ›</div></div>
+      <div class="label"><div class="name" data-i18n-ui="find_word" translate="no">말씀 바로찾기</div><div class="desc" data-i18n-ui="by_category" translate="no">분류별로 ›</div></div>
     </div>
     <button type="button" class="card new" onclick="openBible('new')" ontouchstart="">
       <div class="stage">
@@ -327,10 +327,10 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
     <div class="verse-text" id="verse-text">"수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라"</div>
     <div class="verse-ref" id="verse-ref">— 마태복음 11:28</div>
     <div class="verse-actions">
-      <button type="button" class="verse-today-btn" id="verseTodayBtn" onclick="resetVerseToToday()" style="display:none" data-i18n-ui="verse_back_today">오늘로 돌아가기</button>
+      <button type="button" class="verse-today-btn" id="verseTodayBtn" onclick="resetVerseToToday()" style="display:none" data-i18n-ui="verse_back_today" translate="no">오늘로 돌아가기</button>
       <button type="button" class="verse-date-btn" onclick="openVerseDatePicker()" aria-label="다른 날짜 보기">
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span data-i18n-ui="verse_view_other">다른 날짜 보기</span>
+        <span data-i18n-ui="verse_view_other" translate="no">다른 날짜 보기</span>
       </button>
     </div>
   </div>
@@ -560,9 +560,9 @@ function renderEasy(){
       const set=new Set(window.GomnaBibleCategories.getBooks(currentCategory));
       filtered=allBooks.filter(bk=>set.has(bk[0]));
     }else{filtered=allBooks;}
-    const allLabel=(window.GomnaBibleCategories.getLabel&&{en:'All Books',es:'Todos los libros',pt:'Todos os livros','zh-CN':'全部','zh':'全部','zh-TW':'全部',fr:'Tous',de:'Alle',ja:'すべて',vi:'Tất cả'}[lang])||'전체 성경';
-    const otHdrMap={ko:'구약',en:'Old Testament',es:'Antiguo Testamento',pt:'Antigo Testamento','zh-CN':'旧约','zh':'旧约','zh-TW':'舊約',fr:'Ancien Testament',de:'Altes Testament',ja:'旧約',vi:'Cựu Ước'};
-    const ntHdrMap={ko:'신약',en:'New Testament',es:'Nuevo Testamento',pt:'Novo Testamento','zh-CN':'新约','zh':'新约','zh-TW':'新約',fr:'Nouveau Testament',de:'Neues Testament',ja:'新約',vi:'Tân Ước'};
+    const allLabel=(window.GomnaBibleCategories.getLabel&&{en:'All Books',es:'Todos los libros',pt:'Todos os livros','zh-CN':'全部','zh':'全部','zh-TW':'全部',fr:'Tous',de:'Alle',ja:'すべて',vi:'Tất cả',hi:'सभी पुस्तकें',id:'Semua Kitab',tl:'Lahat ng Aklat',sw:'Vitabu vyote',af:'Alle boeke'}[lang])||'전체 성경';
+    const otHdrMap={ko:'구약',en:'Old Testament',es:'Antiguo Testamento',pt:'Antigo Testamento','zh-CN':'旧约','zh':'旧约','zh-TW':'舊約',fr:'Ancien Testament',de:'Altes Testament',ja:'旧約',vi:'Cựu Ước',hi:'पुराना नियम',id:'Perjanjian Lama',tl:'Lumang Tipan',sw:'Agano la Kale',af:'Ou Testament'};
+    const ntHdrMap={ko:'신약',en:'New Testament',es:'Nuevo Testamento',pt:'Novo Testamento','zh-CN':'新约','zh':'新约','zh-TW':'新約',fr:'Nouveau Testament',de:'Neues Testament',ja:'新約',vi:'Tân Ước',hi:'नया नियम',id:'Perjanjian Baru',tl:'Bagong Tipan',sw:'Agano Jipya',af:'Nuwe Testament'};
     const otHdrText=otHdrMap[lang]||otHdrMap['ko'];
     const ntHdrText=ntHdrMap[lang]||ntHdrMap['ko'];
     const allBtn='<button class="cons cat-all-btn'+(!currentCategory?' active':'')+'" onclick="setCategory(null)" translate="no">'+(!currentCategory?'★ ':'')+allLabel+'</button>';

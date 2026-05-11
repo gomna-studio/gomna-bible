@@ -258790,7 +258790,7 @@ function _getCurTL() {
   return v[2] || null;
 }
 function _allLbl(lang) {
-  return ({en:'All Books',es:'Todos los libros',pt:'Todos os livros','zh-CN':'全部书卷','zh':'全部书卷','zh-TW':'全部書卷',fr:'Tous les livres',de:'Alle Bücher',ja:'すべて',vi:'Tất cả sách'}[lang]) || '전체 성경';
+  return ({en:'All Books',es:'Todos los libros',pt:'Todos os livros','zh-CN':'全部书卷','zh':'全部书卷','zh-TW':'全部書卷',fr:'Tous les livres',de:'Alle Bücher',ja:'すべて',vi:'Tất cả sách',hi:'सभी पुस्तकें',id:'Semua Kitab',tl:'Lahat ng Aklat',sw:'Vitabu vyote',af:'Alle boeke'}[lang]) || '전체 성경';
 }
 function _escR(s) {
   return String(s||'').replace(/[&<>"\']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"\'":'&#39;'}[m];});
@@ -258819,8 +258819,8 @@ function renderEasyFind() {
   var allKoText = '전체 성경';
   var allLabelText = isKorean ? allKoText : _allLbl(lang);
   // Headers: current language only (single line).
-  var otHdrMap = {ko:'구약',en:'Old Testament',es:'Antiguo Testamento',pt:'Antigo Testamento','zh-CN':'旧约','zh':'旧约','zh-TW':'舊約',fr:'Ancien Testament',de:'Altes Testament',ja:'旧約',vi:'Cựu Ước'};
-  var ntHdrMap = {ko:'신약',en:'New Testament',es:'Nuevo Testamento',pt:'Novo Testamento','zh-CN':'新约','zh':'新约','zh-TW':'新約',fr:'Nouveau Testament',de:'Neues Testament',ja:'新約',vi:'Tân Ước'};
+  var otHdrMap = {ko:'구약',en:'Old Testament',es:'Antiguo Testamento',pt:'Antigo Testamento','zh-CN':'旧约','zh':'旧约','zh-TW':'舊約',fr:'Ancien Testament',de:'Altes Testament',ja:'旧約',vi:'Cựu Ước',hi:'पुराना नियम',id:'Perjanjian Lama',tl:'Lumang Tipan',sw:'Agano la Kale',af:'Ou Testament'};
+  var ntHdrMap = {ko:'신약',en:'New Testament',es:'Nuevo Testamento',pt:'Novo Testamento','zh-CN':'新约','zh':'新约','zh-TW':'新約',fr:'Nouveau Testament',de:'Neues Testament',ja:'新約',vi:'Tân Ước',hi:'नया नियम',id:'Perjanjian Baru',tl:'Bagong Tipan',sw:'Agano Jipya',af:'Nuwe Testament'};
   var otHdrText = otHdrMap[lang] || otHdrMap['ko'];
   var ntHdrText = ntHdrMap[lang] || ntHdrMap['ko'];
 
