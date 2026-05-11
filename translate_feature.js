@@ -142,8 +142,45 @@
     ['PT', '포르투갈', 'Portugal', 'pt', '포르투갈어', 'Português']
   ];
 
-  // 8 popular flags, in the exact order the user requested.
-  const POPULAR_CODES = ['US', 'ES', 'BR', 'CN', 'FR', 'DE', 'JP', 'VN'];
+  // Popular flags — 4×5 = 20 countries, grouped by region.
+  // Selection criteria: large Protestant Christian populations × high mobile
+  // internet reach. Each region has exactly 4 flags so the grid stays a
+  // clean 4-column layout on every device.
+  const POPULAR_REGIONS = [
+    { key: 'asia',     codes: ['KR', 'IN', 'JP', 'CN'] },
+    { key: 'seasia',   codes: ['VN', 'ID', 'PH', 'AU'] },
+    { key: 'americas', codes: ['US', 'CA', 'BR', 'MX'] },
+    { key: 'europe',   codes: ['GB', 'FR', 'DE', 'ES'] },
+    { key: 'africa',   codes: ['NG', 'KE', 'ZA', 'GH'] }
+  ];
+
+  // Flat list (used for backward-compatible iteration in a few helpers).
+  const POPULAR_CODES = POPULAR_REGIONS.reduce(function (acc, r) {
+    return acc.concat(r.codes);
+  }, []);
+
+  // Region header labels. Column order matches BOOK_LANG_IDX:
+  // 0:ko 1:en 2:es 3:pt 4:zh 5:fr 6:de 7:ja 8:vi
+  const REGION_LABELS = {
+    asia:     ['아시아',            'Asia',                       'Asia',                          'Ásia',                          '亚洲',         'Asie',                       'Asien',                     'アジア',                 'Châu Á'],
+    seasia:   ['동남아·오세아니아',  'SE Asia & Oceania',          'Sudeste Asiático y Oceanía',    'Sudeste Asiático e Oceania',    '东南亚·大洋洲', 'Asie du SE & Océanie',       'Südostasien & Ozeanien',    '東南アジア・オセアニア',  'ĐNÁ & Châu Đại Dương'],
+    americas: ['아메리카',          'Americas',                   'América',                       'Américas',                      '美洲',         'Amériques',                  'Amerika',                   '南北アメリカ',           'Châu Mỹ'],
+    europe:   ['유럽',              'Europe',                     'Europa',                        'Europa',                        '欧洲',         'Europe',                     'Europa',                    'ヨーロッパ',             'Châu Âu'],
+    africa:   ['아프리카',          'Africa',                     'África',                        'África',                        '非洲',         'Afrique',                    'Afrika',                    'アフリカ',               'Châu Phi']
+  };
+
+  // Per-language anchor country — used to highlight the user's current
+  // language in the grid. If the user is viewing in Spanish, we want the
+  // Mexico flag to glow (rather than just "any Spanish-speaking country").
+  // KR is anchor for Korean, US for English, etc. Anchors match flags
+  // that actually appear in POPULAR_REGIONS above.
+  const LANG_ANCHOR = {
+    'ko': 'KR', 'en': 'US', 'es': 'MX', 'pt': 'BR',
+    'zh': 'CN', 'zh-CN': 'CN', 'zh-TW': 'CN',
+    'fr': 'FR', 'de': 'DE', 'ja': 'JP', 'vi': 'VN',
+    'hi': 'IN', 'id': 'ID', 'tl': 'PH', 'sw': 'KE',
+    'af': 'ZA'
+  };
 
   const STORAGE_KEY = 'gomna_translate_recent';
 
@@ -732,6 +769,31 @@
     return v[2] || null;
   }
 
+  // Resolves the "active" language code (cookie target, or "ko" if no cookie).
+  function getActiveLangCode() {
+    return getCurrentTargetLang() || 'ko';
+  }
+
+  // Resolves the anchor country (code) for a given target language code.
+  // Used to highlight the user's current selection in the popular grid.
+  function findAnchorForLang(langCode) {
+    if (!langCode) return null;
+    const anchor = LANG_ANCHOR[langCode];
+    if (anchor) {
+      const c = findByCode(anchor);
+      if (c) return c;
+    }
+    return COUNTRIES.find(function (c) { return c[3] === langCode; }) || null;
+  }
+
+  // Region label localized to the user's current language.
+  function getRegionLabel(key, lang) {
+    const row = REGION_LABELS[key];
+    if (!row) return key;
+    const idx = getLangIdx(lang);
+    return row[idx] || row[0];
+  }
+
   let _bookObserver = null;
   let _bookLangActive = null;
 
@@ -997,12 +1059,21 @@
 .gt-suggested-tag{font-size:10px;color:#a87a35;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}\
 .gt-suggested-name{font-size:14px;font-weight:600;color:#3d2818;line-height:1.25}\
 .gt-suggested-arrow{font-size:18px;color:#a87a35;flex-shrink:0}\
-.gt-popular-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}\
-.gt-pop-btn{background:#fff;border:.5px solid rgba(180,140,90,.3);border-radius:12px;padding:10px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .2s;font-family:inherit}\
-.gt-pop-btn:hover{background:#fff5e0;border-color:#c89849}\
+.gt-regions{display:flex;flex-direction:column;gap:12px}\
+.gt-region{position:relative}\
+.gt-region-head{display:flex;align-items:center;gap:6px;margin:0 2px 6px;padding:0 2px}\
+.gt-region-emoji{font-size:13px;line-height:1;flex-shrink:0;filter:saturate(.9)}\
+.gt-region-name{font-size:11px;font-weight:700;color:#8a5a2a;letter-spacing:.2px;line-height:1.25;text-transform:none;flex-shrink:0;max-width:calc(100% - 22px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\
+.gt-region-rule{flex:1;min-width:8px;height:1px;background:linear-gradient(90deg,rgba(200,152,73,.35),rgba(200,152,73,0));margin-left:2px;align-self:center}\
+.gt-popular-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}\
+.gt-pop-btn{position:relative;background:#fff;border:1px solid rgba(180,140,90,.3);border-radius:12px;padding:9px 4px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .2s;font-family:inherit;overflow:hidden}\
+.gt-pop-btn:hover{background:#fff5e0;border-color:#c89849;transform:translateY(-1px);box-shadow:0 2px 6px rgba(200,152,73,.18)}\
 .gt-pop-btn:active{transform:scale(.95);opacity:.7}\
-.gt-pop-flag{font-size:24px;line-height:1}\
-.gt-pop-label{font-size:11px;color:#5a3818;font-weight:500;line-height:1.2;text-align:center}\
+.gt-pop-btn-active{background:linear-gradient(135deg,#fff5e0 0%,#f8e3b8 100%);border-color:#c89849;border-width:1.5px;box-shadow:0 0 0 2px rgba(200,152,73,.18),0 2px 8px rgba(200,152,73,.25)}\
+.gt-pop-btn-active .gt-pop-label{color:#3d2818;font-weight:700}\
+.gt-pop-check{position:absolute;top:4px;right:4px;width:15px;height:15px;border-radius:50%;background:#c89849;color:#fff;font-size:9px;font-weight:800;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.18);font-family:inherit}\
+.gt-pop-flag{font-size:26px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.08))}\
+.gt-pop-label{font-size:10.5px;color:#5a3818;font-weight:500;line-height:1.2;text-align:center;letter-spacing:-.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}\
 .gt-search-wrap{position:relative;margin-bottom:10px}\
 .gt-search-input{width:100%;padding:11px 14px 11px 38px;border-radius:24px;border:.5px solid rgba(180,140,90,.4);background:#fff;font-family:inherit;font-size:14px;color:#3d2818;outline:none;-webkit-appearance:none;appearance:none}\
 .gt-search-input::placeholder{color:#a89890}\
@@ -1021,7 +1092,17 @@
 @media (max-width:480px){\
 .gt-modal{padding:0;align-items:flex-end}\
 .gt-sheet{max-width:100%;max-height:90vh;border-radius:24px 24px 0 0}\
-.gt-popular-grid{grid-template-columns:repeat(4,1fr)}\
+.gt-popular-grid{grid-template-columns:repeat(4,1fr);gap:5px}\
+.gt-pop-btn{padding:8px 3px 7px;border-radius:11px}\
+.gt-pop-flag{font-size:24px}\
+.gt-pop-label{font-size:10px}\
+.gt-region-name{font-size:10.5px}\
+}\
+@media (max-width:360px){\
+.gt-popular-grid{gap:4px}\
+.gt-pop-btn{padding:7px 2px 6px}\
+.gt-pop-flag{font-size:22px}\
+.gt-pop-label{font-size:9.5px;letter-spacing:-.2px}\
 }';
 
   function injectStyles() {
@@ -1047,24 +1128,82 @@
       '</button>';
   }
 
+  // Each region's emoji prefix in the header. Visual hint only.
+  const REGION_EMOJI = {
+    asia: '🌏', seasia: '🌴', americas: '🌎', europe: '🌍', africa: '🌍'
+  };
+
+  // Shorter button labels for countries whose full names overflow a
+  // 4-column grid on narrow phones. Only the listed codes are overridden;
+  // everything else falls back to c[1] / c[2] from the master COUNTRIES list.
+  // Tuple: [koShort, enShort].
+  const POPULAR_NAME_OVERRIDE = {
+    'ZA': ['남아공',  'S. Africa'],
+    'GB': ['영국',    'UK'],
+    'US': ['미국',    'USA']
+  };
+
+  function getPopularLabel(c, langIdx) {
+    const ov = POPULAR_NAME_OVERRIDE[c[0]];
+    if (ov) return (langIdx === 0) ? ov[0] : ov[1];
+    return (langIdx === 0) ? c[1] : c[2];
+  }
+
+  function renderPopularRegions() {
+    const activeLang = getActiveLangCode();
+    const activeAnchorCode = (LANG_ANCHOR[activeLang] || '');
+    const labelIdx = (activeLang === 'ko') ? 0 : 1;
+    let html = '<div class="gt-regions">';
+    POPULAR_REGIONS.forEach(function (region) {
+      const regionLabel = getRegionLabel(region.key, activeLang);
+      html += '<div class="gt-region">' +
+        '<div class="gt-region-head">' +
+        '<span class="gt-region-emoji" aria-hidden="true">' + (REGION_EMOJI[region.key] || '') + '</span>' +
+        '<span class="gt-region-name">' + escapeHtml(regionLabel) + '</span>' +
+        '<span class="gt-region-rule" aria-hidden="true"></span>' +
+        '</div>' +
+        '<div class="gt-popular-grid">';
+      region.codes.forEach(function (code) {
+        const c = findByCode(code);
+        if (!c) return;
+        const isActive = (code === activeAnchorCode);
+        const cls = 'gt-pop-btn' + (isActive ? ' gt-pop-btn-active' : '');
+        const label = getPopularLabel(c, labelIdx);
+        html += '<button type="button" class="' + cls + '" data-code="' + c[0] + '"' +
+          (isActive ? ' aria-current="true"' : '') + '>' +
+          (isActive ? '<div class="gt-pop-check" aria-label="현재 언어">✓</div>' : '') +
+          '<div class="gt-pop-flag">' + flag(c[0]) + '</div>' +
+          '<div class="gt-pop-label">' + escapeHtml(label) + '</div>' +
+          '</button>';
+      });
+      html += '</div></div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
   function renderBody() {
     const detected = detectLanguage();
     const recent = getRecent();
+    const activeLang = getActiveLangCode();
+    const activeCountry = (activeLang && activeLang !== 'ko') ? findAnchorForLang(activeLang) : null;
     let html = '';
 
-    if (detected) html += renderSuggested('자동 감지됨 · Detected', detected);
-    if (recent && (!detected || recent[0] !== detected[0])) html += renderSuggested('최근 사용 · Recent', recent);
+    // Avoid showing the same flag twice (e.g., suggesting Vietnam when the
+    // user already viewed Vietnam, or when Vietnam is the current language).
+    function sameLang(a, b) { return a && b && a[3] === b[3]; }
 
-    html += '<div class="gt-section-label">인기 언어 · Popular</div><div class="gt-popular-grid">';
-    POPULAR_CODES.forEach(function (code) {
-      const c = findByCode(code);
-      if (!c) return;
-      html += '<button type="button" class="gt-pop-btn" data-code="' + c[0] + '">' +
-        '<div class="gt-pop-flag">' + flag(c[0]) + '</div>' +
-        '<div class="gt-pop-label">' + escapeHtml(c[4]) + '</div>' +
-        '</button>';
-    });
-    html += '</div>';
+    if (detected && !sameLang(detected, activeCountry)) {
+      html += renderSuggested('자동 감지됨 · Detected', detected);
+    }
+    if (recent && !sameLang(recent, detected) && !sameLang(recent, activeCountry)) {
+      html += renderSuggested('최근 사용 · Recent', recent);
+    }
+
+    html += '<div class="gt-section-label">' +
+      '인기 언어 · Popular Languages · 20개국' +
+      '</div>';
+    html += renderPopularRegions();
 
     html += '<div class="gt-section-label">전체 검색 · Search (' + COUNTRIES.length + '+ 나라)</div>' +
       '<div class="gt-search-wrap">' +
