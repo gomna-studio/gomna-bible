@@ -1279,7 +1279,7 @@
       '<button type="button" class="gt-close" aria-label="닫기">✕</button>' +
       '</div>' +
       '<div class="gt-body"></div>' +
-      '<div class="gt-foot">Powered by Google Translate · ' + COUNTRIES.length + '개국 지원</div>' +
+      '<div class="gt-foot">© Gomna Studio, Inc. · Powered by Google Translate · ' + COUNTRIES.length + '개국 지원</div>' +
       '</div>';
     document.body.appendChild(modal);
 
