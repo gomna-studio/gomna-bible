@@ -258936,11 +258936,14 @@ function selectChapter(ch) {
   currentChapter = ch;
   document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
   document.getElementById('verseView').classList.add('active');
-  renderVerses();
+  if (window.GomnaAnalytics && currentBook) {
+    GomnaAnalytics.trackNavigateChapter(currentBook.name, ch, 'select', currentBook.testament);
+  }
+  renderVerses(1);
   loadCommentaryData();
 }
 
-function renderVerses() {
+function renderVerses(highlightVerse) {
   var data = currentBook.testament === 'old' ? oldTestamentData : newTestamentData;
   var bookData = findBook(data, currentBook.name);
   if(!bookData) return;
@@ -258969,6 +258972,9 @@ function renderVerses() {
   applyRange(1, verses.length);
   updateVerseRangeBoxLabel();
   updateOpt4BottomBar();
+  if (window.GomnaAnalytics && currentBook) {
+    GomnaAnalytics.trackViewVerse(currentBook.name, currentChapter, highlightVerse || opt4RangeStart || 1, currentBook.testament);
+  }
 }
 
 
@@ -259193,6 +259199,9 @@ function showCommentary(verseNum) {
   document.getElementById('commentaryTitle').textContent = '📖 말씀풀이';
   document.getElementById('commentaryContent').innerHTML = content;
   document.getElementById('commentaryPopup').classList.add('show');
+  if (window.GomnaAnalytics && currentBook) {
+    GomnaAnalytics.trackOpenCommentary(currentBook.name, chapter, verseNum, currentBook.testament);
+  }
   
   // 현재 선택된 탭 유지
   setTimeout(function() {
@@ -259648,7 +259657,10 @@ function unifiedBcApplyChapter(ch) {
   updateHeaderBtns(testament);
   syncReaderNavActive();
   closeUnifiedBookChapterModal();
-  renderVerses();
+  if (window.GomnaAnalytics && currentBook) {
+    GomnaAnalytics.trackNavigateChapter(name, ch, 'select', testament);
+  }
+  renderVerses(1);
   loadCommentaryData();
   var commentaryPopupEl = document.getElementById('commentaryPopup');
   if (commentaryPopupEl && commentaryPopupEl.classList.contains('show')) {
@@ -259965,13 +259977,19 @@ function shareVerse(vn) {
   var chapterData = bookData.chapters.find(function(c) { return c.chapter === currentChapter; });
   var verseData = chapterData.verses.find(function(v) { return v.verse === vn; });
   var text = '📖 ' + currentBook.name + ' ' + currentChapter + ':' + vn + '\n\n' + verseData.text + '\n\n- 은혜의말씀 앱';
-  
+  var itemId = (window.GomnaAnalytics ? GomnaAnalytics.bookSlug(currentBook.name) : currentBook.name) + '_' + currentChapter + '_' + vn;
   if(navigator.share) {
-    navigator.share({ title: '은혜의말씀', text: text, url: 'https://gomnastudio.com/' });
+    navigator.share({ title: '은혜의말씀', text: text, url: 'https://gomnastudio.com/' }).then(function() {
+      if (window.GomnaAnalytics) GomnaAnalytics.trackShare('native', itemId);
+    }).catch(function() {});
   } else if(navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(function() { alert('클립보드에 복사되었습니다!'); });
+    navigator.clipboard.writeText(text).then(function() {
+      if (window.GomnaAnalytics) GomnaAnalytics.trackShare('clipboard', itemId);
+      alert('클립보드에 복사되었습니다!');
+    });
   } else {
     alert(text);
+    if (window.GomnaAnalytics) GomnaAnalytics.trackShare('dialog', itemId);
   }
 }
 
@@ -260006,8 +260024,8 @@ function applyRange(startOpt, endOpt) {
   });
 }
 
-function prevChapter() { if(currentChapter > 1) { currentChapter--; renderVerses(); loadCommentaryData(); } }
-function nextChapter() { if(currentChapter < currentBook.chapters) { currentChapter++; renderVerses(); loadCommentaryData(); } }
+function prevChapter() { if(currentChapter > 1) { currentChapter--; if (window.GomnaAnalytics && currentBook) { GomnaAnalytics.trackNavigateChapter(currentBook.name, currentChapter, 'prev', currentBook.testament); } renderVerses(); loadCommentaryData(); } }
+function nextChapter() { if(currentChapter < currentBook.chapters) { currentChapter++; if (window.GomnaAnalytics && currentBook) { GomnaAnalytics.trackNavigateChapter(currentBook.name, currentChapter, 'next', currentBook.testament); } renderVerses(); loadCommentaryData(); } }
 
 function goBack(to) {
   if(to === 'book') switchTab(currentTab === 'easy' ? 'easy' : currentBook.testament);
@@ -260050,6 +260068,7 @@ function removeFav(idx) {
 function doSearch() {
   var query = document.getElementById('searchInput').value.trim();
   if(!query) return;
+  if (window.GomnaAnalytics) GomnaAnalytics.trackSearch(query);
   switchTab('search');
   var results = [];
   [oldTestamentData, newTestamentData].forEach(function(data, idx) {
@@ -260104,7 +260123,10 @@ function goToVerse(book, chapter, verse, testament) {
     currentChapter = chapter;
     document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
     document.getElementById('verseView').classList.add('active');
-    renderVerses();
+    if (window.GomnaAnalytics) {
+      GomnaAnalytics.trackNavigateChapter(book, chapter, 'search', testament);
+    }
+    renderVerses(verse || 1);
     loadCommentaryData();
   }
 }
@@ -260125,7 +260147,8 @@ function changeFont(delta) {
     Gomna Studio, Inc. (델라웨어 C-Corp, USA)<br>
     이메일: gomnastudio@gmail.com
   </div>
-</div><script src="settings_guide.js" defer></script>
+</div><script src="analytics.js"></script>
+<script src="settings_guide.js" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)
 - "서비스 개선" 자동 체크

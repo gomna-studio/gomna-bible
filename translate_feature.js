@@ -1003,6 +1003,10 @@
       return;
     }
 
+    if (window.GomnaAnalytics) {
+      GomnaAnalytics.trackChangeTranslation(currentLang || 'ko', country[3]);
+    }
+
     // Korean = source language → undo translation.
     if (country[3] === 'ko') {
       clearGoogTransCookie();
