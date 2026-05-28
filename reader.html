@@ -305,6 +305,7 @@ html.reader-verse-active main.content{padding-bottom:70px}
 </script>
 <link rel="manifest" href="manifest.json">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
+<link rel="stylesheet" href="/css/gomna-audio-player.css?v=32">
 <script src="gomna_category_feature.js" defer></script>
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js");}</script>
 <script type="text/javascript">(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","vxpnb5ay5l");</script>
@@ -260148,6 +260149,12 @@ function changeFont(delta) {
     이메일: gomnastudio@gmail.com
   </div>
 </div><script src="analytics.js"></script>
+<script src="/js/audio-config.js?v=1" defer></script>
+<script src="/js/audio-engine.js?v=3" defer></script>
+<script src="/js/gomna-audio-listen-button.js?v=1" defer></script>
+<script src="/js/gomna-audio-commentary-buttons.js?v=1" defer></script>
+<script src="/js/gomna-audio-highlight.js?v=1" defer></script>
+<script src="/js/gomna-audio-ui.js?v=2" defer></script>
 <script src="settings_guide.js" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)
@@ -260304,5 +260311,123 @@ function loadAds() {
 }
 </script>
 <script src="translate_feature.js" defer></script>
+<!-- 은혜의말씀 오디오 미니 플레이어 (평소 hidden, 듣기 클릭 시 등장) -->
+<div id="gomna-audio-mini-player" class="gomna-audio-mini-player" hidden>
+  <div class="gomna-audio-mini-info">
+    <div class="gomna-audio-mini-title" data-audio-current-title>
+      <!-- 재생 시 자동 채워짐: 예 "창세기 1장 1절 · 본문" -->
+    </div>
+    <div class="gomna-audio-mini-preview" data-audio-current-preview>
+      <!-- 재생 시 자동 채워짐: 예 "태초에 하나님이 천지를 창조하시니라" -->
+    </div>
+  </div>
+
+  <div class="gomna-audio-mini-controls">
+    <button class="gomna-audio-btn-seek-back"
+            data-audio-action="seek"
+            data-seek-seconds="-10"
+            aria-label="10초 뒤로">
+      ⟲ 10
+    </button>
+
+    <button class="gomna-audio-btn-play-pause"
+            data-audio-action="toggle"
+            aria-label="재생 또는 일시정지">
+      <span data-audio-play-icon>▶</span>
+      <span data-audio-pause-icon hidden>Ⅱ</span>
+    </button>
+
+    <button class="gomna-audio-btn-seek-forward"
+            data-audio-action="seek"
+            data-seek-seconds="10"
+            aria-label="10초 앞으로">
+      10 ⟳
+    </button>
+
+    <button class="gomna-audio-btn-speed"
+            data-audio-action="speed"
+            aria-label="재생 속도">
+      1.0x
+    </button>
+
+    <button class="gomna-audio-btn-expand"
+            data-audio-action="expand"
+            aria-label="확장 플레이어 열기">
+      ⇱
+    </button>
+  </div>
+</div>
+<!-- 은혜의말씀 오디오 확장 플레이어 (평소 hidden, 확장 버튼 클릭 시 등장) -->
+<div id="gomna-audio-expanded-player" class="gomna-audio-expanded-player" hidden>
+  <div class="gomna-audio-expanded-header">
+    <h3>말씀 오디오</h3>
+    <button class="gomna-audio-btn-close"
+            data-audio-action="collapse"
+            aria-label="닫기">
+      ✕
+    </button>
+  </div>
+
+  <div class="gomna-audio-expanded-info">
+    <div class="gomna-audio-expanded-title" data-audio-current-title-expanded></div>
+    <div class="gomna-audio-expanded-preview" data-audio-current-preview-expanded></div>
+  </div>
+
+  <div class="gomna-audio-expanded-controls">
+    <button data-audio-action="seek"
+            data-seek-seconds="-10"
+            aria-label="10초 뒤로">
+      ⟲ 10초
+    </button>
+
+    <button class="gomna-audio-btn-play-pause-big"
+            data-audio-action="toggle"
+            aria-label="재생 또는 일시정지">
+      <span data-audio-play-icon>▶</span>
+      <span data-audio-pause-icon hidden>Ⅱ</span>
+    </button>
+
+    <button data-audio-action="seek"
+            data-seek-seconds="10"
+            aria-label="10초 앞으로">
+      10초 ⟳
+    </button>
+  </div>
+
+  <div class="gomna-audio-expanded-options">
+    <div class="gomna-audio-option-group">
+      <label>속도</label>
+      <div class="gomna-audio-option-buttons">
+        <button data-audio-speed="0.8">0.8x</button>
+        <button data-audio-speed="1.0" data-active="true">1.0x</button>
+        <button data-audio-speed="1.25">1.25x</button>
+        <button data-audio-speed="1.5">1.5x</button>
+        <button data-audio-speed="2.0">2.0x</button>
+      </div>
+    </div>
+
+    <div class="gomna-audio-option-group">
+      <label>목소리</label>
+      <div class="gomna-audio-option-buttons">
+        <button data-audio-voice="calm" data-active="true">차분한 낭독</button>
+        <button data-audio-voice="warm">따뜻한 묵상</button>
+        <button data-audio-voice="study">또박또박 공부</button>
+        <button data-audio-voice="strong">설교형 전달</button>
+        <button data-audio-voice="soft">조용한 밤낭독</button>
+      </div>
+    </div>
+
+    <div class="gomna-audio-option-group">
+      <label>타이머</label>
+      <div class="gomna-audio-option-buttons">
+        <button data-audio-timer="0" data-active="true">끄기</button>
+        <button data-audio-timer="5">5분</button>
+        <button data-audio-timer="10">10분</button>
+        <button data-audio-timer="20">20분</button>
+        <button data-audio-timer="chapter-end">장 끝까지</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

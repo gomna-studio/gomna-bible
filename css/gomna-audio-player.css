@@ -1,0 +1,3374 @@
+:root {
+  --gomna-audio-bottom-bar-height: 60px;
+  --gomna-audio-mini-height: 88px;
+  --gomna-audio-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --gomna-audio-primary: var(--primary, #1a2a4a);
+  --gomna-audio-gold: var(--gold, #c9a961);
+  --gomna-audio-cream: var(--cream, #faf6ed);
+  --gomna-audio-text: var(--text, #1a2a4a);
+}
+
+.gomna-audio-mini-player {
+  position: fixed;
+  left: 50%;
+  right: auto;
+  bottom: calc(var(--gomna-audio-bottom-bar-height, 60px) + env(safe-area-inset-bottom, 0px) + 12px);
+  height: 58px;
+  min-height: 58px;
+  max-height: 60px;
+  z-index: 910;
+  width: min(calc(100vw - 44px), 520px);
+  max-width: 520px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: rgba(42, 26, 18, 0.54);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  color: var(--cream, #faf6ed);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(250, 246, 237, 0.20);
+  border-radius: 18px;
+  padding: 6px 9px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+  transform: translate(-50%, 110%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.gomna-audio-mini-player.gomna-audio-visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gomna-audio-mini-player[hidden],
+.gomna-audio-expanded-player[hidden] {
+  display: none;
+}
+
+.gomna-audio-mini-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 38%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.gomna-audio-mini-title {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.12;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  color: var(--cream, #faf6ed);
+}
+
+.gomna-audio-mini-preview {
+  font-size: 10px;
+  line-height: 1.12;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  color: rgba(250, 246, 237, 0.72);
+}
+
+.gomna-audio-mini-controls {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: max-content;
+}
+
+.gomna-audio-mini-player-pc {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: min(380px, calc(100vw - 40px));
+  max-width: 380px;
+  z-index: 910;
+  box-sizing: border-box;
+  background: var(--gomna-audio-cream);
+  color: var(--gomna-audio-primary);
+  border-radius: 16px;
+  border: 1px solid rgba(201, 169, 97, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  padding: 14px 16px;
+  gap: 12px;
+  align-items: center;
+}
+
+.gomna-audio-expanded-player {
+  position: fixed;
+  z-index: 920;
+  background: var(--gomna-audio-cream);
+  color: var(--gomna-audio-primary);
+  border: 1px solid rgba(201, 169, 97, 0.25);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gomna-audio-expanded-player.gomna-audio-visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gomna-audio-verse-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--gomna-audio-gold);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.gomna-audio-verse-button:hover,
+.gomna-audio-verse-button:focus {
+  background: transparent;
+  color: var(--gomna-audio-gold);
+  opacity: 0.82;
+}
+
+.gomna-audio-verse-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.gomna-audio-commentary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--gomna-audio-gold);
+  background: transparent;
+  border: 1px solid rgba(201, 169, 97, 0.65);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.gomna-audio-commentary-button:hover,
+.gomna-audio-commentary-button:focus {
+  background: var(--gomna-audio-gold);
+  color: var(--gomna-audio-cream);
+}
+
+.gomna-audio-commentary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.gomna-audio-commentary-header .gomna-audio-commentary-button {
+  width: auto;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 12px;
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--cream, #faf6ed);
+  background: transparent;
+  border-color: transparent;
+  border-radius: 14px;
+  box-shadow: none;
+  opacity: 0.88;
+}
+
+.gomna-audio-commentary-header .gomna-audio-commentary-button:hover,
+.gomna-audio-commentary-header .gomna-audio-commentary-button:focus {
+  color: var(--cream, #faf6ed);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: transparent;
+  opacity: 1;
+}
+
+.gomna-audio-reading {
+  border-left: 3px solid var(--gomna-audio-gold);
+  padding-left: 8px;
+  background: rgba(201, 169, 97, 0.05);
+  transition: background 0.3s ease, border-color 0.3s ease, padding 0.3s ease;
+}
+
+.gomna-audio-loading {
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: progress;
+}
+
+.gomna-audio-error {
+  border-color: #d4574e;
+  color: #d4574e;
+}
+
+body.gomna-audio-body-padding {
+  padding-bottom: calc(var(--gomna-audio-bottom-bar-height, 60px) + var(--gomna-audio-mini-height, 88px) + env(safe-area-inset-bottom, 0px));
+}
+
+.gomna-audio-toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--gomna-audio-bottom-bar-height, 60px) + var(--gomna-audio-mini-height, 88px) + env(safe-area-inset-bottom, 0px) + 16px);
+  background: rgba(26, 42, 74, 0.95);
+  color: #faf6ed;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  animation: gomna-audio-toast-in 0.3s ease;
+  max-width: 90vw;
+  text-align: center;
+  pointer-events: none;
+}
+
+.gomna-audio-toast.fade-out {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gomna-audio-btn-seek-back,
+.gomna-audio-btn-seek-forward {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(250, 246, 237, 0.28);
+  color: var(--cream, #faf6ed);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gomna-audio-btn-play-pause {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(91, 42, 22, 0.96);
+  color: var(--cream, #faf6ed);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+}
+
+.gomna-audio-btn-speed,
+.gomna-audio-btn-expand {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(250, 246, 237, 0.28);
+  color: var(--cream, #faf6ed);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+}
+
+.gomna-audio-btn-close {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid rgba(26, 42, 74, 0.28);
+  color: var(--gomna-audio-primary);
+  cursor: pointer;
+}
+
+.gomna-audio-btn-speed {
+  padding: 0;
+  font-size: 11px;
+}
+
+.gomna-audio-btn-play-pause-big {
+  width: 88px;
+  height: 88px;
+  min-width: 88px;
+  min-height: 88px;
+  border-radius: 999px;
+  background: var(--gomna-audio-primary);
+  color: var(--gomna-audio-cream);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  box-shadow: 0 6px 20px rgba(26, 42, 74, 0.28);
+}
+
+.gomna-audio-mini-player button,
+.gomna-audio-mini-player-pc button,
+.gomna-audio-expanded-player button {
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gomna-audio-mini-player button:focus-visible,
+.gomna-audio-mini-player-pc button:focus-visible,
+.gomna-audio-expanded-player button:focus-visible,
+.gomna-audio-verse-button:focus-visible,
+.gomna-audio-commentary-button:focus-visible {
+  outline: 2px solid var(--gomna-audio-gold);
+  outline-offset: 2px;
+}
+
+@keyframes gomna-audio-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (max-width: 768px) {
+  .gomna-audio-mini-player {
+    display: flex;
+  }
+
+  .gomna-audio-expanded-player {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 70vh;
+    max-height: 80vh;
+    border-radius: 24px 24px 0 0;
+    z-index: 920;
+    box-sizing: border-box;
+    padding: 20px 18px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    transform: translateY(110%);
+  }
+}
+
+@media (max-width: 480px) {
+  .gomna-audio-mini-player {
+    width: calc(100vw - 18px);
+    max-width: none;
+    height: 54px;
+    min-height: 54px;
+    max-height: 58px;
+    padding: 5px 7px;
+    gap: 4px;
+    border-radius: 16px;
+  }
+
+  .gomna-audio-mini-info {
+    max-width: 30%;
+  }
+
+  .gomna-audio-mini-preview {
+    display: none;
+  }
+
+  .gomna-audio-mini-title {
+    font-size: 12px;
+  }
+
+  .gomna-audio-mini-controls {
+    gap: 3px;
+  }
+
+  .gomna-audio-btn-seek-back,
+  .gomna-audio-btn-seek-forward,
+  .gomna-audio-btn-speed,
+  .gomna-audio-btn-expand {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    font-size: 10px;
+  }
+
+  .gomna-audio-btn-play-pause {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    font-size: 17px;
+  }
+}
+
+@media (min-width: 769px) {
+  .gomna-audio-mini-player {
+    left: 50%;
+    right: auto;
+    bottom: 28px;
+    width: min(520px, calc(100vw - 48px));
+    max-width: 520px;
+    height: 58px;
+    min-height: 58px;
+    max-height: 60px;
+    z-index: 910;
+    border-radius: 18px;
+    transform: translate(-50%, 20px);
+  }
+
+  .gomna-audio-mini-preview {
+    display: block;
+  }
+
+  .gomna-audio-mini-player.gomna-audio-visible {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .gomna-audio-expanded-player {
+    right: 20px;
+    bottom: 110px;
+    width: min(380px, calc(100vw - 40px));
+    max-width: 380px;
+    max-height: 70vh;
+    border-radius: 16px;
+    z-index: 920;
+    box-sizing: border-box;
+    padding: 20px;
+    transform: translateY(20px);
+  }
+
+  .gomna-audio-toast {
+    right: 20px;
+    left: auto;
+    bottom: 120px;
+    transform: none;
+    max-width: 360px;
+  }
+
+  body.gomna-audio-body-padding {
+    padding-bottom: 0;
+  }
+}
+
+[data-theme="light"] .gomna-audio-mini-player-pc,
+[data-theme="light"] .gomna-audio-expanded-player {
+  background: #faf6ed;
+  color: #1a2a4a;
+}
+
+[data-theme="light"] .gomna-audio-mini-player {
+  background: rgba(42, 26, 18, 0.54);
+  color: var(--cream, #faf6ed);
+  border-color: rgba(250, 246, 237, 0.20);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+}
+
+[data-theme="dark"] .gomna-audio-mini-player-pc,
+[data-theme="dark"] .gomna-audio-expanded-player {
+  background: #1a2a4a;
+  color: #faf6ed;
+  border-color: rgba(201, 169, 97, 0.35);
+}
+
+[data-theme="dark"] .gomna-audio-mini-player {
+  background: rgba(12, 18, 32, 0.58);
+  color: var(--cream, #faf6ed);
+  border-color: rgba(250, 246, 237, 0.18);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+}
+
+[data-theme="dark"] .gomna-audio-mini-title {
+  color: var(--cream, #faf6ed);
+}
+
+[data-theme="dark"] .gomna-audio-mini-preview {
+  color: rgba(250, 246, 237, 0.72);
+}
+
+[data-theme="dark"] .gomna-audio-btn-seek-back,
+[data-theme="dark"] .gomna-audio-btn-seek-forward,
+[data-theme="dark"] .gomna-audio-btn-speed,
+[data-theme="dark"] .gomna-audio-btn-expand {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(250, 246, 237, 0.28);
+  color: var(--cream, #faf6ed);
+}
+
+[data-theme="dark"] .gomna-audio-btn-seek-back,
+[data-theme="dark"] .gomna-audio-btn-seek-forward,
+[data-theme="dark"] .gomna-audio-btn-speed,
+[data-theme="dark"] .gomna-audio-btn-expand,
+[data-theme="dark"] .gomna-audio-btn-close,
+[data-theme="dark"] .gomna-audio-verse-button,
+[data-theme="dark"] .gomna-audio-commentary-button {
+  color: #faf6ed;
+  border-color: rgba(201, 169, 97, 0.55);
+}
+
+[data-theme="dark"] .gomna-audio-btn-seek-back,
+[data-theme="dark"] .gomna-audio-btn-seek-forward,
+[data-theme="dark"] .gomna-audio-btn-speed,
+[data-theme="dark"] .gomna-audio-btn-expand {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(250, 246, 237, 0.28);
+  color: var(--cream, #faf6ed);
+}
+
+[data-theme="dark"] .gomna-audio-btn-play-pause-big {
+  background: #faf6ed;
+  color: #1a2a4a;
+}
+
+/* GOMNA AUDIO STRUCTURE FIT OVERRIDE */
+.gomna-audio-mini-player {
+  width: min(calc(100vw - 32px), var(--gomna-reader-width, 420px));
+  max-width: var(--gomna-reader-width, 420px);
+  left: 50%;
+  right: auto;
+  bottom: calc(var(--gomna-audio-bottom-bar-height, 60px) + env(safe-area-inset-bottom, 0px) + 10px);
+  height: 56px;
+  min-height: 56px;
+  max-height: 58px;
+  padding: 5px 8px;
+  gap: 5px;
+  border-radius: 17px;
+  transform: translate(-50%, 110%);
+  z-index: 910;
+}
+
+.gomna-audio-mini-player.gomna-audio-visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gomna-audio-expanded-player {
+  z-index: 920;
+}
+
+.gomna-audio-toast {
+  z-index: 10000;
+}
+
+.gomna-audio-mini-info {
+  max-width: 38%;
+}
+
+.gomna-audio-mini-title {
+  font-size: 12px;
+  line-height: 1.12;
+}
+
+.gomna-audio-mini-preview {
+  font-size: 10px;
+  line-height: 1.12;
+}
+
+.gomna-audio-mini-controls {
+  gap: 4px;
+}
+
+.gomna-audio-btn-seek-back,
+.gomna-audio-btn-seek-forward,
+.gomna-audio-btn-speed,
+.gomna-audio-btn-expand {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  font-size: 10px;
+}
+
+.gomna-audio-btn-play-pause {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  font-size: 17px;
+}
+
+@media (max-width: 480px) {
+  .gomna-audio-mini-player {
+    width: calc(100vw - 18px);
+    max-width: none;
+    height: 54px;
+    min-height: 54px;
+    max-height: 56px;
+  }
+
+  .gomna-audio-mini-preview {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) {
+  .gomna-audio-mini-player {
+    width: min(420px, calc(100vw - 48px));
+    max-width: 420px;
+    height: 56px;
+    min-height: 56px;
+    max-height: 58px;
+    z-index: 910;
+  }
+
+  .gomna-audio-mini-preview {
+    display: block;
+  }
+}
+
+/* =========================================================
+   GOMNA AUDIO BOTTOM BAR AUDIO MODE OVERRIDE
+   오디오 재생 중 하단 말씀풀이 버튼 시각 경쟁 완화
+   ========================================================= */
+
+body.gomna-audio-body-padding .opt4-bottom-bar {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+body.gomna-audio-body-padding .opt4-bottom-commentary {
+  opacity: 0.38;
+  transform: scale(0.92);
+  filter: saturate(0.75);
+  box-shadow: none;
+}
+
+body.gomna-audio-body-padding .opt4-bottom-commentary:hover,
+body.gomna-audio-body-padding .opt4-bottom-commentary:focus {
+  opacity: 0.65;
+  transform: scale(0.96);
+}
+
+body.gomna-audio-body-padding .opt4-bottom-prev,
+body.gomna-audio-body-padding .opt4-bottom-next {
+  opacity: 0.72;
+}
+
+/* =========================================================
+   GOMNA OPT4 BOTTOM BAR SIZE FIT OVERRIDE
+   하단 이전장/말씀풀이/다음장 바를 중앙 리더 화면 폭에 맞춤
+   ========================================================= */
+
+.opt4-bottom-bar {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: min(calc(100vw - 28px), 420px);
+  max-width: 420px;
+  padding: 8px 10px;
+  gap: 8px;
+  box-sizing: border-box;
+  border-radius: 18px 18px 0 0;
+}
+
+.opt4-bottom-bar button {
+  min-height: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.opt4-bottom-prev,
+.opt4-bottom-next {
+  flex: 0.9 1 0;
+  min-width: 0;
+}
+
+.opt4-bottom-commentary {
+  flex: 1.1 1 0;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .opt4-bottom-bar {
+    width: calc(100vw - 18px);
+    max-width: none;
+    padding: 7px 8px;
+    gap: 6px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .opt4-bottom-bar button {
+    min-height: 38px;
+    height: 38px;
+    padding: 0 9px;
+    font-size: 13px;
+    border-radius: 13px;
+  }
+
+  .opt4-bottom-commentary {
+    flex: 1.05 1 0;
+    font-size: 13px;
+  }
+}
+
+/* =========================================================
+   GOMNA AUDIO ACTIVE DOCK MODE OVERRIDE v13
+   오디오 재생 중 하단 바 전체 후퇴 + 미니 플레이어 하단 도킹
+   ========================================================= */
+
+body.gomna-audio-body-padding .opt4-bottom-bar {
+  transform: translate(-50%, calc(100% + env(safe-area-inset-bottom, 0px) + 12px));
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.28s ease, opacity 0.22s ease;
+}
+
+body.gomna-audio-body-padding .gomna-audio-mini-player {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+}
+
+@media (max-width: 480px) {
+  body.gomna-audio-body-padding .gomna-audio-mini-player {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  }
+}
+
+@media (min-width: 769px) {
+  body.gomna-audio-body-padding .gomna-audio-mini-player {
+    bottom: 24px;
+  }
+}
+
+/* =========================================================
+   GOMNA AUDIO CONTENT CLEARANCE OVERRIDE v14
+   오디오 재생 중 본문이 미니 플레이어에 가려지지 않도록 하단 여백 확보
+   ========================================================= */
+
+body.gomna-audio-body-padding {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
+body.gomna-audio-body-padding main.content {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 769px) {
+  body.gomna-audio-body-padding {
+    padding-bottom: 96px;
+  }
+
+  body.gomna-audio-body-padding main.content {
+    padding-bottom: 96px;
+  }
+}
+
+/* =========================================================
+   GOMNA AUDIO SCROLL CLEARANCE OVERRIDE v15
+   fixed 미니 플레이어가 본문을 가리지 않도록 실제 절 목록 하단 여백 확보
+   ========================================================= */
+
+body.gomna-audio-body-padding {
+  padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+}
+
+body.gomna-audio-body-padding main.content {
+  padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+  scroll-padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+}
+
+body.gomna-audio-body-padding .verse-list {
+  padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+  scroll-padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+}
+
+body.gomna-audio-body-padding .verse-list::after {
+  content: "";
+  display: block;
+  height: calc(112px + env(safe-area-inset-bottom, 0px));
+  flex: 0 0 auto;
+}
+
+@media (min-width: 769px) {
+  body.gomna-audio-body-padding {
+    padding-bottom: 112px;
+  }
+
+  body.gomna-audio-body-padding main.content,
+  body.gomna-audio-body-padding .verse-list {
+    padding-bottom: 112px;
+    scroll-padding-bottom: 112px;
+  }
+
+  body.gomna-audio-body-padding .verse-list::after {
+    height: 112px;
+  }
+}
+
+/* =========================================================
+   GOMNA AUDIO DOCK BACKDROP OVERRIDE v16
+   fixed 미니 플레이어 뒤로 본문이 비쳐 보이지 않도록 하단 dock 배경층 추가
+   ========================================================= */
+
+body.gomna-audio-body-padding::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(104px + env(safe-area-inset-bottom, 0px));
+  z-index: 905;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to top,
+      rgba(250, 246, 237, 0.98) 0%,
+      rgba(250, 246, 237, 0.94) 52%,
+      rgba(250, 246, 237, 0.72) 78%,
+      rgba(250, 246, 237, 0) 100%
+    );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] body.gomna-audio-body-padding::after,
+body[data-theme="dark"].gomna-audio-body-padding::after {
+  background:
+    linear-gradient(
+      to top,
+      rgba(18, 22, 32, 0.98) 0%,
+      rgba(18, 22, 32, 0.92) 52%,
+      rgba(18, 22, 32, 0.68) 78%,
+      rgba(18, 22, 32, 0) 100%
+    );
+}
+
+body.gomna-audio-body-padding .gomna-audio-mini-player {
+  z-index: 910;
+}
+
+/* =========================================================
+   GOMNA PREMIUM AUDIO BOTTOM UI OVERRIDE v17
+   하단 말씀풀이 바 + 오디오 미니 플레이어 프리미엄 가독성/조화 개선
+   ========================================================= */
+
+/* 1. 오디오 미니 플레이어: 더 선명한 고급 dark dock */
+.gomna-audio-mini-player {
+  background: rgba(74, 67, 61, 0.88);
+  color: #fff8ef;
+  border: 1px solid rgba(255, 248, 239, 0.24);
+  box-shadow:
+    0 18px 42px rgba(20, 14, 10, 0.24),
+    inset 0 1px 0 rgba(255, 248, 239, 0.10);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+}
+
+/* 2. 미니 플레이어 텍스트: 흐릿한 흰색 대신 선명한 warm ivory */
+.gomna-audio-mini-title {
+  color: #fff8ef;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.18);
+}
+
+.gomna-audio-mini-preview {
+  color: rgba(255, 248, 239, 0.86);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* 3. 미니 플레이어 일반 버튼: 흐릿한 회색 원이 아니라 읽히는 ivory glass 버튼 */
+.gomna-audio-btn-seek-back,
+.gomna-audio-btn-seek-forward,
+.gomna-audio-btn-speed,
+.gomna-audio-btn-expand {
+  background: rgba(255, 248, 239, 0.82);
+  color: #4a2a1b;
+  border: 1px solid rgba(255, 248, 239, 0.72);
+  box-shadow:
+    0 2px 8px rgba(20, 14, 10, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  font-weight: 700;
+}
+
+.gomna-audio-btn-seek-back:hover,
+.gomna-audio-btn-seek-forward:hover,
+.gomna-audio-btn-speed:hover,
+.gomna-audio-btn-expand:hover,
+.gomna-audio-btn-seek-back:focus,
+.gomna-audio-btn-seek-forward:focus,
+.gomna-audio-btn-speed:focus,
+.gomna-audio-btn-expand:focus {
+  background: rgba(255, 248, 239, 0.94);
+  color: #3b2115;
+}
+
+/* 4. 재생 버튼: 중심 버튼은 깊은 갈색 + 선명한 크림 아이콘 */
+.gomna-audio-btn-play-pause {
+  background: linear-gradient(180deg, #7a3a20 0%, #5b2a16 100%);
+  color: #fff8ef;
+  border: 1px solid rgba(255, 248, 239, 0.18);
+  box-shadow:
+    0 8px 22px rgba(45, 20, 10, 0.34),
+    inset 0 1px 0 rgba(255, 248, 239, 0.14);
+  font-weight: 800;
+}
+
+/* 5. dock backdrop: 본문과 플레이어 사이를 더 깨끗하게 */
+body.gomna-audio-body-padding::after {
+  background:
+    linear-gradient(
+      to top,
+      rgba(250, 246, 237, 1) 0%,
+      rgba(250, 246, 237, 0.98) 46%,
+      rgba(250, 246, 237, 0.82) 74%,
+      rgba(250, 246, 237, 0) 100%
+    );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* 6. 하단 기본 바: 오디오 OFF 상태에서 본문 폭 기준 premium navigation */
+.opt4-bottom-bar {
+  background: rgba(255, 252, 246, 0.96);
+  border: 1px solid rgba(201, 169, 97, 0.20);
+  border-bottom: none;
+  box-shadow:
+    0 -10px 28px rgba(48, 32, 20, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.opt4-bottom-bar button {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  transition:
+    transform 0.18s ease,
+    opacity 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+/* 7. 이전장/다음장: 조용한 secondary 버튼 */
+.opt4-bottom-prev,
+.opt4-bottom-next {
+  background: rgba(255, 255, 255, 0.72);
+  color: rgba(58, 36, 24, 0.82);
+  border: 1px solid rgba(201, 169, 97, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* 8. 가운데 말씀풀이: 중심이지만 과하지 않은 bronze 버튼 */
+.opt4-bottom-commentary {
+  background: linear-gradient(180deg, #d5a64a 0%, #c5912e 100%);
+  color: #fff8ef;
+  border: 1px solid rgba(120, 76, 24, 0.18);
+  box-shadow:
+    0 6px 14px rgba(154, 105, 35, 0.16),
+    inset 0 1px 0 rgba(255, 248, 239, 0.22);
+  text-shadow: 0 1px 1px rgba(76, 48, 18, 0.20);
+}
+
+.opt4-bottom-prev:hover,
+.opt4-bottom-next:hover,
+.opt4-bottom-commentary:hover,
+.opt4-bottom-prev:focus,
+.opt4-bottom-next:focus,
+.opt4-bottom-commentary:focus {
+  transform: translateY(-1px);
+}
+
+/* 9. 오디오 ON 상태: 하단 바는 주인공이 아니므로 완전히 후퇴 유지 */
+body.gomna-audio-body-padding .opt4-bottom-bar {
+  transform: translate(-50%, calc(100% + env(safe-area-inset-bottom, 0px) + 12px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 10. 다크 테마 대응 */
+body[data-theme="dark"].gomna-audio-body-padding::after,
+[data-theme="dark"] body.gomna-audio-body-padding::after {
+  background:
+    linear-gradient(
+      to top,
+      rgba(18, 22, 32, 1) 0%,
+      rgba(18, 22, 32, 0.96) 46%,
+      rgba(18, 22, 32, 0.76) 74%,
+      rgba(18, 22, 32, 0) 100%
+    );
+}
+
+[data-theme="dark"] .gomna-audio-mini-player,
+body[data-theme="dark"] .gomna-audio-mini-player {
+  background: rgba(34, 38, 46, 0.90);
+  color: #fff8ef;
+  border-color: rgba(255, 248, 239, 0.20);
+}
+
+[data-theme="dark"] .gomna-audio-mini-title,
+body[data-theme="dark"] .gomna-audio-mini-title {
+  color: #fff8ef;
+}
+
+[data-theme="dark"] .gomna-audio-mini-preview,
+body[data-theme="dark"] .gomna-audio-mini-preview {
+  color: rgba(255, 248, 239, 0.84);
+}
+
+[data-theme="dark"] .gomna-audio-btn-seek-back,
+[data-theme="dark"] .gomna-audio-btn-seek-forward,
+[data-theme="dark"] .gomna-audio-btn-speed,
+[data-theme="dark"] .gomna-audio-btn-expand,
+body[data-theme="dark"] .gomna-audio-btn-seek-back,
+body[data-theme="dark"] .gomna-audio-btn-seek-forward,
+body[data-theme="dark"] .gomna-audio-btn-speed,
+body[data-theme="dark"] .gomna-audio-btn-expand {
+  background: rgba(255, 248, 239, 0.84);
+  color: #2b211c;
+  border-color: rgba(255, 248, 239, 0.66);
+}
+
+/* 11. 모바일에서도 버튼이 읽히도록 대비 유지 */
+@media (max-width: 480px) {
+  .gomna-audio-mini-title {
+    font-size: 12px;
+    color: #fff8ef;
+  }
+
+  .gomna-audio-btn-seek-back,
+  .gomna-audio-btn-seek-forward,
+  .gomna-audio-btn-speed,
+  .gomna-audio-btn-expand {
+    background: rgba(255, 248, 239, 0.86);
+    color: #4a2a1b;
+    border-color: rgba(255, 248, 239, 0.70);
+  }
+
+  .opt4-bottom-bar {
+    background: rgba(255, 252, 246, 0.97);
+  }
+
+  .opt4-bottom-bar button {
+    font-size: 13px;
+  }
+}
+
+/* =========================================================
+   GOMNA PREMIUM REDUCTION OVERRIDE v18
+   v17의 가독성은 유지하되 과한 장식을 덜어내는 최종 미세 조정
+   ========================================================= */
+
+/* 1. 미니 플레이어: 더 조용한 dark dock */
+.gomna-audio-mini-player {
+  background: rgba(70, 64, 58, 0.84);
+  border-color: rgba(255, 248, 239, 0.18);
+  box-shadow:
+    0 12px 28px rgba(20, 14, 10, 0.18),
+    inset 0 1px 0 rgba(255, 248, 239, 0.08);
+  backdrop-filter: blur(16px) saturate(118%);
+  -webkit-backdrop-filter: blur(16px) saturate(118%);
+}
+
+/* 2. 텍스트: 선명도는 유지하되 그림자 과함 제거 */
+.gomna-audio-mini-title {
+  color: #fff8ef;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
+}
+
+.gomna-audio-mini-preview {
+  color: rgba(255, 248, 239, 0.82);
+}
+
+/* 3. 보조 버튼: 너무 밝은 원형 버튼을 한 단계 차분하게 */
+.gomna-audio-btn-seek-back,
+.gomna-audio-btn-seek-forward,
+.gomna-audio-btn-speed,
+.gomna-audio-btn-expand {
+  background: rgba(255, 248, 239, 0.70);
+  color: #4a2a1b;
+  border-color: rgba(255, 248, 239, 0.48);
+  box-shadow:
+    0 1px 4px rgba(20, 14, 10, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.gomna-audio-btn-seek-back:hover,
+.gomna-audio-btn-seek-forward:hover,
+.gomna-audio-btn-speed:hover,
+.gomna-audio-btn-expand:hover,
+.gomna-audio-btn-seek-back:focus,
+.gomna-audio-btn-seek-forward:focus,
+.gomna-audio-btn-speed:focus,
+.gomna-audio-btn-expand:focus {
+  background: rgba(255, 248, 239, 0.82);
+  color: #3b2115;
+}
+
+/* 4. 재생 버튼: 중심성은 유지하되 광택과 그림자 절제 */
+.gomna-audio-btn-play-pause {
+  background: linear-gradient(180deg, #6f351e 0%, #572815 100%);
+  color: #fff8ef;
+  border-color: rgba(255, 248, 239, 0.14);
+  box-shadow:
+    0 6px 16px rgba(45, 20, 10, 0.26),
+    inset 0 1px 0 rgba(255, 248, 239, 0.10);
+}
+
+/* 5. dock backdrop: 흰 영역을 줄이고 더 자연스럽게 */
+body.gomna-audio-body-padding::after {
+  height: calc(88px + env(safe-area-inset-bottom, 0px));
+  background:
+    linear-gradient(
+      to top,
+      rgba(250, 246, 237, 0.96) 0%,
+      rgba(250, 246, 237, 0.90) 44%,
+      rgba(250, 246, 237, 0.56) 72%,
+      rgba(250, 246, 237, 0) 100%
+    );
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* 6. 하단 기본 바: 오디오 OFF 상태도 조금 더 담백하게 */
+.opt4-bottom-bar {
+  background: rgba(255, 252, 246, 0.94);
+  border-color: rgba(201, 169, 97, 0.16);
+  box-shadow:
+    0 -8px 20px rgba(48, 32, 20, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.60);
+}
+
+.opt4-bottom-prev,
+.opt4-bottom-next {
+  background: rgba(255, 255, 255, 0.66);
+  color: rgba(58, 36, 24, 0.78);
+  border-color: rgba(201, 169, 97, 0.14);
+}
+
+.opt4-bottom-commentary {
+  background: linear-gradient(180deg, #cf9e40 0%, #bd8929 100%);
+  color: #fff8ef;
+  box-shadow:
+    0 4px 10px rgba(154, 105, 35, 0.12),
+    inset 0 1px 0 rgba(255, 248, 239, 0.18);
+}
+
+/* 7. 오디오 ON 상태에서는 하단 바 후퇴 계속 유지 */
+body.gomna-audio-body-padding .opt4-bottom-bar {
+  transform: translate(-50%, calc(100% + env(safe-area-inset-bottom, 0px) + 12px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 8. 다크 테마도 장식 강도 줄임 */
+body[data-theme="dark"].gomna-audio-body-padding::after,
+[data-theme="dark"] body.gomna-audio-body-padding::after {
+  height: calc(88px + env(safe-area-inset-bottom, 0px));
+  background:
+    linear-gradient(
+      to top,
+      rgba(18, 22, 32, 0.96) 0%,
+      rgba(18, 22, 32, 0.88) 44%,
+      rgba(18, 22, 32, 0.54) 72%,
+      rgba(18, 22, 32, 0) 100%
+    );
+}
+
+[data-theme="dark"] .gomna-audio-mini-player,
+body[data-theme="dark"] .gomna-audio-mini-player {
+  background: rgba(32, 36, 44, 0.86);
+  border-color: rgba(255, 248, 239, 0.16);
+}
+
+[data-theme="dark"] .gomna-audio-btn-seek-back,
+[data-theme="dark"] .gomna-audio-btn-seek-forward,
+[data-theme="dark"] .gomna-audio-btn-speed,
+[data-theme="dark"] .gomna-audio-btn-expand,
+body[data-theme="dark"] .gomna-audio-btn-seek-back,
+body[data-theme="dark"] .gomna-audio-btn-seek-forward,
+body[data-theme="dark"] .gomna-audio-btn-speed,
+body[data-theme="dark"] .gomna-audio-btn-expand {
+  background: rgba(255, 248, 239, 0.72);
+  color: #2b211c;
+  border-color: rgba(255, 248, 239, 0.44);
+}
+
+/* =========================================================
+   GOMNA VERSE CARD NORMALIZE OVERRIDE v19
+   절 카드 레이아웃/간격/액션 행을 하나의 카드 시스템으로 정리
+   ========================================================= */
+
+.verse-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
+}
+
+.verse-item {
+  width: 100%;
+  padding: 16px 16px 14px;
+  background: #fff;
+  border: 1px solid rgba(213, 200, 187, 0.52);
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(61, 40, 24, 0.04);
+  box-sizing: border-box;
+}
+
+.verse-item:last-child {
+  border-bottom: 1px solid rgba(213, 200, 187, 0.52);
+}
+
+.verse-top {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: start;
+}
+
+.verse-num {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  box-sizing: border-box;
+}
+
+.verse-text {
+  min-width: 0;
+  padding-top: 1px;
+  line-height: 1.72;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.verse-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+  padding-left: 52px;
+  min-height: 30px;
+  box-sizing: border-box;
+}
+
+.action-btn,
+.gomna-audio-verse-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: auto;
+  min-width: 0;
+  min-height: 30px;
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 700;
+  box-sizing: border-box;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.action-btn {
+  background: #fbf7f1;
+  border: 1px solid rgba(213, 200, 187, 0.72);
+  color: #3d2817;
+}
+
+.gomna-audio-verse-button {
+  background: rgba(184, 134, 11, 0.08);
+  border: 1px solid rgba(184, 134, 11, 0.20);
+  color: #9a7209;
+  box-shadow: none;
+}
+
+.gomna-audio-verse-button:hover,
+.gomna-audio-verse-button:focus {
+  background: rgba(184, 134, 11, 0.12);
+  color: #8a6508;
+}
+
+.action-btn.fav-btn.active {
+  background: #fff3e0;
+  border-color: #ffb74d;
+  color: #e65100;
+}
+
+@media (max-width: 480px) {
+  .verse-list {
+    gap: 8px;
+  }
+
+  .verse-item {
+    padding: 14px 14px 13px;
+    border-radius: 15px;
+  }
+
+  .verse-top {
+    grid-template-columns: 38px minmax(0, 1fr);
+    column-gap: 10px;
+  }
+
+  .verse-num {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+  }
+
+  .verse-actions {
+    gap: 6px;
+    margin-top: 10px;
+    padding-left: 48px;
+    min-height: 28px;
+  }
+
+  .action-btn,
+  .gomna-audio-verse-button {
+    min-height: 28px;
+    height: 28px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+}
+
+/* =========================================================
+   GOMNA READER CARD ALIGNMENT OVERRIDE v20
+   절 범위 카드 / 절 카드 / 하단 바의 중앙 정렬 기준 통일
+   ========================================================= */
+
+:root {
+  --gomna-reader-card-width: 388px;
+  --gomna-reader-card-side-gap: 32px;
+}
+
+/* 1. 절 목록 전체 기준 */
+.verse-list {
+  width: 100%;
+  max-width: var(--gomna-reader-card-width, 388px);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+/* 2. 절 카드 폭/중앙축 통일 */
+.verse-item {
+  width: 100%;
+  max-width: var(--gomna-reader-card-width, 388px);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+/* 3. 절 범위 카드: 실제 렌더링 선택자 기준 */
+.verse-range-box {
+  width: 100%;
+  max-width: var(--gomna-reader-card-width, 388px);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+/* 4. 하단 기본 바도 같은 reader 축 기준으로 통일 */
+.opt4-bottom-bar {
+  width: min(calc(100vw - var(--gomna-reader-card-side-gap, 32px)), var(--gomna-reader-card-width, 388px));
+  max-width: var(--gomna-reader-card-width, 388px);
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  box-sizing: border-box;
+}
+
+/* 5. 오디오 ON 상태의 하단 바 후퇴는 유지 */
+body.gomna-audio-body-padding .opt4-bottom-bar {
+  transform: translate(-50%, calc(100% + env(safe-area-inset-bottom, 0px) + 12px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 6. 모바일에서도 같은 축 유지 */
+@media (max-width: 480px) {
+  :root {
+    --gomna-reader-card-side-gap: 32px;
+  }
+
+  .verse-list,
+  .verse-item,
+  .verse-range-box {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .opt4-bottom-bar {
+    width: calc(100vw - var(--gomna-reader-card-side-gap, 32px));
+    max-width: calc(100vw - var(--gomna-reader-card-side-gap, 32px));
+  }
+}
+
+/* =========================================================
+   GOMNA VERSE LIST PANEL OVERRIDE v21
+   절을 독립 카드가 아닌 하나의 본문 패널 안 리스트 행으로 정리
+   ========================================================= */
+
+.verse-list {
+  display: block;
+  gap: 0;
+  background: #fff;
+  border: 1px solid rgba(213, 200, 187, 0.52);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(61, 40, 24, 0.04);
+}
+
+.verse-item {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(245, 240, 235, 0.95);
+  border-radius: 0;
+  box-shadow: none;
+  margin: 0;
+  padding: 16px;
+}
+
+.verse-item:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 480px) {
+  .verse-list {
+    gap: 0;
+    border-radius: 15px;
+  }
+
+  .verse-item {
+    padding: 15px 14px;
+  }
+}
+
+/* =========================================================
+   GOMNA MINI PLAYER WIDTH ALIGN OVERRIDE v22
+   오디오 미니 플레이어 폭을 본문 리스트 패널 폭과 맞춤
+   ========================================================= */
+
+:root {
+  --gomna-reader-side-gap: var(--gomna-reader-card-side-gap, 32px);
+}
+
+body .gomna-audio-mini-player {
+  width: min(calc(100vw - var(--gomna-reader-side-gap, 32px)), var(--gomna-reader-card-width, 388px));
+  max-width: var(--gomna-reader-card-width, 388px);
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, var(--gomna-audio-mini-translate-y, 0));
+  box-sizing: border-box;
+}
+
+/* visible 상태의 기존 transform 흐름 보존 */
+body .gomna-audio-mini-player.gomna-audio-visible {
+  transform: translate(-50%, 0);
+}
+
+/* hidden/transition 상태에서 기존 세로 이동 감각 유지 */
+body .gomna-audio-mini-player:not(.gomna-audio-visible) {
+  transform: translate(-50%, 16px);
+}
+
+/* 오디오 ON 상태에서도 같은 폭 유지 */
+body.gomna-audio-body-padding .gomna-audio-mini-player {
+  width: min(calc(100vw - var(--gomna-reader-side-gap, 32px)), var(--gomna-reader-card-width, 388px));
+  max-width: var(--gomna-reader-card-width, 388px);
+  left: 50%;
+  right: auto;
+}
+
+/* 모바일에서도 본문 패널 폭과 동일 기준 */
+@media (max-width: 480px) {
+  :root {
+    --gomna-reader-side-gap: var(--gomna-reader-card-side-gap, 32px);
+  }
+
+  body .gomna-audio-mini-player,
+  body.gomna-audio-body-padding .gomna-audio-mini-player {
+    width: calc(100vw - var(--gomna-reader-side-gap, 32px));
+    max-width: calc(100vw - var(--gomna-reader-side-gap, 32px));
+    left: 50%;
+    right: auto;
+  }
+}
+
+/* =========================================================
+   GOMNA READER BOTTOM FINISH OVERRIDE v23
+   오디오 ON 상태에서 본문 패널 하단이 잘려 보이지 않도록 마감 영역 정리
+   ========================================================= */
+
+/* 1. 오디오 ON 상태에서 실제 본문 흐름 아래에 충분한 마감 공간 확보 */
+body.gomna-audio-body-padding main.content {
+  padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+}
+
+/* 2. 절 목록 패널 내부 끝에 조용한 하단 마감 공간 추가 */
+body.gomna-audio-body-padding .verse-list {
+  margin-bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+}
+
+/* 3. 기존 spacer를 본문 패널의 하단 마감 영역처럼 사용 */
+body.gomna-audio-body-padding .verse-list::after {
+  content: "";
+  display: block;
+  height: calc(128px + env(safe-area-inset-bottom, 0px));
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 253, 248, 0) 0%,
+      rgba(255, 253, 248, 0.78) 62%,
+      rgba(255, 253, 248, 1) 100%
+    );
+}
+
+/* 4. dock backdrop은 본문을 덮는 막이 아니라 하단 정리 영역처럼 더 낮게 깔리게 조정 */
+body.gomna-audio-body-padding::after {
+  height: calc(112px + env(safe-area-inset-bottom, 0px));
+  background:
+    linear-gradient(
+      to top,
+      rgba(250, 246, 237, 0.98) 0%,
+      rgba(250, 246, 237, 0.92) 46%,
+      rgba(250, 246, 237, 0.46) 76%,
+      rgba(250, 246, 237, 0) 100%
+    );
+}
+
+/* 5. 미니 플레이어는 기존 계층 유지 */
+body.gomna-audio-body-padding .gomna-audio-mini-player {
+  z-index: 910;
+}
+
+/* 6. 하단 기본 바 후퇴는 유지 */
+body.gomna-audio-body-padding .opt4-bottom-bar {
+  transform: translate(-50%, calc(100% + env(safe-area-inset-bottom, 0px) + 12px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 7. 모바일에서는 마감 공간을 과하지 않게 조정 */
+@media (max-width: 480px) {
+  body.gomna-audio-body-padding main.content {
+    padding-bottom: calc(124px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body.gomna-audio-body-padding .verse-list {
+    margin-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body.gomna-audio-body-padding .verse-list::after {
+    height: calc(118px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body.gomna-audio-body-padding::after {
+    height: calc(104px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* =========================================================
+   GOMNA BOTTOM FINISH REDUCTION OVERRIDE v24
+   v23의 과한 하단 흰 마감 영역을 줄이고 자연스러운 최소 여백만 유지
+   ========================================================= */
+
+/* 1. 오디오 ON 상태에서 main.content 여백은 최소 안전 여백만 유지 */
+body.gomna-audio-body-padding main.content {
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+}
+
+/* 2. .verse-list 아래 큰 외부 여백 제거 */
+body.gomna-audio-body-padding .verse-list {
+  margin-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+}
+
+/* 3. 본문 패널 끝에 큰 흰 gradient를 만들지 말고, 투명한 최소 spacer만 둔다 */
+body.gomna-audio-body-padding .verse-list::after {
+  content: "";
+  display: block;
+  height: calc(72px + env(safe-area-inset-bottom, 0px));
+  background: transparent;
+}
+
+/* 4. dock backdrop은 본문을 덮는 흰 막이 아니라 아주 낮은 하단 정리층만 */
+body.gomna-audio-body-padding::after {
+  height: calc(72px + env(safe-area-inset-bottom, 0px));
+  background:
+    linear-gradient(
+      to top,
+      rgba(250, 246, 237, 0.82) 0%,
+      rgba(250, 246, 237, 0.48) 48%,
+      rgba(250, 246, 237, 0) 100%
+    );
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* 5. 미니 플레이어 계층 유지 */
+body.gomna-audio-body-padding .gomna-audio-mini-player {
+  z-index: 910;
+}
+
+/* 6. 하단 기본 바 후퇴 유지 */
+body.gomna-audio-body-padding .opt4-bottom-bar {
+  transform: translate(-50%, calc(100% + env(safe-area-inset-bottom, 0px) + 12px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 7. 모바일에서는 더 과하지 않게 */
+@media (max-width: 480px) {
+  body.gomna-audio-body-padding main.content {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body.gomna-audio-body-padding .verse-list {
+    margin-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body.gomna-audio-body-padding .verse-list::after {
+    height: calc(64px + env(safe-area-inset-bottom, 0px));
+    background: transparent;
+  }
+
+  body.gomna-audio-body-padding::after {
+    height: calc(66px + env(safe-area-inset-bottom, 0px));
+    background:
+      linear-gradient(
+        to top,
+        rgba(250, 246, 237, 0.78) 0%,
+        rgba(250, 246, 237, 0.42) 48%,
+        rgba(250, 246, 237, 0) 100%
+      );
+  }
+}
+/* =========================================================
+   v25 audio mini player card finish override
+   오디오 미니 플레이어 양쪽 마감 정리
+========================================================= */
+
+.gomna-mini-player {
+  left: 50% !important;
+  right: auto !important;
+  bottom: 18px !important;
+  transform: translateX(-50%) !important;
+
+  width: calc(100% - 32px) !important;
+  max-width: 1260px !important;
+  min-height: 104px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+
+  padding: 18px 28px !important;
+  box-sizing: border-box !important;
+
+  background: #3f3f3f !important;
+  border-radius: 28px !important;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.22) !important;
+
+  overflow: visible !important;
+  z-index: 9999 !important;
+}
+
+/* 왼쪽 본문 영역 */
+.gomna-mini-player .audio-info,
+.gomna-mini-player .mini-player-info,
+.gomna-mini-player .player-info {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* 오른쪽 버튼 영역 */
+.gomna-mini-player .audio-controls,
+.gomna-mini-player .mini-player-controls,
+.gomna-mini-player .player-controls {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 14px !important;
+  margin-left: auto !important;
+}
+
+/* 27절 동그라미 배지 정리 */
+.gomna-mini-player .verse-badge,
+.gomna-mini-player .audio-verse-badge,
+.gomna-mini-player .current-verse-badge {
+  position: absolute !important;
+  top: -30px !important;
+  left: 54px !important;
+
+  width: 76px !important;
+  height: 76px !important;
+  border-radius: 50% !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  background: #b96557 !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* 오른쪽 끝 빈 공간 줄이기 */
+.gomna-mini-player > *:last-child {
+  margin-right: 0 !important;
+}
+
+/* 모바일 화면 정리 */
+@media (max-width: 768px) {
+  .gomna-mini-player {
+    width: calc(100% - 24px) !important;
+    bottom: 12px !important;
+    padding: 16px 18px !important;
+    border-radius: 24px !important;
+    gap: 14px !important;
+  }
+
+  .gomna-mini-player .verse-badge,
+  .gomna-mini-player .audio-verse-badge,
+  .gomna-mini-player .current-verse-badge {
+    top: -24px !important;
+    left: 28px !important;
+    width: 62px !important;
+    height: 62px !important;
+  }
+}
+
+/* =========================================================
+   v25 audio mini player card finish override - actual classes
+   오디오 미니 플레이어 양쪽 마감 정리
+========================================================= */
+
+.gomna-audio-mini-player {
+  left: 50% !important;
+  right: auto !important;
+  bottom: 18px !important;
+  transform: translateX(-50%) !important;
+
+  width: calc(100% - 32px) !important;
+  max-width: 760px !important;
+  min-height: 72px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+
+  padding: 12px 18px !important;
+  box-sizing: border-box !important;
+
+  overflow: hidden !important;
+}
+
+.gomna-audio-mini-player.gomna-audio-visible {
+  transform: translate(-50%, 0) !important;
+}
+
+.gomna-audio-mini-player .gomna-audio-mini-info,
+.gomna-audio-mini-player .audio-info,
+.gomna-audio-mini-player .mini-player-info,
+.gomna-audio-mini-player .player-info {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  padding-left: 0 !important;
+}
+
+.gomna-audio-mini-player .gomna-audio-mini-controls,
+.gomna-audio-mini-player .audio-controls,
+.gomna-audio-mini-player .mini-player-controls,
+.gomna-audio-mini-player .player-controls {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  margin-left: auto !important;
+}
+
+.gomna-audio-mini-player .verse-badge,
+.gomna-audio-mini-player .audio-verse-badge,
+.gomna-audio-mini-player .current-verse-badge {
+  position: absolute !important;
+  top: -18px !important;
+  left: 28px !important;
+
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 50% !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  background: #b96557 !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16) !important;
+}
+
+.gomna-audio-mini-player > *:last-child {
+  margin-right: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .gomna-audio-mini-player {
+    width: calc(100% - 24px) !important;
+    max-width: 760px !important;
+    bottom: 12px !important;
+    padding: 10px 14px !important;
+    border-radius: 20px !important;
+    gap: 10px !important;
+  }
+
+  .gomna-audio-mini-player .gomna-audio-mini-controls,
+  .gomna-audio-mini-player .audio-controls,
+  .gomna-audio-mini-player .mini-player-controls,
+  .gomna-audio-mini-player .player-controls {
+    gap: 8px !important;
+  }
+
+  .gomna-audio-mini-player .verse-badge,
+  .gomna-audio-mini-player .audio-verse-badge,
+  .gomna-audio-mini-player .current-verse-badge {
+    top: -14px !important;
+    left: 20px !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+}
+
+/* =========================================================
+   GOMNA MINI PLAYER WIDTH LOCK OVERRIDE v26
+   fixed 미니 플레이어가 내용 폭으로 줄어들지 않도록 실제 폭 고정
+   ========================================================= */
+
+.gomna-audio-mini-player {
+  width: min(760px, calc(100vw - 32px)) !important;
+  max-width: 760px !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+}
+
+.gomna-audio-mini-player.gomna-audio-visible {
+  transform: translate(-50%, 0) !important;
+}
+
+@media (max-width: 768px) {
+  .gomna-audio-mini-player {
+    width: calc(100vw - 24px) !important;
+    max-width: none !important;
+  }
+}
+
+/* =========================================================
+   GOMNA MINI PLAYER MATCH BOTTOM BAR FINAL
+   오디오 미니 플레이어 폭을 하단 말씀풀이 버튼 바와 맞춤
+   ========================================================= */
+
+.gomna-audio-mini-player {
+  width: min(calc(100vw - var(--gomna-reader-side-gap, 24px)), var(--gomna-reader-card-width, 388px)) !important;
+  max-width: var(--gomna-reader-card-width, 388px) !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  box-sizing: border-box;
+}
+
+.gomna-audio-mini-player.gomna-audio-visible {
+  transform: translate(-50%, 0) !important;
+}
+
+@media (max-width: 768px) {
+  .gomna-audio-mini-player {
+    width: min(calc(100vw - var(--gomna-reader-side-gap, 24px)), var(--gomna-reader-card-width, 388px)) !important;
+    max-width: var(--gomna-reader-card-width, 388px) !important;
+  }
+}
+
+/* =========================================================
+   GOMNA VERSE BOTTOM GAP REDUCTION FINAL
+   마지막 절 아래 본문 카드 내부 빈 공간 줄이기
+   ========================================================= */
+
+/* 오디오 ON 상태에서 31절 아래 카드 내부 빈 공간을 줄임 */
+body.gomna-audio-body-padding .verse-list {
+  padding-bottom: calc(36px + env(safe-area-inset-bottom, 0px));
+}
+
+/* v24의 추가 spacer도 더 작게 줄임 */
+body.gomna-audio-body-padding .verse-list::after {
+  content: "";
+  display: block;
+  height: calc(32px + env(safe-area-inset-bottom, 0px));
+  background: transparent;
+}
+
+/* 카드 바깥 여백도 너무 길지 않게 줄임 */
+body.gomna-audio-body-padding .verse-list {
+  margin-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+}
+
+/* 본문 전체 하단 안전 여백은 최소 유지 */
+body.gomna-audio-body-padding main.content {
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 480px) {
+  body.gomna-audio-body-padding .verse-list {
+    padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+    margin-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body.gomna-audio-body-padding .verse-list::after {
+    height: calc(28px + env(safe-area-inset-bottom, 0px));
+    background: transparent;
+  }
+
+  body.gomna-audio-body-padding main.content {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* =========================================================
+   GOMNA FOOTER AUDIO GAP REDUCTION FINAL
+   footer와 오디오 미니 플레이어 사이 하단 마감 정리
+   ========================================================= */
+
+/* 오디오 ON 상태에서 footer 아래 공간을 과하지 않게 줄임 */
+body.gomna-audio-body-padding footer,
+body.gomna-audio-body-padding .footer,
+body.gomna-audio-body-padding .site-footer {
+  margin-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+}
+
+/* footer 위쪽은 본문과 너무 멀어지지 않게 조정 */
+body.gomna-audio-body-padding footer,
+body.gomna-audio-body-padding .footer,
+body.gomna-audio-body-padding .site-footer {
+  margin-top: 28px;
+}
+
+/* 전체 본문 하단 여백은 오디오 바가 가리지 않을 정도만 유지 */
+body.gomna-audio-body-padding main.content {
+  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 480px) {
+  body.gomna-audio-body-padding footer,
+  body.gomna-audio-body-padding .footer,
+  body.gomna-audio-body-padding .site-footer {
+    margin-top: 24px;
+    margin-bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body.gomna-audio-body-padding main.content {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* =========================================================
+   GOMNA MINI PLAYER LOWER POSITION FINAL
+   오디오 미니 플레이어를 살짝 아래로 내림
+   ========================================================= */
+
+body.gomna-audio-body-padding .gomna-audio-mini-player {
+  bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* =========================================================
+   GOMNA EXPANDED AUDIO PLAYER PREMIUM SHEET
+   확장 오디오 플레이어를 고급 bottom sheet UI로 정리
+   ========================================================= */
+
+.gomna-audio-expanded-player {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  width: min(calc(100vw - 24px), 420px) !important;
+  max-width: 420px !important;
+  max-height: min(82vh, 680px) !important;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+  border-radius: 26px;
+  border: 1px solid rgba(201, 169, 97, 0.28);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.98) 0%, rgba(250, 246, 237, 0.98) 100%);
+  color: #3d2818;
+  box-shadow:
+    0 -18px 44px rgba(42, 26, 18, 0.18),
+    0 2px 12px rgba(42, 26, 18, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  transform: translate(-50%, calc(100% + 24px)) !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gomna-audio-expanded-player.gomna-audio-visible {
+  transform: translate(-50%, 0) !important;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gomna-audio-expanded-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.gomna-audio-expanded-header h3 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #2f2018;
+}
+
+.gomna-audio-btn-close {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(201, 169, 97, 0.24);
+  border-radius: 999px;
+  background: rgba(255, 250, 242, 0.86);
+  color: #6d4424;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.gomna-audio-expanded-info {
+  padding: 14px 14px 15px;
+  border: 1px solid rgba(201, 169, 97, 0.18);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 250, 242, 0.88) 0%, rgba(246, 236, 219, 0.62) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68);
+}
+
+.gomna-audio-expanded-title {
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 800;
+  color: #9a7209;
+  letter-spacing: -0.01em;
+}
+
+.gomna-audio-expanded-preview {
+  font-size: 17px;
+  line-height: 1.68;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: #3d2818;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.gomna-audio-expanded-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 76px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.gomna-audio-expanded-player button {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 44px;
+  border: 1px solid rgba(201, 169, 97, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 250, 242, 0.86);
+  color: #56341d;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  box-shadow:
+    0 2px 8px rgba(61, 40, 24, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+}
+
+.gomna-audio-expanded-player button:hover,
+.gomna-audio-expanded-player button:focus {
+  background: rgba(255, 247, 234, 0.98);
+  border-color: rgba(184, 134, 11, 0.34);
+  color: #3d2818;
+}
+
+.gomna-audio-btn-play-pause-big {
+  width: 76px;
+  min-width: 76px;
+  height: 76px;
+  min-height: 76px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  border: 1px solid rgba(255, 248, 239, 0.22);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #7a3f24 0%, #5b2b18 100%) !important;
+  color: #fff8ef !important;
+  font-size: 28px;
+  box-shadow:
+    0 10px 22px rgba(83, 42, 22, 0.28),
+    inset 0 1px 0 rgba(255, 248, 239, 0.18);
+}
+
+.gomna-audio-expanded-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gomna-audio-option-group {
+  padding: 13px;
+  border: 1px solid rgba(201, 169, 97, 0.16);
+  border-radius: 20px;
+  background: rgba(255, 252, 246, 0.62);
+}
+
+.gomna-audio-option-group label {
+  display: block;
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 850;
+  color: #6d4424;
+}
+
+.gomna-audio-option-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(239, 225, 202, 0.62);
+}
+
+.gomna-audio-option-buttons button {
+  flex: 1 1 auto;
+  min-width: 68px;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button {
+  min-width: 0;
+  padding: 0 6px;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.gomna-audio-expanded-player button[data-active="true"],
+.gomna-audio-expanded-player button.gomna-audio-active {
+  border-color: rgba(122, 63, 36, 0.35);
+  background: linear-gradient(180deg, #c79a44 0%, #ad7925 100%);
+  color: #fff8ef;
+  box-shadow:
+    0 5px 12px rgba(154, 105, 35, 0.18),
+    inset 0 1px 0 rgba(255, 248, 239, 0.26);
+}
+
+.gomna-audio-mini-player {
+  border-color: rgba(255, 248, 239, 0.22);
+  background: rgba(66, 52, 42, 0.88);
+}
+
+@media (max-width: 480px) {
+  .gomna-audio-expanded-player {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    max-height: min(86vh, 680px) !important;
+    padding: 16px 13px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-radius: 24px;
+    gap: 14px;
+  }
+
+  .gomna-audio-expanded-preview {
+    font-size: 16px;
+    line-height: 1.62;
+  }
+
+  .gomna-audio-expanded-controls {
+    grid-template-columns: minmax(0, 1fr) 68px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .gomna-audio-btn-play-pause-big {
+    width: 68px;
+    min-width: 68px;
+    height: 68px;
+    min-height: 68px;
+  }
+
+  .gomna-audio-expanded-player button {
+    font-size: 13px;
+  }
+
+  .gomna-audio-option-buttons button {
+    min-width: 0;
+    flex: 1 1 calc(50% - 8px);
+  }
+}
+
+@media (max-width: 480px) {
+  body.gomna-audio-body-padding .gomna-audio-mini-player {
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* =========================================================
+   GOMNA SPEED BUTTONS COMPACT ROW LOCK
+   최종 적용: 선택 속도 큰 카드 제거 및 5개 버튼 노출 고정
+   ========================================================= */
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 5px !important;
+  padding: 5px !important;
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button,
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+  order: 0 !important;
+  grid-column: auto !important;
+  min-width: 0 !important;
+  min-height: 38px !important;
+  height: 38px !important;
+  padding: 0 4px !important;
+  flex-direction: row !important;
+  gap: 0 !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"]::before,
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active::before {
+  content: none !important;
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+  border-color: rgba(122, 63, 36, 0.35) !important;
+  background: linear-gradient(180deg, #c79a44 0%, #ad7925 100%) !important;
+  color: #fff8ef !important;
+  box-shadow:
+    0 4px 10px rgba(154, 105, 35, 0.16),
+    inset 0 1px 0 rgba(255, 248, 239, 0.24) !important;
+}
+
+@media (max-width: 480px) {
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+    padding: 4px !important;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 0 2px !important;
+    font-size: 10.5px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* =========================================================
+   GOMNA TIMER COMPACT FIT FINAL
+   모바일에서 "장 끝까지" 버튼까지 한 화면에 보이도록 타이머 영역 압축
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .gomna-audio-expanded-player {
+    padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .gomna-audio-expanded-options {
+    gap: 5px !important;
+  }
+
+  .gomna-audio-option-group {
+    padding: 7px !important;
+  }
+
+  .gomna-audio-option-group:last-child {
+    padding: 6px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .gomna-audio-option-group:last-child label {
+    margin-bottom: 4px !important;
+    font-size: 11px !important;
+  }
+
+  .gomna-audio-option-group:last-child .gomna-audio-option-buttons {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+  }
+
+  .gomna-audio-option-group:last-child .gomna-audio-option-buttons button {
+    min-height: 28px !important;
+    height: 28px !important;
+    padding: 0 4px !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+  }
+}
+
+@media (max-width: 480px) and (max-height: 700px) {
+  .gomna-audio-expanded-player {
+    padding-top: 6px !important;
+    padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px)) !important;
+    gap: 4px !important;
+  }
+
+  .gomna-audio-option-group {
+    padding: 6px !important;
+  }
+
+  .gomna-audio-option-group label,
+  .gomna-audio-option-group:first-child label {
+    margin-bottom: 4px !important;
+  }
+
+  .gomna-audio-option-group:last-child .gomna-audio-option-buttons button {
+    min-height: 26px !important;
+    height: 26px !important;
+    font-size: 9.5px !important;
+  }
+}
+
+/* =========================================================
+   GOMNA EXPANDED PLAYER MOBILE COMPACT PRIORITY FINAL
+   마지막 적용: 속도/목소리/타이머까지 한 화면에 압축
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .gomna-audio-expanded-player {
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(100dvh - 12px - env(safe-area-inset-bottom, 0px)) !important;
+    gap: 7px !important;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    overflow: hidden !important;
+  }
+
+  @supports (height: 100svh) {
+    .gomna-audio-expanded-player {
+      max-height: calc(100svh - 12px - env(safe-area-inset-bottom, 0px)) !important;
+    }
+  }
+
+  .gomna-audio-expanded-info,
+  .gomna-audio-option-group,
+  .gomna-audio-option-group:first-child {
+    padding: 8px !important;
+    border-radius: 15px;
+  }
+
+  .gomna-audio-expanded-preview {
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .gomna-audio-expanded-controls {
+    grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr) !important;
+    gap: 6px;
+  }
+
+  .gomna-audio-btn-play-pause-big {
+    width: 56px !important;
+    min-width: 56px !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    font-size: 22px;
+  }
+
+  .gomna-audio-expanded-options {
+    gap: 7px !important;
+    padding-bottom: 0 !important;
+  }
+
+  .gomna-audio-option-group label,
+  .gomna-audio-option-group:first-child label {
+    margin-bottom: 6px !important;
+    font-size: 12px;
+    line-height: 1.1;
+  }
+
+  .gomna-audio-option-buttons,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons,
+  .gomna-audio-option-group:not(:first-child) .gomna-audio-option-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 5px !important;
+    padding: 0;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+    padding: 5px;
+  }
+
+  .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:not(:first-child) .gomna-audio-option-buttons button {
+    min-width: 0 !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 0 6px !important;
+    font-size: 11px !important;
+    line-height: 1;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+    order: 0 !important;
+    grid-column: auto !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    font-size: 12px !important;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"]::before,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active::before {
+    content: none !important;
+  }
+
+  .gomna-audio-option-group:last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+@media (max-width: 480px) and (max-height: 700px) {
+  .gomna-audio-expanded-player {
+    gap: 5px !important;
+    padding-top: 8px !important;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .gomna-audio-expanded-preview {
+    line-clamp: 1;
+    -webkit-line-clamp: 1;
+    font-size: 13px;
+    line-height: 1.32;
+  }
+
+  .gomna-audio-expanded-info,
+  .gomna-audio-option-group,
+  .gomna-audio-option-group:first-child {
+    padding: 7px !important;
+  }
+
+  .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:not(:first-child) .gomna-audio-option-buttons button {
+    min-height: 30px !important;
+    height: 30px !important;
+    font-size: 10.5px !important;
+  }
+}
+
+/* =========================================================
+   GOMNA SPEED BUTTONS COMPACT ROW FINAL
+   "현재 속도" 큰 카드 제거, 5개 속도 버튼을 compact row로 표시
+   ========================================================= */
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 5px !important;
+  padding: 5px !important;
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button,
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+  order: 0 !important;
+  grid-column: auto !important;
+  min-width: 0 !important;
+  min-height: 38px !important;
+  height: 38px !important;
+  padding: 0 4px !important;
+  flex-direction: row !important;
+  gap: 0 !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"]::before,
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active::before {
+  content: none !important;
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+  border-color: rgba(122, 63, 36, 0.35) !important;
+  background: linear-gradient(180deg, #c79a44 0%, #ad7925 100%) !important;
+  color: #fff8ef !important;
+  box-shadow:
+    0 4px 10px rgba(154, 105, 35, 0.16),
+    inset 0 1px 0 rgba(255, 248, 239, 0.24) !important;
+}
+
+@media (max-width: 480px) {
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+    padding: 4px !important;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 0 2px !important;
+    font-size: 10.5px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* =========================================================
+   GOMNA EXPANDED PLAYER MOBILE COMPACT FIT FINAL
+   모바일에서 스크롤 없이 전체 구조가 한 화면에 들어오도록 압축
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .gomna-audio-expanded-player {
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+    width: calc(100vw - 12px) !important;
+    max-width: calc(100vw - 12px) !important;
+    max-height: calc(100dvh - 12px - env(safe-area-inset-bottom, 0px)) !important;
+    gap: 7px !important;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+  }
+
+  @supports (height: 100svh) {
+    .gomna-audio-expanded-player {
+      max-height: calc(100svh - 12px - env(safe-area-inset-bottom, 0px)) !important;
+    }
+  }
+
+  .gomna-audio-expanded-header {
+    min-height: 32px;
+    gap: 8px;
+  }
+
+  .gomna-audio-expanded-header h3 {
+    font-size: 16px;
+  }
+
+  .gomna-audio-btn-close {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    min-height: 34px;
+    font-size: 15px;
+  }
+
+  .gomna-audio-expanded-info {
+    padding: 8px 10px;
+    border-radius: 15px;
+  }
+
+  .gomna-audio-expanded-title {
+    margin-bottom: 4px;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .gomna-audio-expanded-preview {
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .gomna-audio-expanded-controls {
+    grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .gomna-audio-expanded-player button {
+    min-height: 34px;
+    font-size: 12px;
+  }
+
+  .gomna-audio-btn-play-pause-big {
+    width: 56px;
+    min-width: 56px;
+    height: 56px;
+    min-height: 56px;
+    font-size: 22px;
+  }
+
+  .gomna-audio-expanded-options {
+    gap: 7px;
+    padding-bottom: 0;
+  }
+
+  .gomna-audio-option-group {
+    padding: 8px;
+    border-radius: 15px;
+  }
+
+  .gomna-audio-option-group label,
+  .gomna-audio-option-group:first-child label {
+    margin-bottom: 6px;
+    font-size: 12px;
+    line-height: 1.1;
+  }
+
+  .gomna-audio-option-group:first-child label::after {
+    padding: 2px 7px;
+    font-size: 10px;
+  }
+
+  .gomna-audio-option-buttons,
+  .gomna-audio-option-group:not(:first-child) .gomna-audio-option-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    padding: 5px;
+    border-radius: 16px;
+  }
+
+  .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:not(:first-child) .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button {
+    min-width: 0;
+    min-height: 32px;
+    height: 32px;
+    padding: 0 6px;
+    font-size: 11px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+    order: 0;
+    grid-column: auto;
+    min-height: 34px;
+    height: 34px;
+    gap: 0;
+    font-size: 12px;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"]::before,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active::before {
+    content: none;
+  }
+
+  .gomna-audio-option-group:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 480px) and (max-height: 700px) {
+  .gomna-audio-expanded-player {
+    gap: 5px !important;
+    padding-top: 8px !important;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .gomna-audio-expanded-preview {
+    line-clamp: 1;
+    -webkit-line-clamp: 1;
+    font-size: 13px;
+    line-height: 1.32;
+  }
+
+  .gomna-audio-expanded-info,
+  .gomna-audio-option-group {
+    padding: 7px;
+  }
+
+  .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:not(:first-child) .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button {
+    min-height: 30px;
+    height: 30px;
+    font-size: 10.5px;
+  }
+}
+
+/* =========================================================
+   GOMNA EXPANDED PLAYER MOBILE SAFE HEIGHT FINAL
+   최종 override: 모바일 하단 타이머 영역 잘림 방지
+   ========================================================= */
+
+.gomna-audio-expanded-player {
+  max-height: min(calc(100dvh - 28px), 680px) !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(34px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@supports (height: 100svh) {
+  .gomna-audio-expanded-player {
+    max-height: min(calc(100svh - 28px), 680px) !important;
+  }
+}
+
+.gomna-audio-expanded-options {
+  padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+}
+
+.gomna-audio-option-group:last-child {
+  margin-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 480px) {
+  .gomna-audio-expanded-player {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(100dvh - 18px - env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)) !important;
+    scroll-padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  }
+
+  @supports (height: 100svh) {
+    .gomna-audio-expanded-player {
+      max-height: calc(100svh - 18px - env(safe-area-inset-bottom, 0px)) !important;
+    }
+  }
+
+  .gomna-audio-expanded-options {
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .gomna-audio-option-group:last-child {
+    margin-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* =========================================================
+   GOMNA SPEED CONTROL PREMIUM TUNE
+   기존 속도 로직은 유지하고 현재 속도가 잘 보이는 UI로 정리
+   ========================================================= */
+
+.gomna-audio-expanded-player {
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.995) 0%, rgba(250, 246, 237, 0.995) 100%);
+  backdrop-filter: blur(18px) saturate(112%);
+  -webkit-backdrop-filter: blur(18px) saturate(112%);
+}
+
+.gomna-audio-option-group:first-child {
+  padding: 15px;
+  border-color: rgba(184, 134, 11, 0.22);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 242, 0.92) 0%, rgba(246, 236, 219, 0.78) 100%);
+}
+
+.gomna-audio-option-group:first-child label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  color: #4a2a1b;
+  font-size: 14px;
+}
+
+.gomna-audio-option-group:first-child label::after {
+  content: "재생 속도";
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(184, 134, 11, 0.10);
+  color: #9a7209;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+  border-radius: 22px;
+  background: rgba(239, 225, 202, 0.72);
+  box-shadow:
+    inset 0 1px 2px rgba(61, 40, 24, 0.06),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.58);
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button {
+  min-height: 46px;
+  border: 1px solid rgba(201, 169, 97, 0.18);
+  background: rgba(255, 252, 246, 0.86);
+  color: #5f3a21;
+  font-size: 14px;
+  font-weight: 850;
+  box-shadow:
+    0 1px 5px rgba(61, 40, 24, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+  order: -1;
+  grid-column: 1 / -1;
+  min-height: 64px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-color: rgba(122, 63, 36, 0.38);
+  background:
+    linear-gradient(180deg, #c99b42 0%, #a97522 100%);
+  color: #fff8ef;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  box-shadow:
+    0 8px 18px rgba(154, 105, 35, 0.20),
+    inset 0 1px 0 rgba(255, 248, 239, 0.30);
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"]::before,
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active::before {
+  content: "현재 속도";
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 800;
+  color: rgba(255, 248, 239, 0.84);
+  letter-spacing: -0.01em;
+}
+
+.gomna-audio-option-group:not(:first-child) .gomna-audio-option-buttons {
+  gap: 9px;
+}
+
+.gomna-audio-option-group:not(:first-child) .gomna-audio-option-buttons button {
+  min-height: 46px;
+  color: #54321e;
+}
+
+.gomna-audio-option-group:last-child {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 480px) {
+  .gomna-audio-option-group:first-child {
+    padding: 13px;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+    padding: 7px;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button {
+    min-height: 46px;
+    font-size: 13px;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+    min-height: 62px;
+    font-size: 21px;
+  }
+
+  .gomna-audio-option-group:last-child {
+    margin-bottom: 12px;
+  }
+}
+
+/* =========================================================
+   GOMNA MINI PLAYER POSITION TUNE v31
+   오디오 미니 플레이어를 살짝 위로 올림
+   ========================================================= */
+
+body.gomna-audio-body-padding .gomna-audio-mini-player {
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (max-width: 480px) {
+  body.gomna-audio-body-padding .gomna-audio-mini-player {
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* =========================================================
+   GOMNA MINI PLAYER POSITION RESTORE
+   오디오 미니 플레이어를 다시 살짝 아래로 내림
+   ========================================================= */
+
+body.gomna-audio-body-padding .gomna-audio-mini-player {
+  bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (max-width: 480px) {
+  body.gomna-audio-body-padding .gomna-audio-mini-player {
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+
+/* =========================================================
+   GOMNA SPEED BUTTONS COMPACT ROW TRUE FINAL
+   파일 끝 최종 적용: 선택 속도 큰 카드 제거 및 5개 버튼 노출 고정
+   ========================================================= */
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 5px !important;
+  padding: 5px !important;
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button,
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+  order: 0 !important;
+  grid-column: auto !important;
+  min-width: 0 !important;
+  min-height: 38px !important;
+  height: 38px !important;
+  padding: 0 4px !important;
+  flex-direction: row !important;
+  gap: 0 !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"]::before,
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active::before {
+  content: none !important;
+}
+
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+.gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+  border-color: rgba(122, 63, 36, 0.35) !important;
+  background: linear-gradient(180deg, #c79a44 0%, #ad7925 100%) !important;
+  color: #fff8ef !important;
+  box-shadow:
+    0 4px 10px rgba(154, 105, 35, 0.16),
+    inset 0 1px 0 rgba(255, 248, 239, 0.24) !important;
+}
+
+@media (max-width: 480px) {
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+    padding: 4px !important;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 0 2px !important;
+    font-size: 10.5px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+
+/* =========================================================
+   GOMNA TIMER COMPACT FIT TRUE FINAL
+   파일 끝 최종 적용: "장 끝까지" 버튼 잘림 방지
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .gomna-audio-expanded-player {
+    padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .gomna-audio-expanded-options {
+    gap: 5px !important;
+  }
+
+  .gomna-audio-option-group {
+    padding: 7px !important;
+  }
+
+  .gomna-audio-option-group:last-child {
+    padding: 6px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .gomna-audio-option-group:last-child label {
+    margin-bottom: 4px !important;
+    font-size: 11px !important;
+  }
+
+  .gomna-audio-option-group:last-child .gomna-audio-option-buttons {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+  }
+
+  .gomna-audio-option-group:last-child .gomna-audio-option-buttons button {
+    min-height: 28px !important;
+    height: 28px !important;
+    padding: 0 4px !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+  }
+}
+
+@media (max-width: 480px) and (max-height: 700px) {
+  .gomna-audio-expanded-player {
+    padding-top: 6px !important;
+    padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px)) !important;
+    gap: 4px !important;
+  }
+
+  .gomna-audio-option-group {
+    padding: 6px !important;
+  }
+
+  .gomna-audio-option-group label,
+  .gomna-audio-option-group:first-child label {
+    margin-bottom: 4px !important;
+  }
+
+  .gomna-audio-option-group:last-child .gomna-audio-option-buttons button {
+    min-height: 26px !important;
+    height: 26px !important;
+    font-size: 9.5px !important;
+  }
+}
+
+
+/* =========================================================
+   GOMNA EXPANDED PLAYER BELOW RANGE MOBILE FINAL
+   모바일에서 절 범위 선택 박스 바로 아래에 오디오 카드를 배치
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .gomna-audio-expanded-player {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    margin: 8px 0 10px !important;
+    gap: 5px !important;
+    padding: 8px 9px calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+    border-radius: 18px !important;
+    transform: none !important;
+    overflow: visible !important;
+  }
+
+  .gomna-audio-expanded-player.gomna-audio-visible {
+    transform: none !important;
+  }
+
+  @supports (height: 100svh) {
+    .gomna-audio-expanded-player {
+      max-height: none !important;
+    }
+  }
+
+  .gomna-audio-expanded-header {
+    min-height: 28px !important;
+  }
+
+  .gomna-audio-expanded-header h3 {
+    font-size: 15px !important;
+  }
+
+  .gomna-audio-btn-close {
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    font-size: 14px !important;
+  }
+
+  .gomna-audio-expanded-info,
+  .gomna-audio-option-group,
+  .gomna-audio-option-group:first-child {
+    padding: 6px !important;
+    border-radius: 13px !important;
+  }
+
+  .gomna-audio-expanded-title {
+    margin-bottom: 2px !important;
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+  }
+
+  .gomna-audio-expanded-preview {
+    display: -webkit-box;
+    line-clamp: 1;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 13px !important;
+    line-height: 1.28 !important;
+  }
+
+  .gomna-audio-expanded-controls {
+    grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr) !important;
+    gap: 5px !important;
+  }
+
+  .gomna-audio-btn-play-pause-big {
+    width: 48px !important;
+    min-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    font-size: 20px !important;
+  }
+
+  .gomna-audio-expanded-options {
+    gap: 5px !important;
+    padding-bottom: 0 !important;
+  }
+
+  .gomna-audio-option-group label,
+  .gomna-audio-option-group:first-child label,
+  .gomna-audio-option-group:last-child label {
+    margin-bottom: 3px !important;
+    font-size: 10.5px !important;
+    line-height: 1.05 !important;
+  }
+
+  .gomna-audio-option-group:first-child label::after {
+    padding: 1px 6px !important;
+    font-size: 9.5px !important;
+  }
+
+  .gomna-audio-option-buttons,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons,
+  .gomna-audio-option-group:not(:first-child) .gomna-audio-option-buttons,
+  .gomna-audio-option-group:last-child .gomna-audio-option-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 3px !important;
+    padding: 0 !important;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    padding: 3px !important;
+  }
+
+  .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:not(:first-child) .gomna-audio-option-buttons button,
+  .gomna-audio-option-group:last-child .gomna-audio-option-buttons button {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 3px !important;
+    font-size: 9.5px !important;
+    line-height: 1 !important;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
+    order: 0 !important;
+    grid-column: auto !important;
+    min-height: 25px !important;
+    height: 25px !important;
+    font-size: 9.5px !important;
+  }
+
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"]::before,
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active::before {
+    content: none !important;
+  }
+
+  .gomna-audio-option-group:last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+
+/* =========================================================
+   GOMNA EXPANDED PLAYER INLINE MOBILE FINAL
+   모바일에서는 절 범위 박스 다음 DOM 요소로 배치
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .gomna-audio-expanded-player {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    max-height: none !important;
+    height: auto !important;
+    margin: 8px 0 10px !important;
+    transform: none !important;
+    overflow: visible !important;
+  }
+
+  .gomna-audio-expanded-player.gomna-audio-visible {
+    transform: none !important;
+  }
+
+  @supports (height: 100svh) {
+    .gomna-audio-expanded-player {
+      max-height: none !important;
+    }
+  }
+}
+
+body.gomna-audio-expanded-open .gomna-audio-expanded-player,
+body.gomna-audio-expanded-open .gomna-audio-expanded-player.gomna-audio-visible {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  overflow-y: visible !important;
+  margin-top: 8px !important;
+  margin-bottom: 16px !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+body.gomna-audio-expanded-open #verseRangeBoxBtn {
+  margin-bottom: 0 !important;
+}
+
+body.gomna-audio-expanded-open #verseList {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
