@@ -21,9 +21,9 @@ const AUDIO_TYPE = {
 };
 
 function usage() {
-  console.error('Usage: node scripts/sync-audio-manifest.mjs --book genesis --language ko-KR --voice calm --dry-run');
-  console.error('Optional dry-run flags: --verified-list reports/verified-audio-ko-KR.json');
-  console.error('Optional unsafe dry-run flag: --allow-unverified');
+  console.error('Usage: node scripts/sync-audio-manifest.mjs --book genesis --language ko-KR --voice calm --verified-list reports/verified-audio-ko-KR.json --dry-run');
+  console.error('   or: node scripts/sync-audio-manifest.mjs --book genesis --language ko-KR --voice calm --verified-list reports/verified-audio-ko-KR.json --write');
+  console.error('Optional unsafe flag: --allow-unverified');
 }
 
 function parseArgs(argv) {
@@ -34,6 +34,7 @@ function parseArgs(argv) {
     verifiedListPath: null,
     allowUnverified: false,
     dryRun: false,
+    write: false,
   };
 
   for (let i = 0; i < argv.length; i++) {
@@ -52,13 +53,22 @@ function parseArgs(argv) {
     } else if (arg === '--dry-run') {
       args.dryRun = true;
     } else if (arg === '--write') {
-      throw new Error('--write는 아직 구현하지 않습니다. 이번 단계는 --dry-run 전용입니다.');
+      args.write = true;
     } else {
       throw new Error(`알 수 없는 옵션입니다: ${arg}`);
     }
   }
 
-  if (!args.bookId || !args.language || !args.voicePreset || !args.dryRun) {
+  if (args.dryRun && args.write) {
+    throw new Error('--dry-run과 --write는 동시에 사용할 수 없습니다.');
+  }
+
+  if (!args.dryRun && !args.write) {
+    usage();
+    throw new Error('--dry-run 또는 --write 중 하나를 반드시 명시해야 합니다.');
+  }
+
+  if (!args.bookId || !args.language || !args.voicePreset) {
     usage();
     throw new Error('필수 옵션이 누락되었습니다.');
   }
@@ -227,6 +237,89 @@ function buildPlannedEntry(verse, voicePreset, verifiedAudioIds, allowUnverified
   };
 }
 
+function readFileSize(localFilePath) {
+  if (!fs.existsSync(localFilePath)) return 0;
+  return fs.statSync(localFilePath).size;
+}
+
+function toManifestEntry(plannedEntry, existingEntry) {
+  const localFilePath = path.join(ROOT, plannedEntry.localFilePath);
+
+  return {
+    id: plannedEntry.id,
+    book: plannedEntry.book,
+    bookId: plannedEntry.bookId,
+    language: plannedEntry.language,
+    chapter: plannedEntry.chapter,
+    verse: plannedEntry.verse,
+    type: plannedEntry.type,
+    typeKr: plannedEntry.typeKr,
+    voicePreset: plannedEntry.voicePreset,
+    filePath: plannedEntry.filePath,
+    duration: existingEntry && Number.isFinite(existingEntry.duration) ? existingEntry.duration : 0,
+    fileSize: readFileSize(localFilePath),
+    status: plannedEntry.plannedStatus,
+    verificationStatus: plannedEntry.verificationStatus,
+    verified: plannedEntry.verified,
+    preview: plannedEntry.preview,
+  };
+}
+
+function buildNextManifest(manifest, plannedEntries) {
+  const existingAudios = manifest.audios || {};
+  const plannedIds = new Set(plannedEntries.map((entry) => entry.id));
+  const nextAudios = {};
+
+  for (const [id, entry] of Object.entries(existingAudios)) {
+    if (!plannedIds.has(id)) {
+      nextAudios[id] = entry;
+    }
+  }
+
+  for (const plannedEntry of plannedEntries) {
+    nextAudios[plannedEntry.id] = toManifestEntry(plannedEntry, existingAudios[plannedEntry.id]);
+  }
+
+  return {
+    ...manifest,
+    lastUpdated: new Date().toISOString().slice(0, 10),
+    totalAudios: Object.keys(nextAudios).length,
+    audios: nextAudios,
+  };
+}
+
+function serializeManifest(manifest) {
+  return `${JSON.stringify(manifest, null, 2)}\n`;
+}
+
+function countManifestStatus(manifest) {
+  const audios = Object.values(manifest.audios || {});
+
+  return {
+    totalAudios: audios.length,
+    publishedCount: audios.filter((entry) => entry.status === 'published').length,
+    draftCount: audios.filter((entry) => entry.status === 'draft').length,
+    verifiedCount: audios.filter((entry) => entry.verified === true).length,
+    unverifiedCount: audios.filter((entry) => entry.verificationStatus === 'unverified').length,
+    missingCount: audios.filter((entry) => entry.verificationStatus === 'missing').length,
+  };
+}
+
+function countPlannedSummary(plannedEntries) {
+  return {
+    publishedCount: plannedEntries.filter((entry) => entry.plannedStatus === 'published').length,
+    draftCount: plannedEntries.filter((entry) => entry.plannedStatus === 'draft').length,
+    verifiedMp3Count: plannedEntries.filter((entry) => entry.hasMp3 && entry.verified).length,
+    unverifiedMp3Count: plannedEntries.filter((entry) => entry.hasMp3 && !entry.verified).length,
+    missingMp3Count: plannedEntries.filter((entry) => !entry.hasMp3).length,
+  };
+}
+
+function writeManifest(nextManifest) {
+  fs.writeFileSync(MANIFEST_PATH, serializeManifest(nextManifest), 'utf8');
+  JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+}
+
 function summarizeChapters(verses) {
   const chapterCounts = new Map();
 
@@ -298,6 +391,11 @@ function pickSample(plannedEntries, id) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
+
+  if (args.write && !args.verifiedListPath && !args.allowUnverified) {
+    throw new Error('--write는 기본적으로 --verified-list가 필요합니다. 검수 없이 published 처리하려면 위험 옵션 --allow-unverified를 명시해야 합니다.');
+  }
+
   const verses = readBookVerses(args.bookId, args.language);
   const manifest = readManifest();
   const verifiedAudioIds = readVerifiedAudioIds(args.verifiedListPath);
@@ -317,18 +415,30 @@ function main() {
   const plannedIds = new Set(plannedEntries.map((entry) => entry.id));
   const preservedExistingIds = Object.keys(existingAudios).filter((id) => !plannedIds.has(id));
   const expectedTotalAudios = preservedExistingIds.length + plannedIds.size;
+  const nextManifest = buildNextManifest(manifest, plannedEntries);
+  const currentSerialized = fs.readFileSync(MANIFEST_PATH, 'utf8');
+  const nextSerialized = serializeManifest(nextManifest);
+  const manifestModified = currentSerialized !== nextSerialized;
+  const beforeSummary = countManifestStatus(manifest);
+  const afterSummary = countManifestStatus(nextManifest);
+  const targetSummary = countPlannedSummary(plannedEntries);
   const chapterVerseCounts = summarizeChapters(verses);
   const { missingChapters, missingVerses } = findMissingChaptersAndVerses(verses);
   const sampleIds = [
     'genesis.001.001.bible',
+    'genesis.001.002.bible',
     'genesis.001.031.bible',
     'genesis.050.026.bible',
   ];
 
-  console.log(JSON.stringify({
-    mode: 'dry-run',
-    fileModified: false,
-    manifestModified: false,
+  if (args.write) {
+    writeManifest(nextManifest);
+  }
+
+  const output = {
+    mode: args.write ? 'write' : 'dry-run',
+    fileModified: args.write ? manifestModified : false,
+    manifestModified,
     source: path.relative(ROOT, READER_HTML_PATH),
     manifestPath: path.relative(ROOT, MANIFEST_PATH),
     book: BOOKS[args.bookId].book,
@@ -341,6 +451,9 @@ function main() {
     verifiedListPath: args.verifiedListPath,
     verifiedListCount: verifiedAudioIds.size,
     allowUnverified: args.allowUnverified,
+    manifestSummaryBefore: beforeSummary,
+    manifestSummaryAfter: afterSummary,
+    targetSummary,
     targetChapterCount: chapterVerseCounts.length,
     targetVerseCount: verses.length,
     chapterVerseCounts,
@@ -366,7 +479,9 @@ function main() {
     previewSource: 'reader.html oldTestamentData',
     previewGeneratedManually: false,
     sampleEntries: sampleIds.map((id) => pickSample(plannedEntries, id)),
-  }, null, 2));
+  };
+
+  console.log(JSON.stringify(output, null, 2));
 }
 
 main();
