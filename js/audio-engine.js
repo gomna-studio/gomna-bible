@@ -93,7 +93,10 @@
 
       engine._cleanupCurrentAudio();
 
-      var audio = new Audio(entry.filePath);
+      var audioSrc = typeof config.buildAudioUrl === 'function'
+        ? config.buildAudioUrl(entry.filePath)
+        : entry.filePath;
+      var audio = new Audio(audioSrc);
       audio.playbackRate = state.currentSpeed;
 
       audio.addEventListener('ended', function() {

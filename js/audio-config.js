@@ -1,10 +1,48 @@
 (function() {
   'use strict';
 
+  var LOCAL_AUDIO_BASE_URL = '/audio/v1';
+  var configuredAudioBaseUrl = window.GOMNA_AUDIO_BASE_URL || LOCAL_AUDIO_BASE_URL;
+
+  function trimTrailingSlash(value) {
+    return String(value || '').replace(/\/+$/, '');
+  }
+
+  function buildAudioUrl(filePath) {
+    if (!filePath) return '';
+    if (/^https?:\/\//i.test(filePath)) return filePath;
+
+    var normalizedBaseUrl = trimTrailingSlash(configuredAudioBaseUrl);
+    var normalizedFilePath = String(filePath);
+    var localPrefix = LOCAL_AUDIO_BASE_URL + '/';
+
+    if (normalizedFilePath.indexOf(localPrefix) === 0) {
+      return normalizedBaseUrl + '/' + normalizedFilePath.slice(localPrefix.length);
+    }
+
+    if (normalizedFilePath.charAt(0) !== '/') {
+      return normalizedBaseUrl + '/' + normalizedFilePath;
+    }
+
+    return normalizedFilePath;
+  }
+
   window.GOMNA_AUDIO_CONFIG = {
     AUDIO_BASE_PATH: '/audio/v1/ko-KR',
+    AUDIO_BASE_URL: trimTrailingSlash(configuredAudioBaseUrl),
+    AUDIO_LOCAL_BASE_URL: LOCAL_AUDIO_BASE_URL,
+    AUDIO_REMOTE_BASE_URL: '',
     AUDIO_VERSION: 'v1',
     MANIFEST_PATH: '/audio/audio-manifest.json',
+    buildAudioUrl: buildAudioUrl,
+
+    TTS_DEFAULTS: {
+      provider: 'openai',
+      model: 'gpt-4o-mini-tts',
+      voicePreset: 'calm',
+      providerVoice: 'marin',
+      outputFormat: 'mp3'
+    },
 
     COMMENTARY_MAP: {
       '원어분석': 'original-language',
@@ -33,22 +71,32 @@
     VOICE_PRESETS: {
       'calm': {
         name: '차분한 낭독',
+        provider: 'openai',
+        providerVoice: 'marin',
         use: ['bible', 'matthew-henry', 'cross-reference']
       },
       'warm': {
         name: '따뜻한 묵상',
+        provider: 'openai',
+        providerVoice: 'marin',
         use: ['history', 'theology', 'counseling']
       },
       'study': {
         name: '또박또박 공부',
+        provider: 'openai',
+        providerVoice: 'marin',
         use: ['original-language', 'typology']
       },
       'strong': {
         name: '설교형 전달',
+        provider: 'openai',
+        providerVoice: 'marin',
         use: ['sermon']
       },
       'soft': {
         name: '조용한 밤낭독',
+        provider: 'openai',
+        providerVoice: 'marin',
         use: ['hymn']
       }
     },

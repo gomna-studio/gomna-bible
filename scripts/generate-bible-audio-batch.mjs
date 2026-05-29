@@ -18,6 +18,46 @@ const AUDIO_TYPE = {
   fileNamePrefix: 'bible',
 };
 
+const AUDIO_STORAGE = {
+  localBaseDirectory: path.join(ROOT, 'audio', 'v1'),
+  publicBaseUrl: process.env.GOMNA_AUDIO_BASE_URL || '/audio/v1',
+  remoteBaseUrl: process.env.GOMNA_AUDIO_REMOTE_BASE_URL || 'https://audio.gomnastudio.com/audio/v1',
+};
+
+const TTS_DEFAULTS = {
+  provider: 'openai',
+  model: 'gpt-4o-mini-tts',
+  outputFormat: 'mp3',
+};
+
+const VOICE_PRESET_TTS = {
+  calm: {
+    provider: 'openai',
+    model: 'gpt-4o-mini-tts',
+    providerVoice: 'marin',
+  },
+  warm: {
+    provider: 'openai',
+    model: 'gpt-4o-mini-tts',
+    providerVoice: 'marin',
+  },
+  study: {
+    provider: 'openai',
+    model: 'gpt-4o-mini-tts',
+    providerVoice: 'marin',
+  },
+  strong: {
+    provider: 'openai',
+    model: 'gpt-4o-mini-tts',
+    providerVoice: 'marin',
+  },
+  soft: {
+    provider: 'openai',
+    model: 'gpt-4o-mini-tts',
+    providerVoice: 'marin',
+  },
+};
+
 function usage() {
   console.error('Usage: node scripts/generate-bible-audio-batch.mjs --book genesis --chapter 1 --language ko-KR --voice calm --dry-run');
   console.error('Optional: --from-verse 1 --to-verse 2');
@@ -92,6 +132,14 @@ function parseArgs(argv) {
 
 function pad3(value) {
   return String(value).padStart(3, '0');
+}
+
+function trimTrailingSlash(value) {
+  return String(value || '').replace(/\/+$/, '');
+}
+
+function joinUrl(baseUrl, relativePath) {
+  return `${trimTrailingSlash(baseUrl)}/${String(relativePath).replace(/^\/+/, '')}`;
 }
 
 function findObjectLiteralEnd(source, startIndex) {
@@ -192,11 +240,15 @@ function buildPlannedAudio(verse, voicePreset, overwrite) {
   const verse3 = pad3(verse.verse);
   const audioId = `${verse.bookId}.${chapter3}.${verse3}.${AUDIO_TYPE.type}`;
   const fileName = `${AUDIO_TYPE.fileNamePrefix}-${voicePreset}.mp3`;
-  const filePath = `/audio/v1/${verse.language}/${verse.bookId}/${chapter3}/${verse3}/${fileName}`;
+  const storageRelativePath = path.posix.join(verse.language, verse.bookId, chapter3, verse3, fileName);
+  const filePath = joinUrl(AUDIO_STORAGE.publicBaseUrl, storageRelativePath);
+  const remoteFilePath = joinUrl(AUDIO_STORAGE.remoteBaseUrl, storageRelativePath);
+  const ttsConfig = {
+    ...TTS_DEFAULTS,
+    ...(VOICE_PRESET_TTS[voicePreset] || {}),
+  };
   const localFilePath = path.join(
-    ROOT,
-    'audio',
-    'v1',
+    AUDIO_STORAGE.localBaseDirectory,
     verse.language,
     verse.bookId,
     chapter3,
@@ -215,8 +267,14 @@ function buildPlannedAudio(verse, voicePreset, overwrite) {
     chapter: verse.chapter,
     verse: verse.verse,
     voicePreset,
+    ttsProvider: ttsConfig.provider,
+    ttsModel: ttsConfig.model,
+    providerVoice: ttsConfig.providerVoice || voicePreset,
+    outputFormat: TTS_DEFAULTS.outputFormat,
     text: verse.text,
+    storageRelativePath,
     filePath,
+    remoteFilePath,
     localFilePath: path.relative(ROOT, localFilePath),
     tmpLocalFilePath: path.relative(ROOT, tmpLocalFilePath),
     exists,
@@ -246,6 +304,13 @@ function main() {
     toVerse: args.toVerse,
     language: args.language,
     voicePreset: args.voicePreset,
+    ttsDefaults: TTS_DEFAULTS,
+    voicePresetTts: VOICE_PRESET_TTS[args.voicePreset] || null,
+    audioStorage: {
+      localBaseDirectory: path.relative(ROOT, AUDIO_STORAGE.localBaseDirectory),
+      publicBaseUrl: AUDIO_STORAGE.publicBaseUrl,
+      remoteBaseUrl: AUDIO_STORAGE.remoteBaseUrl,
+    },
     overwrite: args.overwrite,
     skipExisting: !args.overwrite,
     targetCount: plannedAudios.length,
