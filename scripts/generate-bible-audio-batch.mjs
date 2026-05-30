@@ -148,10 +148,10 @@ function assertSafeWriteScope(args) {
   if (
     args.bookId !== 'genesis' ||
     args.chapter !== 1 ||
-    args.fromVerse !== 1 ||
-    args.toVerse !== 2
+    args.fromVerse !== 3 ||
+    args.toVerse !== 31
   ) {
-    throw new Error('--write는 현재 안전 점검을 위해 창세기 1장 1절~2절 범위에서만 허용됩니다.');
+    throw new Error('--write는 현재 안전 점검을 위해 창세기 1장 3절~31절 범위에서만 허용됩니다.');
   }
 }
 
