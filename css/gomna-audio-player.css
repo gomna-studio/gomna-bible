@@ -483,11 +483,11 @@ body.gomna-audio-body-padding {
   }
 
   .gomna-audio-toast {
-    right: 20px;
-    left: auto;
-    bottom: 120px;
-    transform: none;
-    max-width: 360px;
+    left: 50%;
+    right: auto;
+    bottom: calc(var(--gomna-audio-bottom-bar-height, 60px) + var(--gomna-audio-mini-height, 88px) + env(safe-area-inset-bottom, 0px) + 16px);
+    transform: translateX(-50%);
+    max-width: min(360px, 90vw);
   }
 
   body.gomna-audio-body-padding {

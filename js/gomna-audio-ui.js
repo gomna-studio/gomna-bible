@@ -310,6 +310,116 @@
     return speeds[(index + 1) % speeds.length];
   }
 
+  function getCurrentBookAudioId() {
+    var currentBookValue = window.currentBook;
+    var firstVerseAudioButton;
+    var firstAudioId;
+    var match;
+
+    if (!currentBookValue || currentBookValue.name !== '창세기') {
+      firstVerseAudioButton = document.querySelector('#verseList [data-audio-id$=".bible"]');
+      firstAudioId = firstVerseAudioButton && firstVerseAudioButton.getAttribute('data-audio-id');
+      match = firstAudioId && firstAudioId.match(/^([^.]+)\.\d{3}\.\d{3}\.bible$/);
+
+      return match ? match[1] : null;
+    }
+
+    return 'genesis';
+  }
+
+  function getCurrentChapterNumber() {
+    var firstVerseAudioButton = document.querySelector('#verseList [data-audio-id$=".bible"]');
+    var firstAudioId = firstVerseAudioButton && firstVerseAudioButton.getAttribute('data-audio-id');
+    var match = firstAudioId && firstAudioId.match(/^[^.]+\.(\d{3})\.\d{3}\.bible$/);
+
+    return Number(window.currentChapter) || (match ? parseInt(match[1], 10) : 0);
+  }
+
+  function getCurrentVerseCountValue() {
+    var count = Number(window.currentVerseCount) || 0;
+
+    if (count > 0) return count;
+
+    return document.querySelectorAll('#verseList .verse-item[data-verse]').length;
+  }
+
+  function getVisibleVerseRange() {
+    var items = document.querySelectorAll('#verseList .verse-item[data-verse]');
+    var start = null;
+    var end = null;
+
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].style.display === 'none') continue;
+
+      var verse = parseInt(items[i].getAttribute('data-verse'), 10);
+      if (isNaN(verse)) continue;
+
+      if (start === null || verse < start) start = verse;
+      if (end === null || verse > end) end = verse;
+    }
+
+    if (start === null || end === null) return null;
+
+    return {
+      start: start,
+      end: end
+    };
+  }
+
+  function getCurrentAudioVerse() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var match = state && state.currentAudioId && state.currentAudioId.match(/^genesis\.001\.(\d{3})\.bible$/);
+
+    return match ? parseInt(match[1], 10) : null;
+  }
+
+  function playVisibleVerseRange(toChapterEnd) {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+
+    if (!engine || !engine.playAudioRange) return;
+
+    if (state && state.queueActive) {
+      if (state.isPlaying) {
+        engine.pauseAudio();
+      } else if (state.isPaused) {
+        engine.resumeAudio();
+      }
+      return;
+    }
+
+    var bookId = getCurrentBookAudioId();
+    var chapter = getCurrentChapterNumber();
+    var range = getVisibleVerseRange();
+
+    if (!bookId || !chapter || !range) {
+      showToast('오디오 준비 중입니다.');
+      return;
+    }
+
+    if (toChapterEnd) {
+      range.start = getCurrentAudioVerse() || range.start;
+      range.end = getCurrentVerseCountValue() || range.end;
+    }
+
+    engine.playAudioRange(bookId, chapter, range.start, range.end);
+  }
+
+  function updateRangeAudioButtons(state) {
+    var buttons = document.querySelectorAll('[data-audio-action="play-range"]');
+    var label = '선택 범위 듣기';
+
+    if (state && state.queueActive) {
+      label = state.isPlaying ? '범위 일시정지' : '범위 이어듣기';
+    }
+
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].textContent = label;
+      buttons[i].classList.toggle('gomna-audio-active', !!(state && state.queueActive));
+    }
+  }
+
   document.addEventListener('click', function(e) {
     if (!window.GOMNA_AUDIO_ENGINE) return;
 
@@ -339,8 +449,9 @@
       var voice = voiceEl.getAttribute('data-audio-voice');
 
       if (voice) {
-        engine.changeVoice(voice);
-        setActiveWithinGroup(voiceEl, '[data-audio-voice]');
+        if (engine.changeVoice(voice)) {
+          setActiveWithinGroup(voiceEl, '[data-audio-voice]');
+        }
       }
 
       return;
@@ -352,6 +463,10 @@
 
       engine.setSleepTimer(minutes);
       setActiveWithinGroup(timerEl, '[data-audio-timer]');
+
+      if (timerValue === 'chapter-end') {
+        playVisibleVerseRange(true);
+      }
 
       return;
     }
@@ -367,6 +482,10 @@
         if (audioId) {
           engine.playAudioById(audioId);
         }
+        break;
+
+      case 'play-range':
+        playVisibleVerseRange(false);
         break;
 
       case 'toggle':
@@ -414,23 +533,38 @@
 
   window.addEventListener('audio:start', function(e) {
     var detail = e.detail || {};
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
 
     showMiniPlayer();
     setPlayPauseIcon(true);
     updateCurrentText(detail.entry, detail.audioId);
+    updateRangeAudioButtons(state);
   });
 
   window.addEventListener('audio:pause', function() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+
     setPlayPauseIcon(false);
+    updateRangeAudioButtons(state);
   });
 
   window.addEventListener('audio:resume', function() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+
     setPlayPauseIcon(true);
+    updateRangeAudioButtons(state);
   });
 
   window.addEventListener('audio:end', function() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+
     setPlayPauseIcon(false);
     hideMiniPlayer();
+    updateRangeAudioButtons(state);
   });
 
   window.addEventListener('audio:error', function(e) {
@@ -449,6 +583,7 @@
     }
 
     setPlayPauseIcon(false);
+    updateRangeAudioButtons(state);
 
     if (!state || !state.isPlaying || state.currentAudioId === detail.audioId) {
       hideMiniPlayer();

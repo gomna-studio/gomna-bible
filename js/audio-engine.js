@@ -17,6 +17,9 @@
       isPaused: false,
       currentSpeed: 1.0,
       currentVoice: 'calm',
+      queueAudioIds: [],
+      queueIndex: -1,
+      queueActive: false,
       timerId: null
     },
 
@@ -42,12 +45,63 @@
       }
     },
 
-    playAudioById: function(audioId) {
+    _clearQueue: function() {
+      var state = window.GOMNA_AUDIO_ENGINE._state;
+
+      state.queueAudioIds = [];
+      state.queueIndex = -1;
+      state.queueActive = false;
+    },
+
+    _getManifestEntry: function(audioId) {
+      var config = window.GOMNA_AUDIO_CONFIG;
+      return config && config.manifestData && config.manifestData.audios
+        ? config.manifestData.audios[audioId]
+        : null;
+    },
+
+    _isEntryAvailableForCurrentVoice: function(entry) {
+      var state = window.GOMNA_AUDIO_ENGINE._state;
+
+      if (!entry) return false;
+      if (entry.voicePreset === state.currentVoice) return true;
+
+      return false;
+    },
+
+    _playNextInQueue: function() {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+
+      if (!state.queueActive || state.queueAudioIds.length === 0) {
+        return false;
+      }
+
+      state.queueIndex += 1;
+
+      while (state.queueIndex < state.queueAudioIds.length) {
+        if (engine.playAudioById(state.queueAudioIds[state.queueIndex], { fromQueue: true })) {
+          return true;
+        }
+
+        state.queueIndex += 1;
+      }
+
+      engine._clearQueue();
+      return false;
+    },
+
+    playAudioById: function(audioId, options) {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
       var config = window.GOMNA_AUDIO_CONFIG;
+      options = options || {};
 
       console.log('[GOMNA_AUDIO] play:', audioId);
+
+      if (!options.fromQueue) {
+        engine._clearQueue();
+      }
 
       if (!config) {
         console.warn('[GOMNA_AUDIO] config not found');
@@ -56,12 +110,12 @@
           reason: 'config_not_found'
         });
         showOrLog('오디오 설정을 불러오지 못했습니다.');
-        return;
+        return false;
       }
 
       if (config.manifestLoadStatus === 'pending' || config.manifestLoadStatus === 'loading') {
         showOrLog('오디오 데이터 로딩 중입니다. 잠시 후 다시 시도해주세요.');
-        return;
+        return false;
       }
 
       if (config.manifestLoadStatus === 'error' || !config.manifestData) {
@@ -70,10 +124,10 @@
           audioId: audioId,
           reason: 'manifest_not_loaded'
         });
-        return;
+        return false;
       }
 
-      var entry = config.manifestData.audios && config.manifestData.audios[audioId];
+      var entry = engine._getManifestEntry(audioId);
 
       if (!entry) {
         console.warn('[GOMNA_AUDIO] audioId not in manifest:', audioId);
@@ -82,13 +136,19 @@
           reason: 'not_found'
         });
         showOrLog('오디오 준비 중입니다.');
-        return;
+        return false;
       }
 
       if (entry.status !== 'published') {
         console.log('[GOMNA_AUDIO] not published:', audioId, entry.status);
         showOrLog('오디오 준비 중입니다.');
-        return;
+        return false;
+      }
+
+      if (!engine._isEntryAvailableForCurrentVoice(entry)) {
+        console.log('[GOMNA_AUDIO] voice not available:', audioId, state.currentVoice);
+        showOrLog('해당 목소리는 준비 중입니다.');
+        return false;
       }
 
       engine._cleanupCurrentAudio();
@@ -102,6 +162,11 @@
       audio.addEventListener('ended', function() {
         state.isPlaying = false;
         state.isPaused = false;
+
+        if (engine._playNextInQueue()) {
+          return;
+        }
+
         engine._emit('audio:end', {
           audioId: audioId,
           entry: entry
@@ -157,6 +222,7 @@
 
           state.isPlaying = false;
           state.isPaused = false;
+          engine._clearQueue();
 
           engine._emit('audio:error', {
             audioId: audioId,
@@ -167,6 +233,47 @@
           showOrLog('재생을 시작할 수 없습니다.');
         });
       }
+
+      return true;
+    },
+
+    playAudioQueue: function(audioIds) {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+
+      if (!audioIds || !audioIds.length) {
+        showOrLog('오디오 준비 중입니다.');
+        return false;
+      }
+
+      engine._clearQueue();
+      state.queueAudioIds = audioIds.slice();
+      state.queueIndex = 0;
+      state.queueActive = true;
+
+      if (!engine.playAudioById(state.queueAudioIds[0], { fromQueue: true })) {
+        return engine._playNextInQueue();
+      }
+
+      return true;
+    },
+
+    playAudioRange: function(bookId, chapter, startVerse, endVerse) {
+      var audioIds = [];
+      var chapter3 = String(chapter).padStart(3, '0');
+      var start = Number(startVerse);
+      var end = Number(endVerse);
+
+      if (!bookId || !chapter || isNaN(start) || isNaN(end) || start > end) {
+        showOrLog('오디오 준비 중입니다.');
+        return false;
+      }
+
+      for (var verse = start; verse <= end; verse++) {
+        audioIds.push(bookId + '.' + chapter3 + '.' + String(verse).padStart(3, '0') + '.bible');
+      }
+
+      return window.GOMNA_AUDIO_ENGINE.playAudioQueue(audioIds);
     },
 
     pauseAudio: function() {
@@ -227,6 +334,7 @@
       if (state.currentAudio) {
         var audioId = state.currentAudioId;
 
+        engine._clearQueue();
         engine._cleanupCurrentAudio();
 
         state.currentAudioId = null;
@@ -310,7 +418,12 @@
 
       if (!config || !config.VOICE_PRESETS || !config.VOICE_PRESETS[voicePresetId]) {
         console.warn('[GOMNA_AUDIO] invalid voice preset:', voicePresetId);
-        return;
+        return false;
+      }
+
+      if (voicePresetId !== 'calm') {
+        showOrLog('해당 목소리는 준비 중입니다.');
+        return false;
       }
 
       state.currentVoice = voicePresetId;
@@ -324,6 +437,8 @@
         voice: voicePresetId,
         preset: config.VOICE_PRESETS[voicePresetId]
       });
+
+      return true;
     },
 
     setSleepTimer: function(minutes) {
@@ -387,6 +502,9 @@
         isPaused: state.isPaused,
         currentSpeed: state.currentSpeed,
         currentVoice: state.currentVoice,
+        queueActive: state.queueActive,
+        queueIndex: state.queueIndex,
+        queueLength: state.queueAudioIds.length,
         currentTime: currentTime,
         duration: duration,
         hasTimer: !!state.timerId

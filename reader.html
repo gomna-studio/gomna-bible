@@ -201,6 +201,7 @@ nav.tabs {
 .verse-range-circle{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;background:#B8860B;color:#fff;border-radius:50%;font-size:11px;font-weight:700;line-height:1;margin-right:4px;vertical-align:middle}
 .verse-range-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;margin-left:8px}
 .verse-range-action{display:inline-flex;align-items:center;gap:4px;padding:8px 12px;background:transparent;border:0.5px solid rgba(184,134,11,0.4);border-radius:8px;color:#B8860B;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;min-height:44px;-webkit-tap-highlight-color:transparent;transition:transform 0.15s ease,background-color 0.15s ease}
+.verse-range-action-primary{background:#B8860B;border-color:#B8860B;color:#fff;box-shadow:0 2px 8px rgba(184,134,11,0.24)}
 .verse-range-action:active{background:rgba(184,134,11,0.12);transform:scale(0.97)}
 .opt4-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;width:100%;background:#faf6ed;border-top:0.5px solid rgba(180,140,90,.35);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0)) 12px;box-sizing:border-box;z-index:95;gap:10px;align-items:stretch}
 html.reader-verse-active .opt4-bottom-bar{display:flex}
@@ -208,38 +209,38 @@ html.reader-verse-active main.content{padding-bottom:70px}
 .opt4-bottom-prev,.opt4-bottom-next{flex:1;background:#fff;border:1px solid #E8E0D8;border-radius:12px;padding:12px 6px;font-size:13px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit}
 .opt4-bottom-prev:disabled,.opt4-bottom-next:disabled{opacity:0.38;cursor:not-allowed}
 .opt4-bottom-commentary{flex:1.4;background:#c89849;color:#fff;border:none;border-radius:12px;padding:12px 6px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}.opt4-bottom-commentary:active{background:#a87a35}
-.verse-range-modal-overlay{display:none;position:fixed;inset:0;z-index:220;background:rgba(0,0,0,.4);align-items:flex-end;justify-content:center;box-sizing:border-box}
+.verse-range-modal-overlay{display:none;position:fixed;inset:0;z-index:220;background:rgba(0,0,0,.4);align-items:flex-end;justify-content:center;box-sizing:border-box;padding:0 18px 18px}
 .verse-range-modal-overlay.active{display:flex}
-.verse-range-modal-box{background:#faf6ed;border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:90vh;height:auto;overflow:hidden;display:flex;flex-direction:column;margin:0 auto;box-shadow:0 -4px 24px rgba(0,0,0,.12);position:relative}
+.verse-range-modal-box{background:#faf6ed;border-radius:16px;width:100%;max-width:var(--gomna-reader-card-width,388px);max-height:82vh;height:auto;overflow:hidden;display:flex;flex-direction:column;margin:0 auto;box-shadow:0 -4px 24px rgba(0,0,0,.12);position:relative}
 .verse-range-modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(180,140,90,.25);font-weight:700;font-size:16px;color:#3d2818;flex-shrink:0;cursor:grab;-webkit-user-select:none;user-select:none;touch-action:none}
 .verse-range-modal-head:active{cursor:grabbing}
 .verse-range-modal-head .verse-range-modal-close{cursor:pointer;touch-action:manipulation}
 .verse-range-modal-close{background:rgba(0,0,0,.06);border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;color:#3d2818;font-family:inherit}
 .verse-range-modal-body{padding:0;overflow:hidden;display:flex;flex-direction:column;flex:1;min-height:0;-webkit-overflow-scrolling:touch}
-.reader-verse-range-actions{display:flex;flex-direction:column;gap:12px;padding:12px 16px;padding-bottom:0;flex:1;min-height:0;overflow:hidden;box-sizing:border-box}
-.verse-range-modal-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:calc(90vh - 240px);touch-action:pan-y}
-.verse-range-modal-footer{flex-shrink:0;padding:12px 16px calc(16px + env(safe-area-inset-bottom,0));margin:0 -16px 0;background:#faf6ed;border-top:1px solid rgba(180,140,90,.22);box-sizing:content-box;position:relative;z-index:2;pointer-events:auto}
+.reader-verse-range-actions{display:flex;flex-direction:column;gap:10px;padding:12px 14px;padding-bottom:0;flex:1;min-height:0;overflow:hidden;box-sizing:border-box}
+.verse-range-modal-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:calc(82vh - 220px);touch-action:pan-y}
+.verse-range-modal-footer{flex-shrink:0;padding:12px 14px calc(14px + env(safe-area-inset-bottom,0));margin:0 -14px 0;background:#faf6ed;border-top:1px solid rgba(180,140,90,.22);box-sizing:content-box;position:relative;z-index:2;pointer-events:auto}
 .verse-range-all-note{margin:0;font-size:13px;color:#5a3818;line-height:1.5;opacity:0.92}
 .verse-range-mode-tabs{display:flex;gap:8px;margin-bottom:0;flex-shrink:0}
 .verse-range-mode-tabs button{flex:1;padding:12px;border-radius:12px;border:1px solid #E8E0D8;background:#fff;font-weight:600;cursor:pointer;font-family:inherit;color:#5C4A3A;font-size:14px}
 .verse-range-mode-tabs button.active{background:var(--gold);color:#fff;border-color:var(--gold)}
 .verse-range-range-label{margin:0 0 6px;font-size:14px;font-weight:600;color:#5C4A3A}
 .verse-range-preview{margin:4px 0 8px;text-align:center;font-size:14px;font-weight:600;color:#5a3818;min-height:22px}
-.verse-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0 20px}
-.verse-cell{aspect-ratio:1;min-height:44px;background:#fff;border:0.5px solid rgba(180,140,90,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#5a3818;cursor:pointer;font-family:inherit;padding:0;box-sizing:border-box}
+.verse-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:10px 0 16px}
+.verse-cell{aspect-ratio:1;min-height:38px;background:#fff;border:0.5px solid rgba(180,140,90,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#5a3818;cursor:pointer;font-family:inherit;padding:0;box-sizing:border-box}
 .verse-cell:active{transform:scale(0.92);transition:all 0.15s}
 .verse-cell.selected{background:#c89849;color:#fff;border-color:#a87a35}
 .verse-cell.disabled{opacity:0.4;pointer-events:none}
 .verse-range-btn-all{padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#B8860B,#9a7018);color:#fff;width:100%;position:relative;z-index:3;pointer-events:auto}
-.verse-range-apply{padding:14px;border-radius:12px;background:#c89849;color:#fff;border:none;font-weight:700;cursor:pointer;font-family:inherit;font-size:15px;width:100%;margin-top:0;-webkit-tap-highlight-color:transparent}.verse-range-apply:active{background:#a87a35}
-.verse-range-split{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:12px 0 12px;align-items:stretch}
+.verse-range-apply{padding:12px;border-radius:12px;background:#c89849;color:#fff;border:none;font-weight:700;cursor:pointer;font-family:inherit;font-size:15px;width:100%;margin-top:0;-webkit-tap-highlight-color:transparent}.verse-range-apply:active{background:#a87a35}
+.verse-range-split{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:10px 0 10px;align-items:stretch}
 .verse-range-column{display:flex;flex-direction:column;min-width:0}
 .verse-range-column:first-child{padding-right:8px;border-right:2px solid #c89849}
 .verse-range-column:last-child{padding-left:8px}
 .verse-range-column-label{font-size:15px;font-weight:600;color:#3d2818;margin-bottom:6px;text-align:center;margin-top:0}
 .verse-range-column-scroll{max-height:none;overflow:visible;min-height:0}
-.verse-range-split .verse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:0}
-.verse-range-split .verse-cell{min-height:44px;font-size:16px;font-weight:600;color:#3d2818}
+.verse-range-split .verse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:0}
+.verse-range-split .verse-cell{min-height:38px;font-size:14px;font-weight:600;color:#3d2818}
 .verse-range-split .verse-cell.verse-cell--range-mid{background:#c89849;color:#fff;border-color:#a87a35;font-weight:600}
 .verse-range-split .verse-cell.verse-cell--range-end{background:#a87a35;color:#fff;border-color:#8f6b2c;font-weight:700}
 
@@ -258954,7 +258955,7 @@ function renderVerses(highlightVerse) {
   currentVerseCount = verses.length;
   
   var chapterUnit = getChapterUnit(currentBook.name);
-  var html = '<div class="verse-range-box" id="verseRangeBoxBtn"><span class="verse-range-box-inner"><span class="verse-range-label">절 범위</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-actions"><button type="button" class="verse-range-action" onclick="openVerseRangeModal()"><span class="verse-range-circle">절</span> 범위 선택 ▼</button></span></div>';
+  var html = '<div class="verse-range-box" id="verseRangeBoxBtn"><span class="verse-range-box-inner"><span class="verse-range-label">절 범위</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-actions"><button type="button" class="verse-range-action" onclick="openVerseRangeModal()">범위 선택 ▼</button><button type="button" class="verse-range-action verse-range-action-primary" data-audio-action="play-range">▶ 선택 범위 듣기</button></span></div>';
   html += '<div class="verse-list" id="verseList">';
   
   verses.forEach(function(v) {
@@ -259875,11 +259876,35 @@ function setVerseRangeModeExternal(mode, fromUser) {
   verseRangeUpdateApplyBtnState();
 }
 
-function handleVerseRangeAllApply() {
-  opt4RangeStart = 1;
-  opt4RangeEnd = currentVerseCount;
-  applyRange(1, currentVerseCount);
+function isAudioActiveForVerseRangeChange() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var state = engine && engine.getState ? engine.getState() : null;
+
+  return !!(state && (state.currentAudioId || state.queueActive || state.isPlaying || state.isPaused));
+}
+
+function resetAudioForVerseRangeChange(nextStart, nextEnd) {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var rangeChanged = parseInt(nextStart, 10) !== opt4RangeStart || parseInt(nextEnd, 10) !== opt4RangeEnd;
+
+  if (!engine || !engine.stopAudio) return;
+  if (!rangeChanged) return;
+
+  if (isAudioActiveForVerseRangeChange()) {
+    engine.stopAudio();
+  }
+}
+
+function applyVerseRangeSelection(start, end) {
+  resetAudioForVerseRangeChange(start, end);
+  opt4RangeStart = start;
+  opt4RangeEnd = end;
+  applyRange(opt4RangeStart, opt4RangeEnd);
   updateVerseRangeBoxLabel();
+}
+
+function handleVerseRangeAllApply() {
+  applyVerseRangeSelection(1, currentVerseCount);
   closeVerseRangeModal();
 }
 window.handleVerseRangeAllApply = handleVerseRangeAllApply;
@@ -259919,19 +259944,23 @@ function attachVerseRangeModalListeners() {
       verseRangeRenderStartGrid();
       verseRangeRefreshPreview();
       verseRangeUpdateApplyBtnState();
+
+      if (isAudioActiveForVerseRangeChange()) {
+        applyVerseRangeSelection(verseRangeSelStart, verseRangeSelEnd);
+        closeVerseRangeModal();
+      }
     });
   }
   var applyBtn = document.getElementById('verseRangeApplyBtn');
   if (applyBtn) {
     applyBtn.addEventListener('click', function() {
       if (verseRangeSelStart <= 0 || verseRangeSelEnd <= 0 || verseRangeSelEnd < verseRangeSelStart) {
-        alert('시작 절과 끝 절을 선택해 주세요.');
+        if (typeof window.GOMNA_AUDIO_TOAST === 'function') {
+          window.GOMNA_AUDIO_TOAST('시작 절과 끝 절을 선택해 주세요.');
+        }
         return;
       }
-      opt4RangeStart = verseRangeSelStart;
-      opt4RangeEnd = verseRangeSelEnd;
-      applyRange(opt4RangeStart, opt4RangeEnd);
-      updateVerseRangeBoxLabel();
+      applyVerseRangeSelection(verseRangeSelStart, verseRangeSelEnd);
       closeVerseRangeModal();
     });
   }
@@ -260411,7 +260440,7 @@ function loadAds() {
       <div class="gomna-audio-option-buttons">
         <button data-audio-voice="calm" data-active="true">차분한 낭독</button>
         <button data-audio-voice="warm">따뜻한 묵상</button>
-        <button data-audio-voice="study">또박또박 공부</button>
+        <button data-audio-voice="study">또렷한 낭독</button>
         <button data-audio-voice="strong">설교형 전달</button>
         <button data-audio-voice="soft">조용한 밤낭독</button>
       </div>

@@ -82,7 +82,7 @@
         use: ['history', 'theology', 'counseling']
       },
       'study': {
-        name: '또박또박 공부',
+        name: '또렷한 낭독',
         provider: 'openai',
         providerVoice: 'marin',
         use: ['original-language', 'typology']
