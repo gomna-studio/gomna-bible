@@ -20,6 +20,7 @@
       queueAudioIds: [],
       queueIndex: -1,
       queueActive: false,
+      queueSource: null,
       timerId: null
     },
 
@@ -51,6 +52,20 @@
       state.queueAudioIds = [];
       state.queueIndex = -1;
       state.queueActive = false;
+      state.queueSource = null;
+    },
+
+    _isSameQueue: function(audioIds, source) {
+      var state = window.GOMNA_AUDIO_ENGINE._state;
+
+      if (!state.queueActive || state.queueSource !== source) return false;
+      if (!audioIds || audioIds.length !== state.queueAudioIds.length) return false;
+
+      for (var i = 0; i < audioIds.length; i++) {
+        if (audioIds[i] !== state.queueAudioIds[i]) return false;
+      }
+
+      return true;
     },
 
     _getManifestEntry: function(audioId) {
@@ -123,6 +138,18 @@
 
       console.log('[GOMNA_AUDIO] play:', audioId);
 
+      if (state.currentAudio && state.currentAudioId === audioId) {
+        if (state.isPlaying) {
+          engine.pauseAudio();
+          return true;
+        }
+
+        if (state.isPaused) {
+          engine.resumeAudio();
+          return true;
+        }
+      }
+
       if (!options.fromQueue) {
         engine._clearQueue();
       }
@@ -191,6 +218,9 @@
           return;
         }
 
+        state.currentAudio = null;
+        state.currentAudioId = null;
+
         engine._emit('audio:end', {
           audioId: audioId,
           entry: entry
@@ -207,12 +237,11 @@
           src: audio.src || ''
         };
 
-        console.error('[GOMNA_AUDIO] audio error:', e, errorDetail);
-
         if (audio !== state.currentAudio || audioId !== state.currentAudioId) {
-          console.warn('[GOMNA_AUDIO] stale audio error ignored:', errorDetail);
           return;
         }
+
+        console.error('[GOMNA_AUDIO] audio error:', e, errorDetail);
 
         state.isPlaying = false;
         state.isPaused = false;
@@ -242,6 +271,14 @@
 
       if (playPromise !== undefined) {
         playPromise.catch(function(err) {
+          if (audio !== state.currentAudio || audioId !== state.currentAudioId) {
+            return;
+          }
+
+          if (state.isPaused && err && err.name === 'AbortError') {
+            return;
+          }
+
           console.error('[GOMNA_AUDIO] play rejected:', err);
 
           state.isPlaying = false;
@@ -261,25 +298,43 @@
       return true;
     },
 
-    playAudioQueue: function(audioIds) {
+    playAudioQueue: function(audioIds, options) {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
+      options = options || {};
 
       if (!audioIds || !audioIds.length) {
         showOrLog('오디오 준비 중입니다.');
         return false;
       }
 
+      if (engine._isSameQueue(audioIds, options.source || null) && state.currentAudio) {
+        if (state.isPlaying) {
+          engine.pauseAudio();
+          return true;
+        }
+
+        if (state.isPaused) {
+          engine.resumeAudio();
+          return true;
+        }
+      }
+
       engine._clearQueue();
       state.queueAudioIds = audioIds.slice();
       state.queueIndex = 0;
       state.queueActive = true;
+      state.queueSource = options.source || null;
 
       if (!engine.playAudioById(state.queueAudioIds[0], { fromQueue: true })) {
         return engine._playNextInQueue();
       }
 
       return true;
+    },
+
+    playAudioSequence: function(audioIds, options) {
+      return window.GOMNA_AUDIO_ENGINE.playAudioQueue(audioIds, options || {});
     },
 
     playAudioRange: function(bookId, chapter, startVerse, endVerse) {
@@ -527,6 +582,7 @@
         currentSpeed: state.currentSpeed,
         currentVoice: state.currentVoice,
         queueActive: state.queueActive,
+        queueSource: state.queueSource,
         queueIndex: state.queueIndex,
         queueLength: state.queueAudioIds.length,
         currentTime: currentTime,

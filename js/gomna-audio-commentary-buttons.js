@@ -3,8 +3,11 @@
 
   var GENESIS_001_001_BIBLE_ID = 'genesis.001.001.bible';
   var FLAG_ATTR = 'data-gomna-audio-commentary-button-added';
+  var ALL_TABS_AUDIO_ATTR = 'data-gomna-commentary-sequence-bound';
+  var SEQUENCE_SOURCE = 'commentary:genesis.001.001';
   var pendingTimer = null;
   var observer = null;
+  var completedAudioId = null;
 
   var COMMENTARY_ITEMS = [
     { title: '원어분석', tabId: 'tab-원어분석', audioId: 'genesis.001.001.original-language' },
@@ -17,6 +20,10 @@
     { title: '상담적용', tabId: 'tab-상담적용', audioId: 'genesis.001.001.counseling' },
     { title: '교차참조', tabId: 'tab-교차참조', audioId: 'genesis.001.001.cross-reference' }
   ];
+
+  var COMMENTARY_AUDIO_IDS = COMMENTARY_ITEMS.map(function(item) {
+    return item.audioId;
+  });
 
   function getPopup() {
     return document.getElementById('commentaryPopup');
@@ -104,6 +111,63 @@
     return true;
   }
 
+  function bindAllTabsAudio(content) {
+    var allTabsButton = content.querySelector('.commentary-tab[onclick*="showAllTabs"]');
+
+    if (!allTabsButton || allTabsButton.getAttribute(ALL_TABS_AUDIO_ATTR) === 'true') return;
+
+    allTabsButton.setAttribute(ALL_TABS_AUDIO_ATTR, 'true');
+    allTabsButton.addEventListener('click', function() {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+
+      if (engine && engine.playAudioSequence) {
+        engine.playAudioSequence(COMMENTARY_AUDIO_IDS, {
+          source: SEQUENCE_SOURCE
+        });
+      }
+    });
+  }
+
+  function getItemByAudioId(audioId) {
+    for (var i = 0; i < COMMENTARY_ITEMS.length; i++) {
+      if (COMMENTARY_ITEMS[i].audioId === audioId) return COMMENTARY_ITEMS[i];
+    }
+
+    return null;
+  }
+
+  function updateCommentaryButtonLabels() {
+    var content = getContent();
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+
+    if (!content) return;
+
+    for (var i = 0; i < COMMENTARY_ITEMS.length; i++) {
+      var item = COMMENTARY_ITEMS[i];
+      var button = content.querySelector('[data-audio-id="' + item.audioId + '"][data-audio-action="play"]');
+      if (!button) continue;
+
+      if (state && state.currentAudioId === item.audioId) {
+        button.textContent = state.isPaused ? '▶ 이어듣기' : '⏸ 일시정지';
+      } else if (completedAudioId === item.audioId) {
+        button.textContent = '↻ 다시 듣기';
+      } else {
+        button.textContent = '▶ 듣기';
+      }
+    }
+
+    var allTabsButton = content.querySelector('.commentary-tab[onclick*="showAllTabs"]');
+    if (!allTabsButton) return;
+
+    var sequenceActive = !!(state && state.queueActive && state.queueSource === SEQUENCE_SOURCE);
+    if (sequenceActive) {
+      allTabsButton.textContent = state.isPaused ? '▶ 전체 이어듣기' : '⏸ 전체 일시정지';
+    } else {
+      allTabsButton.textContent = '📋 전체보기';
+    }
+  }
+
   function addCommentaryButtons() {
     var popup = getPopup();
     var content = getContent();
@@ -114,6 +178,9 @@
     for (var i = 0; i < COMMENTARY_ITEMS.length; i++) {
       insertButtonForItem(content, COMMENTARY_ITEMS[i]);
     }
+
+    bindAllTabsAudio(content);
+    updateCommentaryButtonLabels();
   }
 
   function scheduleAddCommentaryButtons() {
@@ -151,6 +218,31 @@
   } else {
     init();
   }
+
+  window.addEventListener('audio:start', function(e) {
+    var detail = e.detail || {};
+
+    if (getItemByAudioId(detail.audioId)) {
+      completedAudioId = null;
+    }
+
+    updateCommentaryButtonLabels();
+  });
+
+  window.addEventListener('audio:pause', updateCommentaryButtonLabels);
+  window.addEventListener('audio:resume', updateCommentaryButtonLabels);
+
+  window.addEventListener('audio:end', function(e) {
+    var detail = e.detail || {};
+
+    if (getItemByAudioId(detail.audioId)) {
+      completedAudioId = detail.audioId;
+    }
+
+    updateCommentaryButtonLabels();
+  });
+
+  window.addEventListener('audio:error', updateCommentaryButtonLabels);
 
   console.log('[GOMNA_AUDIO] gomna-audio-commentary-buttons.js loaded');
 })();
