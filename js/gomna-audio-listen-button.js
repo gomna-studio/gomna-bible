@@ -8,6 +8,20 @@
   var observer = null;
   var retryTimers = [];
   var syncTimer = null;
+  var BUTTON_STATES = {
+    idle: {
+      icon: '▶',
+      label: '듣기'
+    },
+    playing: {
+      icon: '⏸',
+      label: '일시정지'
+    },
+    paused: {
+      icon: '▶',
+      label: '이어듣기'
+    }
+  };
 
   function getSearchRoot() {
     return document.getElementById('verseView') || document.body;
@@ -96,7 +110,7 @@
     btn.className = 'gomna-audio-verse-button';
     btn.setAttribute(BUTTON_MARK_ATTR, 'true');
     btn.setAttribute('data-audio-id', audioId);
-    btn.setAttribute('data-audio-action', 'play');
+    btn.setAttribute('data-audio-action', 'play-verse-to-end');
     btn.setAttribute(
       'aria-label',
       context.bookName + ' ' + context.chapter + '장 ' + verse + '절 본문 듣기'
@@ -105,8 +119,66 @@
     btn.innerHTML =
       '<span class="gomna-audio-verse-icon" aria-hidden="true">▶</span>' +
       '<span class="gomna-audio-verse-label">듣기</span>';
+    setButtonDisplayState(btn, 'idle');
 
     return btn;
+  }
+
+  function getEngineState() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    return engine && engine.getState ? engine.getState() : null;
+  }
+
+  function setButtonDisplayState(btn, stateName) {
+    var state = BUTTON_STATES[stateName] || BUTTON_STATES.idle;
+    var iconEl = btn && btn.querySelector('.gomna-audio-verse-icon');
+    var labelEl = btn && btn.querySelector('.gomna-audio-verse-label');
+
+    if (!btn) return;
+
+    if (iconEl && iconEl.textContent !== state.icon) {
+      iconEl.textContent = state.icon;
+    }
+
+    if (labelEl && labelEl.textContent !== state.label) {
+      labelEl.textContent = state.label;
+    }
+
+    btn.setAttribute('data-gomna-audio-state', stateName || 'idle');
+    btn.classList.toggle('gomna-audio-active', stateName === 'playing' || stateName === 'paused');
+  }
+
+  function getButtonStateName(btn, state) {
+    var audioId = btn && btn.getAttribute('data-audio-id');
+
+    if (!audioId || !state || state.currentAudioId !== audioId) {
+      return 'idle';
+    }
+
+    if (state.isPlaying) {
+      return 'playing';
+    }
+
+    if (state.isPaused) {
+      return 'paused';
+    }
+
+    return 'idle';
+  }
+
+  function syncVerseButtonLabels() {
+    var root = getSearchRoot();
+    var buttons;
+    var state;
+
+    if (!root) return;
+
+    buttons = root.querySelectorAll('.gomna-audio-verse-button[' + BUTTON_MARK_ATTR + '="true"]');
+    state = getEngineState();
+
+    for (var i = 0; i < buttons.length; i++) {
+      setButtonDisplayState(buttons[i], getButtonStateName(buttons[i], state));
+    }
   }
 
   function isButtonInCorrectPosition(btn, actions) {
@@ -215,6 +287,7 @@
       button = createListenButton(audioId, verse, context);
     } else {
       button.setAttribute('data-audio-id', audioId);
+      button.setAttribute('data-audio-action', 'play-verse-to-end');
       button.setAttribute(
         'aria-label',
         context.bookName + ' ' + context.chapter + '장 ' + verse + '절 본문 듣기'
@@ -260,6 +333,7 @@
       );
     }
 
+    syncVerseButtonLabels();
     return addedCount > 0;
   }
 
@@ -302,6 +376,11 @@
 
   window.addEventListener('gomna:manifest_loaded', syncButtons);
   window.addEventListener('gomna:verse_list_rendered', syncButtons);
+  window.addEventListener('audio:start', syncVerseButtonLabels);
+  window.addEventListener('audio:pause', syncVerseButtonLabels);
+  window.addEventListener('audio:resume', syncVerseButtonLabels);
+  window.addEventListener('audio:end', syncVerseButtonLabels);
+  window.addEventListener('audio:error', syncVerseButtonLabels);
 
   console.log('[GOMNA_AUDIO] gomna-audio-listen-button.js loaded');
 })();

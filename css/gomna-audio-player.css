@@ -3372,3 +3372,60 @@ body.gomna-audio-expanded-open #verseList {
   margin: 0 !important;
   padding: 0 !important;
 }
+
+/* =========================================================
+   GOMNA MINI PLAYER CONTROL BUTTON SIZE FINAL
+   카드 크기는 유지하고 하단 미니 플레이어 원형 버튼만 확대
+   ========================================================= */
+
+.gomna-audio-mini-player .gomna-audio-mini-controls {
+  gap: 4px !important;
+}
+
+.gomna-audio-mini-player .gomna-audio-btn-seek-back,
+.gomna-audio-mini-player .gomna-audio-btn-seek-forward,
+.gomna-audio-mini-player .gomna-audio-btn-speed,
+.gomna-audio-mini-player .gomna-audio-btn-expand {
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+.gomna-audio-mini-player .gomna-audio-btn-play-pause {
+  width: 48px !important;
+  min-width: 48px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  border-radius: 999px !important;
+  font-size: 19px !important;
+  line-height: 1 !important;
+}
+
+@media (max-width: 360px) {
+  .gomna-audio-mini-player .gomna-audio-mini-controls {
+    gap: 3px !important;
+  }
+
+  .gomna-audio-mini-player .gomna-audio-btn-seek-back,
+  .gomna-audio-mini-player .gomna-audio-btn-seek-forward,
+  .gomna-audio-mini-player .gomna-audio-btn-speed,
+  .gomna-audio-mini-player .gomna-audio-btn-expand {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 11px !important;
+  }
+
+  .gomna-audio-mini-player .gomna-audio-btn-play-pause {
+    width: 46px !important;
+    min-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    font-size: 18px !important;
+  }
+}

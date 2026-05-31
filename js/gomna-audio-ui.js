@@ -356,6 +356,10 @@
     };
   }
 
+  function pad3(value) {
+    return String(value).padStart(3, '0');
+  }
+
   function getChapterContextKey(detail) {
     var bookName = detail && detail.bookName;
     var chapter = detail && detail.chapter;
@@ -491,6 +495,43 @@
     engine.playAudioRange(bookId, chapter, range.start, range.end);
   }
 
+  function playVerseToChapterEnd(audioId) {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var parts = parseAudioIdParts(audioId);
+    var endVerse = getCurrentVerseCountValue();
+    var audioIds = [];
+    var queueSource;
+    var verse;
+
+    if (!engine || !engine.playAudioQueue || !parts || !endVerse || parts.verse > endVerse) {
+      showToast('오디오 준비 중입니다.');
+      return;
+    }
+
+    if (
+      state &&
+      state.queueActive &&
+      state.currentAudioId === audioId &&
+      state.queueSource &&
+      state.queueSource.indexOf('bible-to-end:') === 0
+    ) {
+      if (state.isPlaying) {
+        engine.pauseAudio();
+      } else if (state.isPaused) {
+        engine.resumeAudio();
+      }
+      return;
+    }
+
+    for (verse = parts.verse; verse <= endVerse; verse++) {
+      audioIds.push(parts.bookId + '.' + pad3(parts.chapter) + '.' + pad3(verse) + '.bible');
+    }
+
+    queueSource = 'bible-to-end:' + parts.bookId + '.' + pad3(parts.chapter) + '.from-' + pad3(parts.verse);
+    engine.playAudioQueue(audioIds, { source: queueSource });
+  }
+
   function updateRangeAudioButtons(state) {
     var buttons = document.querySelectorAll('[data-audio-action="play-range"]');
     var label = '선택 범위 듣기';
@@ -566,6 +607,12 @@
       case 'play':
         if (audioId) {
           engine.playAudioById(audioId);
+        }
+        break;
+
+      case 'play-verse-to-end':
+        if (audioId) {
+          playVerseToChapterEnd(audioId);
         }
         break;
 
