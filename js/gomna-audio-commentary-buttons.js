@@ -4,7 +4,10 @@
   var GENESIS_001_001_BIBLE_ID = 'genesis.001.001.bible';
   var FLAG_ATTR = 'data-gomna-audio-commentary-button-added';
   var ALL_TABS_AUDIO_ATTR = 'data-gomna-commentary-sequence-bound';
+  var ALL_TABS_BUTTON_SELECTOR = '[data-gomna-commentary-sequence-button="true"]';
   var SEQUENCE_SOURCE = 'commentary:genesis.001.001';
+  var SEQUENCE_IDLE_LABEL = '▶ 전체 말씀풀이 이어듣기';
+  var SEQUENCE_PLAYING_LABEL = '⏸ 전체 말씀풀이 일시정지';
   var pendingTimer = null;
   var observer = null;
   var completedAudioId = null;
@@ -112,12 +115,15 @@
   }
 
   function bindAllTabsAudio(content) {
-    var allTabsButton = content.querySelector('.commentary-tab[onclick*="showAllTabs"]');
+    var allTabsButton = content.querySelector(ALL_TABS_BUTTON_SELECTOR);
 
     if (!allTabsButton || allTabsButton.getAttribute(ALL_TABS_AUDIO_ATTR) === 'true') return;
 
     allTabsButton.setAttribute(ALL_TABS_AUDIO_ATTR, 'true');
-    allTabsButton.addEventListener('click', function() {
+    allTabsButton.addEventListener('click', function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
       var engine = window.GOMNA_AUDIO_ENGINE;
 
       if (engine && engine.playAudioSequence) {
@@ -126,6 +132,10 @@
         });
       }
     });
+  }
+
+  function isCommentaryAudioId(audioId) {
+    return !!getItemByAudioId(audioId);
   }
 
   function getItemByAudioId(audioId) {
@@ -157,15 +167,31 @@
       }
     }
 
-    var allTabsButton = content.querySelector('.commentary-tab[onclick*="showAllTabs"]');
+    var allTabsButton = content.querySelector(ALL_TABS_BUTTON_SELECTOR);
     if (!allTabsButton) return;
 
     var sequenceActive = !!(state && state.queueActive && state.queueSource === SEQUENCE_SOURCE);
     if (sequenceActive) {
-      allTabsButton.textContent = state.isPaused ? '▶ 전체 이어듣기' : '⏸ 전체 일시정지';
+      allTabsButton.textContent = state.isPaused ? SEQUENCE_IDLE_LABEL : SEQUENCE_PLAYING_LABEL;
     } else {
-      allTabsButton.textContent = '📋 전체보기';
+      allTabsButton.textContent = SEQUENCE_IDLE_LABEL;
     }
+  }
+
+  function removeLegacySequenceControls(content) {
+    var guideText = '원어분석부터 교차참조까지 9개 말씀풀이를 순서대로 듣습니다.';
+
+    if (!content || !content.querySelectorAll) return;
+
+    Array.prototype.forEach.call(content.querySelectorAll('button, div, p, span'), function(el) {
+      var text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+
+      if (text === guideText) {
+        el.remove();
+      } else if (text === '전체 말씀풀이 이어듣기' && !el.matches(ALL_TABS_BUTTON_SELECTOR)) {
+        el.remove();
+      }
+    });
   }
 
   function addCommentaryButtons() {
@@ -179,6 +205,7 @@
       insertButtonForItem(content, COMMENTARY_ITEMS[i]);
     }
 
+    removeLegacySequenceControls(content);
     bindAllTabsAudio(content);
     updateCommentaryButtonLabels();
   }
@@ -243,6 +270,38 @@
   });
 
   window.addEventListener('audio:error', updateCommentaryButtonLabels);
+
+  window.GOMNA_AUDIO_COMMENTARY_BUTTONS = {
+    isCommentaryAudioId: isCommentaryAudioId,
+    isCommentarySequenceSource: function(source) {
+      return source === SEQUENCE_SOURCE;
+    },
+    stopIfCommentaryAudio: function() {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine && engine.getState ? engine.getState() : null;
+
+      if (!engine || !engine.stopAudio || !state) return false;
+
+      if (state.queueActive && state.queueSource === SEQUENCE_SOURCE) {
+        completedAudioId = null;
+        engine.stopAudio();
+        updateCommentaryButtonLabels();
+        return true;
+      }
+
+      if (isCommentaryAudioId(state.currentAudioId)) {
+        completedAudioId = null;
+        engine.stopAudio();
+        updateCommentaryButtonLabels();
+        return true;
+      }
+
+      return false;
+    },
+    getSequenceAudioIds: function() {
+      return COMMENTARY_AUDIO_IDS.slice();
+    }
+  };
 
   console.log('[GOMNA_AUDIO] gomna-audio-commentary-buttons.js loaded');
 })();

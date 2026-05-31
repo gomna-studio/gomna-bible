@@ -259139,7 +259139,7 @@ function showCommentary(verseNum) {
     content += '<button class="commentary-tab' + (currentCommentaryTab==='tab-찬송가'?' active':'') + '" onclick="switchCommentaryTab(this,\'tab-찬송가\')">찬송가</button>';
     content += '<button class="commentary-tab' + (currentCommentaryTab==='tab-상담적용'?' active':'') + '" onclick="switchCommentaryTab(this,\'tab-상담적용\')">상담적용</button>';
     content += '<button class="commentary-tab' + (currentCommentaryTab==='tab-교차참조'?' active':'') + '" onclick="switchCommentaryTab(this,\'tab-교차참조\')">교차참조</button>';
-    content += '<button class="commentary-tab" onclick="showAllTabs()">📋 전체보기</button>';
+    content += '<button type="button" class="commentary-tab" data-gomna-commentary-sequence-button="true">▶ 전체 말씀풀이 이어듣기</button>';
     content += '</div>';
     
     content += '<div class="tab-content active" id="tab-원어분석" style="display:block"><div style="background:#B8860B; color:#fff; padding:1px 8px; border-radius:8px 8px 0 0; font-weight:600; font-size:11px;">📖 원어분석</div><table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr><th>원어</th><th>의미/문법</th><th>설교포인트</th></tr>';
@@ -259425,6 +259425,10 @@ function parseBibleRefs(text) {
 }
 
 function closeCommentary() {
+  if (window.GOMNA_AUDIO_COMMENTARY_BUTTONS && window.GOMNA_AUDIO_COMMENTARY_BUTTONS.stopIfCommentaryAudio) {
+    window.GOMNA_AUDIO_COMMENTARY_BUTTONS.stopIfCommentaryAudio();
+  }
+
   document.getElementById('commentaryPopup').classList.remove('show');
   // 드래그 위치 초기화
   var box = document.getElementById('commentaryPopupBox');
