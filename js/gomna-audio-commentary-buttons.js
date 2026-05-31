@@ -1,32 +1,43 @@
 (function() {
   'use strict';
 
-  var GENESIS_001_001_BIBLE_ID = 'genesis.001.001.bible';
   var FLAG_ATTR = 'data-gomna-audio-commentary-button-added';
   var ALL_TABS_AUDIO_ATTR = 'data-gomna-commentary-sequence-bound';
   var ALL_TABS_BUTTON_SELECTOR = '[data-gomna-commentary-sequence-button="true"]';
-  var SEQUENCE_SOURCE = 'commentary:genesis.001.001';
   var SEQUENCE_IDLE_LABEL = '▶ 전체 말씀풀이 이어듣기';
   var SEQUENCE_PLAYING_LABEL = '⏸ 전체 말씀풀이 일시정지';
   var pendingTimer = null;
   var observer = null;
   var completedAudioId = null;
 
-  var COMMENTARY_ITEMS = [
-    { title: '원어분석', tabId: 'tab-원어분석', audioId: 'genesis.001.001.original-language' },
-    { title: '역사적배경', tabId: 'tab-역사적배경', audioId: 'genesis.001.001.history' },
-    { title: '신학적의미', tabId: 'tab-신학적의미', audioId: 'genesis.001.001.theology' },
-    { title: '예표론', tabId: 'tab-예표론', audioId: 'genesis.001.001.typology' },
-    { title: '매튜헨리', tabId: 'tab-매튜헨리', audioId: 'genesis.001.001.matthew-henry' },
-    { title: '설교자료', tabId: 'tab-설교자료', audioId: 'genesis.001.001.sermon' },
-    { title: '찬송가', tabId: 'tab-찬송가', audioId: 'genesis.001.001.hymn' },
-    { title: '상담적용', tabId: 'tab-상담적용', audioId: 'genesis.001.001.counseling' },
-    { title: '교차참조', tabId: 'tab-교차참조', audioId: 'genesis.001.001.cross-reference' }
+  var currentContext = null;
+  var currentCommentaryItems = [];
+  var currentCommentaryAudioIds = [];
+  var currentSequenceSource = '';
+
+  var COMMENTARY_TYPE_TEMPLATES = [
+    { title: '원어분석', tabId: 'tab-원어분석', type: 'original-language' },
+    { title: '역사적배경', tabId: 'tab-역사적배경', type: 'history' },
+    { title: '신학적의미', tabId: 'tab-신학적의미', type: 'theology' },
+    { title: '예표론', tabId: 'tab-예표론', type: 'typology' },
+    { title: '매튜헨리', tabId: 'tab-매튜헨리', type: 'matthew-henry' },
+    { title: '설교자료', tabId: 'tab-설교자료', type: 'sermon' },
+    { title: '찬송가', tabId: 'tab-찬송가', type: 'hymn' },
+    { title: '상담적용', tabId: 'tab-상담적용', type: 'counseling' },
+    { title: '교차참조', tabId: 'tab-교차참조', type: 'cross-reference' }
   ];
 
-  var COMMENTARY_AUDIO_IDS = COMMENTARY_ITEMS.map(function(item) {
-    return item.audioId;
-  });
+  function pad3(num) {
+    var s = String(num);
+    while (s.length < 3) {
+      s = '0' + s;
+    }
+    return s;
+  }
+
+  function buildCommentaryAudioId(bookId, chapter, verse, type) {
+    return bookId + '.' + pad3(chapter) + '.' + pad3(verse) + '.' + type;
+  }
 
   function getPopup() {
     return document.getElementById('commentaryPopup');
@@ -36,20 +47,116 @@
     return document.getElementById('commentaryContent');
   }
 
-  function isGenesisOneOnePopup(popup) {
+  function getManifestAudios() {
+    var config = window.GOMNA_AUDIO_CONFIG;
+    if (!config || !config.manifestData || !config.manifestData.audios) {
+      return null;
+    }
+
+    return config.manifestData.audios;
+  }
+
+  function isPublishedAudioId(audioId) {
+    var audios = getManifestAudios();
+    var entry = audios && audios[audioId];
+
+    return !!(
+      entry &&
+      entry.status === 'published' &&
+      entry.filePath &&
+      String(entry.filePath).trim()
+    );
+  }
+
+  function getPublishedSequenceAudioIds() {
+    var ids = [];
+
+    for (var i = 0; i < currentCommentaryAudioIds.length; i++) {
+      if (isPublishedAudioId(currentCommentaryAudioIds[i])) {
+        ids.push(currentCommentaryAudioIds[i]);
+      }
+    }
+
+    return ids;
+  }
+
+  function getCommentaryContext() {
+    var content = getContent();
+    var pick = content && content.querySelector('.commentary-nav-pick-txt');
+    var text = pick ? pick.textContent.replace(/\s+/g, ' ').trim() : '';
+    var match = text.match(/^(.+?)\s+(\d+):(\d+)$/);
+
+    if (match) {
+      var bookName = match[1];
+      var bookId = window.BOOK_FILE_MAP && window.BOOK_FILE_MAP[bookName];
+
+      if (bookId) {
+        return {
+          bookName: bookName,
+          bookId: bookId,
+          chapter: parseInt(match[2], 10),
+          verse: parseInt(match[3], 10)
+        };
+      }
+    }
+
+    if (window.currentBook && window.currentChapter) {
+      var bookIdFromCurrent = window.BOOK_FILE_MAP && window.BOOK_FILE_MAP[window.currentBook.name];
+
+      if (bookIdFromCurrent && match) {
+        return {
+          bookName: window.currentBook.name,
+          bookId: bookIdFromCurrent,
+          chapter: window.currentChapter,
+          verse: parseInt(match[3], 10)
+        };
+      }
+    }
+
+    return null;
+  }
+
+  function contextKey(ctx) {
+    return ctx.bookId + '.' + pad3(ctx.chapter) + '.' + pad3(ctx.verse);
+  }
+
+  function syncCommentaryItemsForContext(ctx) {
+    var key = contextKey(ctx);
+
+    if (currentContext && contextKey(currentContext) === key) {
+      return;
+    }
+
+    currentContext = ctx;
+    currentCommentaryItems = COMMENTARY_TYPE_TEMPLATES.map(function(template) {
+      var audioId = buildCommentaryAudioId(ctx.bookId, ctx.chapter, ctx.verse, template.type);
+
+      return {
+        title: template.title,
+        tabId: template.tabId,
+        type: template.type,
+        audioId: audioId,
+        published: isPublishedAudioId(audioId)
+      };
+    });
+    currentCommentaryAudioIds = currentCommentaryItems.map(function(item) {
+      return item.audioId;
+    });
+    currentSequenceSource =
+      'commentary:' + ctx.bookId + '.' + pad3(ctx.chapter) + '.' + pad3(ctx.verse);
+  }
+
+  function isCommentaryTabsPopup(popup) {
     if (!popup || !popup.classList.contains('show')) return false;
 
-    var text = (popup.textContent || '').replace(/\s+/g, ' ');
-    if (text.indexOf('태초에 하나님이 천지를 창조하시니라') !== -1) return true;
-    if (text.indexOf('창세기 1장 1절') !== -1) return true;
-    if (text.indexOf('창세기 1:1') !== -1) return true;
-    if (text.indexOf('창 1:1') !== -1) return true;
+    var content = getContent();
+    if (!content || !content.querySelector('.commentary-tabs')) return false;
 
-    var target = document.querySelector('[data-audio-target="' + GENESIS_001_001_BIBLE_ID + '"]');
-    var button = document.querySelector('[data-audio-id="' + GENESIS_001_001_BIBLE_ID + '"][data-audio-action="play"]');
-    var hasGenesisNav = text.indexOf('창세기') !== -1 && text.indexOf('1:1') !== -1;
+    var ctx = getCommentaryContext();
+    if (!ctx) return false;
 
-    return !!(target && button && hasGenesisNav);
+    syncCommentaryItemsForContext(ctx);
+    return true;
   }
 
   function createButton(item) {
@@ -58,9 +165,17 @@
     btn.type = 'button';
     btn.className = 'gomna-audio-commentary-button';
     btn.setAttribute('data-audio-id', item.audioId);
-    btn.setAttribute('data-audio-action', 'play');
-    btn.setAttribute('aria-label', item.title + ' 듣기');
-    btn.textContent = '▶ 듣기';
+
+    if (item.published) {
+      btn.setAttribute('data-audio-action', 'play');
+      btn.setAttribute('aria-label', item.title + ' 듣기');
+      btn.textContent = '▶ 듣기';
+    } else {
+      btn.className += ' gomna-audio-commentary-button--pending';
+      btn.disabled = true;
+      btn.setAttribute('aria-label', item.title + ' 준비 중');
+      btn.textContent = '준비 중';
+    }
 
     return btn;
   }
@@ -82,19 +197,30 @@
     return null;
   }
 
-  function insertButtonForItem(content, item) {
-    if (content.querySelector('[data-audio-id="' + item.audioId + '"][data-audio-action="play"]')) {
-      return true;
-    }
+  function removeExistingCommentaryButton(section) {
+    var existing = section.querySelector('.gomna-audio-commentary-button');
+    if (!existing) return;
 
+    existing.remove();
+    section.removeAttribute(FLAG_ATTR);
+    section.removeAttribute('data-audio-target');
+  }
+
+  function insertButtonForItem(content, item) {
     var section = document.getElementById(item.tabId);
     if (!section || !content.contains(section)) {
       console.warn('[GOMNA_AUDIO] 주석 섹션을 찾지 못했습니다:', item.title);
       return false;
     }
 
-    if (section.getAttribute(FLAG_ATTR) === 'true') {
-      return true;
+    var existingBtn = section.querySelector('.gomna-audio-commentary-button');
+    if (existingBtn) {
+      var existingId = existingBtn.getAttribute('data-audio-id');
+      if (existingId === item.audioId) {
+        updateSingleCommentaryButton(existingBtn, item);
+        return true;
+      }
+      removeExistingCommentaryButton(section);
     }
 
     var titleHost = findTitleHost(section, item.title);
@@ -114,10 +240,40 @@
     return true;
   }
 
+  function updateSingleCommentaryButton(button, item) {
+    button.setAttribute('data-audio-id', item.audioId);
+
+    if (item.published) {
+      button.disabled = false;
+      button.classList.remove('gomna-audio-commentary-button--pending');
+      button.setAttribute('data-audio-action', 'play');
+      button.setAttribute('aria-label', item.title + ' 듣기');
+    } else {
+      button.disabled = true;
+      button.classList.add('gomna-audio-commentary-button--pending');
+      button.removeAttribute('data-audio-action');
+      button.setAttribute('aria-label', item.title + ' 준비 중');
+      button.textContent = '준비 중';
+    }
+  }
+
   function bindAllTabsAudio(content) {
     var allTabsButton = content.querySelector(ALL_TABS_BUTTON_SELECTOR);
+    var publishedIds = getPublishedSequenceAudioIds();
 
-    if (!allTabsButton || allTabsButton.getAttribute(ALL_TABS_AUDIO_ATTR) === 'true') return;
+    if (!allTabsButton) return;
+
+    if (!publishedIds.length) {
+      allTabsButton.disabled = true;
+      allTabsButton.classList.add('gomna-audio-commentary-button--pending');
+      allTabsButton.textContent = '준비 중';
+      return;
+    }
+
+    allTabsButton.disabled = false;
+    allTabsButton.classList.remove('gomna-audio-commentary-button--pending');
+
+    if (allTabsButton.getAttribute(ALL_TABS_AUDIO_ATTR) === 'true') return;
 
     allTabsButton.setAttribute(ALL_TABS_AUDIO_ATTR, 'true');
     allTabsButton.addEventListener('click', function(event) {
@@ -125,12 +281,13 @@
       event.stopPropagation();
 
       var engine = window.GOMNA_AUDIO_ENGINE;
+      var ids = getPublishedSequenceAudioIds();
 
-      if (engine && engine.playAudioSequence) {
-        engine.playAudioSequence(COMMENTARY_AUDIO_IDS, {
-          source: SEQUENCE_SOURCE
-        });
-      }
+      if (!engine || !engine.playAudioSequence || !ids.length) return;
+
+      engine.playAudioSequence(ids, {
+        source: currentSequenceSource
+      });
     });
   }
 
@@ -139,8 +296,10 @@
   }
 
   function getItemByAudioId(audioId) {
-    for (var i = 0; i < COMMENTARY_ITEMS.length; i++) {
-      if (COMMENTARY_ITEMS[i].audioId === audioId) return COMMENTARY_ITEMS[i];
+    for (var i = 0; i < currentCommentaryItems.length; i++) {
+      if (currentCommentaryItems[i].audioId === audioId) {
+        return currentCommentaryItems[i];
+      }
     }
 
     return null;
@@ -153,10 +312,17 @@
 
     if (!content) return;
 
-    for (var i = 0; i < COMMENTARY_ITEMS.length; i++) {
-      var item = COMMENTARY_ITEMS[i];
-      var button = content.querySelector('[data-audio-id="' + item.audioId + '"][data-audio-action="play"]');
+    for (var i = 0; i < currentCommentaryItems.length; i++) {
+      var item = currentCommentaryItems[i];
+      var button = content.querySelector(
+        '[data-audio-id="' + item.audioId + '"].gomna-audio-commentary-button'
+      );
       if (!button) continue;
+
+      if (!item.published) {
+        button.textContent = '준비 중';
+        continue;
+      }
 
       if (state && state.currentAudioId === item.audioId) {
         button.textContent = state.isPaused ? '▶ 이어듣기' : '⏸ 일시정지';
@@ -170,7 +336,13 @@
     var allTabsButton = content.querySelector(ALL_TABS_BUTTON_SELECTOR);
     if (!allTabsButton) return;
 
-    var sequenceActive = !!(state && state.queueActive && state.queueSource === SEQUENCE_SOURCE);
+    var publishedIds = getPublishedSequenceAudioIds();
+    if (!publishedIds.length) {
+      allTabsButton.textContent = '준비 중';
+      return;
+    }
+
+    var sequenceActive = !!(state && state.queueActive && state.queueSource === currentSequenceSource);
     if (sequenceActive) {
       allTabsButton.textContent = state.isPaused ? SEQUENCE_IDLE_LABEL : SEQUENCE_PLAYING_LABEL;
     } else {
@@ -194,15 +366,25 @@
     });
   }
 
+  function refreshPublishedFlags() {
+    if (!currentCommentaryItems.length) return;
+
+    for (var i = 0; i < currentCommentaryItems.length; i++) {
+      currentCommentaryItems[i].published = isPublishedAudioId(currentCommentaryItems[i].audioId);
+    }
+  }
+
   function addCommentaryButtons() {
     var popup = getPopup();
     var content = getContent();
 
     if (!popup || !content) return;
-    if (!isGenesisOneOnePopup(popup)) return;
+    if (!isCommentaryTabsPopup(popup)) return;
 
-    for (var i = 0; i < COMMENTARY_ITEMS.length; i++) {
-      insertButtonForItem(content, COMMENTARY_ITEMS[i]);
+    refreshPublishedFlags();
+
+    for (var i = 0; i < currentCommentaryItems.length; i++) {
+      insertButtonForItem(content, currentCommentaryItems[i]);
     }
 
     removeLegacySequenceControls(content);
@@ -246,6 +428,8 @@
     init();
   }
 
+  window.addEventListener('gomna:manifest_loaded', scheduleAddCommentaryButtons);
+
   window.addEventListener('audio:start', function(e) {
     var detail = e.detail || {};
 
@@ -274,7 +458,7 @@
   window.GOMNA_AUDIO_COMMENTARY_BUTTONS = {
     isCommentaryAudioId: isCommentaryAudioId,
     isCommentarySequenceSource: function(source) {
-      return source === SEQUENCE_SOURCE;
+      return source === currentSequenceSource;
     },
     stopIfCommentaryAudio: function() {
       var engine = window.GOMNA_AUDIO_ENGINE;
@@ -282,7 +466,7 @@
 
       if (!engine || !engine.stopAudio || !state) return false;
 
-      if (state.queueActive && state.queueSource === SEQUENCE_SOURCE) {
+      if (state.queueActive && state.queueSource === currentSequenceSource) {
         completedAudioId = null;
         engine.stopAudio();
         updateCommentaryButtonLabels();
@@ -299,7 +483,7 @@
       return false;
     },
     getSequenceAudioIds: function() {
-      return COMMENTARY_AUDIO_IDS.slice();
+      return getPublishedSequenceAudioIds().slice();
     }
   };
 
