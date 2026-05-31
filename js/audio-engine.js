@@ -60,13 +60,37 @@
         : null;
     },
 
+    _COMMENTARY_TYPES: {
+      'original-language': true,
+      'history': true,
+      'theology': true,
+      'typology': true,
+      'matthew-henry': true,
+      'sermon': true,
+      'hymn': true,
+      'counseling': true,
+      'cross-reference': true
+    },
+
+    _isCommentaryEntry: function(entry) {
+      return !!(entry && window.GOMNA_AUDIO_ENGINE._COMMENTARY_TYPES[entry.type]);
+    },
+
     _isEntryAvailableForCurrentVoice: function(entry) {
       var state = window.GOMNA_AUDIO_ENGINE._state;
+      var engine = window.GOMNA_AUDIO_ENGINE;
 
       if (!entry) return false;
-      if (entry.voicePreset === state.currentVoice) return true;
 
-      return false;
+      if (engine._isCommentaryEntry(entry)) {
+        return entry.status === 'published' && !!(entry.filePath && String(entry.filePath).trim());
+      }
+
+      if (entry.type === 'bible') {
+        return entry.voicePreset === state.currentVoice;
+      }
+
+      return entry.voicePreset === state.currentVoice;
     },
 
     _playNextInQueue: function() {
