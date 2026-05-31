@@ -258977,6 +258977,12 @@ function renderVerses(highlightVerse) {
   if (window.GomnaAnalytics && currentBook) {
     GomnaAnalytics.trackViewVerse(currentBook.name, currentChapter, highlightVerse || opt4RangeStart || 1, currentBook.testament);
   }
+  window.dispatchEvent(new CustomEvent('gomna:verse_list_rendered', {
+    detail: {
+      bookName: currentBook.name,
+      chapter: currentChapter
+    }
+  }));
 }
 
 

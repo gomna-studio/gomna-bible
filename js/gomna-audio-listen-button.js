@@ -2,8 +2,6 @@
   'use strict';
 
   var TARGET_BOOK_NAME = '창세기';
-  var TARGET_BOOK_ID = 'genesis';
-  var TARGET_CHAPTER = 1;
   var AUDIO_TYPE = 'bible';
   var DEV_TEST_AUDIO_ID = 'genesis.001.001.bible';
   var BUTTON_MARK_ATTR = 'data-gomna-audio-verse-button';
@@ -19,8 +17,25 @@
     return String(value).padStart(3, '0');
   }
 
-  function buildAudioId(verse) {
-    return TARGET_BOOK_ID + '.' + pad3(TARGET_CHAPTER) + '.' + pad3(verse) + '.' + AUDIO_TYPE;
+  function getBookAudioId(bookName) {
+    var map = window.BOOK_FILE_MAP;
+
+    if (map && map[bookName]) {
+      return map[bookName];
+    }
+
+    if (bookName === TARGET_BOOK_NAME) {
+      return 'genesis';
+    }
+
+    return null;
+  }
+
+  function buildAudioId(verse, context) {
+    context = context || getCurrentContext();
+    if (!context) return null;
+
+    return context.bookId + '.' + pad3(context.chapter) + '.' + pad3(verse) + '.' + AUDIO_TYPE;
   }
 
   function isDevTestAudioId(audioId) {
@@ -29,16 +44,22 @@
 
   function getCurrentContext() {
     var book = window.currentBook;
-    var chapter = window.currentChapter;
+    var chapter = Number(window.currentChapter);
+    var bookId;
 
-    if (!book || book.name !== TARGET_BOOK_NAME || chapter !== TARGET_CHAPTER) {
+    if (!book || book.name !== TARGET_BOOK_NAME || !chapter) {
+      return null;
+    }
+
+    bookId = getBookAudioId(book.name);
+    if (!bookId) {
       return null;
     }
 
     return {
       bookName: book.name,
-      bookId: TARGET_BOOK_ID,
-      chapter: TARGET_CHAPTER
+      bookId: bookId,
+      chapter: chapter
     };
   }
 
@@ -51,14 +72,16 @@
     return config.manifestData.audios;
   }
 
-  function getPublishedBibleEntry(audioId, verse) {
+  function getPublishedBibleEntry(audioId, verse, context) {
     var audios = getManifestAudios();
     var entry = audios && audios[audioId];
 
-    if (!entry) return null;
+    context = context || getCurrentContext();
+
+    if (!entry || !context) return null;
     if (entry.status !== 'published' && !isDevTestAudioId(audioId)) return null;
-    if (entry.bookId !== TARGET_BOOK_ID) return null;
-    if (entry.chapter !== TARGET_CHAPTER) return null;
+    if (entry.bookId !== context.bookId) return null;
+    if (entry.chapter !== context.chapter) return null;
     if (entry.verse !== verse) return null;
     if (entry.type !== AUDIO_TYPE) return null;
     if (!entry.filePath) return null;
@@ -66,7 +89,7 @@
     return entry;
   }
 
-  function createListenButton(audioId, verse) {
+  function createListenButton(audioId, verse, context) {
     var btn = document.createElement('button');
 
     btn.type = 'button';
@@ -74,7 +97,10 @@
     btn.setAttribute(BUTTON_MARK_ATTR, 'true');
     btn.setAttribute('data-audio-id', audioId);
     btn.setAttribute('data-audio-action', 'play');
-    btn.setAttribute('aria-label', '창세기 1장 ' + verse + '절 본문 듣기');
+    btn.setAttribute(
+      'aria-label',
+      context.bookName + ' ' + context.chapter + '장 ' + verse + '절 본문 듣기'
+    );
 
     btn.innerHTML =
       '<span class="gomna-audio-verse-icon" aria-hidden="true">▶</span>' +
@@ -162,12 +188,17 @@
     }
   }
 
-  function ensureVerseButton(verseItem) {
+  function ensureVerseButton(verseItem, context) {
     var verse = getVerseNumber(verseItem);
     if (!verse) return false;
 
-    var audioId = buildAudioId(verse);
-    var entry = getPublishedBibleEntry(audioId, verse);
+    context = context || getCurrentContext();
+    if (!context) return false;
+
+    var audioId = buildAudioId(verse, context);
+    if (!audioId) return false;
+
+    var entry = getPublishedBibleEntry(audioId, verse, context);
     var actions = getActionsRow(verseItem);
     var existing = actions && actions.querySelector('.gomna-audio-verse-button[' + BUTTON_MARK_ATTR + '="true"]');
 
@@ -181,10 +212,13 @@
     var button = existing;
 
     if (!button) {
-      button = createListenButton(audioId, verse);
+      button = createListenButton(audioId, verse, context);
     } else {
       button.setAttribute('data-audio-id', audioId);
-      button.setAttribute('aria-label', '창세기 1장 ' + verse + '절 본문 듣기');
+      button.setAttribute(
+        'aria-label',
+        context.bookName + ' ' + context.chapter + '장 ' + verse + '절 본문 듣기'
+      );
     }
 
     if (!isButtonInCorrectPosition(button, actions)) {
@@ -212,13 +246,18 @@
     var addedCount = 0;
 
     for (var i = 0; i < verseItems.length; i++) {
-      if (ensureVerseButton(verseItems[i])) {
+      if (ensureVerseButton(verseItems[i], getCurrentContext())) {
         addedCount++;
       }
     }
 
     if (addedCount > 0) {
-      console.log('[GOMNA_AUDIO] 창세기 1장 본문 듣기 버튼 동기화:', addedCount, '개');
+      var ctx = getCurrentContext();
+      console.log(
+        '[GOMNA_AUDIO] 창세기 ' + (ctx ? ctx.chapter : '?') + '장 본문 듣기 버튼 동기화:',
+        addedCount,
+        '개'
+      );
     }
 
     return addedCount > 0;
@@ -262,6 +301,7 @@
   }
 
   window.addEventListener('gomna:manifest_loaded', syncButtons);
+  window.addEventListener('gomna:verse_list_rendered', syncButtons);
 
   console.log('[GOMNA_AUDIO] gomna-audio-listen-button.js loaded');
 })();

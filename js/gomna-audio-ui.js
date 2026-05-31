@@ -4,6 +4,7 @@
   var TOAST_DURATION_MS = 3000;
   var activeToastTimer = null;
   var expandedPlayerNode = null;
+  var lastRenderedAudioContextKey = '';
 
   function showToast(message, duration) {
     if (typeof message !== 'string' || !message) return;
@@ -328,11 +329,85 @@
   }
 
   function getCurrentChapterNumber() {
+    var chapter = Number(window.currentChapter);
+
+    if (chapter > 0) {
+      return chapter;
+    }
+
     var firstVerseAudioButton = document.querySelector('#verseList [data-audio-id$=".bible"]');
     var firstAudioId = firstVerseAudioButton && firstVerseAudioButton.getAttribute('data-audio-id');
     var match = firstAudioId && firstAudioId.match(/^[^.]+\.(\d{3})\.\d{3}\.bible$/);
 
-    return Number(window.currentChapter) || (match ? parseInt(match[1], 10) : 0);
+    return match ? parseInt(match[1], 10) : 0;
+  }
+
+  function parseAudioIdParts(audioId) {
+    var match = audioId && audioId.match(/^([^.]+)\.(\d{3})\.(\d{3})\.bible$/);
+
+    if (!match) {
+      return null;
+    }
+
+    return {
+      bookId: match[1],
+      chapter: parseInt(match[2], 10),
+      verse: parseInt(match[3], 10)
+    };
+  }
+
+  function getChapterContextKey(detail) {
+    var bookName = detail && detail.bookName;
+    var chapter = detail && detail.chapter;
+
+    if (!bookName && window.currentBook) {
+      bookName = window.currentBook.name;
+    }
+
+    if (chapter == null) {
+      chapter = Number(window.currentChapter);
+    }
+
+    if (!bookName || !chapter) {
+      return '';
+    }
+
+    return bookName + ':' + chapter;
+  }
+
+  function isAudioIdInCurrentChapter(audioId, detail) {
+    var parts = parseAudioIdParts(audioId);
+    var bookId = getCurrentBookAudioId();
+    var chapter = detail && detail.chapter != null ? Number(detail.chapter) : getCurrentChapterNumber();
+
+    if (!parts || !bookId || !chapter) {
+      return false;
+    }
+
+    return parts.bookId === bookId && parts.chapter === chapter;
+  }
+
+  function resetAudioUiForChapterChange(detail) {
+    var contextKey = getChapterContextKey(detail);
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+
+    if (contextKey && contextKey === lastRenderedAudioContextKey) {
+      return;
+    }
+
+    lastRenderedAudioContextKey = contextKey;
+
+    if (state && state.currentAudioId && !isAudioIdInCurrentChapter(state.currentAudioId, detail)) {
+      if (engine && engine.stopAudio) {
+        engine.stopAudio();
+      }
+    }
+
+    hideMiniPlayer();
+    updateCurrentText(null, null);
+    setPlayPauseIcon(false);
+    updateRangeAudioButtons(engine && engine.getState ? engine.getState() : state);
   }
 
   function getCurrentVerseCountValue() {
@@ -369,9 +444,19 @@
   function getCurrentAudioVerse() {
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
-    var match = state && state.currentAudioId && state.currentAudioId.match(/^genesis\.001\.(\d{3})\.bible$/);
+    var parts = state && state.currentAudioId ? parseAudioIdParts(state.currentAudioId) : null;
+    var bookId = getCurrentBookAudioId();
+    var chapter = getCurrentChapterNumber();
 
-    return match ? parseInt(match[1], 10) : null;
+    if (!parts || !bookId || !chapter) {
+      return null;
+    }
+
+    if (parts.bookId !== bookId || parts.chapter !== chapter) {
+      return null;
+    }
+
+    return parts.verse;
   }
 
   function playVisibleVerseRange(toChapterEnd) {
@@ -616,6 +701,10 @@
     } else {
       showToast(e.detail.minutes + '분 타이머가 설정되었습니다.');
     }
+  });
+
+  window.addEventListener('gomna:verse_list_rendered', function(e) {
+    resetAudioUiForChapterChange(e.detail || null);
   });
 
   console.log('[GOMNA_AUDIO_UI] loaded');
