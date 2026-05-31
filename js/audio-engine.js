@@ -21,6 +21,7 @@
       queueIndex: -1,
       queueActive: false,
       queueSource: null,
+      restoreStartTime: 0,
       timerId: null
     },
 
@@ -134,7 +135,9 @@
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
       var config = window.GOMNA_AUDIO_CONFIG;
+      var startTime;
       options = options || {};
+      startTime = Number(options.startTime) || 0;
 
       console.log('[GOMNA_AUDIO] play:', audioId);
 
@@ -209,10 +212,32 @@
         : entry.filePath;
       var audio = new Audio(audioSrc);
       audio.playbackRate = state.currentSpeed;
+      state.restoreStartTime = startTime > 0 ? startTime : 0;
+
+      if (startTime > 0) {
+        var applyStartTime = function() {
+          try {
+            var duration = audio.duration || 0;
+            var nextTime = startTime;
+
+            if (duration > 0 && nextTime >= duration) {
+              nextTime = Math.max(0, duration - 0.25);
+            }
+
+            audio.currentTime = nextTime;
+          } catch (e) {
+            console.warn('[GOMNA_AUDIO] restore seek warning:', e);
+          }
+        };
+
+        audio.addEventListener('loadedmetadata', applyStartTime, { once: true });
+        applyStartTime();
+      }
 
       audio.addEventListener('ended', function() {
         state.isPlaying = false;
         state.isPaused = false;
+        state.restoreStartTime = 0;
 
         if (engine._playNextInQueue()) {
           return;
@@ -283,6 +308,7 @@
 
           state.isPlaying = false;
           state.isPaused = false;
+          state.restoreStartTime = 0;
           engine._clearQueue();
 
           engine._emit('audio:error', {
@@ -301,11 +327,23 @@
     playAudioQueue: function(audioIds, options) {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
+      var startIndex;
+      var startTime;
       options = options || {};
+      startIndex = parseInt(options.startIndex, 10);
+      startTime = Number(options.startTime) || 0;
 
       if (!audioIds || !audioIds.length) {
         showOrLog('오디오 준비 중입니다.');
         return false;
+      }
+
+      if (isNaN(startIndex) || startIndex < 0) {
+        startIndex = 0;
+      }
+
+      if (startIndex >= audioIds.length) {
+        startIndex = audioIds.length - 1;
       }
 
       if (engine._isSameQueue(audioIds, options.source || null) && state.currentAudio) {
@@ -322,11 +360,14 @@
 
       engine._clearQueue();
       state.queueAudioIds = audioIds.slice();
-      state.queueIndex = 0;
+      state.queueIndex = startIndex;
       state.queueActive = true;
       state.queueSource = options.source || null;
 
-      if (!engine.playAudioById(state.queueAudioIds[0], { fromQueue: true })) {
+      if (!engine.playAudioById(state.queueAudioIds[state.queueIndex], {
+        fromQueue: true,
+        startTime: startTime
+      })) {
         return engine._playNextInQueue();
       }
 
@@ -419,6 +460,7 @@
         state.currentAudioId = null;
         state.isPlaying = false;
         state.isPaused = false;
+        state.restoreStartTime = 0;
 
         engine._emit('audio:end', {
           audioId: audioId
@@ -569,7 +611,7 @@
       var duration = 0;
 
       if (state.currentAudio) {
-        currentTime = state.currentAudio.currentTime || 0;
+        currentTime = state.currentAudio.currentTime || state.restoreStartTime || 0;
         duration = state.currentAudio.duration || 0;
 
         if (isNaN(duration)) duration = 0;
@@ -585,6 +627,7 @@
         queueSource: state.queueSource,
         queueIndex: state.queueIndex,
         queueLength: state.queueAudioIds.length,
+        queueAudioIds: state.queueAudioIds.slice(),
         currentTime: currentTime,
         duration: duration,
         hasTimer: !!state.timerId

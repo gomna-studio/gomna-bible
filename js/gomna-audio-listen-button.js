@@ -150,16 +150,33 @@
 
   function getButtonStateName(btn, state) {
     var audioId = btn && btn.getAttribute('data-audio-id');
+    var resumeManager = window.GOMNA_AUDIO_BIBLE_RESUME;
 
-    if (!audioId || !state || state.currentAudioId !== audioId) {
+    if (!audioId) {
       return 'idle';
     }
 
-    if (state.isPlaying) {
-      return 'playing';
+    if (state && state.currentAudioId) {
+      if (state.currentAudioId !== audioId) {
+        return 'idle';
+      }
+
+      if (state.isPlaying) {
+        return 'playing';
+      }
+
+      if (state.isPaused) {
+        return 'paused';
+      }
+
+      return 'idle';
     }
 
-    if (state.isPaused) {
+    if (
+      resumeManager &&
+      resumeManager.getSessionForAudioId &&
+      resumeManager.getSessionForAudioId(audioId)
+    ) {
       return 'paused';
     }
 
@@ -381,6 +398,7 @@
   window.addEventListener('audio:resume', syncVerseButtonLabels);
   window.addEventListener('audio:end', syncVerseButtonLabels);
   window.addEventListener('audio:error', syncVerseButtonLabels);
+  window.addEventListener('gomna:bible_resume_session_changed', syncVerseButtonLabels);
 
   console.log('[GOMNA_AUDIO] gomna-audio-listen-button.js loaded');
 })();

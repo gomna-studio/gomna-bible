@@ -5,6 +5,10 @@
   var activeToastTimer = null;
   var expandedPlayerNode = null;
   var lastRenderedAudioContextKey = '';
+  var BIBLE_RESUME_STORAGE_KEY = 'gomna_audio_bible_resume_v1';
+  var BIBLE_RESUME_SAVE_INTERVAL_MS = 4000;
+  var bibleResumeTimeupdateAudio = null;
+  var lastBibleResumeSaveAt = 0;
 
   function showToast(message, duration) {
     if (typeof message !== 'string' || !message) return;
@@ -360,6 +364,243 @@
     return String(value).padStart(3, '0');
   }
 
+  function dispatchBibleResumeSessionChanged() {
+    window.dispatchEvent(new CustomEvent('gomna:bible_resume_session_changed'));
+  }
+
+  function isBibleToEndQueueSource(source) {
+    return typeof source === 'string' && source.indexOf('bible-to-end:') === 0;
+  }
+
+  function getManifestEntry(audioId) {
+    var config = window.GOMNA_AUDIO_CONFIG;
+    return config && config.manifestData && config.manifestData.audios
+      ? config.manifestData.audios[audioId]
+      : null;
+  }
+
+  function isAudioManifestLoaded() {
+    var config = window.GOMNA_AUDIO_CONFIG;
+    return !!(config && config.manifestLoadStatus === 'loaded' && config.manifestData);
+  }
+
+  function readStoredBibleResumeSession() {
+    var raw;
+
+    try {
+      raw = window.localStorage.getItem(BIBLE_RESUME_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      console.warn('[GOMNA_AUDIO] bible resume read warning:', e);
+      return null;
+    }
+  }
+
+  function writeBibleResumeSession(session) {
+    try {
+      window.localStorage.setItem(BIBLE_RESUME_STORAGE_KEY, JSON.stringify(session));
+      dispatchBibleResumeSessionChanged();
+      return true;
+    } catch (e) {
+      console.warn('[GOMNA_AUDIO] bible resume write warning:', e);
+      return false;
+    }
+  }
+
+  function removeBibleResumeSession() {
+    try {
+      window.localStorage.removeItem(BIBLE_RESUME_STORAGE_KEY);
+    } catch (e) {
+      console.warn('[GOMNA_AUDIO] bible resume remove warning:', e);
+    }
+
+    dispatchBibleResumeSessionChanged();
+  }
+
+  function isValidBibleResumeSession(session) {
+    var entry;
+
+    if (!session || session.version !== 1) return false;
+    if (session.source !== 'bible' || session.mode !== 'verse-to-end') return false;
+    if (!session.currentAudioId || !/\.bible$/.test(session.currentAudioId)) return false;
+    if (!isBibleToEndQueueSource(session.queueSource)) return false;
+    if (!session.queueAudioIds || !session.queueAudioIds.length) return false;
+    if (session.queueIndex < 0 || session.queueIndex >= session.queueAudioIds.length) return false;
+    if (session.queueAudioIds[session.queueIndex] !== session.currentAudioId) return false;
+
+    entry = getManifestEntry(session.currentAudioId);
+    if (!entry || entry.status !== 'published' || entry.type !== 'bible') return false;
+
+    return true;
+  }
+
+  function getValidBibleResumeSession(removeInvalid) {
+    var session = readStoredBibleResumeSession();
+
+    if (!session) return null;
+    if (!isAudioManifestLoaded()) return null;
+
+    if (!isValidBibleResumeSession(session)) {
+      if (removeInvalid) {
+        removeBibleResumeSession();
+      }
+
+      return null;
+    }
+
+    return session;
+  }
+
+  function getBibleResumeSessionForAudioId(audioId) {
+    var session = getValidBibleResumeSession(false);
+
+    if (!session || session.currentAudioId !== audioId) {
+      return null;
+    }
+
+    return session;
+  }
+
+  function isBibleToEndState(state) {
+    var entry;
+
+    if (!state || !state.currentAudioId || !/\.bible$/.test(state.currentAudioId)) return false;
+    if (!state.queueActive || !isBibleToEndQueueSource(state.queueSource)) return false;
+    if (!state.queueAudioIds || !state.queueAudioIds.length) return false;
+
+    entry = getManifestEntry(state.currentAudioId);
+    return !!(entry && entry.status === 'published' && entry.type === 'bible');
+  }
+
+  function buildBibleResumeSession(state) {
+    var entry;
+
+    if (!isBibleToEndState(state)) return null;
+
+    entry = getManifestEntry(state.currentAudioId);
+    if (!entry) return null;
+
+    return {
+      version: 1,
+      source: 'bible',
+      mode: 'verse-to-end',
+      bookId: entry.bookId,
+      bookName: entry.book,
+      chapter: entry.chapter,
+      currentAudioId: state.currentAudioId,
+      currentTime: state.currentTime || 0,
+      queueAudioIds: state.queueAudioIds.slice(),
+      queueIndex: state.queueIndex,
+      queueLength: state.queueLength,
+      queueSource: state.queueSource,
+      voicePreset: state.currentVoice || 'calm',
+      playbackSpeed: state.currentSpeed || 1,
+      savedAt: new Date().toISOString()
+    };
+  }
+
+  function saveBibleResumeSession() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var session = buildBibleResumeSession(state);
+
+    if (!session) return false;
+
+    return writeBibleResumeSession(session);
+  }
+
+  function bindBibleResumeTimeupdate() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var audio = engine && engine._state ? engine._state.currentAudio : null;
+
+    if (bibleResumeTimeupdateAudio === audio) return;
+
+    if (bibleResumeTimeupdateAudio) {
+      bibleResumeTimeupdateAudio.removeEventListener('timeupdate', handleBibleResumeTimeupdate);
+    }
+
+    bibleResumeTimeupdateAudio = audio;
+
+    if (bibleResumeTimeupdateAudio) {
+      bibleResumeTimeupdateAudio.addEventListener('timeupdate', handleBibleResumeTimeupdate);
+    }
+  }
+
+  function handleBibleResumeTimeupdate() {
+    var now = Date.now();
+
+    if (now - lastBibleResumeSaveAt < BIBLE_RESUME_SAVE_INTERVAL_MS) {
+      return;
+    }
+
+    lastBibleResumeSaveAt = now;
+    saveBibleResumeSession();
+  }
+
+  function restoreBibleResumeSessionForAudioId(audioId) {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var session = getBibleResumeSessionForAudioId(audioId);
+    var startIndex;
+    var startTime;
+    var restored;
+
+    if (!engine || !engine.playAudioQueue || !session) return false;
+    if (state && state.currentAudioId) return false;
+
+    startIndex = parseInt(session.queueIndex, 10);
+    startTime = Number(session.currentTime) || 0;
+
+    if (session.voicePreset && engine.changeVoice) {
+      engine.changeVoice(session.voicePreset);
+    }
+
+    if (session.playbackSpeed && engine.changeSpeed) {
+      engine.changeSpeed(session.playbackSpeed);
+    }
+
+    restored = engine.playAudioQueue(session.queueAudioIds, {
+      source: session.queueSource,
+      startIndex: isNaN(startIndex) ? 0 : startIndex,
+      startTime: startTime
+    });
+
+    if (restored) {
+      saveBibleResumeSession();
+    }
+
+    return !!restored;
+  }
+
+  function clearBibleResumeSessionIfQueueCompleted(detail) {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var session;
+
+    if (state && (state.currentAudioId || state.queueActive)) return;
+    if (!detail || !detail.entry || detail.entry.type !== 'bible') return;
+
+    session = getValidBibleResumeSession(false);
+    if (session && session.currentAudioId === detail.audioId) {
+      removeBibleResumeSession();
+    }
+  }
+
+  function validateStoredBibleResumeSession() {
+    getValidBibleResumeSession(true);
+    dispatchBibleResumeSessionChanged();
+  }
+
+  window.GOMNA_AUDIO_BIBLE_RESUME = {
+    key: BIBLE_RESUME_STORAGE_KEY,
+    getSession: function() {
+      return getValidBibleResumeSession(false);
+    },
+    getSessionForAudioId: getBibleResumeSessionForAudioId,
+    save: saveBibleResumeSession,
+    clear: removeBibleResumeSession
+  };
+
   function getChapterContextKey(detail) {
     var bookName = detail && detail.bookName;
     var chapter = detail && detail.chapter;
@@ -524,6 +765,10 @@
       return;
     }
 
+    if ((!state || !state.currentAudioId) && restoreBibleResumeSessionForAudioId(audioId)) {
+      return;
+    }
+
     for (verse = parts.verse; verse <= endVerse; verse++) {
       audioIds.push(parts.bookId + '.' + pad3(parts.chapter) + '.' + pad3(verse) + '.bible');
     }
@@ -672,6 +917,8 @@
     setPlayPauseIcon(true);
     updateCurrentText(detail.entry, detail.audioId);
     updateRangeAudioButtons(state);
+    bindBibleResumeTimeupdate();
+    saveBibleResumeSession();
   });
 
   window.addEventListener('audio:pause', function() {
@@ -680,6 +927,7 @@
 
     setPlayPauseIcon(false);
     updateRangeAudioButtons(state);
+    saveBibleResumeSession();
   });
 
   window.addEventListener('audio:resume', function() {
@@ -690,13 +938,14 @@
     updateRangeAudioButtons(state);
   });
 
-  window.addEventListener('audio:end', function() {
+  window.addEventListener('audio:end', function(e) {
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
 
     setPlayPauseIcon(false);
     hideMiniPlayer();
     updateRangeAudioButtons(state);
+    clearBibleResumeSessionIfQueueCompleted(e.detail || {});
   });
 
   window.addEventListener('audio:error', function(e) {
@@ -752,7 +1001,28 @@
 
   window.addEventListener('gomna:verse_list_rendered', function(e) {
     resetAudioUiForChapterChange(e.detail || null);
+    validateStoredBibleResumeSession();
   });
+
+  window.addEventListener('gomna:manifest_loaded', validateStoredBibleResumeSession);
+
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      saveBibleResumeSession();
+    }
+  });
+
+  window.addEventListener('pagehide', saveBibleResumeSession);
+  window.addEventListener('beforeunload', saveBibleResumeSession);
+  window.addEventListener('storage', function(e) {
+    if (e.key === BIBLE_RESUME_STORAGE_KEY) {
+      dispatchBibleResumeSessionChanged();
+    }
+  });
+
+  if (window.GOMNA_AUDIO_CONFIG && window.GOMNA_AUDIO_CONFIG.manifestLoadStatus === 'loaded') {
+    setTimeout(validateStoredBibleResumeSession, 0);
+  }
 
   console.log('[GOMNA_AUDIO_UI] loaded');
 })();
