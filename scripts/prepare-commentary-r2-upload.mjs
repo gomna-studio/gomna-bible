@@ -6,16 +6,20 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
 
-const TARGET = {
-  bookId: 'genesis',
-  chapter: 1,
-  verse: 1,
-  language: 'ko-KR',
+const ALLOWED_TARGETS = [
+  { locale: 'ko-KR', bookId: 'genesis', chapter: 1, verse: 1 },
+  { locale: 'ko-KR', bookId: 'genesis', chapter: 1, verse: 2 },
+];
+
+const LOCALE_R2_PATHS = {
+  'ko-KR': {
+    languagePath: 'ko',
+    bibleVersionPath: 'gae',
+  },
 };
 
 const R2 = {
   bucket: 'gomna-bible-audio-prod',
-  keyBase: 'commentary/ko/gae/genesis/001/001',
   publicBaseUrl: 'https://pub-1606395d18b84b29b95f841e5fe9e008.r2.dev',
   contentType: 'audio/mpeg',
 };
@@ -33,8 +37,8 @@ const FILE_NAMES = [
 ];
 
 function usage() {
-  console.error('Usage: node scripts/prepare-commentary-r2-upload.mjs --book genesis --chapter 1 --verse 1 --language ko-KR --dry-run');
-  console.error('   or: node scripts/prepare-commentary-r2-upload.mjs --book genesis --chapter 1 --verse 1 --language ko-KR --upload');
+  console.error('Usage: node scripts/prepare-commentary-r2-upload.mjs --locale ko-KR --book genesis --chapter 1 --verse 2 --dry-run');
+  console.error('   or: node scripts/prepare-commentary-r2-upload.mjs --locale ko-KR --book genesis --chapter 1 --verse 2 --upload');
   console.error('Default mode: --dry-run. Optional: --overwrite to replace existing R2 objects.');
 }
 
@@ -43,7 +47,7 @@ function parseArgs(argv) {
     bookId: null,
     chapter: null,
     verse: null,
-    language: null,
+    locale: 'ko-KR',
     overwrite: false,
     dryRun: true,
     upload: false,
@@ -60,8 +64,8 @@ function parseArgs(argv) {
       args.chapter = Number(argv[++i]);
     } else if (arg === '--verse') {
       args.verse = Number(argv[++i]);
-    } else if (arg === '--language') {
-      args.language = argv[++i];
+    } else if (arg === '--locale' || arg === '--language') {
+      args.locale = argv[++i];
     } else if (arg === '--overwrite') {
       args.overwrite = true;
     } else if (arg === '--dry-run') {
@@ -84,9 +88,13 @@ function parseArgs(argv) {
     throw new Error('--dry-run과 --upload는 동시에 사용할 수 없습니다.');
   }
 
-  if (!args.bookId || !args.chapter || !args.verse || !args.language) {
+  if (!args.bookId || !args.chapter || !args.verse || !args.locale) {
     usage();
     throw new Error('필수 옵션이 누락되었습니다.');
+  }
+
+  if (!LOCALE_R2_PATHS[args.locale]) {
+    throw new Error(`지원하지 않는 locale입니다: ${args.locale}`);
   }
 
   return args;
@@ -101,14 +109,29 @@ function toRelativePath(absolutePath) {
 }
 
 function assertTargetScope(args) {
-  if (
-    args.bookId !== TARGET.bookId ||
-    args.chapter !== TARGET.chapter ||
-    args.verse !== TARGET.verse ||
-    args.language !== TARGET.language
-  ) {
-    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 1절 말씀풀이 9개 업로드 준비에만 사용할 수 있습니다.');
+  const matched = ALLOWED_TARGETS.some((target) => (
+    args.locale === target.locale &&
+    args.bookId === target.bookId &&
+    args.chapter === target.chapter &&
+    args.verse === target.verse
+  ));
+
+  if (!matched) {
+    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 1절 또는 1장 2절 말씀풀이 업로드 준비에만 사용할 수 있습니다.');
   }
+}
+
+function buildR2KeyBase(args) {
+  const localePaths = LOCALE_R2_PATHS[args.locale];
+
+  return [
+    'commentary',
+    localePaths.languagePath,
+    localePaths.bibleVersionPath,
+    args.bookId,
+    pad3(args.chapter),
+    pad3(args.verse),
+  ].join('/');
 }
 
 function buildPlanItem({ args, fileName }) {
@@ -118,7 +141,7 @@ function buildPlanItem({ args, fileName }) {
     ROOT,
     'audio',
     'v1',
-    args.language,
+    args.locale,
     args.bookId,
     chapter3,
     verse3,
@@ -126,7 +149,7 @@ function buildPlanItem({ args, fileName }) {
   );
   const exists = fs.existsSync(localPath);
   const fileSize = exists ? fs.statSync(localPath).size : 0;
-  const objectKey = `${R2.keyBase}/${fileName}`;
+  const objectKey = `${buildR2KeyBase(args)}/${fileName}`;
 
   return {
     fileName,
@@ -305,6 +328,7 @@ async function main() {
       uploadPerformed: uploadedCount > 0,
       fileModified: false,
       r2Bucket: R2.bucket,
+      r2KeyBase: buildR2KeyBase(args),
       contentType: R2.contentType,
       overwrite: args.overwrite,
       targetCount: results.length,
@@ -331,7 +355,9 @@ async function main() {
     bookId: args.bookId,
     chapter: args.chapter,
     verse: args.verse,
-    language: args.language,
+    locale: args.locale,
+    language: args.locale,
+    r2KeyBase: buildR2KeyBase(args),
     targetCount: plannedUploads.length,
     validCount,
     missingOrEmptyCount: missingOrEmpty.length,

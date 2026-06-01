@@ -17,12 +17,10 @@ const TTS_DEFAULTS = {
   outputFormat: 'mp3',
 };
 
-const TARGET = {
-  bookId: 'genesis',
-  book: '창세기',
-  chapter: 1,
-  verse: 1,
-};
+const ALLOWED_TARGETS = [
+  { locale: 'ko-KR', bookId: 'genesis', book: '창세기', chapter: 1, verse: 1 },
+  { locale: 'ko-KR', bookId: 'genesis', book: '창세기', chapter: 1, verse: 2 },
+];
 
 const COMMENTARY_TYPES = [
   { type: 'original-language', voicePreset: 'study' },
@@ -37,8 +35,8 @@ const COMMENTARY_TYPES = [
 ];
 
 function usage() {
-  console.error('Usage: node scripts/generate-commentary-audio-batch.mjs --book genesis --chapter 1 --verse 1 --language ko-KR --scripts-dir tts-scripts/ko-KR/genesis/001/001 --dry-run');
-  console.error('   or: node scripts/generate-commentary-audio-batch.mjs --book genesis --chapter 1 --verse 1 --language ko-KR --scripts-dir tts-scripts/ko-KR/genesis/001/001 --type original-language --write');
+  console.error('Usage: node scripts/generate-commentary-audio-batch.mjs --locale ko-KR --book genesis --chapter 1 --verse 2 --dry-run');
+  console.error('   or: node scripts/generate-commentary-audio-batch.mjs --locale ko-KR --book genesis --chapter 1 --verse 2 --type original-language --write');
   console.error('Default mode is --dry-run. Optional: --type <type>, --overwrite');
 }
 
@@ -47,7 +45,7 @@ function parseArgs(argv) {
     bookId: null,
     chapter: null,
     verse: null,
-    language: null,
+    locale: 'ko-KR',
     scriptsDir: null,
     type: null,
     overwrite: false,
@@ -66,8 +64,8 @@ function parseArgs(argv) {
       args.chapter = Number(argv[++i]);
     } else if (arg === '--verse') {
       args.verse = Number(argv[++i]);
-    } else if (arg === '--language') {
-      args.language = argv[++i];
+    } else if (arg === '--locale' || arg === '--language') {
+      args.locale = argv[++i];
     } else if (arg === '--scripts-dir') {
       args.scriptsDir = argv[++i];
     } else if (arg === '--type') {
@@ -93,7 +91,7 @@ function parseArgs(argv) {
     throw new Error('--dry-run과 --write는 동시에 사용할 수 없습니다.');
   }
 
-  if (!args.bookId || !args.chapter || !args.verse || !args.language) {
+  if (!args.bookId || !args.chapter || !args.verse || !args.locale) {
     usage();
     throw new Error('필수 옵션이 누락되었습니다.');
   }
@@ -101,7 +99,7 @@ function parseArgs(argv) {
   if (!args.scriptsDir) {
     args.scriptsDir = path.join(
       'tts-scripts',
-      args.language,
+      args.locale,
       args.bookId,
       pad3(args.chapter),
       pad3(args.verse),
@@ -137,14 +135,25 @@ function resolveInsideRoot(inputPath) {
 }
 
 function assertTargetScope(args) {
-  if (
-    args.bookId !== TARGET.bookId ||
-    args.chapter !== TARGET.chapter ||
-    args.verse !== TARGET.verse ||
-    args.language !== 'ko-KR'
-  ) {
-    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 1절 말씀풀이 9개에만 사용할 수 있습니다.');
+  const matched = ALLOWED_TARGETS.some((target) => (
+    args.locale === target.locale &&
+    args.bookId === target.bookId &&
+    args.chapter === target.chapter &&
+    args.verse === target.verse
+  ));
+
+  if (!matched) {
+    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 1절 또는 1장 2절 말씀풀이에만 사용할 수 있습니다.');
   }
+}
+
+function getTargetConfig(args) {
+  return ALLOWED_TARGETS.find((target) => (
+    args.locale === target.locale &&
+    args.bookId === target.bookId &&
+    args.chapter === target.chapter &&
+    args.verse === target.verse
+  ));
 }
 
 function assertSafeWriteScope(args) {
@@ -218,7 +227,7 @@ function buildPlanItem({ args, scriptsDir, item }) {
   const outputFileName = `${item.type}-${item.voicePreset}.${TTS_DEFAULTS.outputFormat}`;
   const outputPath = path.join(
     AUDIO_STORAGE.localBaseDirectory,
-    args.language,
+    args.locale,
     args.bookId,
     chapter3,
     verse3,
@@ -370,6 +379,7 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   assertTargetScope(args);
   assertSafeWriteScope(args);
+  const targetConfig = getTargetConfig(args);
 
   const scriptsDir = resolveInsideRoot(args.scriptsDir);
   const targetTypes = args.type
@@ -389,11 +399,12 @@ async function main() {
     mp3Generated: false,
     reportModified: false,
     manifestModified: false,
-    book: TARGET.book,
+    book: targetConfig.book,
     bookId: args.bookId,
     chapter: args.chapter,
     verse: args.verse,
-    language: args.language,
+    locale: args.locale,
+    language: args.locale,
     scriptsDir: toRelativePath(scriptsDir),
     provider: TTS_DEFAULTS.provider,
     model: TTS_DEFAULTS.model,
