@@ -29,7 +29,12 @@ const CURRENT_WRITE_SCOPE = {
   locale: 'ko-KR',
   bookId: 'genesis',
   chapter: 1,
-  verse: 2,
+  verse: 3,
+};
+
+const ORIGINAL_LANGUAGE_CLOSINGS = {
+  '1:2': '이 구절은 혼돈과 공허 속에서도 하나님의 영이 일하고 계심을 보여 줍니다.',
+  '1:3': '이 구절은 하나님의 말씀이 곧 빛을 창조하시는 능력을 보여 줍니다.',
 };
 
 const COMMENTARY_TYPES = [
@@ -114,7 +119,7 @@ function assertWriteScope(args) {
     args.chapter !== CURRENT_WRITE_SCOPE.chapter ||
     args.verse !== CURRENT_WRITE_SCOPE.verse
   ) {
-    throw new Error('현재 --write는 ko-KR 창세기 1장 2절에만 허용됩니다.');
+    throw new Error('현재 --write는 ko-KR 창세기 1장 3절에만 허용됩니다.');
   }
 }
 
@@ -182,6 +187,76 @@ function sentence(value) {
   return /[.!?。！？다요죠음함됨임니다라]$/.test(text) ? text : `${text}.`;
 }
 
+function topicParticle(value) {
+  return `${value}${hasFinalConsonant(value) ? '은' : '는'}`;
+}
+
+function phraseAsPoint(value) {
+  const text = cleanText(value);
+  if (!text) return '';
+  if (/[.!?。！？다요죠음함됨임니다라]$/.test(text)) return text;
+  if (text.endsWith('강조')) return `${text}합니다.`;
+  if (text.endsWith('선포')) return `${text}합니다.`;
+  return `${text}을 보여 줍니다.`;
+}
+
+function phraseAsConnection(value) {
+  const text = cleanText(value);
+  if (!text) return '';
+  if (/[.!?。！？다요죠음함됨임니다라]$/.test(text)) return text;
+  return `${text}와 연결됩니다.`;
+}
+
+function scriptureRefForSpeech(value) {
+  const text = cleanText(value);
+  const match = text.match(/^([가-힣]+)\s*(\d+):(\d+)(?:-(\d+))?$/);
+  if (!match) return text;
+
+  const [, book, chapter, verseStart, verseEnd] = match;
+  const bookNames = {
+    시: '시편',
+    사: '이사야',
+    욥: '욥기',
+    말: '말라기',
+    요: '요한복음',
+    고후: '고린도후서',
+    엡: '에베소서',
+    계: '요한계시록',
+    히: '히브리서',
+    골: '골로새서',
+  };
+  const bookName = bookNames[book] || book;
+  const chapterUnit = bookName === '시편' ? '편' : '장';
+  const verseText = verseEnd ? `${verseStart}절부터 ${verseEnd}절` : `${verseStart}절`;
+
+  return `${bookName} ${chapter}${chapterUnit} ${verseText}`;
+}
+
+function christConnectionForSpeech(value) {
+  const text = cleanText(value);
+  const reference = scriptureRefForSpeech(text);
+  if (reference !== text) return `${reference}와도 이어집니다.`;
+  return phraseAsConnection(text);
+}
+
+function meaningForSpeech(value) {
+  const parts = cleanText(value).split(',').map((part) => part.trim()).filter(Boolean);
+  if (parts.length < 2) return `${cleanText(value)}라는 뜻입니다`;
+
+  const lexical = parts[0];
+  const grammar = parts.slice(1).join(' ');
+
+  if (/명령/.test(grammar)) return `'${lexical}'라는 뜻의 명령형 동사입니다`;
+  if (/완료/.test(grammar)) return `'${lexical}'라는 뜻의 완료형 동사입니다`;
+  if (/동사/.test(grammar)) return `${lexical}라는 뜻의 동사입니다`;
+  if (/복수형.*단수 의미|단수 의미/.test(grammar)) {
+    return `${lexical}이라는 뜻의 명사이며, 복수형이지만 단수 의미로 쓰입니다`;
+  }
+  if (/명사/.test(grammar)) return `'${lexical}'이라는 뜻의 명사입니다`;
+
+  return `${lexical}이라는 뜻으로, ${grammar}입니다`;
+}
+
 function lastHangulSyllable(value) {
   const chars = Array.from(String(value || '').replace(/['"’”)\]\s]+$/g, '')).reverse();
   return chars.find((char) => /[가-힣]/.test(char)) || '';
@@ -206,12 +281,17 @@ function renderOriginalLanguage(ctx, rows) {
 
   for (const row of rows) {
     const term = termForSpeech(row.원어);
-    const meaning = cleanText(row.의미_문법);
-    const point = sentence(row.설교포인트);
-    lines.push(`${term}는 ${meaning}라는 뜻입니다. ${point}`);
+    const meaning = meaningForSpeech(row.의미_문법);
+    const point = phraseAsPoint(row.설교포인트);
+    lines.push(`${topicParticle(term)} ${meaning}. ${point}`);
   }
 
-  lines.push('', '이 구절은 혼돈과 공허 속에서도 하나님의 영이 일하고 계심을 보여 줍니다.');
+  const closingKey = `${ctx.args.chapter}:${ctx.args.verse}`;
+  const closing = ORIGINAL_LANGUAGE_CLOSINGS[closingKey];
+  if (closing) {
+    lines.push('', closing);
+  }
+
   return lines.join('\n');
 }
 
@@ -219,7 +299,7 @@ function renderHistory(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
-    lines.push(`${withObjectParticle(row.항목)} 생각해 볼 수 있습니다. ${sentence(row.내용)} ${sentence(row.목회적활용)}`);
+    lines.push(`${withObjectParticle(row.항목)} 생각해 볼 수 있습니다. ${cleanText(row.내용)}라는 배경이 있습니다. 이 점은 ${withObjectParticle(row.목회적활용)} 생각하게 합니다.`);
   }
 
   return lines.join('\n');
@@ -229,7 +309,7 @@ function renderTheology(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
-    lines.push(`${row.교리}의 의미가 드러납니다. ${sentence(row.설명)} 관련해서 ${row.관련구절}을 함께 볼 수 있습니다.`);
+    lines.push(`${row.교리}의 의미가 드러납니다. ${phraseAsPoint(row.설명)} 관련해서 ${scriptureRefForSpeech(row.관련구절)}을 함께 볼 수 있습니다.`);
   }
 
   return lines.join('\n');
@@ -239,7 +319,7 @@ function renderTypology(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
-    lines.push(`${row.구분}의 관점에서 보면, ${sentence(row.내용)} 이것은 ${sentence(row.그리스도연결)}`);
+    lines.push(`${row.구분}의 관점에서 보면, ${phraseAsConnection(row.내용)} 이것은 ${christConnectionForSpeech(row.그리스도연결)}`);
   }
 
   return lines.join('\n');
@@ -249,7 +329,7 @@ function renderMatthewHenry(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
-    lines.push(`매튜 헨리는 이 말씀을 이렇게 풀어 줍니다. ${sentence(row.한국어번역)} 핵심 통찰은 ${sentence(row.핵심통찰)}`);
+    lines.push(`매튜 헨리는 이 말씀을 이렇게 풀어 줍니다. ${sentence(row.한국어번역)} 여기서 핵심은 ${withObjectParticle(row.핵심통찰)} 보여 준다는 점입니다.`);
   }
 
   return lines.join('\n');
@@ -260,7 +340,15 @@ function renderSermon(ctx, rows) {
 
   for (const row of rows) {
     const heading = cleanText(row.대지).replace(/^\d+대지:\s*/, '');
-    lines.push(`${heading}입니다. ${sentence(row.내용)} 적용 예로는 ${sentence(row.예화_적용)}`);
+    if (heading === '제목') {
+      lines.push(`설교 제목은 ${sentence(row.내용).replace(/\.$/, '')}입니다. 적용 예로는 ${withObjectParticle(row.예화_적용)} 들 수 있습니다.`);
+    } else if (heading === '서론') {
+      lines.push(`서론에서는 ${withObjectParticle(row.내용)} 이야기합니다. 적용 예로는 ${withObjectParticle(row.예화_적용)} 들 수 있습니다.`);
+    } else if (heading === '결론') {
+      lines.push(`결론에서는 ${withObjectParticle(row.내용)} 메시지로 전합니다. 적용 예로는 ${withObjectParticle(row.예화_적용)} 들 수 있습니다.`);
+    } else {
+      lines.push(`${heading}입니다. ${phraseAsPoint(row.내용)} 적용 예로는 ${withObjectParticle(row.예화_적용)} 들 수 있습니다.`);
+    }
   }
 
   return lines.join('\n');
@@ -271,7 +359,7 @@ function renderHymn(ctx, rows) {
 
   for (const row of rows) {
     const hymnTitle = `'${row.제목}'`;
-    lines.push(`새찬송가 ${row.새찬송가}, ${withObjectParticle(hymnTitle)} 함께 묵상할 수 있습니다. 선정 이유는 ${sentence(row.선정이유)}`);
+    lines.push(`새찬송가 ${row.새찬송가}, ${withObjectParticle(hymnTitle)} 함께 묵상할 수 있습니다. 이 찬송은 ${withObjectParticle(row.선정이유)} 떠올리게 한다는 점에서 본문과 연결됩니다.`);
   }
 
   return lines.join('\n');
@@ -281,7 +369,7 @@ function renderCounseling(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
-    lines.push(`${row.상황}에게 이 말씀을 적용할 수 있습니다. 성경 원리는 ${sentence(row.성경원리)} 실제 적용은 ${sentence(row.실제적용)}`);
+    lines.push(`${row.상황}에게 이 말씀을 적용할 수 있습니다. 성경 원리는 ${withObjectParticle(row.성경원리)} 붙드는 것입니다. 실제 적용으로는 ${withObjectParticle(row.실제적용)} 제안할 수 있습니다.`);
   }
 
   return lines.join('\n');
@@ -291,7 +379,7 @@ function renderCrossReference(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
-    lines.push(`${row.구절}은 ${row.구분}의 연결 구절입니다. 연결점은 ${sentence(row.연결점)}`);
+    lines.push(`${scriptureRefForSpeech(row.구절)}은 ${row.구분}의 연결 구절입니다. 이 구절은 ${withObjectParticle(row.연결점)} 보여 준다는 점에서 본문과 연결됩니다.`);
   }
 
   return lines.join('\n');
