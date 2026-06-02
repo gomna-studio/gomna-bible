@@ -239,6 +239,12 @@ function christConnectionForSpeech(value) {
   return phraseAsConnection(text);
 }
 
+function matthewHenryEnglishIntro(index) {
+  if (index === 0) return '매튜 헨리의 영어 원문입니다.';
+  if (index === 1) return '두 번째 영어 원문입니다.';
+  return '마지막 영어 원문입니다.';
+}
+
 function meaningForSpeech(value) {
   const parts = cleanText(value).split(',').map((part) => part.trim()).filter(Boolean);
   if (parts.length < 2) return `${cleanText(value)}라는 뜻입니다`;
@@ -328,11 +334,32 @@ function renderTypology(ctx, rows) {
 function renderMatthewHenry(ctx, rows) {
   const lines = [intro(ctx), ''];
 
-  for (const row of rows) {
-    lines.push(`매튜 헨리는 이 말씀을 이렇게 풀어 줍니다. ${sentence(row.한국어번역)} 여기서 핵심은 ${withObjectParticle(row.핵심통찰)} 보여 준다는 점입니다.`);
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const englishOriginal = cleanText(row.영어원문);
+
+    if (!englishOriginal) {
+      console.warn(`[WARN] 매튜헨리 영어원문 필드가 없습니다: ${ctx.bookName} ${ctx.args.chapter}:${ctx.args.verse} row ${i + 1}`);
+      lines.push(`매튜 헨리는 이 말씀을 이렇게 풀어 줍니다. ${sentence(row.한국어번역)} 여기서 핵심은 ${withObjectParticle(row.핵심통찰)} 보여 준다는 점입니다.`);
+      continue;
+    }
+
+    lines.push(`${matthewHenryEnglishIntro(i)}
+${englishOriginal}
+${sentence(row.한국어번역)} 여기서 핵심은 ${withObjectParticle(row.핵심통찰)} 보여 준다는 점입니다.`);
   }
 
   return lines.join('\n');
+}
+
+function assertMatthewHenryEnglishIncluded({ dataKey, rows, text }) {
+  for (let i = 0; i < rows.length; i++) {
+    const englishOriginal = cleanText(rows[i].영어원문);
+
+    if (englishOriginal && !text.includes(englishOriginal)) {
+      throw new Error(`${dataKey}의 표5_매튜헨리 ${i + 1}번째 영어원문이 TTS txt에 포함되지 않았습니다.`);
+    }
+  }
 }
 
 function renderSermon(ctx, rows) {
@@ -417,6 +444,10 @@ function buildPlans(args) {
 
     const text = `${RENDERERS[item.type]({ args, data, title: item.title, bookName }, rows).trim()}\n`;
     const outputPath = path.join(outputDir, `${item.type}.txt`);
+
+    if (item.type === 'matthew-henry') {
+      assertMatthewHenryEnglishIncluded({ dataKey, rows, text });
+    }
 
     return {
       type: item.type,

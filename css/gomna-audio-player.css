@@ -183,11 +183,26 @@
   color: var(--gomna-audio-cream);
 }
 
+.gomna-audio-commentary-button.gomna-audio-commentary-button--active {
+  background: var(--gomna-audio-gold);
+  color: var(--gomna-audio-cream);
+  border-color: var(--gomna-audio-gold);
+  box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.22);
+}
+
+.commentary-tab.gomna-audio-commentary-tab--active {
+  background: var(--gomna-audio-gold, #c9a961);
+  color: var(--gomna-audio-cream, #faf6ed);
+  border-color: var(--gomna-audio-gold, #c9a961);
+  box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.22);
+}
+
 .gomna-audio-commentary-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .gomna-audio-commentary-header .gomna-audio-commentary-button {
@@ -215,11 +230,55 @@
   opacity: 1;
 }
 
+.gomna-audio-commentary-header .gomna-audio-commentary-button.gomna-audio-commentary-button--active {
+  color: var(--cream, #faf6ed);
+  background: rgba(201, 169, 97, 0.34);
+  border-color: rgba(250, 246, 237, 0.24);
+  box-shadow: inset 0 0 0 1px rgba(250, 246, 237, 0.16);
+  opacity: 1;
+}
+
+.gomna-audio-commentary-header .gomna-audio-commentary-replay-button {
+  min-width: 36px;
+  padding-inline: 8px;
+  font-size: 12px;
+  opacity: 0.78;
+}
+
+.gomna-commentary-cue {
+  display: inline;
+  border-bottom: 1px dotted rgba(184, 117, 31, 0.75);
+  background: rgba(201, 169, 97, 0.10);
+  border-radius: 5px;
+  padding: 1px 3px;
+  cursor: pointer;
+}
+
+.gomna-commentary-cue:hover,
+.gomna-commentary-cue:focus {
+  background: rgba(201, 169, 97, 0.22);
+  outline: none;
+}
+
+.gomna-commentary-cue.gomna-commentary-cue--active {
+  border-bottom-style: solid;
+  background: rgba(201, 169, 97, 0.32);
+  box-shadow: 0 0 0 2px rgba(201, 169, 97, 0.18);
+}
+
 .gomna-audio-reading {
   border-left: 3px solid var(--gomna-audio-gold);
   padding-left: 8px;
   background: rgba(201, 169, 97, 0.05);
   transition: background 0.3s ease, border-color 0.3s ease, padding 0.3s ease;
+}
+
+.gomna-audio-commentary-section--active {
+  border: 2px solid rgba(201, 169, 97, 0.78);
+  border-radius: 12px;
+  background: rgba(201, 169, 97, 0.08);
+  box-shadow: 0 0 0 4px rgba(201, 169, 97, 0.12);
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .gomna-audio-loading {

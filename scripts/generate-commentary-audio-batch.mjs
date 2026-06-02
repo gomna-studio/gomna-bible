@@ -15,6 +15,14 @@ const TTS_DEFAULTS = {
   model: 'gpt-4o-mini-tts',
   providerVoice: 'marin',
   outputFormat: 'mp3',
+  instructions: [
+    '한국어 문장은 자연스러운 한국어로 읽는다.',
+    '영어 원문 문장은 생략하지 않는다.',
+    '영어 원문은 번역하지 않는다.',
+    '영어 원문은 영어 문장 그대로 읽는다.',
+    '따옴표 안의 영어 문장도 반드시 읽는다.',
+    '매튜헨리 항목에서는 영어원문과 한국어 해설을 모두 읽는다.',
+  ].join(' '),
 };
 
 const ALLOWED_TARGETS = [
@@ -38,7 +46,7 @@ const COMMENTARY_TYPES = [
 function usage() {
   console.error('Usage: node scripts/generate-commentary-audio-batch.mjs --locale ko-KR --book genesis --chapter 1 --verse 2 --dry-run');
   console.error('   or: node scripts/generate-commentary-audio-batch.mjs --locale ko-KR --book genesis --chapter 1 --verse 2 --type original-language --write');
-  console.error('Default mode is --dry-run. Optional: --type <type>, --overwrite');
+  console.error('Default mode is --dry-run. Optional: --type <type>, --overwrite, --show-input');
 }
 
 function parseArgs(argv) {
@@ -50,6 +58,7 @@ function parseArgs(argv) {
     scriptsDir: null,
     type: null,
     overwrite: false,
+    showInput: false,
     dryRun: true,
     write: false,
   };
@@ -73,6 +82,8 @@ function parseArgs(argv) {
       args.type = argv[++i];
     } else if (arg === '--overwrite') {
       args.overwrite = true;
+    } else if (arg === '--show-input') {
+      args.showInput = true;
     } else if (arg === '--dry-run') {
       dryRunExplicit = true;
       args.dryRun = true;
@@ -246,6 +257,7 @@ function buildPlanItem({ args, scriptsDir, item }) {
     provider: TTS_DEFAULTS.provider,
     model: TTS_DEFAULTS.model,
     providerVoice: TTS_DEFAULTS.providerVoice,
+    instructions: TTS_DEFAULTS.instructions,
     outputPath: toRelativePath(outputPath),
     tmpOutputPath: toRelativePath(tmpOutputPath),
     characterCount: text.length,
@@ -286,6 +298,7 @@ async function callOpenAiTts({ apiKey, item }) {
     body: JSON.stringify({
       model: item.model,
       voice: item.providerVoice,
+      instructions: item.instructions,
       input: item.text,
       response_format: TTS_DEFAULTS.outputFormat,
     }),
@@ -410,11 +423,13 @@ async function main() {
     provider: TTS_DEFAULTS.provider,
     model: TTS_DEFAULTS.model,
     providerVoice: TTS_DEFAULTS.providerVoice,
+    instructions: TTS_DEFAULTS.instructions,
     outputFormat: TTS_DEFAULTS.outputFormat,
     overwrite: args.overwrite,
+    showInput: args.showInput,
     type: args.type,
     targetCount: plan.length,
-    audios: plan.map((item) => toPublicItem(item)),
+    audios: plan.map((item) => toPublicItem(item, args.showInput ? { input: item.text } : {})),
   }, null, 2));
 }
 
