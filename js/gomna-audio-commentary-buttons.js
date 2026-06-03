@@ -5,14 +5,15 @@
   var ALL_TABS_AUDIO_ATTR = 'data-gomna-commentary-sequence-bound';
   var TAB_AUDIO_ATTR = 'data-gomna-commentary-tab-audio-bound';
   var ALL_TABS_BUTTON_SELECTOR = '[data-gomna-commentary-sequence-button="true"]';
-  var SEQUENCE_IDLE_LABEL = '▶ 주석풀이전체듣기';
-  var SEQUENCE_PLAYING_LABEL = '⏸ 주석풀이일시정지';
-  var SEQUENCE_PAUSED_LABEL = '▶ 주석풀이이어듣기';
+  var SEQUENCE_IDLE_LABEL = '▶ 전체듣기';
+  var SEQUENCE_PLAYING_LABEL = '⏸ 전체 일시정지';
+  var SEQUENCE_PAUSED_LABEL = '▶ 전체 이어듣기';
   var ACTIVE_BUTTON_CLASS = 'gomna-audio-commentary-button--active';
   var ACTIVE_TAB_CLASS = 'gomna-audio-commentary-tab--active';
   var ACTIVE_SECTION_CLASS = 'gomna-audio-commentary-section--active';
   var ACTIVE_CUE_CLASS = 'gomna-commentary-cue--active';
   var REPLAY_BUTTON_CLASS = 'gomna-audio-commentary-replay-button';
+  var SEQUENCE_BUTTON_CLASS = 'gomna-audio-commentary-sequence-button';
   var pendingTimer = null;
   var observer = null;
   var completedAudioIds = {};
@@ -196,6 +197,23 @@
     return !!completedAudioIds[audioId];
   }
 
+  function hasActiveCommentaryPlayback(state) {
+    return !!(
+      state &&
+      isCommentaryAudioId(state.currentAudioId) &&
+      (state.isPlaying || state.isPaused)
+    );
+  }
+
+  function hasActiveCommentarySequence(state) {
+    return !!(
+      state &&
+      state.queueActive &&
+      state.queueSource === currentSequenceSource &&
+      (state.isPlaying || state.isPaused)
+    );
+  }
+
   function buildCueKey(audioId, cueId) {
     return audioId + '#' + cueId;
   }
@@ -320,6 +338,18 @@
     }
 
     updateReplayButton(existingReplay, item);
+  }
+
+  function getActionHostForItem(content, item) {
+    var button;
+
+    if (!content || !item) return null;
+
+    button = content.querySelector(
+      '[data-audio-id="' + item.audioId + '"].gomna-audio-commentary-button'
+    );
+
+    return button ? button.parentNode : null;
   }
 
   function insertButtonForItem(content, item) {
@@ -462,8 +492,18 @@
   function bindAllTabsAudio(content) {
     var allTabsButton = content.querySelector(ALL_TABS_BUTTON_SELECTOR);
     var publishedIds = getPublishedSequenceAudioIds();
+    var firstItem = currentCommentaryItems[0];
+    var firstActionHost = getActionHostForItem(content, firstItem);
 
     if (!allTabsButton) return;
+
+    allTabsButton.classList.remove('commentary-tab', 'active');
+    allTabsButton.classList.add('gomna-audio-commentary-button', SEQUENCE_BUTTON_CLASS);
+    allTabsButton.setAttribute('aria-label', '전체 말씀풀이 듣기');
+
+    if (firstActionHost && allTabsButton.parentNode !== firstActionHost) {
+      firstActionHost.appendChild(allTabsButton);
+    }
 
     if (!publishedIds.length) {
       allTabsButton.disabled = true;
@@ -603,7 +643,7 @@
     },
 
     isSequenceActive: function(state) {
-      return !!(state && state.queueActive && state.queueSource === currentSequenceSource);
+      return hasActiveCommentarySequence(state);
     },
 
     markTransitionStop: function(state) {
@@ -714,7 +754,11 @@
         return this.playSequenceFrom(item.audioId);
       }
 
-      return this.startSingleFromBeginning(item.audioId);
+      if (hasActiveCommentaryPlayback(state)) {
+        return this.startSingleFromBeginning(item.audioId);
+      }
+
+      return false;
     },
 
     playCue: function(audioId, cueId) {
@@ -722,15 +766,29 @@
       var state = this.getState();
       var cues = COMMENTARY_MANUAL_CUES[audioId];
       var startTime = cues && cues[cueId];
+      var ids = getPublishedSequenceAudioIds();
+      var startIndex = ids.indexOf(audioId);
 
       if (!engine || !engine.playAudioById || !getItemByAudioId(audioId)) return false;
       if (typeof startTime !== 'number') return false;
 
       clearCommentaryCompleted(audioId);
       currentCueKey = buildCueKey(audioId, cueId);
-      lastSequenceQueueIndex = -1;
-      this.stopForTransition(engine, state);
-      engine.playAudioById(audioId, { startTime: startTime });
+
+      if (this.isSequenceActive(state) && engine.playAudioSequence && startIndex >= 0) {
+        lastSequenceQueueIndex = startIndex;
+        this.stopForTransition(engine, state);
+        engine.playAudioSequence(ids, {
+          source: currentSequenceSource,
+          startIndex: startIndex,
+          startTime: startTime
+        });
+      } else {
+        lastSequenceQueueIndex = -1;
+        this.stopForTransition(engine, state);
+        engine.playAudioById(audioId, { startTime: startTime });
+      }
+
       updateCommentaryButtonLabels();
       return true;
     },
@@ -783,7 +841,7 @@
     var content = getContent();
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
-    var activeAudioId = state && isCommentaryAudioId(state.currentAudioId)
+    var activeAudioId = hasActiveCommentaryPlayback(state)
       ? state.currentAudioId
       : null;
 
@@ -811,11 +869,11 @@
       button.setAttribute('data-audio-action', 'play');
       updateReplayButton(getReplayButtonForItem(content, item), item);
 
-      if (state && state.currentAudioId === item.audioId) {
+      if (activeAudioId === item.audioId) {
         button.textContent = state.isPaused ? '▶ 이어듣기' : '⏸ 일시정지';
         button.setAttribute('aria-label', item.title + (state.isPaused ? ' 이어듣기' : ' 일시정지'));
       } else if (isCommentaryCompleted(item.audioId)) {
-        button.textContent = '▶ 다시듣기';
+        button.textContent = '↻ 다시듣기';
         button.setAttribute('aria-label', item.title + ' 다시듣기');
       } else {
         button.textContent = '▶ 듣기';
@@ -844,7 +902,7 @@
       return;
     }
 
-    var sequenceActive = !!(state && state.queueActive && state.queueSource === currentSequenceSource);
+    var sequenceActive = hasActiveCommentarySequence(state);
     if (sequenceActive) {
       allTabsButton.textContent = state.isPaused ? SEQUENCE_PAUSED_LABEL : SEQUENCE_PLAYING_LABEL;
       allTabsButton.classList.add(ACTIVE_TAB_CLASS);
@@ -949,6 +1007,10 @@
 
     if (!popup || !content) return;
     if (!isCommentaryTabsPopup(popup)) return;
+
+    if (!content.querySelector('.gomna-audio-commentary-button[data-audio-id]')) {
+      resetCommentaryPlaybackState();
+    }
 
     refreshPublishedFlags();
 

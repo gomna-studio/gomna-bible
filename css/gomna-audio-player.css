@@ -3488,3 +3488,72 @@ body.gomna-audio-expanded-open #verseList {
     font-size: 18px !important;
   }
 }
+
+/* =========================================================
+   GOMNA COMMENTARY AUDIO ACTIONS FINAL
+   말씀풀이 오디오 액션 버튼 위치/톤 정리
+   ========================================================= */
+
+.gomna-audio-commentary-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.gomna-audio-commentary-header .gomna-audio-commentary-button,
+.gomna-audio-commentary-header .gomna-audio-commentary-sequence-button {
+  width: auto;
+  min-width: 0;
+  min-height: 34px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(122, 88, 48, 0.22);
+  background: rgba(255, 250, 242, 0.84);
+  color: #2b2118;
+  box-shadow: none;
+  opacity: 1;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.gomna-audio-commentary-header .gomna-audio-commentary-button:hover,
+.gomna-audio-commentary-header .gomna-audio-commentary-button:focus,
+.gomna-audio-commentary-header .gomna-audio-commentary-sequence-button:hover,
+.gomna-audio-commentary-header .gomna-audio-commentary-sequence-button:focus {
+  background: rgba(239, 225, 202, 0.92);
+  border-color: rgba(122, 88, 48, 0.32);
+  color: #2b2118;
+  box-shadow: none;
+}
+
+.gomna-audio-commentary-header .gomna-audio-commentary-button.gomna-audio-commentary-button--active,
+.gomna-audio-commentary-header .gomna-audio-commentary-sequence-button.gomna-audio-commentary-tab--active {
+  background: linear-gradient(180deg, #d8b866 0%, #caa34d 100%);
+  border-color: rgba(95, 58, 25, 0.24);
+  color: #2b2118;
+  box-shadow: 0 0 0 2px rgba(201, 169, 97, 0.16);
+}
+
+.gomna-audio-commentary-header .gomna-audio-commentary-replay-button,
+.gomna-audio-commentary-header .gomna-audio-commentary-sequence-button {
+  padding-inline: 11px;
+}
+
+.commentary-tab.gomna-audio-commentary-tab--active {
+  background: rgba(216, 184, 102, 0.22);
+  color: #2b2118;
+  border-color: rgba(122, 88, 48, 0.22);
+  box-shadow: none;
+}
+
+.gomna-audio-commentary-section--active {
+  border: 1px solid rgba(201, 169, 97, 0.48);
+  border-radius: 12px;
+  background: rgba(201, 169, 97, 0.06);
+  box-shadow: 0 0 0 2px rgba(201, 169, 97, 0.08);
+}
