@@ -3557,3 +3557,1565 @@ body.gomna-audio-expanded-open #verseList {
   background: rgba(201, 169, 97, 0.06);
   box-shadow: 0 0 0 2px rgba(201, 169, 97, 0.08);
 }
+
+/* =========================================================
+   GOMNA COMMENTARY POPUP PREMIUM REDESIGN
+   quiet luxury 말씀풀이 팝업 UI 정리
+   ========================================================= */
+
+#commentaryPopup {
+  background:
+    radial-gradient(circle at 50% 8%, rgba(250, 242, 226, 0.18), transparent 42%),
+    rgba(31, 24, 18, 0.42) !important;
+  backdrop-filter: blur(18px) saturate(108%);
+  -webkit-backdrop-filter: blur(18px) saturate(108%);
+}
+
+#commentaryPopupBox {
+  max-width: min(92vw, 760px) !important;
+  border: 1px solid rgba(122, 88, 48, 0.16) !important;
+  border-radius: 26px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.99) 0%, rgba(248, 241, 230, 0.99) 100%) !important;
+  color: #2b2118 !important;
+  box-shadow:
+    0 24px 58px rgba(31, 24, 18, 0.18),
+    0 2px 12px rgba(31, 24, 18, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+  overflow: hidden !important;
+}
+
+#commentaryPopup .popup-drag-header {
+  padding: 20px 22px 18px !important;
+  background:
+    linear-gradient(180deg, rgba(253, 248, 239, 0.98), rgba(244, 234, 218, 0.96)) !important;
+  border-bottom: 1px solid rgba(122, 88, 48, 0.12) !important;
+  border-radius: 26px 26px 0 0 !important;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.52) !important;
+}
+
+#commentaryPopup #commentaryTitle {
+  color: #1f1a17 !important;
+  font-size: 20px !important;
+  line-height: 1.18 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.035em !important;
+}
+
+#commentaryPopup .popup-drag-header #commentaryTitle + div {
+  margin-top: 5px !important;
+  color: rgba(51, 38, 29, 0.72) !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.01em !important;
+}
+
+#commentaryPopup .popup-drag-header button[onclick*="closeCommentary"] {
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  border: 1px solid rgba(122, 88, 48, 0.16) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 250, 242, 0.82) !important;
+  color: #33261d !important;
+  font-size: 16px !important;
+  font-weight: 750 !important;
+  box-shadow:
+    0 2px 8px rgba(42, 30, 20, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+}
+
+#commentaryPopup .popup-drag-header button[onclick*="closeCommentary"]:hover,
+#commentaryPopup .popup-drag-header button[onclick*="closeCommentary"]:focus {
+  background: rgba(239, 225, 202, 0.78) !important;
+  border-color: rgba(122, 88, 48, 0.24) !important;
+}
+
+#commentaryContent {
+  padding: 22px !important;
+  background: transparent !important;
+  color: #2b2118 !important;
+}
+
+#commentaryContent .commentary-verse-ref {
+  margin-bottom: 16px !important;
+  padding: 7px !important;
+  border: 1px solid rgba(122, 88, 48, 0.14) !important;
+  border-radius: 18px !important;
+  background: rgba(255, 250, 242, 0.82) !important;
+  color: #2b2118 !important;
+  box-shadow:
+    0 3px 12px rgba(61, 40, 24, 0.045),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+#commentaryContent .commentary-nav-arrow,
+#commentaryContent .commentary-nav-pick,
+#commentaryContent .commentary-nav-btn {
+  min-height: 38px !important;
+  border: 1px solid transparent !important;
+  border-radius: 13px !important;
+  background: transparent !important;
+  color: #33261d !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.015em !important;
+}
+
+#commentaryContent .commentary-nav-arrow {
+  width: 42px !important;
+  height: 42px !important;
+  font-size: 16px !important;
+}
+
+#commentaryContent .commentary-nav-pick {
+  padding: 8px 12px !important;
+  font-size: 15px !important;
+}
+
+#commentaryContent .commentary-nav-pick-caret {
+  color: rgba(51, 38, 29, 0.56) !important;
+}
+
+#commentaryContent .commentary-nav-arrow:hover:not(:disabled),
+#commentaryContent .commentary-nav-pick:hover,
+#commentaryContent .commentary-nav-btn:hover:not(:disabled),
+#commentaryContent .commentary-nav-arrow:focus:not(:disabled),
+#commentaryContent .commentary-nav-pick:focus,
+#commentaryContent .commentary-nav-btn:focus:not(:disabled) {
+  background: rgba(239, 225, 202, 0.56) !important;
+  border-color: rgba(122, 88, 48, 0.12) !important;
+  color: #1f1a17 !important;
+}
+
+#commentaryContent .commentary-nav-arrow:disabled,
+#commentaryContent .commentary-nav-btn:disabled {
+  color: rgba(51, 38, 29, 0.32) !important;
+  opacity: 1 !important;
+}
+
+#commentaryContent .commentary-tabs {
+  justify-content: flex-start !important;
+  gap: 7px !important;
+  margin: 0 0 16px !important;
+  padding: 0 0 16px !important;
+  border-bottom: 1px solid rgba(122, 88, 48, 0.10) !important;
+}
+
+#commentaryContent .commentary-tab {
+  min-width: 0 !important;
+  min-height: 36px !important;
+  padding: 0 13px !important;
+  border: 1px solid rgba(122, 88, 48, 0.16) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 250, 242, 0.72) !important;
+  color: #33261d !important;
+  box-shadow: none !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  font-weight: 760 !important;
+  letter-spacing: -0.015em !important;
+}
+
+#commentaryContent .commentary-tab:hover,
+#commentaryContent .commentary-tab:focus {
+  background: rgba(239, 225, 202, 0.72) !important;
+  border-color: rgba(122, 88, 48, 0.24) !important;
+  color: #1f1a17 !important;
+}
+
+#commentaryContent .commentary-tab.active,
+#commentaryContent .commentary-tab.gomna-audio-commentary-tab--active {
+  border-color: rgba(95, 58, 25, 0.24) !important;
+  background: rgba(211, 184, 126, 0.34) !important;
+  color: #1f1a17 !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.38) !important;
+}
+
+#commentaryContent .tab-content {
+  padding: 0 !important;
+  color: #2b2118 !important;
+}
+
+#commentaryContent .tab-content > div:first-child {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 38px !important;
+  margin: 0 !important;
+  padding: 0 13px !important;
+  border: 1px solid rgba(122, 88, 48, 0.13) !important;
+  border-bottom: 0 !important;
+  border-radius: 16px 16px 0 0 !important;
+  background: rgba(244, 234, 218, 0.72) !important;
+  color: #2b2118 !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.01em !important;
+}
+
+#commentaryContent .commentary-table {
+  margin: 0 0 14px !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border: 1px solid rgba(122, 88, 48, 0.13) !important;
+  border-radius: 0 0 16px 16px !important;
+  overflow: hidden !important;
+  background: rgba(255, 253, 248, 0.92) !important;
+  color: #2b2118 !important;
+  font-size: 14px !important;
+  box-shadow: 0 3px 14px rgba(61, 40, 24, 0.035) !important;
+}
+
+#commentaryContent .commentary-table th {
+  padding: 12px 12px !important;
+  border-bottom: 1px solid rgba(122, 88, 48, 0.11) !important;
+  background: rgba(250, 246, 237, 0.88) !important;
+  color: #33261d !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.01em !important;
+}
+
+#commentaryContent .commentary-table td {
+  padding: 14px 12px !important;
+  border-bottom: 1px solid rgba(122, 88, 48, 0.09) !important;
+  background: rgba(255, 253, 248, 0.95) !important;
+  color: #2b2118 !important;
+  font-size: 14px !important;
+  line-height: 1.72 !important;
+  font-weight: 520 !important;
+  vertical-align: top !important;
+}
+
+#commentaryContent .commentary-table tr:nth-child(odd) td,
+#commentaryContent .commentary-table tr:nth-child(even) td {
+  background: rgba(255, 253, 248, 0.95) !important;
+}
+
+#commentaryContent .commentary-table tr:last-child td {
+  border-bottom: 0 !important;
+}
+
+#commentaryContent .commentary-table .col1 {
+  color: #33261d !important;
+  font-weight: 780 !important;
+}
+
+#commentaryContent .commentary-table .col2,
+#commentaryContent .commentary-table .col3 {
+  color: rgba(43, 33, 24, 0.9) !important;
+}
+
+#commentaryContent .commentary-table .col3 {
+  font-weight: 620 !important;
+}
+
+#commentaryContent .commentary-bottom-nav {
+  gap: 8px !important;
+  margin-top: 16px !important;
+  padding: 12px 0 0 !important;
+  border-top: 1px solid rgba(122, 88, 48, 0.10) !important;
+}
+
+#commentaryContent .commentary-bottom-nav .commentary-nav-btn {
+  margin: 0 !important;
+  min-height: 40px !important;
+  border-color: rgba(122, 88, 48, 0.14) !important;
+  background: rgba(255, 250, 242, 0.72) !important;
+  color: #33261d !important;
+}
+
+#commentaryContent .gomna-audio-commentary-header {
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  padding: 1px 0 !important;
+}
+
+#commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-button,
+#commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-sequence-button {
+  min-height: 36px !important;
+  height: 36px !important;
+  padding: 0 13px !important;
+  border: 1px solid rgba(122, 88, 48, 0.17) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 250, 242, 0.78) !important;
+  color: #2b2118 !important;
+  box-shadow: 0 2px 9px rgba(61, 40, 24, 0.035) !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.015em !important;
+}
+
+#commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-button:hover,
+#commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-button:focus,
+#commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-sequence-button:hover,
+#commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-sequence-button:focus {
+  background: rgba(239, 225, 202, 0.76) !important;
+  border-color: rgba(122, 88, 48, 0.28) !important;
+  color: #1f1a17 !important;
+}
+
+#commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-button.gomna-audio-commentary-button--active,
+#commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-sequence-button.gomna-audio-commentary-tab--active {
+  background: rgba(211, 184, 126, 0.38) !important;
+  border-color: rgba(95, 58, 25, 0.25) !important;
+  color: #1f1a17 !important;
+  box-shadow:
+    0 0 0 2px rgba(201, 169, 97, 0.11),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42) !important;
+}
+
+#commentaryContent .gomna-audio-commentary-section--active {
+  border: 1px solid rgba(201, 169, 97, 0.38) !important;
+  border-radius: 18px !important;
+  background: rgba(250, 246, 237, 0.48) !important;
+  box-shadow: 0 0 0 2px rgba(201, 169, 97, 0.07) !important;
+}
+
+#commentaryContent .gomna-commentary-cue {
+  border-bottom: 1px solid rgba(122, 88, 48, 0.34) !important;
+  border-radius: 6px !important;
+  background: rgba(211, 184, 126, 0.16) !important;
+  color: #2b2118 !important;
+  padding: 1px 4px !important;
+}
+
+#commentaryContent .gomna-commentary-cue:hover,
+#commentaryContent .gomna-commentary-cue:focus,
+#commentaryContent .gomna-commentary-cue.gomna-commentary-cue--active {
+  border-bottom-color: rgba(95, 58, 25, 0.58) !important;
+  background: rgba(211, 184, 126, 0.28) !important;
+  box-shadow: 0 0 0 2px rgba(201, 169, 97, 0.10) !important;
+  outline: none !important;
+}
+
+#commentaryPopup .popup-close {
+  min-height: 46px !important;
+  border: 1px solid rgba(122, 88, 48, 0.18) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 250, 242, 0.86) !important;
+  color: #2b2118 !important;
+  box-shadow:
+    0 2px 10px rgba(61, 40, 24, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+  font-weight: 850 !important;
+}
+
+#commentaryPopup .popup-close:hover,
+#commentaryPopup .popup-close:focus {
+  background: rgba(239, 225, 202, 0.78) !important;
+  border-color: rgba(122, 88, 48, 0.28) !important;
+  color: #1f1a17 !important;
+}
+
+@media (max-width: 480px) {
+  #commentaryPopupBox {
+    width: calc(100vw - 18px) !important;
+    max-width: calc(100vw - 18px) !important;
+    border-radius: 22px !important;
+  }
+
+  #commentaryPopup .popup-drag-header {
+    padding: 17px 16px 15px !important;
+    border-radius: 22px 22px 0 0 !important;
+  }
+
+  #commentaryPopup #commentaryTitle {
+    font-size: 18px !important;
+  }
+
+  #commentaryContent {
+    padding: 16px !important;
+  }
+
+  #commentaryContent .commentary-tabs {
+    gap: 6px !important;
+    margin-bottom: 14px !important;
+    padding-bottom: 14px !important;
+  }
+
+  #commentaryContent .commentary-tab {
+    min-height: 34px !important;
+    padding: 0 11px !important;
+    font-size: 11.5px !important;
+  }
+
+  #commentaryContent .commentary-table {
+    font-size: 13px !important;
+  }
+
+  #commentaryContent .commentary-table th,
+  #commentaryContent .commentary-table td {
+    padding: 11px 9px !important;
+    font-size: 13px !important;
+    line-height: 1.62 !important;
+  }
+
+  #commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-button,
+  #commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-sequence-button {
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 0 11px !important;
+    font-size: 11.5px !important;
+  }
+}
+
+/* =========================================================
+   GOMNA COMMENTARY POPUP MOBILE SAFE AREA
+   iPhone/Android Safari 하단 잘림 방지
+   ========================================================= */
+
+#commentaryPopup.show {
+  z-index: 950 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  padding:
+    max(10px, env(safe-area-inset-top))
+    max(10px, env(safe-area-inset-right))
+    max(14px, calc(env(safe-area-inset-bottom) + 10px))
+    max(10px, env(safe-area-inset-left)) !important;
+}
+
+#commentaryPopupBox {
+  display: flex !important;
+  flex-direction: column !important;
+  width: min(92vw, 760px) !important;
+  max-width: min(92vw, 760px) !important;
+  max-height: min(92vh, calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px)) !important;
+  box-sizing: border-box !important;
+}
+
+@supports (height: 100dvh) {
+  #commentaryPopupBox {
+    max-height: min(92dvh, calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px)) !important;
+  }
+}
+
+@supports (height: 100svh) {
+  #commentaryPopupBox {
+    max-height: min(92svh, calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px)) !important;
+  }
+}
+
+#commentaryPopup .popup-drag-header {
+  flex: 0 0 auto !important;
+}
+
+#commentaryContent {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+}
+
+#commentaryPopupBox > div:last-child {
+  flex: 0 0 auto !important;
+  margin-top: auto !important;
+  padding:
+    10px 20px calc(14px + env(safe-area-inset-bottom)) !important;
+  border-top: 1px solid rgba(122, 88, 48, 0.08) !important;
+  background: rgba(255, 253, 248, 0.96) !important;
+  box-sizing: border-box !important;
+}
+
+#commentaryPopup .popup-close {
+  margin: 0 !important;
+}
+
+@media (max-width: 768px) {
+  #commentaryPopup.show {
+    padding-bottom: max(18px, calc(env(safe-area-inset-bottom) + 12px)) !important;
+  }
+
+  #commentaryPopupBox {
+    width: calc(100vw - 18px) !important;
+    max-width: calc(100vw - 18px) !important;
+    max-height: min(
+      94vh,
+      calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 18px)
+    ) !important;
+  }
+
+  @supports (height: 100dvh) {
+    #commentaryPopupBox {
+      max-height: min(
+        94dvh,
+        calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 18px)
+      ) !important;
+    }
+  }
+
+  #commentaryPopupBox > div:last-child {
+    padding:
+      12px 16px calc(18px + env(safe-area-inset-bottom) + 10px) !important;
+  }
+}
+
+/* =========================================================
+   GOMNA COMMENTARY POPUP CONTROLS REFINEMENT
+   하단 오디오 컨트롤 중심 배치
+   ========================================================= */
+
+#commentaryPopup .popup-drag-header {
+  position: relative !important;
+  display: block !important;
+  cursor: default !important;
+  padding: 22px 24px 18px !important;
+  text-align: center !important;
+}
+
+#commentaryPopup .popup-drag-header > div:first-child,
+#commentaryPopup .popup-drag-header > button[onclick*="closeCommentary"] {
+  display: none !important;
+}
+
+#commentaryPopup .popup-drag-header #commentaryTitle {
+  color: #1f1a17 !important;
+  font-size: 22px !important;
+  line-height: 1.15 !important;
+  font-weight: 880 !important;
+  letter-spacing: -0.04em !important;
+}
+
+#commentaryPopup .popup-drag-header #commentaryTitle + div {
+  margin-top: 7px !important;
+  color: #2b2118 !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  font-weight: 720 !important;
+}
+
+#commentaryPopup .gomna-audio-commentary-header-note {
+  max-width: 520px !important;
+  margin: 8px auto 0 !important;
+  color: rgba(51, 38, 29, 0.72) !important;
+  font-size: 11.5px !important;
+  line-height: 1.45 !important;
+  font-weight: 620 !important;
+  letter-spacing: -0.01em !important;
+}
+
+#commentaryPopup .gomna-audio-commentary-controls-footer {
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  padding:
+    13px 20px calc(16px + env(safe-area-inset-bottom)) !important;
+  border-top: 1px solid rgba(122, 88, 48, 0.10) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.88), rgba(247, 243, 235, 0.98)) !important;
+  box-shadow: 0 -8px 20px rgba(61, 40, 24, 0.035) !important;
+}
+
+#commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-button,
+#commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-replay-button,
+#commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-sequence-button {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  padding: 0 13px !important;
+  border: 1px solid rgba(122, 88, 48, 0.18) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 250, 241, 0.92) !important;
+  color: #2b2118 !important;
+  box-shadow:
+    0 2px 8px rgba(61, 40, 24, 0.035),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+  font-size: 12.5px !important;
+  line-height: 1 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.02em !important;
+  white-space: nowrap !important;
+}
+
+#commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-button:hover,
+#commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-button:focus,
+#commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-replay-button:hover,
+#commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-replay-button:focus,
+#commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-sequence-button:hover,
+#commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-sequence-button:focus {
+  border-color: rgba(122, 88, 48, 0.28) !important;
+  background: rgba(239, 225, 202, 0.76) !important;
+  color: #1f1a17 !important;
+  outline: none !important;
+}
+
+#commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-button--active,
+#commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-tab--active {
+  border-color: rgba(95, 58, 25, 0.24) !important;
+  background: rgba(211, 184, 126, 0.34) !important;
+  color: #1f1a17 !important;
+  box-shadow:
+    0 0 0 2px rgba(201, 169, 97, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.48) !important;
+}
+
+#commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-button--pending {
+  opacity: 0.58 !important;
+  cursor: not-allowed !important;
+}
+
+#commentaryPopup .gomna-audio-commentary-close-button.popup-close {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 54px !important;
+  width: 54px !important;
+  min-width: 54px !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  padding: 0 !important;
+  border: 1px solid #dccfbc !important;
+  border-radius: 50% !important;
+  background: #fffaf1 !important;
+  color: #1f1a17 !important;
+  box-shadow:
+    0 2px 9px rgba(61, 40, 24, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78) !important;
+  font-size: 28px !important;
+  line-height: 1 !important;
+  font-weight: 520 !important;
+  letter-spacing: 0 !important;
+}
+
+#commentaryPopup .gomna-audio-commentary-close-button.popup-close:hover,
+#commentaryPopup .gomna-audio-commentary-close-button.popup-close:focus {
+  border-color: #cdbda7 !important;
+  background: #f7f3eb !important;
+  color: #1f1a17 !important;
+  outline: none !important;
+}
+
+@media (max-width: 480px) {
+  #commentaryPopup .popup-drag-header {
+    padding: 19px 17px 15px !important;
+  }
+
+  #commentaryPopup .popup-drag-header #commentaryTitle {
+    font-size: 20px !important;
+  }
+
+  #commentaryPopup .popup-drag-header #commentaryTitle + div {
+    font-size: 12.5px !important;
+  }
+
+  #commentaryPopup .gomna-audio-commentary-header-note {
+    font-size: 11px !important;
+  }
+
+  #commentaryPopup .gomna-audio-commentary-controls-footer {
+    gap: 7px !important;
+    padding:
+      12px 12px calc(18px + env(safe-area-inset-bottom) + 8px) !important;
+  }
+
+  #commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-button,
+  #commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-replay-button,
+  #commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-sequence-button {
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 0 9px !important;
+    font-size: 11.5px !important;
+  }
+
+  #commentaryPopup .gomna-audio-commentary-close-button.popup-close {
+    flex-basis: 54px !important;
+    width: 54px !important;
+    min-width: 54px !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    font-size: 28px !important;
+  }
+}
+
+/* =========================================================
+   GOMNA MINI PLAYER EXPAND BUTTON RESTORE
+   말씀 오디오 카드 열기 버튼과 말씀풀이 닫기 버튼 분리
+   ========================================================= */
+
+#gomna-audio-mini-player .gomna-audio-mini-controls {
+  flex-shrink: 0 !important;
+  min-width: max-content !important;
+}
+
+#gomna-audio-mini-player .gomna-audio-mini-info {
+  gap: 6px !important;
+}
+
+#gomna-audio-mini-player .gomna-audio-mini-progress {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+#gomna-audio-mini-player .gomna-audio-mini-progress-track {
+  position: relative !important;
+  width: 100% !important;
+  height: 3px !important;
+  border-radius: 999px !important;
+  background: rgba(74, 42, 27, 0.18) !important;
+  overflow: visible !important;
+}
+
+#gomna-audio-mini-player .gomna-audio-mini-progress-fill {
+  width: 0%;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: rgba(95, 58, 25, 0.72) !important;
+}
+
+#gomna-audio-mini-player .gomna-audio-mini-progress-thumb {
+  position: absolute !important;
+  top: 50% !important;
+  left: 0%;
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  background: #6f472b !important;
+  box-shadow: 0 1px 4px rgba(42, 24, 14, 0.18) !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+#gomna-audio-mini-player .gomna-audio-mini-times {
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  margin-top: 5px !important;
+  color: rgba(43, 33, 24, 0.72) !important;
+  font-size: 10.5px !important;
+  line-height: 1 !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.01em !important;
+}
+
+#gomna-audio-mini-player .gomna-audio-btn-expand[data-audio-action="expand"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  flex: 0 0 42px !important;
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  margin: 0 !important;
+  border-radius: 999px !important;
+  background: rgba(255, 248, 239, 0.74) !important;
+  border: 1px solid rgba(255, 248, 239, 0.54) !important;
+  color: #4a2a1b !important;
+  box-shadow:
+    0 1px 4px rgba(20, 14, 10, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.30) !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+#gomna-audio-mini-player .gomna-audio-btn-expand[data-audio-action="expand"]:hover,
+#gomna-audio-mini-player .gomna-audio-btn-expand[data-audio-action="expand"]:focus {
+  background: rgba(255, 248, 239, 0.86) !important;
+  color: #3b2115 !important;
+  outline: none !important;
+}
+
+@media (max-width: 480px) {
+  #gomna-audio-mini-player {
+    overflow: visible !important;
+  }
+
+  #gomna-audio-mini-player .gomna-audio-mini-info {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  #gomna-audio-mini-player .gomna-audio-mini-title {
+    max-width: 100% !important;
+  }
+
+  #gomna-audio-mini-player .gomna-audio-mini-progress-track {
+    height: 3px !important;
+  }
+
+  #gomna-audio-mini-player .gomna-audio-mini-times {
+    font-size: 10px !important;
+  }
+
+  #gomna-audio-mini-player .gomna-audio-mini-controls {
+    gap: 4px !important;
+  }
+
+  #gomna-audio-mini-player .gomna-audio-btn-seek-back,
+  #gomna-audio-mini-player .gomna-audio-btn-seek-forward,
+  #gomna-audio-mini-player .gomna-audio-btn-speed,
+  #gomna-audio-mini-player .gomna-audio-btn-expand[data-audio-action="expand"] {
+    flex-basis: 36px !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+
+  #gomna-audio-mini-player .gomna-audio-btn-expand[data-audio-action="expand"] {
+    font-size: 17px !important;
+  }
+}
+
+/* =========================================================
+   GOMNA OVERLAY STACK FIX
+   말씀풀이 팝업 위에 필수 카드/미니 플레이어 복구
+   ========================================================= */
+
+/* 미니 플레이어: 말씀 오디오 카드 열기 버튼 항상 접근 가능 */
+#gomna-audio-mini-player.gomna-audio-visible {
+  z-index: 960 !important;
+  pointer-events: auto !important;
+}
+
+/* 오디오 재생 중에는 말씀풀이 하단 컨트롤과 미니 플레이어를 세로로 분리 */
+body.gomna-audio-body-padding #commentaryPopup.show {
+  --gomna-commentary-mini-clearance: calc(
+    var(--gomna-audio-mini-height, 88px) + env(safe-area-inset-bottom, 0px) + 18px
+  );
+  justify-content: flex-end !important;
+  padding-bottom: var(--gomna-commentary-mini-clearance) !important;
+}
+
+body.gomna-audio-body-padding #commentaryPopupBox {
+  max-height: calc(
+    100vh - env(safe-area-inset-top, 0px) - var(--gomna-commentary-mini-clearance, 106px) - 18px
+  ) !important;
+}
+
+@supports (height: 100dvh) {
+  body.gomna-audio-body-padding #commentaryPopupBox {
+    max-height: calc(
+      100dvh - env(safe-area-inset-top, 0px) - var(--gomna-commentary-mini-clearance, 106px) - 18px
+    ) !important;
+  }
+}
+
+/* 확장 플레이어(속도/목소리/타이머): 말씀풀이 팝업보다 위 */
+#gomna-audio-expanded-player.gomna-audio-visible {
+  z-index: 1000 !important;
+  pointer-events: auto !important;
+}
+
+/* 책/장/절 선택 카드: 말씀풀이 팝업(950)보다 위 */
+.unified-bc-overlay.active {
+  z-index: 1000 !important;
+  pointer-events: auto !important;
+}
+
+.unified-bc-overlay.active .unified-bc-box {
+  pointer-events: auto !important;
+}
+
+/* 말씀풀이 내 ▼ 선택 버튼 클릭 보장 */
+#commentaryContent .commentary-nav-pick {
+  position: relative !important;
+  z-index: 2 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+#commentaryContent .commentary-nav-pick-txt,
+#commentaryContent .commentary-nav-pick-caret {
+  pointer-events: none !important;
+}
+
+/* =========================================================
+   GOMNA COMMENTARY MODAL SCROLL LOCK
+   iOS Safari 팝업 전체 드래그/rubber-band 방지
+   ========================================================= */
+
+body.gomna-commentary-popup-open {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+body.gomna-commentary-popup-open #commentaryPopup.show {
+  position: fixed !important;
+  inset: 0 !important;
+  overflow: hidden !important;
+  touch-action: auto !important;
+}
+
+body.gomna-commentary-popup-open #commentaryPopupBox {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  transform: none !important;
+  overscroll-behavior: contain !important;
+}
+
+body.gomna-commentary-popup-open #commentaryPopup .popup-drag-header,
+body.gomna-commentary-popup-open #commentaryPopup .gomna-audio-commentary-controls-footer {
+  flex-shrink: 0 !important;
+  touch-action: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
+body.gomna-commentary-popup-open #commentaryContent {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-y: contain !important;
+  touch-action: pan-y !important;
+}
+
+/* =========================================================
+   GOMNA MINI PLAYER CARD LAYOUT FINAL
+   말씀풀이 오디오용 카드형 미니 플레이어
+   ========================================================= */
+
+#gomna-audio-mini-player.gomna-audio-visible {
+  left: 50% !important;
+  right: auto !important;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px) !important;
+  width: min(calc(100vw - 18px), 640px) !important;
+  max-width: 640px !important;
+  height: auto !important;
+  min-height: 126px !important;
+  max-height: none !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto auto !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  gap: 12px !important;
+  padding: 18px 18px 16px !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+  border: 1px solid rgba(122, 88, 48, 0.15) !important;
+  border-radius: 22px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(248, 241, 230, 0.98)) !important;
+  color: #2b2118 !important;
+  box-shadow:
+    0 8px 22px rgba(61, 40, 24, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(18px) saturate(116%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(116%) !important;
+  transform: translate(-50%, 0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 960 !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-info {
+  grid-column: 1 !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 9px !important;
+  padding: 0 !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-title {
+  width: 100% !important;
+  max-width: 100% !important;
+  color: #2b2118 !important;
+  font-size: 16px !important;
+  line-height: 1.25 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.025em !important;
+  text-align: left !important;
+  text-shadow: none !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-preview {
+  display: none !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-progress {
+  display: block !important;
+  width: 100% !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-progress-track {
+  height: 4px !important;
+  background: rgba(122, 88, 48, 0.20) !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-progress-fill {
+  background: rgba(95, 58, 25, 0.78) !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-progress-thumb {
+  width: 14px !important;
+  height: 14px !important;
+  background: #6b4328 !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-times {
+  margin-top: 8px !important;
+  color: rgba(43, 33, 24, 0.70) !important;
+  font-size: 12px !important;
+  font-weight: 680 !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-controls {
+  grid-column: 1 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-back,
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-forward,
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-speed,
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-expand[data-audio-action="expand"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 42px !important;
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(122, 88, 48, 0.15) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 250, 241, 0.78) !important;
+  color: #2b2118 !important;
+  box-shadow:
+    0 2px 8px rgba(61, 40, 24, 0.035),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  font-weight: 780 !important;
+  text-shadow: none !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 52px !important;
+  width: 52px !important;
+  min-width: 52px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(80, 48, 27, 0.22) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, #7a5131, #5b351f) !important;
+  color: #fffaf1 !important;
+  box-shadow:
+    0 6px 14px rgba(61, 40, 24, 0.18),
+    inset 0 1px 0 rgba(255, 250, 241, 0.22) !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-speed {
+  font-size: 13px !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-expand[data-audio-action="expand"] {
+  font-size: 18px !important;
+}
+
+body.gomna-audio-body-padding #commentaryPopup.show {
+  --gomna-commentary-mini-clearance: calc(170px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (min-width: 520px) {
+  #gomna-audio-mini-player.gomna-audio-visible {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-rows: auto !important;
+    align-items: center !important;
+    min-height: 102px !important;
+    padding: 18px 20px !important;
+  }
+
+  #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-info {
+    grid-column: 1 !important;
+  }
+
+  #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-controls {
+    grid-column: 2 !important;
+    width: auto !important;
+  }
+
+  body.gomna-audio-body-padding #commentaryPopup.show {
+    --gomna-commentary-mini-clearance: calc(130px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (max-width: 374px) {
+  body.gomna-audio-body-padding #commentaryPopup.show {
+    --gomna-commentary-mini-clearance: calc(162px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  #gomna-audio-mini-player.gomna-audio-visible {
+    width: calc(100vw - 18px) !important;
+    padding: 16px 14px 14px !important;
+  }
+
+  #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-controls {
+    gap: 6px !important;
+  }
+
+  #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-back,
+  #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-forward,
+  #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-speed,
+  #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-expand[data-audio-action="expand"] {
+    flex-basis: 38px !important;
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 12px !important;
+  }
+
+  #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause {
+    flex-basis: 48px !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+  }
+}
+
+/* =========================================================
+   GOMNA iOS SAFARI LAYOUT FIX
+   말씀풀이 드래그 차단 · 미니 플레이어 노출 · 카드 간격
+   ========================================================= */
+
+:root {
+  --gomna-audio-mini-height: 170px;
+}
+
+body.gomna-commentary-popup-open #popupDragHeader {
+  cursor: default !important;
+  touch-action: none !important;
+}
+
+body.gomna-commentary-popup-open #commentaryPopupBox {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  transform: none !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopup.show {
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+  padding-bottom: calc(
+    var(--gomna-commentary-mini-clearance, 170px) + 10px
+  ) !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
+  max-height: calc(
+    100dvh - env(safe-area-inset-top, 0px) - var(--gomna-commentary-mini-clearance, 170px) - 28px
+  ) !important;
+}
+
+@supports not (height: 100dvh) {
+  body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
+    max-height: calc(
+      100vh - env(safe-area-inset-top, 0px) - var(--gomna-commentary-mini-clearance, 170px) - 28px
+    ) !important;
+  }
+}
+
+#gomna-audio-mini-player.gomna-audio-visible {
+  display: grid !important;
+  visibility: visible !important;
+  overflow: visible !important;
+  -webkit-transform: translate3d(-50%, 0, 0) !important;
+  transform: translate3d(-50%, 0, 0) !important;
+  z-index: 970 !important;
+  bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+}
+
+body.gomna-commentary-popup-open #gomna-audio-mini-player.gomna-audio-visible {
+  z-index: 970 !important;
+  pointer-events: auto !important;
+}
+
+body.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible {
+  bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-controls {
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  max-width: 100% !important;
+  padding-bottom: 2px !important;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-controls::-webkit-scrollbar {
+  display: none;
+}
+
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-back,
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-forward,
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-speed,
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause,
+#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-expand[data-audio-action="expand"] {
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+}
+
+#gomna-audio-mini-player .gomna-audio-btn-expand[data-audio-action="expand"] {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+#commentaryPopup .gomna-audio-commentary-controls-footer {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+#commentaryPopup .gomna-audio-commentary-controls-footer > .popup-close:not(:last-of-type) {
+  display: none !important;
+}
+
+@media (max-width: 480px) {
+  body.gomna-audio-body-padding #commentaryPopup.show {
+    --gomna-commentary-mini-clearance: calc(176px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  #gomna-audio-mini-player.gomna-audio-visible {
+    width: calc(100vw - 18px) !important;
+    max-width: calc(100vw - 18px) !important;
+    min-height: 132px !important;
+  }
+}
+
+/* =========================================================
+   GOMNA COMMENTARY POPUP STATE SPLIT FINAL
+   idle: 팝업 크게 / playing: 미니 플레이어만큼만 간격 확보
+   ========================================================= */
+
+:root {
+  --gomna-commentary-mini-card-height: 132px;
+  --gomna-commentary-card-gap: 6px;
+  --gomna-commentary-shell-gap: 10px;
+}
+
+body.gomna-commentary-popup-open #commentaryPopup.show {
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  padding:
+    max(10px, env(safe-area-inset-top, 0px))
+    max(9px, env(safe-area-inset-right, 0px))
+    max(10px, env(safe-area-inset-bottom, 0px))
+    max(9px, env(safe-area-inset-left, 0px)) !important;
+}
+
+body.gomna-commentary-popup-open:not(.gomna-audio-body-padding) #commentaryPopup.show {
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+body.gomna-commentary-popup-open:not(.gomna-audio-body-padding) #commentaryPopupBox {
+  width: min(96vw, 760px) !important;
+  max-width: min(96vw, 760px) !important;
+  max-height: calc(
+    100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 20px
+  ) !important;
+}
+
+@supports not (height: 100dvh) {
+  body.gomna-commentary-popup-open:not(.gomna-audio-body-padding) #commentaryPopupBox {
+    max-height: calc(
+      100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 20px
+    ) !important;
+  }
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopup.show {
+  --gomna-commentary-mini-clearance: calc(
+    var(--gomna-commentary-mini-card-height, 132px) +
+    var(--gomna-commentary-card-gap, 6px) +
+    env(safe-area-inset-bottom, 0px)
+  ) !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  padding-bottom: calc(
+    var(--gomna-commentary-mini-clearance) + var(--gomna-commentary-shell-gap, 10px)
+  ) !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
+  width: min(96vw, 760px) !important;
+  max-width: min(96vw, 760px) !important;
+  max-height: calc(
+    100dvh - env(safe-area-inset-top, 0px) - var(--gomna-commentary-mini-clearance) - var(--gomna-commentary-shell-gap, 10px) - 10px
+  ) !important;
+}
+
+@supports not (height: 100dvh) {
+  body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
+    max-height: calc(
+      100vh - env(safe-area-inset-top, 0px) - var(--gomna-commentary-mini-clearance) - var(--gomna-commentary-shell-gap, 10px) - 10px
+    ) !important;
+  }
+}
+
+body.gomna-commentary-popup-open #commentaryPopup .popup-drag-header,
+body.gomna-commentary-popup-open #commentaryPopup .gomna-audio-commentary-controls-footer {
+  touch-action: pinch-zoom !important;
+}
+
+body.gomna-commentary-popup-open #commentaryContent {
+  touch-action: pan-y pinch-zoom !important;
+}
+
+#gomna-audio-mini-player:not(.gomna-audio-visible) {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#gomna-audio-mini-player[hidden] {
+  display: none !important;
+}
+
+body.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible {
+  display: grid !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+  min-height: var(--gomna-commentary-mini-card-height, 132px) !important;
+  z-index: 970 !important;
+}
+
+body:not(.gomna-audio-body-padding) #gomna-audio-mini-player:not(.gomna-audio-visible),
+body:not(.gomna-audio-body-padding) #gomna-audio-mini-player[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 480px) {
+  :root {
+    --gomna-commentary-mini-card-height: 132px;
+    --gomna-commentary-card-gap: 6px;
+    --gomna-commentary-shell-gap: 10px;
+  }
+
+  body.gomna-commentary-popup-open:not(.gomna-audio-body-padding) #commentaryPopupBox,
+  body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
+    width: calc(100vw - 18px) !important;
+    max-width: calc(100vw - 18px) !important;
+  }
+
+  body.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible {
+    width: calc(100vw - 18px) !important;
+    max-width: calc(100vw - 18px) !important;
+  }
+}
+
+/* =========================================================
+   GOMNA COMMENTARY AUDIO STACK CONNECTOR FINAL
+   말씀풀이 카드와 미니 플레이어를 하나의 아이보리 오디오 묶음처럼 연결
+   ========================================================= */
+
+:root {
+  --gomna-commentary-card-gap: 3px;
+  --gomna-commentary-shell-gap: 10px;
+  --gomna-commentary-stack-bg: rgba(255, 253, 248, 0.98);
+  --gomna-commentary-stack-bg-soft: rgba(248, 241, 230, 0.98);
+  --gomna-commentary-stack-border: rgba(122, 88, 48, 0.13);
+  --gomna-commentary-stack-shadow: 0 8px 22px rgba(61, 40, 24, 0.08);
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopup.show {
+  --gomna-commentary-mini-clearance: calc(
+    var(--gomna-commentary-mini-card-height, 132px) +
+    var(--gomna-commentary-card-gap, 3px) +
+    env(safe-area-inset-bottom, 0px)
+  ) !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopup.show::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(
+    var(--gomna-commentary-mini-card-height, 132px) +
+    var(--gomna-commentary-card-gap, 3px) +
+    var(--gomna-commentary-shell-gap, 10px) +
+    env(safe-area-inset-bottom, 0px)
+  );
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 253, 248, 0) 0%,
+      rgba(255, 253, 248, 0.94) 18%,
+      var(--gomna-commentary-stack-bg) 100%
+    );
+}
+
+body.gomna-commentary-popup-open #commentaryPopupBox {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox,
+body.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible {
+  border-color: var(--gomna-commentary-stack-border) !important;
+  background:
+    linear-gradient(
+      180deg,
+      var(--gomna-commentary-stack-bg),
+      var(--gomna-commentary-stack-bg-soft)
+    ) !important;
+  box-shadow:
+    var(--gomna-commentary-stack-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+}
+
+body.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible {
+  bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
+  border-radius: 24px !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible {
+  border-radius: 22px !important;
+}
+
+/* =========================================================
+   GOMNA COMMENTARY AUDIO BACKGROUND UNIFICATION FINAL
+   실제 배경 3곳(팝업/미니/뒤 바탕)을 같은 아이보리 계열로 통일
+   ========================================================= */
+
+:root {
+  --gomna-commentary-surface: #f7f3eb;
+  --gomna-commentary-surface-soft: #fffaf1;
+  --gomna-commentary-surface-warm: #f6efe3;
+  --gomna-commentary-surface-border: rgba(122, 88, 48, 0.12);
+  --gomna-commentary-surface-shadow: 0 7px 18px rgba(61, 40, 24, 0.075);
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopup.show {
+  background:
+    radial-gradient(circle at 50% 8%, rgba(255, 250, 241, 0.82), transparent 44%),
+    linear-gradient(
+      180deg,
+      rgba(247, 243, 235, 0.96) 0%,
+      rgba(247, 243, 235, 0.98) 58%,
+      var(--gomna-commentary-surface) 100%
+    ) !important;
+  backdrop-filter: blur(12px) saturate(106%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(106%) !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopup.show::before {
+  content: none !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox,
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryContent,
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopup .gomna-audio-commentary-controls-footer,
+body.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible {
+  background:
+    linear-gradient(
+      180deg,
+      var(--gomna-commentary-surface-soft) 0%,
+      var(--gomna-commentary-surface) 100%
+    ) !important;
+  border-color: var(--gomna-commentary-surface-border) !important;
+  box-shadow:
+    var(--gomna-commentary-surface-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopup .popup-drag-header {
+  background:
+    linear-gradient(
+      180deg,
+      var(--gomna-commentary-surface-soft) 0%,
+      var(--gomna-commentary-surface-warm) 100%
+    ) !important;
+  border-bottom-color: var(--gomna-commentary-surface-border) !important;
+}
+
+body.gomna-audio-body-padding::after {
+  background:
+    linear-gradient(
+      to top,
+      var(--gomna-commentary-surface) 0%,
+      rgba(247, 243, 235, 0.96) 62%,
+      rgba(247, 243, 235, 0) 100%
+    ) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
+  border-radius: 24px !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible,
+body.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible {
+  border-radius: 22px 22px 28px 28px !important;
+  overflow: hidden !important;
+  bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
+  background:
+    linear-gradient(
+      180deg,
+      var(--gomna-commentary-surface-soft) 0%,
+      var(--gomna-commentary-surface) 100%
+    ) !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopup.show {
+  --gomna-commentary-card-gap: 4px;
+}

@@ -14,12 +14,17 @@
   var ACTIVE_CUE_CLASS = 'gomna-commentary-cue--active';
   var REPLAY_BUTTON_CLASS = 'gomna-audio-commentary-replay-button';
   var SEQUENCE_BUTTON_CLASS = 'gomna-audio-commentary-sequence-button';
+  var CONTROLS_FOOTER_CLASS = 'gomna-audio-commentary-controls-footer';
+  var HEADER_NOTE_CLASS = 'gomna-audio-commentary-header-note';
+  var MODAL_OPEN_CLASS = 'gomna-commentary-popup-open';
   var pendingTimer = null;
   var observer = null;
   var completedAudioIds = {};
   var lastSequenceQueueIndex = -1;
   var replayGuardAudioId = null;
   var currentCueKey = null;
+  var touchStartY = 0;
+  var modalTouchListenersBound = false;
 
   var currentContext = null;
   var currentCommentaryItems = [];
@@ -101,6 +106,39 @@
     return document.getElementById('commentaryContent');
   }
 
+  function getPopupBox() {
+    return document.getElementById('commentaryPopupBox');
+  }
+
+  function isCommentaryPopupOpen() {
+    var popup = getPopup();
+    return !!(popup && popup.classList.contains('show'));
+  }
+
+  function resetCommentaryPopupBoxDragStyles() {
+    var box = getPopupBox();
+
+    if (!box) return;
+
+    box.style.position = '';
+    box.style.left = '';
+    box.style.top = '';
+    box.style.right = '';
+    box.style.bottom = '';
+    box.style.margin = '';
+    box.style.transform = '';
+  }
+
+  function syncCommentaryPopupLock() {
+    var open = isCommentaryPopupOpen();
+
+    document.body.classList.toggle(MODAL_OPEN_CLASS, open);
+
+    if (open) {
+      resetCommentaryPopupBoxDragStyles();
+    }
+  }
+
   function getManifestAudios() {
     var config = window.GOMNA_AUDIO_CONFIG;
     if (!config || !config.manifestData || !config.manifestData.audios) {
@@ -108,6 +146,95 @@
     }
 
     return config.manifestData.audios;
+  }
+
+  function getPopupScope() {
+    return getPopup() || getContent();
+  }
+
+  function findCommentaryButtonByAudioId(audioId) {
+    var scope = getPopupScope();
+    if (!scope) return null;
+
+    return scope.querySelector(
+      '[data-audio-id="' + audioId + '"].gomna-audio-commentary-button'
+    );
+  }
+
+  function findReplayButtonByAudioId(audioId) {
+    var scope = getPopupScope();
+    if (!scope) return null;
+
+    return scope.querySelector(
+      '[data-audio-replay-id="' + audioId + '"].' + REPLAY_BUTTON_CLASS
+    );
+  }
+
+  function getControlsFooter() {
+    var box = getPopupBox();
+    var footer;
+    var closeButton;
+
+    if (!box) return null;
+
+    footer = box.querySelector('.' + CONTROLS_FOOTER_CLASS);
+    closeButton = box.querySelector('.popup-close[onclick*="closeCommentary"]');
+
+    if (!footer && closeButton) {
+      footer = closeButton.parentNode;
+    }
+
+    if (!footer) return null;
+
+    footer.classList.add(CONTROLS_FOOTER_CLASS);
+    footer.setAttribute('aria-label', '말씀풀이 오디오 컨트롤');
+
+    if (closeButton) {
+      closeButton.classList.add('gomna-audio-commentary-close-button');
+      closeButton.setAttribute('aria-label', '말씀풀이 닫기');
+      closeButton.setAttribute('title', '말씀풀이 닫기');
+      closeButton.textContent = '✕';
+    }
+
+    return footer;
+  }
+
+  function updateCommentaryHeaderCopy() {
+    var title = document.getElementById('commentaryTitle');
+    var header = document.getElementById('popupDragHeader');
+    var subtitle;
+    var note;
+
+    if (!title || !header) return;
+
+    title.textContent = '📖 말씀풀이';
+    subtitle = title.nextElementSibling;
+
+    if (subtitle) {
+      subtitle.textContent = '주석과 해설로 깊어지는 말씀 묵상';
+    }
+
+    note = header.querySelector('.' + HEADER_NOTE_CLASS);
+    if (!note) {
+      note = document.createElement('div');
+      note.className = HEADER_NOTE_CLASS;
+      if (subtitle && subtitle.parentNode) {
+        subtitle.parentNode.appendChild(note);
+      }
+    }
+
+    note.textContent = '매튜 헨리 원문 · 원어 · 역사 · 신학 · 설교자료를 함께 살펴봅니다';
+  }
+
+  function restoreMiniPlayerExpandButtonLabel() {
+    var expandButton = document.querySelector(
+      '#gomna-audio-mini-player .gomna-audio-btn-expand[data-audio-action="expand"]'
+    );
+
+    if (!expandButton) return;
+
+    expandButton.setAttribute('aria-label', '말씀 오디오 카드 열기');
+    expandButton.setAttribute('title', '말씀 오디오 카드 열기');
   }
 
   function isPublishedAudioId(audioId) {
@@ -345,9 +472,7 @@
 
     if (!content || !item) return null;
 
-    button = content.querySelector(
-      '[data-audio-id="' + item.audioId + '"].gomna-audio-commentary-button'
-    );
+    button = findCommentaryButtonByAudioId(item.audioId);
 
     return button ? button.parentNode : null;
   }
@@ -359,7 +484,8 @@
       return false;
     }
 
-    var existingBtn = section.querySelector('.gomna-audio-commentary-button');
+    var existingBtn = findCommentaryButtonByAudioId(item.audioId) ||
+      section.querySelector('.gomna-audio-commentary-button');
     if (existingBtn) {
       var existingId = existingBtn.getAttribute('data-audio-id');
       if (existingId === item.audioId) {
@@ -490,10 +616,11 @@
   }
 
   function bindAllTabsAudio(content) {
-    var allTabsButton = content.querySelector(ALL_TABS_BUTTON_SELECTOR);
+    var scope = getPopupScope();
+    var allTabsButton = scope && scope.querySelector(ALL_TABS_BUTTON_SELECTOR);
     var publishedIds = getPublishedSequenceAudioIds();
-    var firstItem = currentCommentaryItems[0];
-    var firstActionHost = getActionHostForItem(content, firstItem);
+    var controlsFooter = getControlsFooter();
+    var closeButton = controlsFooter && controlsFooter.querySelector('.popup-close');
 
     if (!allTabsButton) return;
 
@@ -501,8 +628,8 @@
     allTabsButton.classList.add('gomna-audio-commentary-button', SEQUENCE_BUTTON_CLASS);
     allTabsButton.setAttribute('aria-label', '전체 말씀풀이 듣기');
 
-    if (firstActionHost && allTabsButton.parentNode !== firstActionHost) {
-      firstActionHost.appendChild(allTabsButton);
+    if (controlsFooter && allTabsButton.parentNode !== controlsFooter) {
+      controlsFooter.insertBefore(allTabsButton, closeButton || null);
     }
 
     if (!publishedIds.length) {
@@ -526,11 +653,150 @@
     });
   }
 
+  function getActiveCommentaryItem(content) {
+    var activeTab;
+    var item;
+
+    if (!content) return currentCommentaryItems[0] || null;
+
+    activeTab = content.querySelector('.commentary-tab.active:not(' + ALL_TABS_BUTTON_SELECTOR + ')') ||
+      content.querySelector('.commentary-tab.' + ACTIVE_TAB_CLASS + ':not(' + ALL_TABS_BUTTON_SELECTOR + ')');
+
+    if (activeTab) {
+      item = getItemByTabButton(content, activeTab);
+      if (item) return item;
+    }
+
+    return currentCommentaryItems[0] || null;
+  }
+
+  function syncCommentaryFooterControls(content) {
+    var item = getActiveCommentaryItem(content);
+    var controlsFooter = getControlsFooter();
+    var closeButton = controlsFooter && controlsFooter.querySelector('.popup-close');
+    var button;
+    var replayButton;
+    var allTabsButton;
+    var footerButtons;
+    var sequenceButtons;
+
+    if (!item || !controlsFooter) return;
+
+    footerButtons = controlsFooter.querySelectorAll(
+      '.gomna-audio-commentary-button[data-audio-id], .' + REPLAY_BUTTON_CLASS + '[data-audio-replay-id]'
+    );
+
+    Array.prototype.forEach.call(footerButtons, function(control) {
+      var audioId = control.getAttribute('data-audio-id') ||
+        control.getAttribute('data-audio-replay-id');
+      var controlItem = getItemByAudioId(audioId);
+      var section;
+      var titleHost;
+
+      if (!controlItem) {
+        control.remove();
+        return;
+      }
+
+      if (controlItem.audioId === item.audioId) return;
+
+      section = document.getElementById(controlItem.tabId);
+      titleHost = section && (
+        section.querySelector('.gomna-audio-commentary-header') ||
+        findTitleHost(section, controlItem.title)
+      );
+
+      if (titleHost) {
+        titleHost.appendChild(control);
+      } else {
+        control.remove();
+      }
+    });
+
+    button = findCommentaryButtonByAudioId(item.audioId);
+    replayButton = findReplayButtonByAudioId(item.audioId);
+    allTabsButton = getPopupScope() && getPopupScope().querySelector(ALL_TABS_BUTTON_SELECTOR);
+    sequenceButtons = getPopupScope() && getPopupScope().querySelectorAll(ALL_TABS_BUTTON_SELECTOR);
+
+    if (sequenceButtons) {
+      Array.prototype.forEach.call(sequenceButtons, function(sequenceButton) {
+        if (sequenceButton !== allTabsButton) {
+          sequenceButton.remove();
+        }
+      });
+    }
+
+    if (button) {
+      controlsFooter.insertBefore(button, closeButton || null);
+    }
+
+    if (replayButton) {
+      controlsFooter.insertBefore(replayButton, closeButton || null);
+    }
+
+    if (allTabsButton) {
+      controlsFooter.insertBefore(allTabsButton, closeButton || null);
+    }
+
+    if (closeButton && closeButton.parentNode === controlsFooter) {
+      controlsFooter.appendChild(closeButton);
+    }
+
+    dedupeFooterControls(controlsFooter);
+  }
+
+  function dedupeFooterControls(footer) {
+    var seenAudioIds = {};
+    var seenReplayIds = {};
+    var closeButtons;
+    var keepClose;
+
+    if (!footer) return;
+
+    Array.prototype.forEach.call(
+      footer.querySelectorAll('.gomna-audio-commentary-button[data-audio-id]'),
+      function(control) {
+        var audioId = control.getAttribute('data-audio-id');
+
+        if (!audioId || !seenAudioIds[audioId]) {
+          if (audioId) seenAudioIds[audioId] = true;
+          return;
+        }
+
+        control.remove();
+      }
+    );
+
+    Array.prototype.forEach.call(
+      footer.querySelectorAll('.' + REPLAY_BUTTON_CLASS + '[data-audio-replay-id]'),
+      function(control) {
+        var audioId = control.getAttribute('data-audio-replay-id');
+
+        if (!audioId || !seenReplayIds[audioId]) {
+          if (audioId) seenReplayIds[audioId] = true;
+          return;
+        }
+
+        control.remove();
+      }
+    );
+
+    closeButtons = footer.querySelectorAll('.popup-close[onclick*="closeCommentary"]');
+    keepClose = closeButtons[closeButtons.length - 1];
+
+    Array.prototype.forEach.call(closeButtons, function(control) {
+      if (control !== keepClose) {
+        control.remove();
+      }
+    });
+  }
+
   function handleCommentaryButtonClick(event) {
     var cueEl = event.target.closest('.gomna-commentary-cue[data-audio-id][data-cue-id]');
     var replayBtn = event.target.closest('.' + REPLAY_BUTTON_CLASS + '[data-audio-replay-id]');
     var btn = event.target.closest('.gomna-audio-commentary-button[data-audio-id]');
     var content = getContent();
+    var popup = getPopup();
     var audioId;
     var item;
 
@@ -548,7 +814,7 @@
     }
 
     if (replayBtn) {
-      if (!content || !content.contains(replayBtn)) return;
+      if (!popup || !popup.contains(replayBtn)) return;
 
       audioId = replayBtn.getAttribute('data-audio-replay-id');
       item = getItemByAudioId(audioId);
@@ -561,7 +827,7 @@
     }
 
     if (!btn || btn.matches(ALL_TABS_BUTTON_SELECTOR)) return;
-    if (!content || !content.contains(btn)) return;
+    if (!popup || !popup.contains(btn)) return;
 
     audioId = btn.getAttribute('data-audio-id');
     item = getItemByAudioId(audioId);
@@ -597,6 +863,10 @@
 
         if (!item) return;
         jumpSequenceToItemIfActive(item);
+        setTimeout(function() {
+          syncCommentaryFooterControls(content);
+          updateCommentaryButtonLabels();
+        }, 0);
       });
     }
   }
@@ -710,6 +980,20 @@
       if (!engine || !engine.playAudioSequence || !ids.length) return false;
 
       currentCueKey = null;
+
+      if (this.isSequenceActive(state)) {
+        if (state.isPlaying && engine.pauseAudio) {
+          engine.pauseAudio();
+          updateCommentaryButtonLabels();
+          return true;
+        }
+
+        if (state.isPaused && engine.resumeAudio) {
+          engine.resumeAudio();
+          updateCommentaryButtonLabels();
+          return true;
+        }
+      }
 
       if (!this.isSequenceActive(state)) {
         this.stopForTransition(engine, state);
@@ -852,9 +1136,7 @@
 
     for (var i = 0; i < currentCommentaryItems.length; i++) {
       var item = currentCommentaryItems[i];
-      var button = content.querySelector(
-        '[data-audio-id="' + item.audioId + '"].gomna-audio-commentary-button'
-      );
+      var button = findCommentaryButtonByAudioId(item.audioId);
       if (!button) continue;
 
       if (!item.published) {
@@ -862,16 +1144,21 @@
         button.removeAttribute('data-audio-action');
         button.classList.remove(ACTIVE_BUTTON_CLASS);
         button.setAttribute('aria-pressed', 'false');
-        updateReplayButton(getReplayButtonForItem(content, item), item);
+        updateReplayButton(findReplayButtonByAudioId(item.audioId), item);
         continue;
       }
 
       button.setAttribute('data-audio-action', 'play');
-      updateReplayButton(getReplayButtonForItem(content, item), item);
+      updateReplayButton(findReplayButtonByAudioId(item.audioId), item);
 
       if (activeAudioId === item.audioId) {
-        button.textContent = state.isPaused ? '▶ 이어듣기' : '⏸ 일시정지';
-        button.setAttribute('aria-label', item.title + (state.isPaused ? ' 이어듣기' : ' 일시정지'));
+        if (state && state.isPaused) {
+          button.textContent = '▶ 이어듣기';
+          button.setAttribute('aria-label', item.title + ' 이어듣기');
+        } else {
+          button.textContent = '⏸ 일시정지';
+          button.setAttribute('aria-label', item.title + ' 일시정지');
+        }
       } else if (isCommentaryCompleted(item.audioId)) {
         button.textContent = '↻ 다시듣기';
         button.setAttribute('aria-label', item.title + ' 다시듣기');
@@ -893,7 +1180,8 @@
 
     updateManualCueHighlights(content);
 
-    var allTabsButton = content.querySelector(ALL_TABS_BUTTON_SELECTOR);
+    var scope = getPopupScope();
+    var allTabsButton = scope && scope.querySelector(ALL_TABS_BUTTON_SELECTOR);
     if (!allTabsButton) return;
 
     var publishedIds = getPublishedSequenceAudioIds();
@@ -905,13 +1193,20 @@
     var sequenceActive = hasActiveCommentarySequence(state);
     if (sequenceActive) {
       allTabsButton.textContent = state.isPaused ? SEQUENCE_PAUSED_LABEL : SEQUENCE_PLAYING_LABEL;
+      allTabsButton.setAttribute(
+        'aria-label',
+        state.isPaused ? '전체 말씀풀이 이어듣기' : '전체 말씀풀이 일시정지'
+      );
       allTabsButton.classList.add(ACTIVE_TAB_CLASS);
       allTabsButton.setAttribute('aria-pressed', state.isPaused ? 'false' : 'true');
     } else {
       allTabsButton.textContent = SEQUENCE_IDLE_LABEL;
+      allTabsButton.setAttribute('aria-label', '전체 말씀풀이 듣기');
       allTabsButton.classList.remove(ACTIVE_TAB_CLASS);
       allTabsButton.setAttribute('aria-pressed', 'false');
     }
+
+    syncCommentaryFooterControls(content);
   }
 
   function clearActiveCommentaryDisplay(content) {
@@ -1008,10 +1303,14 @@
     if (!popup || !content) return;
     if (!isCommentaryTabsPopup(popup)) return;
 
-    if (!content.querySelector('.gomna-audio-commentary-button[data-audio-id]')) {
+    restoreMiniPlayerExpandButtonLabel();
+
+    if (!getPopupScope().querySelector('.gomna-audio-commentary-button[data-audio-id]')) {
       resetCommentaryPlaybackState();
     }
 
+    updateCommentaryHeaderCopy();
+    getControlsFooter();
     refreshPublishedFlags();
 
     for (var i = 0; i < currentCommentaryItems.length; i++) {
@@ -1024,6 +1323,7 @@
     bindCommentaryButtonReplayHandler();
     bindCommentaryTabQueueNavigation(content);
     updateCommentaryButtonLabels();
+    syncCommentaryFooterControls(content);
   }
 
   function scheduleAddCommentaryButtons() {
@@ -1035,11 +1335,82 @@
     }, 50);
   }
 
+  function stopCommentaryHeaderDrag(event) {
+    var header;
+    var target = event.target;
+
+    if (!document.body.classList.contains(MODAL_OPEN_CLASS)) return;
+    if (event.touches && event.touches.length >= 2) return;
+
+    header = document.getElementById('popupDragHeader');
+    if (!header || !target || !header.contains(target)) return;
+    if (target.tagName === 'BUTTON' || target.closest('button')) return;
+
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (event.cancelable) {
+      event.preventDefault();
+    }
+  }
+
+  function handleCommentaryTouchStart(event) {
+    var touch = event.touches && event.touches[0];
+
+    if (!document.body.classList.contains(MODAL_OPEN_CLASS)) return;
+    if (event.touches && event.touches.length >= 2) return;
+    if (touch) touchStartY = touch.clientY;
+
+    stopCommentaryHeaderDrag(event);
+  }
+
+  function handleCommentaryTouchMove(event) {
+    var content;
+    var touch;
+    var deltaY;
+    var atTop;
+    var atBottom;
+
+    if (!document.body.classList.contains(MODAL_OPEN_CLASS)) return;
+    if (event.touches && event.touches.length >= 2) return;
+
+    content = getContent();
+    touch = event.touches && event.touches[0];
+
+    if (content && content.contains(event.target) && touch) {
+      deltaY = touch.clientY - touchStartY;
+      touchStartY = touch.clientY;
+      atTop = content.scrollTop <= 0;
+      atBottom = content.scrollTop + content.clientHeight >= content.scrollHeight - 1;
+
+      if (!((deltaY > 0 && atTop) || (deltaY < 0 && atBottom))) {
+        return;
+      }
+    }
+
+    event.stopImmediatePropagation();
+
+    if (event.cancelable) {
+      event.preventDefault();
+    }
+  }
+
+  function bindCommentaryModalTouchGuards() {
+    if (modalTouchListenersBound) return;
+
+    modalTouchListenersBound = true;
+    document.addEventListener('mousedown', stopCommentaryHeaderDrag, true);
+    document.addEventListener('touchstart', stopCommentaryHeaderDrag, { capture: true, passive: false });
+    document.addEventListener('touchstart', handleCommentaryTouchStart, { capture: true, passive: false });
+    document.addEventListener('touchmove', handleCommentaryTouchMove, { capture: true, passive: false });
+  }
+
   function startObserver() {
     var popup = getPopup();
     if (!popup || !window.MutationObserver || observer) return;
 
     observer = new MutationObserver(function() {
+      syncCommentaryPopupLock();
       scheduleAddCommentaryButtons();
     });
 
@@ -1052,6 +1423,9 @@
   }
 
   function init() {
+    restoreMiniPlayerExpandButtonLabel();
+    bindCommentaryModalTouchGuards();
+    syncCommentaryPopupLock();
     addCommentaryButtons();
     startObserver();
   }

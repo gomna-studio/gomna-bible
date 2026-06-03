@@ -9,6 +9,7 @@
   var BIBLE_RESUME_SAVE_INTERVAL_MS = 4000;
   var bibleResumeTimeupdateAudio = null;
   var lastBibleResumeSaveAt = 0;
+  var miniProgressAudio = null;
 
   function showToast(message, duration) {
     if (typeof message !== 'string' || !message) return;
@@ -219,12 +220,14 @@
 
   function showMiniPlayer() {
     showElement(getMiniPlayer());
+    document.body.classList.add('gomna-audio-visible');
     document.body.classList.add('gomna-audio-body-padding');
   }
 
   function hideMiniPlayer() {
     hideElement(getMiniPlayer());
     hideExpandedPlayer();
+    document.body.classList.remove('gomna-audio-visible');
     document.body.classList.remove('gomna-audio-body-padding');
   }
 
@@ -254,6 +257,133 @@
     for (var j = 0; j < pauseIcons.length; j++) {
       pauseIcons[j].hidden = !isPlaying;
     }
+  }
+
+  function formatAudioTime(seconds) {
+    var value = Math.max(0, Math.floor(Number(seconds) || 0));
+    var minutes = Math.floor(value / 60);
+    var secs = value % 60;
+
+    return String(minutes).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+  }
+
+  function ensureMiniProgress() {
+    var mini = getMiniPlayer();
+    var info;
+    var progress;
+    var track;
+    var fill;
+    var thumb;
+    var times;
+
+    if (!mini) return null;
+
+    progress = mini.querySelector('[data-audio-mini-progress]');
+    if (progress) return progress;
+
+    info = mini.querySelector('.gomna-audio-mini-info');
+    if (!info) return null;
+
+    progress = document.createElement('div');
+    progress.className = 'gomna-audio-mini-progress';
+    progress.setAttribute('data-audio-mini-progress', 'true');
+    progress.setAttribute('aria-hidden', 'true');
+
+    track = document.createElement('div');
+    track.className = 'gomna-audio-mini-progress-track';
+
+    fill = document.createElement('div');
+    fill.className = 'gomna-audio-mini-progress-fill';
+    fill.setAttribute('data-audio-mini-progress-fill', 'true');
+
+    thumb = document.createElement('span');
+    thumb.className = 'gomna-audio-mini-progress-thumb';
+    thumb.setAttribute('data-audio-mini-progress-thumb', 'true');
+
+    times = document.createElement('div');
+    times.className = 'gomna-audio-mini-times';
+    times.innerHTML = '<span data-audio-current-time>00:00</span><span data-audio-duration>00:00</span>';
+
+    track.appendChild(fill);
+    track.appendChild(thumb);
+    progress.appendChild(track);
+    progress.appendChild(times);
+    info.appendChild(progress);
+
+    return progress;
+  }
+
+  function updateMiniProgressFromState(state) {
+    var progress = ensureMiniProgress();
+    var fill;
+    var thumb;
+    var currentEls;
+    var durationEls;
+    var currentTime;
+    var duration;
+    var percent;
+
+    if (!progress) return;
+
+    state = state || (window.GOMNA_AUDIO_ENGINE && window.GOMNA_AUDIO_ENGINE.getState
+      ? window.GOMNA_AUDIO_ENGINE.getState()
+      : null);
+
+    currentTime = state ? Number(state.currentTime) || 0 : 0;
+    duration = state ? Number(state.duration) || 0 : 0;
+    percent = duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
+
+    fill = progress.querySelector('[data-audio-mini-progress-fill]');
+    thumb = progress.querySelector('[data-audio-mini-progress-thumb]');
+    currentEls = document.querySelectorAll('[data-audio-current-time]');
+    durationEls = document.querySelectorAll('[data-audio-duration]');
+
+    if (fill) fill.style.width = percent + '%';
+    if (thumb) thumb.style.left = percent + '%';
+
+    for (var i = 0; i < currentEls.length; i++) {
+      currentEls[i].textContent = formatAudioTime(currentTime);
+    }
+
+    for (var j = 0; j < durationEls.length; j++) {
+      durationEls[j].textContent = duration > 0 ? formatAudioTime(duration) : '00:00';
+    }
+  }
+
+  function unbindMiniProgressAudio() {
+    if (!miniProgressAudio) return;
+
+    miniProgressAudio.removeEventListener('timeupdate', handleMiniProgressTimeupdate);
+    miniProgressAudio.removeEventListener('loadedmetadata', handleMiniProgressTimeupdate);
+    miniProgressAudio.removeEventListener('durationchange', handleMiniProgressTimeupdate);
+    miniProgressAudio = null;
+  }
+
+  function handleMiniProgressTimeupdate() {
+    updateMiniProgressFromState();
+  }
+
+  function bindMiniProgressAudio() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var audio = engine && engine._state && engine._state.currentAudio;
+
+    if (miniProgressAudio === audio) {
+      updateMiniProgressFromState();
+      return;
+    }
+
+    unbindMiniProgressAudio();
+
+    if (!audio) {
+      updateMiniProgressFromState();
+      return;
+    }
+
+    miniProgressAudio = audio;
+    miniProgressAudio.addEventListener('timeupdate', handleMiniProgressTimeupdate);
+    miniProgressAudio.addEventListener('loadedmetadata', handleMiniProgressTimeupdate);
+    miniProgressAudio.addEventListener('durationchange', handleMiniProgressTimeupdate);
+    updateMiniProgressFromState();
   }
 
   function updateCurrentText(entry, audioId) {
@@ -916,6 +1046,7 @@
     showMiniPlayer();
     setPlayPauseIcon(true);
     updateCurrentText(detail.entry, detail.audioId);
+    bindMiniProgressAudio();
     updateRangeAudioButtons(state);
     bindBibleResumeTimeupdate();
     saveBibleResumeSession();
@@ -926,6 +1057,7 @@
     var state = engine && engine.getState ? engine.getState() : null;
 
     setPlayPauseIcon(false);
+    updateMiniProgressFromState(state);
     updateRangeAudioButtons(state);
     saveBibleResumeSession();
   });
@@ -935,6 +1067,7 @@
     var state = engine && engine.getState ? engine.getState() : null;
 
     setPlayPauseIcon(true);
+    bindMiniProgressAudio();
     updateRangeAudioButtons(state);
   });
 
@@ -943,6 +1076,8 @@
     var state = engine && engine.getState ? engine.getState() : null;
 
     setPlayPauseIcon(false);
+    unbindMiniProgressAudio();
+    updateMiniProgressFromState(state);
     hideMiniPlayer();
     updateRangeAudioButtons(state);
     clearBibleResumeSessionIfQueueCompleted(e.detail || {});
@@ -964,6 +1099,8 @@
     }
 
     setPlayPauseIcon(false);
+    unbindMiniProgressAudio();
+    updateMiniProgressFromState(state);
     updateRangeAudioButtons(state);
 
     if (!state || !state.isPlaying || state.currentAudioId === detail.audioId) {
@@ -979,6 +1116,10 @@
     if (e.detail && e.detail.speed) {
       updateSpeedText(e.detail.speed);
     }
+  });
+
+  window.addEventListener('audio:seek', function() {
+    updateMiniProgressFromState();
   });
 
   window.addEventListener('audio:voice_change', function(e) {
