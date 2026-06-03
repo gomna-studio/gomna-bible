@@ -1,10 +1,12 @@
 // 은혜의말씀 Service Worker
-// 전략: 정적 자원은 cache-first (오프라인 + 즉시 로드), HTML은 network-first (최신성)
+// 전략: HTML/앱 코드 자원은 network-first, 이미지/아이콘은 cache-first, 책별 데이터는 cache-first
 // 캐시 키 정책:
 //   - STATIC: HTML/JS/CSS/매니페스트/기본 아이콘 — 코드 변경 시 버전 bump
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 
-const STATIC_CACHE = 'gomna-static-v64';
+const CACHE_VERSION = '2026-06-03-01';
+const CACHE_PREFIX = 'gomna-';
+const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE   = 'gomna-data-v1';
 
 const STATIC_URLS = [
@@ -16,6 +18,13 @@ const STATIC_URLS = [
   '/settings_guide.js',
   '/gomna_category_feature.js',
   '/style.css',
+  '/css/gomna-audio-player.css?v=20260603-01',
+  '/js/audio-config.js?v=1',
+  '/js/audio-engine.js?v=3',
+  '/js/gomna-audio-listen-button.js?v=1',
+  '/js/gomna-audio-commentary-buttons.js?v=20260603-01',
+  '/js/gomna-audio-highlight.js?v=1',
+  '/js/gomna-audio-ui.js?v=2',
   '/manifest.json',
   '/favicon.png',
   '/logo-home.png',
@@ -48,7 +57,9 @@ self.addEventListener('activate', event => {
     caches.keys().then(names => {
       const valid = new Set([STATIC_CACHE, DATA_CACHE]);
       return Promise.all(
-        names.filter(name => !valid.has(name)).map(name => caches.delete(name))
+        names
+          .filter(name => name.startsWith(CACHE_PREFIX) && !valid.has(name))
+          .map(name => caches.delete(name))
       );
     }).then(() => self.clients.claim())
   );
@@ -65,14 +76,45 @@ function isHtmlNav(req) {
     || (req.method === 'GET' && req.headers.get('accept')?.includes('text/html'));
 }
 
+function isSameOrigin(url) {
+  return url.origin === self.location.origin;
+}
+
+function isFreshAppAsset(req, url) {
+  if (!isSameOrigin(url)) return false;
+
+  return req.destination === 'script'
+    || req.destination === 'style'
+    || req.destination === 'worker'
+    || /\.(?:js|css)(?:$|\?)/i.test(url.pathname + url.search)
+    || url.pathname === '/manifest.json'
+    || url.pathname === '/audio/audio-manifest.json';
+}
+
+function networkFirst(req, fallbackUrl) {
+  return fetch(req).then(resp => {
+    if (resp.ok && resp.type === 'basic') {
+      const clone = resp.clone();
+      caches.open(STATIC_CACHE).then(cache => cache.put(req, clone));
+    }
+    return resp;
+  }).catch(() =>
+    caches.match(req).then(hit => {
+      if (hit) return hit;
+      if (fallbackUrl) return caches.match(fallbackUrl);
+      return Response.error();
+    })
+  );
+}
+
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
-  const url = req.url;
+  const url = new URL(req.url);
 
   // ── 1) 책별 commentary (immutable): 캐시 우선, 없으면 네트워크 후 캐시 ──
-  if (isCommentaryData(url)) {
+  if (isCommentaryData(req.url)) {
     event.respondWith(
       caches.open(DATA_CACHE).then(cache =>
         cache.match(req).then(hit => {
@@ -89,20 +131,17 @@ self.addEventListener('fetch', event => {
 
   // ── 2) HTML 네비게이션: 네트워크 우선, 실패 시 캐시 폴백 ──
   if (isHtmlNav(req)) {
-    event.respondWith(
-      fetch(req).then(resp => {
-        // 성공한 응답을 백그라운드로 캐시 갱신
-        if (resp.ok) {
-          const clone = resp.clone();
-          caches.open(STATIC_CACHE).then(c => c.put(req, clone));
-        }
-        return resp;
-      }).catch(() => caches.match(req).then(hit => hit || caches.match('/index.html')))
-    );
+    event.respondWith(networkFirst(req, '/index.html'));
     return;
   }
 
-  // ── 3) 정적 자원 (JS/CSS/이미지/폰트 등): 캐시 우선 ──
+  // ── 3) 앱 코드/manifest: 네트워크 우선, 실패 시 동일 URL 캐시 폴백 ──
+  if (isFreshAppAsset(req, url)) {
+    event.respondWith(networkFirst(req));
+    return;
+  }
+
+  // ── 4) 이미지/폰트 등 정적 자원: 캐시 우선 ──
   event.respondWith(
     caches.match(req).then(hit => {
       if (hit) return hit;
@@ -112,7 +151,7 @@ self.addEventListener('fetch', event => {
           caches.open(STATIC_CACHE).then(c => c.put(req, clone));
         }
         return resp;
-      }).catch(() => caches.match('/index.html'));
+      });
     })
   );
 });

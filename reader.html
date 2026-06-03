@@ -304,11 +304,16 @@ html.reader-verse-active main.content{padding-bottom:70px}
   }
 }
 </script>
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json?v=20260603-01">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
-<link rel="stylesheet" href="/css/gomna-audio-player.css?v=32">
+<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260603-01">
 <script src="gomna_category_feature.js" defer></script>
-<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js");}</script>
+<script>
+window.GOMNA_ASSET_VERSION = "20260603-01";
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
+}
+</script>
 <script type="text/javascript">(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","vxpnb5ay5l");</script>
 <body>
 <!-- haptic-tap-feedback -->
@@ -260191,7 +260196,7 @@ function changeFont(delta) {
 <script src="/js/audio-config.js?v=1" defer></script>
 <script src="/js/audio-engine.js?v=3" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=1" defer></script>
-<script src="/js/gomna-audio-commentary-buttons.js?v=1" defer></script>
+<script src="/js/gomna-audio-commentary-buttons.js?v=20260603-01" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=1" defer></script>
 <script src="/js/gomna-audio-ui.js?v=2" defer></script>
 <script src="settings_guide.js" defer></script>
