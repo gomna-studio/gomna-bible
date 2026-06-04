@@ -1335,29 +1335,12 @@
     }, 50);
   }
 
-  function isCommentaryInteractiveTarget(target) {
-    if (!target || !target.closest) return false;
-
-    if (!getPopup() || !getPopup().classList.contains('show')) return false;
-
-    if (target.closest('#commentaryPopup .gomna-audio-commentary-controls-footer')) return true;
-    if (target.closest('#commentaryPopup .gomna-audio-commentary-button')) return true;
-    if (target.closest('#commentaryPopup .gomna-audio-commentary-replay-button')) return true;
-    if (target.closest('#commentaryPopup .gomna-audio-commentary-sequence-button')) return true;
-    if (target.closest('#commentaryPopup .gomna-commentary-cue')) return true;
-    if (target.closest('#commentaryPopup .popup-close')) return true;
-    if (target.closest('#commentaryPopup .popup-drag-header button')) return true;
-
-    return false;
-  }
-
   function stopCommentaryHeaderDrag(event) {
     var header;
     var target = event.target;
 
     if (!document.body.classList.contains(MODAL_OPEN_CLASS)) return;
     if (event.touches && event.touches.length >= 2) return;
-    if (isCommentaryInteractiveTarget(target)) return;
 
     header = document.getElementById('popupDragHeader');
     if (!header || !target || !header.contains(target)) return;
@@ -1376,7 +1359,6 @@
 
     if (!document.body.classList.contains(MODAL_OPEN_CLASS)) return;
     if (event.touches && event.touches.length >= 2) return;
-    if (isCommentaryInteractiveTarget(event.target)) return;
     if (touch) touchStartY = touch.clientY;
 
     stopCommentaryHeaderDrag(event);
@@ -1384,7 +1366,6 @@
 
   function handleCommentaryTouchMove(event) {
     var content;
-    var header;
     var touch;
     var deltaY;
     var atTop;
@@ -1392,10 +1373,8 @@
 
     if (!document.body.classList.contains(MODAL_OPEN_CLASS)) return;
     if (event.touches && event.touches.length >= 2) return;
-    if (isCommentaryInteractiveTarget(event.target)) return;
 
     content = getContent();
-    header = document.getElementById('popupDragHeader');
     touch = event.touches && event.touches[0];
 
     if (content && content.contains(event.target) && touch) {
@@ -1407,8 +1386,6 @@
       if (!((deltaY > 0 && atTop) || (deltaY < 0 && atBottom))) {
         return;
       }
-    } else if (!header || !header.contains(event.target) || (event.target.closest && event.target.closest('button'))) {
-      return;
     }
 
     event.stopImmediatePropagation();
