@@ -4467,9 +4467,27 @@ body.gomna-commentary-popup-open #commentaryPopupBox {
 body.gomna-commentary-popup-open #commentaryPopup .popup-drag-header,
 body.gomna-commentary-popup-open #commentaryPopup .gomna-audio-commentary-controls-footer {
   flex-shrink: 0 !important;
+}
+
+body.gomna-commentary-popup-open #commentaryPopup .popup-drag-header {
   touch-action: none !important;
   -webkit-user-select: none !important;
   user-select: none !important;
+}
+
+body.gomna-commentary-popup-open #commentaryPopup .gomna-audio-commentary-controls-footer {
+  position: relative !important;
+  z-index: 5 !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+}
+
+body.gomna-commentary-popup-open #commentaryPopup .gomna-audio-commentary-controls-footer button,
+body.gomna-commentary-popup-open #commentaryPopup .gomna-audio-commentary-controls-footer .popup-close {
+  position: relative !important;
+  z-index: 6 !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
 }
 
 body.gomna-commentary-popup-open #commentaryContent {
@@ -4903,9 +4921,13 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
   }
 }
 
-body.gomna-commentary-popup-open #commentaryPopup .popup-drag-header,
-body.gomna-commentary-popup-open #commentaryPopup .gomna-audio-commentary-controls-footer {
+body.gomna-commentary-popup-open #commentaryPopup .popup-drag-header {
   touch-action: pinch-zoom !important;
+}
+
+body.gomna-commentary-popup-open #commentaryPopup .gomna-audio-commentary-controls-footer,
+body.gomna-commentary-popup-open #commentaryPopup .gomna-audio-commentary-controls-footer button {
+  touch-action: manipulation !important;
 }
 
 body.gomna-commentary-popup-open #commentaryContent {
@@ -5118,4 +5140,38 @@ body.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible {
 
 body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopup.show {
   --gomna-commentary-card-gap: 4px;
+}
+
+/* =========================================================
+   GOMNA MOBILE COMMENTARY CLICK FIX
+   iPhone viewport: cookie-banner(z-index:9999)이 하단 컨트롤/미니 플레이어를 덮지 않도록
+   ========================================================= */
+
+body.gomna-commentary-popup-open #cookie-banner,
+body.gomna-audio-body-padding #cookie-banner {
+  z-index: 900 !important;
+}
+
+body.gomna-commentary-popup-open #cookie-banner {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.gomna-commentary-popup-open #commentaryPopup.show {
+  z-index: 10050 !important;
+}
+
+body.gomna-commentary-popup-open #gomna-audio-mini-player.gomna-audio-visible {
+  z-index: 10060 !important;
+}
+
+@media (max-width: 480px) {
+  body.gomna-commentary-popup-open #commentaryPopupBox > .gomna-audio-commentary-controls-footer,
+  body.gomna-commentary-popup-open #commentaryPopupBox > div:last-child.gomna-audio-commentary-controls-footer {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  body.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible {
+    bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
+  }
 }
