@@ -96,12 +96,18 @@
     'transform',
     'width',
     'max-width',
+    'min-height',
     'margin-top',
+    'margin-left',
+    'margin-right',
     'margin-bottom',
     'max-height',
     'height',
     'overflow',
+    'overflow-x',
     'overflow-y',
+    'visibility',
+    'z-index',
     'opacity',
     'pointer-events'
   ];
@@ -109,20 +115,38 @@
   function applyExpandedPlayerInlineStyles(player) {
     if (!player) return;
 
-    player.style.setProperty('position', 'relative', 'important');
-    player.style.setProperty('top', 'auto', 'important');
+    player.style.setProperty('position', 'fixed', 'important');
+    player.style.setProperty('top', '50%', 'important');
     player.style.setProperty('bottom', 'auto', 'important');
-    player.style.setProperty('left', 'auto', 'important');
+    player.style.setProperty('left', '50%', 'important');
     player.style.setProperty('right', 'auto', 'important');
-    player.style.setProperty('transform', 'none', 'important');
-    player.style.setProperty('width', '100%', 'important');
-    player.style.setProperty('max-width', '100%', 'important');
-    player.style.setProperty('margin-top', '8px', 'important');
-    player.style.setProperty('margin-bottom', '16px', 'important');
-    player.style.setProperty('max-height', 'none', 'important');
+    player.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+    player.style.setProperty(
+      'width',
+      'min(var(--gomna-commentary-card-width, 430px), calc(100vw - 18px))',
+      'important'
+    );
+    player.style.setProperty('max-width', 'var(--gomna-commentary-card-width, 430px)', 'important');
+    player.style.setProperty(
+      'min-height',
+      'var(--gomna-expanded-card-min-height, min(760px, calc(100dvh - 32px)))',
+      'important'
+    );
+    player.style.setProperty('margin-top', '0', 'important');
+    player.style.setProperty('margin-left', 'auto', 'important');
+    player.style.setProperty('margin-right', 'auto', 'important');
+    player.style.setProperty('margin-bottom', '0', 'important');
+    player.style.setProperty(
+      'max-height',
+      'var(--gomna-expanded-card-max-height, calc(100dvh - 32px))',
+      'important'
+    );
     player.style.setProperty('height', 'auto', 'important');
-    player.style.setProperty('overflow', 'visible', 'important');
-    player.style.setProperty('overflow-y', 'visible', 'important');
+    player.style.setProperty('overflow', 'auto', 'important');
+    player.style.setProperty('overflow-x', 'hidden', 'important');
+    player.style.setProperty('overflow-y', 'auto', 'important');
+    player.style.setProperty('visibility', 'visible', 'important');
+    player.style.setProperty('z-index', '10100', 'important');
     player.style.setProperty('opacity', '1', 'important');
     player.style.setProperty('pointer-events', 'auto', 'important');
     player.classList.add('gomna-audio-inline');
@@ -295,10 +319,12 @@
     fill = document.createElement('div');
     fill.className = 'gomna-audio-mini-progress-fill';
     fill.setAttribute('data-audio-mini-progress-fill', 'true');
+    fill.setAttribute('data-audio-progress-fill', 'true');
 
     thumb = document.createElement('span');
     thumb.className = 'gomna-audio-mini-progress-thumb';
     thumb.setAttribute('data-audio-mini-progress-thumb', 'true');
+    thumb.setAttribute('data-audio-progress-thumb', 'true');
 
     times = document.createElement('div');
     times.className = 'gomna-audio-mini-times';
@@ -313,17 +339,62 @@
     return progress;
   }
 
-  function updateMiniProgressFromState(state) {
-    var progress = ensureMiniProgress();
+  function ensureExpandedProgress() {
+    var player = getExpandedPlayer();
+    var controls;
+    var progress;
+    var track;
     var fill;
     var thumb;
+    var times;
+
+    if (!player) return null;
+
+    progress = player.querySelector('[data-audio-expanded-progress]');
+    if (progress) return progress;
+
+    controls = player.querySelector('.gomna-audio-expanded-controls');
+    if (!controls) return null;
+
+    progress = document.createElement('div');
+    progress.className = 'gomna-audio-expanded-progress';
+    progress.setAttribute('data-audio-expanded-progress', 'true');
+    progress.setAttribute('aria-hidden', 'true');
+
+    track = document.createElement('div');
+    track.className = 'gomna-audio-expanded-progress-track';
+
+    fill = document.createElement('div');
+    fill.className = 'gomna-audio-expanded-progress-fill';
+    fill.setAttribute('data-audio-progress-fill', 'true');
+
+    thumb = document.createElement('span');
+    thumb.className = 'gomna-audio-expanded-progress-thumb';
+    thumb.setAttribute('data-audio-progress-thumb', 'true');
+
+    times = document.createElement('div');
+    times.className = 'gomna-audio-expanded-times';
+    times.innerHTML = '<span data-audio-current-time>00:00</span><span data-audio-duration>00:00</span>';
+
+    track.appendChild(fill);
+    track.appendChild(thumb);
+    progress.appendChild(track);
+    progress.appendChild(times);
+    player.insertBefore(progress, controls);
+
+    return progress;
+  }
+
+  function updateMiniProgressFromState(state) {
+    ensureMiniProgress();
+    ensureExpandedProgress();
+    var fills;
+    var thumbs;
     var currentEls;
     var durationEls;
     var currentTime;
     var duration;
     var percent;
-
-    if (!progress) return;
 
     state = state || (window.GOMNA_AUDIO_ENGINE && window.GOMNA_AUDIO_ENGINE.getState
       ? window.GOMNA_AUDIO_ENGINE.getState()
@@ -333,13 +404,18 @@
     duration = state ? Number(state.duration) || 0 : 0;
     percent = duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
 
-    fill = progress.querySelector('[data-audio-mini-progress-fill]');
-    thumb = progress.querySelector('[data-audio-mini-progress-thumb]');
+    fills = document.querySelectorAll('[data-audio-progress-fill], [data-audio-mini-progress-fill]');
+    thumbs = document.querySelectorAll('[data-audio-progress-thumb], [data-audio-mini-progress-thumb]');
     currentEls = document.querySelectorAll('[data-audio-current-time]');
     durationEls = document.querySelectorAll('[data-audio-duration]');
 
-    if (fill) fill.style.width = percent + '%';
-    if (thumb) thumb.style.left = percent + '%';
+    for (var k = 0; k < fills.length; k++) {
+      fills[k].style.width = percent + '%';
+    }
+
+    for (var l = 0; l < thumbs.length; l++) {
+      thumbs[l].style.left = percent + '%';
+    }
 
     for (var i = 0; i < currentEls.length; i++) {
       currentEls[i].textContent = formatAudioTime(currentTime);
