@@ -21,6 +21,10 @@ const TTS_DEFAULTS = {
     '영어 원문은 번역하지 않는다.',
     '영어 원문은 영어 문장 그대로 읽는다.',
     '따옴표 안의 영어 문장도 반드시 읽는다.',
+    '매튜헨리의 영어 원문은 한국어식으로 읽지 말고, 자연스러운 영어 발음으로 읽는다.',
+    '영어 원문 줄은 영어 문장처럼 분명히 끊어 읽는다.',
+    '영어 원문과 한국어 해설 사이에는 짧게 쉬어 읽는다.',
+    '한국어 해설은 기존처럼 차분한 한국어 낭독 톤을 유지한다.',
     '매튜헨리 항목에서는 영어원문과 한국어 해설을 모두 읽는다.',
   ].join(' '),
 };
@@ -29,6 +33,7 @@ const ALLOWED_TARGETS = [
   { locale: 'ko-KR', bookId: 'genesis', book: '창세기', chapter: 1, verse: 1 },
   { locale: 'ko-KR', bookId: 'genesis', book: '창세기', chapter: 1, verse: 2 },
   { locale: 'ko-KR', bookId: 'genesis', book: '창세기', chapter: 1, verse: 3 },
+  { locale: 'ko-KR', bookId: 'genesis', book: '창세기', chapter: 1, verse: 4 },
 ];
 
 const COMMENTARY_TYPES = [
@@ -155,7 +160,7 @@ function assertTargetScope(args) {
   ));
 
   if (!matched) {
-    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 1절, 1장 2절, 1장 3절 말씀풀이에만 사용할 수 있습니다.');
+    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 1절, 1장 2절, 1장 3절, 1장 4절 말씀풀이에만 사용할 수 있습니다.');
   }
 }
 

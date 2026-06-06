@@ -10,6 +10,7 @@ const ALLOWED_TARGETS = [
   { locale: 'ko-KR', bookId: 'genesis', chapter: 1, verse: 1 },
   { locale: 'ko-KR', bookId: 'genesis', chapter: 1, verse: 2 },
   { locale: 'ko-KR', bookId: 'genesis', chapter: 1, verse: 3 },
+  { locale: 'ko-KR', bookId: 'genesis', chapter: 1, verse: 4 },
 ];
 
 const LOCALE_R2_PATHS = {
@@ -118,7 +119,7 @@ function assertTargetScope(args) {
   ));
 
   if (!matched) {
-    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 1절, 1장 2절, 1장 3절 말씀풀이 업로드 준비에만 사용할 수 있습니다.');
+    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 1절, 1장 2절, 1장 3절, 1장 4절 말씀풀이 업로드 준비에만 사용할 수 있습니다.');
   }
 }
 

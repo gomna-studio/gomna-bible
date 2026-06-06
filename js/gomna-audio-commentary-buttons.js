@@ -71,6 +71,11 @@
       'mh-en-1': 8.4,
       'mh-en-2': 22.8,
       'mh-en-3': 36.2
+    },
+    'genesis.001.004.matthew-henry': {
+      'mh-en-1': 9.2,
+      'mh-en-2': 22.9,
+      'mh-en-3': 33.5
     }
   };
 
@@ -89,6 +94,11 @@
       'mh-en-1': "God's word created the first daybreak.",
       'mh-en-2': 'No creature can resist His fiat.',
       'mh-en-3': 'Light is the first blessing He bestows.'
+    },
+    'genesis.001.004.matthew-henry': {
+      'mh-en-1': 'God approves what He produces.',
+      'mh-en-2': 'Distinction is the first act of providence.',
+      'mh-en-3': 'Light and darkness cannot mingle.'
     }
   };
 

@@ -29,7 +29,7 @@ const CURRENT_WRITE_SCOPE = {
   locale: 'ko-KR',
   bookId: 'genesis',
   chapter: 1,
-  verse: 3,
+  verse: 4,
 };
 
 const ORIGINAL_LANGUAGE_CLOSINGS = {
@@ -52,7 +52,7 @@ const COMMENTARY_TYPES = [
 function usage() {
   console.error('Usage: node scripts/build-commentary-tts-scripts.mjs --locale ko-KR --book genesis --chapter 1 --verse 2 --dry-run');
   console.error('   or: node scripts/build-commentary-tts-scripts.mjs --locale ko-KR --book genesis --chapter 1 --verse 2 --write');
-  console.error('Default mode is --dry-run. Current write scope is ko-KR genesis 1:2 only.');
+  console.error('Default mode is --dry-run. Current write scope is ko-KR genesis 1:4 only.');
 }
 
 function parseArgs(argv) {
@@ -119,7 +119,7 @@ function assertWriteScope(args) {
     args.chapter !== CURRENT_WRITE_SCOPE.chapter ||
     args.verse !== CURRENT_WRITE_SCOPE.verse
   ) {
-    throw new Error('현재 --write는 ko-KR 창세기 1장 3절에만 허용됩니다.');
+    throw new Error('현재 --write는 ko-KR 창세기 1장 4절에만 허용됩니다.');
   }
 }
 
@@ -197,14 +197,14 @@ function phraseAsPoint(value) {
   if (/[.!?。！？다요죠음함됨임니다라]$/.test(text)) return text;
   if (text.endsWith('강조')) return `${text}합니다.`;
   if (text.endsWith('선포')) return `${text}합니다.`;
-  return `${text}을 보여 줍니다.`;
+  return `${withObjectParticle(text)} 보여 줍니다.`;
 }
 
 function phraseAsConnection(value) {
-  const text = cleanText(value);
+  const text = connectionSubjectForSpeech(value);
   if (!text) return '';
   if (/[.!?。！？다요죠음함됨임니다라]$/.test(text)) return text;
-  return `${text}와 연결됩니다.`;
+  return `${withAndParticle(text)} 연결됩니다.`;
 }
 
 function scriptureRefForSpeech(value) {
@@ -235,7 +235,7 @@ function scriptureRefForSpeech(value) {
 function christConnectionForSpeech(value) {
   const text = cleanText(value);
   const reference = scriptureRefForSpeech(text);
-  if (reference !== text) return `${reference}와도 이어집니다.`;
+  if (reference !== text) return `${withAndParticle(reference, '도')} 이어집니다.`;
   return phraseAsConnection(text);
 }
 
@@ -247,20 +247,21 @@ function matthewHenryEnglishIntro(index) {
 
 function meaningForSpeech(value) {
   const parts = cleanText(value).split(',').map((part) => part.trim()).filter(Boolean);
-  if (parts.length < 2) return `${cleanText(value)}라는 뜻입니다`;
+  if (parts.length < 2) return `${meaningPhrase(cleanText(value))} 뜻입니다`;
 
   const lexical = parts[0];
   const grammar = parts.slice(1).join(' ');
 
-  if (/명령/.test(grammar)) return `'${lexical}'라는 뜻의 명령형 동사입니다`;
-  if (/완료/.test(grammar)) return `'${lexical}'라는 뜻의 완료형 동사입니다`;
-  if (/동사/.test(grammar)) return `${lexical}라는 뜻의 동사입니다`;
+  if (/명령/.test(grammar)) return `${meaningPhrase(lexical)} 뜻의 명령형 동사입니다`;
+  if (/완료/.test(grammar)) return `${meaningPhrase(lexical)} 뜻의 완료형 동사입니다`;
+  if (/동사/.test(grammar)) return `${meaningPhrase(lexical)} 뜻의 동사입니다`;
+  if (/형용사/.test(grammar)) return `${meaningPhrase(lexical)} 뜻의 형용사입니다`;
   if (/복수형.*단수 의미|단수 의미/.test(grammar)) {
-    return `${lexical}이라는 뜻의 명사이며, 복수형이지만 단수 의미로 쓰입니다`;
+    return `${meaningPhrase(lexical)} 뜻의 명사이며, 복수형이지만 단수 의미로 쓰입니다`;
   }
-  if (/명사/.test(grammar)) return `'${lexical}'이라는 뜻의 명사입니다`;
+  if (/명사/.test(grammar)) return `${meaningPhrase(lexical)} 뜻의 명사입니다`;
 
-  return `${lexical}이라는 뜻으로, ${grammar}입니다`;
+  return `${meaningPhrase(lexical)} 뜻으로, ${grammar}입니다`;
 }
 
 function lastHangulSyllable(value) {
@@ -274,8 +275,34 @@ function hasFinalConsonant(value) {
   return (char.charCodeAt(0) - 0xac00) % 28 !== 0;
 }
 
+function meaningPhrase(value) {
+  const text = cleanText(value);
+  if (!text) return '';
+  if (text.endsWith('다')) return `“${text}”는`;
+  return `“${text}”${hasFinalConsonant(text) ? '이라는' : '라는'}`;
+}
+
 function withObjectParticle(value) {
-  return `${value}${hasFinalConsonant(value) ? '을' : '를'}`;
+  const text = cleanText(value);
+  return `${text}${hasFinalConsonant(text) ? '을' : '를'}`;
+}
+
+function withAndParticle(value, suffix = '') {
+  const text = cleanText(value);
+  return `${text}${hasFinalConsonant(text) ? '과' : '와'}${suffix}`;
+}
+
+function connectionSubjectForSpeech(value) {
+  return cleanText(value)
+    .replace(/^출애굽 시\s+/, '출애굽 때 ')
+    .replace(/고센 땅 빛$/, '고센 땅의 빛');
+}
+
+function backgroundForSpeech(value) {
+  const text = cleanText(value).replace(/^조로아스터 등과 구별$/, '조로아스터교 등과 구별');
+  if (!text) return '';
+  if (text.endsWith('구별')) return `${text}되는 배경이 있습니다.`;
+  return `${text}${hasFinalConsonant(text) ? '이라는' : '라는'} 배경이 있습니다.`;
 }
 
 function intro({ args, data, title, bookName }) {
@@ -305,7 +332,7 @@ function renderHistory(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
-    lines.push(`${withObjectParticle(row.항목)} 생각해 볼 수 있습니다. ${cleanText(row.내용)}라는 배경이 있습니다. 이 점은 ${withObjectParticle(row.목회적활용)} 생각하게 합니다.`);
+    lines.push(`${withObjectParticle(row.항목)} 생각해 볼 수 있습니다. ${backgroundForSpeech(row.내용)} 이 점은 ${withObjectParticle(row.목회적활용)} 생각하게 합니다.`);
   }
 
   return lines.join('\n');
