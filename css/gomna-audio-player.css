@@ -3981,6 +3981,11 @@ body.gomna-audio-expanded-open #verseList {
     max(10px, env(safe-area-inset-left)) !important;
 }
 
+/* 연관구절/교차참조 클릭 시 구절 팝업이 말씀풀이(950)·미니플레이어(970) 위에 보이도록 */
+#versePopup.show {
+  z-index: 980 !important;
+}
+
 #commentaryPopupBox {
   display: flex !important;
   flex-direction: column !important;
