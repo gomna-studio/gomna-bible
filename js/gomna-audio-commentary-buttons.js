@@ -83,29 +83,29 @@
       'mh-en-3': 40.7
     },
     'genesis.001.006.matthew-henry': {
-      'mh-en-1': 9.5,
-      'mh-en-2': 24.5,
-      'mh-en-3': 35.6
+      'mh-en-1': 11.88,
+      'mh-en-2': 24.54,
+      'mh-en-3': 35.72
     },
     'genesis.001.007.matthew-henry': {
-      'mh-en-1': 14.0,
-      'mh-en-2': 28.7,
-      'mh-en-3': 40.3
+      'mh-en-1': 14.06,
+      'mh-en-2': 26.52,
+      'mh-en-3': 36.02
     },
     'genesis.001.008.matthew-henry': {
-      'mh-en-1': 14.0,
-      'mh-en-2': 31.0,
-      'mh-en-3': 41.7
+      'mh-en-1': 14.06,
+      'mh-en-2': 28.34,
+      'mh-en-3': 39.70
     },
     'genesis.001.009.matthew-henry': {
-      'mh-en-1': 11.8,
-      'mh-en-2': 29.2,
-      'mh-en-3': 38.1
+      'mh-en-1': 14.42,
+      'mh-en-2': 29.28,
+      'mh-en-3': 40.31
     },
     'genesis.001.010.matthew-henry': {
-      'mh-en-1': 12.0,
-      'mh-en-2': 26.4,
-      'mh-en-3': 39.5
+      'mh-en-1': 14.24,
+      'mh-en-2': 24.28,
+      'mh-en-3': 35.06
     }
   };
 
