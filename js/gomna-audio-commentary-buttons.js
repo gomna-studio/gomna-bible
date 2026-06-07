@@ -81,6 +81,31 @@
       'mh-en-1': 12.8,
       'mh-en-2': 27.1,
       'mh-en-3': 40.7
+    },
+    'genesis.001.006.matthew-henry': {
+      'mh-en-1': 9.5,
+      'mh-en-2': 24.5,
+      'mh-en-3': 35.6
+    },
+    'genesis.001.007.matthew-henry': {
+      'mh-en-1': 14.0,
+      'mh-en-2': 28.7,
+      'mh-en-3': 40.3
+    },
+    'genesis.001.008.matthew-henry': {
+      'mh-en-1': 14.0,
+      'mh-en-2': 31.0,
+      'mh-en-3': 41.7
+    },
+    'genesis.001.009.matthew-henry': {
+      'mh-en-1': 11.8,
+      'mh-en-2': 29.2,
+      'mh-en-3': 38.1
+    },
+    'genesis.001.010.matthew-henry': {
+      'mh-en-1': 12.0,
+      'mh-en-2': 26.4,
+      'mh-en-3': 39.5
     }
   };
 
@@ -109,6 +134,31 @@
       'mh-en-1': 'He that formed time governs it.',
       'mh-en-2': 'Evening first reminds us of rest before labor.',
       'mh-en-3': 'Names fix the order God intends.'
+    },
+    'genesis.001.006.matthew-henry': {
+      'mh-en-1': 'From chaos He raises a canopy of order.',
+      'mh-en-2': 'He divides that He might unite rightly.',
+      'mh-en-3': 'The firmament preaches His majesty.'
+    },
+    'genesis.001.007.matthew-henry': {
+      'mh-en-1': 'The same hand that lifts waters holds them.',
+      'mh-en-2': 'Every drop waits His nod.',
+      'mh-en-3': 'Separation serves preservation.'
+    },
+    'genesis.001.008.matthew-henry': {
+      'mh-en-1': 'He names the vault above to elevate our thoughts.',
+      'mh-en-2': "No day is wasted in God's calendar.",
+      'mh-en-3': 'Even in silence He works.'
+    },
+    'genesis.001.009.matthew-henry': {
+      'mh-en-1': 'He sets bounds to waves and gives room for man.',
+      'mh-en-2': 'Dry land is mercy solidified.',
+      'mh-en-3': 'The sea obeys its Maker.'
+    },
+    'genesis.001.010.matthew-henry': {
+      'mh-en-1': 'Naming fixes usefulness.',
+      'mh-en-2': "Sea's roar bows to His word.",
+      'mh-en-3': 'Goodness crowns the boundaries.'
     }
   };
 

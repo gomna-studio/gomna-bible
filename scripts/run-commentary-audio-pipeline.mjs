@@ -6,12 +6,47 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
 
-const SAFE_TARGET = {
+const LEGACY_SAFE_TARGET = {
   locale: 'ko-KR',
   bookId: 'genesis',
   chapter: 1,
   fromVerse: 5,
   toVerse: 5,
+};
+
+const SAFE_TARGET_RANGES = [
+  LEGACY_SAFE_TARGET,
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 6,
+    toVerse: 10,
+  },
+];
+
+const APPROVED_AUDIO_WRITE_TARGET = {
+  locale: 'ko-KR',
+  bookId: 'genesis',
+  chapter: 1,
+  fromVerse: 6,
+  toVerse: 10,
+};
+
+const APPROVED_UPLOAD_WRITE_TARGET = {
+  locale: 'ko-KR',
+  bookId: 'genesis',
+  chapter: 1,
+  fromVerse: 6,
+  toVerse: 10,
+};
+
+const APPROVED_MANIFEST_WRITE_TARGET = {
+  locale: 'ko-KR',
+  bookId: 'genesis',
+  chapter: 1,
+  fromVerse: 6,
+  toVerse: 10,
 };
 
 const REPORT_DIR = path.join(ROOT, 'reports', 'commentary-pipeline');
@@ -20,8 +55,8 @@ const DEFAULT_STAGE = 'prepare';
 
 function usage() {
   console.error('Usage: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --verse 5 --stage prepare --dry-run');
-  console.error('   or: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --from-verse 5 --to-verse 5 --stage scripts --write');
-  console.error('Stages: prepare, scripts, audio, upload, manifest, publish. Initial safe target: ko-KR genesis 1:5 only.');
+  console.error('   or: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --from-verse 6 --to-verse 10 --stage scripts --dry-run');
+  console.error('Stages: prepare, scripts, audio, upload, manifest, publish. Safe targets: ko-KR genesis 1:5 and 1:6-10.');
 }
 
 function parseArgs(argv) {
@@ -113,15 +148,57 @@ function parseArgs(argv) {
 }
 
 function assertSafeTarget(args) {
-  if (
-    args.locale !== SAFE_TARGET.locale ||
-    args.bookId !== SAFE_TARGET.bookId ||
-    args.chapter !== SAFE_TARGET.chapter ||
-    args.fromVerse !== SAFE_TARGET.fromVerse ||
-    args.toVerse !== SAFE_TARGET.toVerse
-  ) {
-    throw new Error('초기 master pipeline은 ko-KR 창세기 1장 5절 한 절만 테스트할 수 있습니다.');
+  const matched = SAFE_TARGET_RANGES.some((range) => (
+    args.locale === range.locale &&
+    args.bookId === range.bookId &&
+    args.chapter === range.chapter &&
+    args.fromVerse >= range.fromVerse &&
+    args.toVerse <= range.toVerse
+  ));
+
+  if (!matched) {
+    throw new Error('master pipeline은 현재 ko-KR 창세기 1장 5절 또는 1장 6절~10절 범위만 처리할 수 있습니다.');
   }
+}
+
+function isLegacySafeTarget(args) {
+  return (
+    args.locale === LEGACY_SAFE_TARGET.locale &&
+    args.bookId === LEGACY_SAFE_TARGET.bookId &&
+    args.chapter === LEGACY_SAFE_TARGET.chapter &&
+    args.fromVerse === LEGACY_SAFE_TARGET.fromVerse &&
+    args.toVerse === LEGACY_SAFE_TARGET.toVerse
+  );
+}
+
+function isApprovedAudioWriteTarget(args) {
+  return (
+    args.locale === APPROVED_AUDIO_WRITE_TARGET.locale &&
+    args.bookId === APPROVED_AUDIO_WRITE_TARGET.bookId &&
+    args.chapter === APPROVED_AUDIO_WRITE_TARGET.chapter &&
+    args.fromVerse === APPROVED_AUDIO_WRITE_TARGET.fromVerse &&
+    args.toVerse === APPROVED_AUDIO_WRITE_TARGET.toVerse
+  );
+}
+
+function isApprovedUploadWriteTarget(args) {
+  return (
+    args.locale === APPROVED_UPLOAD_WRITE_TARGET.locale &&
+    args.bookId === APPROVED_UPLOAD_WRITE_TARGET.bookId &&
+    args.chapter === APPROVED_UPLOAD_WRITE_TARGET.chapter &&
+    args.fromVerse === APPROVED_UPLOAD_WRITE_TARGET.fromVerse &&
+    args.toVerse === APPROVED_UPLOAD_WRITE_TARGET.toVerse
+  );
+}
+
+function isApprovedManifestWriteTarget(args) {
+  return (
+    args.locale === APPROVED_MANIFEST_WRITE_TARGET.locale &&
+    args.bookId === APPROVED_MANIFEST_WRITE_TARGET.bookId &&
+    args.chapter === APPROVED_MANIFEST_WRITE_TARGET.chapter &&
+    args.fromVerse === APPROVED_MANIFEST_WRITE_TARGET.fromVerse &&
+    args.toVerse === APPROVED_MANIFEST_WRITE_TARGET.toVerse
+  );
 }
 
 function pad3(value) {
@@ -356,10 +433,214 @@ function commandForStep({ args, verse, step }) {
   throw new Error(`알 수 없는 step입니다: ${step}`);
 }
 
+function isOnlyAudioStage(args, steps) {
+  return (
+    args.stages.length === 1 &&
+    args.stages[0] === 'audio' &&
+    steps.length === 1 &&
+    steps[0] === 'audio'
+  );
+}
+
+function isOnlyUploadStage(args, steps) {
+  return (
+    args.stages.length === 1 &&
+    args.stages[0] === 'upload' &&
+    steps.length === 1 &&
+    steps[0] === 'upload'
+  );
+}
+
+function isOnlyManifestStage(args, steps) {
+  return (
+    args.stages.length === 1 &&
+    args.stages[0] === 'manifest' &&
+    steps.length === 2 &&
+    steps[0] === 'cue-check' &&
+    steps[1] === 'manifest'
+  );
+}
+
+function runPreflightCommand(commandSpec) {
+  const result = spawnSync(commandSpec.command, commandSpec.args, {
+    cwd: ROOT,
+    env: {
+      ...process.env,
+      ...commandSpec.env,
+    },
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  let parsedStdout = null;
+  try {
+    parsedStdout = result.stdout ? JSON.parse(result.stdout) : null;
+  } catch {
+    parsedStdout = null;
+  }
+
+  return {
+    exitCode: result.status,
+    stderr: result.stderr,
+    parsedStdout,
+  };
+}
+
+function validateApprovedAudioWritePreflight(args) {
+  const blockers = [];
+
+  for (let verse = args.fromVerse; verse <= args.toVerse; verse++) {
+    const textFileCount = countTextFiles(args, verse);
+    if (textFileCount !== 9) {
+      blockers.push(`audio write preflight 실패: ${args.bookId} ${args.chapter}:${verse} txt 파일이 9개가 아닙니다 (${textFileCount}개).`);
+      continue;
+    }
+
+    const targetArgs = baseTargetArgs(args, verse);
+    const env = pipelineEnv(args, verse);
+    const validation = runPreflightCommand(
+      buildCommand('scripts/validate-commentary-tts-scripts.mjs', targetArgs, env),
+    );
+    const validationFailCount = validation.parsedStdout?.failCount;
+    if (validation.exitCode !== 0 || validationFailCount !== 0) {
+      blockers.push(`audio write preflight 실패: ${args.bookId} ${args.chapter}:${verse} validate failCount=${validationFailCount ?? 'unknown'}.`);
+      continue;
+    }
+
+    const audioDryRun = runPreflightCommand(
+      buildCommand('scripts/generate-commentary-audio-batch.mjs', [...targetArgs, '--dry-run'], env),
+    );
+    const targetCount = audioDryRun.parsedStdout?.targetCount;
+    if (audioDryRun.exitCode !== 0 || targetCount !== 9) {
+      blockers.push(`audio write preflight 실패: ${args.bookId} ${args.chapter}:${verse} audio dry-run targetCount=${targetCount ?? 'unknown'}.`);
+    }
+  }
+
+  return blockers;
+}
+
+function expectedR2KeyBase(args, verse) {
+  if (args.locale !== 'ko-KR' || args.bookId !== 'genesis') {
+    return null;
+  }
+
+  return `commentary/ko/gae/${args.bookId}/${pad3(args.chapter)}/${pad3(verse)}`;
+}
+
+function validateApprovedUploadWritePreflight(args) {
+  const blockers = [];
+
+  for (let verse = args.fromVerse; verse <= args.toVerse; verse++) {
+    const targetArgs = baseTargetArgs(args, verse);
+    const env = pipelineEnv(args, verse);
+    const uploadDryRun = runPreflightCommand(
+      buildCommand('scripts/prepare-commentary-r2-upload.mjs', [...targetArgs, '--dry-run'], env),
+    );
+    const parsed = uploadDryRun.parsedStdout;
+    const expectedKeyBase = expectedR2KeyBase(args, verse);
+
+    if (uploadDryRun.exitCode !== 0 || !parsed) {
+      blockers.push(`upload write preflight 실패: ${args.bookId} ${args.chapter}:${verse} upload dry-run이 실패했습니다.`);
+      continue;
+    }
+    if (parsed.targetCount !== 9 || parsed.validCount !== 9 || parsed.missingOrEmptyCount !== 0) {
+      blockers.push(`upload write preflight 실패: ${args.bookId} ${args.chapter}:${verse} targetCount=${parsed.targetCount ?? 'unknown'}, validCount=${parsed.validCount ?? 'unknown'}, missingOrEmptyCount=${parsed.missingOrEmptyCount ?? 'unknown'}.`);
+    }
+    if (parsed.contentType !== 'audio/mpeg') {
+      blockers.push(`upload write preflight 실패: ${args.bookId} ${args.chapter}:${verse} contentType=${parsed.contentType ?? 'unknown'}.`);
+    }
+    if (parsed.r2KeyBase !== expectedKeyBase) {
+      blockers.push(`upload write preflight 실패: ${args.bookId} ${args.chapter}:${verse} r2KeyBase=${parsed.r2KeyBase ?? 'unknown'}.`);
+    }
+  }
+
+  return blockers;
+}
+
+function validateApprovedManifestWritePreflight(args) {
+  const blockers = [];
+
+  for (let verse = args.fromVerse; verse <= args.toVerse; verse++) {
+    const targetArgs = baseTargetArgs(args, verse);
+    const env = pipelineEnv(args, verse);
+    const expectedKeyBase = expectedR2KeyBase(args, verse);
+
+    const cueCheck = runPreflightCommand(
+      buildCommand('scripts/verify-commentary-cues.mjs', targetArgs, env),
+    );
+    if (cueCheck.exitCode !== 0 || cueCheck.parsedStdout?.status !== 'PASS') {
+      blockers.push(`manifest write preflight 실패: ${args.bookId} ${args.chapter}:${verse} cue-check가 PASS가 아닙니다.`);
+      continue;
+    }
+
+    const manifestDryRun = runPreflightCommand(
+      buildCommand('scripts/sync-commentary-r2-manifest.mjs', [...targetArgs, '--dry-run'], env),
+    );
+    const parsed = manifestDryRun.parsedStdout;
+
+    if (manifestDryRun.exitCode !== 0 || !parsed) {
+      blockers.push(`manifest write preflight 실패: ${args.bookId} ${args.chapter}:${verse} manifest dry-run이 실패했습니다.`);
+      continue;
+    }
+    if (
+      parsed.targetCount !== 9 ||
+      parsed.publishedCount !== 9 ||
+      parsed.fileSizePositiveCount !== 9 ||
+      parsed.durationPositiveCount !== 9
+    ) {
+      blockers.push(`manifest write preflight 실패: ${args.bookId} ${args.chapter}:${verse} targetCount=${parsed.targetCount ?? 'unknown'}, publishedCount=${parsed.publishedCount ?? 'unknown'}, fileSizePositiveCount=${parsed.fileSizePositiveCount ?? 'unknown'}, durationPositiveCount=${parsed.durationPositiveCount ?? 'unknown'}.`);
+    }
+    if (parsed.previousVersesChanged !== false) {
+      blockers.push(`manifest write preflight 실패: ${args.bookId} ${args.chapter}:${verse} previousVersesChanged가 false가 아닙니다.`);
+    }
+    if (parsed.unexpectedFallbackToGenesis001001 !== false) {
+      blockers.push(`manifest write preflight 실패: ${args.bookId} ${args.chapter}:${verse} unexpectedFallbackToGenesis001001가 false가 아닙니다.`);
+    }
+    if (parsed.r2KeyBase !== expectedKeyBase) {
+      blockers.push(`manifest write preflight 실패: ${args.bookId} ${args.chapter}:${verse} r2KeyBase=${parsed.r2KeyBase ?? 'unknown'}.`);
+    }
+    const entries = Array.isArray(parsed.entries) ? parsed.entries : [];
+    const invalidFilePaths = entries.filter((entry) => (
+      !entry.filePath ||
+      !entry.filePath.includes(expectedKeyBase) ||
+      /genesis\/001\/001|genesis\.001\.001/.test(entry.filePath)
+    ));
+    if (entries.length !== 9 || invalidFilePaths.length > 0) {
+      blockers.push(`manifest write preflight 실패: ${args.bookId} ${args.chapter}:${verse} R2 URL 구조가 올바르지 않은 entry가 있습니다.`);
+    }
+  }
+
+  return blockers;
+}
+
 function validateWriteSafety({ args, steps }) {
   if (!args.write) return [];
 
   const blockers = [];
+  const hasManifestWrite = steps.includes('manifest');
+
+  if (!isLegacySafeTarget(args) && hasManifestWrite) {
+    if (!isOnlyManifestStage(args, steps) || !isApprovedManifestWriteTarget(args)) {
+      blockers.push('창세기 1장 6절~10절 manifest write는 --stage manifest --write 정확한 범위에서만 허용됩니다. publish 실제 write는 차단됩니다.');
+    } else {
+      blockers.push(...validateApprovedManifestWritePreflight(args));
+    }
+  }
+
+  if (!isLegacySafeTarget(args) && steps.includes('audio')) {
+    if (!isOnlyAudioStage(args, steps) || !isApprovedAudioWriteTarget(args) || !args.overwrite) {
+      blockers.push('창세기 1장 6절~10절 audio write는 --stage audio --write --overwrite 정확한 범위에서만 허용됩니다.');
+    } else {
+      blockers.push(...validateApprovedAudioWritePreflight(args));
+    }
+  }
+  if (!isLegacySafeTarget(args) && steps.includes('upload')) {
+    if (!isOnlyUploadStage(args, steps) || !isApprovedUploadWriteTarget(args) || !args.upload) {
+      blockers.push('창세기 1장 6절~10절 upload write는 --stage upload --write --upload 정확한 범위에서만 허용됩니다.');
+    } else {
+      blockers.push(...validateApprovedUploadWritePreflight(args));
+    }
+  }
   if (steps.includes('audio') && !args.overwrite) {
     blockers.push('audio stage --write는 MP3 재생성 보호를 위해 --overwrite가 필요합니다.');
   }
@@ -464,7 +745,7 @@ function shouldExecuteStep({ args, stepPlan, versePlan }) {
     return { execute: true, skippedReason: null };
   }
 
-  if (args.stages.includes('upload') && stepPlan.step === 'upload') {
+  if ((args.stages.includes('upload') || args.stages.includes('publish')) && stepPlan.step === 'upload') {
     return { execute: true, skippedReason: null };
   }
 
@@ -472,7 +753,7 @@ function shouldExecuteStep({ args, stepPlan, versePlan }) {
     return { execute: true, skippedReason: null };
   }
 
-  if (args.stages.includes('manifest') && stepPlan.step === 'manifest') {
+  if ((args.stages.includes('manifest') || args.stages.includes('publish')) && stepPlan.step === 'manifest') {
     return { execute: true, skippedReason: null };
   }
 

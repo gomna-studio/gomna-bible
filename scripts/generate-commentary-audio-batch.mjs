@@ -19,7 +19,7 @@ const TTS_DEFAULTS = {
     '한국어 문장은 자연스러운 한국어로 읽는다.',
     '“창세기”는 한국어 성경 책 이름으로 자연스럽게 “창-세-기”라고 읽는다.',
     '“창세기”의 첫 음절 “창”은 받침 ㅇ을 분명하게 하되 과장하지 않는다.',
-    '“창세기 1장 5절”은 또박또박 자연스러운 한국어 성경 낭독 톤으로 읽는다.',
+    '성경 구절 제목은 또박또박 자연스러운 한국어 성경 낭독 톤으로 읽는다.',
     '“창세기”를 다른 단어처럼 뭉개거나 이상하게 발음하지 않는다.',
     '영어 원문 문장은 생략하지 않는다.',
     '영어 원문은 번역하지 않는다.',
@@ -171,6 +171,34 @@ function getTargetConfig(args) {
     chapter: args.chapter,
     verse: args.verse,
   };
+}
+
+function validateInstructionsForTarget({ args, targetConfig, instructions }) {
+  const referencePattern = /([가-힣]{2,})\s+(\d+)장\s+(\d+)절/g;
+  const mismatches = [];
+  let match = referencePattern.exec(instructions);
+
+  while (match) {
+    const [, bookName, chapterText, verseText] = match;
+    const chapter = Number(chapterText);
+    const verse = Number(verseText);
+
+    if (
+      bookName !== targetConfig.book ||
+      chapter !== args.chapter ||
+      verse !== args.verse
+    ) {
+      mismatches.push(`${bookName} ${chapter}장 ${verse}절`);
+    }
+
+    match = referencePattern.exec(instructions);
+  }
+
+  if (mismatches.length > 0) {
+    throw new Error(
+      `TTS instructions에 현재 대상과 다른 성경 구절 참조가 있습니다: ${mismatches.join(', ')}`,
+    );
+  }
 }
 
 function isSameTarget(args, target) {
@@ -419,6 +447,11 @@ async function main() {
   assertTargetScope(args);
   assertSafeWriteScope(args);
   const targetConfig = getTargetConfig(args);
+  validateInstructionsForTarget({
+    args,
+    targetConfig,
+    instructions: TTS_DEFAULTS.instructions,
+  });
 
   const scriptsDir = resolveInsideRoot(args.scriptsDir);
   const targetTypes = args.type
