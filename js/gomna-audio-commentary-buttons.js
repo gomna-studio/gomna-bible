@@ -106,6 +106,31 @@
       'mh-en-1': 14.24,
       'mh-en-2': 24.28,
       'mh-en-3': 35.06
+    },
+    'genesis.001.011.matthew-henry': {
+      'mh-en-1': 17.35,
+      'mh-en-2': 28.95,
+      'mh-en-3': 42.96
+    },
+    'genesis.001.012.matthew-henry': {
+      'mh-en-1': 16.60,
+      'mh-en-2': 27.38,
+      'mh-en-3': 42.28
+    },
+    'genesis.001.013.matthew-henry': {
+      'mh-en-1': 10.32,
+      'mh-en-2': 21.56,
+      'mh-en-3': 31.70
+    },
+    'genesis.001.014.matthew-henry': {
+      'mh-en-1': 16.86,
+      'mh-en-2': 28.06,
+      'mh-en-3': 36.94
+    },
+    'genesis.001.015.matthew-henry': {
+      'mh-en-1': 11.52,
+      'mh-en-2': 24.62,
+      'mh-en-3': 37.20
     }
   };
 
@@ -159,6 +184,31 @@
       'mh-en-1': 'Naming fixes usefulness.',
       'mh-en-2': "Sea's roar bows to His word.",
       'mh-en-3': 'Goodness crowns the boundaries.'
+    },
+    'genesis.001.011.matthew-henry': {
+      'mh-en-1': 'Herbs and fruits were made for man before man was made.',
+      'mh-en-2': 'Every creature is serviceable in its place and kind.',
+      'mh-en-3': 'We must bring forth fruit according to our kind.'
+    },
+    'genesis.001.012.matthew-henry': {
+      'mh-en-1': 'God delights to behold His work thriving.',
+      'mh-en-2': 'Seed carries the future and binds the present to it.',
+      'mh-en-3': 'The fruitfulness of the earth reproves our barrenness.'
+    },
+    'genesis.001.013.matthew-henry': {
+      'mh-en-1': 'Every evening brings us nearer to our rest.',
+      'mh-en-2': "God's work goes on by steps.",
+      'mh-en-3': 'Providence still provides.'
+    },
+    'genesis.001.014.matthew-henry': {
+      'mh-en-1': 'The lights of heaven are the clocks of the world.',
+      'mh-en-2': 'They are for signs of mercy and judgment.',
+      'mh-en-3': 'Set them high that we may look upward.'
+    },
+    'genesis.001.015.matthew-henry': {
+      'mh-en-1': 'Light is sweet; so are the consolations of the gospel.',
+      'mh-en-2': 'God made lights, not to be worshipped, but serviceable.',
+      'mh-en-3': 'The lights in heaven preach to us night and day.'
     }
   };
 

@@ -23,31 +23,65 @@ const SAFE_TARGET_RANGES = [
     fromVerse: 6,
     toVerse: 10,
   },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 11,
+    toVerse: 31,
+  },
 ];
 
-const APPROVED_AUDIO_WRITE_TARGET = {
-  locale: 'ko-KR',
-  bookId: 'genesis',
-  chapter: 1,
-  fromVerse: 6,
-  toVerse: 10,
-};
+const APPROVED_AUDIO_WRITE_TARGETS = [
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 6,
+    toVerse: 10,
+  },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 11,
+    toVerse: 15,
+  },
+];
 
-const APPROVED_UPLOAD_WRITE_TARGET = {
-  locale: 'ko-KR',
-  bookId: 'genesis',
-  chapter: 1,
-  fromVerse: 6,
-  toVerse: 10,
-};
+const APPROVED_UPLOAD_WRITE_TARGETS = [
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 6,
+    toVerse: 10,
+  },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 11,
+    toVerse: 15,
+  },
+];
 
-const APPROVED_MANIFEST_WRITE_TARGET = {
-  locale: 'ko-KR',
-  bookId: 'genesis',
-  chapter: 1,
-  fromVerse: 6,
-  toVerse: 10,
-};
+const APPROVED_MANIFEST_WRITE_TARGETS = [
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 6,
+    toVerse: 10,
+  },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 11,
+    toVerse: 15,
+  },
+];
 
 const REPORT_DIR = path.join(ROOT, 'reports', 'commentary-pipeline');
 const STAGES = new Set(['prepare', 'scripts', 'audio', 'upload', 'manifest', 'publish']);
@@ -56,7 +90,7 @@ const DEFAULT_STAGE = 'prepare';
 function usage() {
   console.error('Usage: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --verse 5 --stage prepare --dry-run');
   console.error('   or: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --from-verse 6 --to-verse 10 --stage scripts --dry-run');
-  console.error('Stages: prepare, scripts, audio, upload, manifest, publish. Safe targets: ko-KR genesis 1:5 and 1:6-10.');
+  console.error('Stages: prepare, scripts, audio, upload, manifest, publish. Safe targets: ko-KR genesis 1:5, 1:6-10, and 1:11-31.');
 }
 
 function parseArgs(argv) {
@@ -157,7 +191,7 @@ function assertSafeTarget(args) {
   ));
 
   if (!matched) {
-    throw new Error('master pipeline은 현재 ko-KR 창세기 1장 5절 또는 1장 6절~10절 범위만 처리할 수 있습니다.');
+    throw new Error('master pipeline은 현재 ko-KR 창세기 1장 5절, 1장 6절~10절, 또는 1장 11절~31절 범위만 처리할 수 있습니다.');
   }
 }
 
@@ -172,33 +206,33 @@ function isLegacySafeTarget(args) {
 }
 
 function isApprovedAudioWriteTarget(args) {
-  return (
-    args.locale === APPROVED_AUDIO_WRITE_TARGET.locale &&
-    args.bookId === APPROVED_AUDIO_WRITE_TARGET.bookId &&
-    args.chapter === APPROVED_AUDIO_WRITE_TARGET.chapter &&
-    args.fromVerse === APPROVED_AUDIO_WRITE_TARGET.fromVerse &&
-    args.toVerse === APPROVED_AUDIO_WRITE_TARGET.toVerse
-  );
+  return APPROVED_AUDIO_WRITE_TARGETS.some((target) => (
+    args.locale === target.locale &&
+    args.bookId === target.bookId &&
+    args.chapter === target.chapter &&
+    args.fromVerse === target.fromVerse &&
+    args.toVerse === target.toVerse
+  ));
 }
 
 function isApprovedUploadWriteTarget(args) {
-  return (
-    args.locale === APPROVED_UPLOAD_WRITE_TARGET.locale &&
-    args.bookId === APPROVED_UPLOAD_WRITE_TARGET.bookId &&
-    args.chapter === APPROVED_UPLOAD_WRITE_TARGET.chapter &&
-    args.fromVerse === APPROVED_UPLOAD_WRITE_TARGET.fromVerse &&
-    args.toVerse === APPROVED_UPLOAD_WRITE_TARGET.toVerse
-  );
+  return APPROVED_UPLOAD_WRITE_TARGETS.some((target) => (
+    args.locale === target.locale &&
+    args.bookId === target.bookId &&
+    args.chapter === target.chapter &&
+    args.fromVerse === target.fromVerse &&
+    args.toVerse === target.toVerse
+  ));
 }
 
 function isApprovedManifestWriteTarget(args) {
-  return (
-    args.locale === APPROVED_MANIFEST_WRITE_TARGET.locale &&
-    args.bookId === APPROVED_MANIFEST_WRITE_TARGET.bookId &&
-    args.chapter === APPROVED_MANIFEST_WRITE_TARGET.chapter &&
-    args.fromVerse === APPROVED_MANIFEST_WRITE_TARGET.fromVerse &&
-    args.toVerse === APPROVED_MANIFEST_WRITE_TARGET.toVerse
-  );
+  return APPROVED_MANIFEST_WRITE_TARGETS.some((target) => (
+    args.locale === target.locale &&
+    args.bookId === target.bookId &&
+    args.chapter === target.chapter &&
+    args.fromVerse === target.fromVerse &&
+    args.toVerse === target.toVerse
+  ));
 }
 
 function pad3(value) {
