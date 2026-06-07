@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
 const MANIFEST_PATH = path.join(ROOT, 'audio', 'audio-manifest.json');
 
-const TARGET = {
+const DEFAULT_TARGET = {
   book: '창세기',
   bookId: 'genesis',
   language: 'ko-KR',
@@ -142,14 +142,49 @@ function parseArgs(argv) {
 }
 
 function assertTargetScope(args) {
-  if (
-    args.locale !== TARGET.language ||
-    args.bookId !== TARGET.bookId ||
-    args.chapter !== TARGET.chapter ||
-    args.verse !== TARGET.verse
-  ) {
-    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 4절 말씀풀이 manifest 동기화에만 사용할 수 있습니다.');
+  if (!isDefaultTarget(args) && !isPipelineAllowedTarget(args)) {
+    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 4절 또는 master pipeline이 정확히 허용한 말씀풀이 manifest 동기화에만 사용할 수 있습니다.');
   }
+}
+
+function pad3(value) {
+  return String(value).padStart(3, '0');
+}
+
+function targetKey(args) {
+  return `${args.locale}:${args.bookId}:${args.chapter}:${args.verse}`;
+}
+
+function isDefaultTarget(args) {
+  return (
+    args.locale === DEFAULT_TARGET.language &&
+    args.bookId === DEFAULT_TARGET.bookId &&
+    args.chapter === DEFAULT_TARGET.chapter &&
+    args.verse === DEFAULT_TARGET.verse
+  );
+}
+
+function isPipelineAllowedTarget(args) {
+  return (
+    process.env.GOMNA_COMMENTARY_PIPELINE === '1' &&
+    process.env.GOMNA_COMMENTARY_ALLOWED_TARGET === targetKey(args)
+  );
+}
+
+function buildTarget(args) {
+  const chapter3 = pad3(args.chapter);
+  const verse3 = pad3(args.verse);
+
+  return {
+    book: args.bookId === 'genesis' ? '창세기' : args.bookId,
+    bookId: args.bookId,
+    language: args.locale,
+    chapter: args.chapter,
+    verse: args.verse,
+    chapter3,
+    verse3,
+    r2BaseUrl: `https://pub-1606395d18b84b29b95f841e5fe9e008.r2.dev/commentary/ko/gae/${args.bookId}/${chapter3}/${verse3}`,
+  };
 }
 
 function readManifest() {
@@ -160,19 +195,19 @@ function serializeManifest(manifest) {
   return `${JSON.stringify(manifest, null, 2)}\n`;
 }
 
-function buildAudioId(type) {
-  return `${TARGET.bookId}.${TARGET.chapter3}.${TARGET.verse3}.${type}`;
+function buildAudioId(type, target) {
+  return `${target.bookId}.${target.chapter3}.${target.verse3}.${type}`;
 }
 
-function localAudioPath(fileName) {
+function localAudioPath(fileName, target) {
   return path.join(
     ROOT,
     'audio',
     'v1',
-    TARGET.language,
-    TARGET.bookId,
-    TARGET.chapter3,
-    TARGET.verse3,
+    target.language,
+    target.bookId,
+    target.chapter3,
+    target.verse3,
     fileName,
   );
 }
@@ -202,9 +237,9 @@ function readDuration(filePath) {
   return Number.isFinite(duration) ? Number(duration.toFixed(3)) : 0;
 }
 
-function buildEntry(item) {
-  const id = buildAudioId(item.type);
-  const filePath = localAudioPath(item.fileName);
+function buildEntry(item, target) {
+  const id = buildAudioId(item.type, target);
+  const filePath = localAudioPath(item.fileName, target);
   const exists = fs.existsSync(filePath);
   const fileSize = exists ? fs.statSync(filePath).size : 0;
 
@@ -214,15 +249,15 @@ function buildEntry(item) {
 
   return {
     id,
-    book: TARGET.book,
-    bookId: TARGET.bookId,
-    language: TARGET.language,
-    chapter: TARGET.chapter,
-    verse: TARGET.verse,
+    book: target.book,
+    bookId: target.bookId,
+    language: target.language,
+    chapter: target.chapter,
+    verse: target.verse,
     type: item.type,
     typeKr: item.typeKr,
     voicePreset: item.voicePreset,
-    filePath: `${TARGET.r2BaseUrl}/${item.fileName}`,
+    filePath: `${target.r2BaseUrl}/${item.fileName}`,
     duration: readDuration(filePath),
     fileSize,
     status: 'published',
@@ -230,10 +265,10 @@ function buildEntry(item) {
   };
 }
 
-function buildNextManifest(manifest) {
+function buildNextManifest(manifest, target) {
   const existingAudios = manifest.audios || {};
   const nextAudios = { ...existingAudios };
-  const plannedEntries = COMMENTARY_TYPES.map(buildEntry);
+  const plannedEntries = COMMENTARY_TYPES.map((item) => buildEntry(item, target));
 
   for (const entry of plannedEntries) {
     nextAudios[entry.id] = entry;
@@ -258,6 +293,7 @@ function pickComparableManifestEntries(manifest, ids) {
 function main() {
   const args = parseArgs(process.argv.slice(2));
   assertTargetScope(args);
+  const target = buildTarget(args);
 
   const manifest = readManifest();
   const watchedIds = [
@@ -266,7 +302,7 @@ function main() {
     ...COMMENTARY_TYPES.map((item) => `genesis.001.003.${item.type}`),
   ];
   const beforeWatchedEntries = pickComparableManifestEntries(manifest, watchedIds);
-  const { nextManifest, plannedEntries } = buildNextManifest(manifest);
+  const { nextManifest, plannedEntries } = buildNextManifest(manifest, target);
   const afterWatchedEntries = pickComparableManifestEntries(nextManifest, watchedIds);
 
   const currentSerialized = fs.readFileSync(MANIFEST_PATH, 'utf8');
@@ -296,12 +332,12 @@ function main() {
     manifestModified,
     manifestPath: path.relative(ROOT, MANIFEST_PATH),
     target: {
-      bookId: TARGET.bookId,
-      chapter: TARGET.chapter,
-      verse: TARGET.verse,
-      language: TARGET.language,
+      bookId: target.bookId,
+      chapter: target.chapter,
+      verse: target.verse,
+      language: target.language,
     },
-    r2KeyBase: 'commentary/ko/gae/genesis/001/004',
+    r2KeyBase: `commentary/ko/gae/${target.bookId}/${target.chapter3}/${target.verse3}`,
     targetCount: plannedEntries.length,
     createdCount: createdEntries.length,
     updatedCount: updatedEntries.length,

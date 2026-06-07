@@ -76,6 +76,11 @@
       'mh-en-1': 9.2,
       'mh-en-2': 22.9,
       'mh-en-3': 33.5
+    },
+    'genesis.001.005.matthew-henry': {
+      'mh-en-1': 12.8,
+      'mh-en-2': 27.1,
+      'mh-en-3': 40.7
     }
   };
 
@@ -99,6 +104,11 @@
       'mh-en-1': 'God approves what He produces.',
       'mh-en-2': 'Distinction is the first act of providence.',
       'mh-en-3': 'Light and darkness cannot mingle.'
+    },
+    'genesis.001.005.matthew-henry': {
+      'mh-en-1': 'He that formed time governs it.',
+      'mh-en-2': 'Evening first reminds us of rest before labor.',
+      'mh-en-3': 'Names fix the order God intends.'
     }
   };
 

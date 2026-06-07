@@ -111,16 +111,31 @@ function toRelativePath(absolutePath) {
 }
 
 function assertTargetScope(args) {
-  const matched = ALLOWED_TARGETS.some((target) => (
+  const matched = ALLOWED_TARGETS.some((target) => isSameTarget(args, target));
+
+  if (!matched && !isPipelineAllowedTarget(args)) {
+    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 1절, 1장 2절, 1장 3절, 1장 4절 또는 master pipeline이 정확히 허용한 말씀풀이 업로드 준비에만 사용할 수 있습니다.');
+  }
+}
+
+function isSameTarget(args, target) {
+  return (
     args.locale === target.locale &&
     args.bookId === target.bookId &&
     args.chapter === target.chapter &&
     args.verse === target.verse
-  ));
+  );
+}
 
-  if (!matched) {
-    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 1절, 1장 2절, 1장 3절, 1장 4절 말씀풀이 업로드 준비에만 사용할 수 있습니다.');
-  }
+function targetKey(args) {
+  return `${args.locale}:${args.bookId}:${args.chapter}:${args.verse}`;
+}
+
+function isPipelineAllowedTarget(args) {
+  return (
+    process.env.GOMNA_COMMENTARY_PIPELINE === '1' &&
+    process.env.GOMNA_COMMENTARY_ALLOWED_TARGET === targetKey(args)
+  );
 }
 
 function buildR2KeyBase(args) {

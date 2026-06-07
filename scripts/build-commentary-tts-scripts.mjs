@@ -113,14 +113,29 @@ function parseArgs(argv) {
 function assertWriteScope(args) {
   if (!args.write) return;
 
-  if (
-    args.locale !== CURRENT_WRITE_SCOPE.locale ||
-    args.bookId !== CURRENT_WRITE_SCOPE.bookId ||
-    args.chapter !== CURRENT_WRITE_SCOPE.chapter ||
-    args.verse !== CURRENT_WRITE_SCOPE.verse
-  ) {
-    throw new Error('현재 --write는 ko-KR 창세기 1장 4절에만 허용됩니다.');
+  if (!isCurrentWriteScope(args) && !isPipelineAllowedTarget(args)) {
+    throw new Error('현재 --write는 ko-KR 창세기 1장 4절 또는 master pipeline이 정확히 허용한 대상에만 허용됩니다.');
   }
+}
+
+function targetKey(args) {
+  return `${args.locale}:${args.bookId}:${args.chapter}:${args.verse}`;
+}
+
+function isCurrentWriteScope(args) {
+  return (
+    args.locale === CURRENT_WRITE_SCOPE.locale &&
+    args.bookId === CURRENT_WRITE_SCOPE.bookId &&
+    args.chapter === CURRENT_WRITE_SCOPE.chapter &&
+    args.verse === CURRENT_WRITE_SCOPE.verse
+  );
+}
+
+function isPipelineAllowedTarget(args) {
+  return (
+    process.env.GOMNA_COMMENTARY_PIPELINE === '1' &&
+    process.env.GOMNA_COMMENTARY_ALLOWED_TARGET === targetKey(args)
+  );
 }
 
 function pad3(value) {

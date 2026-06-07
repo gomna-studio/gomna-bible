@@ -17,6 +17,10 @@ const TTS_DEFAULTS = {
   outputFormat: 'mp3',
   instructions: [
     '한국어 문장은 자연스러운 한국어로 읽는다.',
+    '“창세기”는 한국어 성경 책 이름으로 자연스럽게 “창-세-기”라고 읽는다.',
+    '“창세기”의 첫 음절 “창”은 받침 ㅇ을 분명하게 하되 과장하지 않는다.',
+    '“창세기 1장 5절”은 또박또박 자연스러운 한국어 성경 낭독 톤으로 읽는다.',
+    '“창세기”를 다른 단어처럼 뭉개거나 이상하게 발음하지 않는다.',
     '영어 원문 문장은 생략하지 않는다.',
     '영어 원문은 번역하지 않는다.',
     '영어 원문은 영어 문장 그대로 읽는다.',
@@ -152,25 +156,41 @@ function resolveInsideRoot(inputPath) {
 }
 
 function assertTargetScope(args) {
-  const matched = ALLOWED_TARGETS.some((target) => (
-    args.locale === target.locale &&
-    args.bookId === target.bookId &&
-    args.chapter === target.chapter &&
-    args.verse === target.verse
-  ));
+  const matched = ALLOWED_TARGETS.some((target) => isSameTarget(args, target));
 
-  if (!matched) {
-    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 1절, 1장 2절, 1장 3절, 1장 4절 말씀풀이에만 사용할 수 있습니다.');
+  if (!matched && !isPipelineAllowedTarget(args)) {
+    throw new Error('이 스크립트는 현재 ko-KR 창세기 1장 1절, 1장 2절, 1장 3절, 1장 4절 또는 master pipeline이 정확히 허용한 말씀풀이에만 사용할 수 있습니다.');
   }
 }
 
 function getTargetConfig(args) {
-  return ALLOWED_TARGETS.find((target) => (
+  return ALLOWED_TARGETS.find((target) => isSameTarget(args, target)) || {
+    locale: args.locale,
+    bookId: args.bookId,
+    book: args.bookId === 'genesis' ? '창세기' : args.bookId,
+    chapter: args.chapter,
+    verse: args.verse,
+  };
+}
+
+function isSameTarget(args, target) {
+  return (
     args.locale === target.locale &&
     args.bookId === target.bookId &&
     args.chapter === target.chapter &&
     args.verse === target.verse
-  ));
+  );
+}
+
+function targetKey(args) {
+  return `${args.locale}:${args.bookId}:${args.chapter}:${args.verse}`;
+}
+
+function isPipelineAllowedTarget(args) {
+  return (
+    process.env.GOMNA_COMMENTARY_PIPELINE === '1' &&
+    process.env.GOMNA_COMMENTARY_ALLOWED_TARGET === targetKey(args)
+  );
 }
 
 function assertSafeWriteScope(args) {

@@ -259,9 +259,13 @@
     positionExpandedPlayerInline();
     hideVerseListForExpandedPlayer();
     showElement(getExpandedPlayer());
+    ensureExpandedProgress();
+    bindMiniProgressAudio();
+    updateMiniProgressFromState();
 
     requestAnimationFrame(function() {
       positionExpandedPlayerInline();
+      updateMiniProgressFromState();
     });
   }
 
@@ -303,7 +307,10 @@
     if (!mini) return null;
 
     progress = mini.querySelector('[data-audio-mini-progress]');
-    if (progress) return progress;
+    if (progress) {
+      bindProgressTrackSeek(progress.querySelector('.gomna-audio-mini-progress-track'));
+      return progress;
+    }
 
     info = mini.querySelector('.gomna-audio-mini-info');
     if (!info) return null;
@@ -335,6 +342,7 @@
     progress.appendChild(track);
     progress.appendChild(times);
     info.appendChild(progress);
+    bindProgressTrackSeek(track);
 
     return progress;
   }
@@ -351,7 +359,10 @@
     if (!player) return null;
 
     progress = player.querySelector('[data-audio-expanded-progress]');
-    if (progress) return progress;
+    if (progress) {
+      bindProgressTrackSeek(progress.querySelector('.gomna-audio-expanded-progress-track'));
+      return progress;
+    }
 
     controls = player.querySelector('.gomna-audio-expanded-controls');
     if (!controls) return null;
@@ -367,10 +378,12 @@
     fill = document.createElement('div');
     fill.className = 'gomna-audio-expanded-progress-fill';
     fill.setAttribute('data-audio-progress-fill', 'true');
+    fill.setAttribute('data-audio-expanded-progress-fill', 'true');
 
     thumb = document.createElement('span');
     thumb.className = 'gomna-audio-expanded-progress-thumb';
     thumb.setAttribute('data-audio-progress-thumb', 'true');
+    thumb.setAttribute('data-audio-expanded-progress-thumb', 'true');
 
     times = document.createElement('div');
     times.className = 'gomna-audio-expanded-times';
@@ -381,8 +394,133 @@
     progress.appendChild(track);
     progress.appendChild(times);
     player.insertBefore(progress, controls);
+    bindProgressTrackSeek(track);
 
     return progress;
+  }
+
+  function seekAudioToRatio(ratio) {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var engineState = engine && engine._state ? engine._state : null;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var audio;
+    var duration;
+    var currentTime;
+    var targetTime;
+    var deltaSeconds;
+
+    if (!engineState || !engineState.currentAudio) return;
+
+    audio = engineState.currentAudio;
+    duration = Number(state && state.duration) || Number(audio.duration) || 0;
+    if (duration <= 0) return;
+
+    currentTime = Number(audio.currentTime) || 0;
+    targetTime = Math.min(duration, Math.max(0, duration * ratio));
+    deltaSeconds = targetTime - currentTime;
+
+    if (engine && typeof engine.seekAudio === 'function') {
+      engine.seekAudio(deltaSeconds);
+    } else {
+      audio.currentTime = targetTime;
+    }
+
+    if (engine && typeof engine._emit === 'function' && typeof engine.seekAudio !== 'function') {
+      engine._emit('audio:seek', {
+        audioId: engineState.currentAudioId,
+        currentTime: targetTime
+      });
+    }
+
+    updateMiniProgressFromState();
+  }
+
+  function getPointerClientX(event) {
+    if (event.changedTouches && event.changedTouches.length) {
+      return event.changedTouches[0].clientX;
+    }
+
+    if (event.touches && event.touches.length) {
+      return event.touches[0].clientX;
+    }
+
+    return event.clientX;
+  }
+
+  function seekAudioFromProgressEvent(event) {
+    var track = event.currentTarget;
+    var rect;
+    var ratio;
+
+    if (!track) return;
+
+    rect = track.getBoundingClientRect();
+    if (!rect.width) return;
+
+    ratio = (getPointerClientX(event) - rect.left) / rect.width;
+    seekAudioToRatio(Math.min(1, Math.max(0, ratio)));
+  }
+
+  function handleProgressPointerDown(event) {
+    var track = event.currentTarget;
+
+    if (!track) return;
+
+    track.setAttribute('data-audio-progress-seeking', 'true');
+    if (track.setPointerCapture && event.pointerId != null) {
+      track.setPointerCapture(event.pointerId);
+    }
+
+    seekAudioFromProgressEvent(event);
+    event.preventDefault();
+  }
+
+  function handleProgressPointerMove(event) {
+    var track = event.currentTarget;
+
+    if (!track || track.getAttribute('data-audio-progress-seeking') !== 'true') {
+      return;
+    }
+
+    seekAudioFromProgressEvent(event);
+    event.preventDefault();
+  }
+
+  function handleProgressPointerEnd(event) {
+    var track = event.currentTarget;
+
+    if (!track) return;
+
+    if (track.getAttribute('data-audio-progress-seeking') === 'true') {
+      seekAudioFromProgressEvent(event);
+    }
+    track.removeAttribute('data-audio-progress-seeking');
+    if (track.releasePointerCapture && event.pointerId != null) {
+      try {
+        track.releasePointerCapture(event.pointerId);
+      } catch (e) {
+        // The pointer may already be released by the browser.
+      }
+    }
+  }
+
+  function bindProgressTrackSeek(track) {
+    if (!track || track.getAttribute('data-audio-progress-seek-bound') === 'true') {
+      return;
+    }
+
+    track.setAttribute('data-audio-progress-seek-bound', 'true');
+    track.setAttribute('role', 'slider');
+    track.setAttribute('aria-label', '재생 위치');
+    track.addEventListener('pointerdown', handleProgressPointerDown);
+    track.addEventListener('pointermove', handleProgressPointerMove);
+    track.addEventListener('pointerup', handleProgressPointerEnd);
+    track.addEventListener('pointercancel', handleProgressPointerEnd);
+    track.addEventListener('click', seekAudioFromProgressEvent);
+    track.addEventListener('touchstart', function(event) {
+      seekAudioFromProgressEvent(event);
+      event.preventDefault();
+    }, { passive: false });
   }
 
   function updateMiniProgressFromState(state) {
@@ -404,8 +542,12 @@
     duration = state ? Number(state.duration) || 0 : 0;
     percent = duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
 
-    fills = document.querySelectorAll('[data-audio-progress-fill], [data-audio-mini-progress-fill]');
-    thumbs = document.querySelectorAll('[data-audio-progress-thumb], [data-audio-mini-progress-thumb]');
+    fills = document.querySelectorAll(
+      '[data-audio-progress-fill], [data-audio-mini-progress-fill], [data-audio-expanded-progress-fill]'
+    );
+    thumbs = document.querySelectorAll(
+      '[data-audio-progress-thumb], [data-audio-mini-progress-thumb], [data-audio-expanded-progress-thumb]'
+    );
     currentEls = document.querySelectorAll('[data-audio-current-time]');
     durationEls = document.querySelectorAll('[data-audio-duration]');
 
