@@ -131,6 +131,31 @@
       'mh-en-1': 11.52,
       'mh-en-2': 24.62,
       'mh-en-3': 37.20
+    },
+    'genesis.001.016.matthew-henry': {
+      'mh-en-1': 16.53,
+      'mh-en-2': 29.75,
+      'mh-en-3': 43.23
+    },
+    'genesis.001.017.matthew-henry': {
+      'mh-en-1': 11.14,
+      'mh-en-2': 22.82,
+      'mh-en-3': 35.39
+    },
+    'genesis.001.018.matthew-henry': {
+      'mh-en-1': 12.08,
+      'mh-en-2': 24.00,
+      'mh-en-3': 35.92
+    },
+    'genesis.001.019.matthew-henry': {
+      'mh-en-1': 10.50,
+      'mh-en-2': 23.62,
+      'mh-en-3': 37.53
+    },
+    'genesis.001.020.matthew-henry': {
+      'mh-en-1': 14.96,
+      'mh-en-2': 28.05,
+      'mh-en-3': 39.05
     }
   };
 
@@ -209,6 +234,31 @@
       'mh-en-1': 'Light is sweet; so are the consolations of the gospel.',
       'mh-en-2': 'God made lights, not to be worshipped, but serviceable.',
       'mh-en-3': 'The lights in heaven preach to us night and day.'
+    },
+    'genesis.001.016.matthew-henry': {
+      'mh-en-1': 'The lights are servants, not deities.',
+      'mh-en-2': 'Greater and lesser lights teach us to prefer usefulness above greatness.',
+      'mh-en-3': 'Stars, though innumerable to us, are numbered by God.'
+    },
+    'genesis.001.017.matthew-henry': {
+      'mh-en-1': 'The lamps of heaven are fixed by the hand of heaven.',
+      'mh-en-2': 'They shine not for themselves but for the earth.',
+      'mh-en-3': 'Let us in our sphere do the same.'
+    },
+    'genesis.001.018.matthew-henry': {
+      'mh-en-1': 'Day and night are tutors to duty and devotion.',
+      'mh-en-2': 'Light and darkness preach to us the difference between good and evil.',
+      'mh-en-3': 'God saw it good; so must we acquiesce.'
+    },
+    'genesis.001.019.matthew-henry': {
+      'mh-en-1': 'Each evening brings us a step nearer heaven.',
+      'mh-en-2': 'The course of nature teaches order and constancy.',
+      'mh-en-3': 'God finishes nothing in haste yet leaves nothing imperfect.'
+    },
+    'genesis.001.020.matthew-henry': {
+      'mh-en-1': 'The waters, once chaos, become the womb of life.',
+      'mh-en-2': 'Birds are the choristers of the creation.',
+      'mh-en-3': 'Where God gives being he gives blessing.'
     }
   };
 
