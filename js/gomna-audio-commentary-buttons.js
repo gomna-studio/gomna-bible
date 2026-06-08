@@ -156,6 +156,31 @@
       'mh-en-1': 14.96,
       'mh-en-2': 28.05,
       'mh-en-3': 39.05
+    },
+    'genesis.001.021.matthew-henry': {
+      'mh-en-1': 16.78,
+      'mh-en-2': 31.41,
+      'mh-en-3': 41.96
+    },
+    'genesis.001.022.matthew-henry': {
+      'mh-en-1': 13.95,
+      'mh-en-2': 25.98,
+      'mh-en-3': 37.52
+    },
+    'genesis.001.023.matthew-henry': {
+      'mh-en-1': 7.50,
+      'mh-en-2': 17.31,
+      'mh-en-3': 30.55
+    },
+    'genesis.001.024.matthew-henry': {
+      'mh-en-1': 11.95,
+      'mh-en-2': 23.91,
+      'mh-en-3': 34.23
+    },
+    'genesis.001.025.matthew-henry': {
+      'mh-en-1': 15.17,
+      'mh-en-2': 27.58,
+      'mh-en-3': 37.27
     }
   };
 
@@ -259,6 +284,31 @@
       'mh-en-1': 'The waters, once chaos, become the womb of life.',
       'mh-en-2': 'Birds are the choristers of the creation.',
       'mh-en-3': 'Where God gives being he gives blessing.'
+    },
+    'genesis.001.021.matthew-henry': {
+      'mh-en-1': "Leviathans that frighten us are under God's command.",
+      'mh-en-2': 'Variety is the beauty of the world.',
+      'mh-en-3': 'He that feeds the sparrow feeds the whale.'
+    },
+    'genesis.001.022.matthew-henry': {
+      'mh-en-1': "God's blessing is life and increase.",
+      'mh-en-2': 'Multiplication magnifies the Creator.',
+      'mh-en-3': 'He who feeds sparrows can feed souls.'
+    },
+    'genesis.001.023.matthew-henry': {
+      'mh-en-1': 'Every day adds beauty.',
+      'mh-en-2': 'Let evening praise answer morning mercy.',
+      'mh-en-3': "Time is God's gift."
+    },
+    'genesis.001.024.matthew-henry': {
+      'mh-en-1': 'The earth is a nurse to all.',
+      'mh-en-2': 'Creatures suited to various services.',
+      'mh-en-3': 'Even creeping things have place.'
+    },
+    'genesis.001.025.matthew-henry': {
+      'mh-en-1': 'The Creator delights in variety.',
+      'mh-en-2': 'He made lion and lamb.',
+      'mh-en-3': 'Goodness stamped on every creature.'
     }
   };
 

@@ -54,6 +54,13 @@ const APPROVED_AUDIO_WRITE_TARGETS = [
     fromVerse: 16,
     toVerse: 20,
   },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 21,
+    toVerse: 25,
+  },
 ];
 
 const APPROVED_UPLOAD_WRITE_TARGETS = [
@@ -77,6 +84,13 @@ const APPROVED_UPLOAD_WRITE_TARGETS = [
     chapter: 1,
     fromVerse: 16,
     toVerse: 20,
+  },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 21,
+    toVerse: 25,
   },
 ];
 
@@ -102,16 +116,23 @@ const APPROVED_MANIFEST_WRITE_TARGETS = [
     fromVerse: 16,
     toVerse: 20,
   },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 21,
+    toVerse: 25,
+  },
 ];
 
 const REPORT_DIR = path.join(ROOT, 'reports', 'commentary-pipeline');
-const STAGES = new Set(['prepare', 'scripts', 'audio', 'upload', 'manifest', 'publish']);
+const STAGES = new Set(['prepare', 'scripts', 'audio', 'upload', 'manifest', 'publish', 'qa']);
 const DEFAULT_STAGE = 'prepare';
 
 function usage() {
   console.error('Usage: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --verse 5 --stage prepare --dry-run');
   console.error('   or: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --from-verse 6 --to-verse 10 --stage scripts --dry-run');
-  console.error('Stages: prepare, scripts, audio, upload, manifest, publish. Safe targets: ko-KR genesis 1:5, 1:6-10, and 1:11-31.');
+  console.error('Stages: prepare, scripts, audio, upload, manifest, publish, qa. Safe targets: ko-KR genesis 1:5, 1:6-10, and 1:11-31.');
 }
 
 function parseArgs(argv) {
@@ -408,6 +429,22 @@ function buildCommand(scriptPath, scriptArgs, env = {}) {
   };
 }
 
+function qaTargetArgs(args) {
+  return [
+    '--locale',
+    args.locale,
+    '--book',
+    args.bookId,
+    '--chapter',
+    String(args.chapter),
+    '--from-verse',
+    String(args.fromVerse),
+    '--to-verse',
+    String(args.toVerse),
+    '--dry-run',
+  ];
+}
+
 function stagesToSteps(stages) {
   const steps = [];
   const add = (step) => {
@@ -435,6 +472,8 @@ function stagesToSteps(stages) {
       add('cue-check');
       add('upload');
       add('manifest');
+    } else if (stage === 'qa') {
+      add('qa');
     }
   }
 
@@ -483,6 +522,9 @@ function commandForStep({ args, verse, step }) {
   }
   if (step === 'manifest') {
     return buildCommand('scripts/sync-commentary-r2-manifest.mjs', [...targetArgs, args.write ? '--write' : '--dry-run'], env);
+  }
+  if (step === 'qa') {
+    return buildCommand('scripts/verify-commentary-audio-qa.mjs', qaTargetArgs(args), {});
   }
 
   throw new Error(`알 수 없는 step입니다: ${step}`);
@@ -877,9 +919,33 @@ function writeReport(output) {
   return reportPath;
 }
 
+function isOnlyQaStage(args) {
+  return args.stages.length === 1 && args.stages[0] === 'qa';
+}
+
+function runQaStage(args) {
+  const command = buildCommand('scripts/verify-commentary-audio-qa.mjs', qaTargetArgs(args), {});
+  const result = runCommand(command);
+
+  if (result.stdout) {
+    process.stdout.write(result.stdout);
+  }
+  if (result.stderr) {
+    process.stderr.write(result.stderr);
+  }
+  if (result.exitCode !== 0) {
+    process.exitCode = result.exitCode;
+  }
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   assertSafeTarget(args);
+
+  if (isOnlyQaStage(args)) {
+    runQaStage(args);
+    return;
+  }
 
   const initialPlan = buildPlan(args);
   const finalPlan = executePlan({ args, plan: initialPlan });
