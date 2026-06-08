@@ -61,6 +61,13 @@ const APPROVED_AUDIO_WRITE_TARGETS = [
     fromVerse: 21,
     toVerse: 25,
   },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 26,
+    toVerse: 31,
+  },
 ];
 
 const APPROVED_UPLOAD_WRITE_TARGETS = [
@@ -92,6 +99,13 @@ const APPROVED_UPLOAD_WRITE_TARGETS = [
     fromVerse: 21,
     toVerse: 25,
   },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 26,
+    toVerse: 31,
+  },
 ];
 
 const APPROVED_MANIFEST_WRITE_TARGETS = [
@@ -122,6 +136,13 @@ const APPROVED_MANIFEST_WRITE_TARGETS = [
     chapter: 1,
     fromVerse: 21,
     toVerse: 25,
+  },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 26,
+    toVerse: 31,
   },
 ];
 

@@ -181,6 +181,36 @@
       'mh-en-1': 15.17,
       'mh-en-2': 27.58,
       'mh-en-3': 37.27
+    },
+    'genesis.001.026.matthew-henry': {
+      'mh-en-1': 18.29,
+      'mh-en-2': 32.12,
+      'mh-en-3': 43.18
+    },
+    'genesis.001.027.matthew-henry': {
+      'mh-en-1': 12.65,
+      'mh-en-2': 24.52,
+      'mh-en-3': 34.32
+    },
+    'genesis.001.028.matthew-henry': {
+      'mh-en-1': 19.72,
+      'mh-en-2': 32.56,
+      'mh-en-3': 41.93
+    },
+    'genesis.001.029.matthew-henry': {
+      'mh-en-1': 13.74,
+      'mh-en-2': 25.75,
+      'mh-en-3': 36.57
+    },
+    'genesis.001.030.matthew-henry': {
+      'mh-en-1': 17.10,
+      'mh-en-2': 30.62,
+      'mh-en-3': 44.06
+    },
+    'genesis.001.031.matthew-henry': {
+      'mh-en-1': 15.04,
+      'mh-en-2': 23.12,
+      'mh-en-3': 35.45
     }
   };
 
@@ -309,6 +339,36 @@
       'mh-en-1': 'The Creator delights in variety.',
       'mh-en-2': 'He made lion and lamb.',
       'mh-en-3': 'Goodness stamped on every creature.'
+    },
+    'genesis.001.026.matthew-henry': {
+      'mh-en-1': 'Man was made last to see a furnished world.',
+      'mh-en-2': 'God consults to teach deliberation.',
+      'mh-en-3': 'Dominion is founded on likeness to God.'
+    },
+    'genesis.001.027.matthew-henry': {
+      'mh-en-1': "Woman was made from man's side.",
+      'mh-en-2': 'Image of God lies in the soul.',
+      'mh-en-3': 'In Christ the image is renewed.'
+    },
+    'genesis.001.028.matthew-henry': {
+      'mh-en-1': 'Fruitfulness is the effect of blessing.',
+      'mh-en-2': 'Dominion is founded in duty.',
+      'mh-en-3': 'We must not abuse what we rule.'
+    },
+    'genesis.001.029.matthew-henry': {
+      'mh-en-1': 'God first feeds before commands.',
+      'mh-en-2': 'Common mercies are distinguished favors.',
+      'mh-en-3': 'Eat freely but bless reverently.'
+    },
+    'genesis.001.030.matthew-henry': {
+      'mh-en-1': 'God opens His hand wide to every creature.',
+      'mh-en-2': 'He who feeds the beasts will not fail His children.',
+      'mh-en-3': 'Nature is a table spread by Providence.'
+    },
+    'genesis.001.031.matthew-henry': {
+      'mh-en-1': "God's works need no amendments.",
+      'mh-en-2': 'He rested not as weary but as well-pleased.',
+      'mh-en-3': 'Let our review end in thankful rest.'
     }
   };
 
