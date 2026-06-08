@@ -30,6 +30,13 @@ const SAFE_TARGET_RANGES = [
     fromVerse: 11,
     toVerse: 31,
   },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 2,
+    fromVerse: 1,
+    toVerse: 25,
+  },
 ];
 
 const APPROVED_AUDIO_WRITE_TARGETS = [
@@ -67,6 +74,13 @@ const APPROVED_AUDIO_WRITE_TARGETS = [
     chapter: 1,
     fromVerse: 26,
     toVerse: 31,
+  },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 2,
+    fromVerse: 1,
+    toVerse: 25,
   },
 ];
 
@@ -106,6 +120,13 @@ const APPROVED_UPLOAD_WRITE_TARGETS = [
     fromVerse: 26,
     toVerse: 31,
   },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 2,
+    fromVerse: 1,
+    toVerse: 25,
+  },
 ];
 
 const APPROVED_MANIFEST_WRITE_TARGETS = [
@@ -144,6 +165,13 @@ const APPROVED_MANIFEST_WRITE_TARGETS = [
     fromVerse: 26,
     toVerse: 31,
   },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 2,
+    fromVerse: 1,
+    toVerse: 25,
+  },
 ];
 
 const REPORT_DIR = path.join(ROOT, 'reports', 'commentary-pipeline');
@@ -153,7 +181,7 @@ const DEFAULT_STAGE = 'prepare';
 function usage() {
   console.error('Usage: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --verse 5 --stage prepare --dry-run');
   console.error('   or: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --from-verse 6 --to-verse 10 --stage scripts --dry-run');
-  console.error('Stages: prepare, scripts, audio, upload, manifest, publish, qa. Safe targets: ko-KR genesis 1:5, 1:6-10, and 1:11-31.');
+  console.error('Stages: prepare, scripts, audio, upload, manifest, publish, qa. Safe targets: ko-KR genesis 1:5, 1:6-10, 1:11-31, and 2:1-25 scripts.');
 }
 
 function parseArgs(argv) {
@@ -254,7 +282,7 @@ function assertSafeTarget(args) {
   ));
 
   if (!matched) {
-    throw new Error('master pipeline은 현재 ko-KR 창세기 1장 5절, 1장 6절~10절, 또는 1장 11절~31절 범위만 처리할 수 있습니다.');
+    throw new Error('master pipeline은 현재 ko-KR 창세기 1장 5절, 1장 6절~10절, 1장 11절~31절, 또는 2장 1절~25절 범위만 처리할 수 있습니다.');
   }
 }
 

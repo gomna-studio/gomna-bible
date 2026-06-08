@@ -211,7 +211,112 @@
       'mh-en-1': 15.04,
       'mh-en-2': 23.12,
       'mh-en-3': 35.45
-    }
+    },
+    'genesis.002.001.matthew-henry': {
+      'mh-en-1': 2.31,
+      'mh-en-2': 26.48,
+      'mh-en-3': 52.48
+    },
+    'genesis.002.002.matthew-henry': {
+      'mh-en-1': 3.48,
+      'mh-en-2': 36.55,
+      'mh-en-3': 64.39
+    },
+    'genesis.002.003.matthew-henry': {
+      'mh-en-1': 3.36,
+      'mh-en-2': 26.33,
+      'mh-en-3': 55.04
+    },
+    'genesis.002.004.matthew-henry': {
+      'mh-en-1': 2.01,
+      'mh-en-2': 36.21,
+      'mh-en-3': 65.23
+    },
+    'genesis.002.005.matthew-henry': {
+      'mh-en-1': 2.13,
+      'mh-en-2': 33.02,
+      'mh-en-3': 60.48
+    },
+    'genesis.002.006.matthew-henry': {
+      'mh-en-1': 3.15,
+      'mh-en-2': 28.61,
+      'mh-en-3': 52.37
+    },
+    'genesis.002.007.matthew-henry': {
+      'mh-en-1': 3.09,
+      'mh-en-2': 41.27
+    },
+    'genesis.002.008.matthew-henry': {
+      'mh-en-1': 2.64,
+      'mh-en-2': 38.43
+    },
+    'genesis.002.009.matthew-henry': {
+      'mh-en-1': 2.18,
+      'mh-en-2': 44.32
+    },
+    'genesis.002.010.matthew-henry': {
+      'mh-en-1': 3.27,
+      'mh-en-2': 36.53
+    },
+    'genesis.002.011.matthew-henry': {
+      'mh-en-1': 2.62,
+      'mh-en-2': 34.7
+    },
+    'genesis.002.012.matthew-henry': {
+      'mh-en-1': 2.04,
+      'mh-en-2': 34.62
+    },
+    'genesis.002.013.matthew-henry': {
+      'mh-en-1': 2.11,
+      'mh-en-2': 31.71
+    },
+    'genesis.002.014.matthew-henry': {
+      'mh-en-1': 2.66,
+      'mh-en-2': 40.38
+    },
+    'genesis.002.015.matthew-henry': {
+      'mh-en-1': 2.09,
+      'mh-en-2': 27.5,
+      'mh-en-3': 45.53
+    },
+    'genesis.002.016.matthew-henry': {
+      'mh-en-1': 2.53
+    },
+    'genesis.002.017.matthew-henry': {
+      'mh-en-1': 2.43,
+      'mh-en-2': 33.55
+    },
+    'genesis.002.018.matthew-henry': {
+      'mh-en-1': 3.47
+    },
+    'genesis.002.019.matthew-henry': {
+      'mh-en-1': 2.16
+    },
+    'genesis.002.020.matthew-henry': {
+      'mh-en-1': 2.1
+    },
+    'genesis.002.021.matthew-henry': {
+      'mh-en-1': 3.03
+    },
+    'genesis.002.022.matthew-henry': {
+      'mh-en-1': 3.46,
+      'mh-en-2': 52.59
+    },
+    'genesis.002.023.matthew-henry': {
+      'mh-en-1': 3.06,
+      'mh-en-2': 23.71,
+      'mh-en-3': 53.81
+    },
+    'genesis.002.024.matthew-henry': {
+      'mh-en-1': 2.12,
+      'mh-en-2': 27.45,
+      'mh-en-3': 48.62
+    },
+    'genesis.002.025.matthew-henry': {
+      'mh-en-1': 3.77,
+      'mh-en-2': 26.1,
+      'mh-en-3': 50.36
+    },
   };
 
   var COMMENTARY_MANUAL_CUE_TEXTS = {
@@ -369,7 +474,112 @@
       'mh-en-1': "God's works need no amendments.",
       'mh-en-2': 'He rested not as weary but as well-pleased.',
       'mh-en-3': 'Let our review end in thankful rest.'
-    }
+    },
+    'genesis.002.001.matthew-henry': {
+      'mh-en-1': 'The heavens and the earth were finished, and all the host of them.',
+      'mh-en-2': "God's works are perfect; nothing is lacking and nothing superfluous.",
+      'mh-en-3': 'All creatures stand ready to serve their Maker.'
+    },
+    'genesis.002.002.matthew-henry': {
+      'mh-en-1': 'God did not rest because He was weary, but because His work was perfect.',
+      'mh-en-2': 'He set a pattern for us to follow: six days of work, one day of holy rest.',
+      'mh-en-3': 'In ceasing, God sanctified time itself.'
+    },
+    'genesis.002.003.matthew-henry': {
+      'mh-en-1': 'God blessed the seventh day and sanctified it, distinguishing it from the rest.',
+      'mh-en-2': 'A day of rest is a gift, not a burden.',
+      'mh-en-3': 'Those who keep the day holy shall find it blessed.'
+    },
+    'genesis.002.004.matthew-henry': {
+      'mh-en-1': 'This verse begins a new section, giving the history of creation under the Covenant name of God.',
+      'mh-en-2': 'He that made heaven and earth governs them by the same word.',
+      'mh-en-3': 'Let us remember our history is best told as His story.'
+    },
+    'genesis.002.005.matthew-henry': {
+      'mh-en-1': 'God withheld rain till there was a man to receive it with thanks and improve it by labour.',
+      'mh-en-2': 'Providence keeps back comforts till we are ready for them.',
+      'mh-en-3': 'The ground expected man as much as man depends on the ground.'
+    },
+    'genesis.002.006.matthew-henry': {
+      'mh-en-1': 'God watered the ground with a mist, teaching us that our daily mercies often descend silently.',
+      'mh-en-2': 'Before man tilled, God tilled for him.',
+      'mh-en-3': 'Providence knows how to make up the lack of means.'
+    },
+    'genesis.002.007.matthew-henry': {
+      'mh-en-1': 'The body was made of the dust, but the soul was of a nobler original.',
+      'mh-en-2': 'He that gave us breath can recall it at pleasure.'
+    },
+    'genesis.002.008.matthew-henry': {
+      'mh-en-1': 'God did not make man until He had prepared a pleasant place for him.',
+      'mh-en-2': 'He that is our Maker is also our Benefactor.'
+    },
+    'genesis.002.009.matthew-henry': {
+      'mh-en-1': 'God consults our delight as well as our necessity.',
+      'mh-en-2': 'There is a tree of life in the midst of the paradise of God for the obedient.'
+    },
+    'genesis.002.010.matthew-henry': {
+      'mh-en-1': 'The river watered the garden before it watered the world.',
+      'mh-en-2': 'Grace springs from one fountain, though it runs in many channels.'
+    },
+    'genesis.002.011.matthew-henry': {
+      'mh-en-1': 'The wealth of the earth comes by the streams of Providence.',
+      'mh-en-2': 'Rich mines lie not far from the rivers of God.'
+    },
+    'genesis.002.012.matthew-henry': {
+      'mh-en-1': 'God has not only provided for our necessity but for our delight.',
+      'mh-en-2': 'The earth yields treasures to adorn His worship.'
+    },
+    'genesis.002.013.matthew-henry': {
+      'mh-en-1': 'Providence appoints rivers to enrich even the remotest lands.',
+      'mh-en-2': 'Distance does not diminish Divine care.'
+    },
+    'genesis.002.014.matthew-henry': {
+      'mh-en-1': 'God fixes the bounds of habitations as exactly as the channels of rivers.',
+      'mh-en-2': 'These rivers confirm the truth of the story to later ages.'
+    },
+    'genesis.002.015.matthew-henry': {
+      'mh-en-1': "Paradise was man's place of service as well as delight.",
+      'mh-en-2': 'We were not made to be idle.',
+      'mh-en-3': 'Keeping it implies trust; dressing it, improvement.'
+    },
+    'genesis.002.016.matthew-henry': {
+      'mh-en-1': 'The law of paradise was a covenant of love, not of bondage.'
+    },
+    'genesis.002.017.matthew-henry': {
+      'mh-en-1': 'The threatening of death was a warning, not a wish.',
+      'mh-en-2': 'Sin is the death of the soul.'
+    },
+    'genesis.002.018.matthew-henry': {
+      'mh-en-1': 'Woman was made to be a help meet, not a hinder meet.'
+    },
+    'genesis.002.019.matthew-henry': {
+      'mh-en-1': 'God brought the creatures to Adam, not because He could not name them, but to honour him.'
+    },
+    'genesis.002.020.matthew-henry': {
+      'mh-en-1': 'Adam showed his sovereignty in naming, yet felt his solitude.'
+    },
+    'genesis.002.021.matthew-henry': {
+      'mh-en-1': 'The woman was made of a rib out of the side of Adam; not out of his head to rule over him.'
+    },
+    'genesis.002.022.matthew-henry': {
+      'mh-en-1': 'God brought her to the man, as a special token of His favour.',
+      'mh-en-2': 'He who provides for man provides him a wife.'
+    },
+    'genesis.002.023.matthew-henry': {
+      'mh-en-1': 'Adam speaks poetically, feelingly, and prophetically.',
+      'mh-en-2': 'He acknowledges her not only as his companion but as himself.',
+      'mh-en-3': 'Thus Christ owns believers as His bones and flesh.'
+    },
+    'genesis.002.024.matthew-henry': {
+      'mh-en-1': 'This verse is quoted by Christ, which puts honour upon marriage.',
+      'mh-en-2': 'Leaving and cleaving are the two essential acts of marriage.',
+      'mh-en-3': 'They become one flesh, to be fruitful and helpful to each other.'
+    },
+    'genesis.002.025.matthew-henry': {
+      'mh-en-1': 'Naked and yet not ashamed; purity is the best defence.',
+      'mh-en-2': 'Sin makes that shameful which before was honourable.',
+      'mh-en-3': 'Grace restores innocency in Christ more than in Adam.'
+    },
   };
 
   function pad3(num) {
