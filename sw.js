@@ -4,7 +4,7 @@
 //   - STATIC: HTML/JS/CSS/매니페스트/기본 아이콘 — 코드 변경 시 버전 bump
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 
-const CACHE_VERSION = '2026-06-03-01';
+const CACHE_VERSION = '2026-06-30-01';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE   = 'gomna-data-v1';
@@ -12,7 +12,6 @@ const DATA_CACHE   = 'gomna-data-v1';
 const STATIC_URLS = [
   '/',
   '/index.html',
-  '/reader.html',
   '/translate_feature.js',
   '/analytics.js',
   '/settings_guide.js',
