@@ -271,12 +271,82 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .verse-cal-box .popup-close:active{transform:scale(.96);opacity:.94;filter:none;background:linear-gradient(180deg,#f0e4c8,#e3cf95);background-color:#e3cf95}
 </style>
 <script>
-    !function(t,e){var o,n,p,r;e.__SV||(window.posthog && window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="rn sn init kn Qr wn Cn yn capture calculateEventProperties Rn register register_once register_for_session unregister unregister_for_session An getFeatureFlag getFeatureFlagPayload getFeatureFlagResult isFeatureEnabled reloadFeatureFlags updateFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey displaySurvey cancelPendingSurvey canRenderSurvey canRenderSurveyAsync Fn identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset setIdentity clearIdentity get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException addExceptionStep captureLog startExceptionAutocapture stopExceptionAutocapture loadToolbar get_property getSessionProperty On En createPersonProfile setInternalOrTestUser Ln gn $n opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing get_explicit_consent_status is_capturing clear_opt_in_out_capturing In debug Kr Pn getPageViewId captureTraceFeedback captureTraceMetric vn".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-    posthog.init('phc_A2jrYTmvvhXuobAgHXfKmiApwrnV8oS4ySqwmgJGXvuG', {
-        api_host: 'https://us.i.posthog.com',
-        defaults: '2026-05-30',
-        person_profiles: 'identified_only',
-    })
+(function(){
+    'use strict';
+
+    const GA4_ID = 'G-1K6DBVER5W';
+    const VIEW_HOME_KEY = 'gomna:view_home:sent';
+
+    function getCookieChoice() {
+        try {
+            const raw = localStorage.getItem('cookieChoice');
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function hasAnalyticsConsent() {
+        const consent = getCookieChoice();
+        return !!(consent && consent.analytics === true);
+    }
+
+    function loadGa4() {
+        if (window.__gomnaHomeGa4Loaded) return;
+        window.__gomnaHomeGa4Loaded = true;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
+
+        const existingGa4Script = document.getElementById('gomna-ga4-script') ||
+            document.querySelector('script[src*="googletagmanager.com/gtag/js?id=' + GA4_ID + '"]');
+
+        if (!existingGa4Script) {
+            const script = document.createElement('script');
+            script.id = 'gomna-ga4-script';
+            script.async = true;
+            script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA4_ID);
+            document.head.appendChild(script);
+        }
+
+        if (!window.__gomnaHomeGa4Configured) {
+            window.__gomnaHomeGa4Configured = true;
+            window.gtag('js', new Date());
+            window.gtag('config', GA4_ID);
+        }
+    }
+
+    function trackViewHomeOnce() {
+        try {
+            if (sessionStorage.getItem(VIEW_HOME_KEY)) return;
+            sessionStorage.setItem(VIEW_HOME_KEY, '1');
+        } catch (error) {
+            if (window.__gomnaHomeViewTracked) return;
+            window.__gomnaHomeViewTracked = true;
+        }
+
+        if (typeof window.gtag === 'function') {
+            window.gtag('event', 'view_home');
+        }
+        if (window.posthog && typeof window.posthog.capture === 'function') {
+            window.posthog.capture('view_home');
+        }
+    }
+
+    if (!hasAnalyticsConsent()) return;
+
+    loadGa4();
+    if (!window.__gomnaHomePostHogLoaded && !(window.posthog && window.posthog.__loaded)) {
+        window.__gomnaHomePostHogLoaded = true;
+        !function(t,e){var o,n,p,r;e.__SV||(window.posthog && window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="rn sn init kn Qr wn Cn yn capture calculateEventProperties Rn register register_once register_for_session unregister unregister_for_session An getFeatureFlag getFeatureFlagPayload getFeatureFlagResult isFeatureEnabled reloadFeatureFlags updateFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey displaySurvey cancelPendingSurvey canRenderSurvey canRenderSurveyAsync Fn identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset setIdentity clearIdentity get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException addExceptionStep captureLog startExceptionAutocapture stopExceptionAutocapture loadToolbar get_property getSessionProperty On En createPersonProfile setInternalOrTestUser Ln gn $n opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing get_explicit_consent_status is_capturing clear_opt_in_out_capturing In debug Kr Pn getPageViewId captureTraceFeedback captureTraceMetric vn".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+        posthog.init('phc_A2jrYTmvvhXuobAgHXfKmiApwrnV8oS4ySqwmgJGXvuG', {
+            api_host: 'https://us.i.posthog.com',
+            defaults: '2026-05-30',
+            person_profiles: 'identified_only',
+        });
+    }
+    trackViewHomeOnce();
+})();
 </script>
 </head>
 <body>
