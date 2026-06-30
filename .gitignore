@@ -9,6 +9,8 @@ __pycache__/
 .tmp/
 tmp/
 tmp/tts-samples/
+.wrangler/
+reports/
 audio/v1/**/*.mp3
 .cache/
 *.swp
