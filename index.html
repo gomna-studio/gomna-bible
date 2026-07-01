@@ -269,6 +269,13 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 /* touch feedback: iOS scale + opacity (strong) */
 .card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,.gs-link:active,button:active{transform: scale(0.90); opacity: 0.65; filter: brightness(0.85) saturate(1.3); background-color: rgba(200, 152, 73, 0.15); transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease, background-color 0.15s ease}
 .verse-cal-box .popup-close:active{transform:scale(.96);opacity:.94;filter:none;background:linear-gradient(180deg,#f0e4c8,#e3cf95);background-color:#e3cf95}
+.home-cookie-banner{position:fixed;left:16px;right:16px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:90;max-width:520px;margin:0 auto;background:rgba(255,251,240,.96);color:#3d2818;border:1px solid rgba(184,134,11,.28);border-radius:16px;padding:12px 13px;box-shadow:0 8px 24px rgba(80,55,20,.18);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:12px;line-height:1.45}
+.home-cookie-banner[hidden]{display:none}
+.home-cookie-text{margin:0 0 10px}
+.home-cookie-actions{display:flex;gap:8px;justify-content:flex-end}
+.home-cookie-button{border:none;border-radius:999px;padding:8px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.home-cookie-button-accept{background:#B8751F;color:#fff}
+.home-cookie-button-reject{background:#fff;color:#5D4516;border:1px solid rgba(184,134,11,.35)}
 </style>
 <script>
 (function(){
@@ -484,6 +491,69 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
     <button type="button" class="popup-close" onclick="closeVerseDatePicker()">닫기</button>
   </div>
 </div>
+<div id="home-cookie-banner" class="home-cookie-banner" role="dialog" aria-label="분석 쿠키 동의 안내" hidden>
+  <p class="home-cookie-text">은혜의말씀은 서비스 개선을 위해 분석 쿠키를 사용할 수 있습니다. 동의하면 Google Analytics와 PostHog가 활성화됩니다. 거부해도 성경 읽기와 말씀풀이 이용에는 제한이 없습니다.</p>
+  <div class="home-cookie-actions">
+    <button type="button" class="home-cookie-button home-cookie-button-reject" id="home-cookie-reject">거부</button>
+    <button type="button" class="home-cookie-button home-cookie-button-accept" id="home-cookie-accept">동의</button>
+  </div>
+</div>
+<script>
+(function(){
+  'use strict';
+
+  var banner = document.getElementById('home-cookie-banner');
+  var acceptButton = document.getElementById('home-cookie-accept');
+  var rejectButton = document.getElementById('home-cookie-reject');
+
+  function readCookieChoice() {
+    try {
+      var raw = localStorage.getItem('cookieChoice');
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      return parsed && typeof parsed === 'object' ? parsed : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function hasStoredAnalyticsChoice() {
+    var choice = readCookieChoice();
+    return !!(choice && typeof choice.analytics === 'boolean');
+  }
+
+  function hideBanner() {
+    if (banner) banner.hidden = true;
+  }
+
+  function saveAnalyticsChoice(analytics) {
+    var choice = readCookieChoice() || {};
+    choice.analytics = analytics;
+    choice.timestamp = new Date().toISOString();
+    localStorage.setItem('cookieChoice', JSON.stringify(choice));
+  }
+
+  function acceptAnalyticsCookies() {
+    saveAnalyticsChoice(true);
+    hideBanner();
+    if (typeof window.GomnaHomeAnalyticsInit === 'function') {
+      window.GomnaHomeAnalyticsInit();
+    }
+  }
+
+  function rejectAnalyticsCookies() {
+    saveAnalyticsChoice(false);
+    hideBanner();
+  }
+
+  if (!hasStoredAnalyticsChoice() && banner) {
+    banner.hidden = false;
+  }
+
+  if (acceptButton) acceptButton.addEventListener('click', acceptAnalyticsCookies);
+  if (rejectButton) rejectButton.addEventListener('click', rejectAnalyticsCookies);
+})();
+</script>
 <script>
 const oldData=[{cat:'📜 모세오경',books:[['창세기',50],['출애굽기',40],['레위기',27],['민수기',36],['신명기',34]]},{cat:'📜 역사서',books:[['여호수아',24],['사사기',21],['룻기',4],['사무엘상',31],['사무엘하',24],['열왕기상',22],['열왕기하',25],['역대상',29],['역대하',36],['에스라',10],['느헤미야',13],['에스더',10]]},{cat:'📜 시가서',books:[['욥기',42],['시편',150],['잠언',31],['전도서',12],['아가',8]]},{cat:'📜 대선지서',books:[['이사야',66],['예레미야',52],['예레미야애가',5],['에스겔',48],['다니엘',12]]},{cat:'📜 소선지서',books:[['호세아',14],['요엘',3],['아모스',9],['오바댜',1],['요나',4],['미가',7],['나훔',3],['하박국',3],['스바냐',3],['학개',2],['스가랴',14],['말라기',4]]}];
 const newData=[{cat:'📖 복음서',books:[['마태복음',28],['마가복음',16],['누가복음',24],['요한복음',21]]},{cat:'📖 역사서',books:[['사도행전',28]]},{cat:'📖 바울서신',books:[['로마서',16],['고린도전서',16],['고린도후서',13],['갈라디아서',6],['에베소서',6],['빌립보서',4],['골로새서',4],['데살로니가전서',5],['데살로니가후서',3],['디모데전서',6],['디모데후서',4],['디도서',3],['빌레몬서',1]]},{cat:'📖 공동서신',books:[['히브리서',13],['야고보서',5],['베드로전서',5],['베드로후서',3],['요한일서',5],['요한이서',1],['요한삼서',1],['유다서',1]]},{cat:'📖 예언서',books:[['요한계시록',22]]}];
