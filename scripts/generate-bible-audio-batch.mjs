@@ -157,8 +157,14 @@ function assertSafeWriteScope(args) {
     args.fromVerse === 1 &&
     args.toVerse === 24;
 
-  if (!isGenesisChapter2 && !isGenesisChapter3) {
-    throw new Error('--write는 현재 안전 점검을 위해 창세기 2장 1절~25절 또는 창세기 3장 1절~24절 범위에서만 허용됩니다.');
+  const isGenesisChapter3Verse1 =
+    args.bookId === 'genesis' &&
+    args.chapter === 3 &&
+    args.fromVerse === 1 &&
+    args.toVerse === 1;
+
+  if (!isGenesisChapter2 && !isGenesisChapter3 && !isGenesisChapter3Verse1) {
+    throw new Error('--write는 현재 안전 점검을 위해 창세기 2장 1절~25절, 창세기 3장 1절~24절, 또는 창세기 3장 1절 단독 범위에서만 허용됩니다.');
   }
 }
 
