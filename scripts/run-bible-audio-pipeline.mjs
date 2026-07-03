@@ -8,6 +8,8 @@ const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
 const OLD_TESTAMENT_JS_PATH = path.join(ROOT, 'old_testament.js');
 const REPORT_DIR = path.join(ROOT, 'reports', 'bible-audio-pipeline');
 const GENERATE_SCRIPT = path.join(ROOT, 'scripts', 'generate-bible-audio-batch.mjs');
+const MANIFEST_PATH = path.join(ROOT, 'audio', 'audio-manifest.json');
+const VERIFIED_LIST_PATH = path.join(ROOT, 'reports', 'verified-audio-ko-KR.json');
 
 const PIPELINE_VERSION = '2.0.0';
 
@@ -32,18 +34,20 @@ const STORAGE = {
 };
 
 const AUDIO_TYPE = 'bible';
+const TYPE_KR = '본문';
 
 function usage() {
   console.error('Usage: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --dry-run');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --stage audio --write');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --from-verse 1 --to-verse 1 --voice calm --language ko-KR --stage sample --write --overwrite');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --stage upload --write --upload');
+  console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --stage publish --write --upload');
   console.error('Optional: --from-verse 1 --to-verse 26 --overwrite');
   console.error('Default mode: --dry-run');
 }
 
-const ALLOWED_STAGES = ['audio', 'sample', 'upload'];
-const WRITE_STAGES = ['audio', 'sample', 'upload'];
+const ALLOWED_STAGES = ['audio', 'sample', 'upload', 'publish'];
+const WRITE_STAGES = ['audio', 'sample', 'upload', 'publish'];
 
 function parseArgs(argv) {
   const args = {
@@ -130,11 +134,15 @@ function parseArgs(argv) {
   }
 
   if (args.write && !WRITE_STAGES.includes(args.stage)) {
-    throw new Error('--write는 --stage audio, sample 또는 upload와 함께 사용해야 합니다.');
+    throw new Error('--write는 --stage audio, sample, upload 또는 publish와 함께 사용해야 합니다.');
   }
 
   if (args.write && args.stage === 'upload' && !args.upload) {
     throw new Error('upload stage --write는 --upload가 필요합니다.');
+  }
+
+  if (args.write && args.stage === 'publish' && !args.upload) {
+    throw new Error('publish stage --write는 --upload가 필요합니다.');
   }
 
   if (args.stage && !ALLOWED_STAGES.includes(args.stage)) {
@@ -400,6 +408,9 @@ function buildSummary(items, args, execution = {}) {
   const uploadedCount = execution.uploadedCount || 0;
   const urlVerifiedCount = execution.urlVerifiedCount || 0;
   const uploadFailedCount = execution.uploadFailedCount || 0;
+  const verifiedAppendedCount = execution.verifiedAppendedCount || 0;
+  const manifestPublishedCount = execution.manifestPublishedCount || 0;
+  const publishFailedCount = execution.publishFailedCount || 0;
 
   return {
     targetCount: items.length,
@@ -414,16 +425,20 @@ function buildSummary(items, args, execution = {}) {
     uploadedCount,
     urlVerifiedCount,
     uploadFailedCount,
-    plannedVerifiedAppendCount: 0,
-    plannedManifestPublishCount: 0,
-    fileModified: generatedCount > 0,
+    verifiedAppendedCount,
+    manifestPublishedCount,
+    publishFailedCount,
+    plannedVerifiedAppendCount: items.filter((item) => item.actions.verified === 'pending').length,
+    plannedManifestPublishCount: items.filter((item) => item.actions.manifest === 'draft-planned').length,
+    fileModified: generatedCount > 0 || execution.manifestWritten || execution.verifiedListModified,
     mp3Generated: generatedCount > 0,
     uploadPerformed: uploadedCount > 0,
-    manifestWritten: false,
-    verifiedListModified: false,
+    manifestWritten: execution.manifestWritten ?? false,
+    verifiedListModified: execution.verifiedListModified ?? false,
     overwrite: args.overwrite,
     validateLocalPass: execution.validateLocalPass ?? null,
     uploadPass: execution.uploadPass ?? null,
+    publishPass: execution.publishPass ?? null,
   };
 }
 
@@ -666,6 +681,252 @@ function applyPostUploadItemState(items, uploadExecution) {
   });
 }
 
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function writeJson(filePath, data) {
+  fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
+}
+
+function readVerifiedAudioIds() {
+  const data = readJson(VERIFIED_LIST_PATH);
+  const list = Array.isArray(data) ? data : data.verifiedAudios || [];
+  return {
+    data: Array.isArray(data) ? { verifiedAudios: list } : data,
+    ids: new Set(list),
+  };
+}
+
+function buildManifestEntry(item, args) {
+  return {
+    id: item.id,
+    book: BOOKS[args.bookId].book,
+    bookId: args.bookId,
+    language: args.language,
+    chapter: item.chapter,
+    verse: item.verse,
+    type: AUDIO_TYPE,
+    typeKr: TYPE_KR,
+    voicePreset: args.voicePreset,
+    filePath: item.publicUrl,
+    duration: 0,
+    fileSize: 0,
+    status: 'published',
+    preview: item.preview,
+  };
+}
+
+function appendVerifiedAudioIds(targetIds) {
+  const { data, ids } = readVerifiedAudioIds();
+  const list = data.verifiedAudios || [];
+  const appended = [];
+
+  for (const id of targetIds) {
+    if (!ids.has(id)) {
+      list.push(id);
+      ids.add(id);
+      appended.push(id);
+    }
+  }
+
+  data.verifiedAudios = list;
+  writeJson(VERIFIED_LIST_PATH, data);
+
+  return {
+    appended,
+    appendedCount: appended.length,
+    skippedExistingCount: targetIds.length - appended.length,
+    totalCount: list.length,
+  };
+}
+
+function publishManifestEntries(items, args) {
+  const manifest = readJson(MANIFEST_PATH);
+  const audios = manifest.audios || {};
+  const entries = [];
+  let createdCount = 0;
+  let updatedCount = 0;
+
+  for (const item of items) {
+    const existingEntry = audios[item.id] || null;
+    const nextEntry = buildManifestEntry(item, args);
+
+    if (!existingEntry) {
+      createdCount += 1;
+    } else {
+      updatedCount += 1;
+    }
+
+    audios[item.id] = nextEntry;
+    entries.push({
+      id: item.id,
+      chapter: item.chapter,
+      verse: item.verse,
+      created: !existingEntry,
+      status: nextEntry.status,
+      filePath: nextEntry.filePath,
+    });
+  }
+
+  const nextManifest = {
+    ...manifest,
+    lastUpdated: new Date().toISOString().slice(0, 10),
+    totalAudios: Object.keys(audios).length,
+    audios,
+  };
+
+  writeJson(MANIFEST_PATH, nextManifest);
+  readJson(MANIFEST_PATH);
+
+  return {
+    createdCount,
+    updatedCount,
+    publishedCount: items.length,
+    entries,
+  };
+}
+
+async function verifyAllPublicUrls(items) {
+  const results = [];
+
+  for (const item of items) {
+    const resultItem = {
+      id: item.id,
+      publicUrl: item.publicUrl,
+      pass: false,
+      status: 'pending',
+    };
+
+    try {
+      const urlStatus = await getPublicUrlStatus(item.publicUrl);
+      resultItem.urlStatus = urlStatus;
+      resultItem.pass = verifyPublicUrlStatus(urlStatus);
+      resultItem.status = resultItem.pass ? 'pass' : 'url-verify-failed';
+
+      if (!resultItem.pass) {
+        resultItem.errorMessage = `public URL 확인 실패: status=${urlStatus.status}, contentType=${urlStatus.contentType}, contentLength=${urlStatus.contentLength}`;
+      }
+    } catch (error) {
+      resultItem.status = 'failed';
+      resultItem.errorMessage = error.message;
+    }
+
+    results.push(resultItem);
+  }
+
+  const passCount = results.filter((result) => result.pass).length;
+
+  return {
+    targetCount: items.length,
+    passCount,
+    failedCount: items.length - passCount,
+    pass: passCount === items.length,
+    results,
+  };
+}
+
+async function runPublishStage({ args, items, validateLocal }) {
+  const startedAt = new Date().toISOString();
+
+  if (!validateLocal.pass) {
+    return {
+      stage: 'publish',
+      startedAt,
+      finishedAt: new Date().toISOString(),
+      pass: false,
+      blocked: true,
+      blockedReason: 'validate-local-failed',
+      urlVerifiedCount: 0,
+      uploadedCount: 0,
+      uploadFailedCount: 0,
+      verifiedAppendedCount: 0,
+      manifestPublishedCount: 0,
+      failedCount: 0,
+      results: [],
+      exitCode: 1,
+    };
+  }
+
+  let uploadExecution = null;
+  let urlVerification = await verifyAllPublicUrls(items);
+
+  if (!urlVerification.pass && args.upload) {
+    const failedIds = new Set(
+      urlVerification.results.filter((result) => !result.pass).map((result) => result.id),
+    );
+    const uploadTargets = items.filter((item) => failedIds.has(item.id));
+    uploadExecution = await runUploadStage(uploadTargets);
+    urlVerification = await verifyAllPublicUrls(items);
+  }
+
+  if (!urlVerification.pass) {
+    return {
+      stage: 'publish',
+      startedAt,
+      finishedAt: new Date().toISOString(),
+      pass: false,
+      blocked: false,
+      blockedReason: null,
+      urlVerifiedCount: urlVerification.passCount,
+      uploadedCount: uploadExecution?.uploadedCount ?? 0,
+      uploadFailedCount: uploadExecution?.failedCount ?? 0,
+      verifiedAppendedCount: 0,
+      manifestPublishedCount: 0,
+      manifestWritten: false,
+      verifiedListModified: false,
+      failedCount: urlVerification.failedCount,
+      urlVerification,
+      uploadExecution,
+      results: urlVerification.results,
+      exitCode: 1,
+    };
+  }
+
+  const targetIds = items.map((item) => item.id);
+  const verifiedWrite = appendVerifiedAudioIds(targetIds);
+  const manifestWrite = publishManifestEntries(items, args);
+
+  return {
+    stage: 'publish',
+    startedAt,
+    finishedAt: new Date().toISOString(),
+    pass: true,
+    blocked: false,
+    blockedReason: null,
+    urlVerifiedCount: urlVerification.passCount,
+    uploadedCount: uploadExecution?.uploadedCount ?? 0,
+    uploadFailedCount: uploadExecution?.failedCount ?? 0,
+    verifiedAppendedCount: verifiedWrite.appendedCount,
+    verifiedSkippedExistingCount: verifiedWrite.skippedExistingCount,
+    manifestPublishedCount: manifestWrite.publishedCount,
+    manifestCreatedCount: manifestWrite.createdCount,
+    manifestUpdatedCount: manifestWrite.updatedCount,
+    manifestWritten: true,
+    verifiedListModified: verifiedWrite.appendedCount > 0 || verifiedWrite.skippedExistingCount > 0,
+    failedCount: 0,
+    urlVerification,
+    uploadExecution,
+    verifiedWrite,
+    manifestWrite,
+    results: urlVerification.results,
+    exitCode: 0,
+  };
+}
+
+function applyPostPublishItemState(items, publishExecution) {
+  return items.map((item) => ({
+    ...item,
+    actions: {
+      ...item.actions,
+      upload: publishExecution?.urlVerifiedCount === items.length ? 'uploaded' : item.actions.upload,
+      verified: publishExecution?.pass ? 'verified' : item.actions.verified,
+      manifest: publishExecution?.pass ? 'published' : item.actions.manifest,
+    },
+    publishResult: publishExecution?.results?.find((result) => result.id === item.id) || null,
+  }));
+}
+
 function refreshItems({ args, verses }) {
   return verses.map((verseData) => buildPipelineItem({ args, verseData }));
 }
@@ -715,16 +976,18 @@ function applyPostAudioItemState(items, audioExecution) {
   });
 }
 
-function buildStages({ summary, args, generationExecution, uploadExecution, validateLocal }) {
+function buildStages({ summary, args, generationExecution, uploadExecution, publishExecution, validateLocal }) {
   const generationExecuted = Boolean(generationExecution);
-  const uploadExecuted = Boolean(uploadExecution);
+  const uploadExecuted = Boolean(uploadExecution) && args.stage === 'upload';
+  const publishExecuted = Boolean(publishExecution) && args.stage === 'publish';
+  const publishUploadExecuted = Boolean(publishExecution?.uploadExecution);
   const generationStatus = !generationExecuted
     ? 'planned'
     : generationExecution.exitCode === 0 && summary.failedGenerationCount === 0
       ? 'pass'
       : 'fail';
 
-  const validateStatus = uploadExecuted || generationExecuted
+  const validateStatus = uploadExecuted || generationExecuted || publishExecuted
     ? validateLocal.status
     : summary.zeroByteLocalCount > 0
       ? 'fail'
@@ -732,19 +995,45 @@ function buildStages({ summary, args, generationExecution, uploadExecution, vali
         ? 'pass'
         : 'planned';
 
-  const uploadStatus = !uploadExecuted
-    ? args.stage === 'upload' && validateLocal && !validateLocal.pass
-      ? 'blocked'
-      : summary.plannedUploadCount > 0
-        ? 'planned'
-        : 'blocked'
-    : uploadExecution.pass
-      ? 'pass'
-      : 'fail';
+  const uploadStatus = publishExecuted
+    ? publishUploadExecuted
+      ? publishExecution.uploadExecution.pass
+        ? 'pass'
+        : 'fail'
+      : publishExecution.pass
+        ? 'pass'
+        : publishExecution.blockedReason === 'validate-local-failed'
+          ? 'blocked'
+          : publishExecution.urlVerifiedCount === summary.targetCount
+            ? 'pass'
+            : 'fail'
+    : !uploadExecuted
+      ? args.stage === 'upload' && validateLocal && !validateLocal.pass
+        ? 'blocked'
+        : summary.plannedUploadCount > 0
+          ? 'planned'
+          : 'blocked'
+      : uploadExecution.pass
+        ? 'pass'
+        : 'fail';
 
   const sampleExecuted = generationExecuted && args.stage === 'sample';
   const audioExecuted = generationExecuted && args.stage === 'audio';
-  const uploadStageExecuted = uploadExecuted && args.stage === 'upload';
+  const uploadStageExecuted = uploadExecuted;
+  const verifiedStatus = publishExecuted
+    ? publishExecution.pass
+      ? 'pass'
+      : publishExecution.blockedReason === 'validate-local-failed' || !publishExecution.pass
+        ? 'blocked'
+        : 'fail'
+    : 'planned';
+  const manifestStatus = publishExecuted
+    ? publishExecution.pass
+      ? 'pass'
+      : publishExecution.blockedReason === 'validate-local-failed' || !publishExecution.pass
+        ? 'blocked'
+        : 'fail'
+    : 'planned';
 
   return [
     {
@@ -786,31 +1075,73 @@ function buildStages({ summary, args, generationExecution, uploadExecution, vali
     {
       stage: 'upload',
       status: uploadStatus,
-      executed: uploadStageExecuted,
-      reason: uploadStageExecuted
+      executed: uploadStageExecuted || (publishExecuted && publishUploadExecuted),
+      reason: uploadStageExecuted || (publishExecuted && publishUploadExecuted)
         ? null
         : args.stage === 'upload' && validateLocal && !validateLocal.pass
           ? 'validate-local-failed'
-          : args.dryRun
-            ? 'dry-run'
-            : 'depends-on-local-files',
+          : args.stage === 'publish' && validateLocal && !validateLocal.pass
+            ? 'validate-local-failed'
+            : args.dryRun
+              ? 'dry-run'
+              : 'depends-on-local-files',
       uploadMode: STORAGE.uploadMode,
       wranglerPackage: WRANGLER.package,
-      uploadedCount: uploadStageExecuted ? summary.uploadedCount : 0,
-      urlVerifiedCount: uploadStageExecuted ? summary.urlVerifiedCount : 0,
-      failedCount: uploadStageExecuted ? summary.uploadFailedCount : 0,
+      uploadedCount: uploadStageExecuted
+        ? summary.uploadedCount
+        : publishExecuted
+          ? summary.uploadedCount
+          : 0,
+      urlVerifiedCount: publishExecuted
+        ? summary.urlVerifiedCount
+        : uploadStageExecuted
+          ? summary.urlVerifiedCount
+          : 0,
+      failedCount: uploadStageExecuted || publishExecuted ? summary.uploadFailedCount : 0,
     },
     {
       stage: 'verified',
-      status: 'blocked',
-      executed: false,
-      reason: uploadStageExecuted || generationExecuted ? 'phase-3-upload-only' : 'dry-run',
+      status: verifiedStatus,
+      executed: publishExecuted && publishExecution.pass,
+      reason: publishExecuted
+        ? null
+        : args.stage === 'publish'
+          ? args.dryRun
+            ? 'dry-run'
+            : 'not-requested'
+          : 'dry-run',
+      appendedCount: publishExecuted ? summary.verifiedAppendedCount : 0,
     },
     {
       stage: 'manifest',
-      status: 'planned',
-      executed: false,
-      reason: uploadStageExecuted || generationExecuted ? 'phase-3-upload-only' : 'dry-run',
+      status: manifestStatus,
+      executed: publishExecuted && publishExecution.pass,
+      reason: publishExecuted
+        ? null
+        : args.stage === 'publish'
+          ? args.dryRun
+            ? 'dry-run'
+            : 'not-requested'
+          : 'dry-run',
+      publishedCount: publishExecuted ? summary.manifestPublishedCount : 0,
+    },
+    {
+      stage: 'publish',
+      status: publishExecuted
+        ? publishExecution.pass
+          ? 'pass'
+          : 'fail'
+        : args.stage === 'publish'
+          ? args.dryRun
+            ? 'planned'
+            : 'planned'
+          : 'planned',
+      executed: publishExecuted,
+      reason: publishExecuted ? null : args.stage === 'publish' && args.dryRun ? 'dry-run' : 'not-requested',
+      urlVerifiedCount: publishExecuted ? summary.urlVerifiedCount : 0,
+      verifiedAppendedCount: publishExecuted ? summary.verifiedAppendedCount : 0,
+      manifestPublishedCount: publishExecuted ? summary.manifestPublishedCount : 0,
+      failedCount: publishExecuted ? summary.publishFailedCount : 0,
     },
   ];
 }
@@ -830,6 +1161,10 @@ function resolveReportMode(args) {
 
   if (args.stage === 'upload' && args.upload) {
     return 'upload-write';
+  }
+
+  if (args.stage === 'publish' && args.upload) {
+    return 'publish-write';
   }
 
   return 'dry-run';
@@ -862,6 +1197,7 @@ async function main() {
 
   let generationExecution = null;
   let uploadExecution = null;
+  let publishExecution = null;
   let validateLocal = validateLocalFiles(items);
 
   if (args.write && args.stage === 'audio') {
@@ -894,16 +1230,28 @@ async function main() {
       uploadExecution = await runUploadStage(items);
       items = applyPostUploadItemState(items, uploadExecution);
     }
+  } else if (args.write && args.stage === 'publish' && args.upload) {
+    publishExecution = await runPublishStage({ args, items, validateLocal });
+    if (publishExecution.uploadExecution) {
+      uploadExecution = publishExecution.uploadExecution;
+    }
+    items = applyPostPublishItemState(items, publishExecution);
   }
 
   const summary = buildSummary(items, args, {
     generatedCount: generationExecution?.generatedCount ?? 0,
     failedCount: generationExecution?.failedCount ?? 0,
-    uploadedCount: uploadExecution?.uploadedCount ?? 0,
-    urlVerifiedCount: uploadExecution?.urlVerifiedCount ?? 0,
-    uploadFailedCount: uploadExecution?.failedCount ?? 0,
+    uploadedCount: publishExecution?.uploadedCount ?? uploadExecution?.uploadedCount ?? 0,
+    urlVerifiedCount: publishExecution?.urlVerifiedCount ?? uploadExecution?.urlVerifiedCount ?? 0,
+    uploadFailedCount: publishExecution?.uploadFailedCount ?? uploadExecution?.failedCount ?? 0,
+    verifiedAppendedCount: publishExecution?.verifiedAppendedCount ?? 0,
+    manifestPublishedCount: publishExecution?.manifestPublishedCount ?? 0,
+    publishFailedCount: publishExecution?.failedCount ?? 0,
     validateLocalPass: validateLocal.pass,
     uploadPass: uploadExecution?.pass ?? null,
+    publishPass: publishExecution?.pass ?? null,
+    manifestWritten: publishExecution?.manifestWritten ?? false,
+    verifiedListModified: publishExecution?.verifiedListModified ?? false,
   });
   const finishedAt = new Date().toISOString();
   const mode = resolveReportMode(args);
@@ -942,16 +1290,20 @@ async function main() {
       contentType: WRANGLER.contentType,
     },
     summary,
-    stages: buildStages({ summary, args, generationExecution, uploadExecution, validateLocal }),
+    stages: buildStages({ summary, args, generationExecution, uploadExecution, publishExecution, validateLocal }),
     validateLocal,
     generationExecution,
     uploadExecution,
+    publishExecution,
     items,
     safety: {
       writeAllowed: args.write && WRITE_STAGES.includes(args.stage),
       approvedTarget: buildPipelineTargetKey(args, range),
       pipelineEnv: args.write && WRITE_STAGES.includes(args.stage) ? buildPipelineEnv(args, range) : null,
-      blockers: uploadExecution?.blocked ? [uploadExecution.blockedReason] : [],
+      blockers: [
+        ...(uploadExecution?.blocked ? [uploadExecution.blockedReason] : []),
+        ...(publishExecution?.blocked ? [publishExecution.blockedReason] : []),
+      ],
     },
   };
 
@@ -969,6 +1321,12 @@ async function main() {
 
   if (args.write && args.stage === 'upload' && args.upload) {
     if (!validateLocal.pass || uploadExecution.exitCode !== 0 || !uploadExecution.pass) {
+      process.exitCode = 1;
+    }
+  }
+
+  if (args.write && args.stage === 'publish' && args.upload) {
+    if (!validateLocal.pass || publishExecution.exitCode !== 0 || !publishExecution.pass) {
       process.exitCode = 1;
     }
   }
