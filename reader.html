@@ -194943,8 +194943,22 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadBibleData() {
-  // JS 파일에서 이미 로드됨 - 바로 초기화
-  initializeApp();
+  var files = ["old_testament.js?v=20260703-loader-dryrun", "new_testament.js?v=20260703-loader-dryrun"];
+  var loaded = 0;
+  function done() {
+    loaded += 1;
+    if (loaded === files.length) initializeApp();
+  }
+  files.forEach(function(src) {
+    var s = document.createElement("script");
+    s.src = src;
+    s.onload = done;
+    s.onerror = function() {
+      console.error("Bible data file load failed:", src);
+      done();
+    };
+    document.head.appendChild(s);
+  });
 }
 
 function initializeApp() {
