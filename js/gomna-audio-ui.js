@@ -1214,7 +1214,11 @@
     switch (action) {
       case 'play':
         if (audioId) {
-          engine.playAudioById(audioId);
+          if (state && state.currentAudioId && state.currentAudioId !== audioId && engine.stopAudio) {
+            engine.stopAudio();
+          }
+
+          engine.playAudioById(audioId, { startTime: 0 });
         }
         break;
 
