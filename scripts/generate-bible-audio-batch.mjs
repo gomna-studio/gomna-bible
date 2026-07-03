@@ -31,31 +31,78 @@ const TTS_DEFAULTS = {
   outputFormat: 'mp3',
 };
 
+const BIBLE_NARRATION_RULES = 'Do not add commentary, explanations, sound effects, or extra words. Read only the provided Bible verse text.';
+
 const VOICE_PRESET_TTS = {
   calm: {
     provider: 'openai',
     model: 'gpt-4o-mini-tts',
     providerVoice: 'marin',
+    instructions: [
+      'Korean Bible narration voice.',
+      'Warm, reverent, mature, calm, pastoral tone.',
+      'Prefer a clearly masculine adult narrator impression.',
+      'Natural Korean pronunciation.',
+      'Slow and steady pace suitable for Scripture reading.',
+      'Avoid robotic, neutral, flat, and androgynous delivery.',
+      BIBLE_NARRATION_RULES,
+    ].join(' '),
   },
   warm: {
     provider: 'openai',
     model: 'gpt-4o-mini-tts',
     providerVoice: 'marin',
+    instructions: [
+      'Korean Bible narration voice.',
+      'Warm, gentle, reverent, mature, pastoral tone.',
+      'Prefer a clearly masculine adult narrator impression.',
+      'Natural Korean pronunciation.',
+      'Measured pace suitable for Scripture reading.',
+      'Avoid robotic, neutral, flat, and androgynous delivery.',
+      BIBLE_NARRATION_RULES,
+    ].join(' '),
   },
   study: {
     provider: 'openai',
     model: 'gpt-4o-mini-tts',
     providerVoice: 'marin',
+    instructions: [
+      'Korean Bible narration voice.',
+      'Clear, reverent, mature, calm, teaching tone.',
+      'Prefer a clearly masculine adult narrator impression.',
+      'Natural Korean pronunciation.',
+      'Steady, attentive pace suitable for careful Scripture reading.',
+      'Avoid robotic, neutral, flat, and androgynous delivery.',
+      BIBLE_NARRATION_RULES,
+    ].join(' '),
   },
   strong: {
     provider: 'openai',
     model: 'gpt-4o-mini-tts',
     providerVoice: 'marin',
+    instructions: [
+      'Korean Bible narration voice.',
+      'Firm, reverent, mature, confident, pastoral tone.',
+      'Prefer a clearly masculine adult narrator impression.',
+      'Natural Korean pronunciation.',
+      'Steady, authoritative pace suitable for Scripture reading.',
+      'Avoid robotic, neutral, flat, and androgynous delivery.',
+      BIBLE_NARRATION_RULES,
+    ].join(' '),
   },
   soft: {
     provider: 'openai',
     model: 'gpt-4o-mini-tts',
     providerVoice: 'marin',
+    instructions: [
+      'Korean Bible narration voice.',
+      'Soft, gentle, reverent, mature, pastoral tone.',
+      'Prefer a clearly masculine adult narrator impression.',
+      'Natural Korean pronunciation.',
+      'Slow, tender pace suitable for Scripture reading.',
+      'Avoid robotic, neutral, flat, and androgynous delivery.',
+      BIBLE_NARRATION_RULES,
+    ].join(' '),
   },
 };
 
@@ -142,29 +189,56 @@ function parseArgs(argv) {
   return args;
 }
 
-function assertSafeWriteScope(args) {
-  if (!args.write) return;
+function buildPipelineTargetKey({ language, bookId, chapter, fromVerse, toVerse }) {
+  return `${language}:${bookId}:${chapter}:${fromVerse}-${toVerse}`;
+}
 
+function isPipelineAllowedWrite(args, fromVerse, toVerse) {
+  return (
+    process.env.GOMNA_BIBLE_PIPELINE === '1' &&
+    process.env.GOMNA_BIBLE_ALLOWED_TARGET === buildPipelineTargetKey({
+      language: args.language,
+      bookId: args.bookId,
+      chapter: args.chapter,
+      fromVerse,
+      toVerse,
+    })
+  );
+}
+
+function isLegacyDirectWriteAllowed(args, fromVerse, toVerse) {
   const isGenesisChapter2 =
     args.bookId === 'genesis' &&
     args.chapter === 2 &&
-    args.fromVerse === 1 &&
-    args.toVerse === 25;
+    fromVerse === 1 &&
+    toVerse === 25;
 
   const isGenesisChapter3 =
     args.bookId === 'genesis' &&
     args.chapter === 3 &&
-    args.fromVerse === 1 &&
-    args.toVerse === 24;
+    fromVerse === 1 &&
+    toVerse === 24;
 
   const isGenesisChapter3Verse1 =
     args.bookId === 'genesis' &&
     args.chapter === 3 &&
-    args.fromVerse === 1 &&
-    args.toVerse === 1;
+    fromVerse === 1 &&
+    toVerse === 1;
 
-  if (!isGenesisChapter2 && !isGenesisChapter3 && !isGenesisChapter3Verse1) {
-    throw new Error('--write는 현재 안전 점검을 위해 창세기 2장 1절~25절, 창세기 3장 1절~24절, 또는 창세기 3장 1절 단독 범위에서만 허용됩니다.');
+  return isGenesisChapter2 || isGenesisChapter3 || isGenesisChapter3Verse1;
+}
+
+function assertSafeWriteScope(args, verseBounds) {
+  if (!args.write) return;
+
+  const { fromVerse, toVerse } = verseBounds;
+
+  if (isPipelineAllowedWrite(args, fromVerse, toVerse)) {
+    return;
+  }
+
+  if (!isLegacyDirectWriteAllowed(args, fromVerse, toVerse)) {
+    throw new Error('--write는 현재 안전 점검을 위해 창세기 2장 1절~25절, 창세기 3장 1절~24절, 창세기 3장 1절 단독 범위에서만 직접 허용됩니다. 그 외 범위는 run-bible-audio-pipeline.mjs --stage audio --write를 사용하세요.');
   }
 }
 
@@ -348,6 +422,7 @@ function buildPlannedAudio(verse, voicePreset, overwrite) {
     ttsProvider: ttsConfig.provider,
     ttsModel: ttsConfig.model,
     providerVoice: ttsConfig.providerVoice || voicePreset,
+    ttsInstructions: ttsConfig.instructions || null,
     outputFormat: TTS_DEFAULTS.outputFormat,
     text: verse.text,
     storageRelativePath,
@@ -422,18 +497,24 @@ async function callOpenAiTts({ apiKey, item }) {
     throw new Error(`지원하지 않는 TTS provider입니다: ${item.ttsProvider}`);
   }
 
+  const requestBody = {
+    model: item.ttsModel,
+    voice: item.providerVoice,
+    input: item.text,
+    response_format: item.outputFormat,
+  };
+
+  if (item.ttsInstructions) {
+    requestBody.instructions = item.ttsInstructions;
+  }
+
   const response = await fetch('https://api.openai.com/v1/audio/speech', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      model: item.ttsModel,
-      voice: item.providerVoice,
-      input: item.text,
-      response_format: item.outputFormat,
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {
@@ -522,11 +603,25 @@ async function writeAudios({ args, plannedAudios }) {
   }
 }
 
+function resolveVerseBounds(args, verses) {
+  const verseNumbers = verses.map((verse) => verse.verse);
+
+  if (!verseNumbers.length) {
+    throw new Error('대상 절이 없습니다.');
+  }
+
+  return {
+    fromVerse: args.fromVerse == null ? Math.min(...verseNumbers) : args.fromVerse,
+    toVerse: args.toVerse == null ? Math.max(...verseNumbers) : args.toVerse,
+  };
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  assertSafeWriteScope(args);
-
   const verses = readChapterVerses(args);
+  const verseBounds = resolveVerseBounds(args, verses);
+
+  assertSafeWriteScope(args, verseBounds);
   const plannedAudios = verses.map((verse) => buildPlannedAudio(verse, args.voicePreset, args.overwrite));
   const skipped = plannedAudios.filter((item) => item.action === 'skip-existing');
   const plannedForGeneration = plannedAudios.filter((item) => item.action === 'generate-planned');

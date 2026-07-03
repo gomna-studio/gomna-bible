@@ -1,11 +1,13 @@
 import fs from 'fs';
 import path from 'path';
+import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
 const OLD_TESTAMENT_JS_PATH = path.join(ROOT, 'old_testament.js');
 const REPORT_DIR = path.join(ROOT, 'reports', 'bible-audio-pipeline');
+const GENERATE_SCRIPT = path.join(ROOT, 'scripts', 'generate-bible-audio-batch.mjs');
 
 const PIPELINE_VERSION = '2.0.0';
 
@@ -28,9 +30,13 @@ const AUDIO_TYPE = 'bible';
 
 function usage() {
   console.error('Usage: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --dry-run');
-  console.error('Optional: --from-verse 1 --to-verse 26');
+  console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --stage audio --write');
+  console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --from-verse 1 --to-verse 1 --voice calm --language ko-KR --stage sample --write --overwrite');
+  console.error('Optional: --from-verse 1 --to-verse 26 --overwrite');
   console.error('Default mode: --dry-run');
 }
+
+const ALLOWED_STAGES = ['audio', 'sample'];
 
 function parseArgs(argv) {
   const args = {
@@ -40,6 +46,7 @@ function parseArgs(argv) {
     toVerse: null,
     language: null,
     voicePreset: null,
+    stage: null,
     overwrite: false,
     dryRun: true,
     write: false,
@@ -63,6 +70,8 @@ function parseArgs(argv) {
       args.language = argv[++i];
     } else if (arg === '--voice') {
       args.voicePreset = argv[++i];
+    } else if (arg === '--stage') {
+      args.stage = argv[++i];
     } else if (arg === '--overwrite') {
       args.overwrite = true;
     } else if (arg === '--dry-run') {
@@ -108,6 +117,14 @@ function parseArgs(argv) {
 
   if (args.fromVerse !== null && args.toVerse !== null && args.fromVerse > args.toVerse) {
     throw new Error('--from-verse 값은 --to-verse 값보다 클 수 없습니다.');
+  }
+
+  if (args.write && !ALLOWED_STAGES.includes(args.stage)) {
+    throw new Error('--write는 --stage audio 또는 --stage sample과 함께 사용해야 합니다.');
+  }
+
+  if (args.stage && !ALLOWED_STAGES.includes(args.stage)) {
+    throw new Error(`지원하지 않는 stage입니다: ${args.stage}`);
   }
 
   return args;
@@ -248,6 +265,21 @@ function resolveVerseRange(args, chapterData) {
   };
 }
 
+function resolveExecutionRange(args, chapterData) {
+  if (args.stage === 'sample' && args.fromVerse === null && args.toVerse === null) {
+    return resolveVerseRange(
+      {
+        ...args,
+        fromVerse: 1,
+        toVerse: 1,
+      },
+      chapterData,
+    );
+  }
+
+  return resolveVerseRange(args, chapterData);
+}
+
 function buildLocalFileName(voicePreset) {
   return `bible-${voicePreset}.mp3`;
 }
@@ -340,7 +372,7 @@ function buildPipelineItem({ args, verseData }) {
   };
 }
 
-function buildSummary(items, args) {
+function buildSummary(items, args, execution = {}) {
   const existingLocalCount = items.filter((item) => item.localExists).length;
   const missingLocalCount = items.length - existingLocalCount;
   const zeroByteLocalCount = items.filter((item) => item.localZeroByte).length;
@@ -349,6 +381,8 @@ function buildSummary(items, args) {
   )).length;
   const skippedExistingCount = items.filter((item) => item.actions.audio === 'skip-existing').length;
   const plannedUploadCount = items.filter((item) => item.actions.upload === 'upload-planned').length;
+  const generatedCount = execution.generatedCount || 0;
+  const failedGenerationCount = execution.failedCount || 0;
 
   return {
     targetCount: items.length,
@@ -358,19 +392,173 @@ function buildSummary(items, args) {
     plannedGenerationCount,
     skippedExistingCount,
     plannedUploadCount,
+    generatedCount,
+    failedGenerationCount,
     plannedVerifiedAppendCount: 0,
     plannedManifestPublishCount: 0,
-    fileModified: false,
-    mp3Generated: false,
+    fileModified: generatedCount > 0,
+    mp3Generated: generatedCount > 0,
     uploadPerformed: false,
     manifestWritten: false,
     verifiedListModified: false,
     overwrite: args.overwrite,
+    validateLocalPass: execution.validateLocalPass ?? null,
   };
 }
 
-function buildStages(summary) {
-  const validateStatus = summary.zeroByteLocalCount > 0 ? 'fail' : 'planned';
+function buildPipelineTargetKey(args, range) {
+  return `${args.language}:${args.bookId}:${args.chapter}:${range.fromVerse}-${range.toVerse}`;
+}
+
+function buildPipelineEnv(args, range) {
+  return {
+    GOMNA_BIBLE_PIPELINE: '1',
+    GOMNA_BIBLE_ALLOWED_TARGET: buildPipelineTargetKey(args, range),
+  };
+}
+
+function buildAudioBatchCommand(args, range) {
+  const scriptArgs = [
+    path.relative(ROOT, GENERATE_SCRIPT),
+    '--book',
+    args.bookId,
+    '--chapter',
+    String(args.chapter),
+    '--from-verse',
+    String(range.fromVerse),
+    '--to-verse',
+    String(range.toVerse),
+    '--language',
+    args.language,
+    '--voice',
+    args.voicePreset,
+    '--write',
+  ];
+
+  if (args.overwrite) {
+    scriptArgs.push('--overwrite');
+  }
+
+  return {
+    command: 'node',
+    args: scriptArgs,
+    display: ['node', ...scriptArgs].join(' '),
+    env: buildPipelineEnv(args, range),
+  };
+}
+
+function runGenerationStage(args, range, stageName) {
+  const commandSpec = buildAudioBatchCommand(args, range);
+  const startedAt = new Date().toISOString();
+  const result = spawnSync(commandSpec.command, commandSpec.args, {
+    cwd: ROOT,
+    env: {
+      ...process.env,
+      ...commandSpec.env,
+    },
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  const finishedAt = new Date().toISOString();
+
+  let parsedStdout = null;
+  try {
+    parsedStdout = result.stdout ? JSON.parse(result.stdout) : null;
+  } catch {
+    parsedStdout = null;
+  }
+
+  return {
+    stage: stageName,
+    startedAt,
+    finishedAt,
+    command: commandSpec.display,
+    env: commandSpec.env,
+    exitCode: result.status,
+    signal: result.signal,
+    stderr: result.stderr,
+    parsedStdout,
+    generatedCount: parsedStdout?.generatedCount ?? 0,
+    failedCount: parsedStdout?.failedCount ?? 0,
+    skippedExistingCount: parsedStdout?.skippedExistingCount ?? 0,
+  };
+}
+
+function runAudioStage(args, range) {
+  return runGenerationStage(args, range, 'audio');
+}
+
+function runSampleStage(args, range) {
+  return runGenerationStage(args, range, 'sample');
+}
+
+function refreshItems({ args, verses }) {
+  return verses.map((verseData) => buildPipelineItem({ args, verseData }));
+}
+
+function validateLocalFiles(items) {
+  const missingItems = items.filter((item) => !item.localExists);
+  const zeroByteItems = items.filter((item) => item.localZeroByte);
+  const pass = missingItems.length === 0 && zeroByteItems.length === 0;
+
+  return {
+    status: pass ? 'pass' : 'fail',
+    pass,
+    expectedCount: items.length,
+    actualCount: items.length - missingItems.length,
+    missingCount: missingItems.length,
+    zeroByteCount: zeroByteItems.length,
+    missingIds: missingItems.map((item) => item.id),
+    zeroByteIds: zeroByteItems.map((item) => item.id),
+  };
+}
+
+function applyPostAudioItemState(items, audioExecution) {
+  return items.map((item) => {
+    const localInfo = inspectLocalFile(item.localRelativePath);
+    const validLocal = localInfo.localExists && !localInfo.localZeroByte;
+
+    let audioAction = item.actions.audio;
+    if (audioExecution?.exitCode === 0) {
+      if (validLocal) {
+        audioAction = item.actions.audio === 'skip-existing' ? 'skip-existing' : 'generated';
+      } else if (item.actions.audio === 'generate-planned' || item.actions.audio === 'regenerate-planned') {
+        audioAction = 'failed';
+      }
+    }
+
+    return {
+      ...item,
+      localExists: localInfo.localExists,
+      localFileSize: localInfo.localFileSize,
+      localZeroByte: localInfo.localZeroByte,
+      actions: {
+        ...item.actions,
+        audio: audioAction,
+        upload: validLocal ? 'upload-planned' : 'pending-local',
+      },
+    };
+  });
+}
+
+function buildStages({ summary, args, generationExecution, validateLocal }) {
+  const generationExecuted = Boolean(generationExecution);
+  const generationStatus = !generationExecuted
+    ? 'planned'
+    : generationExecution.exitCode === 0 && summary.failedGenerationCount === 0
+      ? 'pass'
+      : 'fail';
+
+  const validateStatus = generationExecuted
+    ? validateLocal.status
+    : summary.zeroByteLocalCount > 0
+      ? 'fail'
+      : summary.existingLocalCount === summary.targetCount
+        ? 'pass'
+        : 'planned';
+
+  const sampleExecuted = generationExecuted && args.stage === 'sample';
+  const audioExecuted = generationExecuted && args.stage === 'audio';
 
   return [
     {
@@ -379,48 +567,80 @@ function buildStages(summary) {
       executed: true,
     },
     {
-      stage: 'audio',
-      status: 'planned',
-      executed: false,
-      reason: 'phase-1-dry-run-only',
+      stage: 'sample',
+      status: sampleExecuted ? generationStatus : 'planned',
+      executed: sampleExecuted,
+      reason: sampleExecuted ? null : args.stage === 'sample' && args.dryRun ? 'dry-run' : 'not-requested',
       plannedGenerationCount: summary.plannedGenerationCount,
       skippedExistingCount: summary.skippedExistingCount,
+      generatedCount: sampleExecuted ? summary.generatedCount : 0,
+      failedGenerationCount: sampleExecuted ? summary.failedGenerationCount : 0,
+      command: sampleExecuted ? generationExecution?.command ?? null : null,
+    },
+    {
+      stage: 'audio',
+      status: audioExecuted ? generationStatus : 'planned',
+      executed: audioExecuted,
+      reason: audioExecuted ? null : args.dryRun ? 'dry-run' : 'not-requested',
+      plannedGenerationCount: summary.plannedGenerationCount,
+      skippedExistingCount: summary.skippedExistingCount,
+      generatedCount: audioExecuted ? summary.generatedCount : 0,
+      failedGenerationCount: audioExecuted ? summary.failedGenerationCount : 0,
+      command: audioExecuted ? generationExecution?.command ?? null : null,
     },
     {
       stage: 'validate-local',
       status: validateStatus,
       executed: true,
-      expectedCount: summary.targetCount,
-      actualCount: summary.existingLocalCount,
-      zeroByteCount: summary.zeroByteLocalCount,
+      expectedCount: validateLocal?.expectedCount ?? summary.targetCount,
+      actualCount: validateLocal?.actualCount ?? summary.existingLocalCount,
+      zeroByteCount: validateLocal?.zeroByteCount ?? summary.zeroByteLocalCount,
+      missingCount: validateLocal?.missingCount ?? summary.missingLocalCount,
     },
     {
       stage: 'upload',
       status: summary.plannedUploadCount > 0 ? 'planned' : 'blocked',
       executed: false,
-      reason: summary.plannedUploadCount > 0 ? 'phase-1-dry-run-only' : 'depends-on-local-files',
+      reason: generationExecuted ? 'phase-2-audio-only' : args.dryRun ? 'dry-run' : 'depends-on-local-files',
       uploadMode: STORAGE.uploadMode,
     },
     {
       stage: 'verified',
       status: 'blocked',
       executed: false,
-      reason: 'phase-1-dry-run-only',
+      reason: generationExecuted ? 'phase-2-audio-only' : 'dry-run',
     },
     {
       stage: 'manifest',
       status: 'planned',
       executed: false,
-      reason: 'phase-1-dry-run-only',
+      reason: generationExecuted ? 'phase-2-audio-only' : 'dry-run',
     },
   ];
+}
+
+function resolveReportMode(args) {
+  if (!args.write) {
+    return 'dry-run';
+  }
+
+  if (args.stage === 'sample') {
+    return 'sample-write';
+  }
+
+  if (args.stage === 'audio') {
+    return 'audio-write';
+  }
+
+  return 'dry-run';
 }
 
 function writeReport(report) {
   fs.mkdirSync(REPORT_DIR, { recursive: true });
 
   const chapter3 = pad3(report.target.chapter);
-  const fileName = `${timestampForFileName(new Date(report.finishedAt))}-${report.target.bookId}-${chapter3}-dry-run.json`;
+  const modeSuffix = report.mode;
+  const fileName = `${timestampForFileName(new Date(report.finishedAt))}-${report.target.bookId}-${chapter3}-${modeSuffix}.json`;
   const reportPath = path.join(REPORT_DIR, fileName);
 
   fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
@@ -436,19 +656,35 @@ function main() {
 
   const startedAt = new Date().toISOString();
   const args = parseArgs(process.argv.slice(2));
+  const chapterData = readGenesisChapter(args);
+  const range = resolveExecutionRange(args, chapterData);
+  let items = range.verses.map((verseData) => buildPipelineItem({ args, verseData }));
 
-  if (args.write) {
-    throw new Error('이번 1차 구현에서는 --write를 지원하지 않습니다. --dry-run만 사용하세요.');
+  let generationExecution = null;
+  let validateLocal = null;
+
+  if (args.write && args.stage === 'audio') {
+    generationExecution = runAudioStage(args, range);
+    items = applyPostAudioItemState(refreshItems({ args, verses: range.verses }), generationExecution);
+    validateLocal = validateLocalFiles(items);
+  } else if (args.write && args.stage === 'sample') {
+    generationExecution = runSampleStage(args, range);
+    items = applyPostAudioItemState(refreshItems({ args, verses: range.verses }), generationExecution);
+    validateLocal = validateLocalFiles(items);
+  } else {
+    validateLocal = validateLocalFiles(items);
   }
 
-  const chapterData = readGenesisChapter(args);
-  const range = resolveVerseRange(args, chapterData);
-  const items = range.verses.map((verseData) => buildPipelineItem({ args, verseData }));
-  const summary = buildSummary(items, args);
+  const summary = buildSummary(items, args, {
+    generatedCount: generationExecution?.generatedCount ?? 0,
+    failedCount: generationExecution?.failedCount ?? 0,
+    validateLocalPass: validateLocal.pass,
+  });
   const finishedAt = new Date().toISOString();
+  const mode = resolveReportMode(args);
 
   const report = {
-    mode: 'dry-run',
+    mode,
     pipelineVersion: PIPELINE_VERSION,
     startedAt,
     finishedAt,
@@ -462,6 +698,7 @@ function main() {
       chapterVerseCount: range.chapterVerseCount,
       language: args.language,
       voicePreset: args.voicePreset,
+      stage: args.stage,
       overwrite: args.overwrite,
     },
     source: {
@@ -477,11 +714,14 @@ function main() {
       uploadMode: STORAGE.uploadMode,
     },
     summary,
-    stages: buildStages(summary),
+    stages: buildStages({ summary, args, generationExecution, validateLocal }),
+    validateLocal,
+    generationExecution,
     items,
     safety: {
-      writeAllowed: false,
-      approvedTarget: args.bookId === 'genesis' && args.chapter === 4,
+      writeAllowed: args.write && ALLOWED_STAGES.includes(args.stage),
+      approvedTarget: buildPipelineTargetKey(args, range),
+      pipelineEnv: args.write && ALLOWED_STAGES.includes(args.stage) ? buildPipelineEnv(args, range) : null,
       blockers: [],
     },
   };
@@ -489,6 +729,14 @@ function main() {
   report.reportPath = writeReport(report);
 
   console.log(JSON.stringify(report, null, 2));
+
+  if (args.write && ALLOWED_STAGES.includes(args.stage)) {
+    if (generationExecution.exitCode !== 0 || summary.failedGenerationCount > 0) {
+      process.exitCode = 1;
+    } else if (!validateLocal.pass) {
+      process.exitCode = 1;
+    }
+  }
 }
 
 main();
