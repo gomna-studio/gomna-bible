@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
-const READER_HTML_PATH = path.join(ROOT, 'reader.html');
+const OLD_TESTAMENT_JS_PATH = path.join(ROOT, 'old_testament.js');
 const REPORTS_DIR = path.join(ROOT, 'reports');
 
 const BOOKS = {
@@ -145,13 +145,20 @@ function parseArgs(argv) {
 function assertSafeWriteScope(args) {
   if (!args.write) return;
 
-  if (
-    args.bookId !== 'genesis' ||
-    args.chapter !== 2 ||
-    args.fromVerse !== 1 ||
-    args.toVerse !== 25
-  ) {
-    throw new Error('--write는 현재 안전 점검을 위해 창세기 2장 1절~25절 범위에서만 허용됩니다.');
+  const isGenesisChapter2 =
+    args.bookId === 'genesis' &&
+    args.chapter === 2 &&
+    args.fromVerse === 1 &&
+    args.toVerse === 25;
+
+  const isGenesisChapter3 =
+    args.bookId === 'genesis' &&
+    args.chapter === 3 &&
+    args.fromVerse === 1 &&
+    args.toVerse === 24;
+
+  if (!isGenesisChapter2 && !isGenesisChapter3) {
+    throw new Error('--write는 현재 안전 점검을 위해 창세기 2장 1절~25절 또는 창세기 3장 1절~24절 범위에서만 허용됩니다.');
   }
 }
 
@@ -265,8 +272,8 @@ function extractJsonObject(source, variableName) {
 
 function readChapterVerses({ bookId, chapter, language, fromVerse, toVerse }) {
   const bookConfig = BOOKS[bookId];
-  const readerHtml = fs.readFileSync(READER_HTML_PATH, 'utf8');
-  const testamentData = extractJsonObject(readerHtml, bookConfig.testamentVariable);
+  const oldTestamentJs = fs.readFileSync(OLD_TESTAMENT_JS_PATH, 'utf8');
+  const testamentData = extractJsonObject(oldTestamentJs, bookConfig.testamentVariable);
   const bookData = testamentData.books.find((book) => book.name === bookConfig.book);
 
   if (!bookData) {
@@ -379,7 +386,7 @@ function writeGenerationReport({ args, plannedAudios, results, startedAt, finish
     mode: args.write ? 'write' : 'dry-run',
     startedAt,
     finishedAt,
-    source: path.relative(ROOT, READER_HTML_PATH),
+    source: path.relative(ROOT, OLD_TESTAMENT_JS_PATH),
     book: BOOKS[args.bookId].book,
     bookId: args.bookId,
     chapter: args.chapter,
@@ -493,7 +500,7 @@ async function writeAudios({ args, plannedAudios }) {
 
   console.log(JSON.stringify({
     mode: 'write',
-    source: path.relative(ROOT, READER_HTML_PATH),
+    source: path.relative(ROOT, OLD_TESTAMENT_JS_PATH),
     fileModified: generatedCount > 0 || failedCount > 0 || skippedExistingCount > 0,
     mp3Generated: generatedCount > 0,
     ttsApiCalled: generatedCount + failedCount > 0,
@@ -528,7 +535,7 @@ async function main() {
     fileModified: false,
     mp3Generated: false,
     ttsApiCalled: false,
-    source: path.relative(ROOT, READER_HTML_PATH),
+    source: path.relative(ROOT, OLD_TESTAMENT_JS_PATH),
     book: BOOKS[args.bookId].book,
     bookId: args.bookId,
     chapter: args.chapter,

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
 const MANIFEST_PATH = path.join(ROOT, 'audio', 'audio-manifest.json');
-const READER_HTML_PATH = path.join(ROOT, 'reader.html');
+const OLD_TESTAMENT_JS_PATH = path.join(ROOT, 'old_testament.js');
 const DEFAULT_VERIFIED_LIST_PATH = path.join(ROOT, 'reports', 'verified-audio-ko-KR.json');
 
 const CONFIG = {
@@ -150,18 +150,18 @@ function extractJsonObject(source, variableName) {
 }
 
 function readGenesisChapterVerses(chapter, fromVerse, toVerse) {
-  const readerHtml = fs.readFileSync(READER_HTML_PATH, 'utf8');
-  const oldTestamentData = extractJsonObject(readerHtml, 'oldTestamentData');
+  const oldTestamentJs = fs.readFileSync(OLD_TESTAMENT_JS_PATH, 'utf8');
+  const oldTestamentData = extractJsonObject(oldTestamentJs, 'oldTestamentData');
   const genesis = oldTestamentData.books.find((book) => book.name === CONFIG.book);
 
   if (!genesis) {
-    throw new Error('reader.html oldTestamentData에서 창세기를 찾지 못했습니다.');
+    throw new Error('old_testament.js oldTestamentData에서 창세기를 찾지 못했습니다.');
   }
 
   const chapterData = genesis.chapters.find((item) => item.chapter === chapter);
 
   if (!chapterData) {
-    throw new Error(`reader.html oldTestamentData에서 창세기 ${chapter}장을 찾지 못했습니다.`);
+    throw new Error(`old_testament.js oldTestamentData에서 창세기 ${chapter}장을 찾지 못했습니다.`);
   }
 
   return chapterData.verses
@@ -300,7 +300,7 @@ function main() {
     fileModified: args.write ? manifestModified : false,
     manifestModified,
     manifestPath: path.relative(ROOT, MANIFEST_PATH),
-    source: path.relative(ROOT, READER_HTML_PATH),
+    source: path.relative(ROOT, OLD_TESTAMENT_JS_PATH),
     verifiedListPath: path.relative(ROOT, args.verifiedListPath),
     verifiedListCount: verifiedAudioIds.size,
     publicBaseUrl: CONFIG.publicBaseUrl,
