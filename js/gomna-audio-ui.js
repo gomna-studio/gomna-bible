@@ -1012,6 +1012,21 @@
   }
 
   function getVisibleVerseRange() {
+    var selectedStart = Number(window.opt4RangeStart);
+    var selectedEnd = Number(window.opt4RangeEnd);
+
+    if (
+      !isNaN(selectedStart) &&
+      !isNaN(selectedEnd) &&
+      selectedStart > 0 &&
+      selectedEnd >= selectedStart
+    ) {
+      return {
+        start: selectedStart,
+        end: selectedEnd
+      };
+    }
+
     var items = document.querySelectorAll('#verseList .verse-item[data-verse]');
     var start = null;
     var end = null;
