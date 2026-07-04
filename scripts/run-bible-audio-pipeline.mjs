@@ -43,9 +43,10 @@ function usage() {
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --from-verse 1 --to-verse 1 --voice calm --language ko-KR --stage sample --write --overwrite');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --stage upload --write --upload');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --stage publish --write --upload');
+  console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --from-chapter 5 --to-chapter 10 --voice calm --language ko-KR --stage audio --write');
   console.error('Optional: --from-verse 1 --to-verse 26 --overwrite');
   console.error('Default mode: --dry-run');
-  console.error('Range mode currently supports --dry-run only.');
+  console.error('Range mode supports --dry-run and --stage audio --write.');
 }
 
 const ALLOWED_STAGES = ['audio', 'sample', 'upload', 'publish'];
@@ -155,8 +156,8 @@ function parseArgs(argv) {
       throw new Error('range mode에서는 --from-verse/--to-verse를 사용할 수 없습니다. 각 장 전체를 대상으로 합니다.');
     }
 
-    if (args.write) {
-      throw new Error('range mode는 현재 --dry-run만 지원합니다. 단일 장 --chapter와 --stage audio/upload/publish --write를 사용하세요.');
+    if (args.write && args.stage !== 'audio') {
+      throw new Error('range mode --write는 현재 --stage audio만 지원합니다. upload/publish는 단일 장 --chapter를 사용하세요.');
     }
   } else {
     if (!Number.isInteger(args.chapter) || args.chapter < 1) {
@@ -417,6 +418,158 @@ function runRangeDryRun(args, startedAt) {
   }
 
   const report = buildRangeDryRunReport({ args, startedAt, chapterPlans });
+  report.reportPath = writeReport(report);
+  return report;
+}
+
+function runRangeChapterAudioWrite(args, chapter, bookData) {
+  const chapterArgs = {
+    ...args,
+    chapter,
+    fromVerse: null,
+    toVerse: null,
+    rangeMode: false,
+  };
+  const chapterData = readGenesisChapter({ bookId: args.bookId, chapter, bookData });
+  const range = resolveVerseRange(chapterArgs, chapterData);
+
+  const generationExecution = runAudioStage(chapterArgs, range);
+  const items = applyPostAudioItemState(
+    range.verses.map((verseData) => buildPipelineItem({ args: chapterArgs, verseData })),
+    generationExecution,
+  );
+  const validateLocal = validateLocalFiles(items);
+
+  const generationPass = generationExecution.exitCode === 0 && generationExecution.failedCount === 0;
+  const pass = generationPass && validateLocal.pass;
+
+  return {
+    chapter,
+    fromVerse: range.fromVerse,
+    toVerse: range.toVerse,
+    targetCount: items.length,
+    pipelineTarget: buildPipelineTargetKey(chapterArgs, range),
+    command: generationExecution.command,
+    exitCode: generationExecution.exitCode,
+    generatedCount: generationExecution.generatedCount,
+    failedCount: generationExecution.failedCount,
+    skippedExistingCount: generationExecution.skippedExistingCount,
+    stderr: generationExecution.exitCode === 0 ? undefined : generationExecution.stderr,
+    validateLocal,
+    pass,
+  };
+}
+
+function runRangeAudioWrite(args, startedAt) {
+  const bookData = readBookData(args.bookId);
+  const chapterResults = [];
+  let aborted = false;
+  let abortedAtChapter = null;
+
+  for (let chapter = args.fromChapter; chapter <= args.toChapter; chapter++) {
+    const chapterResult = runRangeChapterAudioWrite(args, chapter, bookData);
+    chapterResults.push(chapterResult);
+
+    if (!chapterResult.pass) {
+      aborted = true;
+      abortedAtChapter = chapter;
+      break;
+    }
+  }
+
+  const totalValidateLocal = {
+    expectedCount: 0,
+    actualCount: 0,
+    missingCount: 0,
+    zeroByteCount: 0,
+    missingIds: [],
+    zeroByteIds: [],
+  };
+
+  for (let chapter = args.fromChapter; chapter <= args.toChapter; chapter++) {
+    const chapterData = readGenesisChapter({ bookId: args.bookId, chapter, bookData });
+    const chapterArgs = { ...args, chapter, fromVerse: null, toVerse: null };
+    const range = resolveVerseRange(chapterArgs, chapterData);
+    const items = range.verses.map((verseData) => buildPipelineItem({ args: chapterArgs, verseData }));
+    const validateLocal = validateLocalFiles(items);
+
+    totalValidateLocal.expectedCount += validateLocal.expectedCount;
+    totalValidateLocal.actualCount += validateLocal.actualCount;
+    totalValidateLocal.missingCount += validateLocal.missingCount;
+    totalValidateLocal.zeroByteCount += validateLocal.zeroByteCount;
+    totalValidateLocal.missingIds.push(...validateLocal.missingIds);
+    totalValidateLocal.zeroByteIds.push(...validateLocal.zeroByteIds);
+  }
+
+  totalValidateLocal.pass = totalValidateLocal.missingCount === 0 && totalValidateLocal.zeroByteCount === 0;
+  totalValidateLocal.status = totalValidateLocal.pass ? 'pass' : 'fail';
+
+  const summary = {
+    chapterCount: args.toChapter - args.fromChapter + 1,
+    processedChapterCount: chapterResults.length,
+    totalTargetCount: totalValidateLocal.expectedCount,
+    totalGeneratedCount: chapterResults.reduce((sum, chapter) => sum + chapter.generatedCount, 0),
+    totalFailedCount: chapterResults.reduce((sum, chapter) => sum + chapter.failedCount, 0),
+    totalSkippedExistingCount: chapterResults.reduce((sum, chapter) => sum + chapter.skippedExistingCount, 0),
+    totalExistingLocalCount: totalValidateLocal.actualCount,
+    totalMissingLocalCount: totalValidateLocal.missingCount,
+    totalZeroByteLocalCount: totalValidateLocal.zeroByteCount,
+    validateLocalPass: totalValidateLocal.pass,
+    aborted,
+    abortedAtChapter,
+    fileModified: chapterResults.some((chapter) => chapter.generatedCount > 0),
+    mp3Generated: chapterResults.some((chapter) => chapter.generatedCount > 0),
+    uploadPerformed: false,
+    manifestWritten: false,
+    verifiedListModified: false,
+    overwrite: args.overwrite,
+  };
+
+  const pass = !aborted && chapterResults.every((chapter) => chapter.pass) && totalValidateLocal.pass;
+
+  const report = {
+    mode: 'range-audio-write',
+    pipelineVersion: PIPELINE_VERSION,
+    startedAt,
+    finishedAt: new Date().toISOString(),
+    target: {
+      bookId: args.bookId,
+      book: BOOKS[args.bookId].book,
+      fromChapter: args.fromChapter,
+      toChapter: args.toChapter,
+      language: args.language,
+      voicePreset: args.voicePreset,
+      stage: args.stage,
+      upload: args.upload,
+      overwrite: args.overwrite,
+      rangeMode: true,
+    },
+    source: {
+      textSource: toRelativePath(OLD_TESTAMENT_JS_PATH),
+      textVariable: BOOKS[args.bookId].testamentVariable,
+    },
+    storage: {
+      localBase: path.posix.join('audio', 'v1', args.language, args.bookId),
+      localFileName: buildLocalFileName(args.voicePreset),
+      r2Bucket: STORAGE.r2Bucket,
+      r2KeyBase: STORAGE.r2KeyBase,
+      publicBaseUrl: STORAGE.publicBaseUrl,
+      uploadMode: STORAGE.uploadMode,
+      wranglerPackage: WRANGLER.package,
+      contentType: WRANGLER.contentType,
+    },
+    summary,
+    validateLocal: totalValidateLocal,
+    chapters: chapterResults,
+    pass,
+    safety: {
+      writeAllowed: true,
+      rangeWriteSupported: true,
+      approvedTargets: chapterResults.map((chapter) => chapter.pipelineTarget),
+      blockers: aborted ? [`chapter-${abortedAtChapter}-failed`] : [],
+    },
+  };
+
   report.reportPath = writeReport(report);
   return report;
 }
@@ -1355,15 +1508,16 @@ function resolveReportMode(args) {
 function writeReport(report) {
   fs.mkdirSync(REPORT_DIR, { recursive: true });
 
-  let rangeLabel;
+  const isRangeReport = report.mode === 'range-dry-run' || report.mode === 'range-audio-write';
+  const rangeLabel = isRangeReport
+    ? `${pad3(report.target.fromChapter)}-${pad3(report.target.toChapter)}`
+    : pad3(report.target.chapter);
 
-  if (report.mode === 'range-dry-run') {
-    rangeLabel = `${pad3(report.target.fromChapter)}-${pad3(report.target.toChapter)}`;
-  } else {
-    rangeLabel = pad3(report.target.chapter);
-  }
-
-  const modeSuffix = report.mode === 'range-dry-run' ? 'dry-run' : report.mode;
+  const modeSuffix = report.mode === 'range-dry-run'
+    ? 'dry-run'
+    : report.mode === 'range-audio-write'
+      ? 'audio-write'
+      : report.mode;
   const fileName = `${timestampForFileName(new Date(report.finishedAt))}-${report.target.bookId}-${rangeLabel}-${modeSuffix}.json`;
   const reportPath = path.join(REPORT_DIR, fileName);
 
@@ -1382,6 +1536,17 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
 
   if (args.rangeMode) {
+    if (args.write && args.stage === 'audio') {
+      const report = runRangeAudioWrite(args, startedAt);
+      console.log(JSON.stringify(report, null, 2));
+
+      if (!report.pass) {
+        process.exitCode = 1;
+      }
+
+      return;
+    }
+
     const report = runRangeDryRun(args, startedAt);
     console.log(JSON.stringify(report, null, 2));
     return;
