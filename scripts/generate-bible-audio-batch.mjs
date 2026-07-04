@@ -31,6 +31,12 @@ const TTS_DEFAULTS = {
   outputFormat: 'mp3',
 };
 
+const TTS_RETRY = {
+  maxAttempts: 3,
+  baseDelayMs: 2000,
+  maxDelayMs: 20000,
+};
+
 const BIBLE_NARRATION_RULES = 'Do not add commentary, explanations, sound effects, or extra words. Read only the provided Bible verse text.';
 
 const VOICE_PRESET_TTS = {
@@ -488,7 +494,55 @@ function writeGenerationReport({ args, plannedAudios, results, startedAt, finish
   return path.relative(ROOT, reportPath);
 }
 
-async function callOpenAiTts({ apiKey, item }) {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function buildProviderResponseInfo(response, body) {
+  let parsedError = null;
+  try {
+    parsedError = JSON.parse(body)?.error || null;
+  } catch {
+    parsedError = null;
+  }
+
+  return {
+    httpStatus: response.status,
+    statusText: response.statusText,
+    requestId: response.headers.get('x-request-id') || null,
+    errorType: parsedError?.type || null,
+    errorCode: parsedError?.code || null,
+    errorMessage: parsedError?.message || null,
+    rawBody: String(body || '').slice(0, 2000),
+  };
+}
+
+function isRetryableTtsFailure(providerResponse) {
+  // 네트워크 레벨 오류(providerResponse 없음)는 재시도 대상
+  if (!providerResponse) return true;
+
+  // 결제 한도 초과는 재시도해도 해결되지 않음
+  if (
+    providerResponse.errorCode === 'insufficient_quota' ||
+    providerResponse.errorType === 'insufficient_quota'
+  ) {
+    return false;
+  }
+
+  return providerResponse.httpStatus === 429 || providerResponse.httpStatus >= 500;
+}
+
+function parseRetryAfterMs(response) {
+  const retryAfter = Number(response.headers.get('retry-after'));
+
+  if (Number.isFinite(retryAfter) && retryAfter > 0) {
+    return Math.min(retryAfter * 1000, TTS_RETRY.maxDelayMs);
+  }
+
+  return null;
+}
+
+async function callOpenAiTtsOnce({ apiKey, item }) {
   if (typeof fetch !== 'function') {
     throw new Error('이 Node.js 환경에는 fetch가 없습니다. Node.js 18 이상에서 실행하세요.');
   }
@@ -519,10 +573,72 @@ async function callOpenAiTts({ apiKey, item }) {
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`OpenAI TTS 실패 (${item.id}): HTTP ${response.status} ${body}`);
+    const providerResponse = buildProviderResponseInfo(response, body);
+    const error = new Error(
+      `OpenAI TTS 실패 (${item.id}): HTTP ${response.status}${providerResponse.errorMessage ? ` ${providerResponse.errorMessage}` : ''}`,
+    );
+    error.providerResponse = providerResponse;
+    error.retryAfterMs = parseRetryAfterMs(response);
+    throw error;
   }
 
   return Buffer.from(await response.arrayBuffer());
+}
+
+async function callOpenAiTts({ apiKey, item }) {
+  const attempts = [];
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= TTS_RETRY.maxAttempts; attempt++) {
+    const attemptInfo = {
+      attempt,
+      startedAt: new Date().toISOString(),
+    };
+
+    try {
+      const audio = await callOpenAiTtsOnce({ apiKey, item });
+      attemptInfo.ok = true;
+      attempts.push(attemptInfo);
+      return { audio, attempts };
+    } catch (error) {
+      const providerResponse = error.providerResponse || null;
+      const retryable = isRetryableTtsFailure(providerResponse);
+      const willRetry = retryable && attempt < TTS_RETRY.maxAttempts;
+
+      attemptInfo.ok = false;
+      attemptInfo.errorMessage = error.message;
+      attemptInfo.providerResponse = providerResponse;
+      attemptInfo.retryable = retryable;
+      attemptInfo.willRetry = willRetry;
+
+      console.error(
+        `[tts-failed] ${item.id} attempt=${attempt}/${TTS_RETRY.maxAttempts} ` +
+          `status=${providerResponse?.httpStatus ?? 'network'} ` +
+          `code=${providerResponse?.errorCode ?? 'unknown'} ` +
+          `requestId=${providerResponse?.requestId ?? '-'} ` +
+          `retry=${willRetry} ` +
+          `message=${providerResponse?.errorMessage || error.message}`,
+      );
+
+      if (willRetry) {
+        const delayMs =
+          error.retryAfterMs ??
+          Math.min(TTS_RETRY.baseDelayMs * 2 ** (attempt - 1), TTS_RETRY.maxDelayMs);
+        attemptInfo.retryDelayMs = delayMs;
+        attempts.push(attemptInfo);
+        await sleep(delayMs);
+        lastError = error;
+        continue;
+      }
+
+      attempts.push(attemptInfo);
+      error.ttsAttempts = attempts;
+      throw error;
+    }
+  }
+
+  lastError.ttsAttempts = attempts;
+  throw lastError;
 }
 
 async function generateAudioFile({ apiKey, item }) {
@@ -533,7 +649,7 @@ async function generateAudioFile({ apiKey, item }) {
       fs.unlinkSync(item.absoluteTmpLocalFilePath);
     }
 
-    const audio = await callOpenAiTts({ apiKey, item });
+    const { audio, attempts } = await callOpenAiTts({ apiKey, item });
 
     fs.writeFileSync(item.absoluteTmpLocalFilePath, audio);
 
@@ -550,15 +666,24 @@ async function generateAudioFile({ apiKey, item }) {
       result: 'generated',
       fileSize,
       generatedAt: new Date().toISOString(),
+      ttsAttemptCount: attempts.length,
+      retried: attempts.length > 1,
+      ttsAttempts: attempts.length > 1 ? attempts : undefined,
     });
   } catch (error) {
     if (fs.existsSync(item.absoluteTmpLocalFilePath)) {
       fs.unlinkSync(item.absoluteTmpLocalFilePath);
     }
 
+    const attempts = error.ttsAttempts || [];
+
     return toReportAudio(item, {
       result: 'failed',
       errorMessage: error.message,
+      providerResponse: error.providerResponse || null,
+      ttsAttemptCount: attempts.length || 1,
+      retried: attempts.length > 1,
+      ttsAttempts: attempts,
     });
   }
 }
@@ -584,6 +709,19 @@ async function writeAudios({ args, plannedAudios }) {
   const generatedCount = results.filter((item) => item.result === 'generated').length;
   const failedCount = results.filter((item) => item.result === 'failed').length;
   const skippedExistingCount = results.filter((item) => item.result === 'skipped-existing').length;
+  const retriedCount = results.filter((item) => item.retried).length;
+  const failedAudios = results
+    .filter((item) => item.result === 'failed')
+    .map((item) => ({
+      id: item.id,
+      chapter: item.chapter,
+      verse: item.verse,
+      errorMessage: item.errorMessage,
+      providerResponse: item.providerResponse || null,
+      ttsAttemptCount: item.ttsAttemptCount,
+      retried: item.retried,
+      ttsAttempts: item.ttsAttempts,
+    }));
 
   console.log(JSON.stringify({
     mode: 'write',
@@ -595,6 +733,8 @@ async function writeAudios({ args, plannedAudios }) {
     generatedCount,
     failedCount,
     skippedExistingCount,
+    retriedCount,
+    failedAudios,
     results,
   }, null, 2));
 

@@ -445,6 +445,8 @@ function runRangeChapterAudioWrite(args, chapter, bookData) {
   const generationPass = generationExecution.exitCode === 0 && generationExecution.failedCount === 0;
   const pass = generationPass && validateLocal.pass;
 
+  const hasFailure = generationExecution.exitCode !== 0 || generationExecution.failedCount > 0;
+
   return {
     chapter,
     fromVerse: range.fromVerse,
@@ -456,7 +458,10 @@ function runRangeChapterAudioWrite(args, chapter, bookData) {
     generatedCount: generationExecution.generatedCount,
     failedCount: generationExecution.failedCount,
     skippedExistingCount: generationExecution.skippedExistingCount,
-    stderr: generationExecution.exitCode === 0 ? undefined : generationExecution.stderr,
+    retriedCount: generationExecution.retriedCount,
+    failedAudios: hasFailure ? generationExecution.failedAudios : undefined,
+    stderr: hasFailure ? generationExecution.stderr : undefined,
+    stdoutParseError: generationExecution.stdoutParseError,
     validateLocal,
     pass,
   };
@@ -513,6 +518,8 @@ function runRangeAudioWrite(args, startedAt) {
     totalGeneratedCount: chapterResults.reduce((sum, chapter) => sum + chapter.generatedCount, 0),
     totalFailedCount: chapterResults.reduce((sum, chapter) => sum + chapter.failedCount, 0),
     totalSkippedExistingCount: chapterResults.reduce((sum, chapter) => sum + chapter.skippedExistingCount, 0),
+    totalRetriedCount: chapterResults.reduce((sum, chapter) => sum + (chapter.retriedCount || 0), 0),
+    failedAudioIds: chapterResults.flatMap((chapter) => (chapter.failedAudios || []).map((audio) => audio.id)),
     totalExistingLocalCount: totalValidateLocal.actualCount,
     totalMissingLocalCount: totalValidateLocal.missingCount,
     totalZeroByteLocalCount: totalValidateLocal.zeroByteCount,
@@ -1149,10 +1156,13 @@ function runGenerationStage(args, range, stageName) {
     exitCode: result.status,
     signal: result.signal,
     stderr: result.stderr,
+    stdoutParseError: result.stdout && !parsedStdout ? String(result.stdout).slice(0, 2000) : undefined,
     parsedStdout,
     generatedCount: parsedStdout?.generatedCount ?? 0,
     failedCount: parsedStdout?.failedCount ?? 0,
     skippedExistingCount: parsedStdout?.skippedExistingCount ?? 0,
+    retriedCount: parsedStdout?.retriedCount ?? 0,
+    failedAudios: parsedStdout?.failedAudios ?? [],
   };
 }
 
