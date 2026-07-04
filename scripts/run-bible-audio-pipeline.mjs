@@ -45,9 +45,10 @@ function usage() {
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --stage publish --write --upload');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --from-chapter 5 --to-chapter 10 --voice calm --language ko-KR --stage audio --write');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --from-chapter 5 --to-chapter 10 --voice calm --language ko-KR --stage upload --write --upload');
+  console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --from-chapter 5 --to-chapter 10 --voice calm --language ko-KR --stage publish --write');
   console.error('Optional: --from-verse 1 --to-verse 26 --overwrite');
   console.error('Default mode: --dry-run');
-  console.error('Range mode supports --dry-run, --stage audio --write, and --stage upload --write --upload.');
+  console.error('Range mode supports --dry-run, --stage audio --write, --stage upload --write --upload, and --stage publish --write.');
 }
 
 const ALLOWED_STAGES = ['audio', 'sample', 'upload', 'publish'];
@@ -157,8 +158,8 @@ function parseArgs(argv) {
       throw new Error('range mode에서는 --from-verse/--to-verse를 사용할 수 없습니다. 각 장 전체를 대상으로 합니다.');
     }
 
-    if (args.write && args.stage !== 'audio' && args.stage !== 'upload') {
-      throw new Error('range mode --write는 현재 --stage audio 또는 --stage upload만 지원합니다. publish는 단일 장 --chapter를 사용하세요.');
+    if (args.write && args.stage !== 'audio' && args.stage !== 'upload' && args.stage !== 'publish') {
+      throw new Error('range mode --write는 --stage audio, upload 또는 publish만 지원합니다.');
     }
   } else {
     if (!Number.isInteger(args.chapter) || args.chapter < 1) {
@@ -186,7 +187,7 @@ function parseArgs(argv) {
     throw new Error('upload stage --write는 --upload가 필요합니다.');
   }
 
-  if (args.write && args.stage === 'publish' && !args.upload) {
+  if (args.write && args.stage === 'publish' && !args.upload && !args.rangeMode) {
     throw new Error('publish stage --write는 --upload가 필요합니다.');
   }
 
@@ -742,6 +743,129 @@ async function runRangeUploadWrite(args, startedAt) {
       approvedTargets: chapterResults.map((chapter) => chapter.pipelineTarget),
       blockers: [
         ...(blocked ? ['validate-local-failed'] : []),
+        ...(aborted ? [`chapter-${abortedAtChapter}-failed`] : []),
+      ],
+    },
+  };
+
+  report.reportPath = writeReport(report);
+  return report;
+}
+
+async function runRangePublishWrite(args, startedAt) {
+  const bookData = readBookData(args.bookId);
+  const chapterPlans = [];
+
+  for (let chapter = args.fromChapter; chapter <= args.toChapter; chapter++) {
+    chapterPlans.push(buildRangeChapterItems(args, chapter, bookData));
+  }
+
+  const allItems = chapterPlans.flatMap((plan) => plan.items);
+  const urlVerification = await verifyAllPublicUrls(allItems);
+  const chapterResults = [];
+  let aborted = false;
+  let abortedAtChapter = null;
+  let totalVerifiedAppendedCount = 0;
+  let totalVerifiedSkippedExistingCount = 0;
+  let totalManifestCreatedCount = 0;
+  let totalManifestUpdatedCount = 0;
+
+  if (urlVerification.pass) {
+    for (const plan of chapterPlans) {
+      const { chapterArgs, range, items } = plan;
+      const chapterResult = {
+        chapter: chapterArgs.chapter,
+        fromVerse: range.fromVerse,
+        toVerse: range.toVerse,
+        targetCount: items.length,
+        pipelineTarget: buildPipelineTargetKey(chapterArgs, range),
+        pass: false,
+      };
+
+      try {
+        const verifiedWrite = appendVerifiedAudioIds(items.map((item) => item.id));
+        const manifestWrite = publishManifestEntries(items, chapterArgs);
+
+        chapterResult.verifiedAppendedCount = verifiedWrite.appendedCount;
+        chapterResult.verifiedSkippedExistingCount = verifiedWrite.skippedExistingCount;
+        chapterResult.manifestCreatedCount = manifestWrite.createdCount;
+        chapterResult.manifestUpdatedCount = manifestWrite.updatedCount;
+        chapterResult.manifestPublishedCount = manifestWrite.publishedCount;
+        chapterResult.pass = true;
+
+        totalVerifiedAppendedCount += verifiedWrite.appendedCount;
+        totalVerifiedSkippedExistingCount += verifiedWrite.skippedExistingCount;
+        totalManifestCreatedCount += manifestWrite.createdCount;
+        totalManifestUpdatedCount += manifestWrite.updatedCount;
+      } catch (error) {
+        chapterResult.errorMessage = error.message;
+      }
+
+      chapterResults.push(chapterResult);
+
+      if (!chapterResult.pass) {
+        aborted = true;
+        abortedAtChapter = chapterArgs.chapter;
+        break;
+      }
+    }
+  }
+
+  const publishPerformed = urlVerification.pass && chapterResults.some((chapter) => chapter.pass);
+  const totalManifestPublishedCount = chapterResults.reduce(
+    (sum, chapter) => sum + (chapter.manifestPublishedCount || 0),
+    0,
+  );
+
+  const summary = {
+    chapterCount: chapterPlans.length,
+    processedChapterCount: chapterResults.length,
+    totalTargetCount: allItems.length,
+    totalUrlVerifiedCount: urlVerification.passCount,
+    totalUrlFailedCount: urlVerification.failedCount,
+    urlVerificationPass: urlVerification.pass,
+    totalVerifiedAppendedCount,
+    totalVerifiedSkippedExistingCount,
+    totalManifestCreatedCount,
+    totalManifestUpdatedCount,
+    totalManifestPublishedCount,
+    aborted,
+    abortedAtChapter,
+    blocked: !urlVerification.pass,
+    blockedReason: urlVerification.pass ? null : 'url-verification-failed',
+    fileModified: publishPerformed,
+    mp3Generated: false,
+    uploadPerformed: false,
+    manifestWritten: publishPerformed,
+    verifiedListModified: publishPerformed,
+    overwrite: args.overwrite,
+  };
+
+  const pass =
+    urlVerification.pass &&
+    !aborted &&
+    chapterResults.length === chapterPlans.length &&
+    chapterResults.every((chapter) => chapter.pass) &&
+    totalManifestPublishedCount === allItems.length;
+
+  const report = {
+    ...buildRangeReportShell({ args, mode: 'range-publish-write', startedAt }),
+    summary,
+    urlVerification: {
+      targetCount: urlVerification.targetCount,
+      passCount: urlVerification.passCount,
+      failedCount: urlVerification.failedCount,
+      pass: urlVerification.pass,
+      failedResults: urlVerification.results.filter((result) => !result.pass),
+    },
+    chapters: chapterResults,
+    pass,
+    safety: {
+      writeAllowed: true,
+      rangeWriteSupported: true,
+      approvedTargets: chapterResults.map((chapter) => chapter.pipelineTarget),
+      blockers: [
+        ...(urlVerification.pass ? [] : ['url-verification-failed']),
         ...(aborted ? [`chapter-${abortedAtChapter}-failed`] : []),
       ],
     },
@@ -1724,6 +1848,17 @@ async function main() {
 
     if (args.write && args.stage === 'upload' && args.upload) {
       const report = await runRangeUploadWrite(args, startedAt);
+      console.log(JSON.stringify(report, null, 2));
+
+      if (!report.pass) {
+        process.exitCode = 1;
+      }
+
+      return;
+    }
+
+    if (args.write && args.stage === 'publish') {
+      const report = await runRangePublishWrite(args, startedAt);
       console.log(JSON.stringify(report, null, 2));
 
       if (!report.pass) {
