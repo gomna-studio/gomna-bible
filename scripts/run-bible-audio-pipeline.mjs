@@ -44,9 +44,10 @@ function usage() {
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --stage upload --write --upload');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --stage publish --write --upload');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --from-chapter 5 --to-chapter 10 --voice calm --language ko-KR --stage audio --write');
+  console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --from-chapter 5 --to-chapter 10 --voice calm --language ko-KR --stage upload --write --upload');
   console.error('Optional: --from-verse 1 --to-verse 26 --overwrite');
   console.error('Default mode: --dry-run');
-  console.error('Range mode supports --dry-run and --stage audio --write.');
+  console.error('Range mode supports --dry-run, --stage audio --write, and --stage upload --write --upload.');
 }
 
 const ALLOWED_STAGES = ['audio', 'sample', 'upload', 'publish'];
@@ -156,8 +157,8 @@ function parseArgs(argv) {
       throw new Error('range mode에서는 --from-verse/--to-verse를 사용할 수 없습니다. 각 장 전체를 대상으로 합니다.');
     }
 
-    if (args.write && args.stage !== 'audio') {
-      throw new Error('range mode --write는 현재 --stage audio만 지원합니다. upload/publish는 단일 장 --chapter를 사용하세요.');
+    if (args.write && args.stage !== 'audio' && args.stage !== 'upload') {
+      throw new Error('range mode --write는 현재 --stage audio 또는 --stage upload만 지원합니다. publish는 단일 장 --chapter를 사용하세요.');
     }
   } else {
     if (!Number.isInteger(args.chapter) || args.chapter < 1) {
@@ -567,6 +568,182 @@ function runRangeAudioWrite(args, startedAt) {
       rangeWriteSupported: true,
       approvedTargets: chapterResults.map((chapter) => chapter.pipelineTarget),
       blockers: aborted ? [`chapter-${abortedAtChapter}-failed`] : [],
+    },
+  };
+
+  report.reportPath = writeReport(report);
+  return report;
+}
+
+function buildRangeChapterItems(args, chapter, bookData) {
+  const chapterArgs = {
+    ...args,
+    chapter,
+    fromVerse: null,
+    toVerse: null,
+    rangeMode: false,
+  };
+  const chapterData = readGenesisChapter({ bookId: args.bookId, chapter, bookData });
+  const range = resolveVerseRange(chapterArgs, chapterData);
+  const items = range.verses.map((verseData) => buildPipelineItem({ args: chapterArgs, verseData }));
+
+  return { chapterArgs, range, items };
+}
+
+function computeRangeValidateLocal(args, bookData) {
+  const totalValidateLocal = {
+    expectedCount: 0,
+    actualCount: 0,
+    missingCount: 0,
+    zeroByteCount: 0,
+    missingIds: [],
+    zeroByteIds: [],
+  };
+  const chapterValidations = [];
+
+  for (let chapter = args.fromChapter; chapter <= args.toChapter; chapter++) {
+    const { items } = buildRangeChapterItems(args, chapter, bookData);
+    const validateLocal = validateLocalFiles(items);
+
+    chapterValidations.push({ chapter, validateLocal });
+    totalValidateLocal.expectedCount += validateLocal.expectedCount;
+    totalValidateLocal.actualCount += validateLocal.actualCount;
+    totalValidateLocal.missingCount += validateLocal.missingCount;
+    totalValidateLocal.zeroByteCount += validateLocal.zeroByteCount;
+    totalValidateLocal.missingIds.push(...validateLocal.missingIds);
+    totalValidateLocal.zeroByteIds.push(...validateLocal.zeroByteIds);
+  }
+
+  totalValidateLocal.pass = totalValidateLocal.missingCount === 0 && totalValidateLocal.zeroByteCount === 0;
+  totalValidateLocal.status = totalValidateLocal.pass ? 'pass' : 'fail';
+
+  return { totalValidateLocal, chapterValidations };
+}
+
+function buildRangeReportShell({ args, mode, startedAt }) {
+  return {
+    mode,
+    pipelineVersion: PIPELINE_VERSION,
+    startedAt,
+    finishedAt: new Date().toISOString(),
+    target: {
+      bookId: args.bookId,
+      book: BOOKS[args.bookId].book,
+      fromChapter: args.fromChapter,
+      toChapter: args.toChapter,
+      language: args.language,
+      voicePreset: args.voicePreset,
+      stage: args.stage,
+      upload: args.upload,
+      overwrite: args.overwrite,
+      rangeMode: true,
+    },
+    source: {
+      textSource: toRelativePath(OLD_TESTAMENT_JS_PATH),
+      textVariable: BOOKS[args.bookId].testamentVariable,
+    },
+    storage: {
+      localBase: path.posix.join('audio', 'v1', args.language, args.bookId),
+      localFileName: buildLocalFileName(args.voicePreset),
+      r2Bucket: STORAGE.r2Bucket,
+      r2KeyBase: STORAGE.r2KeyBase,
+      publicBaseUrl: STORAGE.publicBaseUrl,
+      uploadMode: STORAGE.uploadMode,
+      wranglerPackage: WRANGLER.package,
+      contentType: WRANGLER.contentType,
+    },
+  };
+}
+
+async function runRangeUploadWrite(args, startedAt) {
+  const bookData = readBookData(args.bookId);
+  const { totalValidateLocal, chapterValidations } = computeRangeValidateLocal(args, bookData);
+  const chapterResults = [];
+  let aborted = false;
+  let abortedAtChapter = null;
+  let blocked = false;
+
+  if (!totalValidateLocal.pass) {
+    blocked = true;
+  } else {
+    for (let chapter = args.fromChapter; chapter <= args.toChapter; chapter++) {
+      const { chapterArgs, range, items } = buildRangeChapterItems(args, chapter, bookData);
+      const uploadExecution = await runUploadStage(items);
+
+      chapterResults.push({
+        chapter,
+        fromVerse: range.fromVerse,
+        toVerse: range.toVerse,
+        targetCount: items.length,
+        pipelineTarget: buildPipelineTargetKey(chapterArgs, range),
+        uploadedCount: uploadExecution.uploadedCount,
+        urlVerifiedCount: uploadExecution.urlVerifiedCount,
+        failedCount: uploadExecution.failedCount,
+        pass: uploadExecution.pass,
+        results: uploadExecution.results,
+      });
+
+      if (!uploadExecution.pass) {
+        aborted = true;
+        abortedAtChapter = chapter;
+        break;
+      }
+    }
+  }
+
+  const summary = {
+    chapterCount: args.toChapter - args.fromChapter + 1,
+    processedChapterCount: chapterResults.length,
+    totalTargetCount: totalValidateLocal.expectedCount,
+    totalExistingLocalCount: totalValidateLocal.actualCount,
+    totalMissingLocalCount: totalValidateLocal.missingCount,
+    totalZeroByteLocalCount: totalValidateLocal.zeroByteCount,
+    totalUploadedCount: chapterResults.reduce((sum, chapter) => sum + chapter.uploadedCount, 0),
+    totalUrlVerifiedCount: chapterResults.reduce((sum, chapter) => sum + chapter.urlVerifiedCount, 0),
+    totalUploadFailedCount: chapterResults.reduce((sum, chapter) => sum + chapter.failedCount, 0),
+    validateLocalPass: totalValidateLocal.pass,
+    aborted,
+    abortedAtChapter,
+    blocked,
+    blockedReason: blocked ? 'validate-local-failed' : null,
+    fileModified: false,
+    mp3Generated: false,
+    uploadPerformed: chapterResults.some((chapter) => chapter.uploadedCount > 0),
+    manifestWritten: false,
+    verifiedListModified: false,
+    overwrite: args.overwrite,
+  };
+
+  const pass =
+    !blocked &&
+    !aborted &&
+    totalValidateLocal.pass &&
+    chapterResults.length === summary.chapterCount &&
+    chapterResults.every((chapter) => chapter.pass) &&
+    summary.totalUrlVerifiedCount === summary.totalTargetCount;
+
+  const report = {
+    ...buildRangeReportShell({ args, mode: 'range-upload-write', startedAt }),
+    summary,
+    validateLocal: totalValidateLocal,
+    chapterValidations: chapterValidations.map(({ chapter, validateLocal }) => ({
+      chapter,
+      status: validateLocal.status,
+      expectedCount: validateLocal.expectedCount,
+      actualCount: validateLocal.actualCount,
+      missingCount: validateLocal.missingCount,
+      zeroByteCount: validateLocal.zeroByteCount,
+    })),
+    chapters: chapterResults,
+    pass,
+    safety: {
+      writeAllowed: true,
+      rangeWriteSupported: true,
+      approvedTargets: chapterResults.map((chapter) => chapter.pipelineTarget),
+      blockers: [
+        ...(blocked ? ['validate-local-failed'] : []),
+        ...(aborted ? [`chapter-${abortedAtChapter}-failed`] : []),
+      ],
     },
   };
 
@@ -1508,16 +1685,14 @@ function resolveReportMode(args) {
 function writeReport(report) {
   fs.mkdirSync(REPORT_DIR, { recursive: true });
 
-  const isRangeReport = report.mode === 'range-dry-run' || report.mode === 'range-audio-write';
+  const isRangeReport = report.mode.startsWith('range-');
   const rangeLabel = isRangeReport
     ? `${pad3(report.target.fromChapter)}-${pad3(report.target.toChapter)}`
     : pad3(report.target.chapter);
 
-  const modeSuffix = report.mode === 'range-dry-run'
-    ? 'dry-run'
-    : report.mode === 'range-audio-write'
-      ? 'audio-write'
-      : report.mode;
+  const modeSuffix = isRangeReport
+    ? report.mode.replace(/^range-/, '')
+    : report.mode;
   const fileName = `${timestampForFileName(new Date(report.finishedAt))}-${report.target.bookId}-${rangeLabel}-${modeSuffix}.json`;
   const reportPath = path.join(REPORT_DIR, fileName);
 
@@ -1538,6 +1713,17 @@ async function main() {
   if (args.rangeMode) {
     if (args.write && args.stage === 'audio') {
       const report = runRangeAudioWrite(args, startedAt);
+      console.log(JSON.stringify(report, null, 2));
+
+      if (!report.pass) {
+        process.exitCode = 1;
+      }
+
+      return;
+    }
+
+    if (args.write && args.stage === 'upload' && args.upload) {
+      const report = await runRangeUploadWrite(args, startedAt);
       console.log(JSON.stringify(report, null, 2));
 
       if (!report.pass) {
