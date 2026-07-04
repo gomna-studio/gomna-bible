@@ -38,12 +38,14 @@ const TYPE_KR = '본문';
 
 function usage() {
   console.error('Usage: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --dry-run');
+  console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --from-chapter 5 --to-chapter 10 --voice calm --language ko-KR --dry-run');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --stage audio --write');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --from-verse 1 --to-verse 1 --voice calm --language ko-KR --stage sample --write --overwrite');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --stage upload --write --upload');
   console.error('   or: node scripts/run-bible-audio-pipeline.mjs --book genesis --chapter 4 --voice calm --language ko-KR --stage publish --write --upload');
   console.error('Optional: --from-verse 1 --to-verse 26 --overwrite');
   console.error('Default mode: --dry-run');
+  console.error('Range mode currently supports --dry-run only.');
 }
 
 const ALLOWED_STAGES = ['audio', 'sample', 'upload', 'publish'];
@@ -53,6 +55,8 @@ function parseArgs(argv) {
   const args = {
     bookId: null,
     chapter: null,
+    fromChapter: null,
+    toChapter: null,
     fromVerse: null,
     toVerse: null,
     language: null,
@@ -74,6 +78,10 @@ function parseArgs(argv) {
       args.bookId = argv[++i];
     } else if (arg === '--chapter') {
       args.chapter = Number(argv[++i]);
+    } else if (arg === '--from-chapter') {
+      args.fromChapter = Number(argv[++i]);
+    } else if (arg === '--to-chapter') {
+      args.toChapter = Number(argv[++i]);
     } else if (arg === '--from-verse') {
       args.fromVerse = Number(argv[++i]);
     } else if (arg === '--to-verse') {
@@ -108,7 +116,11 @@ function parseArgs(argv) {
     throw new Error('--dry-run과 --write는 동시에 사용할 수 없습니다.');
   }
 
-  if (!args.bookId || !args.chapter || !args.language || !args.voicePreset) {
+  const hasSingleChapter = args.chapter !== null;
+  const hasChapterRange = args.fromChapter !== null || args.toChapter !== null;
+  args.rangeMode = hasChapterRange;
+
+  if (!args.bookId || !args.language || !args.voicePreset) {
     usage();
     throw new Error('필수 옵션이 누락되었습니다.');
   }
@@ -117,8 +129,39 @@ function parseArgs(argv) {
     throw new Error(`지원하지 않는 book id입니다: ${args.bookId}`);
   }
 
-  if (!Number.isInteger(args.chapter) || args.chapter < 1) {
-    throw new Error(`유효하지 않은 chapter 값입니다: ${args.chapter}`);
+  if (hasSingleChapter && hasChapterRange) {
+    throw new Error('--chapter와 --from-chapter/--to-chapter는 동시에 사용할 수 없습니다.');
+  }
+
+  if (!hasSingleChapter && !hasChapterRange) {
+    usage();
+    throw new Error('--chapter 또는 --from-chapter/--to-chapter가 필요합니다.');
+  }
+
+  if (hasChapterRange) {
+    if (!Number.isInteger(args.fromChapter) || args.fromChapter < 1) {
+      throw new Error(`유효하지 않은 from-chapter 값입니다: ${args.fromChapter}`);
+    }
+
+    if (!Number.isInteger(args.toChapter) || args.toChapter < 1) {
+      throw new Error(`유효하지 않은 to-chapter 값입니다: ${args.toChapter}`);
+    }
+
+    if (args.fromChapter > args.toChapter) {
+      throw new Error('--from-chapter 값은 --to-chapter 값보다 클 수 없습니다.');
+    }
+
+    if (args.fromVerse !== null || args.toVerse !== null) {
+      throw new Error('range mode에서는 --from-verse/--to-verse를 사용할 수 없습니다. 각 장 전체를 대상으로 합니다.');
+    }
+
+    if (args.write) {
+      throw new Error('range mode는 현재 --dry-run만 지원합니다. 단일 장 --chapter와 --stage audio/upload/publish --write를 사용하세요.');
+    }
+  } else {
+    if (!Number.isInteger(args.chapter) || args.chapter < 1) {
+      throw new Error(`유효하지 않은 chapter 값입니다: ${args.chapter}`);
+    }
   }
 
   if (args.fromVerse !== null && (!Number.isInteger(args.fromVerse) || args.fromVerse < 1)) {
@@ -220,23 +263,162 @@ function extractJsonObject(source, variableName) {
   return JSON.parse(objectLiteral);
 }
 
-function readGenesisChapter({ bookId, chapter }) {
+function readBookData(bookId) {
   const bookConfig = BOOKS[bookId];
   const oldTestamentJs = fs.readFileSync(OLD_TESTAMENT_JS_PATH, 'utf8');
   const testamentData = extractJsonObject(oldTestamentJs, bookConfig.testamentVariable);
   const bookData = testamentData.books.find((book) => book.name === bookConfig.book);
 
   if (!bookData) {
-    throw new Error('old_testament.js oldTestamentData에서 창세기를 찾지 못했습니다.');
+    throw new Error(`old_testament.js ${bookConfig.testamentVariable}에서 ${bookConfig.book}를 찾지 못했습니다.`);
   }
 
-  const chapterData = bookData.chapters.find((item) => item.chapter === chapter);
+  return bookData;
+}
+
+function readGenesisChapter({ bookId, chapter, bookData = null }) {
+  const bookConfig = BOOKS[bookId];
+  const resolvedBookData = bookData || readBookData(bookId);
+  const chapterData = resolvedBookData.chapters.find((item) => item.chapter === chapter);
 
   if (!chapterData) {
-    throw new Error(`old_testament.js oldTestamentData에서 창세기 ${chapter}장을 찾지 못했습니다.`);
+    throw new Error(`old_testament.js ${bookConfig.testamentVariable}에서 ${bookConfig.book} ${chapter}장을 찾지 못했습니다.`);
   }
 
   return chapterData;
+}
+
+function countPublishedManifestEntries({ bookId, chapter }) {
+  if (!fs.existsSync(MANIFEST_PATH)) {
+    return 0;
+  }
+
+  const manifest = readJson(MANIFEST_PATH);
+  const audios = manifest.audios || {};
+
+  return Object.values(audios).filter((entry) => (
+    entry &&
+    entry.bookId === bookId &&
+    entry.chapter === chapter &&
+    entry.type === AUDIO_TYPE &&
+    entry.status === 'published'
+  )).length;
+}
+
+function buildChapterPlan(args, chapter, bookData) {
+  const chapterArgs = {
+    ...args,
+    chapter,
+    fromVerse: null,
+    toVerse: null,
+  };
+  const chapterData = readGenesisChapter({ bookId: args.bookId, chapter, bookData });
+  const range = resolveVerseRange(chapterArgs, chapterData);
+  const items = range.verses.map((verseData) => buildPipelineItem({ args: chapterArgs, verseData }));
+  const summary = buildSummary(items, chapterArgs);
+  const publishedManifestCount = countPublishedManifestEntries({
+    bookId: args.bookId,
+    chapter,
+  });
+
+  return {
+    chapter,
+    fromVerse: range.fromVerse,
+    toVerse: range.toVerse,
+    targetCount: summary.targetCount,
+    existingLocalCount: summary.existingLocalCount,
+    missingLocalCount: summary.missingLocalCount,
+    zeroByteLocalCount: summary.zeroByteLocalCount,
+    plannedGenerationCount: summary.plannedGenerationCount,
+    skippedExistingCount: summary.skippedExistingCount,
+    publishedManifestCount,
+    items,
+  };
+}
+
+function buildRangeDryRunReport({ args, startedAt, chapterPlans }) {
+  const finishedAt = new Date().toISOString();
+  const chapters = chapterPlans.map((plan) => ({
+    chapter: plan.chapter,
+    fromVerse: plan.fromVerse,
+    toVerse: plan.toVerse,
+    targetCount: plan.targetCount,
+    existingLocalCount: plan.existingLocalCount,
+    missingLocalCount: plan.missingLocalCount,
+    zeroByteLocalCount: plan.zeroByteLocalCount,
+    plannedGenerationCount: plan.plannedGenerationCount,
+    skippedExistingCount: plan.skippedExistingCount,
+    publishedManifestCount: plan.publishedManifestCount,
+  }));
+
+  const summary = {
+    chapterCount: chapters.length,
+    totalTargetCount: chapters.reduce((sum, chapter) => sum + chapter.targetCount, 0),
+    totalExistingLocalCount: chapters.reduce((sum, chapter) => sum + chapter.existingLocalCount, 0),
+    totalMissingLocalCount: chapters.reduce((sum, chapter) => sum + chapter.missingLocalCount, 0),
+    totalZeroByteLocalCount: chapters.reduce((sum, chapter) => sum + chapter.zeroByteLocalCount, 0),
+    totalPlannedGenerationCount: chapters.reduce((sum, chapter) => sum + chapter.plannedGenerationCount, 0),
+    totalSkippedExistingCount: chapters.reduce((sum, chapter) => sum + chapter.skippedExistingCount, 0),
+    totalPublishedManifestCount: chapters.reduce((sum, chapter) => sum + chapter.publishedManifestCount, 0),
+    fileModified: false,
+    mp3Generated: false,
+    uploadPerformed: false,
+    manifestWritten: false,
+    verifiedListModified: false,
+  };
+
+  return {
+    mode: 'range-dry-run',
+    pipelineVersion: PIPELINE_VERSION,
+    startedAt,
+    finishedAt,
+    target: {
+      bookId: args.bookId,
+      book: BOOKS[args.bookId].book,
+      fromChapter: args.fromChapter,
+      toChapter: args.toChapter,
+      language: args.language,
+      voicePreset: args.voicePreset,
+      stage: args.stage,
+      upload: args.upload,
+      overwrite: args.overwrite,
+      rangeMode: true,
+    },
+    source: {
+      textSource: toRelativePath(OLD_TESTAMENT_JS_PATH),
+      textVariable: BOOKS[args.bookId].testamentVariable,
+    },
+    storage: {
+      localBase: path.posix.join('audio', 'v1', args.language, args.bookId),
+      localFileName: buildLocalFileName(args.voicePreset),
+      r2Bucket: STORAGE.r2Bucket,
+      r2KeyBase: STORAGE.r2KeyBase,
+      publicBaseUrl: STORAGE.publicBaseUrl,
+      uploadMode: STORAGE.uploadMode,
+      wranglerPackage: WRANGLER.package,
+      contentType: WRANGLER.contentType,
+    },
+    summary,
+    chapters,
+    safety: {
+      writeAllowed: false,
+      rangeWriteSupported: false,
+      blockers: args.write ? ['range-write-not-supported'] : [],
+    },
+  };
+}
+
+function runRangeDryRun(args, startedAt) {
+  const bookData = readBookData(args.bookId);
+  const chapterPlans = [];
+
+  for (let chapter = args.fromChapter; chapter <= args.toChapter; chapter++) {
+    chapterPlans.push(buildChapterPlan(args, chapter, bookData));
+  }
+
+  const report = buildRangeDryRunReport({ args, startedAt, chapterPlans });
+  report.reportPath = writeReport(report);
+  return report;
 }
 
 function resolveVerseRange(args, chapterData) {
@@ -1173,9 +1355,16 @@ function resolveReportMode(args) {
 function writeReport(report) {
   fs.mkdirSync(REPORT_DIR, { recursive: true });
 
-  const chapter3 = pad3(report.target.chapter);
-  const modeSuffix = report.mode;
-  const fileName = `${timestampForFileName(new Date(report.finishedAt))}-${report.target.bookId}-${chapter3}-${modeSuffix}.json`;
+  let rangeLabel;
+
+  if (report.mode === 'range-dry-run') {
+    rangeLabel = `${pad3(report.target.fromChapter)}-${pad3(report.target.toChapter)}`;
+  } else {
+    rangeLabel = pad3(report.target.chapter);
+  }
+
+  const modeSuffix = report.mode === 'range-dry-run' ? 'dry-run' : report.mode;
+  const fileName = `${timestampForFileName(new Date(report.finishedAt))}-${report.target.bookId}-${rangeLabel}-${modeSuffix}.json`;
   const reportPath = path.join(REPORT_DIR, fileName);
 
   fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
@@ -1191,6 +1380,13 @@ async function main() {
 
   const startedAt = new Date().toISOString();
   const args = parseArgs(process.argv.slice(2));
+
+  if (args.rangeMode) {
+    const report = runRangeDryRun(args, startedAt);
+    console.log(JSON.stringify(report, null, 2));
+    return;
+  }
+
   const chapterData = readGenesisChapter(args);
   const range = resolveExecutionRange(args, chapterData);
   let items = range.verses.map((verseData) => buildPipelineItem({ args, verseData }));
