@@ -1,13 +1,53 @@
 (function() {
   'use strict';
 
-  var TARGET_BOOK_NAME = '창세기';
   var AUDIO_TYPE = 'bible';
   var DEV_TEST_AUDIO_ID = 'genesis.001.001.bible';
   var BUTTON_MARK_ATTR = 'data-gomna-audio-verse-button';
   var observer = null;
   var retryTimers = [];
   var syncTimer = null;
+  var BOOK_AUDIO_ID_FALLBACKS = {
+    '창세기': 'genesis',
+    '출애굽기': 'exodus',
+    '레위기': 'leviticus',
+    '민수기': 'numbers',
+    '신명기': 'deuteronomy',
+    '여호수아': 'joshua',
+    '사사기': 'judges',
+    '룻기': 'ruth',
+    '사무엘상': '1samuel',
+    '사무엘하': '2samuel',
+    '열왕기상': '1kings',
+    '열왕기하': '2kings',
+    '역대상': '1chronicles',
+    '역대하': '2chronicles',
+    '에스라': 'ezra',
+    '느헤미야': 'nehemiah',
+    '에스더': 'esther',
+    '욥기': 'job',
+    '시편': 'psalms',
+    '잠언': 'proverbs',
+    '전도서': 'ecclesiastes',
+    '아가': 'song',
+    '이사야': 'isaiah',
+    '예레미야': 'jeremiah',
+    '예레미야애가': 'lamentations',
+    '에스겔': 'ezekiel',
+    '다니엘': 'daniel',
+    '호세아': 'hosea',
+    '요엘': 'joel',
+    '아모스': 'amos',
+    '오바댜': 'obadiah',
+    '요나': 'jonah',
+    '미가': 'micah',
+    '나훔': 'nahum',
+    '하박국': 'habakkuk',
+    '스바냐': 'zephaniah',
+    '학개': 'haggai',
+    '스가랴': 'zechariah',
+    '말라기': 'malachi'
+  };
   var BUTTON_STATES = {
     idle: {
       icon: '▶',
@@ -38,8 +78,8 @@
       return map[bookName];
     }
 
-    if (bookName === TARGET_BOOK_NAME) {
-      return 'genesis';
+    if (BOOK_AUDIO_ID_FALLBACKS[bookName]) {
+      return BOOK_AUDIO_ID_FALLBACKS[bookName];
     }
 
     return null;
@@ -61,7 +101,7 @@
     var chapter = Number(window.currentChapter);
     var bookId;
 
-    if (!book || book.name !== TARGET_BOOK_NAME || !chapter) {
+    if (!book || !book.name || !chapter) {
       return null;
     }
 
@@ -344,7 +384,7 @@
     if (addedCount > 0) {
       var ctx = getCurrentContext();
       console.log(
-        '[GOMNA_AUDIO] 창세기 ' + (ctx ? ctx.chapter : '?') + '장 본문 듣기 버튼 동기화:',
+        '[GOMNA_AUDIO] ' + (ctx ? ctx.bookName + ' ' + ctx.chapter : '?') + '장 본문 듣기 버튼 동기화:',
         addedCount,
         '개'
       );
