@@ -13,6 +13,8 @@
     _state: {
       currentAudio: null,
       currentAudioId: null,
+      nextAudio: null,
+      nextAudioId: null,
       isPlaying: false,
       isPaused: false,
       currentSpeed: 1.0,
@@ -47,8 +49,29 @@
       }
     },
 
-    _clearQueue: function() {
+    _cleanupNextAudio: function() {
       var state = window.GOMNA_AUDIO_ENGINE._state;
+
+      if (state.nextAudio) {
+        try {
+          state.nextAudio.pause();
+          state.nextAudio.src = '';
+          state.nextAudio.load();
+        } catch (e) {
+          console.warn('[GOMNA_AUDIO] next cleanup warning:', e);
+        }
+
+        state.nextAudio = null;
+      }
+
+      state.nextAudioId = null;
+    },
+
+    _clearQueue: function() {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+
+      engine._cleanupNextAudio();
 
       state.queueAudioIds = [];
       state.queueIndex = -1;
@@ -107,6 +130,74 @@
       }
 
       return entry.voicePreset === state.currentVoice;
+    },
+
+    _findNextPlayableIndex: function(fromIndex) {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+      var i = fromIndex;
+
+      while (i < state.queueAudioIds.length) {
+        var entry = engine._getManifestEntry(state.queueAudioIds[i]);
+
+        if (entry && entry.status === 'published' && engine._isEntryAvailableForCurrentVoice(entry)) {
+          return i;
+        }
+
+        i += 1;
+      }
+
+      return -1;
+    },
+
+    // 현재 절이 재생되는 동안 다음 절 MP3를 미리 로딩해 둔다.
+    // 재생은 하지 않고 preload만 하므로 절이 겹치거나 crossfade 되지 않는다.
+    _prepareNextInQueue: function() {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+      var config = window.GOMNA_AUDIO_CONFIG;
+
+      if (!state.queueActive || state.queueAudioIds.length === 0 || !config) {
+        return;
+      }
+
+      var nextIndex = engine._findNextPlayableIndex(state.queueIndex + 1);
+
+      if (nextIndex === -1) {
+        engine._cleanupNextAudio();
+        return;
+      }
+
+      var nextId = state.queueAudioIds[nextIndex];
+
+      if (state.nextAudioId === nextId && state.nextAudio) {
+        return;
+      }
+
+      engine._cleanupNextAudio();
+
+      var entry = engine._getManifestEntry(nextId);
+
+      if (!entry) {
+        return;
+      }
+
+      var audioSrc = typeof config.buildAudioUrl === 'function'
+        ? config.buildAudioUrl(entry.filePath)
+        : entry.filePath;
+
+      try {
+        var audio = new Audio();
+        audio.preload = 'auto';
+        audio.src = audioSrc;
+        audio.load();
+
+        state.nextAudio = audio;
+        state.nextAudioId = nextId;
+      } catch (e) {
+        console.warn('[GOMNA_AUDIO] preload warning:', e);
+        engine._cleanupNextAudio();
+      }
     },
 
     _playNextInQueue: function() {
@@ -207,10 +298,22 @@
 
       engine._cleanupCurrentAudio();
 
-      var audioSrc = typeof config.buildAudioUrl === 'function'
-        ? config.buildAudioUrl(entry.filePath)
-        : entry.filePath;
-      var audio = new Audio(audioSrc);
+      var audio = null;
+
+      // 큐 진행 중이고 이 절이 미리 preload 되어 있으면 재사용해 즉시 재생한다.
+      if (options.fromQueue && state.nextAudio && state.nextAudioId === audioId) {
+        audio = state.nextAudio;
+        state.nextAudio = null;
+        state.nextAudioId = null;
+      }
+
+      if (!audio) {
+        var audioSrc = typeof config.buildAudioUrl === 'function'
+          ? config.buildAudioUrl(entry.filePath)
+          : entry.filePath;
+        audio = new Audio(audioSrc);
+      }
+
       audio.playbackRate = state.currentSpeed;
       state.restoreStartTime = startTime > 0 ? startTime : 0;
 
@@ -293,6 +396,11 @@
         audioId: audioId,
         entry: entry
       });
+
+      // 현재 절이 재생되는 동안 다음 절 MP3를 미리 로딩해 전환 지연을 없앤다.
+      if (options.fromQueue && state.queueActive) {
+        engine._prepareNextInQueue();
+      }
 
       if (playPromise !== undefined) {
         playPromise.catch(function(err) {
