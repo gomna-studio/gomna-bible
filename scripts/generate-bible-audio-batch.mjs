@@ -1,18 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { BOOKS } from './bible-book-registry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
 const OLD_TESTAMENT_JS_PATH = path.join(ROOT, 'old_testament.js');
 const REPORTS_DIR = path.join(ROOT, 'reports');
-
-const BOOKS = {
-  genesis: {
-    book: '창세기',
-    testamentVariable: 'oldTestamentData',
-  },
-};
 
 const AUDIO_TYPE = {
   type: 'bible',

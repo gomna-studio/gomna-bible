@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import { BOOKS } from './bible-book-registry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
@@ -18,20 +19,17 @@ const WRANGLER = {
   contentType: 'audio/mpeg',
 };
 
-const BOOKS = {
-  genesis: {
-    book: '창세기',
-    testamentVariable: 'oldTestamentData',
-  },
-};
-
 const STORAGE = {
   localBaseDirectory: path.join(ROOT, 'audio', 'v1'),
   r2Bucket: 'gomna-bible-audio-prod',
-  r2KeyBase: 'bible/ko/gae/genesis',
+  r2KeyBasePrefix: 'bible/ko/gae',
   publicBaseUrl: 'https://pub-1606395d18b84b29b95f841e5fe9e008.r2.dev',
   uploadMode: 'remote-only',
 };
+
+function r2KeyBaseFor(bookId) {
+  return `${STORAGE.r2KeyBasePrefix}/${BOOKS[bookId].bookSlug}`;
+}
 
 const AUDIO_TYPE = 'bible';
 const TYPE_KR = '본문';
@@ -279,7 +277,7 @@ function readBookData(bookId) {
   return bookData;
 }
 
-function readGenesisChapter({ bookId, chapter, bookData = null }) {
+function readBibleChapter({ bookId, chapter, bookData = null }) {
   const bookConfig = BOOKS[bookId];
   const resolvedBookData = bookData || readBookData(bookId);
   const chapterData = resolvedBookData.chapters.find((item) => item.chapter === chapter);
@@ -315,7 +313,7 @@ function buildChapterPlan(args, chapter, bookData) {
     fromVerse: null,
     toVerse: null,
   };
-  const chapterData = readGenesisChapter({ bookId: args.bookId, chapter, bookData });
+  const chapterData = readBibleChapter({ bookId: args.bookId, chapter, bookData });
   const range = resolveVerseRange(chapterArgs, chapterData);
   const items = range.verses.map((verseData) => buildPipelineItem({ args: chapterArgs, verseData }));
   const summary = buildSummary(items, chapterArgs);
@@ -395,7 +393,7 @@ function buildRangeDryRunReport({ args, startedAt, chapterPlans }) {
       localBase: path.posix.join('audio', 'v1', args.language, args.bookId),
       localFileName: buildLocalFileName(args.voicePreset),
       r2Bucket: STORAGE.r2Bucket,
-      r2KeyBase: STORAGE.r2KeyBase,
+      r2KeyBase: r2KeyBaseFor(args.bookId),
       publicBaseUrl: STORAGE.publicBaseUrl,
       uploadMode: STORAGE.uploadMode,
       wranglerPackage: WRANGLER.package,
@@ -432,7 +430,7 @@ function runRangeChapterAudioWrite(args, chapter, bookData) {
     toVerse: null,
     rangeMode: false,
   };
-  const chapterData = readGenesisChapter({ bookId: args.bookId, chapter, bookData });
+  const chapterData = readBibleChapter({ bookId: args.bookId, chapter, bookData });
   const range = resolveVerseRange(chapterArgs, chapterData);
 
   const generationExecution = runAudioStage(chapterArgs, range);
@@ -494,7 +492,7 @@ function runRangeAudioWrite(args, startedAt) {
   };
 
   for (let chapter = args.fromChapter; chapter <= args.toChapter; chapter++) {
-    const chapterData = readGenesisChapter({ bookId: args.bookId, chapter, bookData });
+    const chapterData = readBibleChapter({ bookId: args.bookId, chapter, bookData });
     const chapterArgs = { ...args, chapter, fromVerse: null, toVerse: null };
     const range = resolveVerseRange(chapterArgs, chapterData);
     const items = range.verses.map((verseData) => buildPipelineItem({ args: chapterArgs, verseData }));
@@ -561,7 +559,7 @@ function runRangeAudioWrite(args, startedAt) {
       localBase: path.posix.join('audio', 'v1', args.language, args.bookId),
       localFileName: buildLocalFileName(args.voicePreset),
       r2Bucket: STORAGE.r2Bucket,
-      r2KeyBase: STORAGE.r2KeyBase,
+      r2KeyBase: r2KeyBaseFor(args.bookId),
       publicBaseUrl: STORAGE.publicBaseUrl,
       uploadMode: STORAGE.uploadMode,
       wranglerPackage: WRANGLER.package,
@@ -591,7 +589,7 @@ function buildRangeChapterItems(args, chapter, bookData) {
     toVerse: null,
     rangeMode: false,
   };
-  const chapterData = readGenesisChapter({ bookId: args.bookId, chapter, bookData });
+  const chapterData = readBibleChapter({ bookId: args.bookId, chapter, bookData });
   const range = resolveVerseRange(chapterArgs, chapterData);
   const items = range.verses.map((verseData) => buildPipelineItem({ args: chapterArgs, verseData }));
 
@@ -654,7 +652,7 @@ function buildRangeReportShell({ args, mode, startedAt }) {
       localBase: path.posix.join('audio', 'v1', args.language, args.bookId),
       localFileName: buildLocalFileName(args.voicePreset),
       r2Bucket: STORAGE.r2Bucket,
-      r2KeyBase: STORAGE.r2KeyBase,
+      r2KeyBase: r2KeyBaseFor(args.bookId),
       publicBaseUrl: STORAGE.publicBaseUrl,
       uploadMode: STORAGE.uploadMode,
       wranglerPackage: WRANGLER.package,
@@ -965,12 +963,12 @@ function buildLocalRelativePath({ language, bookId, chapter, verse, voicePreset 
   );
 }
 
-function buildR2Key(chapter, verse) {
-  return `${STORAGE.r2KeyBase}/${pad3(chapter)}/${pad3(verse)}.mp3`;
+function buildR2Key(bookId, chapter, verse) {
+  return `${r2KeyBaseFor(bookId)}/${pad3(chapter)}/${pad3(verse)}.mp3`;
 }
 
-function buildPublicUrl(chapter, verse) {
-  return `${STORAGE.publicBaseUrl}/${buildR2Key(chapter, verse)}`;
+function buildPublicUrl(bookId, chapter, verse) {
+  return `${STORAGE.publicBaseUrl}/${buildR2Key(bookId, chapter, verse)}`;
 }
 
 function inspectLocalFile(relativePath) {
@@ -1005,7 +1003,7 @@ function buildPipelineItem({ args, verseData }) {
     voicePreset: args.voicePreset,
   });
   const localInfo = inspectLocalFile(localRelativePath);
-  const r2Key = buildR2Key(verseData.chapter, verseData.verse);
+  const r2Key = buildR2Key(args.bookId, verseData.chapter, verseData.verse);
   const exists = localInfo.localExists;
   const zeroByte = localInfo.localZeroByte;
   const validLocal = exists && !zeroByte;
@@ -1027,7 +1025,7 @@ function buildPipelineItem({ args, verseData }) {
     localFileSize: localInfo.localFileSize,
     localZeroByte: localInfo.localZeroByte,
     r2Key,
-    publicUrl: buildPublicUrl(verseData.chapter, verseData.verse),
+    publicUrl: buildPublicUrl(args.bookId, verseData.chapter, verseData.verse),
     actions: {
       audio: audioAction,
       upload: validLocal ? 'upload-planned' : 'pending-local',
@@ -1883,7 +1881,7 @@ async function main() {
     return;
   }
 
-  const chapterData = readGenesisChapter(args);
+  const chapterData = readBibleChapter(args);
   const range = resolveExecutionRange(args, chapterData);
   let items = range.verses.map((verseData) => buildPipelineItem({ args, verseData }));
 
@@ -1975,7 +1973,7 @@ async function main() {
       localBase: path.posix.join('audio', 'v1', args.language, args.bookId),
       localFileName: buildLocalFileName(args.voicePreset),
       r2Bucket: STORAGE.r2Bucket,
-      r2KeyBase: STORAGE.r2KeyBase,
+      r2KeyBase: r2KeyBaseFor(args.bookId),
       publicBaseUrl: STORAGE.publicBaseUrl,
       uploadMode: STORAGE.uploadMode,
       wranglerPackage: WRANGLER.package,
