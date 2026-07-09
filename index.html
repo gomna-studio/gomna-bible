@@ -25,7 +25,7 @@
 <link rel="manifest" href="manifest.json?v=20260603-01">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <script>
-window.GOMNA_ASSET_VERSION = "20260709-home-ui-v2";
+window.GOMNA_ASSET_VERSION = "20260709-home-ui-v11";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -44,16 +44,24 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 .title-block{flex:1}
 .title{font-size:calc(var(--font-size,17px) * 20 / 17);font-weight:500;line-height:1.15;letter-spacing:-0.3px}
 .sub{font-family:Georgia,serif;font-size:calc(var(--font-size,17px) * 12 / 17);font-style:italic;letter-spacing:0.5px;opacity:.88;margin-top:3px}
-.settings-btn{width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:transparent;border:none;padding:0}
+.settings-btn{width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:transparent;border:none;padding:0;position:relative;top:-7px}
 .settings-btn svg{width:26px;height:26px;stroke:#3d2810;fill:none;stroke-width:1.8;animation:gearRotate 32s linear infinite,gearGlow 3.5s ease-in-out infinite}
 /* 홈 지구본 버튼 커스텀 (translate_feature.js 기능 유지, 외형만 교체) */
-.gt-btn.gt-btn-home-custom{width:auto;height:auto;min-width:44px;min-height:44px;padding:0 2px;margin-right:0;border-radius:8px;flex-direction:column;gap:1px;align-self:center}
+.gt-btn.gt-btn-home-custom{width:auto;height:auto;min-width:44px;min-height:44px;padding:0 2px;margin-right:0;border-radius:8px;flex-direction:column;gap:1px;align-self:center;background:transparent!important;position:relative;overflow:visible}
+.gt-btn.gt-btn-home-custom.gt-on-dark{background:transparent!important;width:auto;height:auto}
 .gt-btn.gt-btn-home-custom::after{display:none!important}
 .gt-btn.gt-btn-home-custom .gt-globe-img{display:none!important}
-.gt-btn.gt-btn-home-custom .gt-home-globe{width:34px;height:34px;border-radius:50%;object-fit:cover;display:block;flex-shrink:0;box-shadow:0 1px 4px rgba(90,60,25,.18);animation:none!important;filter:none!important;transform:none!important}
+.gt-home-globe-wrap{position:relative;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:transparent;overflow:visible}
+.gt-home-globe-spin{position:relative;width:38px;height:38px;animation:gtHomeGlobeSpin 24s linear infinite;background:transparent}
+@keyframes gtHomeGlobeSpin{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+.gt-home-globe-ring{position:absolute;inset:-1px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0deg 250deg,rgba(255,240,200,.55) 300deg,rgba(255,250,230,.95) 330deg,transparent 360deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1.5px));pointer-events:none;z-index:2;opacity:.9}
+.gt-btn.gt-btn-home-custom .gt-home-globe{position:relative;z-index:1;width:38px;height:38px;border-radius:50%;object-fit:cover;display:block;flex-shrink:0;background:transparent;box-shadow:none!important;animation:none!important;filter:none!important;transform:none!important}
 .gt-btn.gt-btn-home-custom .gt-home-lang-label{font-size:10.5px;font-weight:600;color:#6e4a1f;letter-spacing:-.15px;line-height:1.15;white-space:nowrap;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif}
+@media (prefers-reduced-motion:reduce){.gt-home-globe-spin{animation:none}.gt-home-globe-ring{opacity:.78}}
 @media (max-width:380px){
-  .gt-btn.gt-btn-home-custom .gt-home-globe{width:30px;height:30px}
+  .gt-home-globe-wrap{width:34px;height:34px}
+  .gt-home-globe-spin{width:34px;height:34px}
+  .gt-btn.gt-btn-home-custom .gt-home-globe{width:34px;height:34px}
   .gt-btn.gt-btn-home-custom .gt-home-lang-label{font-size:10px}
 }
 @keyframes gearRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
@@ -922,41 +930,79 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 (function(){
   'use strict';
   var GLOBE_SRC='images/home/globe.png';
+  var globeObserver=null;
+  var globePollTimer=null;
+  function stopGlobeWatch(){
+    if(globeObserver){globeObserver.disconnect();globeObserver=null;}
+    if(globePollTimer){clearInterval(globePollTimer);globePollTimer=null;}
+  }
   function decorateGlobeBtn(btn){
-    if(!btn||btn.dataset.gtHomeStyled==='1')return;
+    if(!btn||btn.dataset.globeDecorated==='true')return true;
     btn.dataset.gtHomeStyled='1';
     btn.classList.add('gt-btn-home-custom');
     var oldImg=btn.querySelector('.gt-globe-img');
     if(oldImg)oldImg.style.display='none';
-    if(!btn.querySelector('.gt-home-globe')){
+    var wrap=btn.querySelector('.gt-home-globe-wrap');
+    if(!wrap){
+      wrap=document.createElement('span');
+      wrap.className='gt-home-globe-wrap';
+      var spin=document.createElement('span');
+      spin.className='gt-home-globe-spin';
       var img=document.createElement('img');
       img.className='gt-home-globe';
       img.src=GLOBE_SRC;
       img.alt='';
       img.setAttribute('aria-hidden','true');
       img.decoding='async';
-      btn.insertBefore(img,btn.firstChild);
+      var ring=document.createElement('span');
+      ring.className='gt-home-globe-ring';
+      ring.setAttribute('aria-hidden','true');
+      spin.appendChild(img);
+      spin.appendChild(ring);
+      wrap.appendChild(spin);
+      btn.insertBefore(wrap,btn.firstChild);
     }
-    if(!btn.querySelector('.gt-home-lang-label')){
-      var label=document.createElement('span');
+    var label=btn.querySelector('.gt-home-lang-label');
+    if(!label){
+      label=document.createElement('span');
       label.className='gt-home-lang-label';
-      label.textContent='언어선택';
       btn.appendChild(label);
     }
+    if(label.textContent!=='Language')label.textContent='Language';
+    if(label.getAttribute('translate')!=='no')label.setAttribute('translate','no');
+    btn.dataset.globeDecorated='true';
+    return true;
   }
   function tryDecorate(){
-    document.querySelectorAll('.header .gt-btn').forEach(decorateGlobeBtn);
+    var btns=document.querySelectorAll('.header .gt-btn');
+    if(!btns.length)return false;
+    var allDone=true;
+    btns.forEach(function(btn){if(!decorateGlobeBtn(btn))allDone=false;});
+    if(allDone)stopGlobeWatch();
+    return allDone;
   }
   function init(){
-    tryDecorate();
-    if(window.MutationObserver&&document.body){
-      var obs=new MutationObserver(function(){tryDecorate();});
-      obs.observe(document.body,{childList:true,subtree:true});
+    if(tryDecorate())return;
+    var header=document.querySelector('.header');
+    if(window.MutationObserver&&header){
+      globeObserver=new MutationObserver(function(muts){
+        for(var i=0;i<muts.length;i++){
+          var m=muts[i];
+          if(m.type!=='childList')continue;
+          for(var j=0;j<m.addedNodes.length;j++){
+            var n=m.addedNodes[j];
+            if(n.nodeType===1&&((n.matches&&n.matches('.gt-btn'))||(n.querySelector&&n.querySelector('.gt-btn')))){
+              tryDecorate();
+              return;
+            }
+          }
+        }
+      });
+      globeObserver.observe(header,{childList:true,subtree:true});
     }
     var n=0;
-    var timer=setInterval(function(){
-      tryDecorate();
-      if(++n>=40)clearInterval(timer);
+    globePollTimer=setInterval(function(){
+      if(tryDecorate()||++n>=40)stopGlobeWatch();
     },100);
   }
   if(document.readyState==='loading'){
