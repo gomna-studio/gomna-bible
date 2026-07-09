@@ -25,14 +25,14 @@
 <link rel="manifest" href="manifest.json?v=20260603-01">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <script>
-window.GOMNA_ASSET_VERSION = "20260709-home-ui-v18";
+window.GOMNA_ASSET_VERSION = "20260709-home-ui-v42";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
 </script>
 <style>
 /* ── 첫페이지 공통 규격 (home-ui-v1) ── */
-:root{--gm-radius-card:12px;--gm-radius-btn:10px;--gm-radius-tag:20px;--gm-ink:#3d2818;--gm-gold:#8b5e2c;--gm-gold-deep:#6e4a1f;--gm-cream:#fdf8ec;--gm-card-bg:rgba(255,253,246,.94);--gm-card-border:rgba(180,140,90,.32)}
+:root{--gm-radius-card:20px;--gm-radius-btn:10px;--gm-radius-tag:20px;--gm-ink:#3d2818;--gm-gold:#8b5e2c;--gm-gold-deep:#6e4a1f;--gm-cream:#fdf8ec;--gm-card-bg:rgba(255,253,246,.94);--gm-card-border:rgba(0,0,0,.16);--gm-card-border-slim:1px solid rgba(0,0,0,.16);--gm-card-shadow:0 1px 3px rgba(0,0,0,.035)}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#000}
 body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-height:100vh;overflow-x:hidden;position:relative}
@@ -66,11 +66,11 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 }
 @keyframes gearRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes gearGlow{0%,100%{filter:drop-shadow(0 0 5px rgba(255,235,180,0.6))}50%{filter:drop-shadow(0 0 14px rgba(255,235,180,1)) drop-shadow(0 0 22px rgba(255,215,100,0.7))}}
-.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
-.card{border-radius:var(--gm-radius-card);padding:10px 6px 9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;position:relative;overflow:hidden;border:1px solid var(--gm-card-border);box-shadow:0 1px 3px rgba(120,85,40,.07);background:var(--gm-card-bg);min-height:0}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;margin-bottom:6px}
+.card{border-radius:var(--gm-radius-card);padding:10px 6px 9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;position:relative;overflow:hidden;border:var(--gm-card-border-slim);box-shadow:var(--gm-card-shadow);background:var(--gm-card-bg);min-height:0}
 .card:active{transform:scale(.97)}
 .card.old,.card.new,.card.easy{background:var(--gm-card-bg);color:var(--gm-ink)}
-button.card{border:1px solid var(--gm-card-border);margin:0;font-family:inherit;font-size:inherit;color:inherit;text-align:inherit;line-height:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation;width:100%;-webkit-appearance:none;appearance:none}
+button.card{border:var(--gm-card-border-slim);margin:0;font-family:inherit;font-size:inherit;color:inherit;text-align:inherit;line-height:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation;width:100%;-webkit-appearance:none;appearance:none;box-shadow:var(--gm-card-shadow)}
 .card-visual{flex:none;width:100%;height:86px;display:flex;align-items:center;justify-content:center;position:relative}
 .card.old .book,.card.new .book{width:100%;height:100%;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 3px rgba(90,60,25,.2))}
 .home-bible-cover{display:block;width:clamp(72px,96%,96px);height:82px;max-height:82px;margin:auto;object-fit:contain}
@@ -138,27 +138,86 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .card-arrow{color:#a87a35;font-weight:600}
 .card-search-icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f5e8d0,#e8d4a8);border:1px solid rgba(180,140,90,.35);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(120,85,40,.12)}
 .card-search-icon svg{width:17px;height:17px;stroke:#7a5828;fill:none;stroke-width:2.2}
-.search{background:rgba(255,255,255,.96);border-radius:30px;padding:7px 8px 7px 16px;display:flex;align-items:center;color:#888;font-size:13px;margin-bottom:10px;border:none;width:100%;font-family:inherit;text-align:left}
+.search{background:rgba(255,255,255,.96);border-radius:30px;padding:7px 8px 7px 16px;display:flex;align-items:center;color:#888;font-size:13px;margin-bottom:4px;border:var(--gm-card-border-slim);box-shadow:var(--gm-card-shadow);width:100%;font-family:inherit;text-align:left}
+.search-shell{position:relative;margin-bottom:4px}
+.search-shell .search{margin-bottom:0}
+.search-shell.topic-search-open .search{border-radius:22px 22px 10px 10px;margin-bottom:0;border-bottom-color:transparent;box-shadow:none}
+.search-inline-topics{max-height:0;opacity:0;overflow:hidden;display:flex;flex-wrap:wrap;gap:5px;padding:0 12px;margin-top:-1px;background:rgba(255,253,246,.98);border-left:1px solid rgba(0,0,0,.16);border-right:1px solid rgba(0,0,0,.16);border-bottom:1px solid rgba(0,0,0,.16);border-top:0;border-radius:0 0 22px 22px;transform:translateY(-4px);box-shadow:none;transition:max-height .75s cubic-bezier(.22,.75,.25,1),opacity .55s ease,transform .65s cubic-bezier(.22,.75,.25,1),padding .55s ease}
+.search-shell.topic-search-open .search-inline-topics{max-height:110px;opacity:1;transform:translateY(0);padding:9px 12px 10px}
+.search-shell.topic-search-open{box-shadow:var(--gm-card-shadow);border-radius:22px}
+.search-inline-chip{border:1px solid rgba(0,0,0,.16);background:rgba(239,228,200,.82);color:#17120f;border-radius:999px;padding:6px 10px;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;font-family:inherit;line-height:1.2;-webkit-tap-highlight-color:transparent}
+.search-inline-topics.topic-panel-reveal .search-inline-chip{animation:searchTopicReveal .7s cubic-bezier(.22,.75,.25,1) both}
+.search-inline-topics.topic-panel-reveal .search-inline-chip:nth-child(1){animation-delay:0ms}
+.search-inline-topics.topic-panel-reveal .search-inline-chip:nth-child(2){animation-delay:110ms}
+.search-inline-topics.topic-panel-reveal .search-inline-chip:nth-child(3){animation-delay:220ms}
+.search-inline-topics.topic-panel-reveal .search-inline-chip:nth-child(4){animation-delay:330ms}
+.search-inline-topics.topic-panel-reveal .search-inline-chip:nth-child(5){animation-delay:440ms}
+.search-inline-topics.topic-panel-reveal .search-inline-chip:nth-child(6){animation-delay:550ms}
+.search-inline-topics.topic-panel-reveal .search-inline-chip:nth-child(7){animation-delay:660ms}
+@keyframes searchTopicReveal{0%{opacity:0;transform:translateY(8px) scale(.96)}60%{opacity:1;transform:translateY(-1px) scale(1.01)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.search.search-attention{border:1.5px solid rgba(210,40,40,.85);box-shadow:0 0 0 3px rgba(210,40,40,.14),0 2px 8px rgba(80,40,20,.08);animation:searchAttentionPulse 1.8s ease-out}
+@keyframes searchAttentionPulse{0%{border-color:rgba(220,30,30,.95);box-shadow:0 0 0 0 rgba(220,30,30,.28),0 2px 8px rgba(80,40,20,.08)}55%{border-color:rgba(210,40,40,.85);box-shadow:0 0 0 5px rgba(220,30,30,.10),0 2px 8px rgba(80,40,20,.08)}100%{border-color:rgba(0,0,0,.16);box-shadow:0 1px 3px rgba(0,0,0,.035)}}
 .search-input{flex:1;border:none;outline:none;background:transparent;color:#5a3a18;font-size:16px;font-family:inherit}
 .search-input::placeholder{color:#9a8a78}
 .search-icon{margin-left:auto;width:32px;height:32px;background:#c89849;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .search-submit{border:none;cursor:pointer;padding:0}
 .search-icon svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.5}
-.chips-label{font-size:calc(var(--font-size,17px) * 10.5 / 17);color:#000;font-style:italic;margin-bottom:7px;padding-left:4px;letter-spacing:.3px;font-family:Georgia,serif}
-.chips{display:flex;gap:7px;overflow-x:auto;margin-bottom:18px;padding-bottom:6px;scrollbar-width:none;-ms-overflow-style:none}
+.chips-label{font-size:calc(var(--font-size,17px) * 10.5 / 17);color:#000;font-style:italic;margin:3px 0 4px;padding-left:4px;letter-spacing:.3px;font-family:Georgia,serif}
+.chips{display:flex;gap:4px;overflow-x:auto;margin-bottom:12px;padding-bottom:4px;scrollbar-width:none;-ms-overflow-style:none}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex-shrink:0;background:rgba(255,255,255,.32);border:.5px solid rgba(255,255,255,.4);border-radius:var(--gm-radius-tag);padding:7px 14px;font-size:calc(var(--font-size,17px) * 12 / 17);color:#000;cursor:pointer;font-weight:500;letter-spacing:-0.2px;transition:all .2s;white-space:nowrap;font-family:inherit}
+.topic-suggestions{display:flex;flex-wrap:wrap;gap:4px;overflow:visible}
+.topic-suggestions .chip{transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease,background .28s ease}
+.topic-suggestions.topic-suggestions-open .chip{animation:topicChipReveal .52s ease both}
+.topic-suggestions.topic-suggestions-open .chip:nth-child(1){animation-delay:0ms}
+.topic-suggestions.topic-suggestions-open .chip:nth-child(2){animation-delay:50ms}
+.topic-suggestions.topic-suggestions-open .chip:nth-child(3){animation-delay:100ms}
+.topic-suggestions.topic-suggestions-open .chip:nth-child(4){animation-delay:150ms}
+.topic-suggestions.topic-suggestions-open .chip:nth-child(5){animation-delay:200ms}
+.topic-suggestions.topic-suggestions-open .chip:nth-child(6){animation-delay:250ms}
+.topic-suggestions.topic-suggestions-open .chip:nth-child(7){animation-delay:300ms}
+@keyframes topicChipReveal{0%{opacity:.2;transform:translateY(8px) scale(.96)}60%{opacity:1;transform:translateY(-2px) scale(1.02)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.chip{flex-shrink:0;background:rgba(255,255,255,.32);border:var(--gm-card-border-slim);border-radius:999px;padding:7px 14px;font-size:calc(var(--font-size,17px) * 12 / 17);color:#000;cursor:pointer;font-weight:500;letter-spacing:-0.2px;transition:all .2s;white-space:nowrap;font-family:inherit}
 .chip:hover{background:rgba(255,255,255,.28)}
 .chip:active{transform:scale(.95)}
-.verse-card{background:var(--gm-card-bg);border-radius:var(--gm-radius-card);padding:16px 16px 14px;margin-bottom:14px;border:1px solid var(--gm-card-border);box-shadow:0 2px 8px rgba(120,85,40,.1);position:relative;overflow:hidden}
-.verse-glow{position:absolute;inset:0;border-radius:var(--gm-radius-card);background:radial-gradient(circle at 80% 30%,rgba(255,215,120,.18) 0%,transparent 60%);pointer-events:none;animation:verseGlow 4s ease-in-out infinite 3s;opacity:0}
+.verse-card{background:#fffdf6;border-radius:22px;padding:14px 18px;margin-bottom:6px;border:var(--gm-card-border-slim);box-shadow:var(--gm-card-shadow);position:relative;overflow:hidden}
+.verse-glow{position:absolute;inset:0;border-radius:22px;background:radial-gradient(circle at 80% 30%,rgba(255,215,120,.14) 0%,transparent 60%);pointer-events:none;animation:verseGlow 4s ease-in-out infinite 3s;opacity:0}
 @keyframes verseGlow{0%,100%{opacity:.4}50%{opacity:.8}}
-.verse-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
-.verse-head-btns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;max-width:70%}
-.verse-tag{font-family:Georgia,serif;font-size:calc(var(--font-size,17px) * 10 / 17);font-style:italic;color:var(--gm-gold);letter-spacing:1.2px;text-transform:uppercase;opacity:0;padding-top:5px}
-.verse-text{font-size:calc(var(--font-size,17px) * 14.5 / 17);color:#1f1408;line-height:1.85;letter-spacing:-0.3px;margin-bottom:8px;padding:2px 2px 0;opacity:0}
-.verse-ref{font-size:calc(var(--font-size,17px) * 11 / 17);color:#5a3818;font-style:italic;text-align:right;font-family:Georgia,serif;opacity:0;margin-bottom:2px}
-.verse-actions{display:flex;gap:7px;align-items:stretch;margin-top:12px;flex-wrap:wrap}
+.verse-card .verse-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.verse-card .verse-head-btns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0}
+.verse-card .verse-tag{font-family:inherit;font-size:clamp(15px,3.6vw,16px);font-weight:700;font-style:normal;letter-spacing:.02em;color:#6e4d24;text-transform:none;opacity:0;padding-top:0;line-height:1.2}
+.verse-card .verse-text{font-size:clamp(12.5px,2.9vw,14px);color:#1f1a17;line-height:1.32;letter-spacing:-0.1px;margin-bottom:4px;padding:0;opacity:0;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.verse-card .verse-ref{font-size:13px;color:#5b3b20;font-style:normal;text-align:right;font-family:inherit;opacity:0;margin-top:6px;margin-bottom:0;line-height:1.3}
+.verse-card .verse-open-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.verse-card .verse-open-note{flex:1;min-width:110px;font-size:12px;color:#6a5542;line-height:1.35;letter-spacing:-.1px}
+.verse-card .gm-btn-today-open{flex:0 1 auto;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:-.2px;padding:7px 13px;border-radius:12px;cursor:pointer;transition:all .2s;white-space:nowrap;background:linear-gradient(180deg,#bd8737,#9b6426);color:#fffaf0;border:1px solid rgba(150,100,40,.35);box-shadow:0 2px 6px rgba(130,80,25,.12)}
+.verse-card .gm-btn-today-open:hover{filter:brightness(1.04)}
+.verse-card .verse-date-btn{background:transparent;border:1px solid rgba(180,140,90,.42);color:#5a4632;font-family:inherit;font-size:12px;font-weight:500;padding:6px 10px;border-radius:14px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .2s;letter-spacing:-.1px;flex-shrink:0}
+.verse-card .verse-date-btn:hover{background:rgba(200,152,73,.06);border-color:rgba(180,140,90,.55)}
+.verse-card .verse-date-btn svg{stroke:#6a5542;flex-shrink:0;width:11px;height:11px}
+.verse-card .verse-today-btn{background:#f3eadb;color:var(--gm-ink);border:1px solid rgba(180,140,90,.4);font-family:inherit;font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:var(--gm-radius-btn);cursor:pointer;transition:all .2s;letter-spacing:-.1px;box-shadow:0 1px 2px rgba(180,140,90,.12)}
+.verse-card .verse-today-btn:hover{background:#ede2cf;border-color:rgba(180,140,90,.6);box-shadow:0 2px 5px rgba(180,140,90,.2)}
+@media (max-width:375px){
+  .verse-card{padding:14px 16px}
+  .verse-card .verse-tag{font-size:15px}
+  .verse-card .gm-btn-today-open{font-size:13px;padding:7px 13px}
+  .verse-card .verse-open-note{font-size:12px;min-width:100px}
+}
+.audio-pending-badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.88);color:#000;border:1px solid rgba(0,0,0,.08);font-size:10px;font-weight:700;line-height:1;white-space:nowrap;flex-shrink:0}
+/* 말씀풀이 듣기 slim 카드 */
+.commentary-slim-card{display:flex;align-items:center;gap:10px;width:100%;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);box-shadow:var(--gm-card-shadow);padding:10px 12px;margin:4px 0;cursor:pointer;font-family:inherit;text-align:left;transition:all .2s}
+.commentary-slim-card:hover{background:#fffdf5;border-color:#c89849}
+.commentary-slim-icon{width:34px;height:34px;flex-shrink:0;border-radius:var(--gm-radius-btn);background:rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center}
+.commentary-slim-icon svg{width:20px;height:20px;stroke:#000;fill:none;stroke-width:1.6}
+.commentary-slim-info{flex:1;min-width:0}
+.commentary-slim-title-row{display:inline-flex;align-items:center;gap:5px;flex-wrap:nowrap;max-width:100%}
+.commentary-slim-name{font-size:12px;font-weight:600;color:#000;letter-spacing:-.25px;line-height:1.25}
+.commentary-slim-desc{font-size:10px;color:#000;opacity:.72;margin-top:2px;line-height:1.3;letter-spacing:-.1px}
+.commentary-slim-arrow{flex-shrink:0;font-size:15px;color:#000;opacity:.45;font-weight:600}
+@media (max-width:375px){
+  .commentary-slim-title-row{gap:4px}
+  .audio-pending-badge{font-size:9px;padding:2px 5px}
+  .commentary-slim-name{font-size:11.5px}
+}
 .verse-date-btn{background:transparent;border:1px solid rgba(180,140,90,.5);color:var(--gm-ink);font-family:inherit;font-size:11.5px;font-weight:500;padding:6px 11px;border-radius:var(--gm-radius-btn);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;letter-spacing:-.1px;flex-shrink:0}
 .verse-date-btn:hover{background:rgba(200,152,73,.08);border-color:#c89849}
 .verse-date-btn svg{stroke:#7a5828;flex-shrink:0}
@@ -174,7 +233,7 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .verse-hint{display:block;width:100%;margin-top:10px;background:transparent;border:none;font-family:inherit;font-size:11px;color:#8a6332;text-align:center;letter-spacing:-.1px;cursor:pointer;padding:6px 4px;border-radius:var(--gm-radius-btn);transition:background .2s}
 .verse-hint:hover{background:rgba(200,152,73,.08)}
 /* 이어서 읽기 카드 */
-.continue-card{display:flex;align-items:center;gap:12px;width:100%;background:var(--gm-card-bg);border:1px solid var(--gm-card-border);border-radius:var(--gm-radius-card);box-shadow:0 2px 8px rgba(120,85,40,.1);padding:13px 14px;margin-bottom:14px;cursor:pointer;font-family:inherit;text-align:left;transition:all .2s}
+.continue-card{display:flex;align-items:center;gap:12px;width:100%;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);box-shadow:var(--gm-card-shadow);padding:13px 14px;margin-bottom:8px;cursor:pointer;font-family:inherit;text-align:left;transition:all .2s}
 .continue-card:hover{background:#fffdf5;border-color:#c89849}
 .continue-icon{width:38px;height:38px;flex-shrink:0;border-radius:var(--gm-radius-btn);background:linear-gradient(135deg,#f0e0c0,#e2cc9e);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 5px rgba(150,110,55,.2)}
 .continue-icon svg{width:20px;height:20px;stroke:#6e4a1f;fill:none;stroke-width:1.7}
@@ -184,12 +243,16 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .continue-sub{font-size:10.5px;color:#8a6e4a;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .continue-arrow{flex-shrink:0;font-size:16px;color:#a87a35;font-weight:600}
 /* 빠른 메뉴 4칸 */
-.quick-menu{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
-.quick-item{background:var(--gm-card-bg);border:1px solid var(--gm-card-border);border-radius:var(--gm-radius-card);box-shadow:0 1px 4px rgba(120,85,40,.08);padding:11px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-family:inherit;transition:all .2s;min-width:0}
+.quick-menu{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:4px}
+.quick-item{background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);box-shadow:var(--gm-card-shadow);padding:10px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-family:inherit;transition:all .2s;min-width:0}
 .quick-item:hover{background:#fffdf5;border-color:#c89849}
-.quick-item svg{width:21px;height:21px;stroke:#7a5828;fill:none;stroke-width:1.6;flex-shrink:0}
-.quick-name{font-size:12px;font-weight:600;color:#2a1c0c;letter-spacing:-.3px;line-height:1.2;white-space:nowrap}
-.quick-desc{font-size:9px;color:#8a6e4a;letter-spacing:-.2px;line-height:1.2;white-space:nowrap}
+.quick-item svg{width:21px;height:21px;stroke:#000;fill:none;stroke-width:1.6;flex-shrink:0}
+.quick-item:nth-child(1) svg{stroke:#3F2A12}
+.quick-item:nth-child(2) svg{stroke:#234A52}
+.quick-item:nth-child(3) svg{stroke:#354B1F}
+.quick-item:nth-child(4) svg{stroke:#4F2F25}
+.quick-name{font-size:12px;font-weight:600;color:#000;letter-spacing:-.3px;line-height:1.2;white-space:nowrap}
+.quick-desc{font-size:9px;color:#000;opacity:.65;letter-spacing:-.2px;line-height:1.2;white-space:nowrap}
 @media (max-width:340px){.quick-menu{grid-template-columns:repeat(2,1fr)}}
 .verse-cal-box{padding:18px 20px 18px;max-width:340px}
 .verse-cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
@@ -451,12 +514,10 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
     </div>
     <div class="verse-text" id="verse-text">"수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라"</div>
     <div class="verse-ref" id="verse-ref">— 마태복음 11:28</div>
-    <div class="verse-actions">
-      <button type="button" class="gm-btn gm-btn-main" onclick="openDailyVerse('read')" aria-label="오늘의 말씀 읽기">읽기</button>
-      <button type="button" class="gm-btn gm-btn-sub" onclick="openDailyVerse('listen')" aria-label="오늘의 말씀 듣기">듣기</button>
-      <button type="button" class="gm-btn gm-btn-sub" onclick="openDailyVerse('commentary')" aria-label="오늘의 말씀 말씀풀이"><span>말씀풀이</span><span class="gm-badge-9" translate="no">9개 표</span></button>
+    <div class="verse-open-row">
+      <button type="button" class="gm-btn-today-open" onclick="openDailyVerse('read')" aria-label="오늘 말씀 열기">오늘 말씀 열기</button>
+      <span class="verse-open-note">오늘 말씀 기준으로 읽고 묵상하기</span>
     </div>
-    <button type="button" class="verse-hint" onclick="openDailyVerse('commentary')">원어분석 · 역사적배경 · 교차참조까지 9개 표 ›</button>
   </div>
   <div class="quick-menu">
     <button type="button" class="quick-item" onclick="location.href='reader.html'" aria-label="성경읽기">
@@ -476,6 +537,19 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
       <span class="quick-name">보관함</span><span class="quick-desc">저장한 말씀</span>
     </button>
   </div>
+  <button type="button" class="commentary-slim-card" onclick="openMainCommentaryListen()" aria-label="말씀풀이 듣기, 오디오 준비중">
+    <div class="commentary-slim-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M9 7h7M9 11h5"/></svg>
+    </div>
+    <div class="commentary-slim-info">
+      <div class="commentary-slim-title-row">
+        <span class="commentary-slim-name">말씀풀이 듣기</span>
+        <span class="audio-pending-badge">오디오 준비중</span>
+      </div>
+      <div class="commentary-slim-desc">원어·역사·신학·교차참조 9개 표</div>
+    </div>
+    <span class="commentary-slim-arrow" aria-hidden="true">›</span>
+  </button>
   <div class="cards">
     <button type="button" class="card old" onclick="openBible('old')" ontouchstart="" aria-label="구약 39권 장·절로 읽기">
       <div class="card-visual">
@@ -485,12 +559,6 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
       </div>
       <div class="card-label"><div class="card-name">구약 39권</div><div class="card-desc">장·절로 읽기 <span class="card-arrow">›</span></div></div>
     </button>
-    <button type="button" class="card easy" onclick="openEasy()" aria-label="말씀 바로찾기 분류별로 찾기">
-      <div class="card-visual">
-        <div class="card-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
-      </div>
-      <div class="card-label"><div class="card-name" data-i18n-ui="find_word" translate="no">말씀 바로찾기</div><div class="card-desc">분류별로 찾기 <span class="card-arrow">›</span></div></div>
-    </button>
     <button type="button" class="card new" onclick="openBible('new')" ontouchstart="" aria-label="신약 27권 장·절로 읽기">
       <div class="card-visual">
         <div class="book" id="book-new">
@@ -499,25 +567,27 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
       </div>
       <div class="card-label"><div class="card-name">신약 27권</div><div class="card-desc">장·절로 읽기 <span class="card-arrow">›</span></div></div>
     </button>
+    <button type="button" class="card easy" onclick="openEasy()" aria-label="말씀 바로찾기 분류별로 찾기">
+      <div class="card-visual">
+        <div class="card-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
+      </div>
+      <div class="card-label"><div class="card-name" data-i18n-ui="find_word" translate="no">말씀 바로찾기</div><div class="card-desc">분류별로 찾기 <span class="card-arrow">›</span></div></div>
+    </button>
   </div>
+  <div class="search-shell" id="homeSearchShell">
   <form class="search" id="homeSearchForm" onsubmit="submitSearch(event)" onclick="activateSearch()">
     <input id="homeSearchInput" class="search-input" type="search" placeholder="성경 말씀 찾기 (예: 사랑, 믿음, 로마서 8장)" aria-label="성경 검색어 입력" autocomplete="off">
     <button type="submit" class="search-icon search-submit" aria-label="검색 실행"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
   </form>
-  <div class="chips-label" id="topicSection">— 주제별 검색 —</div>
-  <div class="chips">
-    <button class="chip" onclick="topic('사랑')">#사랑</button>
-    <button class="chip" onclick="topic('믿음')">#믿음</button>
-    <button class="chip" onclick="topic('소망')">#소망</button>
-    <button class="chip" onclick="topic('평안')">#평안</button>
-    <button class="chip" onclick="topic('위로')">#위로</button>
-    <button class="chip" onclick="topic('감사')">#감사</button>
-    <button class="chip" onclick="topic('기도')">#기도</button>
-    <button class="chip" onclick="topic('회개')">#회개</button>
-    <button class="chip" onclick="topic('인내')">#인내</button>
-    <button class="chip" onclick="topic('두려움')">#두려움</button>
-    <button class="chip" onclick="topic('외로움')">#외로움</button>
-    <button class="chip" onclick="topic('슬픔')">#슬픔</button>
+  <div class="search-inline-topics" id="searchInlineTopics" aria-label="검색창 안 주제별 검색">
+    <button type="button" class="search-inline-chip" onclick="topic('사랑')">#사랑</button>
+    <button type="button" class="search-inline-chip" onclick="topic('믿음')">#믿음</button>
+    <button type="button" class="search-inline-chip" onclick="topic('소망')">#소망</button>
+    <button type="button" class="search-inline-chip" onclick="topic('평안')">#평안</button>
+    <button type="button" class="search-inline-chip" onclick="topic('위로')">#위로</button>
+    <button type="button" class="search-inline-chip" onclick="topic('감사')">#감사</button>
+    <button type="button" class="search-inline-chip" onclick="topic('기도')">#기도</button>
+  </div>
   </div>
   <div class="welcome" translate="no">
     <div class="welcome-line1" id="welcome1" data-i18n-welcome="line1" data-text="은혜의말씀 안에서"></div>
@@ -815,11 +885,45 @@ function openDailyVerse(mode){
   const url='reader.html?book='+encodeURIComponent(t.book)+'&chapter='+t.chapter;
   window.location.href=url;
 }
+let topicSearchCloseTimer=null;
+function closeInlineTopics(){
+  const shell=document.getElementById('homeSearchShell');
+  const panel=document.getElementById('searchInlineTopics');
+  if(topicSearchCloseTimer){clearTimeout(topicSearchCloseTimer);topicSearchCloseTimer=null;}
+  if(shell)shell.classList.remove('topic-search-open');
+  if(panel)panel.classList.remove('topic-panel-reveal');
+}
 function scrollToTopics(){
-  const el=document.getElementById('topicSection');
-  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-  const input=document.getElementById('homeSearchInput');
-  if(input)setTimeout(function(){try{input.focus({preventScroll:true});}catch(e){input.focus();}},450);
+  const shell=document.getElementById('homeSearchShell');
+  const searchForm=document.getElementById('homeSearchForm');
+  const searchInput=document.getElementById('homeSearchInput');
+  const panel=document.getElementById('searchInlineTopics');
+  const target=shell||searchForm;
+  if(target)target.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(function(){
+    if(searchInput){
+      try{searchInput.focus({preventScroll:true});}catch(e){searchInput.focus();}
+    }
+    if(shell)shell.classList.add('topic-search-open');
+    if(panel){
+      panel.classList.remove('topic-panel-reveal');
+      void panel.offsetWidth;
+      panel.classList.add('topic-panel-reveal');
+    }
+    if(searchForm){
+      searchForm.classList.remove('search-attention');
+      void searchForm.offsetWidth;
+      searchForm.classList.add('search-attention');
+      setTimeout(function(){searchForm.classList.remove('search-attention');},1800);
+    }
+    if(topicSearchCloseTimer)clearTimeout(topicSearchCloseTimer);
+    topicSearchCloseTimer=setTimeout(function(){closeInlineTopics();},6500);
+  },450);
+}
+// TODO: 말씀풀이 오디오 작업 완료 후 audio-pending-badge 제거 및 실제 말씀풀이 오디오 재생으로 연결
+// 현재는 홈에서 직접 호출 가능한 공개 오디오 API가 없어, 임시로 말씀풀이 팝업으로 연결합니다.
+function openMainCommentaryListen(){
+  openDailyVerse('commentary');
 }
 // ─── 이어서 읽기 카드: localStorage gomna_last_read ───
 function _readLastRead(){
@@ -939,7 +1043,14 @@ function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,function(m){retur
 function clickBook(name){window.location.href='reader.html?book='+encodeURIComponent(name);}
 function activateSearch(){const i=document.getElementById('homeSearchInput');if(i)i.focus();}
 function submitSearch(e){if(e)e.preventDefault();const i=document.getElementById('homeSearchInput');const q=i?i.value.trim():'';if(!q){activateSearch();return;}window.location.href='reader.html?q='+encodeURIComponent(q);}
-function topic(name){window.location.href='reader.html?q='+encodeURIComponent(name);}
+function topic(keyword){
+  closeInlineTopics();
+  const input=document.getElementById('homeSearchInput');
+  if(input)input.value=keyword;
+  const form=document.getElementById('homeSearchForm');
+  if(form&&typeof form.requestSubmit==='function'){form.requestSubmit();return;}
+  window.location.href='reader.html?q='+encodeURIComponent(keyword);
+}
 function openSettings(){var p=document.getElementById('settingsPopup');if(p)p.classList.add('show');}
 function closeSettings(){var p=document.getElementById('settingsPopup');if(p)p.classList.remove('show');}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
