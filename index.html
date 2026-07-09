@@ -25,7 +25,7 @@
 <link rel="manifest" href="manifest.json?v=20260603-01">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <script>
-window.GOMNA_ASSET_VERSION = "20260709-home-ui-v11";
+window.GOMNA_ASSET_VERSION = "20260709-home-ui-v14";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -71,7 +71,9 @@ body{background:linear-gradient(170deg,#e2c99f 0%,#d1b995 60%,#c1ac8e 100%);min-
 .card:active{transform:scale(.97)}
 .card.old,.card.new,.card.easy{background:var(--gm-card-bg);color:var(--gm-ink)}
 button.card{border:1px solid var(--gm-card-border);margin:0;font-family:inherit;font-size:inherit;color:inherit;text-align:inherit;line-height:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation;width:100%;-webkit-appearance:none;appearance:none}
-.card-visual{flex:none;width:100%;height:56px;display:flex;align-items:center;justify-content:center;position:relative}
+.card-visual{flex:none;width:100%;height:86px;display:flex;align-items:center;justify-content:center;position:relative}
+.card.old .book,.card.new .book{width:100%;height:100%;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 3px rgba(90,60,25,.2))}
+.home-bible-cover{display:block;width:clamp(72px,96%,96px);height:82px;max-height:82px;margin:auto;object-fit:contain}
 .stage{flex:none;width:100%;height:56px;display:flex;align-items:center;justify-content:center;perspective:900px;position:relative}
 .book{width:40px;height:52px;position:relative;transform-style:preserve-3d;filter:drop-shadow(0 2px 3px rgba(90,60,25,.2))}
 .b-closed{position:absolute;inset:0;border-radius:2px 6px 6px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .35s ease,transform .5s cubic-bezier(.4,0,.2,1);overflow:hidden;padding:0 6px}
@@ -478,8 +480,7 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
     <button type="button" class="card old" onclick="openBible('old')" ontouchstart="" aria-label="구약 39권 장·절로 읽기">
       <div class="card-visual">
         <div class="book" id="book-old">
-          <div class="b-closed faded"><div class="b-title-en">HOLY<br>BIBLE</div><div class="b-line-en"></div><div class="b-sub-en">Korean Revised</div></div>
-          <div class="b-open"><div class="b-page left"></div><div class="b-page right"></div></div>
+          <img class="home-bible-cover" src="images/home/bible-old.png" alt="" aria-hidden="true" decoding="async">
         </div>
       </div>
       <div class="card-label"><div class="card-name">구약 39권</div><div class="card-desc">장·절로 읽기 <span class="card-arrow">›</span></div></div>
@@ -493,8 +494,7 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
     <button type="button" class="card new" onclick="openBible('new')" ontouchstart="" aria-label="신약 27권 장·절로 읽기">
       <div class="card-visual">
         <div class="book" id="book-new">
-          <div class="b-closed rose"><div class="b-title-en">HOLY<br>BIBLE</div><div class="b-line-en"></div><div class="b-sub-en">Korean Revised</div></div>
-          <div class="b-open"><div class="b-page left"></div><div class="b-page right"></div></div>
+          <img class="home-bible-cover" src="images/home/bible-new.png" alt="" aria-hidden="true" decoding="async">
         </div>
       </div>
       <div class="card-label"><div class="card-name">신약 27권</div><div class="card-desc">장·절로 읽기 <span class="card-arrow">›</span></div></div>
