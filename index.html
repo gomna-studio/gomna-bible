@@ -25,7 +25,7 @@
 <link rel="manifest" href="manifest.json?v=20260603-01">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <script>
-window.GOMNA_ASSET_VERSION = "20260709-home-ui-v16";
+window.GOMNA_ASSET_VERSION = "20260709-home-ui-v18";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -797,6 +797,16 @@ function openDailyVerse(mode){
     params.set('endVerse','1');
     params.set('listen','1');
     params.set('source','home-main-listen');
+    window.location.href='reader.html?'+params.toString();
+    return;
+  }
+  if(mode==='commentary'){
+    const params=new URLSearchParams();
+    params.set('book','창세기');
+    params.set('chapter','1');
+    params.set('verse','1');
+    params.set('commentary','1');
+    params.set('source','home-main-commentary');
     window.location.href='reader.html?'+params.toString();
     return;
   }

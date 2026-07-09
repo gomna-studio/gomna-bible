@@ -126,6 +126,7 @@ body[data-i18n-mode="foreign"] .consonant-btn.cat-btn .cat-label{font-size:14.5p
 .fav-item .remove-btn{background:#FFEBEE;border:1px solid #FFCDD2;color:#C62828;padding:6px 14px;border-radius:18px;font-size:11px;font-family:inherit;cursor:pointer}
 .popup-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;justify-content:center;align-items:center}
 .popup-overlay.show{display:flex}
+html.gomna-home-commentary-loading body{overflow:hidden}
 .popup-box{background:#fff;border-radius:20px;padding:28px 24px;width:90%;max-width:420px;max-height:90vh;overflow-y:auto;text-align:center}
 .popup-title{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--primary)}
 .font-control{display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:28px}
@@ -532,6 +533,27 @@ if ("serviceWorker" in navigator) {
     <div style="padding:0 20px 20px;"><button class="popup-close" onclick="closeCommentary()" style="width:100%;">닫기</button></div>
   </div>
 </div>
+<script>
+(function(){
+  'use strict';
+  try{
+    var p=new URLSearchParams(location.search);
+    if(p.get('commentary')!=='1'||p.get('source')!=='home-main-commentary')return;
+    var book=(p.get('book')||'').trim();
+    var chapter=parseInt(p.get('chapter'),10);
+    var verse=parseInt(p.get('verse')||'1',10);
+    if(!book||!chapter||isNaN(verse))return;
+    window.__GOMNA_HOME_COMMENTARY_PENDING={book:book,chapter:chapter,verse:verse};
+    document.documentElement.classList.add('gomna-home-commentary-loading');
+    var ttl=document.getElementById('commentaryTitle');
+    var cnt=document.getElementById('commentaryContent');
+    var pop=document.getElementById('commentaryPopup');
+    if(ttl)ttl.textContent='📖 말씀풀이';
+    if(cnt)cnt.innerHTML='<div class="empty-state"><div class="icon">📖</div><div class="msg">말씀풀이를 준비하는 중...</div></div>';
+    if(pop)pop.classList.add('show');
+  }catch(e){}
+})();
+</script>
 <div class="popup-overlay" id="versePopup" onclick="closeVersePopup()">
   <div class="popup-box" onclick="event.stopPropagation()" style="text-align:left; max-height:70vh;">
     <div style="background:linear-gradient(135deg,#2E7D32,#4CAF50); margin:-28px -24px 16px; padding:16px 20px; border-radius:20px 20px 0 0; display:flex; justify-content:space-between; align-items:center;">
@@ -2569,6 +2591,56 @@ function loadAds() {
     </div>
   </div>
 </div>
+<script>
+/* ── home commentary: 첫페이지 말씀풀이 → reader 자동 팝업 ── */
+(function(){
+  'use strict';
+  var pending=window.__GOMNA_HOME_COMMENTARY_PENDING||null;
+  var opened=false;
+  var retryCount=0;
+  var MAX_RETRY=40;
+  if(!pending){
+    try{
+      var p=new URLSearchParams(location.search);
+      if(p.get('commentary')==='1'&&p.get('source')==='home-main-commentary'){
+        pending={
+          book:(p.get('book')||'').trim(),
+          chapter:parseInt(p.get('chapter'),10),
+          verse:parseInt(p.get('verse')||'1',10)
+        };
+      }
+    }catch(e){}
+  }
+  if(!pending||!pending.book||!pending.chapter||isNaN(pending.verse))return;
+
+  function finishLoading(){
+    document.documentElement.classList.remove('gomna-home-commentary-loading');
+  }
+
+  function tryOpen(){
+    if(opened||retryCount++>MAX_RETRY)return;
+    if(!window.currentBook||window.currentBook.name!==pending.book)return;
+    if(Number(window.currentChapter)!==pending.chapter)return;
+    var list=document.getElementById('verseList');
+    if(!list||!list.querySelector('.verse-item[data-verse="'+pending.verse+'"]'))return;
+    if(typeof showCommentary!=='function')return;
+    opened=true;
+    finishLoading();
+    showCommentary(pending.verse);
+  }
+
+  function scheduleTry(){
+    tryOpen();
+    setTimeout(tryOpen,80);
+    setTimeout(tryOpen,400);
+    setTimeout(tryOpen,1000);
+    setTimeout(tryOpen,2500);
+  }
+
+  window.addEventListener('gomna:verse_list_rendered',scheduleTry);
+  if(document.readyState!=='loading')scheduleTry();
+})();
+</script>
 <script>
 /* ── home listen: 첫페이지 듣기 → reader 자동 재생 ── */
 (function(){
