@@ -2569,5 +2569,49 @@ function loadAds() {
     </div>
   </div>
 </div>
+<script>
+/* ── home-ui-v1: 마지막 읽은 위치(gomna_last_read) + 방문일(gomna_visit_days) 저장 ──
+   기존 로직은 수정하지 않고, 장 렌더링 완료 시 발생하는
+   'gomna:verse_list_rendered' 이벤트만 구독해서 저장한다. */
+(function(){
+  'use strict';
+  function saveLastRead(bookName, chapter){
+    try{
+      if(!bookName || !chapter) return;
+      localStorage.setItem('gomna_last_read', JSON.stringify({
+        book: String(bookName),
+        chapter: Number(chapter),
+        verse: 1,
+        timestamp: Date.now()
+      }));
+    }catch(e){ /* storage 불가 환경 무시 */ }
+  }
+  function saveVisitDay(){
+    try{
+      var now = new Date();
+      var key = now.getFullYear() + '-' +
+        String(now.getMonth()+1).padStart(2,'0') + '-' +
+        String(now.getDate()).padStart(2,'0');
+      var raw = localStorage.getItem('gomna_visit_days');
+      var days = [];
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(Array.isArray(parsed)) days = parsed;
+      }
+      if(days.indexOf(key) === -1){
+        days.push(key);
+        localStorage.setItem('gomna_visit_days', JSON.stringify(days));
+      }
+    }catch(e){ /* storage 불가 환경 무시 */ }
+  }
+  window.addEventListener('gomna:verse_list_rendered', function(e){
+    var d = e && e.detail;
+    var bookName = (d && d.bookName) || (window.currentBook && window.currentBook.name);
+    var chapter = (d && d.chapter) || window.currentChapter;
+    saveLastRead(bookName, chapter);
+  });
+  saveVisitDay();
+})();
+</script>
 </body>
 </html>
