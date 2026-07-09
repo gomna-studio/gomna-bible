@@ -2282,7 +2282,7 @@ function changeFont(delta) {
 </div><script src="analytics.js"></script>
 <script src="/js/audio-config.js?v=20260604-1830" defer></script>
 <script src="/js/audio-engine.js?v=20260604-1830" defer></script>
-<script src="/js/gomna-audio-listen-button.js?v=20260604-1830" defer></script>
+<script src="/js/gomna-audio-listen-button.js?v=20260709-home-listen-v2" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260604-1830" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=20260604-1830" defer></script>
 <script src="/js/gomna-audio-ui.js?v=20260703-jump-to-verse" defer></script>
@@ -2569,6 +2569,105 @@ function loadAds() {
     </div>
   </div>
 </div>
+<script>
+/* ── home listen: 첫페이지 듣기 → reader 자동 재생 ── */
+(function(){
+  'use strict';
+  var pending=null;
+  var retryCount=0;
+  var MAX_RETRY=40;
+  var playbackRequested=false;
+  try{
+    var p=new URLSearchParams(location.search);
+    var src=p.get('source');
+    if(p.get('listen')==='1'&&(src==='home-daily'||src==='home-main-listen')){
+      pending={
+        book:(p.get('book')||'').trim(),
+        chapter:parseInt(p.get('chapter'),10),
+        startVerse:parseInt(p.get('startVerse')||p.get('verse'),10),
+        endVerse:parseInt(p.get('endVerse')||p.get('startVerse')||p.get('verse'),10),
+        verse:parseInt(p.get('verse')||p.get('startVerse'),10)
+      };
+    }
+  }catch(e){}
+  if(!pending||!pending.book||!pending.chapter||isNaN(pending.startVerse)||isNaN(pending.endVerse))return;
+
+  function showAutoplayHelp(verse){
+    var msg='오디오 시작을 위해 듣기 버튼을 한 번 더 눌러주세요.';
+    if(typeof window.GOMNA_AUDIO_TOAST==='function')window.GOMNA_AUDIO_TOAST(msg);
+    focusListenButton(verse);
+  }
+
+  function focusListenButton(verse){
+    var item=document.querySelector('.verse-item[data-verse="'+verse+'"]');
+    if(!item)return;
+    try{item.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){item.scrollIntoView();}
+    setTimeout(function(){
+      var btn=item.querySelector('.gomna-audio-verse-button');
+      if(btn){
+        try{btn.focus({preventScroll:true});}catch(e){btn.focus();}
+      }
+    },350);
+  }
+
+  function manifestReady(){
+    var c=window.GOMNA_AUDIO_CONFIG;
+    return !!(c&&c.manifestLoadStatus==='loaded'&&c.manifestData);
+  }
+
+  function tryPlay(){
+    if(playbackRequested||retryCount++>MAX_RETRY)return;
+    if(!window.currentBook||window.currentBook.name!==pending.book)return;
+    if(Number(window.currentChapter)!==pending.chapter)return;
+    if(!manifestReady())return;
+    var bookId=window.GOMNA_AUDIO_BOOK&&window.GOMNA_AUDIO_BOOK.getBookAudioId
+      ?window.GOMNA_AUDIO_BOOK.getBookAudioId(pending.book):null;
+    if(!bookId)return;
+    var engine=window.GOMNA_AUDIO_ENGINE;
+    if(!engine||!engine.playAudioRange)return;
+    var item=document.querySelector('.verse-item[data-verse="'+pending.startVerse+'"]');
+    if(!item)return;
+
+    playbackRequested=true;
+    focusListenButton(pending.startVerse);
+
+    function cleanup(){
+      window.removeEventListener('audio:start',onStart);
+      window.removeEventListener('audio:error',onError);
+    }
+    function onStart(){
+      cleanup();
+    }
+    function onError(e){
+      var d=e&&e.detail;
+      if(d&&(d.reason==='play_rejected'||d.reason==='play_error')){
+        cleanup();
+        playbackRequested=false;
+        showAutoplayHelp(pending.startVerse);
+      }
+    }
+    window.addEventListener('audio:start',onStart);
+    window.addEventListener('audio:error',onError);
+
+    var started=engine.playAudioRange(bookId,pending.chapter,pending.startVerse,pending.endVerse);
+    if(!started){
+      cleanup();
+      playbackRequested=false;
+      showAutoplayHelp(pending.startVerse);
+    }
+  }
+
+  function scheduleTry(){
+    setTimeout(tryPlay,80);
+    setTimeout(tryPlay,600);
+    setTimeout(tryPlay,1500);
+    setTimeout(tryPlay,3000);
+  }
+
+  window.addEventListener('gomna:verse_list_rendered',scheduleTry);
+  window.addEventListener('gomna:manifest_loaded',scheduleTry);
+})();
+</script>
 <script>
 /* ── home-ui-v1: 마지막 읽은 위치(gomna_last_read) + 방문일(gomna_visit_days) 저장 ──
    기존 로직은 수정하지 않고, 장 렌더링 완료 시 발생하는

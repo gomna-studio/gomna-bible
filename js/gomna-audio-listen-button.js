@@ -440,5 +440,9 @@
   window.addEventListener('audio:error', syncVerseButtonLabels);
   window.addEventListener('gomna:bible_resume_session_changed', syncVerseButtonLabels);
 
+  window.GOMNA_AUDIO_BOOK = {
+    getBookAudioId: getBookAudioId
+  };
+
   console.log('[GOMNA_AUDIO] gomna-audio-listen-button.js loaded');
 })();

@@ -25,7 +25,7 @@
 <link rel="manifest" href="manifest.json?v=20260603-01">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <script>
-window.GOMNA_ASSET_VERSION = "20260709-home-ui-v14";
+window.GOMNA_ASSET_VERSION = "20260709-home-ui-v16";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -780,19 +780,29 @@ window.__gomnaOnLangApplied=function(){
 // ─── 오늘의 말씀 버튼: 책/장 파싱 후 reader.html 이동 (1차: 직접 재생/팝업 없음) ───
 function getDailyVerseTarget(){
   const v=getVerseForDate(_selectedDate||new Date());
-  const m=(v&&v.r||'').match(/^(.+)\s+(\d+):/);
+  const r=(v&&v.r||'').trim();
+  const m=r.match(/^(.+?)\s+(\d+):(\d+)(?:-(\d+))?$/);
   if(!m)return null;
-  return{book:m[1],chapter:parseInt(m[2],10)};
+  const startVerse=parseInt(m[3],10);
+  const endVerse=m[4]?parseInt(m[4],10):startVerse;
+  return{book:m[1].trim(),chapter:parseInt(m[2],10),verse:startVerse,startVerse,endVerse};
 }
 function openDailyVerse(mode){
+  if(mode==='listen'){
+    const params=new URLSearchParams();
+    params.set('book','창세기');
+    params.set('chapter','1');
+    params.set('verse','1');
+    params.set('startVerse','1');
+    params.set('endVerse','1');
+    params.set('listen','1');
+    params.set('source','home-main-listen');
+    window.location.href='reader.html?'+params.toString();
+    return;
+  }
   const t=getDailyVerseTarget();
   if(!t){window.location.href='reader.html';return;}
   const url='reader.html?book='+encodeURIComponent(t.book)+'&chapter='+t.chapter;
-  if(mode==='listen'){
-    toast('오디오는 성경 읽기 화면에서 들을 수 있습니다.');
-    setTimeout(function(){window.location.href=url;},900);
-    return;
-  }
   window.location.href=url;
 }
 function scrollToTopics(){
