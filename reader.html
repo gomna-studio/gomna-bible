@@ -10,7 +10,7 @@
 <meta name="description" content="은혜의말씀 - 성경 66권 절별 목회주석 앱. 원어분석·역사적배경·신학적의미·설교자료 제공">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script>/* Dock class bootstrap: preview=forced mockup, mobile=JS sync aid */(function(){try{var p=new URLSearchParams(location.search);var preview=((p.get('dockPreview')||'').trim()==='1');var mobile=window.matchMedia&&window.matchMedia('(max-width:768px)').matches;if(preview){document.documentElement.classList.add('reader-dock-preview','reader-dock-active');}else if(mobile){document.documentElement.classList.add('reader-dock-active');}}catch(e){}})();</script>
+<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');}catch(e){}})();</script>
 <meta name="theme-color" content="#a87a35">
 <!-- Open Graph 메타 태그 (공유용) -->
 <meta property="og:title" content="은혜의말씀">
@@ -178,7 +178,7 @@ html.gomna-home-commentary-loading body{overflow:hidden}
 html.reader-hide-chrome #appTopChrome{display:none!important}
 .reader-sheet-tabs{display:none;flex-wrap:nowrap;align-items:flex-end;gap:14px;padding:12px 14px 0;background:#faf6ed;border-bottom:0.5px solid rgba(180,140,90,.3);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;position:sticky;top:0;z-index:90;box-sizing:border-box}
 .reader-sheet-tabs::-webkit-scrollbar{display:none}
-html.reader-hide-chrome .reader-sheet-tabs{display:flex}
+html.reader-hide-chrome .reader-sheet-tabs{display:none!important}
 .reader-sheet-tabs .reader-tab{font-size:17px;font-weight:600;color:#5a3818;padding:8px 2px 12px;background:none;border:none;font-family:inherit;cursor:pointer;white-space:nowrap;position:relative;flex-shrink:0;min-height:44px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .15s ease, opacity .15s ease, background-color .15s ease;border-radius:8px}
 .reader-sheet-tabs .reader-tab.active{color:#3d2818;font-weight:600}
 .reader-sheet-tabs .reader-tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2.5px;background:#8b5e2c;border-radius:1.5px}
@@ -302,16 +302,10 @@ html.reader-verse-active main.content{padding-bottom:70px}
   --scripture-dock-inactive:#6A4A2E;
   --scripture-dock-active-color:#8A5A22;
 }
-/* Premium Scripture Dock — display policy
- * 1) Desktop (>768px), no dockPreview → legacy reader-sheet-tabs
- * 2) Any width + dockPreview=1 → html.reader-dock-preview forces dock mockup
- * 3) Mobile (≤768px) → html.reader-hide-chrome official dock (no param required)
- */
+/* Premium Scripture Dock — v72 official UI on all reader.html viewports */
 .scripture-dock{display:none}
 .reader-dock-top{display:none}
-@media (max-width:768px){
-  /* Mobile official dock */
-  html.reader-hide-chrome .phone-frame{
+html.reader-hide-chrome .phone-frame{
     background:linear-gradient(180deg,#F0E4CD 0%,#EBDDC2 100%);
     min-height:100dvh;
   }
@@ -488,188 +482,8 @@ html.reader-verse-active main.content{padding-bottom:70px}
   html.reader-hide-chrome body.gomna-audio-body-padding .verse-list{
     padding-bottom:calc(var(--scripture-dock-height) + 112px + env(safe-area-inset-bottom,0px));
   }
-}
-/* dockPreview=1 — MacBook/desktop design review: dock at any viewport width */
-html.reader-dock-preview .phone-frame{
-  background:linear-gradient(180deg,#F0E4CD 0%,#EBDDC2 100%);
-  min-height:100dvh;
-}
-html.reader-dock-preview .reader-sheet-tabs{display:none!important}
-html.reader-dock-preview .scripture-dock{
-  display:flex;
-  position:fixed;
-  bottom:0;
-  left:50%;
-  transform:translateX(-50%);
-  width:100%;
-  max-width:480px;
-  z-index:96;
-  align-items:stretch;
-  justify-content:space-around;
-  gap:2px;
-  padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));
-  box-sizing:border-box;
-  background:rgba(244,232,205,.88);
-  backdrop-filter:blur(18px) saturate(125%);
-  -webkit-backdrop-filter:blur(18px) saturate(125%);
-  border-top:.5px solid rgba(200,170,120,.38);
-  box-shadow:0 -1px 0 rgba(255,252,245,.55) inset;
-}
-html.reader-dock-preview .scripture-dock-item{
-  flex:1;
-  min-width:0;
-  max-width:76px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:3px;
-  padding:6px 4px 4px;
-  border:none;
-  background:transparent;
-  color:rgba(90,62,34,.62);
-  font-family:inherit;
-  cursor:pointer;
-  border-radius:14px;
-  touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent;
-  transition:color .2s ease,background .2s ease,transform .15s ease;
-}
-html.reader-dock-preview .scripture-dock-item:active{
-  transform:scale(.94);
-  background:rgba(230,210,170,.45);
-}
-html.reader-dock-preview .scripture-dock-icon{
-  width:22px;
-  height:22px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-}
-html.reader-dock-preview .scripture-dock-icon svg{
-  width:21px;
-  height:21px;
-  stroke:currentColor;
-  fill:none;
-  stroke-width:1.55;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-}
-html.reader-dock-preview .scripture-dock-label{
-  font-size:10px;
-  font-weight:500;
-  letter-spacing:-.2px;
-  line-height:1.1;
-  white-space:nowrap;
-}
-html.reader-dock-preview .scripture-dock-item.active{
-  color:var(--gm-gold-deep);
-  background:rgba(234,216,176,.52);
-}
-html.reader-dock-preview .scripture-dock-item.active .scripture-dock-label{
-  font-weight:600;
-}
-html.reader-dock-preview .scripture-dock-item.active .scripture-dock-icon::after{
-  content:'';
-  position:absolute;
-  top:-5px;
-  left:50%;
-  transform:translateX(-50%);
-  width:4px;
-  height:4px;
-  border-radius:50%;
-  background:var(--gm-gold);
-  opacity:.85;
-}
-html.reader-dock-preview .reader-dock-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:10px 14px 8px;
-  background:rgba(244,232,205,.72);
-  border-bottom:.5px solid rgba(200,170,120,.28);
-  position:sticky;
-  top:0;
-  z-index:89;
-  box-sizing:border-box;
-}
-html.reader-dock-preview.reader-verse-active .reader-dock-top{display:none}
-html.reader-dock-preview .reader-dock-top-title{
-  flex:1;
-  min-width:0;
-  font-size:15px;
-  font-weight:600;
-  color:var(--gm-ink);
-  letter-spacing:-.25px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-html.reader-dock-preview .reader-dock-top-actions{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  flex-shrink:0;
-}
-html.reader-dock-preview .reader-dock-top-pill{
-  padding:5px 10px;
-  border-radius:20px;
-  border:.5px solid rgba(180,140,90,.32);
-  background:rgba(252,243,223,.72);
-  color:var(--gm-gold);
-  font-size:11px;
-  font-weight:600;
-  font-family:inherit;
-  cursor:pointer;
-  white-space:nowrap;
-}
-html.reader-dock-preview .reader-dock-top-pill.active{
-  background:rgba(200,152,73,.22);
-  border-color:rgba(139,94,44,.42);
-  color:var(--gm-gold-deep);
-}
-html.reader-dock-preview .reader-dock-top-close{
-  width:34px;
-  height:34px;
-  border:none;
-  border-radius:50%;
-  background:rgba(139,94,44,.12);
-  color:var(--gm-ink);
-  font-size:15px;
-  line-height:1;
-  cursor:pointer;
-  flex-shrink:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-html.reader-dock-preview main.content{
-  padding-bottom:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px) + 12px);
-  scroll-padding-bottom:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px) + 12px);
-}
-html.reader-dock-preview.reader-verse-active .opt4-bottom-bar{
-  bottom:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px));
-}
-html.reader-dock-preview.reader-verse-active main.content{
-  padding-bottom:calc(var(--scripture-dock-height) + 70px + env(safe-area-inset-bottom,0px) + 8px);
-}
-html.reader-dock-preview{
-  --gomna-audio-bottom-bar-height:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px));
-}
-html.reader-dock-preview.reader-verse-active{
-  --gomna-audio-bottom-bar-height:calc(var(--scripture-dock-height) + 58px + env(safe-area-inset-bottom,0px));
-}
-html.reader-dock-preview body.gomna-audio-body-padding main.content{
-  padding-bottom:calc(var(--scripture-dock-height) + 112px + env(safe-area-inset-bottom,0px));
-}
-html.reader-dock-preview body.gomna-audio-body-padding .verse-list{
-  padding-bottom:calc(var(--scripture-dock-height) + 112px + env(safe-area-inset-bottom,0px));
-}
-/* Dock v69 — frame-width alignment, contrast, verse bottom spacing */
-@media (max-width:768px){
-  html.reader-hide-chrome .scripture-dock{
+/* Dock v69/v70 — frame-width alignment, contrast, verse spacing, pill size */
+html.reader-hide-chrome .scripture-dock{
     width:min(100%,var(--reader-frame-width));
     max-width:var(--reader-frame-width);
     left:50%;
@@ -730,80 +544,11 @@ html.reader-dock-preview body.gomna-audio-body-padding .verse-list{
   html.reader-hide-chrome.reader-verse-active{
     --gomna-audio-bottom-bar-height:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px));
   }
-  /* Dock top pills v70 — slightly larger 구약/신약 */
-  html.reader-hide-chrome .reader-dock-top-pill{
-    font-size:12px;
-    padding:6px 13px;
-    min-height:28px;
-  }
-}
-html.reader-dock-preview .scripture-dock{
-  width:min(100%,var(--reader-frame-width));
-  max-width:var(--reader-frame-width);
-  left:50%;
-  right:auto;
-  transform:translateX(-50%);
-  margin:0;
-}
-html.reader-dock-preview .scripture-dock-item{
-  color:var(--scripture-dock-inactive);
-  max-width:none;
-  flex:1;
-}
-html.reader-dock-preview .scripture-dock-icon{
-  color:var(--scripture-dock-inactive);
-}
-html.reader-dock-preview .scripture-dock-icon svg{
-  stroke:currentColor;
-  stroke-width:1.7;
-}
-html.reader-dock-preview .scripture-dock-label{
-  color:var(--scripture-dock-inactive);
-  font-weight:600;
-}
-html.reader-dock-preview .scripture-dock-item.active{
-  color:var(--scripture-dock-active-color);
-  background:rgba(228,208,168,.62);
-}
-html.reader-dock-preview .scripture-dock-item.active .scripture-dock-icon,
-html.reader-dock-preview .scripture-dock-item.active .scripture-dock-label{
-  color:var(--scripture-dock-active-color);
-}
-html.reader-dock-preview .scripture-dock-item.active .scripture-dock-label{
-  font-weight:700;
-}
-html.reader-dock-preview .scripture-dock-item.active .scripture-dock-icon::after{
-  background:var(--scripture-dock-active-color);
-  opacity:1;
-}
-html.reader-dock-preview.reader-verse-active .opt4-bottom-bar{
-  width:min(100%,var(--reader-frame-width));
-  max-width:var(--reader-frame-width);
-  left:50%;
-  right:auto;
-  transform:translateX(-50%);
-  margin:0;
-  bottom:calc(var(--scripture-dock-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px));
-  padding-bottom:10px;
-  border-radius:14px 14px 0 0;
-  box-shadow:0 -1px 0 rgba(200,170,120,.24);
-}
-html.reader-dock-preview.reader-verse-active main.content{
-  padding-bottom:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px) + 20px);
-  scroll-padding-bottom:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px) + 20px);
-}
-html.reader-dock-preview.reader-verse-active .verse-list{
-  padding-bottom:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px) + 16px);
-}
-html.reader-dock-preview.reader-verse-active{
-  --gomna-audio-bottom-bar-height:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px));
-}
-html.reader-dock-preview .reader-dock-top-pill{
+html.reader-hide-chrome .reader-dock-top-pill{
   font-size:12px;
   padding:6px 13px;
   min-height:28px;
 }
-
 </style>
 <script type="application/ld+json">
 {
@@ -824,7 +569,7 @@ html.reader-dock-preview .reader-dock-top-pill{
 <link rel="manifest" href="manifest.json?v=20260704-pwa-cache-fix">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260604-1830">
-<script src="gomna_category_feature.js" defer></script>
+<script src="gomna_category_feature.js?v=20260710-scripture-guide-all-v90" defer></script>
 <script>
 window.GOMNA_ASSET_VERSION = "20260704-pwa-cache-fix";
 if ("serviceWorker" in navigator) {
@@ -835,7 +580,7 @@ if ("serviceWorker" in navigator) {
 <body>
 <!-- haptic-tap-feedback -->
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
-<script>/* Keep dock classes in sync on load/resize — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function isReaderMobileViewport(){try{return!!(window.matchMedia&&window.matchMedia('(max-width:768px)').matches);}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;var preview=isReaderDockPreviewMode();var mobile=isReaderMobileViewport();root.classList.toggle('reader-dock-preview',preview);root.classList.toggle('reader-dock-active',preview||mobile);}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',syncReaderDockModeEarly);window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
+<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',syncReaderDockModeEarly);window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
 <div class="phone-frame"><div id="appTopChrome"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
   <span class="gs-text">Gomna Studio, Inc.</span>
   <span class="gs-arrow">↗</span>
@@ -1210,15 +955,12 @@ function isReaderMobileViewport() {
   }
 }
 
-/* reader-dock-preview: dockPreview=1 mockup at any width
- * reader-hide-chrome + @media: mobile official dock without param */
+/* v72: reader.html official dock on all viewports */
 function syncReaderDockMode() {
   try {
     var root = document.documentElement;
-    var preview = isReaderDockPreviewMode();
-    var mobile = isReaderMobileViewport();
-    root.classList.toggle('reader-dock-preview', preview);
-    root.classList.toggle('reader-dock-active', preview || mobile);
+    root.classList.add('reader-dock-active');
+    root.classList.toggle('reader-dock-preview', isReaderDockPreviewMode());
     syncScriptureDockActive();
   } catch (e) {}
 }
@@ -1235,7 +977,7 @@ function syncReaderNavActive() {
 
 function isScriptureDockEnabled() {
   try {
-    return isReaderMobileViewport() || isReaderDockPreviewMode() || document.documentElement.classList.contains('reader-dock-active');
+    return document.documentElement.classList.contains('reader-hide-chrome');
   } catch (e) {
     return false;
   }
