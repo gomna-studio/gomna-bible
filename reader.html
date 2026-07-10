@@ -10,6 +10,7 @@
 <meta name="description" content="은혜의말씀 - 성경 66권 절별 목회주석 앱. 원어분석·역사적배경·신학적의미·설교자료 제공">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{var p=new URLSearchParams(location.search);var preview=((p.get('dockPreview')||'').trim()==='1');var mobile=window.matchMedia&&window.matchMedia('(max-width:768px)').matches;if(preview){document.documentElement.classList.add('reader-dock-preview','reader-dock-active');}else if(mobile){document.documentElement.classList.add('reader-dock-active');}}catch(e){}})();</script>
 <meta name="theme-color" content="#a87a35">
 <!-- Open Graph 메타 태그 (공유용) -->
 <meta property="og:title" content="은혜의말씀">
@@ -287,6 +288,463 @@ html.reader-verse-active main.content{padding-bottom:70px}
 .verse-read-more-item{display:block;width:100%;padding:16px;border:none;border-bottom:1px solid #eee;background:transparent;text-align:left;font-size:15px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit}
 .verse-read-more-item:last-of-type{border-bottom:none}
 
+/* ── Premium Scripture Dock (mobile mockup) ── */
+:root{
+  --gm-ink:#3d2818;
+  --gm-gold:#8b5e2c;
+  --gm-gold-deep:#6e4a1f;
+  --gm-cream:#F6EBD2;
+  --gm-champagne:rgba(246,235,210,.94);
+  --reader-frame-width:420px;
+  --scripture-dock-height:68px;
+  --scripture-dock-gap:10px;
+  --opt4-bottom-bar-height:58px;
+  --scripture-dock-inactive:#6A4A2E;
+  --scripture-dock-active-color:#8A5A22;
+}
+.scripture-dock{display:none}
+.reader-dock-top{display:none}
+@media (max-width:768px){
+  html.reader-dock-active .phone-frame{
+    background:linear-gradient(180deg,#F0E4CD 0%,#EBDDC2 100%);
+    min-height:100dvh;
+  }
+  html.reader-dock-active .reader-sheet-tabs{display:none!important}
+  html.reader-dock-active .scripture-dock{
+    display:flex;
+    position:fixed;
+    bottom:0;
+    left:50%;
+    transform:translateX(-50%);
+    width:100%;
+    max-width:480px;
+    z-index:96;
+    align-items:stretch;
+    justify-content:space-around;
+    gap:2px;
+    padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));
+    box-sizing:border-box;
+    background:rgba(244,232,205,.88);
+    backdrop-filter:blur(18px) saturate(125%);
+    -webkit-backdrop-filter:blur(18px) saturate(125%);
+    border-top:.5px solid rgba(200,170,120,.38);
+    box-shadow:0 -1px 0 rgba(255,252,245,.55) inset;
+  }
+  html.reader-dock-active .scripture-dock-item{
+    flex:1;
+    min-width:0;
+    max-width:76px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+    padding:6px 4px 4px;
+    border:none;
+    background:transparent;
+    color:rgba(90,62,34,.62);
+    font-family:inherit;
+    cursor:pointer;
+    border-radius:14px;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+    transition:color .2s ease,background .2s ease,transform .15s ease;
+  }
+  html.reader-dock-active .scripture-dock-item:active{
+    transform:scale(.94);
+    background:rgba(230,210,170,.45);
+  }
+  html.reader-dock-active .scripture-dock-icon{
+    width:22px;
+    height:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+  html.reader-dock-active .scripture-dock-icon svg{
+    width:21px;
+    height:21px;
+    stroke:currentColor;
+    fill:none;
+    stroke-width:1.55;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  html.reader-dock-active .scripture-dock-label{
+    font-size:10px;
+    font-weight:500;
+    letter-spacing:-.2px;
+    line-height:1.1;
+    white-space:nowrap;
+  }
+  html.reader-dock-active .scripture-dock-item.active{
+    color:var(--gm-gold-deep);
+    background:rgba(234,216,176,.52);
+  }
+  html.reader-dock-active .scripture-dock-item.active .scripture-dock-label{
+    font-weight:600;
+  }
+  html.reader-dock-active .scripture-dock-item.active .scripture-dock-icon::after{
+    content:'';
+    position:absolute;
+    top:-5px;
+    left:50%;
+    transform:translateX(-50%);
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background:var(--gm-gold);
+    opacity:.85;
+  }
+  html.reader-dock-active .reader-dock-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px 14px 8px;
+    background:rgba(244,232,205,.72);
+    border-bottom:.5px solid rgba(200,170,120,.28);
+    position:sticky;
+    top:0;
+    z-index:89;
+    box-sizing:border-box;
+  }
+  html.reader-dock-active.reader-verse-active .reader-dock-top{display:none}
+  html.reader-dock-active .reader-dock-top-title{
+    flex:1;
+    min-width:0;
+    font-size:15px;
+    font-weight:600;
+    color:var(--gm-ink);
+    letter-spacing:-.25px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  html.reader-dock-active .reader-dock-top-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-shrink:0;
+  }
+  html.reader-dock-active .reader-dock-top-pill{
+    padding:5px 10px;
+    border-radius:20px;
+    border:.5px solid rgba(180,140,90,.32);
+    background:rgba(252,243,223,.72);
+    color:var(--gm-gold);
+    font-size:11px;
+    font-weight:600;
+    font-family:inherit;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  html.reader-dock-active .reader-dock-top-pill.active{
+    background:rgba(200,152,73,.22);
+    border-color:rgba(139,94,44,.42);
+    color:var(--gm-gold-deep);
+  }
+  html.reader-dock-active .reader-dock-top-close{
+    width:34px;
+    height:34px;
+    border:none;
+    border-radius:50%;
+    background:rgba(139,94,44,.12);
+    color:var(--gm-ink);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  html.reader-dock-active main.content{
+    padding-bottom:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px) + 12px);
+    scroll-padding-bottom:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px) + 12px);
+  }
+  html.reader-dock-active.reader-verse-active .opt4-bottom-bar{
+    bottom:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px));
+  }
+  html.reader-dock-active.reader-verse-active main.content{
+    padding-bottom:calc(var(--scripture-dock-height) + 70px + env(safe-area-inset-bottom,0px) + 8px);
+  }
+  html.reader-dock-active{
+    --gomna-audio-bottom-bar-height:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px));
+  }
+  html.reader-dock-active.reader-verse-active{
+    --gomna-audio-bottom-bar-height:calc(var(--scripture-dock-height) + 58px + env(safe-area-inset-bottom,0px));
+  }
+  html.reader-dock-active body.gomna-audio-body-padding main.content{
+    padding-bottom:calc(var(--scripture-dock-height) + 112px + env(safe-area-inset-bottom,0px));
+  }
+  html.reader-dock-active body.gomna-audio-body-padding .verse-list{
+    padding-bottom:calc(var(--scripture-dock-height) + 112px + env(safe-area-inset-bottom,0px));
+  }
+}
+/* dockPreview=1: desktop preview — same dock UI at any viewport width */
+html.reader-dock-preview .phone-frame{
+  background:linear-gradient(180deg,#F0E4CD 0%,#EBDDC2 100%);
+  min-height:100dvh;
+}
+html.reader-dock-preview .reader-sheet-tabs{display:none!important}
+html.reader-dock-preview .scripture-dock{
+  display:flex;
+  position:fixed;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:480px;
+  z-index:96;
+  align-items:stretch;
+  justify-content:space-around;
+  gap:2px;
+  padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));
+  box-sizing:border-box;
+  background:rgba(244,232,205,.88);
+  backdrop-filter:blur(18px) saturate(125%);
+  -webkit-backdrop-filter:blur(18px) saturate(125%);
+  border-top:.5px solid rgba(200,170,120,.38);
+  box-shadow:0 -1px 0 rgba(255,252,245,.55) inset;
+}
+html.reader-dock-preview .scripture-dock-item{
+  flex:1;
+  min-width:0;
+  max-width:76px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  padding:6px 4px 4px;
+  border:none;
+  background:transparent;
+  color:rgba(90,62,34,.62);
+  font-family:inherit;
+  cursor:pointer;
+  border-radius:14px;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  transition:color .2s ease,background .2s ease,transform .15s ease;
+}
+html.reader-dock-preview .scripture-dock-item:active{
+  transform:scale(.94);
+  background:rgba(230,210,170,.45);
+}
+html.reader-dock-preview .scripture-dock-icon{
+  width:22px;
+  height:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+html.reader-dock-preview .scripture-dock-icon svg{
+  width:21px;
+  height:21px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.55;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+html.reader-dock-preview .scripture-dock-label{
+  font-size:10px;
+  font-weight:500;
+  letter-spacing:-.2px;
+  line-height:1.1;
+  white-space:nowrap;
+}
+html.reader-dock-preview .scripture-dock-item.active{
+  color:var(--gm-gold-deep);
+  background:rgba(234,216,176,.52);
+}
+html.reader-dock-preview .scripture-dock-item.active .scripture-dock-label{
+  font-weight:600;
+}
+html.reader-dock-preview .scripture-dock-item.active .scripture-dock-icon::after{
+  content:'';
+  position:absolute;
+  top:-5px;
+  left:50%;
+  transform:translateX(-50%);
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--gm-gold);
+  opacity:.85;
+}
+html.reader-dock-preview .reader-dock-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 14px 8px;
+  background:rgba(244,232,205,.72);
+  border-bottom:.5px solid rgba(200,170,120,.28);
+  position:sticky;
+  top:0;
+  z-index:89;
+  box-sizing:border-box;
+}
+html.reader-dock-preview.reader-verse-active .reader-dock-top{display:none}
+html.reader-dock-preview .reader-dock-top-title{
+  flex:1;
+  min-width:0;
+  font-size:15px;
+  font-weight:600;
+  color:var(--gm-ink);
+  letter-spacing:-.25px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+html.reader-dock-preview .reader-dock-top-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+}
+html.reader-dock-preview .reader-dock-top-pill{
+  padding:5px 10px;
+  border-radius:20px;
+  border:.5px solid rgba(180,140,90,.32);
+  background:rgba(252,243,223,.72);
+  color:var(--gm-gold);
+  font-size:11px;
+  font-weight:600;
+  font-family:inherit;
+  cursor:pointer;
+  white-space:nowrap;
+}
+html.reader-dock-preview .reader-dock-top-pill.active{
+  background:rgba(200,152,73,.22);
+  border-color:rgba(139,94,44,.42);
+  color:var(--gm-gold-deep);
+}
+html.reader-dock-preview .reader-dock-top-close{
+  width:34px;
+  height:34px;
+  border:none;
+  border-radius:50%;
+  background:rgba(139,94,44,.12);
+  color:var(--gm-ink);
+  font-size:15px;
+  line-height:1;
+  cursor:pointer;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+html.reader-dock-preview main.content{
+  padding-bottom:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px) + 12px);
+  scroll-padding-bottom:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px) + 12px);
+}
+html.reader-dock-preview.reader-verse-active .opt4-bottom-bar{
+  bottom:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px));
+}
+html.reader-dock-preview.reader-verse-active main.content{
+  padding-bottom:calc(var(--scripture-dock-height) + 70px + env(safe-area-inset-bottom,0px) + 8px);
+}
+html.reader-dock-preview{
+  --gomna-audio-bottom-bar-height:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px));
+}
+html.reader-dock-preview.reader-verse-active{
+  --gomna-audio-bottom-bar-height:calc(var(--scripture-dock-height) + 58px + env(safe-area-inset-bottom,0px));
+}
+html.reader-dock-preview body.gomna-audio-body-padding main.content{
+  padding-bottom:calc(var(--scripture-dock-height) + 112px + env(safe-area-inset-bottom,0px));
+}
+html.reader-dock-preview body.gomna-audio-body-padding .verse-list{
+  padding-bottom:calc(var(--scripture-dock-height) + 112px + env(safe-area-inset-bottom,0px));
+}
+/* Dock v69 — frame-width alignment, contrast, verse bottom spacing */
+html.reader-dock-active .scripture-dock,
+html.reader-dock-preview .scripture-dock{
+  width:min(100%,var(--reader-frame-width));
+  max-width:var(--reader-frame-width);
+  left:50%;
+  right:auto;
+  transform:translateX(-50%);
+  margin:0;
+}
+html.reader-dock-active .scripture-dock-item,
+html.reader-dock-preview .scripture-dock-item{
+  color:var(--scripture-dock-inactive);
+  max-width:none;
+  flex:1;
+}
+html.reader-dock-active .scripture-dock-icon,
+html.reader-dock-preview .scripture-dock-icon{
+  color:var(--scripture-dock-inactive);
+}
+html.reader-dock-active .scripture-dock-icon svg,
+html.reader-dock-preview .scripture-dock-icon svg{
+  stroke:currentColor;
+  stroke-width:1.7;
+}
+html.reader-dock-active .scripture-dock-label,
+html.reader-dock-preview .scripture-dock-label{
+  color:var(--scripture-dock-inactive);
+  font-weight:600;
+}
+html.reader-dock-active .scripture-dock-item.active,
+html.reader-dock-preview .scripture-dock-item.active{
+  color:var(--scripture-dock-active-color);
+  background:rgba(228,208,168,.62);
+}
+html.reader-dock-active .scripture-dock-item.active .scripture-dock-icon,
+html.reader-dock-preview .scripture-dock-item.active .scripture-dock-icon,
+html.reader-dock-active .scripture-dock-item.active .scripture-dock-label,
+html.reader-dock-preview .scripture-dock-item.active .scripture-dock-label{
+  color:var(--scripture-dock-active-color);
+}
+html.reader-dock-active .scripture-dock-item.active .scripture-dock-label,
+html.reader-dock-preview .scripture-dock-item.active .scripture-dock-label{
+  font-weight:700;
+}
+html.reader-dock-active .scripture-dock-item.active .scripture-dock-icon::after,
+html.reader-dock-preview .scripture-dock-item.active .scripture-dock-icon::after{
+  background:var(--scripture-dock-active-color);
+  opacity:1;
+}
+html.reader-dock-active.reader-verse-active .opt4-bottom-bar,
+html.reader-dock-preview.reader-verse-active .opt4-bottom-bar{
+  width:min(100%,var(--reader-frame-width));
+  max-width:var(--reader-frame-width);
+  left:50%;
+  right:auto;
+  transform:translateX(-50%);
+  margin:0;
+  bottom:calc(var(--scripture-dock-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px));
+  padding-bottom:10px;
+  border-radius:14px 14px 0 0;
+  box-shadow:0 -1px 0 rgba(200,170,120,.24);
+}
+html.reader-dock-active.reader-verse-active main.content,
+html.reader-dock-preview.reader-verse-active main.content{
+  padding-bottom:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px) + 20px);
+  scroll-padding-bottom:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px) + 20px);
+}
+html.reader-dock-active.reader-verse-active .verse-list,
+html.reader-dock-preview.reader-verse-active .verse-list{
+  padding-bottom:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px) + 16px);
+}
+html.reader-dock-active.reader-verse-active,
+html.reader-dock-preview.reader-verse-active{
+  --gomna-audio-bottom-bar-height:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px));
+}
+
+/* Dock top pills v70 — slightly larger 구약/신약 */
+html.reader-dock-active .reader-dock-top-pill,
+html.reader-dock-preview .reader-dock-top-pill{
+  font-size:12px;
+  padding:6px 13px;
+  min-height:28px;
+}
 
 </style>
 <script type="application/ld+json">
@@ -319,7 +777,7 @@ if ("serviceWorker" in navigator) {
 <body>
 <!-- haptic-tap-feedback -->
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
-<script>(function(){try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
+<script>(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;var preview=isReaderDockPreviewMode();var mobile=window.matchMedia&&window.matchMedia('(max-width:768px)').matches;root.classList.toggle('reader-dock-preview',preview);root.classList.toggle('reader-dock-active',preview||mobile);}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',syncReaderDockModeEarly);window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
 <div class="phone-frame"><div id="appTopChrome"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
   <span class="gs-text">Gomna Studio, Inc.</span>
   <span class="gs-arrow">↗</span>
@@ -451,6 +909,14 @@ if ("serviceWorker" in navigator) {
       <button type="button" class="reader-close" onclick="location.href='/'" aria-label="닫기">✕</button>
     </div>
   </nav>
+  <header id="readerDockTop" class="reader-dock-top" aria-label="성경읽기 상단">
+    <span class="reader-dock-top-title" id="readerDockTopTitle">성경 · 구약</span>
+    <div class="reader-dock-top-actions" id="readerDockTopActions">
+      <button type="button" class="reader-dock-top-pill active" data-testament-pill="old" onclick="dockSwitchTestament('old')">구약</button>
+      <button type="button" class="reader-dock-top-pill" data-testament-pill="new" onclick="dockSwitchTestament('new')">신약</button>
+      <button type="button" class="reader-dock-top-close" onclick="goHome()" aria-label="홈으로">✕</button>
+    </div>
+  </header>
   <nav id="verseReadHeader" class="verse-read-header" style="display:none" aria-label="읽기 헤더">
     <span class="verse-read-spacer" aria-hidden="true"></span>
     <button type="button" class="verse-read-title" id="verseReadTitleBtn" onclick="openUnifiedBookChapterModal()" aria-label="책·장 선택">
@@ -496,6 +962,28 @@ if ("serviceWorker" in navigator) {
     <div class="view" id="chapterView"></div>
     <div class="view" id="verseView"></div>
   </main>
+  <nav id="scriptureDock" class="scripture-dock" aria-label="주 메뉴">
+    <button type="button" class="scripture-dock-item" data-dock="home" onclick="handleScriptureDock('home')" aria-label="홈">
+      <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg></span>
+      <span class="scripture-dock-label">홈</span>
+    </button>
+    <button type="button" class="scripture-dock-item active" data-dock="bible" onclick="handleScriptureDock('bible')" aria-label="성경">
+      <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 4h9a3 3 0 0 1 3 3v14l-6-3-6 3V4z"/><path d="M6 7v14"/></svg></span>
+      <span class="scripture-dock-label">성경</span>
+    </button>
+    <button type="button" class="scripture-dock-item" data-dock="find" onclick="handleScriptureDock('find')" aria-label="찾기">
+      <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m18 18-3.5-3.5"/></svg></span>
+      <span class="scripture-dock-label">찾기</span>
+    </button>
+    <button type="button" class="scripture-dock-item" data-dock="listen" onclick="handleScriptureDock('listen')" aria-label="듣기">
+      <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 14v3a2 2 0 0 0 2 2h1v-7H5a1 1 0 0 0-1 1zm15 0v3a2 2 0 0 1-2 2h-1v-7h2a1 1 0 0 1 1 1z"/><path d="M4 14a8 8 0 0 1 16 0"/></svg></span>
+      <span class="scripture-dock-label">듣기</span>
+    </button>
+    <button type="button" class="scripture-dock-item" data-dock="archive" onclick="handleScriptureDock('archive')" aria-label="보관함">
+      <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7z"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span>
+      <span class="scripture-dock-label">보관함</span>
+    </button>
+  </nav>
   <nav id="opt4BottomBar" class="opt4-bottom-bar" aria-label="장 이동 및 말씀풀이">
     <button type="button" class="opt4-bottom-prev" id="opt4BottomPrev" onclick="prevChapter()">◀ 이전장</button>
     <button type="button" class="opt4-bottom-commentary" id="opt4BottomCommentary" onclick="opt4OpenBarCommentary()">📖 말씀풀이</button>
@@ -647,12 +1135,193 @@ var favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
 
 
 
+function isReaderDockPreviewMode() {
+  try {
+    var p = new URLSearchParams(location.search);
+    return (p.get('dockPreview') || '').trim() === '1';
+  } catch (e) {
+    return false;
+  }
+}
+
+function syncReaderDockMode() {
+  try {
+    var root = document.documentElement;
+    var preview = isReaderDockPreviewMode();
+    var mobile = window.matchMedia && window.matchMedia('(max-width:768px)').matches;
+    root.classList.toggle('reader-dock-preview', preview);
+    root.classList.toggle('reader-dock-active', preview || mobile);
+    syncScriptureDockActive();
+  } catch (e) {}
+}
+
 function syncReaderNavActive() {
   try {
     var tab = typeof currentTab === 'string' ? currentTab : 'old';
     document.querySelectorAll('#readerNav .reader-tab').forEach(function(el) {
       el.classList.toggle('active', el.getAttribute('data-reader-tab') === tab);
     });
+    syncScriptureDockActive();
+  } catch (e) {}
+}
+
+function isScriptureDockEnabled() {
+  try {
+    return document.documentElement.classList.contains('reader-dock-active') || document.documentElement.classList.contains('reader-dock-preview');
+  } catch (e) {
+    return false;
+  }
+}
+
+function getActiveReaderViewId() {
+  var active = document.querySelector('main.content .view.active');
+  return active ? active.id : '';
+}
+
+function getScriptureDockSection() {
+  var viewId = getActiveReaderViewId();
+  if (viewId === 'easyView' || viewId === 'searchView') return 'find';
+  if (viewId === 'favView') return 'archive';
+  if (viewId === 'oldView' || viewId === 'newView' || viewId === 'chapterView' || viewId === 'verseView') return 'bible';
+  return 'bible';
+}
+
+function syncScriptureDockActive(forceSection) {
+  if (!isScriptureDockEnabled()) return;
+  try {
+    var section = forceSection || getScriptureDockSection();
+    document.querySelectorAll('#scriptureDock .scripture-dock-item').forEach(function(el) {
+      el.classList.toggle('active', el.getAttribute('data-dock') === section);
+    });
+    updateReaderDockTop();
+  } catch (e) {}
+}
+
+function updateReaderDockTop() {
+  if (!isScriptureDockEnabled()) return;
+  try {
+    var titleEl = document.getElementById('readerDockTopTitle');
+    var actionsEl = document.getElementById('readerDockTopActions');
+    var viewId = getActiveReaderViewId();
+    var title = '성경 · 구약';
+    var showTestamentPills = false;
+    if (viewId === 'newView') {
+      title = '성경 · 신약';
+      showTestamentPills = true;
+    } else if (viewId === 'oldView') {
+      title = '성경 · 구약';
+      showTestamentPills = true;
+    } else if (viewId === 'easyView') {
+      title = '쉬운찾기';
+    } else if (viewId === 'searchView') {
+      title = '말씀 검색';
+    } else if (viewId === 'favView') {
+      title = '내 보관함';
+    } else if (viewId === 'chapterView' && currentBook && currentBook.name) {
+      title = currentBook.name;
+      showTestamentPills = false;
+    } else if (viewId === 'verseView' && currentBook && currentBook.name && currentChapter) {
+      title = currentBook.name + ' ' + currentChapter + getChapterUnit(currentBook.name);
+      showTestamentPills = false;
+    }
+    if (titleEl) titleEl.textContent = title;
+    if (actionsEl) {
+      actionsEl.querySelectorAll('[data-testament-pill]').forEach(function(btn) {
+        var show = showTestamentPills;
+        btn.style.display = show ? '' : 'none';
+        if (show) {
+          btn.classList.toggle('active', btn.getAttribute('data-testament-pill') === (currentTab === 'new' ? 'new' : 'old'));
+        }
+      });
+    }
+  } catch (e) {}
+}
+
+function dockSwitchTestament(testament) {
+  if (!testament) return;
+  switchTab(testament === 'new' ? 'new' : 'old');
+  var view = document.getElementById((testament === 'new' ? 'new' : 'old') + 'View');
+  if (view) {
+    try { view.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+    try { view.scrollTop = 0; } catch (e2) {}
+  }
+  syncScriptureDockActive('bible');
+}
+
+function handleScriptureDock(action) {
+  if (!action) return;
+  try {
+    if (action === 'home') {
+      goHome();
+      return;
+    }
+    if (action === 'bible') {
+      var viewId = getActiveReaderViewId();
+      if (viewId === 'chapterView' || viewId === 'verseView') {
+        if (currentBook && currentBook.testament) {
+          switchTab(currentBook.testament);
+        } else {
+          switchTab('old');
+        }
+        var bibleView = document.getElementById((currentBook && currentBook.testament === 'new') ? 'newView' : 'oldView');
+        if (bibleView) bibleView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (viewId === 'oldView' || viewId === 'newView') {
+        var activeBible = document.querySelector('main.content .view.active');
+        if (activeBible) activeBible.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        switchTab(currentTab === 'new' ? 'new' : 'old');
+      }
+      syncScriptureDockActive('bible');
+      return;
+    }
+    if (action === 'find') {
+      switchTab('easy');
+      var easyView = document.getElementById('easyView');
+      if (easyView) easyView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      syncScriptureDockActive('find');
+      return;
+    }
+    if (action === 'archive') {
+      switchTab('fav');
+      var favView = document.getElementById('favView');
+      if (favView) favView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      syncScriptureDockActive('archive');
+      return;
+    }
+    if (action === 'listen') {
+      syncScriptureDockActive('listen');
+      var miniPlayer = document.getElementById('gomna-audio-mini-player');
+      var expandBtn = document.querySelector('[data-audio-action="expand"]');
+      if (miniPlayer && !miniPlayer.hidden && miniPlayer.classList.contains('gomna-audio-visible') && expandBtn) {
+        expandBtn.click();
+        return;
+      }
+      var playRangeBtn = document.querySelector('[data-audio-action="play-range"]');
+      if (playRangeBtn) {
+        try { playRangeBtn.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+        setTimeout(function() { try { playRangeBtn.click(); } catch (e2) {} }, 350);
+        return;
+      }
+      var verseView = document.getElementById('verseView');
+      if (!verseView || !verseView.classList.contains('active')) {
+        if (currentBook && currentChapter) {
+          var vv = document.getElementById('verseView');
+          if (vv && vv.classList.contains('active')) {
+            var box = document.getElementById('verseRangeBoxBtn');
+            if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+          }
+        }
+        switchTab(currentTab === 'new' ? 'new' : 'old');
+        if (window.GOMNA_AUDIO_TOAST) {
+          GOMNA_AUDIO_TOAST('본문 장을 열면 듣기를 이용할 수 있습니다');
+        }
+        return;
+      }
+      var rangeBox = document.getElementById('verseRangeBoxBtn');
+      if (rangeBox) rangeBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
   } catch (e) {}
 }
 
@@ -778,7 +1447,11 @@ function initializeApp() {
   renderFavorites();
   var _si=document.getElementById('searchInput');if(_si)_si.addEventListener('keypress', function(e) { if(e.key === 'Enter') doSearch(); });
   runDeferredUrlNavigation();
+  syncReaderDockMode();
 }
+window.addEventListener('resize', function() {
+  try { syncReaderDockMode(); } catch (e) {}
+});
 
 function switchTab(tab) {
   if (tab === 'search' || tab === 'fav') {
@@ -1046,6 +1719,7 @@ function selectBook(name, chapters, testament) {
   html += '</div>';
   document.getElementById('chapterView').innerHTML = html;
   updateOpt4BottomBar();
+  syncScriptureDockActive('bible');
 }
 
 function selectChapter(ch) {
@@ -1867,6 +2541,7 @@ function updateOpt4BottomBar() {
   var chCount = bookData ? getDisplayedChapterCount(bookData) : (currentBook.chapters || 999);
   if (prev) prev.disabled = currentChapter <= 1;
   if (next) next.disabled = currentChapter >= chCount;
+  syncScriptureDockActive();
 }
 
 function opt4OpenBarCommentary() {
