@@ -33,10 +33,9 @@
     '@media(min-width:400px){.scripture-category-description{font-size:12px;line-height:1.38}}' +
     '@media(min-width:768px){.scripture-category-description{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}' +
     '.cat-section--scripture-guide .cat-tagrow,.cat-section--scripture-guide .cat-replay,.cat-section--scripture-guide .cat-desc-box,.cat-section--scripture-guide .scripture-category-description{display:none!important}' +
-    '.cat-section--scripture-guide .section-title{cursor:pointer;-webkit-tap-highlight-color:transparent}' +
-    '.scripture-guide-info-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;min-height:28px;margin-left:4px;padding:0;border:1px solid rgba(184,134,11,0.42);border-radius:50%;background:rgba(255,250,244,0.95);color:#8b5e2c;font-size:11px;font-weight:700;line-height:1;cursor:pointer;flex-shrink:0;font-family:inherit;vertical-align:middle;-webkit-tap-highlight-color:transparent}' +
-    '.scripture-guide-info-btn:active{transform:scale(0.94);opacity:0.85}' +
-    '.scripture-guide-info-icon{display:block;font-style:italic;font-weight:700;line-height:1}' +
+    '.cat-section--scripture-guide .section-title{display:inline-flex;align-items:center;gap:10px;flex-wrap:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;font-size:18px;font-weight:800;line-height:1.3;color:var(--primary)}' +
+    '.scripture-guide-info-btn{display:inline-flex;align-items:center;justify-content:center;height:36px;min-height:36px;margin-left:0;padding:0 12px;border:1px solid rgba(184,134,11,0.42);border-radius:999px;background:rgba(255,250,244,0.95);color:#5a3818;font-size:15px;font-weight:700;line-height:1;cursor:pointer;flex-shrink:0;font-family:inherit;vertical-align:middle;-webkit-tap-highlight-color:transparent;box-sizing:border-box}' +
+    '.scripture-guide-info-btn:active{transform:scale(0.97);opacity:0.88;background:rgba(255,245,225,1)}' +
     '.scripture-guide-overlay{position:fixed;inset:0;z-index:320;display:none;align-items:flex-end;justify-content:center;background:rgba(26,15,10,0.38);box-sizing:border-box;padding:0}' +
     '.scripture-guide-overlay.is-open{display:flex}' +
     '.scripture-guide-sheet{width:100%;max-width:420px;max-height:min(85vh,760px);background:linear-gradient(180deg,#F7F0E4 0%,#F3EBDD 100%);border-radius:18px 18px 0 0;box-shadow:0 -4px 24px rgba(74,37,17,0.12);display:flex;flex-direction:column;overflow:hidden;transform:translateY(100%);transition:transform 0.28s ease;box-sizing:border-box;min-height:0}' +
@@ -952,8 +951,8 @@
     var infoBtn = document.createElement('button');
     infoBtn.type = 'button';
     infoBtn.className = 'scripture-guide-info-btn';
-    infoBtn.setAttribute('aria-label', catName + ' 성경 길잡이');
-    infoBtn.innerHTML = '<span class="scripture-guide-info-icon">i</span>';
+    infoBtn.setAttribute('aria-label', catName + ' 길잡이 열기');
+    infoBtn.textContent = 'Guide';
 
     function openGuide(e) {
       if (e) {
