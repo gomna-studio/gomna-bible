@@ -25,7 +25,7 @@
 <link rel="manifest" href="manifest.json?v=20260603-01">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <script>
-window.GOMNA_ASSET_VERSION = "20260709-home-ui-v54";
+window.GOMNA_ASSET_VERSION = "20260710-home-ui-v65";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -33,7 +33,7 @@ if ("serviceWorker" in navigator) {
 <style>
 /* ── 첫페이지 공통 규격 (home-ui-v1) ── */
 /* ── 첫페이지 카드 스킨 (home-ui-v51) ── */
-:root{--gm-radius-card:8px;--gm-radius-btn:6px;--gm-radius-tag:20px;--gm-ink:#3d2818;--gm-gold:#8b5e2c;--gm-gold-deep:#6e4a1f;--gm-cream:#F6EBD2;--gm-card-bg:rgba(246,235,210,.94);--gm-btn-bg:rgba(248,238,218,.92);--gm-card-border:rgba(228,210,178,.78);--gm-card-border-slim:1px solid rgba(228,210,178,.78);--gm-card-divider:rgba(220,200,168,.82);--gm-card-shadow:0 1px 2px rgba(60,40,18,.02);--gm-hover-surface:rgba(238,221,182,.85);--gm-hover-btn:rgba(236,218,178,.88);--gm-hover-btn-strong:rgba(234,216,176,.92);--gm-hover-chip:rgba(238,221,182,.85);--gm-hover-active:rgba(230,210,170,.95)}
+:root{--gm-radius-card:8px;--gm-radius-btn:6px;--gm-radius-tag:20px;--gm-ink:#3d2818;--gm-gold:#8b5e2c;--gm-gold-deep:#6e4a1f;--gm-cream:#F6EBD2;--gm-card-bg:rgba(250,240,215,.94);--gm-btn-bg:rgba(252,243,223,.92);--gm-card-border:rgba(228,210,178,.78);--gm-card-border-slim:1px solid rgba(228,210,178,.78);--gm-card-divider:rgba(220,200,168,.82);--gm-card-shadow:0 1px 2px rgba(60,40,18,.02);--gm-hover-surface:rgba(238,221,182,.85);--gm-hover-btn:rgba(236,218,178,.88);--gm-hover-btn-strong:rgba(234,216,176,.92);--gm-hover-chip:rgba(238,221,182,.85);--gm-hover-active:rgba(230,210,170,.95)}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#000}
 body{background:linear-gradient(180deg,#F0E4CD 0%,#EBDDC2 100%);min-height:100vh;overflow-x:hidden;position:relative}
@@ -197,8 +197,8 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .verse-card .verse-ref{font-size:13px;color:#5b3b20;font-style:normal;text-align:right;font-family:inherit;opacity:0;margin-top:6px;margin-bottom:0;line-height:1.3}
 .verse-card .verse-open-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
 .verse-card .verse-open-note{flex:1;min-width:110px;font-size:12px;color:#6a5542;line-height:1.35;letter-spacing:-.1px}
-.verse-card .gm-btn-today-open{flex:0 1 auto;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:-.2px;padding:7px 13px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap;background:linear-gradient(180deg,#bd8737,#9b6426);color:#fffaf0;border:1px solid rgba(150,100,40,.35);box-shadow:none}
-.verse-card .gm-btn-today-open:hover{filter:none;background:linear-gradient(180deg,#cf9848,#b07030)}
+.verse-card .gm-btn-today-open{flex:0 1 auto;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:-.2px;padding:7px 13px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap;background:#bd8737;color:#FFFFFF;border:1px solid rgba(150,100,40,.32);box-shadow:none}
+.verse-card .gm-btn-today-open:hover{filter:none;background:#c89849;color:#FFFFFF;border-color:rgba(160,110,50,.36)}
 .verse-card .verse-date-btn{background:transparent;border:1px solid rgba(180,140,90,.42);color:#5a4632;font-family:inherit;font-size:12px;font-weight:500;padding:6px 10px;border-radius:14px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .2s;letter-spacing:-.1px;flex-shrink:0}
 .verse-card .verse-date-btn:hover{background:var(--gm-hover-btn-strong);border-color:rgba(170,125,70,.55)}
 .verse-card .verse-date-btn svg{stroke:#6a5542;flex-shrink:0;width:11px;height:11px}
@@ -212,15 +212,20 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 }
 .audio-pending-badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.88);color:#000;border:1px solid rgba(0,0,0,.08);font-size:10px;font-weight:700;line-height:1;white-space:nowrap;flex-shrink:0}
 /* 말씀풀이 듣기 slim 카드 */
-.commentary-slim-card{display:flex;align-items:center;gap:10px;width:100%;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);box-shadow:var(--gm-card-shadow);padding:8px 10px;margin:4px 0;cursor:pointer;font-family:inherit;text-align:left;transition:background .22s ease,transform .15s ease}
+.commentary-slim-card{display:flex;align-items:center;gap:10px;width:100%;background:rgba(253,245,223,.95);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);box-shadow:var(--gm-card-shadow);padding:8px 10px;margin:4px 0;cursor:pointer;font-family:inherit;text-align:left;transition:background .22s ease,transform .15s ease}
 .commentary-slim-card:hover{background:var(--gm-hover-surface)}
-.commentary-slim-icon{width:30px;height:30px;flex-shrink:0;border-radius:var(--gm-radius-btn);background:rgba(252,245,230,.72);display:flex;align-items:center;justify-content:center}
-.commentary-slim-icon svg{width:20px;height:20px;stroke:#000;fill:none;stroke-width:1.6}
+.commentary-slim-icon{width:30px;height:30px;flex-shrink:0;border-radius:var(--gm-radius-btn);background:rgba(194,142,67,.46);display:flex;align-items:center;justify-content:center;transition:background .22s ease}
+.commentary-slim-icon svg{width:20px;height:20px;stroke:#242018;fill:none;stroke-width:1.6}
 .commentary-slim-info{flex:1;min-width:0}
 .commentary-slim-title-row{display:inline-flex;align-items:center;gap:5px;flex-wrap:nowrap;max-width:100%}
-.commentary-slim-name{font-size:12px;font-weight:600;color:#000;letter-spacing:-.25px;line-height:1.25}
-.commentary-slim-desc{font-size:10px;color:#000;opacity:.72;margin-top:2px;line-height:1.3;letter-spacing:-.1px}
-.commentary-slim-arrow{flex-shrink:0;font-size:15px;color:#000;opacity:.45;font-weight:600}
+.commentary-slim-name{font-size:12px;font-weight:600;color:#C28E43;letter-spacing:-.25px;line-height:1.25;transition:color .22s ease}
+.commentary-slim-desc{font-size:10px;color:#6E4A1F;opacity:.72;margin-top:2px;line-height:1.3;letter-spacing:-.1px}
+.commentary-slim-arrow{flex-shrink:0;font-size:15px;color:#BE8738;opacity:.74;font-weight:600;transition:color .22s ease,opacity .22s ease}
+.commentary-slim-card:hover .commentary-slim-icon{background:rgba(190,135,56,.42)}
+.commentary-slim-card:hover .commentary-slim-icon svg{stroke:#1F1A14}
+.commentary-slim-card:hover .commentary-slim-name{color:#C9974F}
+.commentary-slim-card:hover .commentary-slim-arrow{color:#C28E43;opacity:.80}
+.commentary-slim-card .audio-pending-badge{background:rgba(255,247,232,.78);color:#8A6A42;border:1px solid rgba(190,135,56,.18)}
 @media (max-width:375px){
   .commentary-slim-title-row{gap:4px}
   .audio-pending-badge{font-size:9px;padding:2px 5px}
@@ -243,8 +248,10 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 /* 이어서 읽기 카드 */
 .continue-card{display:flex;align-items:center;gap:10px;width:100%;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);box-shadow:var(--gm-card-shadow);padding:9px 10px;margin-bottom:8px;cursor:pointer;font-family:inherit;text-align:left;transition:background .22s ease,transform .15s ease}
 .continue-card:hover{background:var(--gm-hover-surface)}
-.continue-icon{width:34px;height:34px;flex-shrink:0;border-radius:var(--gm-radius-btn);background:linear-gradient(135deg,#F2E4C4,#E8D4A8);display:flex;align-items:center;justify-content:center;box-shadow:none}
-.continue-icon svg{width:20px;height:20px;stroke:#6e4a1f;fill:none;stroke-width:1.7}
+.continue-icon{width:34px;height:34px;flex-shrink:0;border-radius:var(--gm-radius-btn);background:rgba(194,142,67,.46);display:flex;align-items:center;justify-content:center;box-shadow:none;transition:background .22s ease}
+.continue-icon svg{width:20px;height:20px;stroke:#242018;fill:none;stroke-width:1.6;transition:stroke .22s ease}
+.continue-card:hover .continue-icon{background:rgba(190,135,56,.42)}
+.continue-card:hover .continue-icon svg{stroke:#1F1A14}
 .continue-info{flex:1;min-width:0}
 .continue-label{font-size:10px;font-weight:700;color:var(--gm-gold);letter-spacing:.4px;margin-bottom:2px}
 .continue-title{font-size:14.5px;font-weight:600;color:#2a1c0c;letter-spacing:-.2px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -547,14 +554,14 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
       <span class="quick-name">보관함</span><span class="quick-desc">저장한 말씀</span>
     </button>
   </div>
-  <button type="button" class="commentary-slim-card" onclick="openMainCommentaryListen()" aria-label="말씀풀이 듣기, 오디오 준비중">
+  <button type="button" class="commentary-slim-card" onclick="openMainCommentaryListen()" aria-label="말씀풀이 듣기, 오디오 확장버젼 준비중">
     <div class="commentary-slim-icon" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M9 7h7M9 11h5"/></svg>
     </div>
     <div class="commentary-slim-info">
       <div class="commentary-slim-title-row">
         <span class="commentary-slim-name">말씀풀이 듣기</span>
-        <span class="audio-pending-badge">오디오 준비중</span>
+        <span class="audio-pending-badge">오디오 확장버젼 준비중</span>
       </div>
       <div class="commentary-slim-desc">원어·역사·신학·교차참조 9개 표</div>
     </div>
