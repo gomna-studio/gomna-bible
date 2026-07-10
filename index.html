@@ -25,7 +25,7 @@
 <link rel="manifest" href="manifest.json?v=20260603-01">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <script>
-window.GOMNA_ASSET_VERSION = "20260710-home-ui-v65";
+window.GOMNA_ASSET_VERSION = "20260710-home-ui-v73";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -298,6 +298,15 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .welcome{text-align:center;padding:18px 8px 14px;font-family:Georgia,serif;color:#000}
 .welcome-line1{font-size:calc(var(--font-size,17px) * 13 / 17);font-style:italic;opacity:0;letter-spacing:.5px;line-height:1.7;margin-bottom:6px;color:#000}
 .welcome-line2{font-size:calc(var(--font-size,17px) * 12 / 17);font-style:italic;opacity:0;letter-spacing:.4px;line-height:1.7;color:#000}
+/* 임시 화면 개선 안내 (home-ui-v73) */
+.home-ui-improvement-notice{display:flex;align-items:flex-start;gap:9px;width:100%;margin:0 0 8px;padding:9px 11px;border-radius:var(--gm-radius-card);background:rgba(248,238,216,.58);border:1px solid rgba(210,185,145,.42);box-shadow:none}
+.home-ui-improvement-notice-icon{flex-shrink:0;width:15px;height:15px;margin-top:2px;color:#8a6848}
+.home-ui-improvement-notice-icon svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.home-ui-improvement-notice-text{min-width:0;flex:1}
+.home-ui-improvement-notice-line1{font-size:12.5px;font-weight:600;color:#8A6828;line-height:1.45;letter-spacing:-.15px}
+.home-ui-improvement-notice-line2{margin-top:2px;font-size:11.5px;font-weight:500;color:#5c4a38;line-height:1.38;letter-spacing:-.1px;opacity:.92}
+.home-ui-improvement-notice-line3{margin-top:1px;font-size:11px;font-weight:500;color:#8C7344;line-height:1.38;letter-spacing:-.1px;opacity:.92}
+body:has(#overlay.show) .home-ui-improvement-notice{display:none}
 .word{display:inline-block;opacity:0;transform:translateY(8px);animation:wordIn .5s ease forwards}
 @keyframes wordIn{to{opacity:1;transform:translateY(0)}}
 .imprint-bottom{margin-top:18px;padding-top:14px;padding-bottom:30px;border-top:.5px solid rgba(255,255,255,.18);text-align:center}
@@ -536,6 +545,14 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
       <span class="verse-open-note">오늘 말씀 기준으로 읽고 묵상하기</span>
     </div>
   </div>
+  <aside class="home-ui-improvement-notice" role="note" aria-label="화면 개선 안내">
+    <span class="home-ui-improvement-notice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4Z"/></svg></span>
+    <div class="home-ui-improvement-notice-text">
+      <div class="home-ui-improvement-notice-line1">은혜의말씀을 더 편리하게 이용하실 수 있도록</div>
+      <div class="home-ui-improvement-notice-line2">현재 화면 구성을 개선하고 있습니다.</div>
+      <div class="home-ui-improvement-notice-line3">이용해 주셔서 감사합니다.</div>
+    </div>
+  </aside>
   <div class="quick-menu">
     <button type="button" class="quick-item" onclick="location.href='reader.html'" aria-label="성경읽기">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h7a3 3 0 013 3v13a2.5 2.5 0 00-2.5-2.5H2z"/><path d="M22 4h-7a3 3 0 00-3 3v13a2.5 2.5 0 012.5-2.5H22z"/></svg>
