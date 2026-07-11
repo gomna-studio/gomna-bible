@@ -317,6 +317,10 @@
     }
   }
 
+  function isToolbarMode() {
+    return document.documentElement.classList.contains('reader-verse-toolbar-mode');
+  }
+
   function ensureVerseButton(verseItem, context) {
     var verse = getVerseNumber(verseItem);
     if (!verse) return false;
@@ -331,9 +335,19 @@
     var actions = getActionsRow(verseItem);
     var existing = actions && actions.querySelector('.gomna-audio-verse-button[' + BUTTON_MARK_ATTR + '="true"]');
 
-    if (!entry || !actions) {
+    if (!entry) {
       clearVerseTarget(verseItem);
       removeDuplicateButtons(actions || verseItem, null);
+      return false;
+    }
+
+    if (isToolbarMode()) {
+      markVerseTarget(verseItem, audioId);
+      return true;
+    }
+
+    if (!actions) {
+      clearVerseTarget(verseItem);
       return false;
     }
 
@@ -441,7 +455,8 @@
   window.addEventListener('gomna:bible_resume_session_changed', syncVerseButtonLabels);
 
   window.GOMNA_AUDIO_BOOK = {
-    getBookAudioId: getBookAudioId
+    getBookAudioId: getBookAudioId,
+    buildAudioId: buildAudioId
   };
 
   console.log('[GOMNA_AUDIO] gomna-audio-listen-button.js loaded');

@@ -90,10 +90,16 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-seri
 .range-btn{background:#B8860B;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.15s}
 .range-btn:active{background:#9A7209;transform:scale(0.95)}
 .verse-list{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
-.verse-item{padding:16px;border-bottom:1px solid #f5f0eb}
+.verse-item{padding:14px 16px;border-bottom:1px solid rgba(245,240,235,.85);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background-color .08s ease,box-shadow .08s ease}
 .verse-item:last-child{border-bottom:none}
+.verse-item--selected,.verse-item--chapter-selected{background:rgba(200,145,45,0.10);box-shadow:inset 4px 0 0 #B8860B}
+html.reader-hide-chrome .verse-item.verse-item--selected,html.reader-hide-chrome .verse-item.verse-item--chapter-selected{background:linear-gradient(90deg,rgba(210,168,87,0.28) 0%,rgba(248,236,207,0.72) 45%,rgba(255,252,246,0.96) 100%);box-shadow:inset 4px 0 0 #A86F16;border-top:1px solid rgba(168,111,22,0.38);border-bottom:1px solid rgba(168,111,22,0.38)}
+.verse-item:focus-visible{outline:2px solid rgba(184,134,11,.45);outline-offset:-2px}
+.verse-item .verse-text.gomna-audio-reading{box-shadow:none}
 .verse-top{display:flex;align-items:flex-start;gap:12px}
-.verse-num{flex-shrink:0;background:#B8860B;color:#fff;min-width:36px;height:36px;line-height:36px;text-align:center;border-radius:50%;font-size:11px;font-weight:700}
+.verse-num{flex-shrink:0;background:#B8860B;color:#fff;min-width:36px;height:36px;line-height:36px;text-align:center;border-radius:50%;font-size:11px;font-weight:700;transition:background-color .08s ease,box-shadow .08s ease}
+.verse-item--selected .verse-num,.verse-item--chapter-selected .verse-num{background:#9c6b12;box-shadow:0 0 0 2px rgba(184,134,11,.3)}
+html.reader-hide-chrome .verse-item.verse-item--selected .verse-num,html.reader-hide-chrome .verse-item.verse-item--chapter-selected .verse-num{background:#A86F16;box-shadow:0 0 0 3px rgba(210,168,87,0.28)}
 .verse-text{flex:1;font-size:var(--font-size);line-height:1.75}
 .verse-actions{display:flex;gap:6px;margin-top:8px;padding-left:40px}
 .action-btn{background:#F8F4EF;border:0.5px solid #D5C8BB;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;color:#3D2817}
@@ -116,6 +122,14 @@ body[data-i18n-mode="foreign"] .consonant-btn.cat-btn .cat-label{font-size:14.5p
 .consonant-btn.active{background:#C9943C;color:#fff;border-color:#C9943C}
 .filtered-books{margin-top:16px}
 .filtered-title{font-size:13px;color:var(--text-light);margin-bottom:12px;font-weight:600}
+.consonant-btn.cat-btn.easy-cat--old{background:#F7EEDC;color:#17120F;border-color:rgba(139,94,44,.22)}
+.consonant-btn.cat-btn.easy-cat--new{background:#EAF2EF;color:#17120F;border-color:rgba(74,119,110,.28)}
+.consonant-btn.cat-btn.easy-cat--old.active{background:#EAD7AF;color:#111;border-color:#8B5E2C}
+.consonant-btn.cat-btn.easy-cat--new.active{background:#D5E6E1;color:#111;border-color:#4A776E}
+.consonant-grid.cat-grid .cat-col-header.cat-col-nt{color:#3F6C63;border-bottom-color:rgba(74,119,110,.28)}
+.book-btn.easy-book--old{background:#F7EEDC;border-color:rgba(139,94,44,.22)}
+.book-btn.easy-book--new{background:#EAF2EF;border-color:rgba(74,119,110,.28)}
+.book-btn.easy-book--new .chapters{color:#5F766F}
 .search-result{background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.05);cursor:pointer}
 .search-result:active{background:#FDFAF7}
 .search-result .ref{font-weight:700;color:var(--primary);font-size:14px;margin-bottom:6px}
@@ -161,6 +175,7 @@ html.gomna-home-commentary-loading body{overflow:hidden}
 .tab-content{display:none}
 .tab-content.active{display:block}
 .commentary-verse-ref{background:#c89849;padding:10px 16px;border-radius:12px;margin-bottom:10px;color:#fff;display:flex;align-items:center;gap:8px;box-sizing:border-box}
+.commentary-multi-status{text-align:center;font-size:12px;font-weight:600;color:#9c6b12;margin:-4px 0 10px}
 .commentary-nav-arrow{width:44px;height:44px;padding:0;border:none;background:transparent;color:#fff;font-size:18px;font-weight:700;cursor:pointer;border-radius:8px;font-family:inherit;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background 0.15s;-webkit-tap-highlight-color:transparent}
 .commentary-nav-arrow:hover:not(:disabled){background:rgba(255,255,255,0.12)}
 .commentary-nav-arrow:active:not(:disabled){background:rgba(255,255,255,0.2)}
@@ -185,7 +200,7 @@ html.reader-hide-chrome .reader-sheet-tabs{display:none!important}
 .reader-sheet-tabs .reader-tab.reader-home{color:#8b5e2c;font-weight:500}
 .reader-sheet-tabs .reader-tab:active{transform:scale(0.95);opacity:0.7;background-color:rgba(139,94,44,0.14)}
 .reader-sheet-tabs .reader-close:active{transform:scale(0.95);opacity:0.7;background-color:rgba(139,94,44,0.28)}
-.verse-read-more:active{transform:scale(0.95);opacity:0.7;background-color:rgba(139,94,44,0.28)}
+.verse-read-nav-btn:active{transform:scale(0.92)}
 .reader-sheet-tabs .reader-nav-end{margin-left:auto;display:flex;align-items:flex-end;gap:16px;flex-shrink:0}
 .reader-sheet-tabs .reader-close{background:rgba(139, 94, 44, 0.18);border:none;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:18px;line-height:1;color:#3d2818;padding:0;flex-shrink:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .15s ease, opacity .15s ease, background-color .15s ease}
 
@@ -205,22 +220,61 @@ nav.tabs {
 .verse-range-action{display:inline-flex;align-items:center;gap:4px;padding:8px 12px;background:transparent;border:0.5px solid rgba(184,134,11,0.4);border-radius:8px;color:#B8860B;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;min-height:44px;-webkit-tap-highlight-color:transparent;transition:transform 0.15s ease,background-color 0.15s ease}
 .verse-range-action-primary{background:#B8860B;border-color:#B8860B;color:#fff;box-shadow:0 2px 8px rgba(184,134,11,0.24)}
 .verse-range-action:active{background:rgba(184,134,11,0.12);transform:scale(0.97)}
-.opt4-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;width:100%;background:#faf6ed;border-top:0.5px solid rgba(180,140,90,.35);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0)) 12px;box-sizing:border-box;z-index:95;gap:10px;align-items:stretch}
+#verseRangeBoxBtn{display:none}
+.opt4-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;width:100%;background:#fdfaf5;border-top:0.5px solid rgba(180,140,90,.35);padding:8px 12px calc(8px + env(safe-area-inset-bottom,0)) 12px;box-sizing:border-box;z-index:95;gap:8px;align-items:center;min-height:56px}
 html.reader-verse-active .opt4-bottom-bar{display:flex}
 html.reader-verse-active main.content{padding-bottom:70px}
-.opt4-bottom-prev,.opt4-bottom-next{flex:1;background:#fff;border:1px solid #E8E0D8;border-radius:12px;padding:12px 6px;font-size:13px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit}
+.opt4-bar-mode{display:flex;width:100%;gap:8px;align-items:center;min-height:40px}
+#opt4ChapterBar{display:none}
+#opt4VerseToolbar{flex:1;min-width:0}
+.opt4-bottom-prev,.opt4-bottom-next,.opt4-bottom-chapters{flex:1;min-height:40px;background:#fff;border:1px solid #E8E0D8;border-radius:12px;padding:0 6px;font-size:14px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit}
 .opt4-bottom-prev:disabled,.opt4-bottom-next:disabled{opacity:0.38;cursor:not-allowed}
-.opt4-bottom-commentary{flex:1.4;background:#c89849;color:#fff;border:none;border-radius:12px;padding:12px 6px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}.opt4-bottom-commentary:active{background:#a87a35}
-.verse-range-modal-overlay{display:none;position:fixed;inset:0;z-index:220;background:rgba(0,0,0,.4);align-items:flex-end;justify-content:center;box-sizing:border-box;padding:0 18px 18px}
+.opt4-bottom-chapters{background:#fff;border-color:rgba(180,140,90,.4)}
+.opt4-verse-listen{flex-shrink:0;min-height:40px;padding:0 12px;background:rgba(200,152,73,.18);color:#8b5e2c;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.opt4-verse-listen:active{background:rgba(200,152,73,.3)}
+.opt4-verse-listen[hidden]{display:none}
+.opt4-verse-commentary{flex-shrink:0;min-height:40px;padding:0 12px;background:#fff;border:0.5px solid rgba(180,140,90,.4);border-radius:10px;font-size:14px;font-weight:700;color:#4A2511;font-family:inherit;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.opt4-verse-commentary:active{background:rgba(244,232,205,.6)}
+.opt4-verse-more{flex-shrink:0;min-height:40px;padding:0 8px;background:transparent;border:none;font-size:14px;font-weight:700;color:#8b5e2c;font-family:inherit;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.opt4-verse-commentary:disabled,.opt4-verse-more:disabled{opacity:.4;cursor:not-allowed}
+.verse-toolbar-target-wrap{position:relative;flex-shrink:0}
+.verse-toolbar-target-btn{min-height:40px;max-width:112px;padding:0 10px;background:#fff;border:0.5px solid rgba(180,140,90,.5);border-radius:10px;font-size:13px;font-weight:700;color:#4A2511;font-family:inherit;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-tap-highlight-color:transparent}
+.verse-toolbar-target-btn:active{background:rgba(244,232,205,.6)}
+.verse-toolbar-target-menu{position:absolute;left:0;bottom:calc(100% + 6px);min-width:128px;background:#fff;border:0.5px solid rgba(180,140,90,.5);border-radius:12px;box-shadow:0 4px 16px rgba(74,37,17,.18);padding:4px;display:flex;flex-direction:column;gap:2px;z-index:220}
+.verse-toolbar-target-menu[hidden]{display:none}
+.verse-toolbar-target-menu-item{text-align:left;min-height:40px;padding:0 10px;background:transparent;border:none;border-radius:8px;font-size:14px;font-weight:600;color:#4A2511;font-family:inherit;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.verse-toolbar-target-menu-item:active{background:rgba(244,232,205,.6)}
+.verse-toolbar-target-menu-item.active{background:rgba(200,152,73,.2);color:#8b5e2c}
+.verse-toolbar-target-menu-item.active::before{content:"✓ "}
+.verse-toolbar-more-overlay{display:none;position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.35);align-items:flex-end;justify-content:center}
+.verse-toolbar-more-overlay.active{display:flex}
+.verse-toolbar-more-sheet{background:#fdfaf5;border-radius:16px 16px 0 0;width:100%;max-width:480px;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0));box-shadow:0 -4px 24px rgba(0,0,0,.12)}
+.verse-toolbar-more-item{display:block;width:100%;min-height:48px;padding:0 20px;border:none;border-bottom:0.5px solid rgba(180,140,90,.2);background:transparent;font-size:15px;font-weight:600;color:#4A2511;font-family:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.verse-toolbar-more-item:last-child{border-bottom:none}
+.verse-toolbar-more-item:active{background:rgba(244,232,205,.65)}
+.verse-toolbar-more-item.is-saved{color:#8b5e2c}
+.verse-range-modal-overlay{display:none;position:fixed;inset:0;z-index:10200;background:rgba(0,0,0,.4);align-items:stretch;justify-content:center;box-sizing:border-box;padding:0}
 .verse-range-modal-overlay.active{display:flex}
-.verse-range-modal-box{background:#faf6ed;border-radius:16px;width:100%;max-width:var(--gomna-reader-card-width,388px);max-height:82vh;height:auto;overflow:hidden;display:flex;flex-direction:column;margin:0 auto;box-shadow:0 -4px 24px rgba(0,0,0,.12);position:relative}
+.verse-range-modal-box{position:relative;background:#faf6ed;border-radius:0;width:100%;max-width:var(--reader-frame-width,420px);height:100vh;height:100dvh;max-height:none;overflow:hidden;display:flex;flex-direction:column;margin:0 auto;box-sizing:border-box;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1)}
+.verse-range-modal-overlay.active .verse-range-modal-box{transform:translateY(0)}
 .verse-range-modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(180,140,90,.25);font-weight:700;font-size:16px;color:#3d2818;flex-shrink:0;cursor:grab;-webkit-user-select:none;user-select:none;touch-action:none}
 .verse-range-modal-head:active{cursor:grabbing}
 .verse-range-modal-head .verse-range-modal-close{cursor:pointer;touch-action:manipulation}
 .verse-range-modal-close{background:rgba(0,0,0,.06);border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;color:#3d2818;font-family:inherit}
+.range-header{flex:0 0 auto;display:grid;grid-template-columns:minmax(0,1fr) 48px;align-items:center;min-height:60px;padding:8px 4px 8px 16px;padding-top:calc(8px + env(safe-area-inset-top,0px));border-bottom:0.5px solid rgba(180,140,90,.35);background:#faf6ed;box-sizing:border-box}
+.range-header-left{display:flex;align-items:center;gap:8px;min-width:0}
+.range-title{font-size:16px;font-weight:700;color:#3d2818;flex-shrink:0;white-space:nowrap}
+.range-status-tag{flex-shrink:1;min-width:0;height:32px;padding:0 12px;border-radius:16px;font-size:13px;font-weight:600;font-family:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;-webkit-tap-highlight-color:transparent;background:#F7EEDC;color:#5A3B22;border:1px solid rgba(139,94,44,.30);opacity:1;transition:background-color .08s ease,color .08s ease,border-color .08s ease}
+.range-status-tag:disabled{opacity:1;cursor:default}
+.range-status-tag.range-status-tag--move{background:#B58A3A;color:#fff;border:1px solid #8D6723;cursor:pointer;min-width:64px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.range-close{width:100%;min-height:44px;padding:0;border:none;background:transparent;font-size:20px;color:#3d2818;cursor:pointer;font-family:inherit;line-height:1;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+@media (max-width:360px){
+  .range-title{font-size:15px}
+  .range-status-tag{font-size:11px;padding:0 8px}
+}
 .verse-range-modal-body{padding:0;overflow:hidden;display:flex;flex-direction:column;flex:1;min-height:0;-webkit-overflow-scrolling:touch}
 .reader-verse-range-actions{display:flex;flex-direction:column;gap:10px;padding:12px 14px;padding-bottom:0;flex:1;min-height:0;overflow:hidden;box-sizing:border-box}
-.verse-range-modal-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:calc(82vh - 220px);touch-action:pan-y}
+.verse-range-modal-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
 .verse-range-modal-footer{flex-shrink:0;padding:12px 14px calc(14px + env(safe-area-inset-bottom,0));margin:0 -14px 0;background:#faf6ed;border-top:1px solid rgba(180,140,90,.22);box-sizing:content-box;position:relative;z-index:2;pointer-events:auto}
 .verse-range-all-note{margin:0;font-size:13px;color:#5a3818;line-height:1.5;opacity:0.92}
 .verse-range-mode-tabs{display:flex;gap:8px;margin-bottom:0;flex-shrink:0}
@@ -229,8 +283,8 @@ html.reader-verse-active main.content{padding-bottom:70px}
 .verse-range-range-label{margin:0 0 6px;font-size:14px;font-weight:600;color:#5C4A3A}
 .verse-range-preview{margin:4px 0 8px;text-align:center;font-size:14px;font-weight:600;color:#5a3818;min-height:22px}
 .verse-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:10px 0 16px}
-.verse-cell{aspect-ratio:1;min-height:38px;background:#fff;border:0.5px solid rgba(180,140,90,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#5a3818;cursor:pointer;font-family:inherit;padding:0;box-sizing:border-box}
-.verse-cell:active{transform:scale(0.92);transition:all 0.15s}
+.verse-cell{aspect-ratio:1;min-height:38px;background:#fff;border:0.5px solid rgba(180,140,90,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#5a3818;cursor:pointer;font-family:inherit;padding:0;box-sizing:border-box;transition:background-color .08s ease,border-color .08s ease,box-shadow .08s ease,transform .08s ease}
+.verse-cell:active{transform:scale(0.92)}
 .verse-cell.selected{background:#c89849;color:#fff;border-color:#a87a35}
 .verse-cell.disabled{opacity:0.4;pointer-events:none}
 .verse-range-btn-all{padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#B8860B,#9a7018);color:#fff;width:100%;position:relative;z-index:3;pointer-events:auto}
@@ -238,45 +292,118 @@ html.reader-verse-active main.content{padding-bottom:70px}
 .verse-range-split{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:10px 0 10px;align-items:stretch}
 .verse-range-column{display:flex;flex-direction:column;min-width:0}
 .verse-range-column:first-child{padding-right:8px;border-right:2px solid #c89849}
-.verse-range-column:last-child{padding-left:8px}
+.verse-range-column:last-child{padding-left:8px;position:relative}
 .verse-range-column-label{font-size:15px;font-weight:600;color:#3d2818;margin-bottom:6px;text-align:center;margin-top:0}
 .verse-range-column-scroll{max-height:none;overflow:visible;min-height:0}
 .verse-range-split .verse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:0}
 .verse-range-split .verse-cell{min-height:38px;font-size:14px;font-weight:600;color:#3d2818}
-.verse-range-split .verse-cell.verse-cell--range-mid{background:#c89849;color:#fff;border-color:#a87a35;font-weight:600}
-.verse-range-split .verse-cell.verse-cell--range-end{background:#a87a35;color:#fff;border-color:#8f6b2c;font-weight:700}
+.verse-range-split .verse-cell.verse-cell--range-end,
+.verse-range-split .verse-cell.verse-cell--range-mid{background:#F7EEDC;color:#4A3524;border:2px solid #C9A96A;font-weight:700;box-shadow:0 0 0 1px rgba(201,169,106,.22)}
+@media (hover:hover) and (pointer:fine) {
+  .verse-range-split .verse-cell:not(:disabled):not(.disabled):not(.verse-cell--range-end):not(.verse-cell--range-mid):hover{background:#C09A4A;color:#fff;border-color:#9B742A}
+}
+.verse-range-end-cell-wrap{position:relative;min-width:0;aspect-ratio:1}
+.verse-range-end-cell-wrap .verse-cell{width:100%;height:100%}
+#rangeEndMoveAction,
+.verse-range-move-action{position:absolute;left:8px;right:auto;top:0;bottom:auto;width:96px;height:44px;min-width:96px;padding:0 12px;border:1px solid #B8944F;border-radius:18px;background:#E2C98F;color:#4A3524;font-size:16px;font-weight:800;line-height:1;letter-spacing:-0.2px;box-sizing:border-box;box-shadow:0 8px 22px rgba(74,53,36,.18);z-index:8;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;transition:background-color .08s ease,transform .08s ease,box-shadow .08s ease}
+.verse-range-move-action[hidden]{display:none}
+.verse-range-move-action:active{background:#D7B873;transform:translateY(1px);box-shadow:0 4px 12px rgba(74,53,36,.16)}
+@media (hover:hover) and (pointer:fine) {
+  #rangeEndMoveAction:hover,
+  .verse-range-move-action:hover{background:#DCC184}
+}
 
-.unified-bc-overlay{display:none;position:fixed;inset:0;z-index:225;background:rgba(0,0,0,.45);align-items:flex-end;justify-content:center;box-sizing:border-box}
+.unified-bc-overlay{display:none;position:fixed;inset:0;z-index:10200;background:rgba(0,0,0,.45);align-items:stretch;justify-content:center;padding:0;box-sizing:border-box}
 .unified-bc-overlay.active{display:flex}
-.unified-bc-box{width:100%;max-width:480px;max-height:92vh;background:#faf6ed;border-radius:16px 16px 0 0;display:flex;flex-direction:column;overflow:hidden;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);box-shadow:0 -8px 32px rgba(0,0,0,.12);font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif}
+.unified-bc-box{position:relative;width:100%;max-width:var(--reader-frame-width,480px);height:100vh;height:100dvh;max-height:none;margin:0 auto;background:#faf6ed;border-radius:0;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif}
 .unified-bc-overlay.active .unified-bc-box{transform:translateY(0)}
-.unified-bc-head{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:0.5px solid rgba(180,140,90,.35);flex-shrink:0;background:#faf6ed}
-.unified-bc-head-btn{width:32px;height:32px;min-width:32px;padding:0;border:none;background:transparent;font-size:18px;color:#3d2818;cursor:pointer;font-family:inherit;line-height:1;display:flex;align-items:center;justify-content:center}
-.unified-bc-head-title{flex:1;min-width:0;text-align:center;font-size:15px;font-weight:600;color:#3d2818;padding:0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.unified-bc-head-spacer{width:32px;min-width:32px;flex-shrink:0}
-.unified-bc-body{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:0;padding:12px 14px calc(16px + env(safe-area-inset-bottom,0))}
+.unified-bc-head{flex:0 0 auto;display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;min-height:60px;padding:8px 10px;border-bottom:0.5px solid rgba(180,140,90,.35);background:#faf6ed;box-sizing:border-box}
+.unified-bc-head-btn{width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:none;background:transparent;font-size:20px;color:#17120F;cursor:pointer;font-family:inherit;line-height:1;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.unified-bc-head-link{min-height:44px;padding:0 10px;margin:0;border:none;background:transparent;font-size:14px;font-weight:600;color:#17120F;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.unified-bc-head-title{min-width:0;text-align:center;font-size:16px;font-weight:700;color:#17120F;padding:0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.unified-bc-head-spacer{width:44px;min-width:44px}
+.unified-move-tabs{display:flex;gap:8px;margin-bottom:14px}
+.unified-move-tab{flex:1;min-height:44px;padding:10px 8px;border-radius:12px;border:1px solid #E8E0D8;background:#fff;font-size:14px;font-weight:700;color:#888;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.unified-move-tab.active{background:#c89849;color:#fff;border-color:#c89849}
+.unified-bc-cur-book{text-align:center;font-size:19px;font-weight:700;color:#3d2818;margin-bottom:4px}
+.unified-bc-cur-cat{text-align:center;font-size:13px;font-weight:600;color:#6b5a44;margin-bottom:16px}
+.unified-bc-cat-select-btn{width:100%;min-height:44px;box-sizing:border-box;padding:0 14px;margin-bottom:16px;border-radius:10px;border:1px solid rgba(139,94,44,.28);background:#F7EEDC;color:#17120F;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;-webkit-tap-highlight-color:transparent}
+.unified-bc-cat-select-caret{font-size:11px;color:#6b5a44;flex-shrink:0}
+.unified-bc-body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0;box-sizing:border-box;padding:18px 20px 20px 16px}
 .unified-bc-cat-btn{width:100%;padding:14px;font-size:14px;font-weight:600;border-radius:12px;border:1px solid #c89849;background:#fff5e0;color:#8b5e2c;cursor:pointer;font-family:inherit;margin-bottom:12px;-webkit-tap-highlight-color:transparent}
 .unified-bc-cat-btn:active{opacity:0.9}
-.unified-bc-ttabs{display:flex;gap:8px;margin-bottom:12px}
-.unified-bc-ttab{flex:1;padding:12px 8px;border-radius:12px;border:1px solid #E8E0D8;background:#fff;font-size:13px;font-weight:600;color:#888;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.unified-bc-ttabs{display:flex;gap:8px;margin-bottom:18px}
+.unified-bc-ttab{flex:1;height:42px;min-height:42px;padding:0 8px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid #E8E0D8;background:#fff;font-size:13px;font-weight:600;color:#888;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
 .unified-bc-ttab.active{background:#c89849;color:#fff;border-color:#c89849}
-.unified-bc-sec{font-size:13px;font-weight:700;color:#5a3818;margin:14px 0 8px}
+.unified-bc-sec{font-size:13px;font-weight:700;color:#5a3818;text-align:left;margin:22px 0 11px}
 .unified-bc-sec:first-of-type{margin-top:4px}
-.unified-bc-book-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
-.unified-bc-book{min-height:44px;padding:14px 10px;border-radius:10px;border:0.5px solid rgba(180,140,90,.35);background:#fff;font-size:13px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit;text-align:center;-webkit-tap-highlight-color:transparent}
+.unified-bc-book-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;max-width:100%;gap:8px;margin-bottom:4px;box-sizing:border-box;overflow:visible}
+.unified-bc-book{width:100%;max-width:100%;min-width:0;min-height:48px;padding:6px 10px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid rgba(139,94,44,.22);background:#F7EEDC;font-size:14px;font-weight:600;color:#17120F;cursor:pointer;font-family:inherit;text-align:center;white-space:nowrap;position:relative;-webkit-tap-highlight-color:transparent}
 .unified-bc-book:active{transform:scale(0.98)}
-.unified-bc-book--sel{background:#c89849;color:#fff;border-color:#a87a35}
+.unified-bc-book--sel{background:#EAD7AF;border:1.5px solid #8B5E2C}
+.unified-bc-book--sel::after{content:'';position:absolute;left:7px;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:#8B5E2C}
 .unified-bc-back-books{width:100%;padding:12px;margin-bottom:10px;border-radius:10px;border:1px solid #E8E0D8;background:#fff;font-size:14px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit}
 .unified-bc-chapter-hint{text-align:center;font-size:13px;font-weight:600;color:#5a3818;margin-bottom:10px}
-.unified-bc-chapter-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.unified-bc-ch-btn{aspect-ratio:1;min-height:44px;min-width:0;padding:0;border-radius:10px;border:0.5px solid rgba(180,140,90,.35);background:#fff;font-size:13px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.unified-bc-chapter-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;max-width:560px;margin:0 auto}
+.unified-bc-ch-btn{width:100%;height:50px;min-height:48px;min-width:0;padding:0;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid rgba(139,94,44,.22);background:#F7EEDC;font-size:16px;font-weight:600;line-height:1;color:#17120F;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent}
 .unified-bc-ch-btn:active{transform:scale(0.96)}
-.unified-bc-ch--cur{background:#c89849;color:#fff;border-color:#a87a35}
+.unified-bc-ch--cur{background:#EAD7AF;border:1.5px solid #8B5E2C}
+.unified-bc-all-testament-title{font-size:15px;font-weight:700;color:#3d2818;text-align:left;margin:4px 0 12px}
+.unified-bc-all-testament-title:not(:first-child){margin-top:26px}
+.unified-bc-all-sec{font-size:13px;font-weight:700;color:#6b5a44;text-align:left;margin:14px 0 8px}
+.unified-bc-all-books-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%;max-width:100%;box-sizing:border-box;margin-bottom:4px;overflow:visible}
+.unified-bc-all-book{width:100%;max-width:100%;min-width:0;min-height:70px;padding:6px 6px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:10px;border:1px solid rgba(139,94,44,.22);background:#F7EEDC;cursor:pointer;font-family:inherit;text-align:center;position:relative;-webkit-tap-highlight-color:transparent}
+.unified-bc-all-book:active{transform:scale(0.98)}
+.unified-bc-all-book--sel{background:#EAD7AF;border:1.5px solid #8B5E2C}
+.unified-bc-all-book--sel::after{content:'';position:absolute;left:6px;top:6px;width:5px;height:5px;border-radius:50%;background:#8B5E2C}
+.unified-bc-all-book-name{font-size:13px;font-weight:700;color:#17120F;line-height:1.25;word-break:keep-all}
+.unified-bc-all-book-ch{font-size:11px;font-weight:500;color:#8a7860}
+.unified-bc-all-testament-title--old{color:#3d2818}
+.unified-bc-all-testament-title--new{color:#3F6C63}
+.unified-bc-all-book--old{background:#F7EEDC;color:#17120F;border:1px solid rgba(139,94,44,.22)}
+.unified-bc-all-book--new{background:#EAF2EF;color:#17120F;border:1px solid rgba(74,119,110,.28)}
+.unified-bc-all-book--new .unified-bc-all-book-ch{color:#5F766F}
+.unified-bc-all-book--old.unified-bc-all-book--sel{background:#EAD7AF;color:#111;border:1.5px solid #8B5E2C}
+.unified-bc-all-book--new.unified-bc-all-book--sel{background:#D5E6E1;color:#111;border:1.5px solid #4A776E}
+.unified-bc-all-book--new.unified-bc-all-book--sel::after{background:#4A776E}
+.unified-bc-box:has(.unified-bc-footer[hidden]) .unified-bc-body{padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+.unified-bc-footer{flex:0 0 auto;border-top:0.5px solid rgba(180,140,90,.35);background:#faf6ed;box-sizing:border-box;padding:0 16px env(safe-area-inset-bottom,0)}
+.unified-bc-footer-link{width:100%;min-height:56px;padding:0;border:none;background:transparent;color:#17120F;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;-webkit-tap-highlight-color:transparent}
+.unified-bc-footer-cat-btn{width:100%;min-height:56px;padding:0;border:none;background:transparent;color:#17120F;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent}
+.unified-bc-footer-caret{font-size:12px;color:#6b5a44}
+.unified-bc-cat-sheet{display:none;position:absolute;inset:0;z-index:2;background:rgba(0,0,0,.4);align-items:flex-end;justify-content:center;box-sizing:border-box}
+.unified-bc-cat-sheet.active{display:flex}
+.unified-bc-cat-sheet-box{width:100%;max-height:75%;background:#faf6ed;border-radius:16px 16px 0 0;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;box-shadow:0 -8px 24px rgba(0,0,0,.15)}
+.unified-bc-cat-sheet-head{position:relative;display:flex;align-items:center;justify-content:flex-end;min-height:52px;padding:6px;border-bottom:0.5px solid rgba(180,140,90,.35);flex-shrink:0;box-sizing:border-box}
+.unified-bc-cat-sheet-title{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#17120F;pointer-events:none}
+.unified-bc-cat-sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:0;box-sizing:border-box;padding:14px 16px calc(16px + env(safe-area-inset-bottom,0))}
+.unified-bc-cat-sheet-group{font-size:13px;font-weight:700;color:#5a3818;text-align:left;margin:18px 0 8px}
+.unified-bc-cat-sheet-group:first-child{margin-top:2px}
+.unified-bc-cat-item{width:100%;min-height:46px;box-sizing:border-box;padding:0 14px;margin-bottom:8px;border-radius:10px;border:1px solid rgba(139,94,44,.22);background:#F7EEDC;color:#17120F;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:space-between;text-align:left;-webkit-tap-highlight-color:transparent}
+.unified-bc-cat-item--cur{background:#EAD7AF;border:1.5px solid #8B5E2C}
+.unified-bc-cat-item-check{font-size:13px;color:#8B5E2C;font-weight:700}
+html.unified-bc-lock-scroll{overflow:hidden;height:100%}
+html.unified-bc-lock-scroll body{overflow:hidden;height:100%}
+@media (max-width:390px) {
+  .unified-bc-chapter-grid{gap:6px}
+  .unified-bc-ch-btn{height:46px;min-height:46px;font-size:15px;border-radius:10px}
+  .unified-bc-book-grid{gap:6px}
+  .unified-bc-book{padding:6px 8px;font-size:13px}
+}
+@media (max-width:340px) {
+  .unified-bc-all-books-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .unified-bc-all-book{min-height:66px;padding:6px 4px}
+  .unified-bc-all-book-name{font-size:12px}
+  .unified-bc-all-book-ch{font-size:10px}
+}
 /* verse-read-header */
-.verse-read-header{display:none;align-items:center;gap:8px;background:#faf6ed;padding:12px 14px;border-bottom:0.5px solid rgba(180,140,90,.35);box-sizing:border-box;width:100%}
-.verse-read-spacer{width:32px;height:32px;min-width:32px;flex-shrink:0;pointer-events:none}
-.verse-read-more{width:44px;height:44px;min-width:44px;padding:0;border:none;background:rgba(139, 94, 44, 0.18);font-size:24px;color:#3d2818;cursor:pointer;font-family:inherit;line-height:1;border-radius:50%;display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .15s ease, opacity .15s ease, background-color .15s ease}
-.verse-read-title{flex:1;min-width:0;border:none;background:transparent;font-size:16px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit;padding:8px 12px;display:flex;align-items:center;justify-content:center;gap:0;border-radius:8px;-webkit-tap-highlight-color:transparent}
+.verse-read-header{display:none;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;background:#faf6ed;padding:12px 14px;border-bottom:0.5px solid rgba(180,140,90,.35);box-sizing:border-box;width:100%}
+.verse-read-nav-btn{width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:none;background:transparent;color:#5a3818;cursor:pointer;font-family:inherit;border-radius:8px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .15s ease, opacity .15s ease}
+.verse-read-nav-btn::before{content:"";display:block;width:12px;height:12px;border-style:solid;border-color:currentColor;border-width:0 3px 3px 0;flex-shrink:0}
+.verse-read-prev::before{transform:rotate(135deg)}
+.verse-read-next::before{transform:rotate(-45deg)}
+.verse-read-nav-btn:disabled{opacity:0.35;cursor:default}
+.verse-read-title{min-width:0;border:none;background:transparent;font-size:16px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit;padding:8px 12px;display:flex;align-items:center;justify-content:center;gap:0;border-radius:8px;-webkit-tap-highlight-color:transparent}
 .verse-read-title:hover{background:rgba(200,152,73,.15)}
 .verse-read-title:active{background:rgba(200,152,73,.22)}
 .verse-read-title-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -299,7 +426,7 @@ html.reader-verse-active main.content{padding-bottom:70px}
   --scripture-dock-height:68px;
   --scripture-dock-gap:10px;
   --reader-dock-top-height:54px;
-  --opt4-bottom-bar-height:58px;
+  --opt4-bottom-bar-height:56px;
   --scripture-dock-inactive:#6A4A2E;
   --scripture-dock-active-color:#8A5A22;
 }
@@ -326,6 +453,19 @@ html.reader-verse-active main.content{padding-bottom:70px}
     flex-direction:column;
   }
   html.reader-hide-chrome.reader-chapter-active:not(.reader-verse-active) main.content{
+    flex:1 1 auto;
+    min-height:calc(100vh - var(--reader-dock-top-height) - var(--scripture-dock-height) - env(safe-area-inset-bottom,0px));
+    min-height:calc(100dvh - var(--reader-dock-top-height) - var(--scripture-dock-height) - env(safe-area-inset-bottom,0px));
+  }
+  html.reader-hide-chrome .phone-frame:has(#oldView.active),
+  html.reader-hide-chrome .phone-frame:has(#newView.active){
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+  }
+  html.reader-hide-chrome .phone-frame:has(#oldView.active) main.content,
+  html.reader-hide-chrome .phone-frame:has(#newView.active) main.content{
     flex:1 1 auto;
     min-height:calc(100vh - var(--reader-dock-top-height) - var(--scripture-dock-height) - env(safe-area-inset-bottom,0px));
     min-height:calc(100dvh - var(--reader-dock-top-height) - var(--scripture-dock-height) - env(safe-area-inset-bottom,0px));
@@ -506,9 +646,6 @@ html.reader-verse-active main.content{padding-bottom:70px}
   html.reader-hide-chrome main.content{
     scroll-padding-bottom:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px) + 12px);
   }
-  html.reader-hide-chrome.reader-verse-active .opt4-bottom-bar{
-    bottom:calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px));
-  }
   html.reader-hide-chrome.reader-verse-active main.content{
     padding-bottom:calc(var(--scripture-dock-height) + 70px + env(safe-area-inset-bottom,0px) + 8px);
   }
@@ -571,20 +708,23 @@ html.reader-hide-chrome .scripture-dock{
     right:auto;
     transform:translateX(-50%);
     margin:0;
-    bottom:calc(var(--scripture-dock-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px));
-    padding-bottom:10px;
+    bottom:calc(var(--scripture-dock-real-height, calc(var(--scripture-dock-height) + env(safe-area-inset-bottom,0px))) - 1px);
+    padding-bottom:8px;
     border-radius:14px 14px 0 0;
     box-shadow:0 -1px 0 rgba(200,170,120,.24);
+    border-bottom:1px solid rgb(200,170,120);
   }
   html.reader-hide-chrome.reader-verse-active main.content{
-    padding-bottom:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px) + 20px);
-    scroll-padding-bottom:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px) + 20px);
+    padding-bottom:8px;
+    scroll-padding-bottom:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + env(safe-area-inset-bottom,0px) + 20px);
   }
   html.reader-hide-chrome.reader-verse-active .verse-list{
-    padding-bottom:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px) + 16px);
+    padding-bottom:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + env(safe-area-inset-bottom,0px) + 16px);
+    min-height:calc(100vh - var(--reader-dock-top-height) - 16px);
+    min-height:calc(100dvh - var(--reader-dock-top-height) - 16px);
   }
   html.reader-hide-chrome.reader-verse-active{
-    --gomna-audio-bottom-bar-height:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + var(--scripture-dock-gap) + env(safe-area-inset-bottom,0px));
+    --gomna-audio-bottom-bar-height:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + env(safe-area-inset-bottom,0px));
   }
 html.reader-hide-chrome .reader-dock-top-pill{
   min-width:52px;
@@ -614,7 +754,7 @@ html.reader-hide-chrome .reader-dock-top-pill{
 <link rel="manifest" href="manifest.json?v=20260704-pwa-cache-fix">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260604-1830">
-<script src="gomna_category_feature.js?v=20260710-reader-chapter-fill-v100" defer></script>
+<script src="gomna_category_feature.js?v=20260711-verse-toolbar-v106" defer></script>
 <script>
 window.GOMNA_ASSET_VERSION = "20260704-pwa-cache-fix";
 if ("serviceWorker" in navigator) {
@@ -766,11 +906,11 @@ if ("serviceWorker" in navigator) {
     </div>
   </header>
   <nav id="verseReadHeader" class="verse-read-header" style="display:none" aria-label="읽기 헤더">
-    <span class="verse-read-spacer" aria-hidden="true"></span>
+    <button type="button" class="verse-read-nav-btn verse-read-prev" id="verseReadPrevBtn" onclick="prevChapter()" aria-label="이전 장"></button>
     <button type="button" class="verse-read-title" id="verseReadTitleBtn" onclick="openUnifiedBookChapterModal()" aria-label="책·장 선택">
       <span class="verse-read-title-text" id="verseReadTitleText"></span><span class="verse-read-caret" aria-hidden="true">▼</span>
     </button>
-    <button type="button" class="verse-read-more" onclick="openVerseReadMoreMenu()" aria-label="더보기">⋯</button>
+    <button type="button" class="verse-read-nav-btn verse-read-next" id="verseReadNextBtn" onclick="nextChapter()" aria-label="다음 장"></button>
   </nav>
   <div id="verseReadMoreOverlay" class="verse-read-more-overlay" aria-hidden="true" onclick="if(event.target===this)closeVerseReadMoreMenu()">
     <div class="verse-read-more-sheet" onclick="event.stopPropagation()">
@@ -783,12 +923,18 @@ if ("serviceWorker" in navigator) {
   </div>
   <div id="unifiedBookChapterModal" class="unified-bc-overlay" aria-hidden="true" role="dialog" aria-modal="true" onclick="if(event.target===this)closeUnifiedBookChapterModal()">
     <div class="unified-bc-box" onclick="event.stopPropagation()">
-      <div class="unified-bc-head">
-        <button type="button" class="unified-bc-head-btn" onclick="closeUnifiedBookChapterModal()" aria-label="닫기">✕</button>
-        <span class="unified-bc-head-title" id="unifiedBcHeadTitle"></span>
-        <span class="unified-bc-head-spacer" aria-hidden="true"></span>
-      </div>
+      <div class="unified-bc-head" id="unifiedBcHead"></div>
       <div class="unified-bc-body" id="unifiedBcBody"></div>
+      <div class="unified-bc-footer" id="unifiedBcFooter"></div>
+      <div class="unified-bc-cat-sheet" id="unifiedBcCatSheet" aria-hidden="true" onclick="if(event.target===this)unifiedBcCloseCatSheet()">
+        <div class="unified-bc-cat-sheet-box" onclick="event.stopPropagation()">
+          <div class="unified-bc-cat-sheet-head">
+            <span class="unified-bc-cat-sheet-title">책 분류 선택</span>
+            <button type="button" class="unified-bc-head-btn" onclick="unifiedBcCloseCatSheet()" aria-label="닫기">✕</button>
+          </div>
+          <div class="unified-bc-cat-sheet-body" id="unifiedBcCatSheetBody"></div>
+        </div>
+      </div>
     </div>
   </div>
   <main class="content">
@@ -832,14 +978,43 @@ if ("serviceWorker" in navigator) {
       <span class="scripture-dock-label">보관함</span>
     </button>
   </nav>
-  <nav id="opt4BottomBar" class="opt4-bottom-bar" aria-label="장 이동 및 말씀풀이">
-    <button type="button" class="opt4-bottom-prev" id="opt4BottomPrev" onclick="prevChapter()">◀ 이전장</button>
-    <button type="button" class="opt4-bottom-commentary" id="opt4BottomCommentary" onclick="opt4OpenBarCommentary()">📖 말씀풀이</button>
-    <button type="button" class="opt4-bottom-next" id="opt4BottomNext" onclick="nextChapter()">다음장 ▶</button>
+  <nav id="opt4BottomBar" class="opt4-bottom-bar" aria-label="장 이동 및 절 도구">
+    <div id="opt4ChapterBar" class="opt4-bar-mode">
+      <button type="button" class="opt4-bottom-prev" id="opt4BottomPrev" onclick="prevChapter()">이전 장</button>
+      <button type="button" class="opt4-bottom-chapters" id="opt4BottomChapters" onclick="opt4OpenChapterList()">장 목록</button>
+      <button type="button" class="opt4-bottom-next" id="opt4BottomNext" onclick="nextChapter()">다음 장</button>
+    </div>
+    <div id="opt4VerseToolbar" class="opt4-bar-mode">
+      <div class="verse-toolbar-target-wrap">
+        <button type="button" class="verse-toolbar-target-btn" id="verseToolbarTargetButton" onclick="toggleVerseToolbarTargetMenu()" aria-haspopup="true" aria-expanded="false">장 전체 ▼</button>
+        <div class="verse-toolbar-target-menu" id="verseToolbarTargetMenu" hidden role="menu">
+          <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="selected" onclick="chooseVerseListenTargetMode('selected')" role="menuitemradio">선택한 절</button>
+          <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="range" onclick="chooseVerseListenTargetMode('range')" role="menuitemradio">절 범위</button>
+          <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="chapter" onclick="chooseVerseListenTargetMode('chapter')" role="menuitemradio">장 전체</button>
+        </div>
+      </div>
+      <button type="button" class="opt4-verse-listen" id="opt4VerseListen" data-audio-action="play-verse-to-end">전체 듣기</button>
+      <button type="button" class="opt4-verse-commentary" id="opt4VerseCommentary" onclick="opt4ToolbarCommentary()">말씀풀이</button>
+      <button type="button" class="opt4-verse-more" id="opt4VerseMore" onclick="openVerseToolbarMoreMenu()">더보기</button>
+    </div>
   </nav>
+  <div id="verseToolbarMoreOverlay" class="verse-toolbar-more-overlay" aria-hidden="true" onclick="if(event.target===this)closeVerseToolbarMoreMenu()">
+    <div class="verse-toolbar-more-sheet" onclick="event.stopPropagation()">
+      <button type="button" class="verse-toolbar-more-item" id="verseToolbarSaveBtn" onclick="opt4ToolbarSave()">저장</button>
+      <button type="button" class="verse-toolbar-more-item" onclick="opt4ToolbarShare()">공유</button>
+      <button type="button" class="verse-toolbar-more-item" onclick="opt4ToolbarCopy()">본문 복사</button>
+      <button type="button" class="verse-toolbar-more-item" onclick="opt4ToolbarDeselect()">선택 해제</button>
+    </div>
+  </div>
   <div id="verseRangeModal" class="verse-range-modal-overlay" role="dialog" aria-modal="true" aria-hidden="true" onclick="if(event.target===this)closeVerseRangeModal()">
     <div id="verseRangeModalBox" class="verse-range-modal-box" onclick="event.stopPropagation()">
-      <div class="verse-range-modal-head" id="verseRangeDragHeader"><span id="verseRangeModalTitle">절 범위</span><button type="button" class="verse-range-modal-close" onclick="closeVerseRangeModal()">✕</button></div>
+      <div class="range-header">
+        <div class="range-header-left">
+          <span class="range-title" id="verseRangeModalTitle">절 범위</span>
+          <button type="button" id="rangeStatusAction" class="range-status-tag" disabled aria-disabled="true">시작 절을 선택해 주세요</button>
+        </div>
+        <button type="button" class="range-close" onclick="closeVerseRangeModal()" aria-label="닫기">✕</button>
+      </div>
       <div id="verseRangeModalBody" class="verse-range-modal-body"></div>
     </div>
   </div>
@@ -971,6 +1146,11 @@ var currentChapter = null;
 var lastReaderReturn = null;
 var currentVerseCount = 0;
 var opt4RangeStart = 1;
+var selectedVerseNum = null;
+var selectedVerseNums = [];
+var verseListenMode = 'selected';
+var multiCommentaryList = null;
+var multiCommentaryIndex = -1;
 var opt4RangeEnd = 1;
 var verseRangeModalMax = 0;
 var verseRangeSelStart = 0;
@@ -1050,6 +1230,18 @@ function syncScriptureDockActive(forceSection) {
     });
     updateReaderDockTop();
     syncReaderChapterLayout();
+    syncScriptureDockRealHeight();
+  } catch (e) {}
+}
+
+function syncScriptureDockRealHeight() {
+  try {
+    var dock = document.getElementById('scriptureDock');
+    if (!dock) return;
+    var h = dock.getBoundingClientRect().height;
+    if (h > 0) {
+      document.documentElement.style.setProperty('--scripture-dock-real-height', h + 'px');
+    }
   } catch (e) {}
 }
 
@@ -1100,14 +1292,33 @@ function updateReaderDockTop() {
   } catch (e) {}
 }
 
+function getBibleListScrollContainer() {
+  var main = document.querySelector('main.content');
+  if (main) {
+    var overflowY = window.getComputedStyle(main).overflowY;
+    if ((overflowY === 'auto' || overflowY === 'scroll') && main.scrollHeight > main.clientHeight + 1) {
+      return main;
+    }
+  }
+  return document.scrollingElement || document.documentElement;
+}
+
+function resetBibleListScroll() {
+  var scrollEl = getBibleListScrollContainer();
+  function scrollToTop() {
+    if (!scrollEl) return;
+    scrollEl.scrollTop = 0;
+  }
+  scrollToTop();
+  requestAnimationFrame(function() {
+    scrollToTop();
+  });
+}
+
 function dockSwitchTestament(testament) {
   if (!testament) return;
   switchTab(testament === 'new' ? 'new' : 'old');
-  var view = document.getElementById((testament === 'new' ? 'new' : 'old') + 'View');
-  if (view) {
-    try { view.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
-    try { view.scrollTop = 0; } catch (e2) {}
-  }
+  resetBibleListScroll();
   syncScriptureDockActive('bible');
 }
 
@@ -1310,6 +1521,7 @@ function initializeApp() {
   renderEasyFind();
   renderFavorites();
   var _si=document.getElementById('searchInput');if(_si)_si.addEventListener('keypress', function(e) { if(e.key === 'Enter') doSearch(); });
+  initVerseToolbarEvents();
   runDeferredUrlNavigation();
   syncReaderDockMode();
 }
@@ -1492,13 +1704,14 @@ function renderEasyFind() {
   // Rows 3-7: 10 category buttons in OT-then-NT document order.
   // grid-auto-flow:column places them column-first, skipping rows 1-2 which
   // are already occupied by the ★ banner span and the headers.
-  cats.forEach(function(c) {
+  cats.forEach(function(c, catIdx) {
     var key = c[0];
     var enText = window.GomnaBibleCategories.getLabel(key, 'en');
     var labelText = isKorean
       ? window.GomnaBibleCategories.getLabel(key, 'ko')
       : window.GomnaBibleCategories.getLabel(key, lang);
-    html += '<button class="consonant-btn cat-btn" onclick="filterByCategory(\'' + key + '\',this)" translate="no">';
+    var catTestCls = catIdx < 5 ? ' easy-cat--old' : ' easy-cat--new';
+    html += '<button class="consonant-btn cat-btn' + catTestCls + '" onclick="filterByCategory(\'' + key + '\',this)" translate="no">';
     html += '<span class="cat-foreign-line" data-i18n-cat-foreign="' + key + '">' + _escR(enText) + '</span>';
     html += '<span class="cat-label" data-i18n-cat-name="' + key + '">' + _escR(labelText) + '</span>';
     html += '</button>';
@@ -1525,7 +1738,7 @@ function showAllBooks(btn) {
     ? ('전체 성경 · All Books (' + all.length + ')')
     : (_allLbl(lang) + ' (' + all.length + ')');
   var html = '<div class="filtered-title" translate="no">' + _escR(titleText) + '</div><div class="book-grid">';
-  all.forEach(function(b) { html += '<button class="book-btn" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + getChapterUnit(b.name) + '</div></button>'; });
+  all.forEach(function(b) { var bookTestCls = b.testament === 'old' ? ' easy-book--old' : ' easy-book--new'; html += '<button class="book-btn' + bookTestCls + '" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + getChapterUnit(b.name) + '</div></button>'; });
   html += '</div>';
   document.getElementById('filteredBooks').innerHTML = html;
 }
@@ -1551,7 +1764,7 @@ function filterByCategory(key, btn) {
   var html = filtered.length === 0
     ? '<div class="empty-state"><div class="msg">해당 분류에 책이 없습니다</div></div>'
     : '<div class="filtered-title" translate="no">' + _escR(titleText) + '</div><div class="book-grid">';
-  filtered.forEach(function(b) { html += '<button class="book-btn" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + getChapterUnit(b.name) + '</div></button>'; });
+  filtered.forEach(function(b) { var bookTestCls = b.testament === 'old' ? ' easy-book--old' : ' easy-book--new'; html += '<button class="book-btn' + bookTestCls + '" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + getChapterUnit(b.name) + '</div></button>'; });
   if(filtered.length > 0) html += '</div>';
   document.getElementById('filteredBooks').innerHTML = html;
 }
@@ -1562,7 +1775,7 @@ function filterByConsonant(c, btn) {
   var all = getAllBooks();
   var filtered = all.filter(function(b) { return getInitialConsonant(b.name) === c; });
   var html = filtered.length === 0 ? '<div class="empty-state"><div class="msg">해당 자음으로 시작하는 책이 없습니다</div></div>' : '<div class="filtered-title">\'' + c + '\'으로 시작 (' + filtered.length + '권)</div><div class="book-grid">';
-  filtered.forEach(function(b) { html += '<button class="book-btn" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + getChapterUnit(b.name) + '</div></button>'; });
+  filtered.forEach(function(b) { var bookTestCls = b.testament === 'old' ? ' easy-book--old' : ' easy-book--new'; html += '<button class="book-btn' + bookTestCls + '" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + getChapterUnit(b.name) + '</div></button>'; });
   if(filtered.length > 0) html += '</div>';
   document.getElementById('filteredBooks').innerHTML = html;
 }
@@ -1607,25 +1820,27 @@ function renderVerses(highlightVerse) {
   if(!chapterData) return;
   var verses = chapterData.verses;
   currentVerseCount = verses.length;
-  
+  selectedVerseNum = null;
+  selectedVerseNums = [];
+  verseListenMode = 'chapter';
+  multiCommentaryList = null;
+  multiCommentaryIndex = -1;
+  closeVerseToolbarMoreMenu();
+  closeVerseToolbarTargetMenu();
+
   var chapterUnit = getChapterUnit(currentBook.name);
   var html = '<div class="verse-range-box" id="verseRangeBoxBtn"><span class="verse-range-box-inner"><span class="verse-range-label">절 범위</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-actions"><button type="button" class="verse-range-action" onclick="openVerseRangeModal()">범위 선택 ▼</button><button type="button" class="verse-range-action verse-range-action-primary" data-audio-action="play-range">▶ 선택 범위 듣기</button></span></div>';
   html += '<div class="verse-list" id="verseList">';
-  
+
   verses.forEach(function(v) {
-    var isFav = favorites.some(function(f) { return f.ref === currentBook.name + ' ' + currentChapter + ':' + v.verse; });
-    html += '<div class="verse-item" data-verse="' + v.verse + '"><div class="verse-top"><span class="verse-num">' + v.verse + '절</span><span class="verse-text">' + v.text + '</span></div>';
-    html += '<div class="verse-actions">';
-    html += '<button class="action-btn" onclick="showCommentary(' + v.verse + ')">📖 말씀풀이</button>';
-    html += '<button class="action-btn" onclick="shareVerse(' + v.verse + ')">공유</button>';
-    html += '<button class="action-btn fav-btn' + (isFav ? ' active' : '') + '" onclick="toggleFav(\'' + currentBook.name + '\',' + currentChapter + ',' + v.verse + ',\'' + v.text.replace(/'/g, "\\'") + '\')">보관</button>';
-    html += '</div></div>';
+    html += '<div class="verse-item" role="button" tabindex="0" aria-selected="false" data-verse="' + v.verse + '"><div class="verse-top"><span class="verse-num">' + v.verse + '절</span><span class="verse-text">' + v.text + '</span></div></div>';
   });
   html += '</div>';
   document.getElementById('verseView').innerHTML = html;
   opt4RangeStart = 1;
   opt4RangeEnd = verses.length;
   applyRange(1, verses.length);
+  syncChapterSelectionHighlight();
   updateVerseRangeBoxLabel();
   updateOpt4BottomBar();
   if (window.GomnaAnalytics && currentBook) {
@@ -1637,6 +1852,7 @@ function renderVerses(highlightVerse) {
       chapter: currentChapter
     }
   }));
+  if (highlightVerse) selectVerse(highlightVerse);
 }
 
 
@@ -1754,21 +1970,41 @@ function showCommentary(verseNum) {
   var totalVerses = getTotalVersesInChapter(bookName, chapter);
   var prevChapter = chapter - 1;
   var nextChapter = chapter + 1;
-  var prevVerse = verseNum - 1;
-  var nextVerse = verseNum + 1;
+
+  // 다중 선택 말씀풀이 이동: opt4ToolbarCommentary()에서 2개 이상 선택 시에만 활성화됨
+  var isMultiCommentary = !!(multiCommentaryList && multiCommentaryList.length > 1);
+  var multiIdx = isMultiCommentary ? multiCommentaryList.indexOf(verseNum) : -1;
+  if (isMultiCommentary && multiIdx === -1) {
+    // 선택 절 목록 밖의 절로 이동한 경우(예: 교차참조 링크) 기존 이동 방식으로 복귀
+    isMultiCommentary = false;
+    multiCommentaryList = null;
+    multiCommentaryIndex = -1;
+  } else if (isMultiCommentary) {
+    multiCommentaryIndex = multiIdx;
+  }
+
+  var prevVerse = isMultiCommentary ? (multiIdx > 0 ? multiCommentaryList[multiIdx - 1] : null) : verseNum - 1;
+  var nextVerse = isMultiCommentary ? (multiIdx < multiCommentaryList.length - 1 ? multiCommentaryList[multiIdx + 1] : null) : verseNum + 1;
+  var prevDisabled = isMultiCommentary ? (prevVerse === null) : (prevVerse < 1);
+  var nextDisabled = isMultiCommentary ? (nextVerse === null) : (nextVerse > totalVerses);
+  var prevTarget = prevVerse === null ? verseNum : prevVerse;
+  var nextTarget = nextVerse === null ? verseNum : nextVerse;
 
   var chapterUnit = getChapterUnit(bookName);
   // 골드 박스 3칸: 이전절 ◀ | 책 장:절 ▼ | 다음절 ▶
   var content = '<div class="commentary-verse-ref">';
-  content += '<button type="button" class="commentary-nav-arrow" onclick="goToVerseCommentary(' + prevVerse + ')"' + (prevVerse < 1 ? ' disabled' : '') + ' aria-label="이전 절">◀</button>';
+  content += '<button type="button" class="commentary-nav-arrow" onclick="goToVerseCommentary(' + prevTarget + ')"' + (prevDisabled ? ' disabled' : '') + ' aria-label="이전 절">◀</button>';
   content += '<button type="button" class="commentary-nav-pick" onclick="openUnifiedBookChapterModal()" aria-label="책·장 선택"><span class="commentary-nav-pick-txt">' + bookName + ' ' + chapter + ':' + verseNum + '</span><span class="commentary-nav-pick-caret">▼</span></button>';
-  content += '<button type="button" class="commentary-nav-arrow" onclick="goToVerseCommentary(' + nextVerse + ')"' + (nextVerse > totalVerses ? ' disabled' : '') + ' aria-label="다음 절">▶</button>';
+  content += '<button type="button" class="commentary-nav-arrow" onclick="goToVerseCommentary(' + nextTarget + ')"' + (nextDisabled ? ' disabled' : '') + ' aria-label="다음 절">▶</button>';
   content += '</div>';
+  if (isMultiCommentary) {
+    content += '<div class="commentary-multi-status">선택 말씀 ' + (multiIdx + 1) + ' / ' + multiCommentaryList.length + (nextDisabled ? ' · 선택 말씀 완료' : '') + '</div>';
+  }
   
   // 하단 네비게이션 (각 탭에서 사용)
   var bottomNav = '<div class="commentary-bottom-nav" style="display:flex; justify-content:space-between; padding:10px 5px; margin-top:10px; border-top:1px solid #ddd;">';
-  bottomNav += '<button class="commentary-nav-btn" onclick="goToVerseCommentary(' + prevVerse + ')"' + (prevVerse < 1 ? ' disabled' : '') + ' style="flex:1; margin-right:5px;">◀ 이전절</button>';
-  bottomNav += '<button class="commentary-nav-btn" onclick="goToVerseCommentary(' + nextVerse + ')"' + (nextVerse > totalVerses ? ' disabled' : '') + ' style="flex:1; margin-left:5px;">다음절 ▶</button>';
+  bottomNav += '<button class="commentary-nav-btn" onclick="goToVerseCommentary(' + prevTarget + ')"' + (prevDisabled ? ' disabled' : '') + ' style="flex:1; margin-right:5px;">◀ 이전절</button>';
+  bottomNav += '<button class="commentary-nav-btn" onclick="goToVerseCommentary(' + nextTarget + ')"' + (nextDisabled ? ' disabled' : '') + ' style="flex:1; margin-left:5px;">다음절 ▶</button>';
   bottomNav += '</div>';
   
   // pastorCommentaryData 직접 확인
@@ -2083,6 +2319,9 @@ function closeCommentary() {
     window.GOMNA_AUDIO_COMMENTARY_BUTTONS.stopIfCommentaryAudio();
   }
 
+  multiCommentaryList = null;
+  multiCommentaryIndex = -1;
+
   document.getElementById('commentaryPopup').classList.remove('show');
   // 드래그 위치 초기화
   var box = document.getElementById('commentaryPopupBox');
@@ -2209,7 +2448,7 @@ function updateVerseRangeBoxLabel() {
 }
 
 
-var unifiedBcState = { step: 'books', testament: 'old', selectedBook: null, displayChapters: 0 };
+var unifiedBcState = { step: 'chapters', testament: 'old', selectedBook: null, displayChapters: 0, bookListCategory: null };
 
 function getUnifiedOldSections() {
   return [
@@ -2231,13 +2470,32 @@ function getUnifiedNewSections() {
   ];
 }
 
+function stripUnifiedSectionEmoji(title) {
+  return String(title || '').replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\uFE0F\u200D]+\s*/u, '').trim();
+}
+
+function findUnifiedBookSection(bookName, testament) {
+  var sections = testament === 'old' ? getUnifiedOldSections() : getUnifiedNewSections();
+  for (var s = 0; s < sections.length; s++) {
+    if (sections[s].books.indexOf(bookName) !== -1) return sections[s];
+  }
+  return null;
+}
+
+function getUnifiedBookCategoryLabel(bookName, testament) {
+  var sec = findUnifiedBookSection(bookName, testament);
+  if (!sec) return null;
+  return (testament === 'old' ? '구약' : '신약') + ' · ' + stripUnifiedSectionEmoji(sec.title);
+}
+
 function buildUnifiedBooksHtml(testament) {
   var sections = testament === 'old' ? getUnifiedOldSections() : getUnifiedNewSections();
   var data = testament === 'old' ? oldTestamentData : newTestamentData;
   var html = '';
   for (var s = 0; s < sections.length; s++) {
     var sec = sections[s];
-    html += '<div class="unified-bc-sec">' + sec.title + '</div><div class="unified-bc-book-grid">';
+    var secTitle = stripUnifiedSectionEmoji(sec.title);
+    html += '<div class="unified-bc-sec">' + secTitle + '</div><div class="unified-bc-book-grid">';
     for (var b = 0; b < sec.books.length; b++) {
       var bookName = sec.books[b];
       var bd = findBook(data, bookName);
@@ -2251,37 +2509,184 @@ function buildUnifiedBooksHtml(testament) {
   return html;
 }
 
+function buildUnifiedCategoryBooksHtml(testament, categoryLabel) {
+  var sections = testament === 'old' ? getUnifiedOldSections() : getUnifiedNewSections();
+  var data = testament === 'old' ? oldTestamentData : newTestamentData;
+  var sec = null;
+  for (var s = 0; s < sections.length; s++) {
+    if (stripUnifiedSectionEmoji(sections[s].title) === categoryLabel) { sec = sections[s]; break; }
+  }
+  if (!sec) return '';
+  var html = '';
+  for (var b = 0; b < sec.books.length; b++) {
+    var bookName = sec.books[b];
+    var bd = findBook(data, bookName);
+    if (!bd) continue;
+    var chc = getDisplayedChapterCount(bd);
+    var sel = (currentBook && currentBook.name === bookName && currentBook.testament === testament) ? ' unified-bc-book--sel' : '';
+    html += '<button type="button" class="unified-bc-book' + sel + '" onclick="unifiedBcPickBook(\'' + bookName + '\',' + chc + ',\'' + testament + '\')">' + bookName + '</button>';
+  }
+  return html;
+}
+
+function buildUnifiedAllBooksSectionsHtml(sections, data, testament) {
+  var html = '';
+  for (var s = 0; s < sections.length; s++) {
+    var sec = sections[s];
+    var secTitle = stripUnifiedSectionEmoji(sec.title);
+    html += '<div class="unified-bc-all-sec">' + secTitle + '</div><div class="unified-bc-all-books-grid">';
+    for (var b = 0; b < sec.books.length; b++) {
+      var bookName = sec.books[b];
+      var bd = findBook(data, bookName);
+      if (!bd) continue;
+      var chc = getDisplayedChapterCount(bd);
+      var unit = getChapterUnit(bookName);
+      var testCls = testament === 'old' ? ' unified-bc-all-book--old' : ' unified-bc-all-book--new';
+      var sel = (currentBook && currentBook.name === bookName && currentBook.testament === testament) ? ' unified-bc-all-book--sel' : '';
+      html += '<button type="button" class="unified-bc-all-book' + testCls + sel + '" onclick="unifiedBcPickBook(\'' + bookName + '\',' + chc + ',\'' + testament + '\')"><span class="unified-bc-all-book-name">' + bookName + '</span><span class="unified-bc-all-book-ch">' + chc + unit + '</span></button>';
+    }
+    html += '</div>';
+  }
+  return html;
+}
+
+function buildUnifiedAllBooksHtml() {
+  var html = '';
+  html += '<div class="unified-bc-all-testament-title unified-bc-all-testament-title--old">구약 · 39권</div>';
+  html += buildUnifiedAllBooksSectionsHtml(getUnifiedOldSections(), oldTestamentData, 'old');
+  html += '<div class="unified-bc-all-testament-title unified-bc-all-testament-title--new">신약 · 27권</div>';
+  html += buildUnifiedAllBooksSectionsHtml(getUnifiedNewSections(), newTestamentData, 'new');
+  return html;
+}
+
+function renderUnifiedModalHead() {
+  var head = document.getElementById('unifiedBcHead');
+  if (!head) return;
+  var html = '';
+  if (unifiedBcState.step === 'books') {
+    html += '<button type="button" class="unified-bc-head-btn" onclick="unifiedBcBackToChapters()" aria-label="뒤로가기">‹</button>';
+    html += '<span class="unified-bc-head-title">책 선택</span>';
+    html += '<button type="button" class="unified-bc-head-btn" onclick="closeUnifiedBookChapterModal()" aria-label="닫기">✕</button>';
+  } else {
+    html += '<button type="button" class="unified-bc-head-btn" onclick="closeUnifiedBookChapterModal()" aria-label="닫기">✕</button>';
+    html += '<span class="unified-bc-head-title">' + (unifiedBcState.selectedBook || '') + '</span>';
+    html += '<span class="unified-bc-head-spacer" aria-hidden="true"></span>';
+  }
+  head.innerHTML = html;
+}
+
+function renderUnifiedModalFooter() {
+  var footer = document.getElementById('unifiedBcFooter');
+  if (!footer) return;
+  if (unifiedBcState.step === 'books') {
+    footer.innerHTML = '';
+    footer.hidden = true;
+    return;
+  }
+  footer.hidden = false;
+  footer.innerHTML = '<button type="button" class="unified-bc-footer-link" onclick="unifiedBcGoBookList()">책 바꾸기 <span aria-hidden="true">›</span></button>';
+}
+
 function renderUnifiedModalBody() {
+  renderUnifiedModalHead();
+  renderUnifiedModalFooter();
   var body = document.getElementById('unifiedBcBody');
   if (!body) return;
   var html = '';
-  html += '<button type="button" class="unified-bc-cat-btn" onclick="unifiedBcGoCategoryList()">📚 카테고리 목록으로</button>';
-  html += '<div class="unified-bc-ttabs">';
-  html += '<button type="button" class="unified-bc-ttab' + (unifiedBcState.testament === 'old' ? ' active' : '') + '" data-t="old" type="button">구약 39권</button>';
-  html += '<button type="button" class="unified-bc-ttab' + (unifiedBcState.testament === 'new' ? ' active' : '') + '" data-t="new" type="button">신약 27권</button>';
-  html += '</div>';
   if (unifiedBcState.step === 'books') {
-    html += buildUnifiedBooksHtml(unifiedBcState.testament);
+    html += buildUnifiedAllBooksHtml();
   } else {
-    html += '<button type="button" class="unified-bc-back-books" onclick="unifiedBcBackToBooks()">← 책 목록</button>';
-    var unit = getChapterUnit(unifiedBcState.selectedBook);
-    html += '<div class="unified-bc-chapter-hint">' + unifiedBcState.selectedBook + ' ' + unit + ' 선택</div>';
+    var curCatLabel = getUnifiedBookCategoryLabel(unifiedBcState.selectedBook, unifiedBcState.testament);
+    if (curCatLabel) html += '<div class="unified-bc-cur-cat">' + curCatLabel + '</div>';
     html += '<div class="unified-bc-chapter-grid">';
     for (var i = 1; i <= unifiedBcState.displayChapters; i++) {
-      var cur = (currentBook && currentBook.name === unifiedBcState.selectedBook && currentChapter === i) ? ' unified-bc-ch--cur' : '';
-      html += '<button type="button" class="unified-bc-ch-btn' + cur + '" onclick="unifiedBcApplyChapter(' + i + ')">' + i + '</button>';
+      var isCur = currentBook && currentBook.name === unifiedBcState.selectedBook && currentChapter === i;
+      html += '<button type="button" class="unified-bc-ch-btn' + (isCur ? ' unified-bc-ch--cur' : '') + '"' + (isCur ? ' aria-current="page"' : '') + ' onclick="unifiedBcApplyChapter(' + i + ')">' + i + '</button>';
     }
     html += '</div>';
   }
   body.innerHTML = html;
-  body.querySelectorAll('.unified-bc-ttab').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      unifiedBcState.testament = btn.getAttribute('data-t');
-      unifiedBcState.step = 'books';
-      unifiedBcState.selectedBook = null;
-      renderUnifiedModalBody();
-    });
+  if (unifiedBcState.step === 'chapters') {
+    var curBtn = body.querySelector('.unified-bc-ch--cur');
+    if (curBtn) curBtn.scrollIntoView({ block: 'center' });
+  }
+}
+
+function unifiedBcGoBookList() {
+  var sec = findUnifiedBookSection(unifiedBcState.selectedBook, unifiedBcState.testament);
+  if (sec) {
+    unifiedBcState.bookListCategory = stripUnifiedSectionEmoji(sec.title);
+  } else {
+    var fallback = getUnifiedOldSections()[0];
+    unifiedBcState.testament = 'old';
+    unifiedBcState.bookListCategory = stripUnifiedSectionEmoji(fallback.title);
+  }
+  unifiedBcState.step = 'books';
+  renderUnifiedModalBody();
+}
+
+function unifiedBcBackToChapters() {
+  unifiedBcState.step = 'chapters';
+  renderUnifiedModalBody();
+}
+
+function renderUnifiedCatSheet() {
+  var body = document.getElementById('unifiedBcCatSheetBody');
+  if (!body) return;
+  var html = '';
+  html += '<div class="unified-bc-cat-sheet-group">구약</div>';
+  getUnifiedOldSections().forEach(function(sec) {
+    var label = stripUnifiedSectionEmoji(sec.title);
+    var isCur = unifiedBcState.testament === 'old' && unifiedBcState.bookListCategory === label;
+    html += '<button type="button" class="unified-bc-cat-item' + (isCur ? ' unified-bc-cat-item--cur' : '') + '" onclick="unifiedBcChooseCategory(\'old\',\'' + label + '\')">' + label + (isCur ? '<span class="unified-bc-cat-item-check" aria-hidden="true">\u2713</span>' : '') + '</button>';
   });
+  html += '<div class="unified-bc-cat-sheet-group">신약</div>';
+  getUnifiedNewSections().forEach(function(sec) {
+    var label = stripUnifiedSectionEmoji(sec.title);
+    var isCur = unifiedBcState.testament === 'new' && unifiedBcState.bookListCategory === label;
+    html += '<button type="button" class="unified-bc-cat-item' + (isCur ? ' unified-bc-cat-item--cur' : '') + '" onclick="unifiedBcChooseCategory(\'new\',\'' + label + '\')">' + label + (isCur ? '<span class="unified-bc-cat-item-check" aria-hidden="true">\u2713</span>' : '') + '</button>';
+  });
+  body.innerHTML = html;
+}
+
+function unifiedBcOpenCatSheet() {
+  renderUnifiedCatSheet();
+  var sheet = document.getElementById('unifiedBcCatSheet');
+  if (sheet) {
+    sheet.classList.add('active');
+    sheet.setAttribute('aria-hidden', 'false');
+  }
+}
+
+function unifiedBcCloseCatSheet() {
+  var sheet = document.getElementById('unifiedBcCatSheet');
+  if (sheet) {
+    sheet.classList.remove('active');
+    sheet.setAttribute('aria-hidden', 'true');
+  }
+}
+
+function unifiedBcChooseCategory(testament, label) {
+  unifiedBcState.testament = testament;
+  unifiedBcState.bookListCategory = label;
+  unifiedBcCloseCatSheet();
+  renderUnifiedModalBody();
+}
+
+function unifiedBcSwitchTab(tab) {
+  if (tab === 'chapters') {
+    if (!unifiedBcState.selectedBook && currentBook) {
+      var data = currentBook.testament === 'old' ? oldTestamentData : newTestamentData;
+      var bd = findBook(data, currentBook.name);
+      unifiedBcState.selectedBook = currentBook.name;
+      unifiedBcState.displayChapters = bd ? getDisplayedChapterCount(bd) : (currentBook.chapters || 0);
+      unifiedBcState.testament = currentBook.testament;
+    }
+    unifiedBcState.step = 'chapters';
+  } else {
+    unifiedBcState.step = 'books';
+  }
+  renderUnifiedModalBody();
 }
 
 function unifiedBcPickBook(name, chCount, testament) {
@@ -2337,19 +2742,18 @@ function unifiedBcApplyChapter(ch) {
 function openUnifiedBookChapterModal() {
   if (!currentBook || !currentChapter) return;
   closeVerseReadMoreMenu();
-  var head = document.getElementById('unifiedBcHeadTitle');
-  if (head) {
-    var u = getChapterUnit(currentBook.name);
-    head.textContent = currentBook.name + ' ' + currentChapter + u;
-  }
-  unifiedBcState.step = 'books';
+  var data = currentBook.testament === 'old' ? oldTestamentData : newTestamentData;
+  var bd = findBook(data, currentBook.name);
+  unifiedBcState.step = 'chapters';
   unifiedBcState.testament = currentBook.testament;
-  unifiedBcState.selectedBook = null;
-  unifiedBcState.displayChapters = 0;
+  unifiedBcState.selectedBook = currentBook.name;
+  unifiedBcState.displayChapters = bd ? getDisplayedChapterCount(bd) : (currentBook.chapters || 0);
+  unifiedBcCloseCatSheet();
   var el = document.getElementById('unifiedBookChapterModal');
   if (!el) return;
   el.classList.add('active');
   el.setAttribute('aria-hidden', 'false');
+  document.documentElement.classList.add('unified-bc-lock-scroll');
   renderUnifiedModalBody();
 }
 
@@ -2358,7 +2762,9 @@ function closeUnifiedBookChapterModal() {
   if (el) {
     el.classList.remove('active');
     el.setAttribute('aria-hidden', 'true');
+    unifiedBcCloseCatSheet();
   }
+  document.documentElement.classList.remove('unified-bc-lock-scroll');
 }
 
 
@@ -2384,16 +2790,18 @@ function updateOpt4BottomBar() {
   var vv = document.getElementById('verseView');
   if (!bar) return;
   if (!vv || !vv.classList.contains('active') || !currentBook || !currentChapter) {
-    document.documentElement.classList.remove('reader-verse-active');
+    document.documentElement.classList.remove('reader-verse-active', 'reader-verse-toolbar-mode');
     bar.style.display = 'none';
     if (hr) hr.style.display = 'none';
     closeVerseReadMoreMenu();
+    closeVerseToolbarMoreMenu();
+    closeVerseToolbarTargetMenu();
     return;
   }
-  document.documentElement.classList.add('reader-verse-active');
+  document.documentElement.classList.add('reader-verse-active', 'reader-verse-toolbar-mode');
   bar.style.display = 'flex';
   if (hr) {
-    hr.style.display = 'flex';
+    hr.style.display = 'grid';
     var txt = document.getElementById('verseReadTitleText');
     if (txt) {
       var u = getChapterUnit(currentBook.name);
@@ -2402,51 +2810,553 @@ function updateOpt4BottomBar() {
   }
   var prev = document.getElementById('opt4BottomPrev');
   var next = document.getElementById('opt4BottomNext');
+  var headerPrev = document.getElementById('verseReadPrevBtn');
+  var headerNext = document.getElementById('verseReadNextBtn');
   var data = currentBook.testament === 'old' ? oldTestamentData : newTestamentData;
   var bookData = findBook(data, currentBook.name);
   var chCount = bookData ? getDisplayedChapterCount(bookData) : (currentBook.chapters || 999);
   if (prev) prev.disabled = currentChapter <= 1;
   if (next) next.disabled = currentChapter >= chCount;
+  if (headerPrev) headerPrev.disabled = currentChapter <= 1;
+  if (headerNext) headerNext.disabled = currentChapter >= chCount;
+  updateVerseToolbar();
   syncScriptureDockActive();
 }
 
-function opt4OpenBarCommentary() {
+function getVerseRefLabel(verseNum) {
+  if (!currentBook || !verseNum) return '';
+  return currentBook.name + ' ' + currentChapter + ':' + verseNum;
+}
+
+function getVersePlainText(verseNum) {
+  var item = document.querySelector('#verseList .verse-item[data-verse="' + verseNum + '"]');
+  var textEl = item && item.querySelector('.verse-text');
+  return textEl ? textEl.textContent.trim() : '';
+}
+
+function getVerseAudioId(verseNum) {
+  if (!window.GOMNA_AUDIO_BOOK || !window.GOMNA_AUDIO_BOOK.getBookAudioId || !currentBook || !verseNum) return null;
+  var bookId = GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name);
+  if (!bookId) return null;
+  return bookId + '.' + String(currentChapter).padStart(3, '0') + '.' + String(verseNum).padStart(3, '0') + '.bible';
+}
+
+function isVerseAudioAvailable(verseNum) {
+  var audioId = getVerseAudioId(verseNum);
+  if (!audioId) return false;
+  var audios = window.GOMNA_AUDIO_CONFIG && window.GOMNA_AUDIO_CONFIG.manifestData && window.GOMNA_AUDIO_CONFIG.manifestData.audios;
+  var entry = audios && audios[audioId];
+  if (!entry || !entry.filePath || entry.type !== 'bible') return false;
+  if (entry.status === 'published') return true;
+  return audioId === 'genesis.001.001.bible';
+}
+
+function isVerseFavorited(verseNum) {
+  if (!currentBook || !verseNum) return false;
+  var ref = currentBook.name + ' ' + currentChapter + ':' + verseNum;
+  return favorites.some(function(f) { return f.ref === ref; });
+}
+
+function applyVerseSelectionHighlight() {
+  document.querySelectorAll('#verseList .verse-item').forEach(function(item) {
+    var v = parseInt(item.getAttribute('data-verse'), 10);
+    var selected = selectedVerseNums.indexOf(v) !== -1;
+    item.classList.toggle('verse-item--selected', selected);
+    item.setAttribute('aria-selected', selected ? 'true' : 'false');
+  });
+}
+
+function syncChapterSelectionHighlight() {
   var items = document.querySelectorAll('#verseList .verse-item');
-  if (!items.length) return;
-  var target = 1;
-  for (var i = 0; i < items.length; i++) {
-    if (items[i].style.display !== 'none') {
-      target = parseInt(items[i].getAttribute('data-verse'), 10) || 1;
-      break;
-    }
+  items.forEach(function(item) {
+    item.classList.remove('verse-item--chapter-selected');
+  });
+  if (verseListenMode !== 'chapter') return;
+  items.forEach(function(item) {
+    item.classList.add('verse-item--chapter-selected');
+  });
+}
+
+function selectVerse(verseNum, itemEl) {
+  if (!verseNum || !document.getElementById('verseList')) return;
+  var wasEmpty = selectedVerseNums.length === 0;
+  var idx = selectedVerseNums.indexOf(verseNum);
+  var nowSelected;
+  if (idx === -1) {
+    selectedVerseNums.push(verseNum);
+    nowSelected = true;
+  } else {
+    selectedVerseNums.splice(idx, 1);
+    nowSelected = false;
   }
-  showCommentary(target);
+  var isEmpty = selectedVerseNums.length === 0;
+  verseListenMode = isEmpty ? 'chapter' : 'selected';
+  selectedVerseNum = isEmpty ? null : selectedVerseNums[selectedVerseNums.length - 1];
+  // Toggle the exact tapped element immediately instead of rescanning the
+  // whole verse list, so the color reflects the tap on the same frame.
+  var item = itemEl || document.querySelector('#verseList .verse-item[data-verse="' + verseNum + '"]');
+  if (item) {
+    item.classList.toggle('verse-item--selected', nowSelected);
+    item.setAttribute('aria-selected', nowSelected ? 'true' : 'false');
+    item.classList.remove('verse-item--chapter-selected');
+  }
+  // Only rescan the full list when crossing the empty/non-empty boundary,
+  // since that is the only time the chapter-wide highlight needs to change.
+  if (wasEmpty !== isEmpty) {
+    syncChapterSelectionHighlight();
+  }
+  updateOpt4BottomBar();
+}
+
+function restoreVerseSelection(verseNums) {
+  selectedVerseNums = (verseNums || []).slice();
+  selectedVerseNum = selectedVerseNums.length ? selectedVerseNums[selectedVerseNums.length - 1] : null;
+  applyVerseSelectionHighlight();
+  updateOpt4BottomBar();
+}
+
+function clearVerseSelection() {
+  selectedVerseNum = null;
+  selectedVerseNums = [];
+  verseListenMode = 'chapter';
+  closeVerseToolbarMoreMenu();
+  document.querySelectorAll('#verseList .verse-item').forEach(function(item) {
+    item.classList.remove('verse-item--selected');
+    item.setAttribute('aria-selected', 'false');
+  });
+  updateOpt4BottomBar();
+}
+
+function getSelectedVersesAudioQueueSource() {
+  if (!currentBook || !currentChapter) return null;
+  return 'bible-multi-select:' + currentBook.name + '.' + currentChapter + '.' + selectedVerseNums.join('-');
+}
+
+function getChapterAudioIds() {
+  if (!currentBook || !currentChapter || !currentVerseCount) return [];
+  var bookAudioId = window.GOMNA_AUDIO_BOOK && window.GOMNA_AUDIO_BOOK.getBookAudioId ? window.GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name) : null;
+  if (!bookAudioId) return [];
+  var ids = [];
+  for (var v = 1; v <= currentVerseCount; v++) {
+    ids.push(bookAudioId + '.' + String(currentChapter).padStart(3, '0') + '.' + String(v).padStart(3, '0') + '.bible');
+  }
+  return ids;
+}
+
+function getRangeAudioIds() {
+  if (!currentBook || !currentChapter) return [];
+  if (opt4RangeStart <= 0 || opt4RangeEnd <= 0 || opt4RangeStart > opt4RangeEnd) return [];
+  var bookAudioId = window.GOMNA_AUDIO_BOOK && window.GOMNA_AUDIO_BOOK.getBookAudioId ? window.GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name) : null;
+  if (!bookAudioId) return [];
+  var ids = [];
+  for (var v = opt4RangeStart; v <= opt4RangeEnd; v++) {
+    ids.push(bookAudioId + '.' + String(currentChapter).padStart(3, '0') + '.' + String(v).padStart(3, '0') + '.bible');
+  }
+  return ids;
+}
+
+function isSameAudioIdArray(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+function syncVerseToolbarListenButton() {
+  var btn = document.getElementById('opt4VerseListen');
+  if (!btn) return;
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var state = engine && engine.getState ? engine.getState() : null;
+
+  if (verseListenMode === 'chapter') {
+    btn.hidden = false;
+    btn.removeAttribute('data-audio-id');
+    var chapterLabel = '전체 듣기';
+    if (state && state.queueActive && isSameAudioIdArray(state.queueAudioIds, getChapterAudioIds())) {
+      if (state.isPlaying) chapterLabel = '전체 일시정지';
+      else if (state.isPaused) chapterLabel = '전체 이어듣기';
+    }
+    btn.textContent = chapterLabel;
+    return;
+  }
+
+  if (verseListenMode === 'range') {
+    btn.hidden = false;
+    btn.removeAttribute('data-audio-id');
+    var rangeCount = Math.max(0, opt4RangeEnd - opt4RangeStart + 1);
+    var rangeLabel = rangeCount === 1 ? '1절 듣기' : rangeCount + '개 절 듣기';
+    if (state && state.queueActive && isSameAudioIdArray(state.queueAudioIds, getRangeAudioIds())) {
+      if (state.isPlaying) rangeLabel = '일시정지';
+      else if (state.isPaused) rangeLabel = '이어듣기';
+    }
+    btn.textContent = rangeLabel;
+    return;
+  }
+
+  if (!selectedVerseNum) {
+    btn.hidden = true;
+    btn.removeAttribute('data-audio-id');
+    return;
+  }
+
+  if (selectedVerseNums.length > 1) {
+    var anyAvailable = selectedVerseNums.some(isVerseAudioAvailable);
+    if (!anyAvailable) {
+      btn.hidden = true;
+      btn.removeAttribute('data-audio-id');
+      return;
+    }
+    btn.hidden = false;
+    btn.removeAttribute('data-audio-id');
+    var multiLabel = selectedVerseNums.length + '개 절 듣기';
+    if (state && state.queueActive && state.queueSource === getSelectedVersesAudioQueueSource()) {
+      if (state.isPlaying) multiLabel = '일시정지';
+      else if (state.isPaused) multiLabel = '이어듣기';
+    }
+    btn.textContent = multiLabel;
+    return;
+  }
+  var audioId = getVerseAudioId(selectedVerseNum);
+  if (!isVerseAudioAvailable(selectedVerseNum) || !audioId) {
+    btn.hidden = true;
+    btn.removeAttribute('data-audio-id');
+    return;
+  }
+  btn.hidden = false;
+  btn.setAttribute('data-audio-id', audioId);
+  var label = '1절 듣기';
+  if (state && state.currentAudioId === audioId) {
+    if (state.isPlaying) label = '일시정지';
+    else if (state.isPaused) label = '이어듣기';
+  } else if (window.GOMNA_AUDIO_BIBLE_RESUME && GOMNA_AUDIO_BIBLE_RESUME.getSessionForAudioId && GOMNA_AUDIO_BIBLE_RESUME.getSessionForAudioId(audioId)) {
+    label = '이어듣기';
+  }
+  btn.textContent = label;
+}
+
+function updateVerseToolbarSaveLabel() {
+  var saveBtn = document.getElementById('verseToolbarSaveBtn');
+  if (!saveBtn || !selectedVerseNum) return;
+  var saved = selectedVerseNums.length > 1 ? selectedVerseNums.every(isVerseFavorited) : isVerseFavorited(selectedVerseNum);
+  saveBtn.textContent = saved ? '저장됨' : '저장';
+  saveBtn.classList.toggle('is-saved', saved);
+}
+
+function syncVerseToolbarTargetMenuActive() {
+  document.querySelectorAll('.verse-toolbar-target-menu-item').forEach(function(item) {
+    item.classList.toggle('active', item.getAttribute('data-target-mode') === verseListenMode);
+  });
+}
+
+function syncVerseToolbarTargetButton() {
+  var btn = document.getElementById('verseToolbarTargetButton');
+  if (!btn) return;
+  var label = '장 전체';
+  if (verseListenMode === 'selected') {
+    label = '선택한 절';
+  } else if (verseListenMode === 'range') {
+    label = (opt4RangeStart === opt4RangeEnd) ? (opt4RangeStart + '절') : (opt4RangeStart + '~' + opt4RangeEnd + '절');
+  }
+  btn.textContent = label + ' ▼';
+  syncVerseToolbarTargetMenuActive();
+}
+
+function toggleVerseToolbarTargetMenu() {
+  var menu = document.getElementById('verseToolbarTargetMenu');
+  if (!menu) return;
+  if (menu.hidden) openVerseToolbarTargetMenu();
+  else closeVerseToolbarTargetMenu();
+}
+
+function openVerseToolbarTargetMenu() {
+  var menu = document.getElementById('verseToolbarTargetMenu');
+  var btn = document.getElementById('verseToolbarTargetButton');
+  if (!menu || !btn) return;
+  syncVerseToolbarTargetMenuActive();
+  menu.hidden = false;
+  btn.setAttribute('aria-expanded', 'true');
+}
+
+function closeVerseToolbarTargetMenu() {
+  var menu = document.getElementById('verseToolbarTargetMenu');
+  var btn = document.getElementById('verseToolbarTargetButton');
+  if (menu) menu.hidden = true;
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+function chooseVerseListenTargetMode(mode) {
+  closeVerseToolbarTargetMenu();
+  if (mode === 'selected') {
+    if (!selectedVerseNums.length) {
+      if (window.GOMNA_AUDIO_TOAST) GOMNA_AUDIO_TOAST('본문에서 절을 선택해 주세요');
+      return;
+    }
+    verseListenMode = 'selected';
+    syncChapterSelectionHighlight();
+    updateOpt4BottomBar();
+    return;
+  }
+  if (mode === 'range') {
+    openVerseRangeModal();
+    return;
+  }
+  if (mode === 'chapter') {
+    clearVerseSelection();
+    multiCommentaryList = null;
+    multiCommentaryIndex = -1;
+    opt4RangeStart = 1;
+    opt4RangeEnd = currentVerseCount;
+    applyRange(opt4RangeStart, opt4RangeEnd);
+    verseListenMode = 'chapter';
+    syncChapterSelectionHighlight();
+    updateOpt4BottomBar();
+    return;
+  }
+}
+
+function updateVerseToolbar() {
+  syncVerseToolbarTargetButton();
+  syncVerseToolbarListenButton();
+  updateVerseToolbarSaveLabel();
+  var commentaryBtn = document.getElementById('opt4VerseCommentary');
+  var moreBtn = document.getElementById('opt4VerseMore');
+  var hasSelection = !!selectedVerseNum;
+  if (commentaryBtn) commentaryBtn.disabled = !hasSelection;
+  if (moreBtn) moreBtn.disabled = !hasSelection;
+}
+
+function opt4OpenChapterList() {
+  clearVerseSelection();
+  goBack('chapter');
+}
+
+function opt4ToolbarCommentary() {
+  if (!selectedVerseNum) return;
+  if (selectedVerseNums.length > 1) {
+    multiCommentaryList = selectedVerseNums.slice();
+    multiCommentaryIndex = 0;
+    showCommentary(multiCommentaryList[0]);
+  } else {
+    multiCommentaryList = null;
+    multiCommentaryIndex = -1;
+    showCommentary(selectedVerseNum);
+  }
+}
+
+function openVerseToolbarMoreMenu() {
+  if (!selectedVerseNum) return;
+  updateVerseToolbarSaveLabel();
+  var overlay = document.getElementById('verseToolbarMoreOverlay');
+  if (!overlay) return;
+  overlay.classList.add('active');
+  overlay.setAttribute('aria-hidden', 'false');
+}
+
+function closeVerseToolbarMoreMenu() {
+  var overlay = document.getElementById('verseToolbarMoreOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('active');
+  overlay.setAttribute('aria-hidden', 'true');
+}
+
+function opt4ToolbarSaveMulti() {
+  if (!currentBook || !selectedVerseNums.length) return;
+  var added = false;
+  selectedVerseNums.forEach(function(v) {
+    if (!isVerseFavorited(v)) {
+      favorites.push({
+        ref: currentBook.name + ' ' + currentChapter + ':' + v,
+        text: getVersePlainText(v),
+        book: currentBook.name,
+        chapter: currentChapter,
+        verse: v
+      });
+      added = true;
+    }
+  });
+  if (added) {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    renderFavorites();
+  }
+}
+
+function opt4ToolbarSave() {
+  if (!selectedVerseNum || !currentBook) return;
+  if (selectedVerseNums.length > 1) {
+    opt4ToolbarSaveMulti();
+  } else {
+    var text = getVersePlainText(selectedVerseNum);
+    toggleFav(currentBook.name, currentChapter, selectedVerseNum, text);
+  }
+  updateVerseToolbarSaveLabel();
+  closeVerseToolbarMoreMenu();
+}
+
+function shareVerses(verseNums) {
+  var data = currentBook.testament === 'old' ? oldTestamentData : newTestamentData;
+  var bookData = findBook(data, currentBook.name);
+  var chapterData = bookData.chapters.find(function(c) { return c.chapter === currentChapter; });
+  var lines = verseNums.map(function(vn) {
+    var verseData = chapterData.verses.find(function(v) { return v.verse === vn; });
+    return currentBook.name + ' ' + currentChapter + ':' + vn + ' ' + (verseData ? verseData.text : '');
+  });
+  var text = '📖 ' + lines.join('\n') + '\n\n- 은혜의말씀 앱';
+  var itemId = (window.GomnaAnalytics ? GomnaAnalytics.bookSlug(currentBook.name) : currentBook.name) + '_' + currentChapter + '_' + verseNums.join('-');
+  if(navigator.share) {
+    navigator.share({ title: '은혜의말씀', text: text, url: 'https://gomnastudio.com/' }).then(function() {
+      if (window.GomnaAnalytics) GomnaAnalytics.trackShare('native', itemId);
+    }).catch(function() {});
+  } else if(navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function() {
+      if (window.GomnaAnalytics) GomnaAnalytics.trackShare('clipboard', itemId);
+      alert('클립보드에 복사되었습니다!');
+    });
+  } else {
+    alert(text);
+    if (window.GomnaAnalytics) GomnaAnalytics.trackShare('dialog', itemId);
+  }
+}
+
+function opt4ToolbarShare() {
+  if (!selectedVerseNum) return;
+  if (selectedVerseNums.length > 1) {
+    shareVerses(selectedVerseNums);
+  } else {
+    shareVerse(selectedVerseNum);
+  }
+  closeVerseToolbarMoreMenu();
+}
+
+function opt4ToolbarCopy() {
+  if (!selectedVerseNum || !currentBook) return;
+  var text = selectedVerseNums.length > 1
+    ? selectedVerseNums.map(function(v) { return getVerseRefLabel(v) + ' ' + getVersePlainText(v); }).join('\n')
+    : getVerseRefLabel(selectedVerseNum) + ' ' + getVersePlainText(selectedVerseNum);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      closeVerseToolbarMoreMenu();
+    }).catch(function() {
+      alert(text);
+      closeVerseToolbarMoreMenu();
+    });
+  } else {
+    alert(text);
+    closeVerseToolbarMoreMenu();
+  }
+}
+
+function opt4ToolbarDeselect() {
+  clearVerseSelection();
+}
+
+function resetVerseViewScroll() {
+  var scrollEl = typeof getBibleListScrollContainer === 'function' ? getBibleListScrollContainer() : (document.scrollingElement || document.documentElement);
+  if (scrollEl) scrollEl.scrollTop = 0;
+}
+
+function initVerseToolbarEvents() {
+  var verseView = document.getElementById('verseView');
+  if (!verseView || verseView.getAttribute('data-verse-toolbar-bound') === '1') return;
+  verseView.setAttribute('data-verse-toolbar-bound', '1');
+  verseView.addEventListener('click', function(e) {
+    if (e.target.closest('button, a, [data-audio-action]')) return;
+    var item = e.target.closest('#verseList .verse-item');
+    if (!item || item.style.display === 'none') return;
+    var verseNum = parseInt(item.getAttribute('data-verse'), 10);
+    if (!isNaN(verseNum)) selectVerse(verseNum, item);
+  });
+  verseView.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var item = e.target.closest('#verseList .verse-item');
+    if (!item || item.style.display === 'none') return;
+    e.preventDefault();
+    var verseNum = parseInt(item.getAttribute('data-verse'), 10);
+    if (!isNaN(verseNum)) selectVerse(verseNum, item);
+  });
+  ['audio:start', 'audio:pause', 'audio:resume', 'audio:end', 'audio:error', 'gomna:bible_resume_session_changed'].forEach(function(evt) {
+    window.addEventListener(evt, function() {
+      syncVerseToolbarListenButton();
+    });
+  });
+  var listenBtn = document.getElementById('opt4VerseListen');
+  if (listenBtn) {
+    listenBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      if (verseListenMode === 'chapter') {
+        playChapterAudio();
+      } else if (verseListenMode === 'range') {
+        playRangeAudio();
+      } else if (selectedVerseNums.length > 1) {
+        playSelectedVersesQueue();
+      } else if (selectedVerseNums.length === 1) {
+        playSingleSelectedVerse();
+      }
+    });
+  }
+  document.addEventListener('click', function(e) {
+    var menu = document.getElementById('verseToolbarTargetMenu');
+    if (!menu || menu.hidden) return;
+    if (e.target.closest('#verseToolbarTargetButton') || e.target.closest('#verseToolbarTargetMenu')) return;
+    closeVerseToolbarTargetMenu();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeVerseToolbarTargetMenu();
+  });
+}
+
+function playChapterAudio() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  if (!engine || !engine.playAudioRange || !currentBook || !currentChapter || !currentVerseCount) return;
+  var bookAudioId = window.GOMNA_AUDIO_BOOK && window.GOMNA_AUDIO_BOOK.getBookAudioId ? window.GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name) : null;
+  if (!bookAudioId) return;
+  engine.playAudioRange(bookAudioId, currentChapter, 1, currentVerseCount);
+}
+
+function playRangeAudio() {
+  var rangeBtn = document.querySelector('[data-audio-action="play-range"]');
+  if (rangeBtn) rangeBtn.click();
+}
+
+function playSingleSelectedVerse() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  if (!engine || !engine.playAudioById || !selectedVerseNum) return;
+  if (!isVerseAudioAvailable(selectedVerseNum)) return;
+  var audioId = getVerseAudioId(selectedVerseNum);
+  if (!audioId) return;
+  engine.playAudioById(audioId, { startTime: 0 });
+}
+
+function playSelectedVersesQueue() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  if (!engine || !engine.playAudioQueue || !selectedVerseNums.length) return;
+  var audioIds = selectedVerseNums
+    .filter(isVerseAudioAvailable)
+    .map(function(v) { return getVerseAudioId(v); })
+    .filter(function(id) { return !!id; });
+  if (!audioIds.length) return;
+  engine.playAudioQueue(audioIds, { source: getSelectedVersesAudioQueueSource() });
 }
 
 function getVerseRangeModalHtml() {
   verseRangeModalMax = currentVerseCount;
-  verseRangeSelStart = opt4RangeStart;
-  verseRangeSelEnd = opt4RangeEnd;
+  verseRangeSelStart = 0;
+  verseRangeSelEnd = 0;
   return '<div class="reader-verse-range-actions">' +
-    '<div class="verse-range-mode-tabs">' +
-    '<button type="button" id="verseRangeModeAllBtn" onclick="setVerseRangeModeExternal(\'all\', true)">전체 보기</button>' +
-    '<button type="button" class="active" id="verseRangeModeRangeBtn" onclick="setVerseRangeModeExternal(\'range\', true)">절 범위 선택</button></div>' +
     '<div class="verse-range-modal-scroll">' +
-    '<div id="verseRangePanelAll" style="display:none">' +
-    '<p class="verse-range-all-note">현재 장 전체 절이 표시됩니다.</p></div>' +
-    '<div id="verseRangePanelRange">' +
     '<div class="verse-range-split">' +
     '<div class="verse-range-column">' +
     '<p class="verse-range-column-label">시작 절</p>' +
     '<div class="verse-range-column-scroll">' +
     '<div class="verse-grid" id="verseRangeStartGrid"></div></div></div>' +
-    '<div class="verse-range-column">' +
+    '<div class="verse-range-column" id="verseRangeEndArea">' +
     '<p class="verse-range-column-label">끝 절</p>' +
     '<div class="verse-range-column-scroll">' +
-    '<div class="verse-grid" id="verseRangeEndGrid"></div></div></div></div>' +
-    '<p class="verse-range-preview" id="verseRangePreviewText"></p></div></div>' +
-    '<div class="verse-range-modal-footer">' +
-    '<button type="button" class="verse-range-apply" id="verseRangeApplyBtn" style="display:none">📖 말씀 보기</button></div></div>';
+    '<div class="verse-grid" id="verseRangeEndGrid"></div></div>' +
+    '<button type="button" id="rangeEndMoveAction" class="verse-range-move-action" data-range-move-action hidden disabled aria-hidden="true">이동 →</button>' +
+    '</div></div>' +
+    '</div></div>';
 }
 
 function verseRangeRefreshPreview() {
@@ -2502,9 +3412,84 @@ function verseRangeRenderEndGrid() {
     var dis = isDis ? ' disabled' : '';
     var rc = (!isDis && verseRangeSelEnd > 0) ? verseRangeRangeClass(v) : '';
     var disAttr = isDis ? ' disabled' : '';
-    html += '<button type="button" class="verse-cell' + dis + rc + '"' + disAttr + ' data-v="' + v + '">' + v + '</button>';
+    html += '<div class="verse-range-end-cell-wrap" data-v="' + v + '"><button type="button" class="verse-cell' + dis + rc + '"' + disAttr + ' data-v="' + v + '">' + v + '</button></div>';
   }
   host.innerHTML = html;
+}
+
+function verseRangeUpdateStatusTag() {
+  var tag = document.getElementById('rangeStatusAction');
+  if (!tag) return;
+  var ready = verseRangeSelStart > 0 && verseRangeSelEnd > 0 && verseRangeSelEnd >= verseRangeSelStart;
+  tag.textContent = ready ? '선택 완료' : (verseRangeSelStart > 0 ? '끝 절을 선택해 주세요' : '시작 절을 선택해 주세요');
+  tag.disabled = true;
+  tag.setAttribute('aria-disabled', 'true');
+  tag.classList.remove('range-status-tag--move');
+}
+
+function verseRangeSyncEndMoveTag() {
+  var button = document.getElementById('rangeEndMoveAction');
+  var endArea = document.getElementById('verseRangeEndArea');
+  if (!button || !endArea) return;
+  var ready = verseRangeSelStart > 0 && verseRangeSelEnd > 0 && verseRangeSelEnd >= verseRangeSelStart;
+  if (!ready) {
+    button.hidden = true;
+    button.disabled = true;
+    button.setAttribute('aria-hidden', 'true');
+    return;
+  }
+  var wrapper = document.querySelector('#verseRangeEndGrid .verse-range-end-cell-wrap[data-v="' + verseRangeSelEnd + '"]');
+  if (!wrapper) return;
+  var wrapperRect = wrapper.getBoundingClientRect();
+  var areaRect = endArea.getBoundingClientRect();
+  button.style.top = (wrapperRect.bottom - areaRect.top + 4) + 'px';
+  button.hidden = false;
+  button.disabled = false;
+  button.setAttribute('aria-hidden', 'false');
+}
+
+function verseRangeSyncStartGridClasses() {
+  var host = document.getElementById('verseRangeStartGrid');
+  if (!host) return;
+  var cells = host.querySelectorAll('.verse-cell');
+  for (var i = 0; i < cells.length; i++) {
+    var cell = cells[i];
+    var v = parseInt(cell.getAttribute('data-v'), 10);
+    var rc = verseRangeRangeClass(v);
+    var isEnd = rc.indexOf('range-end') !== -1;
+    var isMid = rc.indexOf('range-mid') !== -1;
+    cell.classList.toggle('verse-cell--range-end', isEnd);
+    cell.classList.toggle('verse-cell--range-mid', isMid);
+    cell.setAttribute('aria-selected', (isEnd || isMid) ? 'true' : 'false');
+  }
+}
+
+function verseRangeSyncEndGridClasses() {
+  var host = document.getElementById('verseRangeEndGrid');
+  if (!host) return;
+  var start = verseRangeSelStart;
+  var cells = host.querySelectorAll('.verse-cell');
+  for (var i = 0; i < cells.length; i++) {
+    var cell = cells[i];
+    var v = parseInt(cell.getAttribute('data-v'), 10);
+    var isDis = start <= 0 || v < start;
+    cell.disabled = isDis;
+    cell.classList.toggle('disabled', isDis);
+    var rc = (!isDis && verseRangeSelEnd > 0) ? verseRangeRangeClass(v) : '';
+    var isEnd = rc.indexOf('range-end') !== -1;
+    var isMid = rc.indexOf('range-mid') !== -1;
+    cell.classList.toggle('verse-cell--range-end', isEnd);
+    cell.classList.toggle('verse-cell--range-mid', isMid);
+    cell.setAttribute('aria-selected', (isEnd || isMid) ? 'true' : 'false');
+  }
+}
+
+function verseRangeConfirmMove() {
+  if (verseRangeSelStart <= 0 || verseRangeSelEnd <= 0 || verseRangeSelEnd < verseRangeSelStart) return;
+  var moveTag = document.getElementById('rangeEndMoveAction');
+  if (moveTag) moveTag.disabled = true;
+  applyVerseRangeSelection(verseRangeSelStart, verseRangeSelEnd);
+  closeVerseRangeModal();
 }
 
 function setVerseRangeModeExternal(mode, fromUser) {
@@ -2566,6 +3551,9 @@ function applyVerseRangeSelection(start, end) {
   opt4RangeEnd = end;
   applyRange(opt4RangeStart, opt4RangeEnd);
   updateVerseRangeBoxLabel();
+  verseListenMode = 'range';
+  syncChapterSelectionHighlight();
+  updateOpt4BottomBar();
 }
 
 function handleVerseRangeAllApply() {
@@ -2575,58 +3563,50 @@ function handleVerseRangeAllApply() {
 window.handleVerseRangeAllApply = handleVerseRangeAllApply;
 
 function attachVerseRangeModalListeners() {
-  var allBtn = document.getElementById('verseRangeModalAllBtn');
-  if (allBtn) allBtn.onclick = handleVerseRangeAllApply;
-  // mode 탭은 inline onclick(setVerseRangeModeExternal)만 사용
-  // 초기 상태를 절 범위 선택으로 명시
-  setVerseRangeModeExternal('range', false);
   verseRangeRenderStartGrid();
+  verseRangeSyncEndMoveTag();
   verseRangeRenderEndGrid();
-  verseRangeRefreshPreview();
-  verseRangeUpdateApplyBtnState();
+  verseRangeUpdateStatusTag();
+  verseRangeSyncEndMoveTag();
   var startHost = document.getElementById('verseRangeStartGrid');
-  if (startHost) {
+  if (startHost && !startHost.getAttribute('data-range-bound')) {
+    startHost.setAttribute('data-range-bound', '1');
     startHost.addEventListener('click', function(ev) {
       var t = ev.target.closest('.verse-cell');
       if (!t || t.disabled) return;
-      verseRangeSelStart = parseInt(t.getAttribute('data-v'), 10);
-      if (verseRangeSelEnd > 0 && verseRangeSelEnd < verseRangeSelStart) verseRangeSelEnd = 0;
-      verseRangeRenderStartGrid();
-      verseRangeRenderEndGrid();
-      verseRangeRefreshPreview();
-      verseRangeUpdateApplyBtnState();
+      var v = parseInt(t.getAttribute('data-v'), 10);
+      if (v === verseRangeSelStart) return;
+      verseRangeSelStart = v;
+      verseRangeSelEnd = 0;
+      verseRangeSyncStartGridClasses();
+      verseRangeSyncEndGridClasses();
+      verseRangeUpdateStatusTag();
+      verseRangeSyncEndMoveTag();
     });
   }
   var endHost = document.getElementById('verseRangeEndGrid');
-  if (endHost) {
+  if (endHost && !endHost.getAttribute('data-range-bound')) {
+    endHost.setAttribute('data-range-bound', '1');
     endHost.addEventListener('click', function(ev) {
       var t = ev.target.closest('.verse-cell');
       if (!t || t.disabled) return;
       var v = parseInt(t.getAttribute('data-v'), 10);
       if (verseRangeSelStart <= 0 || v < verseRangeSelStart) return;
+      if (v === verseRangeSelEnd) return;
       verseRangeSelEnd = v;
-      verseRangeRenderEndGrid();
-      verseRangeRenderStartGrid();
-      verseRangeRefreshPreview();
-      verseRangeUpdateApplyBtnState();
-
-      if (isAudioActiveForVerseRangeChange()) {
-        applyVerseRangeSelection(verseRangeSelStart, verseRangeSelEnd);
-        closeVerseRangeModal();
-      }
+      verseRangeSyncStartGridClasses();
+      verseRangeSyncEndGridClasses();
+      verseRangeUpdateStatusTag();
+      verseRangeSyncEndMoveTag();
     });
   }
-  var applyBtn = document.getElementById('verseRangeApplyBtn');
-  if (applyBtn) {
-    applyBtn.addEventListener('click', function() {
-      if (verseRangeSelStart <= 0 || verseRangeSelEnd <= 0 || verseRangeSelEnd < verseRangeSelStart) {
-        if (typeof window.GOMNA_AUDIO_TOAST === 'function') {
-          window.GOMNA_AUDIO_TOAST('시작 절과 끝 절을 선택해 주세요.');
-        }
-        return;
-      }
-      applyVerseRangeSelection(verseRangeSelStart, verseRangeSelEnd);
-      closeVerseRangeModal();
+  var moveButton = document.getElementById('rangeEndMoveAction');
+  if (moveButton && moveButton.getAttribute('data-move-bound') !== '1') {
+    moveButton.setAttribute('data-move-bound', '1');
+    moveButton.addEventListener('click', function(ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      verseRangeConfirmMove();
     });
   }
 }
@@ -2640,22 +3620,33 @@ function openVerseRangeModal() {
     box.style.position = '';
     box.style.left = '';
     box.style.top = '';
+    box.style.right = '';
+    box.style.bottom = '';
     box.style.margin = '';
     box.style.transform = '';
   }
   body.innerHTML = getVerseRangeModalHtml();
   modal.classList.add('active');
   modal.setAttribute('aria-hidden', 'false');
+  document.documentElement.classList.add('unified-bc-lock-scroll');
   attachVerseRangeModalListeners();
+  verseRangeUpdateStatusTag();
+  var scroll = document.querySelector('#verseRangeModalBody .verse-range-modal-scroll');
+  if (scroll) scroll.scrollTop = 0;
 }
 
 function closeVerseRangeModal() {
   var modal = document.getElementById('verseRangeModal');
   var box = document.getElementById('verseRangeModalBox');
+  verseRangeSelStart = 0;
+  verseRangeSelEnd = 0;
+  verseRangeSyncEndMoveTag();
   if (box) {
     box.style.position = '';
     box.style.left = '';
     box.style.top = '';
+    box.style.right = '';
+    box.style.bottom = '';
     box.style.margin = '';
     box.style.transform = '';
   }
@@ -2663,6 +3654,7 @@ function closeVerseRangeModal() {
     modal.classList.remove('active');
     modal.setAttribute('aria-hidden', 'true');
   }
+  document.documentElement.classList.remove('unified-bc-lock-scroll');
 }
 
 
@@ -2717,10 +3709,38 @@ function applyRange(startOpt, endOpt) {
     var vn = parseInt(item.getAttribute('data-verse'), 10);
     item.style.display = (vn >= start && vn <= end) ? 'block' : 'none';
   });
+  if (selectedVerseNums.length) {
+    var stillVisible = selectedVerseNums.filter(function(vn) {
+      var el = document.querySelector('#verseList .verse-item[data-verse="' + vn + '"]');
+      return el && el.style.display !== 'none';
+    });
+    if (stillVisible.length !== selectedVerseNums.length) {
+      if (stillVisible.length) restoreVerseSelection(stillVisible);
+      else clearVerseSelection();
+    }
+  }
 }
 
-function prevChapter() { if(currentChapter > 1) { currentChapter--; if (window.GomnaAnalytics && currentBook) { GomnaAnalytics.trackNavigateChapter(currentBook.name, currentChapter, 'prev', currentBook.testament); } renderVerses(); loadCommentaryData(); } }
-function nextChapter() { if(currentChapter < currentBook.chapters) { currentChapter++; if (window.GomnaAnalytics && currentBook) { GomnaAnalytics.trackNavigateChapter(currentBook.name, currentChapter, 'next', currentBook.testament); } renderVerses(); loadCommentaryData(); } }
+function prevChapter() {
+  if (currentChapter > 1) {
+    selectedVerseNum = null;
+    currentChapter--;
+    if (window.GomnaAnalytics && currentBook) GomnaAnalytics.trackNavigateChapter(currentBook.name, currentChapter, 'prev', currentBook.testament);
+    renderVerses();
+    loadCommentaryData();
+    resetVerseViewScroll();
+  }
+}
+function nextChapter() {
+  if (currentChapter < currentBook.chapters) {
+    selectedVerseNum = null;
+    currentChapter++;
+    if (window.GomnaAnalytics && currentBook) GomnaAnalytics.trackNavigateChapter(currentBook.name, currentChapter, 'next', currentBook.testament);
+    renderVerses();
+    loadCommentaryData();
+    resetVerseViewScroll();
+  }
+}
 
 function goBack(to) {
   if(to === 'book') switchTab(currentTab === 'easy' ? 'easy' : currentBook.testament);
@@ -2737,7 +3757,12 @@ function toggleFav(book, chapter, verse, text) {
   if(idx >= 0) favorites.splice(idx, 1);
   else favorites.push({ref: ref, text: text, book: book, chapter: chapter, verse: verse});
   localStorage.setItem('favorites', JSON.stringify(favorites));
-  renderVerses();
+  var keepSelection = selectedVerseNum;
+  if (document.getElementById('verseView') && document.getElementById('verseView').classList.contains('active')) {
+    renderVerses(keepSelection);
+  } else {
+    renderVerses();
+  }
   renderFavorites();
 }
 
@@ -2838,7 +3863,7 @@ function changeFont(delta) {
 <script src="analytics.js"></script>
 <script src="/js/audio-config.js?v=20260604-1830" defer></script>
 <script src="/js/audio-engine.js?v=20260604-1830" defer></script>
-<script src="/js/gomna-audio-listen-button.js?v=20260709-home-listen-v2" defer></script>
+<script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260604-1830" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=20260604-1830" defer></script>
 <script src="/js/gomna-audio-ui.js?v=20260703-jump-to-verse" defer></script>
