@@ -79,7 +79,16 @@
     '.verse-item.gomna-guide-verse-highlight.gomna-guide-verse-highlight-fade{background:transparent!important;box-shadow:none!important}' +
     '.scripture-guide-return-tag{display:block;width:calc(100% - 4px);max-width:100%;margin:-1px auto 10px;padding:10px 14px;min-height:44px;border:0.5px solid rgba(184,134,11,0.42);border-top:0.5px solid rgba(184,134,11,0.2);border-radius:0 0 10px 10px;background:rgba(255,250,244,0.96);color:#5a3818;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;box-sizing:border-box;-webkit-tap-highlight-color:transparent;transition:transform 0.15s ease,opacity 0.15s ease,background 0.15s ease}' +
     '.scripture-guide-return-tag:active{transform:scale(0.99);opacity:0.9;background:rgba(255,245,225,1)}' +
-    '@media(min-width:769px){.scripture-guide-overlay{align-items:flex-end;padding-bottom:24px}.scripture-guide-sheet{border-radius:18px;max-height:min(85vh,760px)}}';
+    '@media(min-width:769px){.scripture-guide-overlay{align-items:flex-end;padding-bottom:24px}.scripture-guide-sheet{border-radius:18px;max-height:min(85vh,760px)}}' +
+    /* v72: 성경 길잡이 한 손 조작. 평소/데스크톱은 숨김 → 기존 동작 그대로 */
+    '.scripture-guide-pull-spacer{display:none}' +
+    /* 모바일에서만: 패널을 스크롤러로 삼아 헤더+본문을 한 흐름으로 끌어내린다. 헤더 앞 투명 스페이서로 여유 공간 확보 */
+    '@media(max-width:480px){' +
+      '.scripture-guide-sheet{height:min(85vh,760px)}' +
+      '.scripture-guide-panel{overflow-y:auto;-webkit-overflow-scrolling:touch;scroll-behavior:auto;overscroll-behavior:contain;touch-action:pan-y}' +
+      '.scripture-guide-body{overflow:visible;flex:0 0 auto;min-height:100%;touch-action:auto}' +
+      '.scripture-guide-pull-spacer{display:block;flex:0 0 auto;width:100%;height:min(48vh,380px);pointer-events:none;background:transparent}' +
+    '}';
   document.head.appendChild(styleEl);
 
   // === 2. 카테고리 정보 ===
@@ -136,6 +145,31 @@
   var guideVerseHighlightTimers = { hold: null, fade: null, item: null };
   var GUIDE_VERSE_HIGHLIGHT_HOLD_MS = 8000;
   var GUIDE_VERSE_HIGHLIGHT_FADE_MS = 900;
+
+  /* v72: 성경 길잡이 카드 전용 두 손가락 확대·축소 상태 (전체 페이지가 아닌 카드에서만 자체 scale) */
+  var GUIDE_PINCH_MIN = 1;
+  var GUIDE_PINCH_MAX = 2.5;
+  var guidePinchScale = 1;
+  var guidePinchStartDist = 0;
+  var guidePinchStartScale = 1;
+  var guidePinchActive = false;
+  var guidePinchBound = false;
+  /* 확대(>1배) 상태에서 한 손가락으로 카드를 이동(pan)하기 위한 상태 */
+  var guidePanX = 0;
+  var guidePanY = 0;
+  var guidePanning = false;
+  var guidePanStartX = 0;
+  var guidePanStartY = 0;
+  var guidePanStartTouchX = 0;
+  var guidePanStartTouchY = 0;
+  /* 반응 속도 개선용: 시트 참조와 크기는 제스처 시작 시 1회만 캐시(터치마다 getBoundingClientRect/offset* 재호출 금지),
+     touchmove 리스너는 제스처 중에만 붙여 1배 네이티브 스크롤의 컴포지터 빠른 경로를 유지한다. */
+  var guideSheetCache = null;
+  var guideSheetW = 0;
+  var guideSheetH = 0;
+  var guideMoveBound = false;
+  /* 이동 배율: 손가락을 거의 1:1로 즉시 따라오게 한다(감속 없음, 살짝만 앞서게 1.12) */
+  var GUIDE_PAN_GAIN = 1.12;
 
   function isScriptureGuideCategory(testament, catName) {
     var bucket = SCRIPTURE_GUIDES[testament];
@@ -540,6 +574,7 @@
       '<div class="scripture-guide-sheet" role="dialog" aria-modal="true" aria-labelledby="scriptureGuideDialogTitle">' +
         '<div class="scripture-guide-handle" aria-hidden="true"></div>' +
         '<div class="scripture-guide-panel scripture-guide-panel--summary" data-guide-panel="summary">' +
+          '<div class="scripture-guide-pull-spacer" aria-hidden="true"></div>' +
           '<div class="scripture-guide-head">' +
             '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
             '<span class="scripture-guide-head-title">📖 성경 길잡이</span>' +
@@ -548,6 +583,7 @@
           '<div class="scripture-guide-body"></div>' +
         '</div>' +
         '<div class="scripture-guide-panel scripture-guide-panel--detail" data-guide-panel="detail" hidden>' +
+          '<div class="scripture-guide-pull-spacer" aria-hidden="true"></div>' +
           '<div class="scripture-guide-head">' +
             '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
             '<span class="scripture-guide-head-title">📖 성경 길잡이</span>' +
@@ -563,6 +599,7 @@
     });
     var sheet = overlay.querySelector('.scripture-guide-sheet');
     if (sheet) sheet.addEventListener('click', function(e) { e.stopPropagation(); });
+    bindGuidePinchZoom(sheet);
 
     overlay.querySelectorAll('[data-guide-close]').forEach(function(btn) {
       btn.addEventListener('click', closeScriptureGuide);
@@ -570,9 +607,9 @@
 
     var detailBody = overlay.querySelector('.scripture-guide-detail-body');
     if (detailBody) {
-      detailBody.addEventListener('touchmove', function(e) {
-        e.stopPropagation();
-      }, { passive: true });
+      // 상세 본문의 touchmove가 여기서 stopPropagation 되면 시트(.scripture-guide-sheet) 공통
+      // 핀치·이동 핸들러까지 전달되지 못해 상세 화면에서 확대·이동이 동작하지 않는다.
+      // 세로 스크롤 격리는 overscroll-behavior:contain 로 처리되므로 stopPropagation 은 제거한다.
       detailBody.addEventListener('click', function(e) {
         var verseBtn = e.target.closest('[data-guide-verse]');
         if (verseBtn) {
@@ -631,6 +668,186 @@
     window.scrollTo(0, y);
   }
 
+  /* v72: 길잡이 카드 전용 핀치 줌 — 두 손가락일 때만 카드(.scripture-guide-sheet)에 transform:scale 적용.
+     한 손가락 세로 스크롤/끌어내리기는 그대로 두고, 두 손가락 동작에만 preventDefault 한다. */
+  function getGuideSheetEl() {
+    return scriptureGuideOverlay ? scriptureGuideOverlay.querySelector('.scripture-guide-sheet') : null;
+  }
+
+  function guideTouchDist(touches) {
+    var dx = touches[0].clientX - touches[1].clientX;
+    var dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  /* 확대 배율에 맞춰 이동 범위를 제한한다. transform-origin이 중앙이므로 카드는 각 방향으로
+     (unscaled 크기)*(scale-1)/2 만큼 넘친다. 그 범위 안에서만 이동을 허용하면 모든 가장자리 글을
+     볼 수 있으면서도 카드가 화면 밖으로 완전히 사라지지 않는다. */
+  function clampGuidePan() {
+    // 캐시된 카드 크기만으로 계산 → 터치마다 offsetWidth/offsetHeight(강제 레이아웃) 호출하지 않는다
+    var maxX = guideSheetW > 0 ? guideSheetW * (guidePinchScale - 1) / 2 : 0;
+    var maxY = guideSheetH > 0 ? guideSheetH * (guidePinchScale - 1) / 2 : 0;
+    if (maxX < 0) maxX = 0;
+    if (maxY < 0) maxY = 0;
+    if (guidePanX > maxX) guidePanX = maxX; else if (guidePanX < -maxX) guidePanX = -maxX;
+    if (guidePanY > maxY) guidePanY = maxY; else if (guidePanY < -maxY) guidePanY = -maxY;
+  }
+
+  function applyGuideTransform() {
+    var sheet = guideSheetCache;
+    if (!sheet) return;
+    if (guidePinchScale <= 1) {
+      // 1배로 돌아오면 이동 위치도 중앙(0)으로 초기화
+      guidePinchScale = 1;
+      guidePanX = 0;
+      guidePanY = 0;
+    }
+    clampGuidePan();
+    // 이동 중에는 transition 없이 즉시 반영(제스처 시작 시 transition:none 설정됨)
+    sheet.style.transform = 'translate3d(' + guidePanX + 'px,' + guidePanY + 'px,0) scale(' + guidePinchScale + ')';
+  }
+
+  // 제스처 시작: 카드 크기 1회 캐시 + 이동 중 지연 애니메이션 제거(transition:none) + 레이어 승격
+  function beginGuideGesture() {
+    var sheet = guideSheetCache;
+    if (!sheet) return;
+    guideSheetW = sheet.offsetWidth;
+    guideSheetH = sheet.offsetHeight;
+    sheet.style.transition = 'none';
+    sheet.style.willChange = 'transform';
+  }
+
+  // 제스처 종료: 열기/닫기 슬라이드 애니메이션 복구
+  function endGuideGesture() {
+    var sheet = guideSheetCache;
+    if (!sheet) return;
+    sheet.style.transition = '';
+    sheet.style.willChange = '';
+  }
+
+  function resetGuidePinchZoom() {
+    guidePinchScale = 1;
+    guidePinchStartDist = 0;
+    guidePinchStartScale = 1;
+    guidePinchActive = false;
+    guidePanX = 0;
+    guidePanY = 0;
+    guidePanning = false;
+    var sheet = guideSheetCache || getGuideSheetEl();
+    // 인라인 transform 제거 → 시트 열기/닫기 슬라이드 애니메이션(CSS translateY)이 정상 동작하고 1배·이동 0으로 초기화된다
+    if (sheet) sheet.style.transform = '';
+  }
+
+  function bindGuidePinchZoom(sheet) {
+    if (guidePinchBound || !sheet) return;
+    guidePinchBound = true;
+    guideSheetCache = sheet;
+
+    // 확대/이동 중에만 붙였다 떼는 touchmove 핸들러(1배 단일 손가락에서는 붙지 않아 네이티브 스크롤이 빠르게 반응)
+    function onGuideTouchMove(e) {
+      if (!e.touches) return;
+      // 두 손가락: 확대·축소
+      if (guidePinchActive && e.touches.length === 2 && guidePinchStartDist > 0) {
+        var ratio = guideTouchDist(e.touches) / guidePinchStartDist;
+        var scale = guidePinchStartScale * ratio;
+        if (scale < GUIDE_PINCH_MIN) scale = GUIDE_PINCH_MIN;
+        if (scale > GUIDE_PINCH_MAX) scale = GUIDE_PINCH_MAX;
+        guidePinchScale = scale;
+        applyGuideTransform();
+        if (e.cancelable) e.preventDefault();
+        return;
+      }
+      // 한 손가락 + 확대 상태: 카드 이동(감속 없음, 매 이벤트 즉시 갱신)
+      if (guidePanning && e.touches.length === 1 && guidePinchScale > 1) {
+        guidePanX = guidePanStartX + (e.touches[0].clientX - guidePanStartTouchX) * GUIDE_PAN_GAIN;
+        guidePanY = guidePanStartY + (e.touches[0].clientY - guidePanStartTouchY) * GUIDE_PAN_GAIN;
+        applyGuideTransform();
+        if (e.cancelable) e.preventDefault();
+      }
+    }
+    function addGuideMove() {
+      if (guideMoveBound) return;
+      guideMoveBound = true;
+      sheet.addEventListener('touchmove', onGuideTouchMove, { passive: false });
+    }
+    function removeGuideMove() {
+      if (!guideMoveBound) return;
+      guideMoveBound = false;
+      sheet.removeEventListener('touchmove', onGuideTouchMove, { passive: false });
+    }
+
+    sheet.addEventListener('touchstart', function(e) {
+      if (!e.touches) return;
+      if (e.touches.length === 2) {
+        // 두 손가락: 확대·축소 시작
+        guidePinchActive = true;
+        guidePanning = false;
+        guidePinchStartDist = guideTouchDist(e.touches);
+        guidePinchStartScale = guidePinchScale;
+        beginGuideGesture();
+        addGuideMove();
+        if (e.cancelable) e.preventDefault();
+      } else if (e.touches.length === 1 && guidePinchScale > 1) {
+        // 한 손가락 + 확대 상태: 이동 시작 (touchstart에서는 preventDefault 하지 않아 버튼 탭은 정상)
+        guidePanning = true;
+        guidePanStartX = guidePanX;
+        guidePanStartY = guidePanY;
+        guidePanStartTouchX = e.touches[0].clientX;
+        guidePanStartTouchY = e.touches[0].clientY;
+        beginGuideGesture();
+        addGuideMove();
+      }
+      // 1배 단일 손가락: 아무 것도 하지 않음 → touchmove 리스너 없음 → 네이티브 세로 스크롤 즉시 반응
+    }, { passive: false });
+
+    function endGuidePinch(e) {
+      if (!e.touches || e.touches.length < 2) {
+        guidePinchActive = false;
+        guidePinchStartDist = 0;
+      }
+      if (e.touches && e.touches.length === 1 && guidePinchScale > 1) {
+        // 두 손가락에서 한 손가락으로 줄면 남은 손가락으로 이동을 이어서 시작(제스처·리스너 유지)
+        guidePanning = true;
+        guidePanStartX = guidePanX;
+        guidePanStartY = guidePanY;
+        guidePanStartTouchX = e.touches[0].clientX;
+        guidePanStartTouchY = e.touches[0].clientY;
+      } else if (!e.touches || e.touches.length === 0) {
+        guidePanning = false;
+        removeGuideMove();
+        endGuideGesture();
+      }
+    }
+    sheet.addEventListener('touchend', endGuidePinch);
+    sheet.addEventListener('touchcancel', endGuidePinch);
+  }
+
+  /* v72: 성경 길잡이 한 손 조작. 모바일에서는 패널 자체가 스크롤러(헤더 앞 투명 스페이서 포함), 그 외에는 기존대로 본문이 스크롤러 */
+  function getGuideScrollEl(panel) {
+    if (!panel) return null;
+    var body = panel.querySelector('.scripture-guide-body');
+    var spacer = panel.querySelector('.scripture-guide-pull-spacer');
+    if (spacer && window.getComputedStyle(spacer).display !== 'none') return panel;
+    return body || panel;
+  }
+
+  function getGuidePullOffset(panel) {
+    var spacer = panel && panel.querySelector('.scripture-guide-pull-spacer');
+    if (!spacer) return 0;
+    if (window.getComputedStyle(spacer).display === 'none') return 0;
+    return spacer.getBoundingClientRect().height || spacer.offsetHeight || 0;
+  }
+
+  /* 화면 진입 시 스페이서 높이만큼 내려 헤더가 시트 상단에서 시작하도록(빈 공간·깜빡임 없음). 데스크톱은 offset 0이라 기존과 동일 */
+  function resetGuidePullScroll(panel) {
+    if (!panel) return;
+    var scroller = getGuideScrollEl(panel);
+    if (!scroller) return;
+    var apply = function() { try { scroller.scrollTop = getGuidePullOffset(panel); } catch (e) {} };
+    apply();
+    requestAnimationFrame(apply);
+  }
+
   function showScriptureGuideSummary() {
     var overlay = ensureScriptureGuideOverlay();
     var summary = overlay.querySelector('[data-guide-panel="summary"]');
@@ -638,6 +855,9 @@
     if (summary) summary.hidden = false;
     if (detail) detail.hidden = true;
     scriptureGuideState.step = 'summary';
+    // 상세 → 요약 복귀 시에도 배율·이동 위치를 1배·중앙(0)으로 초기화
+    resetGuidePinchZoom();
+    resetGuidePullScroll(summary);
     var focusEl = overlay.querySelector('.scripture-guide-more-btn');
     if (focusEl) focusEl.focus();
   }
@@ -649,6 +869,9 @@
     if (summary) summary.hidden = true;
     if (detail) detail.hidden = false;
     scriptureGuideState.step = 'detail';
+    // 요약 → 더 알아보기(상세) 진입 시 배율·이동 위치를 1배·중앙(0)으로 초기화
+    resetGuidePinchZoom();
+    resetGuidePullScroll(detail);
     var focusEl = overlay.querySelector('[data-guide-panel="detail"] [data-guide-close]');
     if (focusEl) focusEl.focus();
   }
@@ -663,6 +886,7 @@
     scriptureGuideState.activeTestament = testament;
     scriptureGuideState.activeCat = catName;
     scriptureGuideState.open = true;
+    resetGuidePinchZoom();
     showScriptureGuideSummary();
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
@@ -678,6 +902,7 @@
     scriptureGuideOverlay.classList.remove('is-open');
     scriptureGuideOverlay.setAttribute('aria-hidden', 'true');
     scriptureGuideState.open = false;
+    resetGuidePinchZoom();
     showScriptureGuideSummary();
     unlockGuideScroll();
     var trigger = scriptureGuideState.triggerEl;
@@ -776,15 +1001,19 @@
   }
 
   function scrollToGuideRelatedVerses(overlay) {
+    var detailPanel = overlay && overlay.querySelector('[data-guide-panel="detail"]');
     var detailBody = overlay && overlay.querySelector('.scripture-guide-detail-body');
     var marker = detailBody && detailBody.querySelector('[data-guide-related-verses]');
     if (!detailBody || !marker) return;
+    // 실제 스크롤러(모바일: 패널 / 그 외: 본문) 기준으로 마커 위치를 계산. rect 차이를 쓰므로 스페이서·헤더 오프셋을 자동 반영한다
+    var scroller = getGuideScrollEl(detailPanel) || detailBody;
     var delays = [0, 50, 150, 300];
     for (var i = 0; i < delays.length; i++) {
       (function(ms) {
         setTimeout(function() {
           try {
-            detailBody.scrollTop = Math.max(0, marker.offsetTop - 12);
+            var top = scroller.scrollTop + (marker.getBoundingClientRect().top - scroller.getBoundingClientRect().top) - 12;
+            scroller.scrollTop = Math.max(0, top);
           } catch (err) {}
         }, ms);
       })(delays[i]);
@@ -809,6 +1038,7 @@
     scriptureGuideState.activeTestament = testament;
     scriptureGuideState.activeCat = catName;
     scriptureGuideState.open = true;
+    resetGuidePinchZoom();
     showScriptureGuideDetail();
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');

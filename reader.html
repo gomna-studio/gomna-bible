@@ -734,6 +734,38 @@ html.reader-hide-chrome .reader-dock-top-pill{
   font-size:17px;
   font-weight:700;
 }
+/* v72: 모바일 전체 화면형 view 공통 한 손 조작. 평소(비대상·데스크톱) 완전 숨김 */
+.mobile-top-pull-spacer{display:none}
+@media (max-width:480px){
+  /* 헤더 앞 투명 여유 공간: 처음엔 스크롤로 감춰두고, 아래로 끌면 나타나 헤더+콘텐츠 전체를 아래로 이동시킨다. 적용 대상 view일 때만 표시 */
+  html.reader-hide-chrome.reader-mobile-pull-active .mobile-top-pull-spacer{
+    display:block;
+    flex:0 0 auto;
+    width:100%;
+    height:min(48vh,380px);
+    pointer-events:none;
+    background:transparent;
+  }
+  /* 적용 대상 화면에서만 상단 공유 헤더 고정을 해제해 콘텐츠와 한 덩어리로 움직이게 한다 */
+  html.reader-hide-chrome.reader-mobile-pull-active .reader-dock-top{
+    position:static;
+    top:auto;
+  }
+  /* 짧은 화면(검색·보관함·쉬운찾기·짧은 장 등)도 스페이서 전체(≈380px)를 감췄다가 끌어내릴 수 있도록 스크롤 범위를 확보한다.
+     phone-frame을 세로 flex로 세우고, 헤더+본문이 정확히 한 뷰포트를 채우게 하여(본문 = 뷰포트 − 헤더) 스페이서 높이만큼의 스크롤 여유를 만든다.
+     하단 고정 dock/오디오 영역은 본문의 기존 padding-bottom 으로 이미 확보되어 마지막 항목이 가려지지 않는다. */
+  html.reader-hide-chrome.reader-mobile-pull-active .phone-frame{
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+  }
+  html.reader-hide-chrome.reader-mobile-pull-active:not(.reader-verse-active) main.content{
+    flex:1 1 auto;
+    min-height:calc(100vh - var(--reader-dock-top-height));
+    min-height:calc(100dvh - var(--reader-dock-top-height));
+  }
+}
 </style>
 <script type="application/ld+json">
 {
@@ -897,6 +929,8 @@ if ("serviceWorker" in navigator) {
       <button type="button" class="reader-close" onclick="location.href='/'" aria-label="닫기">✕</button>
     </div>
   </nav>
+  <!-- v72: 모바일 전체 화면형 view(책/장 선택·검색·보관함·쉬운찾기) 공통 한 손 조작 여유 공간. 공유 헤더 #readerDockTop 바로 앞의 투명 스페이서 하나로, 헤더·콘텐츠를 같은 스크롤 흐름 안에서 함께 아래로 끌어내린다 -->
+  <div id="mobileTopPullSpacer" class="mobile-top-pull-spacer" aria-hidden="true"></div>
   <header id="readerDockTop" class="reader-dock-top" aria-label="성경읽기 상단">
     <span class="reader-dock-top-title" id="readerDockTopTitle">성경 · 구약</span>
     <div class="reader-dock-top-actions" id="readerDockTopActions">
@@ -1245,10 +1279,20 @@ function syncScriptureDockRealHeight() {
   } catch (e) {}
 }
 
+/* v72: 공통 한 손 조작(모바일 pull)을 적용할 전체 화면형 view 판별.
+   공유 헤더 #readerDockTop 을 그대로 쓰고, 문서 스크롤 흐름 안에서 헤더+콘텐츠가 한 덩어리로 움직여도 안전한 화면만 대상.
+   verseView 는 별도 헤더(#verseReadHeader)와 자동 따라가기·절 이동 스크롤 로직이 있어 제외한다. */
+function isMobilePullView(viewId) {
+  return viewId === 'oldView' || viewId === 'newView' || viewId === 'chapterView' ||
+         viewId === 'easyView' || viewId === 'searchView' || viewId === 'favView';
+}
+
 function syncReaderChapterLayout() {
   try {
     var viewId = getActiveReaderViewId();
     document.documentElement.classList.toggle('reader-chapter-active', viewId === 'chapterView');
+    // 대상 view 진입 시 활성화, 이탈(특히 verseView·홈) 시 즉시 해제 → 이전 화면의 pull 상태가 남지 않는다
+    document.documentElement.classList.toggle('reader-mobile-pull-active', isMobilePullView(viewId));
   } catch (e) {}
 }
 
@@ -1303,15 +1347,29 @@ function getBibleListScrollContainer() {
   return document.scrollingElement || document.documentElement;
 }
 
+/* v72: 공유 헤더 앞 투명 여유 공간(스페이서)의 실제 높이. 그만큼 스크롤을 내려두면 헤더가 화면 상단에서 시작한다.
+   대상이 아닌 화면·데스크톱에서는 스페이서가 display:none 이라 항상 0 을 돌려주어 기존 동작을 그대로 유지한다. */
+function getMobileTopPullOffset() {
+  try {
+    var spacer = document.getElementById('mobileTopPullSpacer');
+    if (!spacer) return 0;
+    if (window.getComputedStyle(spacer).display === 'none') return 0;
+    return spacer.getBoundingClientRect().height || spacer.offsetHeight || 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
 function resetBibleListScroll() {
   var scrollEl = getBibleListScrollContainer();
-  function scrollToTop() {
+  function scrollToInitial() {
     if (!scrollEl) return;
-    scrollEl.scrollTop = 0;
+    // 투명 여유 공간이 활성화된 모바일에서는 여유 공간 높이만큼 내려 헤더가 상단에서 시작하도록 한다 (데스크톱은 offset이 0이라 기존과 동일)
+    scrollEl.scrollTop = getMobileTopPullOffset();
   }
-  scrollToTop();
+  scrollToInitial();
   requestAnimationFrame(function() {
-    scrollToTop();
+    scrollToInitial();
   });
 }
 
@@ -1546,9 +1604,14 @@ function switchTab(tab) {
   syncReaderNavActive();
   updateOpt4BottomBar();
   syncReaderChapterLayout();
+  if (tab === 'old' || tab === 'new' || tab === 'easy' || tab === 'search' || tab === 'fav') {
+    // v72: 대상 전체 화면 진입 시 투명 여유 공간만큼 스크롤을 내려, 처음엔 빈 공간 없이 헤더가 상단에서 시작하도록 한다 (데스크톱은 offset 0으로 기존과 동일)
+    resetBibleListScroll();
+  }
   if (tab === 'search') {
     var siR = document.getElementById('searchInputReader');
-    if (siR) setTimeout(function(){ try{ siR.focus(); }catch(e){} }, 0);
+    // preventScroll: 검색어 입력창 포커스가 초기 스크롤(스페이서 오프셋)을 흔들지 않도록 한다
+    if (siR) setTimeout(function(){ try{ siR.focus({ preventScroll: true }); }catch(e){ try{ siR.focus(); }catch(e2){} } }, 0);
     var backBtn = document.getElementById('readerBackToTextBtn');
     if (backBtn) backBtn.style.display = lastReaderReturn ? '' : 'none';
   }
@@ -1798,6 +1861,8 @@ function selectBook(name, chapters, testament) {
   document.getElementById('chapterView').innerHTML = html;
   updateOpt4BottomBar();
   syncScriptureDockActive('bible');
+  // v72: 장 선택 화면도 대상이므로, pull 상태가 적용된 뒤 스페이서 오프셋만큼 내려 헤더가 상단에서 시작하도록 한다
+  resetBibleListScroll();
 }
 
 function selectChapter(ch) {
