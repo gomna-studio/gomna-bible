@@ -455,8 +455,9 @@ html.reader-verse-active main.content{padding-bottom:70px}
   opacity:1;
   letter-spacing:-.15px;
 }
-.verse-toolbar-target-wrap{position:relative;flex-shrink:1;min-width:0}
-.verse-toolbar-target-btn{min-height:40px;max-width:104px;width:100%;padding:0 8px;background:#DCEBE6;border:1px solid rgba(180,140,90,.5);border-radius:10px;font-size:13px;font-weight:700;color:#5A321C;font-family:inherit;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-tap-highlight-color:transparent;box-sizing:border-box;opacity:1}
+.verse-toolbar-target-wrap{position:relative;flex-shrink:0;min-width:auto}
+.verse-toolbar-target-btn{flex-shrink:0;min-height:40px;min-width:92px;width:auto;max-width:none;padding:0 8px;background:#DCEBE6;border:1px solid rgba(180,140,90,.5);border-radius:10px;font-size:clamp(12.5px,3.45vw,13px);font-weight:700;color:#5A321C;font-family:inherit;cursor:pointer;white-space:nowrap;overflow:visible;text-overflow:clip;-webkit-tap-highlight-color:transparent;box-sizing:border-box;opacity:1}
+#opt4VerseToolbar.opt4-bar-mode{gap:2px}
 .verse-toolbar-target-btn:hover,
 .verse-toolbar-target-btn:active,
 .verse-toolbar-target-btn:focus-visible{
@@ -914,11 +915,20 @@ html.unified-bc-lock-scroll body{overflow:hidden;height:100%}
     flex-wrap:nowrap;
   }
   html.reader-hide-chrome .reader-dock-top-testament-seg{
-    width:auto;
-    min-width:128px;
-    max-width:168px;
+    width:232px;
+    min-width:232px;
+    max-width:232px;
+    height:40px;
+    min-height:40px;
     margin:0;
+    padding:3px;
     flex-shrink:0;
+    box-sizing:border-box;
+    background:#F2E3C5;
+    border:0.5px solid rgba(148,101,47,.22);
+    border-radius:17px;
+    gap:0;
+    align-items:stretch;
   }
   html.reader-hide-chrome .reader-dock-top-testament-seg[hidden]{
     display:none!important;
@@ -926,17 +936,19 @@ html.unified-bc-lock-scroll body{overflow:hidden;height:100%}
   html.reader-hide-chrome .reader-dock-top-pill{
     flex:1 1 0;
     min-width:0;
-    min-height:44px;
-    height:auto;
+    width:auto;
+    height:100%;
+    min-height:34px;
     margin:0;
-    padding:0 8px;
+    padding:0 12px;
     border:2px solid transparent;
-    border-radius:10px;
-    background:transparent;
-    color:#5a3818;
+    border-radius:14px;
+    background:#F3E6CE;
+    color:#5A3820;
     font-size:14px;
     font-weight:700;
     font-family:inherit;
+    line-height:1;
     cursor:pointer;
     white-space:nowrap;
     opacity:1;
@@ -950,13 +962,22 @@ html.unified-bc-lock-scroll body{overflow:hidden;height:100%}
     -webkit-tap-highlight-color:transparent;
   }
   html.reader-hide-chrome .reader-dock-top-pill.active{
-    background:#FFFFFF;
-    border-color:#8B5E2C;
-    color:#3D2817;
-    box-shadow:0 1px 2px rgba(90,56,24,.08);
+    background:#FFF9ED;
+    border-color:#94652F;
+    color:#3B281B;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55);
   }
   html.reader-hide-chrome .reader-dock-top-pill:not(.active):active{
-    background:rgba(255,255,255,.45);
+    background:#EFE0C0;
+  }
+  @media (max-width:360px){
+    html.reader-hide-chrome .reader-dock-top-testament-seg{
+      width:200px;
+      min-width:200px;
+      max-width:200px;
+      height:40px;
+      min-height:40px;
+    }
   }
   html.reader-hide-chrome .reader-dock-top-close{
     width:36px;
@@ -1061,8 +1082,20 @@ html.reader-hide-chrome .scripture-dock{
     --gomna-audio-bottom-bar-height:calc(var(--scripture-dock-height) + var(--opt4-bottom-bar-height) + env(safe-area-inset-bottom,0px));
   }
 html.reader-hide-chrome .reader-dock-top-testament-seg{
-  min-width:128px;
-  max-width:168px;
+  width:232px;
+  min-width:232px;
+  max-width:232px;
+  height:40px;
+  min-height:40px;
+}
+@media (max-width:360px){
+  html.reader-hide-chrome .reader-dock-top-testament-seg{
+    width:200px;
+    min-width:200px;
+    max-width:200px;
+    height:40px;
+    min-height:40px;
+  }
 }
 /* v72: 모바일 전체 화면형 view 공통 한 손 조작. 평소(비대상·데스크톱) 완전 숨김 */
 .mobile-top-pull-spacer{display:none}
@@ -1193,7 +1226,7 @@ if ("serviceWorker" in navigator) {
 <body>
 <!-- haptic-tap-feedback -->
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
-<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',syncReaderDockModeEarly);window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
+<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();activateEasyViewEarly();});}else{activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
 <div class="phone-frame"><div id="appTopChrome"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
   <span class="gs-text">Gomna Studio, Inc.</span>
   <span class="gs-arrow">↗</span>
@@ -1318,7 +1351,7 @@ if ("serviceWorker" in navigator) {
   <nav id="readerNav" class="reader-sheet-tabs" aria-label="성경 메뉴">
     <button type="button" class="reader-tab" data-reader-tab="old" onclick="location.href='reader.html?testament=old'">구약</button>
     <button type="button" class="reader-tab" data-reader-tab="new" onclick="location.href='reader.html?testament=new'">신약</button>
-    <button type="button" class="reader-tab" data-reader-tab="easy" onclick="location.href='reader.html?easy'">쉬운찾기</button>
+    <button type="button" class="reader-tab" data-reader-tab="easy" onclick="location.href='reader.html?easy=1&amp;v=20260712-easyfind-direct-v3'">쉬운찾기</button>
     <button type="button" class="reader-tab" data-reader-tab="fav" onclick="location.href='reader.html?favorites'">내 보관함</button>
     <div class="reader-nav-end">
       <button type="button" class="reader-tab reader-home" onclick="location.href='/'">← 홈으로</button>
@@ -1943,9 +1976,13 @@ function applyNavigationFromQuery() {
     return;
   }
 
+  // ?easy / ?easy=1 / ?easy=1&cb=... 모두 인식 (정확 문자열 비교 금지)
   if (p.has('easy')) {
+    try { renderEasyFind(); } catch (e) {}
     switchTab('easy');
+    syncScriptureDockActive('find');
     syncReaderNavActive();
+    try { resetBibleListScroll(); } catch (e2) {}
     return;
   }
   if (p.has('favorites')) {
@@ -4600,7 +4637,7 @@ function goBack(to) {
 
 function goHome() {
   stopReaderAudioPlayback();
-  window.location.href = '/';
+  window.location.assign('./index.html?v=20260712-easyfind-direct-v3');
 }
 
 function toggleFav(book, chapter, verse, text) {

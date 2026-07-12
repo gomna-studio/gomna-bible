@@ -1,7 +1,18 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<script>if(location.search)location.replace('reader.html'+location.search);</script>
+<script>
+(function () {
+  if (!location.search) return;
+  try {
+    var p = new URLSearchParams(location.search);
+    // reader로 넘겨야 하는 실제 진입 쿼리만 전달. ?v= 캐시버스트는 홈에 남긴다.
+    var forward = ['book', 'chapter', 'testament', 'easy', 'favorites', 'q', 'focus', 'dockPreview'];
+    var shouldForward = forward.some(function (k) { return p.has(k); });
+    if (shouldForward) location.replace('reader.html' + location.search);
+  } catch (e) {}
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#a87a35">
@@ -25,7 +36,7 @@
 <link rel="manifest" href="manifest.json?v=20260603-01">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <script>
-window.GOMNA_ASSET_VERSION = "20260710-home-ui-v73";
+window.GOMNA_ASSET_VERSION = "20260712-easyfind-direct-v3";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -73,8 +84,8 @@ body{background:linear-gradient(180deg,#F0E4CD 0%,#EBDDC2 100%);min-height:100vh
 .card{border-radius:var(--gm-radius-card);padding:8px 4px 7px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;transition:transform .2s ease,background .2s ease,border-color .2s ease;position:relative;overflow:hidden;border:var(--gm-card-border-slim);box-shadow:var(--gm-card-shadow);background:var(--gm-card-bg);min-height:0}
 .card:active{transform:scale(.97)}
 .card.old,.card.new,.card.easy{color:var(--gm-ink)}
-.card:hover,.card.old:hover,.card.new:hover,.card.easy:hover,button.card:hover{background:var(--gm-hover-surface)}
-button.card{border:var(--gm-card-border-slim);margin:0;font-family:inherit;font-size:inherit;color:inherit;text-align:inherit;line-height:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation;width:100%;-webkit-appearance:none;appearance:none;box-shadow:var(--gm-card-shadow)}
+.card:hover,.card.old:hover,.card.new:hover,.card.easy:hover,button.card:hover,a.card:hover{background:var(--gm-hover-surface)}
+button.card,a.card{border:var(--gm-card-border-slim);margin:0;font-family:inherit;font-size:inherit;color:inherit;text-align:inherit;line-height:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation;width:100%;-webkit-appearance:none;appearance:none;box-shadow:var(--gm-card-shadow);text-decoration:none;box-sizing:border-box}
 .card-visual{flex:none;width:100%;height:78px;display:flex;align-items:center;justify-content:center;position:relative}
 .card.old .book,.card.new .book{width:100%;height:100%;display:flex;align-items:center;justify-content:center;filter:none}
 .home-bible-cover{display:block;width:clamp(68px,92%,84px);height:74px;max-height:74px;margin:auto;object-fit:contain}
@@ -601,12 +612,12 @@ body:has(#overlay.show) .home-ui-improvement-notice{display:none}
       </div>
       <div class="card-label"><div class="card-name">신약 27권</div><div class="card-desc">장·절로 읽기 <span class="card-arrow">›</span></div></div>
     </button>
-    <button type="button" class="card easy" onclick="openEasy()" aria-label="말씀 바로찾기 분류별로 찾기">
+    <a class="card easy" id="homeEasyFindBtn" href="./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3" role="link" aria-label="말씀 바로찾기 분류별로 찾기">
       <div class="card-visual">
         <div class="card-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
       </div>
       <div class="card-label"><div class="card-name" data-i18n-ui="find_word" translate="no">말씀 바로찾기</div><div class="card-desc">분류별로 찾기 <span class="card-arrow">›</span></div></div>
-    </button>
+    </a>
   </div>
   <div class="search-shell" id="homeSearchShell">
   <form class="search" id="homeSearchForm" onsubmit="submitSearch(event)" onclick="activateSearch()">
@@ -637,7 +648,7 @@ body:has(#overlay.show) .home-ui-improvement-notice{display:none}
     <div class="sheet-tabs">
       <button class="tab" data-tab="old" onclick="switchTab('old')">구약</button>
       <button class="tab" data-tab="new" onclick="switchTab('new')">신약</button>
-      <button class="tab" data-tab="easy" onclick="switchTab('easy')">쉬운찾기</button>
+      <button class="tab" data-tab="easy" type="button" onclick="window.location.assign('./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3')">쉬운찾기</button>
       <button class="tab" data-tab="bookmark" onclick="switchTab('bookmark')">내 보관함</button>
       <button class="tab home-tab" onclick="closeSheet()">← 홈으로</button>
       <button class="sheet-close" onclick="closeSheet()">✕</button>
@@ -1022,8 +1033,27 @@ setTimeout(()=>{playWelcomeAnimation();},3000);
 function openBible(testament){
   window.location.href='reader.html?testament='+encodeURIComponent(testament);
 }
-function openEasy(initialCons){const lamp=document.getElementById('lamp');if(lamp&&lamp.classList.contains('lit'))return;if(easyOpenTimer)clearTimeout(easyOpenTimer);if(lamp)lamp.classList.add('lit');easyOpenTimer=setTimeout(()=>{easyOpenTimer=null;currentCategory=null;switchTab('easy',initialCons);document.getElementById('overlay').classList.add('show');},900);}
-function openCategory(catKey){if(easyOpenTimer)clearTimeout(easyOpenTimer);easyOpenTimer=null;currentCategory=catKey||null;switchTab('easy');document.getElementById('overlay').classList.add('show');}
+function openEasy(){
+  // 홈 「말씀 바로찾기」→ reader #easyView 만. 홈 #overlay / renderEasy 절대 사용 금지
+  window.location.assign('./reader.html?easy=1&v=20260712-easyfind-direct-v3');
+}
+window.openEasy = openEasy;
+// capture: 예전 overlay 경로를 차단하고 reader로만 보냄 (href 기본 이동도 허용)
+document.addEventListener('click', function(e) {
+  var btn = e.target && e.target.closest && e.target.closest('#homeEasyFindBtn, a.card.easy, button.card.easy');
+  if (!btn) return;
+  var ov = document.getElementById('overlay');
+  if (ov) ov.classList.remove('show');
+  // 기본 <a href> 이동을 막지 않는다. JS만 보강한다.
+  if (btn.tagName === 'A' && btn.getAttribute('href')) return;
+  e.preventDefault();
+  e.stopPropagation();
+  window.location.assign('./reader.html?easy=1&v=20260712-easyfind-direct-v3');
+}, true);
+function openCategory(catKey){
+  // 분류 딥링크도 예전 overlay 대신 reader 쉬운찾기로 이동
+  window.location.assign('./reader.html?easy=1&v=20260712-easyfind-direct-v3');
+}
 function closeSheet(){if(easyOpenTimer){clearTimeout(easyOpenTimer);easyOpenTimer=null;}document.getElementById('overlay').classList.remove('show');setTimeout(()=>{document.getElementById('book-old').classList.remove('opening');document.getElementById('book-new').classList.remove('opening');const lamp=document.getElementById('lamp');if(lamp)lamp.classList.remove('lit');},400);}
 function closeIfBg(e){if(e.target.id==='overlay')closeSheet();}
 function switchTab(tab,easyInitialCons){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));const b=document.getElementById('sheet-body');if(tab==='old'){b.innerHTML=oldData.map(c=>'<div class="cat"><div class="cat-title">'+c.cat+'</div><div class="book-grid">'+c.books.map(bk=>'<button class="book-item" onclick="clickBook(\''+bk[0]+'\')">'+bk[0]+'<small>'+bk[1]+'장</small></button>').join('')+'</div></div>').join('');}else if(tab==='new'){b.innerHTML=newData.map(c=>'<div class="cat"><div class="cat-title">'+c.cat+'</div><div class="book-grid">'+c.books.map(bk=>'<button class="book-item" onclick="clickBook(\''+bk[0]+'\')">'+bk[0]+'<small>'+bk[1]+'장</small></button>').join('')+'</div></div>').join('');}else if(tab==='easy'){currentCons=(easyInitialCons!==undefined&&easyInitialCons!==null)?easyInitialCons:'전체';renderEasy();}else{b.innerHTML='<div class="bookmark-empty"><div class="icon">★</div>아직 저장한 말씀이 없습니다.<br>마음에 닿은 구절을 ★로 저장해보세요.</div>';}b.scrollTop=0;}
