@@ -315,6 +315,15 @@ body.gomna-audio-body-padding {
   pointer-events: none;
 }
 
+/* 절 본문 밖 “듣기” 안내만: 연한 청록 배경 + 선명한 검정 글씨 */
+.gomna-audio-toast.gomna-audio-toast--listen-hint {
+  background: #E8F4F1;
+  color: #111111;
+  font-weight: 700;
+  border: 1px solid #BFD8D2;
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.06);
+}
+
 .gomna-audio-toast.fade-out {
   opacity: 0;
   transition: opacity 0.3s ease;

@@ -11,10 +11,12 @@
   var lastBibleResumeSaveAt = 0;
   var miniProgressAudio = null;
 
-  function showToast(message, duration) {
+  function showToast(message, duration, options) {
     if (typeof message !== 'string' || !message) return;
 
-    duration = duration || TOAST_DURATION_MS;
+    options = options || {};
+    // 절 본문 밖 듣기 안내만 4초 — 다른 토스트는 기본 3초 유지
+    duration = duration || (options.variant === 'listen-hint' ? 4000 : TOAST_DURATION_MS);
 
     var oldToasts = document.querySelectorAll('.gomna-audio-toast');
     for (var i = 0; i < oldToasts.length; i++) {
@@ -30,6 +32,9 @@
 
     var toast = document.createElement('div');
     toast.className = 'gomna-audio-toast';
+    if (options.variant) {
+      toast.classList.add('gomna-audio-toast--' + options.variant);
+    }
     toast.setAttribute('role', 'status');
     toast.setAttribute('aria-live', 'polite');
     toast.textContent = message;
@@ -50,6 +55,18 @@
   }
 
   window.GOMNA_AUDIO_TOAST = showToast;
+
+  function isVerseViewScreenActive() {
+    if (typeof window.isReaderVerseViewActive === 'function') {
+      try { return !!window.isReaderVerseViewActive(); } catch (e) {}
+    }
+    var vv = document.getElementById('verseView');
+    return !!(vv && vv.classList.contains('active'));
+  }
+
+  function allowVerseScreenAudioPlayback() {
+    return isVerseViewScreenActive();
+  }
 
   function showElement(el) {
     if (!el) return;
@@ -1071,6 +1088,7 @@
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
 
+    if (!allowVerseScreenAudioPlayback()) return;
     if (!engine || !engine.playAudioRange) return;
 
     if (state && state.queueActive) {
@@ -1107,6 +1125,8 @@
     var audioIds = [];
     var queueSource;
     var verse;
+
+    if (!allowVerseScreenAudioPlayback()) return;
 
     if (!engine || !engine.playAudioQueue || !parts || !endVerse || parts.verse > endVerse) {
       showToast('오디오 준비 중입니다.');
@@ -1213,6 +1233,7 @@
 
     switch (action) {
       case 'play':
+        if (!allowVerseScreenAudioPlayback()) break;
         if (audioId) {
           if (state && state.currentAudioId && state.currentAudioId !== audioId && engine.stopAudio) {
             engine.stopAudio();
@@ -1223,16 +1244,22 @@
         break;
 
       case 'play-verse-to-end':
+        if (!allowVerseScreenAudioPlayback()) break;
         if (audioId) {
           playVerseToChapterEnd(audioId);
         }
         break;
 
       case 'play-range':
+        if (!allowVerseScreenAudioPlayback()) break;
         playVisibleVerseRange(false);
         break;
 
       case 'toggle':
+        if (!allowVerseScreenAudioPlayback()) {
+          if (engine.stopAudio) engine.stopAudio();
+          break;
+        }
         if (state && state.isPlaying) {
           engine.pauseAudio();
         } else if (state && state.isPaused) {
@@ -1259,6 +1286,7 @@
         break;
 
       case 'expand':
+        if (!allowVerseScreenAudioPlayback()) break;
         showExpandedPlayer();
         break;
 
@@ -1279,6 +1307,12 @@
     var detail = e.detail || {};
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
+
+    // 절 본문 화면이 아니면 재생을 즉시 취소하고 플레이어를 열지 않는다
+    if (!allowVerseScreenAudioPlayback()) {
+      if (engine && engine.stopAudio) engine.stopAudio();
+      return;
+    }
 
     showMiniPlayer();
     setPlayPauseIcon(true);
