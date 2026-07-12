@@ -525,17 +525,14 @@ html.reader-verse-active main.content{padding-bottom:70px}
 .verse-range-modal-close{background:rgba(0,0,0,.06);border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;color:#3d2818;font-family:inherit}
 .verse-range-pull-spacer{display:none}
 .verse-range-modal-scroll{flex:1 1 auto;min-height:0;height:100%;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;touch-action:pan-x pan-y pinch-zoom}
-.range-header{flex:0 0 auto;display:grid;grid-template-columns:minmax(0,1fr) 48px;align-items:center;min-height:60px;padding:8px 4px 8px 16px;padding-top:calc(8px + env(safe-area-inset-top,0px));border-bottom:0.5px solid rgba(180,140,90,.35);background:#faf6ed;box-sizing:border-box;position:relative;z-index:20;overflow:hidden;touch-action:pan-x pan-y pinch-zoom}
-.range-header-left{display:flex;align-items:center;gap:8px;min-width:0;max-width:100%;overflow:hidden;pointer-events:none}
-.range-header-left .range-status-tag{pointer-events:auto}
-.range-title{font-size:16px;font-weight:700;color:#3d2818;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42%}
-.range-status-tag{flex-shrink:1;min-width:0;height:32px;padding:0 12px;border-radius:16px;font-size:13px;font-weight:600;font-family:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;-webkit-tap-highlight-color:transparent;background:#F7EEDC;color:#5A3B22;border:1px solid rgba(139,94,44,.30);opacity:1;transition:background-color .08s ease,color .08s ease,border-color .08s ease}
-.range-status-tag:disabled{opacity:1;cursor:default}
-.range-status-tag.range-status-tag--move{background:#B58A3A;color:#fff;border:1px solid #8D6723;cursor:pointer;min-width:64px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
-.range-close{position:relative;z-index:30;width:44px;min-width:44px;height:44px;min-height:44px;margin:0 auto;padding:0;border:none;background:transparent;font-size:20px;color:#3d2818;cursor:pointer;font-family:inherit;line-height:1;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;pointer-events:auto;touch-action:manipulation}
+.range-header{flex:0 0 auto;display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;min-height:60px;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top,0px));border-bottom:0.5px solid rgba(180,140,90,.35);background:#faf6ed;box-sizing:border-box;position:relative;z-index:20;overflow:hidden;touch-action:pan-x pan-y pinch-zoom}
+.range-header-spacer{width:44px;min-width:44px;height:44px}
+.range-title{min-width:0;text-align:center;font-size:17px;font-weight:700;color:#24170F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.range-status-tag{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;pointer-events:none}
+.range-status-tag.range-status-tag--move{position:absolute}
+.range-close{position:relative;z-index:30;width:44px;min-width:44px;height:44px;min-height:44px;margin:0;padding:0;border:none;background:transparent;font-size:20px;color:#3d2818;cursor:pointer;font-family:inherit;line-height:1;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;pointer-events:auto;touch-action:manipulation}
 @media (max-width:360px){
-  .range-title{font-size:15px}
-  .range-status-tag{font-size:11px;padding:0 8px}
+  .range-title{font-size:16px}
 }
 /* 데스크톱: 본문만 세로 스크롤. 모바일(≤480px): 외곽 스크롤이 스페이서+헤더+본문을 한 덩어리로 끌어내린다 */
 .verse-range-modal-body{padding:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-x pan-y pinch-zoom}
@@ -560,18 +557,26 @@ html.reader-verse-active main.content{padding-bottom:70px}
 .verse-cell.disabled{opacity:0.4;pointer-events:none}
 .verse-range-btn-all{padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#B8860B,#9a7018);color:#fff;width:100%;position:relative;z-index:3;pointer-events:auto}
 .verse-range-apply{padding:12px;border-radius:12px;background:#c89849;color:#fff;border:none;font-weight:700;cursor:pointer;font-family:inherit;font-size:15px;width:100%;margin-top:0;-webkit-tap-highlight-color:transparent}.verse-range-apply:active{background:#a87a35}
-.verse-range-split{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:10px 0 10px;align-items:stretch;touch-action:pan-x pan-y pinch-zoom}
+.verse-range-split{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:8px 0 10px;align-items:stretch;touch-action:pan-x pan-y pinch-zoom}
 .verse-range-column{display:flex;flex-direction:column;min-width:0;touch-action:pan-x pan-y pinch-zoom}
 .verse-range-column:first-child{padding-right:8px;border-right:2px solid #c89849}
 .verse-range-column:last-child{padding-left:8px;position:relative}
-.verse-range-column-label{font-size:15px;font-weight:600;color:#3d2818;margin-bottom:6px;text-align:center;margin-top:0}
+.verse-range-column-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.verse-range-column-hint{margin:0 0 10px;padding:0 2px;text-align:center;font-size:13px;font-weight:700;color:#4A2D1C;opacity:1;line-height:1.3;min-height:1.3em;white-space:nowrap;overflow:visible;text-overflow:clip;box-sizing:border-box}
+.verse-range-column-hint.is-hint-hidden{visibility:hidden}
 .verse-range-column-scroll{max-height:none;overflow:visible;min-height:0;touch-action:pan-x pan-y pinch-zoom}
 .verse-range-split .verse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:0;touch-action:pan-x pan-y pinch-zoom}
-.verse-range-split .verse-cell{min-height:38px;font-size:14px;font-weight:600;color:#3d2818;touch-action:pan-x pan-y pinch-zoom}
+.verse-range-split .verse-cell{min-height:38px;font-size:17px;font-weight:700;color:#24170F;-webkit-text-fill-color:#24170F;opacity:1;touch-action:pan-x pan-y pinch-zoom}
+.verse-range-split .verse-cell:disabled,
+.verse-range-split .verse-cell.disabled{opacity:0.55;color:#24170F;-webkit-text-fill-color:#24170F;font-weight:700}
 .verse-range-split .verse-cell.verse-cell--range-end,
-.verse-range-split .verse-cell.verse-cell--range-mid{background:#F7EEDC;color:#4A3524;border:2px solid #C9A96A;font-weight:700;box-shadow:0 0 0 1px rgba(201,169,106,.22)}
+.verse-range-split .verse-cell.verse-cell--range-mid{background:#F7EEDC;color:#24170F;-webkit-text-fill-color:#24170F;border:2px solid #C9A96A;font-weight:700;opacity:1;box-shadow:0 0 0 1px rgba(201,169,106,.22)}
+@media (max-width:360px){
+  .verse-range-column-hint{font-size:12px}
+  .verse-range-split .verse-cell{font-size:17px}
+}
 @media (hover:hover) and (pointer:fine) {
-  .verse-range-split .verse-cell:not(:disabled):not(.disabled):not(.verse-cell--range-end):not(.verse-cell--range-mid):hover{background:#C09A4A;color:#fff;border-color:#9B742A}
+  .verse-range-split .verse-cell:not(:disabled):not(.disabled):not(.verse-cell--range-end):not(.verse-cell--range-mid):hover{background:#C09A4A;color:#fff;-webkit-text-fill-color:#fff;border-color:#9B742A}
 }
 .verse-range-end-cell-wrap{position:relative;min-width:0;aspect-ratio:1}
 .verse-range-end-cell-wrap .verse-cell{width:100%;height:100%}
@@ -616,7 +621,7 @@ html.reader-verse-active main.content{padding-bottom:70px}
 .unified-bc-back-books{width:100%;padding:12px;margin-bottom:10px;border-radius:10px;border:1px solid #E8E0D8;background:#fff;font-size:14px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit}
 .unified-bc-chapter-hint{text-align:center;font-size:13px;font-weight:600;color:#5a3818;margin-bottom:10px}
 .unified-bc-chapter-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;max-width:560px;margin:0 auto}
-.unified-bc-ch-btn{width:100%;height:50px;min-height:48px;min-width:0;padding:0;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid rgba(139,94,44,.22);background:#F7EEDC;font-size:16px;font-weight:600;line-height:1;color:#17120F;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.unified-bc-ch-btn{width:100%;height:50px;min-height:48px;min-width:0;padding:0 2px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid rgba(139,94,44,.22);background:#F7EEDC;font-size:15px;font-weight:600;line-height:1;color:#17120F;cursor:pointer;font-family:inherit;white-space:nowrap;overflow:visible;text-overflow:clip;-webkit-tap-highlight-color:transparent}
 .unified-bc-ch-btn:active{transform:scale(0.96)}
 .unified-bc-ch--cur{background:#EAD7AF;border:1.5px solid #8B5E2C}
 .unified-bc-all-testament-title{font-size:15px;font-weight:700;color:#3d2818;text-align:left;margin:4px 0 12px}
@@ -657,7 +662,7 @@ html.unified-bc-lock-scroll{overflow:hidden;height:100%}
 html.unified-bc-lock-scroll body{overflow:hidden;height:100%}
 @media (max-width:390px) {
   .unified-bc-chapter-grid{gap:6px}
-  .unified-bc-ch-btn{height:46px;min-height:46px;font-size:15px;border-radius:10px}
+  .unified-bc-ch-btn{height:46px;min-height:46px;font-size:14px;border-radius:10px;padding:0 1px}
   .unified-bc-book-grid{gap:6px}
   .unified-bc-book{padding:6px 8px;font-size:13px}
 }
@@ -1149,14 +1154,20 @@ html.reader-hide-chrome .reader-dock-top-testament-seg{
     touch-action:pan-x pan-y pinch-zoom;
   }
 }
-/* 데스크톱·모바일 공통: 쉬운찾기 활성 시 패널 배경이 하단 dock 위까지 이어짐 */
-html.reader-hide-chrome .phone-frame:has(#easyView.active){
+/* 데스크톱·모바일 공통: 쉬운찾기·보관함 활성 시 패널 배경이 하단 dock 위까지 이어짐 */
+html.reader-hide-chrome .phone-frame:has(#easyView.active),
+html.reader-hide-chrome .phone-frame:has(#favView.active){
   min-height:100vh;
   min-height:100dvh;
   display:flex;
   flex-direction:column;
 }
-html.reader-hide-chrome .phone-frame:has(#easyView.active) main.content{
+html.reader-hide-chrome .phone-frame:has(#favView.active){
+  /* 보관함에서는 프레임 그라데이션이 카드 아래 빈틈처럼 보이지 않도록 cream으로 통일 */
+  background:var(--cream);
+}
+html.reader-hide-chrome .phone-frame:has(#easyView.active) main.content,
+html.reader-hide-chrome .phone-frame:has(#favView.active) main.content{
   flex:1 1 auto;
   min-height:calc(100vh - var(--reader-dock-top-height) - var(--scripture-dock-height) - env(safe-area-inset-bottom,0px));
   min-height:calc(100dvh - var(--reader-dock-top-height) - var(--scripture-dock-height) - env(safe-area-inset-bottom,0px));
@@ -1167,6 +1178,21 @@ html.reader-hide-chrome #easyView.active{
   min-height:calc(100dvh - var(--reader-dock-top-height) - var(--scripture-dock-height) - env(safe-area-inset-bottom,0px));
   box-sizing:border-box;
   background:transparent;
+}
+html.reader-hide-chrome #favView.active{
+  min-height:calc(100vh - var(--reader-dock-top-height) - var(--scripture-dock-height) - env(safe-area-inset-bottom,0px));
+  min-height:calc(100dvh - var(--reader-dock-top-height) - var(--scripture-dock-height) - env(safe-area-inset-bottom,0px));
+  box-sizing:border-box;
+  background:var(--cream);
+  display:flex;
+  flex-direction:column;
+}
+html.reader-hide-chrome #favView.active #favResultsArea{
+  flex:1 1 auto;
+  min-height:0;
+  box-sizing:border-box;
+  /* 목록이 길 때 마지막 항목이 하단 고정 메뉴에 가려지지 않게 */
+  padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));
 }
 /* 데스크톱에서는 기존 레이아웃·터치 동작을 건드리지 않는다 */
 </style>
@@ -1480,11 +1506,10 @@ if ("serviceWorker" in navigator) {
       <div id="verseRangeModalScroll" class="verse-range-modal-scroll">
         <div id="verseRangePullSpacer" class="verse-range-pull-spacer" aria-hidden="true"></div>
         <div class="range-header">
-          <div class="range-header-left">
-            <span class="range-title" id="verseRangeModalTitle"></span>
-            <button type="button" id="rangeStatusAction" class="range-status-tag" disabled aria-disabled="true">시작 절을 선택해 주세요</button>
-          </div>
+          <span class="range-header-spacer" aria-hidden="true"></span>
+          <span class="range-title" id="verseRangeModalTitle"></span>
           <button type="button" class="range-close" id="verseRangeModalCloseBtn" onclick="closeVerseRangeModal(); return false;" aria-label="닫기">✕</button>
+          <button type="button" id="rangeStatusAction" class="range-status-tag" disabled aria-disabled="true" aria-live="polite">시작 절을 선택하세요</button>
         </div>
         <div id="verseRangeModalBody" class="verse-range-modal-body"></div>
       </div>
@@ -1630,6 +1655,8 @@ var opt4RangeEnd = 1;
 var verseRangeModalMax = 0;
 var verseRangeSelStart = 0;
 var verseRangeSelEnd = 0;
+var VERSE_RANGE_START_HINT_TEXT = '시작 절을 선택하세요';
+var VERSE_RANGE_END_HINT_TEXT = '끝 절을 선택하세요';
 
 var fontSize = 17;
 var favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
@@ -3369,7 +3396,7 @@ function renderUnifiedModalBody() {
     html += '<div class="unified-bc-chapter-grid">';
     for (var i = 1; i <= unifiedBcState.displayChapters; i++) {
       var isCur = currentBook && currentBook.name === unifiedBcState.selectedBook && currentChapter === i;
-      html += '<button type="button" class="unified-bc-ch-btn' + (isCur ? ' unified-bc-ch--cur' : '') + '"' + (isCur ? ' aria-current="page"' : '') + ' onclick="unifiedBcApplyChapter(' + i + ')">' + i + '</button>';
+      html += '<button type="button" class="unified-bc-ch-btn' + (isCur ? ' unified-bc-ch--cur' : '') + '"' + (isCur ? ' aria-current="page"' : '') + ' onclick="unifiedBcApplyChapter(' + i + ')">' + i + '장</button>';
     }
     html += '</div>';
   }
@@ -4190,15 +4217,36 @@ function getVerseRangeModalHtml() {
     '<div class="verse-range-split">' +
     '<div class="verse-range-column">' +
     '<p class="verse-range-column-label">시작 절</p>' +
+    '<p class="verse-range-column-hint" id="verseRangeStartHint">시작 절을 선택하세요</p>' +
     '<div class="verse-range-column-scroll">' +
     '<div class="verse-grid" id="verseRangeStartGrid"></div></div></div>' +
     '<div class="verse-range-column" id="verseRangeEndArea">' +
     '<p class="verse-range-column-label">끝 절</p>' +
+    '<p class="verse-range-column-hint" id="verseRangeEndHint">끝 절을 선택하세요</p>' +
     '<div class="verse-range-column-scroll">' +
     '<div class="verse-grid" id="verseRangeEndGrid"></div></div>' +
     '<button type="button" id="rangeEndMoveAction" class="verse-range-move-action" data-range-move-action hidden disabled aria-hidden="true">이동 →</button>' +
     '</div></div>' +
     '</div>';
+}
+
+function verseRangeSetHint(el, text, visible) {
+  if (!el) return;
+  el.textContent = text;
+  el.classList.toggle('is-hint-hidden', !visible);
+  el.setAttribute('aria-hidden', visible ? 'false' : 'true');
+}
+
+function verseRangeSyncHints(startVisible, endVisible) {
+  var startEl = document.getElementById('verseRangeStartHint');
+  var endEl = document.getElementById('verseRangeEndHint');
+  verseRangeSetHint(startEl, VERSE_RANGE_START_HINT_TEXT, !!startVisible);
+  verseRangeSetHint(endEl, VERSE_RANGE_END_HINT_TEXT, !!endVisible);
+}
+
+function verseRangeInitHints() {
+  // 처음: 시작 안내만 표시, 끝 안내·이동은 숨김
+  verseRangeSyncHints(true, false);
 }
 
 function getVerseRangePullOffset() {
@@ -4239,9 +4287,9 @@ function verseRangeRefreshPreview() {
     var n = verseRangeSelEnd - verseRangeSelStart + 1;
     el.textContent = verseRangeSelStart + '절 ~ ' + verseRangeSelEnd + '절 (' + n + '개 절)';
   } else if (verseRangeSelStart > 0) {
-    el.textContent = '끝 절을 선택해 주세요';
+    el.textContent = '끝 절을 선택하세요';
   } else {
-    el.textContent = '시작 절을 선택해 주세요';
+    el.textContent = '시작 절을 선택하세요';
   }
 }
 
@@ -4294,7 +4342,7 @@ function verseRangeUpdateStatusTag() {
   var tag = document.getElementById('rangeStatusAction');
   if (!tag) return;
   var ready = verseRangeSelStart > 0 && verseRangeSelEnd > 0 && verseRangeSelEnd >= verseRangeSelStart;
-  tag.textContent = ready ? '선택 완료' : (verseRangeSelStart > 0 ? '끝 절을 선택해 주세요' : '시작 절을 선택해 주세요');
+  tag.textContent = ready ? '선택 완료' : (verseRangeSelStart > 0 ? '끝 절을 선택하세요' : '시작 절을 선택하세요');
   tag.disabled = true;
   tag.setAttribute('aria-disabled', 'true');
   tag.classList.remove('range-status-tag--move');
@@ -4450,6 +4498,8 @@ function attachVerseRangeModalListeners() {
       if (!t || t.disabled) return;
       var v = parseInt(t.getAttribute('data-v'), 10);
       if (v === verseRangeSelStart) return;
+      // 시작 절 숫자 클릭 즉시: 시작 안내 숨김, 끝 안내 표시
+      verseRangeSyncHints(false, true);
       verseRangeSelStart = v;
       verseRangeSelEnd = 0;
       verseRangeSyncStartGridClasses();
@@ -4467,6 +4517,8 @@ function attachVerseRangeModalListeners() {
       var v = parseInt(t.getAttribute('data-v'), 10);
       if (verseRangeSelStart <= 0 || v < verseRangeSelStart) return;
       if (v === verseRangeSelEnd) return;
+      // 끝 절 숫자 클릭 즉시: 끝 안내 숨김, 시작 안내는 계속 숨김
+      verseRangeSyncHints(false, false);
       verseRangeSelEnd = v;
       verseRangeSyncStartGridClasses();
       verseRangeSyncEndGridClasses();
@@ -4508,6 +4560,7 @@ function openVerseRangeModal() {
   attachVerseRangeModalListeners();
   bindVerseRangeModalClose();
   verseRangeUpdateStatusTag();
+  verseRangeInitHints();
   resetVerseRangePullScroll();
 }
 
