@@ -3611,6 +3611,70 @@ body.gomna-audio-expanded-open #verseList {
   letter-spacing: -0.035em !important;
 }
 
+#commentaryPopup #commentaryTitle.commentary-compact-title {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  gap: 3px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+#commentaryPopup #commentaryTitle .commentary-compact-line1 strong {
+  color: #1f1a17 !important;
+  font-size: 22px !important;
+  line-height: 1.15 !important;
+  font-weight: 880 !important;
+  letter-spacing: -0.04em !important;
+}
+
+#commentaryPopup #commentaryTitle .commentary-compact-description {
+  color: rgba(51, 38, 29, 0.72) !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.01em !important;
+}
+
+#commentaryPopup #commentaryTitle .commentary-compact-line2 {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+#commentaryPopup #commentaryTitle .commentary-compact-ref {
+  display: inline !important;
+  color: #1f1a17 !important;
+  font-size: 15px !important;
+  line-height: 1.35 !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+#commentaryPopup #commentaryTitle .commentary-compact-verse {
+  display: inline !important;
+  margin-top: 0 !important;
+  color: #2b2118 !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  font-weight: 720 !important;
+  letter-spacing: -0.01em !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere !important;
+  word-break: keep-all !important;
+}
+
 #commentaryPopup .popup-drag-header #commentaryTitle + div {
   margin-top: 5px !important;
   color: rgba(51, 38, 29, 0.72) !important;
@@ -3937,6 +4001,22 @@ body.gomna-audio-expanded-open #verseList {
     font-size: 18px !important;
   }
 
+  #commentaryPopup #commentaryTitle .commentary-compact-line1 strong {
+    font-size: 20px !important;
+  }
+
+  #commentaryPopup #commentaryTitle .commentary-compact-description {
+    font-size: 11.5px !important;
+  }
+
+  #commentaryPopup #commentaryTitle .commentary-compact-ref {
+    font-size: 14px !important;
+  }
+
+  #commentaryPopup #commentaryTitle .commentary-compact-verse {
+    font-size: 12.5px !important;
+  }
+
   #commentaryContent {
     padding: 16px !important;
   }
@@ -4098,6 +4178,67 @@ body.gomna-audio-expanded-open #verseList {
   letter-spacing: -0.04em !important;
 }
 
+#commentaryPopup .popup-drag-header #commentaryTitle.commentary-compact-title {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 3px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+#commentaryPopup .popup-drag-header #commentaryTitle .commentary-compact-line1 strong {
+  color: #1f1a17 !important;
+  font-size: 22px !important;
+  line-height: 1.15 !important;
+  font-weight: 880 !important;
+  letter-spacing: -0.04em !important;
+}
+
+#commentaryPopup .popup-drag-header #commentaryTitle .commentary-compact-description {
+  color: rgba(51, 38, 29, 0.72) !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.01em !important;
+}
+
+#commentaryPopup .popup-drag-header #commentaryTitle .commentary-compact-line2 {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+#commentaryPopup .popup-drag-header #commentaryTitle .commentary-compact-ref {
+  display: inline !important;
+  color: #1f1a17 !important;
+  font-size: 15px !important;
+  line-height: 1.35 !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+#commentaryPopup .popup-drag-header #commentaryTitle .commentary-compact-verse {
+  display: inline !important;
+  margin-top: 0 !important;
+  color: #2b2118 !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  font-weight: 720 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere !important;
+  word-break: keep-all !important;
+}
+
 #commentaryPopup .popup-drag-header #commentaryTitle + div {
   margin-top: 7px !important;
   color: #2b2118 !important;
@@ -4215,6 +4356,22 @@ body.gomna-audio-expanded-open #verseList {
 
   #commentaryPopup .popup-drag-header #commentaryTitle {
     font-size: 20px !important;
+  }
+
+  #commentaryPopup .popup-drag-header #commentaryTitle .commentary-compact-line1 strong {
+    font-size: 20px !important;
+  }
+
+  #commentaryPopup .popup-drag-header #commentaryTitle .commentary-compact-description {
+    font-size: 11.5px !important;
+  }
+
+  #commentaryPopup .popup-drag-header #commentaryTitle .commentary-compact-ref {
+    font-size: 14px !important;
+  }
+
+  #commentaryPopup .popup-drag-header #commentaryTitle .commentary-compact-verse {
+    font-size: 12.5px !important;
   }
 
   #commentaryPopup .popup-drag-header #commentaryTitle + div {

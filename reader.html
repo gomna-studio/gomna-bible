@@ -356,25 +356,185 @@ html.gomna-home-commentary-loading body{overflow:hidden}
 .commentary-section strong{color:#B8751F;display:block;margin-bottom:8px}
 .commentary-section .content-box{background:#fff;padding:10px;border-radius:6px;font-size:14px;line-height:1.7}
 .hebrew-text{font-family:serif;font-size:16px;direction:rtl;margin-bottom:8px;color:#333}
-.commentary-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #E8E0D8;overflow-x:visible;justify-content:center}
+#commentaryPopup .popup-drag-header > div:first-child{
+  flex:1;
+  min-width:0;
+}
+
+#commentaryTitle.commentary-compact-title{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  min-width:0;
+  width:100%;
+  gap:3px;
+  margin:0;
+  line-height:1.25;
+  text-align:left;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+}
+
+.commentary-compact-line1{
+  display:block;
+  width:100%;
+  min-width:0;
+  color:#2f2116;
+  font-size:15px;
+  font-weight:700;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+}
+
+.commentary-compact-line1 strong{
+  font-size:17px;
+  font-weight:850;
+}
+
+.commentary-compact-description{
+  color:#735b47;
+  font-size:12px;
+  font-weight:650;
+}
+
+.commentary-compact-line2{
+  display:block;
+  width:100%;
+  min-width:0;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+  line-height:1.35;
+}
+
+.commentary-compact-ref{
+  display:inline;
+  color:#2f2116;
+  font-size:15px;
+  font-weight:700;
+  line-height:1.35;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+}
+
+.commentary-compact-verse{
+  display:inline;
+  color:#5c4737;
+  font-size:13px;
+  font-weight:650;
+  line-height:1.35;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+  overflow-wrap:anywhere;
+  word-break:keep-all;
+}
+
+#commentaryTitle.commentary-compact-title + div{
+  display:none!important;
+}
+
+.commentary-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #E8E0D8;overflow-x:visible}
 .commentary-tab{background:transparent;border:0.5px solid rgba(180,140,90,.3);padding:10px 16px;border-radius:18px;font-size:12px;font-weight:600;color:#5a3818;cursor:pointer;font-family:inherit;min-width:70px;min-height:44px;text-align:center;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center}
 .commentary-tab:active{opacity:0.88}
 .commentary-tab.active{background:#c89849;color:#fff;border-color:#c89849}
-.commentary-table{width:100%;border-collapse:collapse;font-size:15px;margin-bottom:12px}
-.commentary-table th{background:#faf6ed;color:#3d2818;padding:10px 8px;text-align:left;font-weight:600;font-size:14px}
-.commentary-table td{background:#fff;color:#3d2818;padding:12px 8px;border-bottom:1px solid #e8e0d8;vertical-align:top;line-height:1.6;font-size:15px}
-.commentary-table tr:nth-child(even) td{background:#fff}
-.commentary-table tr:nth-child(odd) td{background:#fdfaf7}
+.gomna-commentary-inline-close,
+.gomna-audio-commentary-close-button{
+  width:56px !important;
+  min-width:56px !important;
+  height:56px !important;
+  min-height:56px !important;
+  border-radius:999px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+  font-size:22px !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  box-sizing:border-box !important;
+  flex:0 0 56px !important;
+}
+/* commentary-inline-close-label-v14 */
+.gomna-commentary-inline-close{
+  width:auto !important;
+  min-width:72px !important;
+  height:56px !important;
+  min-height:56px !important;
+  border-radius:28px !important;
+  padding:0 18px !important;
+  font-size:16px !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+}
+
+
+.commentary-table{width:100%;display:block;border-collapse:separate;border-spacing:0;font-size:15px;margin-bottom:12px;counter-reset:commentary-card}
+.commentary-table tbody{display:block}
+.commentary-table tr:first-child{display:none}
+.commentary-table tr:not(:first-child){display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.2fr) minmax(0,1.62fr);position:relative;margin:0 0 12px;border:1px solid #e8d8bd;border-radius:18px;overflow:hidden;background:#fffefa;box-shadow:0 8px 24px rgba(92,58,25,.08);counter-increment:commentary-card}
+.commentary-table tr:not(:first-child)::before{content:counter(commentary-card,decimal-leading-zero);grid-column:1/-1;display:block;padding:9px 130px 9px 15px;background:linear-gradient(180deg,#fbf2e2,#f8ead4);border-bottom:1px solid #e8d8bd;color:#93602c;font-size:12px;font-weight:850;line-height:1.3}
+.commentary-table tr:not(:first-child)::after{content:attr(data-verse-ref);position:absolute;top:6px;right:12px;padding:2px 8px;border:1px solid rgba(71,111,99,.18);border-radius:999px;background:rgba(71,111,99,.08);color:#476f63;font-size:10.5px;font-weight:800;line-height:1.4}
+.commentary-table tr:not(:first-child) td{display:block;width:auto!important;min-width:0;background:#fffefa!important;color:#3d2818;padding:14px 15px;border:0;vertical-align:top;line-height:1.65;font-size:15px;overflow-wrap:anywhere}
+.commentary-table tr:not(:first-child) td+td{border-left:1px solid #e8d8bd}
+.commentary-table tr:not(:first-child) td::before{display:block;margin-bottom:6px;color:#765f4b;font-size:12px;font-weight:800;line-height:1.3}
+
+#tab-원어분석 td:nth-child(1)::before{content:"원어"}
+#tab-원어분석 td:nth-child(2)::before{content:"의미·문법"}
+#tab-원어분석 td:nth-child(3)::before{content:"설교 포인트"}
+
+#tab-역사적배경 td:nth-child(1)::before{content:"항목"}
+#tab-역사적배경 td:nth-child(2)::before{content:"내용"}
+#tab-역사적배경 td:nth-child(3)::before{content:"목회적 활용"}
+
+#tab-신학적의미 td:nth-child(1)::before{content:"교리"}
+#tab-신학적의미 td:nth-child(2)::before{content:"설명"}
+#tab-신학적의미 td:nth-child(3)::before{content:"관련 구절"}
+
+#tab-예표론 td:nth-child(1)::before{content:"구분"}
+#tab-예표론 td:nth-child(2)::before{content:"내용"}
+#tab-예표론 td:nth-child(3)::before{content:"그리스도 연결·성취"}
+
+#tab-매튜헨리 td:nth-child(1)::before{content:"영어 원문"}
+#tab-매튜헨리 td:nth-child(2)::before{content:"한국어 번역"}
+#tab-매튜헨리 td:nth-child(3)::before{content:"핵심 통찰"}
+
+#tab-설교자료 td:nth-child(1)::before{content:"대지"}
+#tab-설교자료 td:nth-child(2)::before{content:"내용"}
+#tab-설교자료 td:nth-child(3)::before{content:"예화·적용"}
+
+#tab-찬송가 td:nth-child(1)::before{content:"찬송가"}
+#tab-찬송가 td:nth-child(2)::before{content:"제목"}
+#tab-찬송가 td:nth-child(3)::before{content:"선정 이유"}
+
+#tab-상담적용 td:nth-child(1)::before{content:"상황"}
+#tab-상담적용 td:nth-child(2)::before{content:"성경 원리"}
+#tab-상담적용 td:nth-child(3)::before{content:"실제 적용"}
+
+#tab-교차참조 td:nth-child(1)::before{content:"구절"}
+#tab-교차참조 td:nth-child(2)::before{content:"연결점"}
+#tab-교차참조 td:nth-child(3)::before{content:"구분"}
+
 #tab-원어분석 .commentary-table td.col1{font-size:16px}
 .commentary-table .col1 .commentary-kor-pron{font-size:13px;color:#6b5344}
-.commentary-table .col1{width:25%;font-weight:600;color:#3d2818}
-.commentary-table .col2{width:40%}
-.commentary-table .col3{width:35%;color:#3d2818;font-weight:500}
+.commentary-table .col1{font-weight:600;color:#3d2818}
+.commentary-table .col3{color:#3d2818;font-weight:500}
+
+@media(max-width:720px){
+  .commentary-table tr:not(:first-child){grid-template-columns:1fr}
+  .commentary-table tr:not(:first-child) td+td{border-left:0;border-top:1px solid #e8d8bd}
+}
 .tab-content{display:none}
 .tab-content.active{display:block}
 .commentary-verse-ref{background:#c89849;padding:10px 16px;border-radius:12px;margin-bottom:10px;color:#fff;display:flex;align-items:center;gap:8px;box-sizing:border-box}
+.commentary-verse-ref.commentary-verse-ref-bottom{margin-top:18px;margin-bottom:0}
 .commentary-multi-status{text-align:center;font-size:12px;font-weight:600;color:#9c6b12;margin:-4px 0 10px}
-.commentary-nav-arrow{width:44px;height:44px;padding:0;border:none;background:transparent;color:#fff;font-size:18px;font-weight:700;cursor:pointer;border-radius:8px;font-family:inherit;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background 0.15s;-webkit-tap-highlight-color:transparent}
+.commentary-nav-arrow{width:44px;height:44px;padding:0;border:none;background:transparent;color:#fff;font-size:27px;font-weight:700;cursor:pointer;border-radius:8px;font-family:inherit;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;transition:background 0.15s;-webkit-tap-highlight-color:transparent}
 .commentary-nav-arrow:hover:not(:disabled){background:rgba(255,255,255,0.12)}
 .commentary-nav-arrow:active:not(:disabled){background:rgba(255,255,255,0.2)}
 .commentary-nav-arrow:disabled{opacity:0.4;pointer-events:none;cursor:not-allowed}
@@ -388,6 +548,8 @@ html.gomna-home-commentary-loading body{overflow:hidden}
 .commentary-nav-btn:active{background:rgba(255,255,255,0.3)}
 .commentary-nav-btn:disabled{opacity:0.4;cursor:not-allowed}
 .commentary-nav-btn:disabled:hover{background:transparent}
+.commentary-related-back{width:100%;min-height:46px;margin:0 0 14px;padding:10px 14px;border:1px solid #e0c99f;border-radius:13px;background:#fff6e5;color:#6a431d;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;text-align:left}
+.commentary-related-back:active{background:#f6e4c3}
 html.reader-hide-chrome #appTopChrome{display:none!important}
 .reader-sheet-tabs{display:none;flex-wrap:nowrap;align-items:flex-end;gap:14px;padding:12px 14px 0;background:#faf6ed;border-bottom:0.5px solid rgba(180,140,90,.3);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;position:sticky;top:0;z-index:90;box-sizing:border-box}
 .reader-sheet-tabs::-webkit-scrollbar{display:none}
@@ -1214,7 +1376,7 @@ html.reader-hide-chrome #favView.active #favResultsArea{
 </script>
 <link rel="manifest" href="manifest.json?v=20260704-pwa-cache-fix">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
-<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260712-listen-hint">
+<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260714-commentary-header-inline">
 <style id="verse-ui-arrow-num-v1">
 /* 오디오 CSS보다 나중에 적용: 원형 제거·48px 2열 정렬·본문 첫 줄 기준선 맞춤 */
 .verse-top{
@@ -2740,7 +2902,157 @@ function goToChapterCommentary(chapter) {
   }, 300);
 }
 
+var currentCommentaryVerseForRelated = null;
+var relatedCommentaryReturnState = null;
+
+function getCommentaryHeaderVerseText(bookName, chapter, verseNum) {
+  var sources = [];
+
+  if(typeof oldTestamentData !== 'undefined' && oldTestamentData && oldTestamentData.books) {
+    sources.push(oldTestamentData);
+  }
+
+  if(typeof newTestamentData !== 'undefined' && newTestamentData && newTestamentData.books) {
+    sources.push(newTestamentData);
+  }
+
+  for(var sourceIndex=0; sourceIndex<sources.length; sourceIndex++) {
+    var books = sources[sourceIndex].books;
+
+    for(var bookIndex=0; bookIndex<books.length; bookIndex++) {
+      var book = books[bookIndex];
+      if(!book || book.name !== bookName) continue;
+
+      for(var chapterIndex=0; chapterIndex<book.chapters.length; chapterIndex++) {
+        var chapterData = book.chapters[chapterIndex];
+        if(!chapterData || parseInt(chapterData.chapter, 10) !== chapter) continue;
+
+        for(var verseIndex=0; verseIndex<chapterData.verses.length; verseIndex++) {
+          var verseData = chapterData.verses[verseIndex];
+
+          if(verseData && parseInt(verseData.verse, 10) === verseNum) {
+            return String(verseData.text || '').trim();
+          }
+        }
+      }
+    }
+  }
+
+  return '';
+}
+
+function ensureCommentaryHeaderTitle() {
+  var title = document.getElementById('commentaryTitle');
+  var line1;
+  var line2;
+  var mainTitle;
+  var description;
+
+  if(!title) return null;
+
+  title.classList.add('commentary-compact-title');
+  title.style.whiteSpace = '';
+  title.style.overflow = '';
+  title.style.textOverflow = '';
+
+  if(!title.querySelector('.commentary-compact-line1') && title.querySelector('.commentary-compact-ref')) {
+    line2 = document.createElement('span');
+    line2.className = 'commentary-compact-line2';
+    line2.id = 'commentaryHeaderVerse';
+
+    while(title.firstChild) {
+      line2.appendChild(title.firstChild);
+    }
+
+    title.appendChild(line2);
+  }
+
+  Array.prototype.slice.call(title.childNodes).forEach(function(node) {
+    if(node.nodeType === 3) {
+      title.removeChild(node);
+    }
+  });
+
+  line1 = title.querySelector('.commentary-compact-line1');
+  if(!line1) {
+    line1 = document.createElement('span');
+    line1.className = 'commentary-compact-line1';
+
+    mainTitle = document.createElement('strong');
+    mainTitle.textContent = '말씀풀이';
+
+    description = document.createElement('span');
+    description.className = 'commentary-compact-description';
+    description.textContent = ' (주석풀이-메튜헨리포함)';
+
+    line1.appendChild(mainTitle);
+    line1.appendChild(description);
+
+    line2 = title.querySelector('.commentary-compact-line2');
+    if(line2) {
+      title.insertBefore(line1, line2);
+    } else {
+      title.appendChild(line1);
+    }
+  }
+
+  line2 = title.querySelector('.commentary-compact-line2');
+  if(!line2) {
+    line2 = document.createElement('span');
+    line2.className = 'commentary-compact-line2';
+    line2.id = 'commentaryHeaderVerse';
+    title.appendChild(line2);
+  } else if(!line2.id) {
+    line2.id = 'commentaryHeaderVerse';
+  }
+
+  return line2;
+}
+
+function updateCommentaryHeaderVerse(bookName, chapter, verseNum) {
+  var verseHost = ensureCommentaryHeaderTitle();
+  var verseText;
+  var refLine;
+  var separator;
+  var verseLine;
+  var title;
+  var oldDescription;
+
+  if(!verseHost) return;
+
+  verseText = getCommentaryHeaderVerseText(bookName, chapter, verseNum);
+  verseHost.innerHTML = '';
+
+  refLine = document.createElement('span');
+  refLine.className = 'commentary-compact-ref';
+  refLine.textContent = bookName + ' ' + chapter + ':' + verseNum;
+  verseHost.appendChild(refLine);
+
+  if(verseText) {
+    separator = document.createElement('span');
+    separator.setAttribute('aria-hidden', 'true');
+    separator.textContent = ' · ';
+    verseHost.appendChild(separator);
+
+    verseLine = document.createElement('span');
+    verseLine.className = 'commentary-compact-verse';
+    verseLine.textContent = verseText;
+    verseHost.appendChild(verseLine);
+  }
+
+  title = document.getElementById('commentaryTitle');
+  oldDescription = title ? title.nextElementSibling : null;
+  if(oldDescription && oldDescription.tagName !== 'BUTTON') {
+    oldDescription.style.display = 'none';
+  }
+}
+
+function updateCompactCommentaryHeader(bookName, chapter, verseNum) {
+  updateCommentaryHeaderVerse(bookName, chapter, verseNum);
+}
+
 function showCommentary(verseNum) {
+  currentCommentaryVerseForRelated = verseNum;
   var bookName = currentBook.name;
   // ── Lazy-load guard: 처음 호출 시 commentary 데이터를 가져오고 다시 호출 ──
   if (typeof _commentaryLoaded !== 'undefined' && !_commentaryLoaded[bookName] && BOOK_FILE_MAP[bookName]) {
@@ -2782,20 +3094,18 @@ function showCommentary(verseNum) {
 
   var chapterUnit = getChapterUnit(bookName);
   // 골드 박스 3칸: 이전절 ◀ | 책 장:절 ▼ | 다음절 ▶
-  var content = '<div class="commentary-verse-ref">';
-  content += '<button type="button" class="commentary-nav-arrow" onclick="goToVerseCommentary(' + prevTarget + ')"' + (prevDisabled ? ' disabled' : '') + ' aria-label="이전 절">◀</button>';
-  content += '<button type="button" class="commentary-nav-pick" onclick="openUnifiedBookChapterModal()" aria-label="책·장 선택"><span class="commentary-nav-pick-txt">' + bookName + ' ' + chapter + ':' + verseNum + '</span><span class="commentary-nav-pick-caret">▼</span></button>';
-  content += '<button type="button" class="commentary-nav-arrow" onclick="goToVerseCommentary(' + nextTarget + ')"' + (nextDisabled ? ' disabled' : '') + ' aria-label="다음 절">▶</button>';
-  content += '</div>';
+  var verseNav = '<div class="commentary-verse-ref commentary-verse-ref-bottom">';
+  verseNav += '<button type="button" class="commentary-nav-arrow" onclick="goToVerseCommentary(' + prevTarget + ')"' + (prevDisabled ? ' disabled' : '') + ' aria-label="이전 절">‹</button>';
+  verseNav += '<button type="button" class="commentary-nav-pick" onclick="openUnifiedBookChapterModal()" aria-label="책·장 선택"><span class="commentary-nav-pick-txt">' + bookName + ' ' + chapter + ':' + verseNum + '</span><span class="commentary-nav-pick-caret">▼</span></button>';
+  verseNav += '<button type="button" class="commentary-nav-arrow" onclick="goToVerseCommentary(' + nextTarget + ')"' + (nextDisabled ? ' disabled' : '') + ' aria-label="다음 절">›</button>';
+  verseNav += '</div>';
+  var content = '';
   if (isMultiCommentary) {
     content += '<div class="commentary-multi-status">선택 말씀 ' + (multiIdx + 1) + ' / ' + multiCommentaryList.length + (nextDisabled ? ' · 선택 말씀 완료' : '') + '</div>';
   }
   
   // 하단 네비게이션 (각 탭에서 사용)
-  var bottomNav = '<div class="commentary-bottom-nav" style="display:flex; justify-content:space-between; padding:10px 5px; margin-top:10px; border-top:1px solid #ddd;">';
-  bottomNav += '<button class="commentary-nav-btn" onclick="goToVerseCommentary(' + prevTarget + ')"' + (prevDisabled ? ' disabled' : '') + ' style="flex:1; margin-right:5px;">◀ 이전절</button>';
-  bottomNav += '<button class="commentary-nav-btn" onclick="goToVerseCommentary(' + nextTarget + ')"' + (nextDisabled ? ' disabled' : '') + ' style="flex:1; margin-left:5px;">다음절 ▶</button>';
-  bottomNav += '</div>';
+  var bottomNav = verseNav;
   
   // pastorCommentaryData 직접 확인
   var hasPastorData = false;
@@ -2884,8 +3194,12 @@ function showCommentary(verseNum) {
     }
   }
   
-  document.getElementById('commentaryTitle').textContent = '📖 말씀풀이';
+  updateCompactCommentaryHeader(bookName, chapter, verseNum);
   document.getElementById('commentaryContent').innerHTML = content;
+  var commentaryCardRows = document.querySelectorAll('#commentaryContent .commentary-table tr:not(:first-child)');
+  for(var cardRowIndex=0; cardRowIndex<commentaryCardRows.length; cardRowIndex++) {
+    commentaryCardRows[cardRowIndex].setAttribute('data-verse-ref', bookName + ' ' + chapter + ':' + verseNum);
+  }
   document.getElementById('commentaryPopup').classList.add('show');
   if (window.GomnaAnalytics && currentBook) {
     GomnaAnalytics.trackOpenCommentary(currentBook.name, chapter, verseNum, currentBook.testament);
@@ -3022,7 +3336,14 @@ function showVersePopup(refText) {
     }
 
     // 장 데이터 찾기
-    var chapterData = bookData.chapters[chapter - 1];
+    var chapterData = null;
+    for(var chapterLookupIndex=0; chapterLookupIndex<bookData.chapters.length; chapterLookupIndex++) {
+      var chapterCandidate = bookData.chapters[chapterLookupIndex];
+      if(chapterCandidate && parseInt(chapterCandidate.chapter, 10) === chapter) {
+        chapterData = chapterCandidate;
+        break;
+      }
+    }
     if(!chapterData) {
       allHtml += '<div style="margin:10px 0; padding:8px; background:#f5f5f5; border-radius:4px;"><strong style="color:#1565C0;">' + bookName + ' ' + chapter + getChapterUnit(bookName) + '</strong><p style="color:#888; margin:4px 0 0 0;">해당 ' + getChapterUnit(bookName) + '을(를) 찾을 수 없습니다.</p></div>';
       continue;
@@ -3052,7 +3373,14 @@ function showVersePopup(refText) {
     var hasContent = false;
     for(var i=0; i<verses.length; i++) {
       var vn = verses[i];
-      var vdata = chapterData.verses[vn - 1];
+      var vdata = null;
+      for(var verseLookupIndex=0; verseLookupIndex<chapterData.verses.length; verseLookupIndex++) {
+        var verseCandidate = chapterData.verses[verseLookupIndex];
+        if(verseCandidate && parseInt(verseCandidate.verse, 10) === vn) {
+          vdata = verseCandidate;
+          break;
+        }
+      }
       if(vdata) {
         allHtml += '<p style="margin:6px 0;"><span style="color:#2E7D32; font-weight:700; margin-right:6px;">' + vn + '</span>' + vdata.text + '</p>';
         hasContent = true;
@@ -3065,9 +3393,28 @@ function showVersePopup(refText) {
 
   if(!allHtml) { allHtml = '<p style="color:#888;">표시할 구절이 없습니다.</p>'; }
 
-  document.getElementById('versePopupTitle').textContent = '📖 ' + displayTitle;
-  document.getElementById('versePopupContent').innerHTML = allHtml;
-  document.getElementById('versePopup').classList.add('show');
+  if(!relatedCommentaryReturnState) {
+    relatedCommentaryReturnState = {
+      verse: currentCommentaryVerseForRelated,
+      tab: currentCommentaryTab
+    };
+  }
+
+  var relatedBackButton = '<button type="button" class="commentary-related-back" onclick="returnToRelatedCommentary()">← 관련 말씀으로 돌아가기</button>';
+
+  document.getElementById('commentaryTitle').textContent = '📖 관련 말씀';
+  document.getElementById('commentaryContent').innerHTML = allHtml + relatedBackButton;
+  document.getElementById('commentaryPopup').classList.add('show');
+}
+
+function returnToRelatedCommentary() {
+  if(!relatedCommentaryReturnState) return;
+
+  var returnState = relatedCommentaryReturnState;
+  relatedCommentaryReturnState = null;
+
+  currentCommentaryTab = returnState.tab || 'tab-원어분석';
+  showCommentary(returnState.verse);
 }
 
 function closeVersePopup() {
@@ -4807,7 +5154,7 @@ function changeFont(delta) {
 <script src="/js/audio-config.js?v=20260604-1830" defer></script>
 <script src="/js/audio-engine.js?v=20260604-1830" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
-<script src="/js/gomna-audio-commentary-buttons.js?v=20260604-1830" defer></script>
+<script src="/js/gomna-audio-commentary-buttons.js?v=20260713-close-label-v14" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=20260604-1830" defer></script>
 <script src="/js/gomna-audio-ui.js?v=20260712-verse-only-audio" defer></script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
@@ -5294,5 +5641,6 @@ function loadAds() {
   saveVisitDay();
 })();
 </script>
+<script src="/js/gomna-card-highlight-test.js?v=20260714-original-3card-blue-v4"></script>
 </body>
 </html>
