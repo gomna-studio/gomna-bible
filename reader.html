@@ -1376,7 +1376,7 @@ html.reader-hide-chrome #favView.active #favResultsArea{
 </script>
 <link rel="manifest" href="manifest.json?v=20260704-pwa-cache-fix">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
-<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260714-commentary-header-inline">
+<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260714-word-caption-contrast">
 <style id="verse-ui-arrow-num-v1">
 /* 오디오 CSS보다 나중에 적용: 원형 제거·48px 2열 정렬·본문 첫 줄 기준선 맞춤 */
 .verse-top{
@@ -5156,7 +5156,7 @@ function changeFont(delta) {
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260713-close-label-v14" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=20260604-1830" defer></script>
-<script src="/js/gomna-audio-ui.js?v=20260712-verse-only-audio" defer></script>
+<script src="/js/gomna-audio-ui.js?v=20260714-word-caption-contrast" defer></script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)
@@ -5378,13 +5378,17 @@ function loadAds() {
 </div>
 <!-- 은혜의말씀 오디오 확장 플레이어 (평소 hidden, 확장 버튼 클릭 시 등장) -->
 <div id="gomna-audio-expanded-player" class="gomna-audio-expanded-player" hidden>
-  <div class="gomna-audio-expanded-header">
-    <h3>말씀 오디오</h3>
-    <button class="gomna-audio-btn-close"
-            data-audio-action="collapse"
-            aria-label="닫기">
-      ✕
-    </button>
+  <div class="gomna-audio-expanded-top">
+    <div class="gomna-audio-expanded-handle" aria-hidden="true"><span></span></div>
+    <div class="gomna-audio-expanded-header">
+      <h3>말씀 오디오</h3>
+      <button type="button"
+              class="gomna-audio-btn-close"
+              data-audio-action="collapse"
+              aria-label="닫기">
+        <span aria-hidden="true">✕</span>
+      </button>
+    </div>
   </div>
 
   <div class="gomna-audio-expanded-info">
@@ -5392,60 +5396,157 @@ function loadAds() {
     <div class="gomna-audio-expanded-preview" data-audio-current-preview-expanded></div>
   </div>
 
+  <div class="gomna-audio-expanded-hero">
+    <img src="/assets/images/audio-player-hero.webp"
+         alt=""
+         width="1672"
+         height="941"
+         decoding="async"
+         loading="eager">
+    <div class="gomna-audio-hero-caption" aria-live="polite">
+      <p class="gomna-audio-hero-caption-text" data-audio-hero-caption>말씀을 듣고 계십니다</p>
+    </div>
+  </div>
+
+  <div class="gomna-audio-expanded-progress"
+       data-audio-expanded-progress
+       aria-hidden="true">
+    <div class="gomna-audio-expanded-progress-track"
+         role="slider"
+         aria-label="재생 위치"
+         tabindex="0">
+      <div class="gomna-audio-expanded-progress-fill"
+           data-audio-progress-fill
+           data-audio-expanded-progress-fill></div>
+      <span class="gomna-audio-expanded-progress-thumb"
+            data-audio-progress-thumb
+            data-audio-expanded-progress-thumb></span>
+    </div>
+    <div class="gomna-audio-expanded-times">
+      <span data-audio-current-time>00:00</span>
+      <span data-audio-duration>00:00</span>
+    </div>
+  </div>
+
   <div class="gomna-audio-expanded-controls">
-    <button data-audio-action="seek"
+    <button type="button"
+            class="gomna-audio-btn-seek-circle"
+            data-audio-action="seek"
             data-seek-seconds="-10"
             aria-label="10초 뒤로">
-      ⟲ 10초
+      <span class="gomna-audio-seek-glyph" aria-hidden="true">⟲</span>
+      <span class="gomna-audio-seek-num" aria-hidden="true">10</span>
     </button>
 
-    <button class="gomna-audio-btn-play-pause-big"
+    <button type="button"
+            class="gomna-audio-btn-play-pause-big"
             data-audio-action="toggle"
             aria-label="재생 또는 일시정지">
-      <span data-audio-play-icon>▶</span>
-      <span data-audio-pause-icon hidden>Ⅱ</span>
+      <span data-audio-play-icon aria-hidden="true">▶</span>
+      <span data-audio-pause-icon hidden aria-hidden="true">❚❚</span>
     </button>
 
-    <button data-audio-action="seek"
+    <button type="button"
+            class="gomna-audio-btn-seek-circle"
+            data-audio-action="seek"
             data-seek-seconds="10"
             aria-label="10초 앞으로">
-      10초 ⟳
+      <span class="gomna-audio-seek-num" aria-hidden="true">10</span>
+      <span class="gomna-audio-seek-glyph" aria-hidden="true">⟳</span>
     </button>
   </div>
 
-  <div class="gomna-audio-expanded-options">
-    <div class="gomna-audio-option-group">
-      <label>속도</label>
+  <div class="gomna-audio-expanded-settings-summary" role="group" aria-label="재생 설정">
+    <button type="button"
+            class="gomna-audio-settings-cell"
+            data-audio-settings-open="speed"
+            aria-expanded="false"
+            aria-controls="gomna-audio-panel-speed">
+      <span class="gomna-audio-settings-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="15" height="15" focusable="false"><path fill="currentColor" d="M10.59 13.41a1.996 1.996 0 0 0 0-2.82l-3.17-3.17a2 2 0 1 1 2.83-2.83l1.17 1.18V2h2v4.59l1.18-1.18a2 2 0 1 1 2.83 2.83l-3.17 3.17a1.996 1.996 0 0 0 0 2.82l3.17 3.17a2 2 0 1 1-2.83 2.83l-1.18-1.18V22h-2v-4.59l-1.17 1.18a2 2 0 1 1-2.83-2.83l3.17-3.17Z"/></svg>
+      </span>
+      <span class="gomna-audio-settings-value" data-audio-summary-speed>1.0x</span>
+      <span class="gomna-audio-settings-label">속도</span>
+    </button>
+    <button type="button"
+            class="gomna-audio-settings-cell"
+            data-audio-settings-open="voice"
+            aria-expanded="false"
+            aria-controls="gomna-audio-panel-voice">
+      <span class="gomna-audio-settings-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="15" height="15" focusable="false"><path fill="currentColor" d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.71V21h2v-3.29A7 7 0 0 0 19 11h-2Z"/></svg>
+      </span>
+      <span class="gomna-audio-settings-value" data-audio-summary-voice>차분한 낭독</span>
+      <span class="gomna-audio-settings-label">목소리</span>
+    </button>
+    <button type="button"
+            class="gomna-audio-settings-cell"
+            data-audio-settings-open="timer"
+            aria-expanded="false"
+            aria-controls="gomna-audio-panel-timer">
+      <span class="gomna-audio-settings-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="15" height="15" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm4.2 13.8-1.4-1.4L13 13V7h-2v7.3l3.2 3.2 1.4-1.4Z"/></svg>
+      </span>
+      <span class="gomna-audio-settings-value" data-audio-summary-timer>끄기</span>
+      <span class="gomna-audio-settings-label">타이머</span>
+    </button>
+  </div>
+
+  <div class="gomna-audio-expanded-option-panels">
+    <div id="gomna-audio-panel-speed"
+         class="gomna-audio-option-panel"
+         data-audio-option-panel="speed"
+         hidden>
       <div class="gomna-audio-option-buttons">
-        <button data-audio-speed="0.8">0.8x</button>
-        <button data-audio-speed="1.0" data-active="true">1.0x</button>
-        <button data-audio-speed="1.25">1.25x</button>
-        <button data-audio-speed="1.5">1.5x</button>
-        <button data-audio-speed="2.0">2.0x</button>
+        <button type="button" data-audio-speed="0.8">0.8x</button>
+        <button type="button" data-audio-speed="1.0" data-active="true">1.0x</button>
+        <button type="button" data-audio-speed="1.25">1.25x</button>
+        <button type="button" data-audio-speed="1.5">1.5x</button>
+        <button type="button" data-audio-speed="2.0">2.0x</button>
       </div>
     </div>
 
-    <div class="gomna-audio-option-group">
-      <label>목소리</label>
+    <div id="gomna-audio-panel-voice"
+         class="gomna-audio-option-panel"
+         data-audio-option-panel="voice"
+         hidden>
       <div class="gomna-audio-option-buttons">
-        <button data-audio-voice="calm" data-active="true">차분한 낭독</button>
-        <button data-audio-voice="warm">따뜻한 묵상</button>
-        <button data-audio-voice="study">또렷한 낭독</button>
-        <button data-audio-voice="strong">설교형 전달</button>
-        <button data-audio-voice="soft">조용한 밤낭독</button>
+        <button type="button" data-audio-voice="calm" data-active="true">차분한 낭독</button>
+        <button type="button" data-audio-voice="warm">따뜻한 묵상</button>
+        <button type="button" data-audio-voice="study">또렷한 낭독</button>
+        <button type="button" data-audio-voice="strong">설교형 전달</button>
+        <button type="button" data-audio-voice="soft">조용한 밤낭독</button>
       </div>
     </div>
 
-    <div class="gomna-audio-option-group">
-      <label>타이머</label>
+    <div id="gomna-audio-panel-timer"
+         class="gomna-audio-option-panel"
+         data-audio-option-panel="timer"
+         hidden>
       <div class="gomna-audio-option-buttons">
-        <button data-audio-timer="0" data-active="true">끄기</button>
-        <button data-audio-timer="5">5분</button>
-        <button data-audio-timer="10">10분</button>
-        <button data-audio-timer="20">20분</button>
-        <button data-audio-timer="chapter-end">장 끝까지</button>
+        <button type="button" data-audio-timer="0" data-active="true">끄기</button>
+        <button type="button" data-audio-timer="5">5분</button>
+        <button type="button" data-audio-timer="10">10분</button>
+        <button type="button" data-audio-timer="20">20분</button>
       </div>
     </div>
+  </div>
+
+  <div class="gomna-audio-expanded-chapter-auto">
+    <div class="gomna-audio-chapter-auto-text">
+      <span class="gomna-audio-chapter-auto-title">장 끝까지 자동 재생</span>
+      <span class="gomna-audio-chapter-auto-info"
+            title="현재 절부터 장 마지막 절까지 이어서 재생합니다"
+            aria-label="현재 절부터 장 마지막 절까지 이어서 재생합니다">ⓘ</span>
+    </div>
+    <button type="button"
+            class="gomna-audio-chapter-auto-toggle"
+            data-audio-action="toggle-chapter-auto"
+            role="switch"
+            aria-checked="false"
+            aria-label="장 끝까지 자동 재생">
+      <span class="gomna-audio-toggle-track"><span class="gomna-audio-toggle-knob"></span></span>
+    </button>
   </div>
 </div>
 <script>
@@ -5641,6 +5742,6 @@ function loadAds() {
   saveVisitDay();
 })();
 </script>
-<script src="/js/gomna-card-highlight-test.js?v=20260714-original-3card-blue-v4"></script>
+<script src="/js/gomna-card-highlight-test.js?v=20260714-word-caption-contrast"></script>
 </body>
 </html>

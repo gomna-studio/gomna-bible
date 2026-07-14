@@ -252,7 +252,8 @@
   var activeAudioId = null;
   var activeConfig = null;
   var segmentsByAudioId = {};
-  var crossRefHighlightRafId = null;
+  var spokenTextsByAudioId = {};
+  var playbackVisualRafId = null;
 
   function isCrossReferenceAudioId(audioId) {
     return getTypeFromAudioId(audioId) === 'cross-reference';
@@ -625,7 +626,8 @@
         segmentsByAudioId[audioId] = {
           mode: 'cue',
           duration: cue.duration,
-          segments: cue.segments
+          segments: cue.segments,
+          words: Array.isArray(cue.words) ? cue.words : null
         };
         return segmentsByAudioId[audioId];
       })
@@ -783,79 +785,80 @@
     applyRowIndex(rows, timing.rowIndex, shouldFollow, timing.rowIndices);
   }
 
-  function handleTimeUpdate() {
+  function playbackVisualTick() {
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
 
-    if (state && isCrossReferenceAudioId(state.currentAudioId)) {
+    playbackVisualRafId = null;
+
+    if (!state || !state.isPlaying) {
       return;
     }
 
-    refreshCardHighlight({ shouldFollow: true, allowWhenPaused: false });
+    if (isHighlightableActive(state)) {
+      refreshCardHighlight({ shouldFollow: true, allowWhenPaused: false });
+    }
+
+    if (window.GOMNA_AUDIO_UI && typeof window.GOMNA_AUDIO_UI.updateHeroCaptionFromState === 'function') {
+      window.GOMNA_AUDIO_UI.updateHeroCaptionFromState();
+    }
+
+    playbackVisualRafId = window.requestAnimationFrame(playbackVisualTick);
   }
 
-  function crossRefHighlightTick() {
-    var engine = window.GOMNA_AUDIO_ENGINE;
-    var state = engine && engine.getState ? engine.getState() : null;
+  function startPlaybackVisualTick() {
+    if (playbackVisualRafId != null) return;
+    playbackVisualRafId = window.requestAnimationFrame(playbackVisualTick);
+  }
 
-    crossRefHighlightRafId = null;
-
-    if (!state || !state.isPlaying || !isCrossReferenceAudioId(state.currentAudioId)) {
-      return;
-    }
-
-    refreshCardHighlight({ shouldFollow: true, allowWhenPaused: false });
-    crossRefHighlightRafId = window.requestAnimationFrame(crossRefHighlightTick);
+  function stopPlaybackVisualTick() {
+    if (playbackVisualRafId == null) return;
+    window.cancelAnimationFrame(playbackVisualRafId);
+    playbackVisualRafId = null;
   }
 
   function startCrossRefHighlightTick() {
-    if (crossRefHighlightRafId != null) return;
-    crossRefHighlightRafId = window.requestAnimationFrame(crossRefHighlightTick);
+    startPlaybackVisualTick();
   }
 
   function stopCrossRefHighlightTick() {
-    if (crossRefHighlightRafId == null) return;
-    window.cancelAnimationFrame(crossRefHighlightRafId);
-    crossRefHighlightRafId = null;
+    stopPlaybackVisualTick();
   }
 
-  function handleCrossRefSeeked() {
+  function handlePlaybackSeeked() {
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
 
-    if (!state || !isCrossReferenceAudioId(state.currentAudioId)) {
+    if (!state) {
       return;
     }
 
-    refreshCardHighlight({
-      shouldFollow: !!state.isPlaying,
-      allowWhenPaused: true
-    });
+    if (isHighlightableActive(state)) {
+      refreshCardHighlight({
+        shouldFollow: !!state.isPlaying,
+        allowWhenPaused: true
+      });
+    }
+
+    if (window.GOMNA_AUDIO_UI && typeof window.GOMNA_AUDIO_UI.updateHeroCaptionFromState === 'function') {
+      window.GOMNA_AUDIO_UI.updateHeroCaptionFromState();
+    }
   }
 
   function unbindAudio() {
-    stopCrossRefHighlightTick();
+    stopPlaybackVisualTick();
     if (boundAudio) {
-      boundAudio.removeEventListener('timeupdate', handleTimeUpdate);
-      boundAudio.removeEventListener('seeked', handleCrossRefSeeked);
+      boundAudio.removeEventListener('seeked', handlePlaybackSeeked);
     }
     boundAudio = null;
   }
 
   function bindAudio(audio, audioId) {
-    var useCrossRefTiming = isCrossReferenceAudioId(audioId);
-
     if (boundAudio === audio) return;
     unbindAudio();
     if (!audio) return;
     boundAudio = audio;
-
-    if (useCrossRefTiming) {
-      boundAudio.addEventListener('seeked', handleCrossRefSeeked);
-      return;
-    }
-
-    boundAudio.addEventListener('timeupdate', handleTimeUpdate);
+    boundAudio.addEventListener('seeked', handlePlaybackSeeked);
   }
 
   function isHighlightableActive(state) {
@@ -880,12 +883,8 @@
 
     if (state.isPlaying) {
       bindAudio(audio, state.currentAudioId);
-      if (isCrossReferenceAudioId(state.currentAudioId)) {
-        startCrossRefHighlightTick();
-        refreshCardHighlight({ shouldFollow: true, allowWhenPaused: false });
-      } else {
-        handleTimeUpdate();
-      }
+      startPlaybackVisualTick();
+      refreshCardHighlight({ shouldFollow: true, allowWhenPaused: false });
       return;
     }
 
@@ -907,14 +906,485 @@
     activeConfig = config;
     loadSegments(audioId, config).then(function () {
       if (activeAudioId !== audioId) return;
-      if (isCrossReferenceAudioId(audioId)) {
-        refreshCardHighlight({ shouldFollow: true, allowWhenPaused: true });
-      } else {
-        handleTimeUpdate();
-      }
+      refreshCardHighlight({ shouldFollow: true, allowWhenPaused: true });
     });
+    loadSpokenTexts(audioId, config);
     syncBinding();
   }
+
+  function parseSpokenTextsFromTts(ttsText, rowCount, config, rows, audioId) {
+    var paragraphs = String(ttsText || '')
+      .split('\n')
+      .map(function (line) { return line.trim(); })
+      .filter(Boolean);
+    var paragraphsPerItem = config && config.paragraphsPerItem;
+    var intro = '';
+    var rowTexts = [];
+    var closing = '';
+    var bodyParagraphs;
+    var cardBlockSize;
+    var leftover;
+    var i;
+    var start;
+    var end;
+    var combined;
+
+    if (!paragraphs.length) {
+      return {
+        intro: buildIntroFromManifest(audioId, config),
+        rows: [],
+        closing: ''
+      };
+    }
+
+    intro = paragraphs[0];
+
+    if (paragraphsPerItem && paragraphsPerItem > 1) {
+      bodyParagraphs = paragraphs.slice(1);
+      cardBlockSize = rowCount * paragraphsPerItem;
+      leftover = bodyParagraphs.length - cardBlockSize;
+
+      if (leftover === 1) {
+        closing = bodyParagraphs[bodyParagraphs.length - 1];
+        bodyParagraphs = bodyParagraphs.slice(0, cardBlockSize);
+      }
+
+      if (bodyParagraphs.length === cardBlockSize) {
+        for (i = 0; i < rowCount; i++) {
+          start = i * paragraphsPerItem;
+          end = start + paragraphsPerItem;
+          combined = bodyParagraphs.slice(start, end).join(' ');
+          rowTexts.push(combined);
+        }
+      }
+    } else if (rowCount > 0) {
+      if (paragraphs.length >= rowCount + 2) {
+        rowTexts = paragraphs.slice(1, 1 + rowCount);
+        closing = paragraphs[paragraphs.length - 1];
+      } else if (paragraphs.length >= rowCount + 1) {
+        rowTexts = paragraphs.slice(1, 1 + rowCount);
+      }
+    }
+
+    if (
+      rowTexts.length &&
+      config &&
+      typeof config.validateTtsRows === 'function' &&
+      rows &&
+      !config.validateTtsRows(rowTexts, rows)
+    ) {
+      rowTexts = [];
+    }
+
+    return {
+      intro: intro || buildIntroFromManifest(audioId, config),
+      rows: rowTexts,
+      closing: closing
+    };
+  }
+
+  function loadSpokenTexts(audioId, config) {
+    var section;
+    var rows;
+    var ttsPath;
+
+    if (spokenTextsByAudioId[audioId]) {
+      return Promise.resolve(spokenTextsByAudioId[audioId]);
+    }
+
+    section = getSection(config);
+    rows = getRows(section, config);
+    ttsPath = audioIdToTtsPath(audioId, config);
+
+    if (!ttsPath) {
+      spokenTextsByAudioId[audioId] = {
+        intro: buildIntroFromManifest(audioId, config),
+        rows: rows.map(function (row) {
+          return extractRowDomText(row, config);
+        }),
+        closing: ''
+      };
+      return Promise.resolve(spokenTextsByAudioId[audioId]);
+    }
+
+    return fetch(ttsPath)
+      .then(function (response) {
+        if (!response.ok) throw new Error('tts fetch failed');
+        return response.text();
+      })
+      .then(function (text) {
+        spokenTextsByAudioId[audioId] = parseSpokenTextsFromTts(
+          text,
+          rows.length,
+          config,
+          rows,
+          audioId
+        );
+        return spokenTextsByAudioId[audioId];
+      })
+      .catch(function () {
+        spokenTextsByAudioId[audioId] = {
+          intro: buildIntroFromManifest(audioId, config),
+          rows: rows.map(function (row) {
+            return extractRowDomText(row, config);
+          }),
+          closing: ''
+        };
+        return spokenTextsByAudioId[audioId];
+      });
+  }
+
+  function extractRowDomText(row, config) {
+    var cells;
+    var parts = [];
+    var i;
+    var text;
+
+    if (!row || !config) return '';
+
+    cells = row.querySelectorAll(config.cellSelector);
+    for (i = 0; i < cells.length; i++) {
+      text = (cells[i].textContent || '').replace(/\s+/g, ' ').trim();
+      if (text) parts.push(text);
+    }
+
+    return parts.join(' ');
+  }
+
+  function segmentAtTimeFromCue(segments, currentTime) {
+    var i;
+    var seg;
+    var lastSeg;
+
+    if (!segments || !segments.length) return null;
+
+    lastSeg = segments[segments.length - 1];
+
+    for (i = 0; i < segments.length; i++) {
+      seg = segments[i];
+      if (currentTime >= seg.start && currentTime < seg.end) {
+        return seg;
+      }
+    }
+
+    if (lastSeg && currentTime >= lastSeg.start) {
+      return lastSeg;
+    }
+
+    return segments[0] || null;
+  }
+
+  function segmentAtTimeFromWeight(segments, currentTime, duration) {
+    var total = 0;
+    var target;
+    var sum = 0;
+    var i;
+
+    if (!segments || !segments.length) {
+      return null;
+    }
+
+    if (!duration || duration <= 0) {
+      return segments[0];
+    }
+
+    for (i = 0; i < segments.length; i++) {
+      total += segments[i].weight;
+    }
+
+    target = Math.max(0, Math.min(1, currentTime / duration)) * total;
+    sum = 0;
+
+    for (i = 0; i < segments.length; i++) {
+      sum += segments[i].weight;
+      if (target < sum) {
+        return segments[i];
+      }
+    }
+
+    return segments[segments.length - 1] || null;
+  }
+
+  function resolveSegmentSpeechText(audioId, segment, config, rows) {
+    var spoken;
+    var rowIndex;
+    var text;
+
+    if (!segment || !config) return '';
+
+    spoken = spokenTextsByAudioId[audioId];
+
+    if (segment.type === 'intro' || (segment.itemIndex != null && segment.itemIndex < 0 && segment.type !== 'item')) {
+      if (spoken && spoken.intro) return spoken.intro;
+      return buildIntroFromManifest(audioId, config);
+    }
+
+    if (segment.type === 'closing') {
+      if (spoken && spoken.closing) return spoken.closing;
+      return '';
+    }
+
+    if (segment.type === 'row' && segment.rowIndex != null && segment.rowIndex >= 0) {
+      rowIndex = segment.rowIndex;
+    } else if (segment.itemIndex != null && segment.itemIndex >= 0) {
+      rowIndex = segment.itemIndex;
+    } else {
+      rowIndex = segment.rowIndex;
+    }
+
+    if (rowIndex == null || rowIndex < 0) {
+      if (spoken && spoken.intro) return spoken.intro;
+      return buildIntroFromManifest(audioId, config);
+    }
+
+    if (spoken && spoken.rows && spoken.rows[rowIndex]) {
+      return spoken.rows[rowIndex];
+    }
+
+    if (rows[rowIndex]) {
+      text = extractRowDomText(rows[rowIndex], config);
+      if (text) return text;
+    }
+
+    return '';
+  }
+
+  function getBibleCaptionText(audioId) {
+    var entry = getManifestEntry(audioId);
+    var previewEl = document.querySelector('[data-audio-current-preview-expanded], [data-audio-current-preview]');
+
+    if (entry && entry.preview) {
+      return entry.preview;
+    }
+
+    if (previewEl && previewEl.textContent) {
+      return previewEl.textContent.trim();
+    }
+
+    return '';
+  }
+
+  function getFirstCaptionText(audioId, config, rows) {
+    var spoken;
+    var text;
+
+    if (audioId && /\.bible$/.test(audioId)) {
+      text = getBibleCaptionText(audioId);
+      return text || CAPTION_DEFAULT_TEXT;
+    }
+
+    if (!config) return CAPTION_DEFAULT_TEXT;
+
+    spoken = spokenTextsByAudioId[audioId];
+    if (spoken && spoken.intro) return spoken.intro;
+    if (spoken && spoken.rows && spoken.rows[0]) return spoken.rows[0];
+    if (rows && rows[0]) {
+      text = extractRowDomText(rows[0], config);
+      if (text) return text;
+    }
+
+    text = buildIntroFromManifest(audioId, config);
+    return text || CAPTION_DEFAULT_TEXT;
+  }
+
+  function getCaptionSegmentKey(segment) {
+    if (!segment) return 'none';
+
+    return [
+      segment.type || 'segment',
+      segment.itemIndex != null ? segment.itemIndex : segment.rowIndex,
+      segment.start,
+      segment.end
+    ].join(':');
+  }
+
+  function getCaptionForState(state, options) {
+    var opts = options || {};
+    var audioId = state && state.currentAudioId;
+    var config;
+    var section;
+    var rows;
+    var segmentBundle;
+    var segments;
+    var currentTime;
+    var segment;
+    var text;
+    var engine;
+
+    if (!audioId) {
+      return {
+        text: CAPTION_DEFAULT_TEXT,
+        segmentKey: 'idle'
+      };
+    }
+
+    if (/\.bible$/.test(audioId)) {
+      text = getBibleCaptionText(audioId);
+      return {
+        text: text || CAPTION_DEFAULT_TEXT,
+        segmentKey: 'bible:' + audioId
+      };
+    }
+
+    config = getConfigForAudioId(audioId);
+    if (!config) {
+      text = getBibleCaptionText(audioId);
+      return {
+        text: text || CAPTION_DEFAULT_TEXT,
+        segmentKey: 'fallback:' + audioId
+      };
+    }
+
+    section = getSection(config);
+    rows = getRows(section, config);
+    segmentBundle = segmentsByAudioId[audioId];
+
+    if (!segmentBundle || !segmentBundle.segments || !segmentBundle.segments.length) {
+      return {
+        text: getFirstCaptionText(audioId, config, rows),
+        segmentKey: 'pending:' + audioId
+      };
+    }
+
+    if (!opts.allowWhenPaused && state && !state.isPlaying) {
+      return {
+        text: getFirstCaptionText(audioId, config, rows),
+        segmentKey: 'idle:' + audioId
+      };
+    }
+
+    segments = segmentBundle.segments;
+    engine = window.GOMNA_AUDIO_ENGINE;
+    currentTime = isCrossReferenceAudioId(audioId)
+      ? getPlaybackCurrentTime(state, engine && engine._state ? engine._state.currentAudio : boundAudio)
+      : (Number(state.currentTime) || 0);
+
+    if (segmentBundle.mode === 'cue') {
+      segment = segmentAtTimeFromCue(segments, currentTime);
+    } else {
+      segment = segmentAtTimeFromWeight(segments, currentTime, state.duration);
+    }
+
+    text = resolveSegmentSpeechText(audioId, segment, config, rows);
+    if (!text) {
+      text = getFirstCaptionText(audioId, config, rows);
+    }
+
+    return {
+      text: text,
+      segmentKey: getCaptionSegmentKey(segment)
+    };
+  }
+
+  function ensureCaptionLoaded(audioId) {
+    var config = getConfigForAudioId(audioId);
+    if (!audioId || !config) return Promise.resolve(null);
+    return Promise.all([
+      loadSegments(audioId, config),
+      loadSpokenTexts(audioId, config)
+    ]);
+  }
+
+  function wordsForSegment(words, segment) {
+    var i;
+    var word;
+
+    if (!words || !words.length || !segment) return [];
+
+    return words.filter(function (item) {
+      return item.start >= segment.start - 0.001 && item.start < segment.end + 0.001;
+    });
+  }
+
+  function readWordCountAtTime(words, currentTime) {
+    var count = 0;
+    var i;
+
+    for (i = 0; i < words.length; i++) {
+      if (currentTime >= words[i].start) {
+        count = i + 1;
+      } else {
+        break;
+      }
+    }
+
+    return count;
+  }
+
+  function getWordCaptionForState(state, options) {
+    var base = getCaptionForState(state, options);
+    var audioId = state && state.currentAudioId;
+    var segmentBundle = segmentsByAudioId[audioId];
+    var allWords;
+    var segment;
+    var segmentWords;
+    var currentTime;
+    var engine;
+    var fullText;
+    var readCount;
+
+    if (!audioId || !segmentBundle || !segmentBundle.words || !segmentBundle.words.length) {
+      return {
+        text: base.text,
+        fullText: base.text,
+        words: null,
+        readCount: 0,
+        segmentKey: base.segmentKey,
+        hasWordCues: false
+      };
+    }
+
+    allWords = segmentBundle.words;
+    engine = window.GOMNA_AUDIO_ENGINE;
+    currentTime = isCrossReferenceAudioId(audioId)
+      ? getPlaybackCurrentTime(state, engine && engine._state ? engine._state.currentAudio : boundAudio)
+      : (Number(state.currentTime) || 0);
+
+    if (segmentBundle.mode === 'cue') {
+      segment = segmentAtTimeFromCue(segmentBundle.segments, currentTime);
+    } else {
+      segment = segmentAtTimeFromWeight(segmentBundle.segments, currentTime, state.duration);
+    }
+
+    segmentWords = wordsForSegment(allWords, segment);
+    if (!segmentWords.length) {
+      return {
+        text: base.text,
+        fullText: base.text,
+        words: null,
+        readCount: 0,
+        segmentKey: base.segmentKey,
+        hasWordCues: false
+      };
+    }
+
+    fullText = segmentWords.map(function (item) { return item.text; }).join(' ');
+    readCount = readWordCountAtTime(segmentWords, currentTime);
+
+    return {
+      text: base.text,
+      fullText: fullText || base.text,
+      words: segmentWords.map(function (item) { return item.text; }),
+      readCount: readCount,
+      segmentKey: base.segmentKey,
+      hasWordCues: true
+    };
+  }
+
+  var CAPTION_DEFAULT_TEXT = '말씀을 듣고 계십니다';
+
+  window.GOMNA_AUDIO_CAPTION = {
+    DEFAULT_TEXT: CAPTION_DEFAULT_TEXT,
+    ensureLoaded: ensureCaptionLoaded,
+    getCaptionForState: getCaptionForState,
+    getWordCaptionForState: getWordCaptionForState,
+    getFirstCaptionText: function(audioId) {
+      var config = getConfigForAudioId(audioId);
+      var section = config ? getSection(config) : null;
+      var rows = config ? getRows(section, config) : [];
+      return getFirstCaptionText(audioId, config, rows);
+    }
+  };
 
   window.addEventListener('audio:start', function (e) {
     onCommentaryStart(e.detail || {});
@@ -962,4 +1432,9 @@
   document.head.appendChild(style);
 
   initExactCueTestManifestOverrides();
+
+  window.GOMNA_CARD_HIGHLIGHT = {
+    startPlaybackVisualTick: startPlaybackVisualTick,
+    stopPlaybackVisualTick: stopPlaybackVisualTick
+  };
 })();
