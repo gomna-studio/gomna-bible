@@ -5549,53 +5549,88 @@ body.gomna-commentary-popup-open #gomna-audio-mini-player.gomna-audio-visible {
 }
 
 /* =========================================================
-   GOMNA EXPANDED AUDIO CARD WIDTH + LAYOUT FINAL
-   말씀풀이 카드와 같은 430px iPhone형 확장 오디오 카드
+   GOMNA EXPANDED AUDIO PLAYER V2
+   대표 이미지 · 초슬림 진행바 · 원형 조작 · 3등분 설정 카드
    ========================================================= */
 
 #gomna-audio-expanded-player.gomna-audio-expanded-player,
 #gomna-audio-expanded-player.gomna-audio-expanded-player.gomna-audio-visible,
 body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded-player,
 body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded-player.gomna-audio-visible {
-  width: min(var(--gomna-commentary-card-width), calc(100vw - 32px)) !important;
-  max-width: var(--gomna-commentary-card-width) !important;
+  --gomna-exp-bg: #faf6ed;
+  --gomna-exp-card: #f3ede2;
+  --gomna-exp-text: #2b2118;
+  --gomna-exp-muted: rgba(61, 40, 24, 0.62);
+  --gomna-exp-gold: #c49a5a;
+  --gomna-exp-track: #ebe3d6;
+  --gomna-exp-night: #2b2118;
+  --gomna-exp-divider: rgba(122, 88, 48, 0.12);
+
+  width: min(var(--gomna-commentary-card-width, 430px), calc(100vw - 24px)) !important;
+  max-width: var(--gomna-commentary-card-width, 430px) !important;
   min-width: 0 !important;
   margin-left: auto !important;
   margin-right: auto !important;
   box-sizing: border-box !important;
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) !important;
-  grid-template-rows: auto auto auto auto auto !important;
-  gap: 10px !important;
-  padding: 14px 16px 16px !important;
-  border-radius: 22px !important;
+  grid-template-rows: auto auto auto auto auto auto auto auto auto !important;
+  gap: 8px !important;
+  padding: 8px 14px 12px !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(122, 88, 48, 0.1) !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  max-height: min(calc(100dvh - 32px), 640px) !important;
-  background:
-    linear-gradient(180deg, rgba(255, 253, 248, 0.995), rgba(250, 246, 237, 0.995)) !important;
+  max-height: min(calc(100dvh - 24px), 720px) !important;
+  background: linear-gradient(180deg, #fffdf8 0%, var(--gomna-exp-bg) 100%) !important;
+  box-shadow: 0 10px 28px rgba(43, 28, 18, 0.1) !important;
+  color: var(--gomna-exp-text) !important;
 }
 
 #gomna-audio-expanded-player.gomna-audio-visible {
   pointer-events: auto !important;
 }
 
+#gomna-audio-expanded-player .gomna-audio-expanded-top {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 2px !important;
+  margin: 0 !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-expanded-handle {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 14px !important;
+  padding-top: 2px !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-expanded-handle span {
+  display: block !important;
+  width: 36px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: rgba(61, 40, 24, 0.18) !important;
+}
+
 #gomna-audio-expanded-player .gomna-audio-expanded-header {
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) 44px !important;
+  grid-template-columns: minmax(0, 1fr) 36px !important;
   align-items: center !important;
-  gap: 10px !important;
-  min-height: 44px !important;
+  gap: 8px !important;
+  min-height: 36px !important;
   margin: 0 !important;
+  padding: 0 2px !important;
 }
 
 #gomna-audio-expanded-player .gomna-audio-expanded-header h3 {
   min-width: 0 !important;
   margin: 0 !important;
-  color: #2b2118 !important;
-  font-size: 17px !important;
+  color: var(--gomna-exp-text) !important;
+  font-size: 16px !important;
   line-height: 1.2 !important;
-  font-weight: 850 !important;
+  font-weight: 800 !important;
   letter-spacing: -0.02em !important;
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -5603,31 +5638,41 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
 }
 
 #gomna-audio-expanded-player .gomna-audio-btn-close {
-  width: 44px !important;
-  min-width: 44px !important;
-  height: 44px !important;
-  min-height: 44px !important;
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
   padding: 0 !important;
   justify-self: end !important;
   border-radius: 999px !important;
+  border: 1px solid rgba(122, 88, 48, 0.14) !important;
+  background: rgba(255, 252, 245, 0.92) !important;
+  color: var(--gomna-exp-text) !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
   pointer-events: auto !important;
   touch-action: manipulation !important;
+  box-shadow: none !important;
 }
 
 #gomna-audio-expanded-player .gomna-audio-expanded-info {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) !important;
   grid-template-rows: auto auto !important;
-  gap: 6px !important;
-  padding: 11px 12px !important;
-  border-radius: 16px !important;
+  gap: 4px !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  background: var(--gomna-exp-card) !important;
+  border: 1px solid rgba(122, 88, 48, 0.08) !important;
+  box-shadow: none !important;
 }
 
 #gomna-audio-expanded-player .gomna-audio-expanded-title {
   margin: 0 !important;
-  font-size: 13px !important;
+  color: var(--gomna-exp-muted) !important;
+  font-size: 12px !important;
   line-height: 1.25 !important;
-  font-weight: 850 !important;
+  font-weight: 700 !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
@@ -5639,23 +5684,107 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   -webkit-line-clamp: 2 !important;
   -webkit-box-orient: vertical !important;
   overflow: hidden !important;
+  color: var(--gomna-exp-text) !important;
   font-size: 14px !important;
-  line-height: 1.42 !important;
+  line-height: 1.4 !important;
   font-weight: 650 !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-expanded-hero {
+  width: 100% !important;
+  margin: 0 !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  aspect-ratio: 16 / 9 !important;
+  background: #e8dfd2 !important;
+  position: relative !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-expanded-hero img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-hero-caption {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-end !important;
+  padding: 26px 6% 10px !important;
+  background:
+    linear-gradient(
+      to top,
+      rgba(10, 7, 5, 0.92) 0%,
+      rgba(10, 7, 5, 0.72) 48%,
+      rgba(10, 7, 5, 0) 100%
+    ) !important;
+  pointer-events: none !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-hero-caption-text {
+  width: min(88%, 100%) !important;
+  margin: 0 !important;
+  text-align: center !important;
+  color: rgba(255, 252, 245, 0.96) !important;
+  font-size: 17px !important;
+  line-height: 1.5 !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.01em !important;
+  word-break: keep-all !important;
+  overflow-wrap: anywhere !important;
+  transition: opacity 150ms ease !important;
+  max-height: calc(1.5em * 2) !important;
+  overflow: hidden !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-hero-caption-text .gomna-audio-hero-caption-word {
+  color: rgba(255, 255, 255, 0.48) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.48) !important;
+  font-weight: 500;
+  transition: color 150ms ease, -webkit-text-fill-color 150ms ease !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-hero-caption-text .gomna-audio-hero-caption-word.is-read {
+  color: #FFD15C !important;
+  -webkit-text-fill-color: #FFD15C !important;
+  font-weight: 700;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.95),
+    0 0 5px rgba(255, 209, 92, 0.65),
+    0 0 10px rgba(255, 209, 92, 0.28);
+}
+
+#gomna-audio-expanded-player .gomna-audio-hero-caption-text .gomna-audio-hero-caption-word.is-read.is-current {
+  color: #FFF3B0 !important;
+  -webkit-text-fill-color: #FFF3B0 !important;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 1),
+    0 0 7px rgba(255, 223, 120, 0.9);
+}
+
+#gomna-audio-expanded-player .gomna-audio-hero-caption-text.is-changing {
+  opacity: 0.32 !important;
 }
 
 #gomna-audio-expanded-player .gomna-audio-expanded-progress {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) !important;
-  grid-template-rows: 22px auto !important;
-  gap: 4px !important;
+  grid-template-rows: 44px auto !important;
+  gap: 2px !important;
   margin: 0 !important;
+  padding: 0 2px !important;
 }
 
 #gomna-audio-expanded-player .gomna-audio-expanded-progress-track {
   position: relative !important;
   width: 100% !important;
-  height: 22px !important;
+  height: 44px !important;
   overflow: visible !important;
   border-radius: 999px !important;
   background: transparent !important;
@@ -5671,8 +5800,7 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   top: 50% !important;
   height: 2px !important;
   border-radius: 999px !important;
-  background: #e7ded0 !important;
-  box-shadow: inset 0 0 0 1px rgba(111, 71, 43, 0.035) !important;
+  background: var(--gomna-exp-track) !important;
   transform: translateY(-50%) !important;
 }
 
@@ -5683,8 +5811,8 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   height: 2px !important;
   width: 0%;
   border-radius: inherit !important;
-  background: #6f472b !important;
-  background-color: #6f472b !important;
+  background: var(--gomna-exp-gold) !important;
+  background-color: var(--gomna-exp-gold) !important;
   pointer-events: none !important;
   transform: translateY(-50%) !important;
 }
@@ -5693,13 +5821,13 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   position: absolute !important;
   top: 50% !important;
   left: 0%;
-  width: 8px !important;
-  height: 8px !important;
+  width: 9px !important;
+  height: 9px !important;
   border-radius: 999px !important;
-  background: #6f472b !important;
-  background-color: #6f472b !important;
-  border: 1px solid #6f472b !important;
-  box-shadow: 0 1px 4px rgba(111, 71, 43, 0.22) !important;
+  background: var(--gomna-exp-gold) !important;
+  background-color: var(--gomna-exp-gold) !important;
+  border: 1px solid rgba(255, 252, 245, 0.7) !important;
+  box-shadow: 0 1px 3px rgba(111, 71, 43, 0.18) !important;
   pointer-events: none !important;
   transform: translate(-50%, -50%) !important;
 }
@@ -5709,125 +5837,281 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   align-items: center !important;
   justify-content: space-between !important;
   gap: 12px !important;
-  color: rgba(61, 40, 24, 0.68) !important;
-  font-size: 12px !important;
+  color: var(--gomna-exp-muted) !important;
+  font-size: 11px !important;
   line-height: 1.1 !important;
-  font-weight: 750 !important;
+  font-weight: 700 !important;
   font-variant-numeric: tabular-nums !important;
 }
 
 #gomna-audio-expanded-player .gomna-audio-expanded-controls {
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr) !important;
+  grid-template-columns: 50px 68px 50px !important;
+  justify-content: center !important;
   align-items: center !important;
-  gap: 8px !important;
-  margin: 0 !important;
+  gap: 18px !important;
+  margin: 2px 0 0 !important;
+  padding: 0 !important;
 }
 
-#gomna-audio-expanded-player .gomna-audio-expanded-controls button {
-  min-width: 0 !important;
-  min-height: 42px !important;
-  height: 42px !important;
-  padding: 0 10px !important;
-  font-size: 12px !important;
-  white-space: nowrap !important;
+#gomna-audio-expanded-player .gomna-audio-btn-seek-circle {
+  width: 50px !important;
+  min-width: 50px !important;
+  height: 50px !important;
+  min-height: 50px !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(122, 88, 48, 0.14) !important;
+  background: rgba(255, 252, 245, 0.95) !important;
+  color: var(--gomna-exp-text) !important;
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-seek-glyph {
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-seek-num {
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  margin-top: 1px !important;
 }
 
 #gomna-audio-expanded-player .gomna-audio-btn-play-pause-big {
-  width: 56px !important;
-  min-width: 56px !important;
-  height: 56px !important;
-  min-height: 56px !important;
+  width: 68px !important;
+  min-width: 68px !important;
+  height: 68px !important;
+  min-height: 68px !important;
   padding: 0 !important;
-  font-size: 22px !important;
+  border-radius: 999px !important;
+  border: none !important;
+  background: var(--gomna-exp-night) !important;
+  color: #fffaf0 !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+  box-shadow: 0 4px 14px rgba(43, 28, 18, 0.22) !important;
 }
 
-#gomna-audio-expanded-player .gomna-audio-expanded-options {
+#gomna-audio-expanded-player .gomna-audio-expanded-settings-summary {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  margin: 2px 0 0 !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  background: var(--gomna-exp-card) !important;
+  border: 1px solid rgba(122, 88, 48, 0.08) !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-settings-cell {
+  position: relative !important;
+  min-height: 64px !important;
+  padding: 8px 6px 7px !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--gomna-exp-text) !important;
+  display: grid !important;
+  grid-template-rows: auto auto auto !important;
+  justify-items: center !important;
+  align-content: center !important;
+  gap: 2px !important;
+  box-shadow: none !important;
+  touch-action: manipulation !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-settings-cell:not(:last-child)::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 14px !important;
+  right: 0 !important;
+  width: 1px !important;
+  height: calc(100% - 28px) !important;
+  background: var(--gomna-exp-divider) !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-settings-cell[aria-expanded="true"] {
+  background: rgba(196, 154, 90, 0.12) !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-settings-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: rgba(61, 40, 24, 0.55) !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-settings-value {
+  font-size: 12px !important;
+  line-height: 1.15 !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-settings-label {
+  font-size: 10px !important;
+  line-height: 1.1 !important;
+  font-weight: 650 !important;
+  color: var(--gomna-exp-muted) !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-expanded-option-panels {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) !important;
-  gap: 8px !important;
-  padding-bottom: 0 !important;
+  gap: 0 !important;
   margin: 0 !important;
 }
 
-#gomna-audio-expanded-player .gomna-audio-option-group {
-  padding: 9px !important;
-  border-radius: 16px !important;
+#gomna-audio-expanded-player .gomna-audio-option-panel {
   margin: 0 !important;
+  padding: 0 !important;
 }
 
-#gomna-audio-expanded-player .gomna-audio-option-group label {
-  margin: 0 0 7px !important;
-  font-size: 12px !important;
-  line-height: 1.1 !important;
+#gomna-audio-expanded-player .gomna-audio-option-panel[hidden] {
+  display: none !important;
 }
 
-#gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
+#gomna-audio-expanded-player .gomna-audio-option-buttons {
   display: grid !important;
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-  gap: 5px !important;
-  padding: 4px !important;
+  gap: 6px !important;
+  padding: 8px !important;
+  border-radius: 12px !important;
+  background: rgba(251, 244, 230, 0.72) !important;
+  border: 1px solid rgba(122, 88, 48, 0.08) !important;
+  box-shadow: none !important;
 }
 
-#gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button {
+#gomna-audio-expanded-player .gomna-audio-option-panel[data-audio-option-panel="speed"] .gomna-audio-option-buttons {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-option-panel[data-audio-option-panel="voice"] .gomna-audio-option-buttons,
+#gomna-audio-expanded-player .gomna-audio-option-panel[data-audio-option-panel="timer"] .gomna-audio-option-buttons {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-option-buttons button {
   min-width: 0 !important;
   min-height: 34px !important;
   height: 34px !important;
-  padding: 0 2px !important;
-  font-size: 11px !important;
-}
-
-#gomna-audio-expanded-player .gomna-audio-option-group:not(:first-child) .gomna-audio-option-buttons {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 5px !important;
-}
-
-#gomna-audio-expanded-player .gomna-audio-option-group:not(:first-child) .gomna-audio-option-buttons button {
-  min-width: 0 !important;
-  min-height: 32px !important;
-  height: 32px !important;
   padding: 0 6px !important;
-  font-size: 10.5px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(225, 210, 181, 0.5) !important;
+  background: #fffaf0 !important;
+  color: #5a402c !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
 }
 
-@media (max-width: 480px) {
-  #gomna-audio-expanded-player.gomna-audio-expanded-player,
-  #gomna-audio-expanded-player.gomna-audio-expanded-player.gomna-audio-visible,
-  body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded-player,
-  body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded-player.gomna-audio-visible {
-    width: calc(100vw - 18px) !important;
-    max-width: calc(100vw - 18px) !important;
-    padding: 12px 12px 14px !important;
-    gap: 8px !important;
-    max-height: calc(100dvh - 18px - env(safe-area-inset-bottom, 0px)) !important;
-  }
-
-  #gomna-audio-expanded-player .gomna-audio-expanded-header h3 {
-    font-size: 16px !important;
-  }
-
-  #gomna-audio-expanded-player .gomna-audio-expanded-controls {
-    grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr) !important;
-    gap: 6px !important;
-  }
-
-  #gomna-audio-expanded-player .gomna-audio-btn-play-pause-big {
-    width: 52px !important;
-    min-width: 52px !important;
-    height: 52px !important;
-    min-height: 52px !important;
-  }
+#gomna-audio-expanded-player .gomna-audio-option-buttons button[data-active="true"],
+#gomna-audio-expanded-player .gomna-audio-option-buttons button.gomna-audio-active {
+  border-color: #d7c39c !important;
+  background: linear-gradient(180deg, #eadab4 0%, #dfc98d 100%) !important;
+  color: #4a3424 !important;
 }
 
-/* =========================================================
-   GOMNA EXPANDED AUDIO SOLO SCREEN FINAL
-   확장 오디오 카드를 단독 중심 화면으로 표시
-   ========================================================= */
+#gomna-audio-expanded-player .gomna-audio-expanded-chapter-auto {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-height: 42px !important;
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  background: var(--gomna-exp-card) !important;
+  border: 1px solid rgba(122, 88, 48, 0.08) !important;
+  box-shadow: none !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-chapter-auto-text {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-chapter-auto-title {
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+  font-weight: 750 !important;
+  color: var(--gomna-exp-text) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-chapter-auto-info {
+  flex: 0 0 auto !important;
+  width: 14px !important;
+  height: 14px !important;
+  font-size: 11px !important;
+  line-height: 14px !important;
+  text-align: center !important;
+  color: rgba(61, 40, 24, 0.45) !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-chapter-auto-toggle {
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-toggle-track {
+  display: block !important;
+  position: relative !important;
+  width: 44px !important;
+  height: 26px !important;
+  border-radius: 999px !important;
+  background: #ddd2c2 !important;
+  transition: background 0.18s ease !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-toggle-knob {
+  position: absolute !important;
+  top: 3px !important;
+  left: 3px !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 999px !important;
+  background: #fffaf0 !important;
+  box-shadow: 0 1px 3px rgba(43, 28, 18, 0.18) !important;
+  transition: transform 0.18s ease !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-chapter-auto-toggle.is-on .gomna-audio-toggle-track,
+#gomna-audio-expanded-player .gomna-audio-chapter-auto-toggle[aria-checked="true"] .gomna-audio-toggle-track {
+  background: var(--gomna-exp-gold) !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-chapter-auto-toggle.is-on .gomna-audio-toggle-knob,
+#gomna-audio-expanded-player .gomna-audio-chapter-auto-toggle[aria-checked="true"] .gomna-audio-toggle-knob {
+  transform: translateX(18px) !important;
+}
 
 :root {
-  --gomna-expanded-card-min-height: min(760px, calc(100dvh - 32px));
-  --gomna-expanded-card-max-height: calc(100dvh - 32px);
+  --gomna-expanded-card-min-height: min(700px, calc(100dvh - 24px));
+  --gomna-expanded-card-max-height: calc(100dvh - 24px);
 }
 
 body.gomna-audio-expanded-open #commentaryPopupBox,
@@ -5857,191 +6141,97 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   bottom: auto !important;
   transform: translate(-50%, -50%) !important;
   z-index: 10100 !important;
-  width: min(var(--gomna-commentary-card-width), calc(100vw - 18px)) !important;
-  max-width: var(--gomna-commentary-card-width) !important;
-  min-height: var(--gomna-expanded-card-min-height) !important;
+  width: min(var(--gomna-commentary-card-width, 430px), calc(100vw - 20px)) !important;
+  max-width: var(--gomna-commentary-card-width, 430px) !important;
+  min-height: auto !important;
   max-height: var(--gomna-expanded-card-max-height) !important;
   margin: 0 auto !important;
-  padding: 16px 16px 18px !important;
+  padding: 8px 12px 12px !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
-  background:
-    linear-gradient(180deg, rgba(255, 253, 248, 0.998), rgba(250, 246, 237, 0.998)) !important;
-  border-color: rgba(122, 88, 48, 0.16) !important;
-  box-shadow:
-    0 20px 54px rgba(43, 28, 18, 0.22),
-    0 4px 18px rgba(43, 28, 18, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.76) !important;
-}
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-expanded-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 2 !important;
-  padding-bottom: 4px !important;
-  background:
-    linear-gradient(180deg, rgba(255, 253, 248, 0.998), rgba(255, 253, 248, 0.92)) !important;
-}
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-btn-close {
-  width: 44px !important;
-  min-width: 44px !important;
-  height: 44px !important;
-  min-height: 44px !important;
-}
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
-  background: rgba(239, 229, 212, 0.7) !important;
-  border: 1px solid rgba(122, 88, 48, 0.1) !important;
-}
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active {
-  border-color: rgba(122, 88, 48, 0.2) !important;
-  background: linear-gradient(180deg, #e8d9bd 0%, #d8c29a 100%) !important;
-  color: #4d3320 !important;
-  box-shadow:
-    0 3px 8px rgba(91, 61, 34, 0.1),
-    inset 0 1px 0 rgba(255, 252, 246, 0.72) !important;
-}
-
-/* =========================================================
-   GOMNA EXPANDED SPEED BUTTON QUIET LUXURY FINAL
-   속도 선택 버튼 색상을 은은한 베이지/골드브라운으로 정리
-   ========================================================= */
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons {
-  background: rgba(251, 244, 230, 0.78) !important;
-  border-color: rgba(225, 210, 181, 0.72) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 250, 240, 0.66) !important;
-}
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button {
-  border-color: rgba(225, 210, 181, 0.44) !important;
-  background: #fffaf0 !important;
-  color: #5a402c !important;
-  box-shadow:
-    0 1px 3px rgba(74, 52, 36, 0.035),
-    inset 0 1px 0 rgba(255, 253, 248, 0.64) !important;
-}
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button:hover,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button:focus {
-  border-color: rgba(215, 195, 156, 0.72) !important;
-  background: #fbf4e6 !important;
-  color: #4a3424 !important;
-  box-shadow:
-    0 1px 4px rgba(74, 52, 36, 0.055),
-    inset 0 1px 0 rgba(255, 253, 248, 0.7) !important;
-}
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button:active {
-  border-color: rgba(215, 195, 156, 0.82) !important;
-  background: #f4ead7 !important;
-  color: #4a3424 !important;
-  box-shadow: inset 0 1px 3px rgba(74, 52, 36, 0.08) !important;
-}
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"],
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"]:hover,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active:hover,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"]:focus,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active:focus,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"]:active,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-group:first-child .gomna-audio-option-buttons button.gomna-audio-active:active {
-  border-color: #d7c39c !important;
-  background: linear-gradient(180deg, #eadab4 0%, #dfc98d 100%) !important;
-  color: #4a3424 !important;
-  box-shadow:
-    0 1px 5px rgba(74, 52, 36, 0.075),
-    inset 0 1px 0 rgba(255, 250, 240, 0.62) !important;
-}
-
-/* =========================================================
-   GOMNA EXPANDED OPTION SELECTED COLOR UNIFIED FINAL
-   속도 · 목소리 · 타이머 선택 버튼 색상 통일
-   ========================================================= */
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-buttons button {
-  border-color: rgba(225, 210, 181, 0.44) !important;
-  background: #fffaf0 !important;
-  color: #5a402c !important;
-  box-shadow:
-    0 1px 3px rgba(74, 52, 36, 0.035),
-    inset 0 1px 0 rgba(255, 253, 248, 0.64) !important;
-}
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-buttons button:hover,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-buttons button:focus {
-  border-color: rgba(215, 195, 156, 0.72) !important;
-  background: #fbf4e6 !important;
-  color: #4a3424 !important;
-  box-shadow:
-    0 1px 4px rgba(74, 52, 36, 0.055),
-    inset 0 1px 0 rgba(255, 253, 248, 0.7) !important;
-}
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-buttons button:active {
-  border-color: rgba(215, 195, 156, 0.82) !important;
-  background: #f4ead7 !important;
-  color: #4a3424 !important;
-  box-shadow: inset 0 1px 3px rgba(74, 52, 36, 0.08) !important;
-}
-
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-buttons button[data-active="true"],
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-buttons button.gomna-audio-active,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-buttons button[data-active="true"]:hover,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-buttons button.gomna-audio-active:hover,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-buttons button[data-active="true"]:focus,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-buttons button.gomna-audio-active:focus,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-buttons button[data-active="true"]:active,
-body.gomna-audio-expanded-open #gomna-audio-expanded-player .gomna-audio-option-buttons button.gomna-audio-active:active {
-  border-color: #d7c39c !important;
-  background: linear-gradient(180deg, #eadab4 0%, #dfc98d 100%) !important;
-  color: #4a3424 !important;
-  box-shadow:
-    0 1px 5px rgba(74, 52, 36, 0.075),
-    inset 0 1px 0 rgba(255, 250, 240, 0.62) !important;
 }
 
 @media (max-width: 480px) {
   :root {
-    --gomna-expanded-card-min-height: calc(100dvh - 18px - env(safe-area-inset-bottom, 0px));
-    --gomna-expanded-card-max-height: calc(100dvh - 18px - env(safe-area-inset-bottom, 0px));
+    --gomna-expanded-card-min-height: calc(100dvh - 16px - env(safe-area-inset-bottom, 0px));
+    --gomna-expanded-card-max-height: calc(100dvh - 16px - env(safe-area-inset-bottom, 0px));
+  }
+
+  #gomna-audio-expanded-player.gomna-audio-expanded-player,
+  #gomna-audio-expanded-player.gomna-audio-expanded-player.gomna-audio-visible,
+  body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded-player,
+  body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded-player.gomna-audio-visible {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    padding: 6px 10px 10px !important;
+    gap: 6px !important;
+    max-height: calc(100dvh - 16px - env(safe-area-inset-bottom, 0px)) !important;
+    border-radius: 18px !important;
+  }
+
+  #gomna-audio-expanded-player .gomna-audio-expanded-header h3 {
+    font-size: 15px !important;
+  }
+
+  #gomna-audio-expanded-player .gomna-audio-expanded-controls {
+    grid-template-columns: 48px 64px 48px !important;
+    gap: 14px !important;
+  }
+
+  #gomna-audio-expanded-player .gomna-audio-btn-seek-circle {
+    width: 48px !important;
+    min-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+  }
+
+  #gomna-audio-expanded-player .gomna-audio-btn-play-pause-big {
+    width: 64px !important;
+    min-width: 64px !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    font-size: 22px !important;
+  }
+
+  #gomna-audio-expanded-player .gomna-audio-settings-value {
+    font-size: 11px !important;
+  }
+
+  #gomna-audio-expanded-player .gomna-audio-hero-caption-text {
+    font-size: 16px !important;
+    line-height: 1.42 !important;
+    width: min(90%, 100%) !important;
   }
 
   body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded-player,
   body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded-player.gomna-audio-visible {
-    width: calc(100vw - 18px) !important;
-    max-width: calc(100vw - 18px) !important;
-    min-height: calc(100dvh - 18px - env(safe-area-inset-bottom, 0px)) !important;
-    max-height: calc(100dvh - 18px - env(safe-area-inset-bottom, 0px)) !important;
-    padding: 12px 12px 14px !important;
-    border-radius: 22px !important;
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    padding: 6px 10px 10px !important;
   }
 }
 
 @supports not (height: 100dvh) {
+  :root {
+    --gomna-expanded-card-max-height: calc(100vh - 24px);
+  }
+
   body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded-player,
   body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded-player.gomna-audio-visible {
-    min-height: min(760px, calc(100vh - 32px)) !important;
-    max-height: calc(100vh - 32px) !important;
+    max-height: calc(100vh - 24px) !important;
   }
 
   @media (max-width: 480px) {
     :root {
-      --gomna-expanded-card-min-height: calc(100vh - 18px - env(safe-area-inset-bottom, 0px));
-      --gomna-expanded-card-max-height: calc(100vh - 18px - env(safe-area-inset-bottom, 0px));
+      --gomna-expanded-card-max-height: calc(100vh - 16px - env(safe-area-inset-bottom, 0px));
     }
 
     body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded-player,
     body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded-player.gomna-audio-visible {
-      min-height: calc(100vh - 18px - env(safe-area-inset-bottom, 0px)) !important;
-      max-height: calc(100vh - 18px - env(safe-area-inset-bottom, 0px)) !important;
+      max-height: calc(100vh - 16px - env(safe-area-inset-bottom, 0px)) !important;
     }
   }
 }

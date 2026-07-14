@@ -6,10 +6,17 @@
   var expandedPlayerNode = null;
   var lastRenderedAudioContextKey = '';
   var BIBLE_RESUME_STORAGE_KEY = 'gomna_audio_bible_resume_v1';
+  var CHAPTER_AUTO_STORAGE_KEY = 'gomna_audio_chapter_auto_v1';
   var BIBLE_RESUME_SAVE_INTERVAL_MS = 4000;
   var bibleResumeTimeupdateAudio = null;
   var lastBibleResumeSaveAt = 0;
   var miniProgressAudio = null;
+  var activeExpandedSettingsPanel = null;
+  var lastHeroCaptionKey = '';
+  var lastHeroCaptionText = '';
+  var lastHeroCaptionReadCount = -1;
+  var heroCaptionSpanNodes = [];
+  var heroCaptionTransitionTimer = null;
 
   function showToast(message, duration, options) {
     if (typeof message !== 'string' || !message) return;
@@ -146,7 +153,7 @@
     player.style.setProperty('max-width', 'var(--gomna-commentary-card-width, 430px)', 'important');
     player.style.setProperty(
       'min-height',
-      'var(--gomna-expanded-card-min-height, min(760px, calc(100dvh - 32px)))',
+      'auto',
       'important'
     );
     player.style.setProperty('margin-top', '0', 'important');
@@ -279,14 +286,216 @@
     ensureExpandedProgress();
     bindMiniProgressAudio();
     updateMiniProgressFromState();
+    updateExpandedSettingsSummary();
+    updateChapterAutoToggle();
+    startHeroCaptionSync();
 
     requestAnimationFrame(function() {
       positionExpandedPlayerInline();
       updateMiniProgressFromState();
+      updateExpandedSettingsSummary();
+      updateChapterAutoToggle();
+      updateHeroCaptionFromState();
     });
   }
 
+  function isExpandedPlayerVisible() {
+    var player = getExpandedPlayer();
+
+    return !!(player && !player.hidden && player.classList.contains('gomna-audio-visible'));
+  }
+
+  function getHeroCaptionElement() {
+    return document.querySelector('[data-audio-hero-caption]');
+  }
+
+  function getHeroCaptionDefaultText() {
+    return window.GOMNA_AUDIO_CAPTION && window.GOMNA_AUDIO_CAPTION.DEFAULT_TEXT
+      ? window.GOMNA_AUDIO_CAPTION.DEFAULT_TEXT
+      : '말씀을 듣고 계십니다';
+  }
+
+  function clearHeroCaptionSpans(el) {
+    while (el.firstChild) {
+      el.removeChild(el.firstChild);
+    }
+    heroCaptionSpanNodes = [];
+  }
+
+  function renderHeroCaptionWords(el, words, fullText) {
+    var i;
+    var span;
+
+    clearHeroCaptionSpans(el);
+
+    if (!words || !words.length) {
+      el.textContent = fullText;
+      return false;
+    }
+
+    for (i = 0; i < words.length; i++) {
+      if (i > 0) {
+        el.appendChild(document.createTextNode(' '));
+      }
+      span = document.createElement('span');
+      span.className = 'gomna-audio-hero-caption-word';
+      span.setAttribute('data-word-index', String(i));
+      span.textContent = words[i];
+      el.appendChild(span);
+      heroCaptionSpanNodes.push(span);
+    }
+
+    return true;
+  }
+
+  function updateHeroCaptionReadState(readCount) {
+    var i;
+    var currentIndex;
+
+    if (readCount === lastHeroCaptionReadCount) {
+      return;
+    }
+
+    currentIndex = readCount > 0 ? readCount - 1 : -1;
+
+    for (i = 0; i < heroCaptionSpanNodes.length; i++) {
+      heroCaptionSpanNodes[i].classList.toggle('is-read', i < readCount);
+      heroCaptionSpanNodes[i].classList.toggle('is-current', i === currentIndex);
+    }
+
+    lastHeroCaptionReadCount = readCount;
+  }
+
+  function applyHeroWordCaption(result) {
+    var el = getHeroCaptionElement();
+    var renderKey;
+    var fullText;
+
+    if (!el || !result) return;
+
+    fullText = String(result.fullText || result.text || '').trim();
+    if (!fullText) {
+      fullText = getHeroCaptionDefaultText();
+    }
+
+    renderKey = (result.segmentKey || 'segment') + ':' + fullText;
+
+    if (renderKey !== lastHeroCaptionKey) {
+      if (heroCaptionTransitionTimer) {
+        clearTimeout(heroCaptionTransitionTimer);
+      }
+
+      el.classList.add('is-changing');
+      heroCaptionTransitionTimer = setTimeout(function() {
+        renderHeroCaptionWords(el, result.words, fullText);
+        lastHeroCaptionReadCount = -1;
+        updateHeroCaptionReadState(result.readCount || 0);
+        el.classList.remove('is-changing');
+        heroCaptionTransitionTimer = null;
+      }, 150);
+    } else {
+      updateHeroCaptionReadState(result.readCount || 0);
+    }
+
+    lastHeroCaptionKey = renderKey;
+    lastHeroCaptionText = fullText;
+  }
+
+  function applyHeroCaptionText(text, segmentKey) {
+    applyHeroWordCaption({
+      text: text,
+      fullText: text,
+      words: null,
+      readCount: 0,
+      segmentKey: segmentKey,
+      hasWordCues: false
+    });
+  }
+
+  function updateHeroCaptionFromState(options) {
+    var captionApi = window.GOMNA_AUDIO_CAPTION;
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var result;
+    var text;
+    var previewEl;
+    var segmentKey;
+
+    options = options || {};
+
+    if (!isExpandedPlayerVisible()) {
+      return;
+    }
+
+    if (options.useLastOnEnd) {
+      applyHeroCaptionText(
+        lastHeroCaptionText || getHeroCaptionDefaultText(),
+        'ended'
+      );
+      return;
+    }
+
+    if (!state || !state.currentAudioId) {
+      applyHeroCaptionText(getHeroCaptionDefaultText(), 'idle');
+      return;
+    }
+
+    if (!captionApi || typeof captionApi.getCaptionForState !== 'function') {
+      previewEl = document.querySelector(
+        '[data-audio-current-preview-expanded], [data-audio-current-preview]'
+      );
+      text = previewEl && previewEl.textContent ? previewEl.textContent.trim() : '';
+      applyHeroCaptionText(text || getHeroCaptionDefaultText(), 'fallback');
+      return;
+    }
+
+    if (state.isPlaying || state.isPaused) {
+      if (captionApi.getWordCaptionForState) {
+        result = captionApi.getWordCaptionForState(state, { allowWhenPaused: true });
+        applyHeroWordCaption(result);
+      } else if (captionApi.getCaptionForState) {
+        result = captionApi.getCaptionForState(state, { allowWhenPaused: true });
+        applyHeroCaptionText(result.text, result.segmentKey);
+      }
+      return;
+    }
+
+    if (typeof captionApi.getFirstCaptionText === 'function') {
+      text = captionApi.getFirstCaptionText(state.currentAudioId);
+      segmentKey = 'preview:' + state.currentAudioId;
+    } else {
+      text = getHeroCaptionDefaultText();
+      segmentKey = 'idle';
+    }
+
+    applyHeroCaptionText(text, segmentKey);
+  }
+
+  function stopHeroCaptionSync() {
+    return;
+  }
+
+  function startHeroCaptionSync() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var captionApi = window.GOMNA_AUDIO_CAPTION;
+    var audioId = state && state.currentAudioId;
+
+    if (audioId && captionApi && typeof captionApi.ensureLoaded === 'function') {
+      captionApi.ensureLoaded(audioId).then(function() {
+        updateHeroCaptionFromState();
+      }).catch(function() {
+        updateHeroCaptionFromState();
+      });
+      return;
+    }
+
+    updateHeroCaptionFromState();
+  }
+
   function hideExpandedPlayer() {
+    closeExpandedSettingsPanels();
+    stopHeroCaptionSync();
     teardownExpandedPlayerLayout();
     hideElement(getExpandedPlayer());
   }
@@ -367,6 +576,7 @@
   function ensureExpandedProgress() {
     var player = getExpandedPlayer();
     var controls;
+    var hero;
     var progress;
     var track;
     var fill;
@@ -377,10 +587,14 @@
 
     progress = player.querySelector('[data-audio-expanded-progress]');
     if (progress) {
-      bindProgressTrackSeek(progress.querySelector('.gomna-audio-expanded-progress-track'));
+      track = progress.querySelector('.gomna-audio-expanded-progress-track');
+      if (track) {
+        bindProgressTrackSeek(track);
+      }
       return progress;
     }
 
+    hero = player.querySelector('.gomna-audio-expanded-hero');
     controls = player.querySelector('.gomna-audio-expanded-controls');
     if (!controls) return null;
 
@@ -410,7 +624,13 @@
     track.appendChild(thumb);
     progress.appendChild(track);
     progress.appendChild(times);
-    player.insertBefore(progress, controls);
+
+    if (hero && hero.parentNode === player) {
+      hero.insertAdjacentElement('afterend', progress);
+    } else {
+      player.insertBefore(progress, controls);
+    }
+
     bindProgressTrackSeek(track);
 
     return progress;
@@ -583,6 +803,10 @@
     for (var j = 0; j < durationEls.length; j++) {
       durationEls[j].textContent = duration > 0 ? formatAudioTime(duration) : '00:00';
     }
+
+    if (isExpandedPlayerVisible()) {
+      updateHeroCaptionFromState();
+    }
   }
 
   function unbindMiniProgressAudio() {
@@ -654,6 +878,135 @@
     for (var i = 0; i < speedButtons.length; i++) {
       speedButtons[i].textContent = formatSpeed(speed) + 'x';
     }
+
+    updateExpandedSettingsSummary();
+  }
+
+  function getVoiceDisplayName(voiceKey) {
+    var config = window.GOMNA_AUDIO_CONFIG;
+    var preset = config && config.VOICE_PRESETS && config.VOICE_PRESETS[voiceKey];
+
+    return preset && preset.name ? preset.name : '차분한 낭독';
+  }
+
+  function getActiveOptionButtonText(selector) {
+    var activeButton = document.querySelector('#gomna-audio-expanded-player ' + selector + '[data-active="true"], #gomna-audio-expanded-player ' + selector + '.gomna-audio-active');
+
+    return activeButton ? activeButton.textContent.trim() : '';
+  }
+
+  function updateExpandedSettingsSummary(state) {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var speedEl = document.querySelector('[data-audio-summary-speed]');
+    var voiceEl = document.querySelector('[data-audio-summary-voice]');
+    var timerEl = document.querySelector('[data-audio-summary-timer]');
+
+    state = state || (engine && engine.getState ? engine.getState() : null);
+
+    if (speedEl) {
+      speedEl.textContent = formatSpeed(state && state.currentSpeed ? state.currentSpeed : 1) + 'x';
+    }
+
+    if (voiceEl) {
+      voiceEl.textContent = getVoiceDisplayName(state && state.currentVoice ? state.currentVoice : 'calm');
+    }
+
+    if (timerEl) {
+      timerEl.textContent = getActiveOptionButtonText('[data-audio-timer]') || '끄기';
+    }
+  }
+
+  function closeExpandedSettingsPanels() {
+    var panels = document.querySelectorAll('#gomna-audio-expanded-player [data-audio-option-panel]');
+    var cells = document.querySelectorAll('#gomna-audio-expanded-player [data-audio-settings-open]');
+    var i;
+
+    for (i = 0; i < panels.length; i++) {
+      panels[i].hidden = true;
+    }
+
+    for (i = 0; i < cells.length; i++) {
+      cells[i].setAttribute('aria-expanded', 'false');
+    }
+
+    activeExpandedSettingsPanel = null;
+  }
+
+  function openExpandedSettingsPanel(panelName) {
+    var panel = document.querySelector('#gomna-audio-expanded-player [data-audio-option-panel="' + panelName + '"]');
+    var cell = document.querySelector('#gomna-audio-expanded-player [data-audio-settings-open="' + panelName + '"]');
+
+    closeExpandedSettingsPanels();
+
+    if (!panel) return;
+
+    panel.hidden = false;
+    activeExpandedSettingsPanel = panelName;
+
+    if (cell) {
+      cell.setAttribute('aria-expanded', 'true');
+    }
+  }
+
+  function toggleExpandedSettingsPanel(panelName) {
+    if (activeExpandedSettingsPanel === panelName) {
+      closeExpandedSettingsPanels();
+      return;
+    }
+
+    openExpandedSettingsPanel(panelName);
+  }
+
+  function readChapterAutoPref() {
+    try {
+      return window.localStorage.getItem(CHAPTER_AUTO_STORAGE_KEY) === '1';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function writeChapterAutoPref(enabled) {
+    try {
+      window.localStorage.setItem(CHAPTER_AUTO_STORAGE_KEY, enabled ? '1' : '0');
+    } catch (e) {
+      console.warn('[GOMNA_AUDIO] chapter auto preference write warning:', e);
+    }
+  }
+
+  function isChapterAutoActive(state) {
+    state = state || (window.GOMNA_AUDIO_ENGINE && window.GOMNA_AUDIO_ENGINE.getState
+      ? window.GOMNA_AUDIO_ENGINE.getState()
+      : null);
+
+    return !!(state && isBibleToEndQueueSource(state.queueSource)) || readChapterAutoPref();
+  }
+
+  function updateChapterAutoToggle(state) {
+    var toggle = document.querySelector('[data-audio-action="toggle-chapter-auto"]');
+    var isOn;
+
+    if (!toggle) return;
+
+    isOn = isChapterAutoActive(state);
+    toggle.setAttribute('aria-checked', isOn ? 'true' : 'false');
+    toggle.classList.toggle('is-on', isOn);
+  }
+
+  function toggleChapterAutoPlayback(state) {
+    var currentlyOn = isChapterAutoActive(state);
+
+    if (currentlyOn) {
+      writeChapterAutoPref(false);
+      updateChapterAutoToggle(state);
+      return;
+    }
+
+    writeChapterAutoPref(true);
+    updateChapterAutoToggle(state);
+
+    if (state && state.currentAudioId && /\.bible$/.test(state.currentAudioId)) {
+      playVerseToChapterEnd(state.currentAudioId);
+    }
   }
 
   function setActiveWithinGroup(btn, selector) {
@@ -668,6 +1021,7 @@
 
     btn.setAttribute('data-active', 'true');
     btn.classList.add('gomna-audio-active');
+    updateExpandedSettingsSummary();
   }
 
   function getNextSpeed(currentSpeed) {
@@ -1186,6 +1540,12 @@
     var speedEl = target.closest('[data-audio-speed]');
     var voiceEl = target.closest('[data-audio-voice]');
     var timerEl = target.closest('[data-audio-timer]');
+    var settingsOpenEl = target.closest('[data-audio-settings-open]');
+
+    if (settingsOpenEl) {
+      toggleExpandedSettingsPanel(settingsOpenEl.getAttribute('data-audio-settings-open'));
+      return;
+    }
 
     if (speedEl) {
       var speed = parseFloat(speedEl.getAttribute('data-audio-speed'));
@@ -1294,6 +1654,11 @@
         hideExpandedPlayer();
         break;
 
+      case 'toggle-chapter-auto':
+        if (!allowVerseScreenAudioPlayback()) break;
+        toggleChapterAutoPlayback(state);
+        break;
+
       case 'stop':
         engine.stopAudio();
         break;
@@ -1321,6 +1686,11 @@
     updateRangeAudioButtons(state);
     bindBibleResumeTimeupdate();
     saveBibleResumeSession();
+    updateExpandedSettingsSummary(state);
+    updateChapterAutoToggle(state);
+    if (isExpandedPlayerVisible()) {
+      startHeroCaptionSync();
+    }
   });
 
   window.addEventListener('audio:pause', function() {
@@ -1331,6 +1701,8 @@
     updateMiniProgressFromState(state);
     updateRangeAudioButtons(state);
     saveBibleResumeSession();
+    stopHeroCaptionSync();
+    updateHeroCaptionFromState();
   });
 
   window.addEventListener('audio:resume', function() {
@@ -1340,6 +1712,9 @@
     setPlayPauseIcon(true);
     bindMiniProgressAudio();
     updateRangeAudioButtons(state);
+    if (isExpandedPlayerVisible()) {
+      startHeroCaptionSync();
+    }
   });
 
   window.addEventListener('audio:end', function(e) {
@@ -1352,6 +1727,8 @@
     hideMiniPlayer();
     updateRangeAudioButtons(state);
     clearBibleResumeSessionIfQueueCompleted(e.detail || {});
+    stopHeroCaptionSync();
+    updateHeroCaptionFromState({ useLastOnEnd: true });
   });
 
   window.addEventListener('audio:error', function(e) {
@@ -1386,20 +1763,27 @@
   window.addEventListener('audio:speed_change', function(e) {
     if (e.detail && e.detail.speed) {
       updateSpeedText(e.detail.speed);
+    } else {
+      updateExpandedSettingsSummary();
     }
   });
 
   window.addEventListener('audio:seek', function() {
     updateMiniProgressFromState();
+    updateHeroCaptionFromState();
   });
 
   window.addEventListener('audio:voice_change', function(e) {
+    updateExpandedSettingsSummary();
+
     if (e.detail && e.detail.preset && e.detail.preset.name) {
       showToast(e.detail.preset.name + ' 선택됨');
     }
   });
 
   window.addEventListener('audio:timer_set', function(e) {
+    updateExpandedSettingsSummary();
+
     if (!e.detail) return;
 
     if (e.detail.minutes === 'chapter-end') {
@@ -1437,4 +1821,8 @@
   }
 
   console.log('[GOMNA_AUDIO_UI] loaded');
+
+  window.GOMNA_AUDIO_UI = {
+    updateHeroCaptionFromState: updateHeroCaptionFromState
+  };
 })();
