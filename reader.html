@@ -102,6 +102,18 @@ html.reader-hide-chrome .verse-item.verse-item--selected,html.reader-hide-chrome
 .verse-item--selected .verse-num,.verse-item--chapter-selected .verse-num{background:transparent;box-shadow:none;color:#8B6A32}
 html.reader-hide-chrome .verse-item.verse-item--selected .verse-num,html.reader-hide-chrome .verse-item.verse-item--chapter-selected .verse-num{background:transparent;box-shadow:none;color:#A86F16}
 .verse-text{flex:1;font-size:var(--font-size);line-height:1.75}
+html.is-daily-word-view .verse-range-box{display:none!important}
+html.is-daily-word-view .verse-item:not(.verse-item--daily-word-focus){display:none!important}
+html.is-daily-word-view #opt4BottomBar{display:none!important}
+html.is-daily-word-view .scripture-dock{display:none!important}
+html.is-daily-word-view .reader-dock-top{display:none!important}
+html.is-daily-word-view .verse-item--daily-word-focus{background:transparent!important;box-shadow:none!important;border:none!important}
+html.is-daily-word-view .verse-item--daily-word-focus .verse-num,
+html.is-daily-word-view .verse-item--daily-word-focus .verse-text{color:#9A6A24;-webkit-text-fill-color:#9A6A24;text-shadow:0 1px 1px rgba(255,255,255,.35)}
+html.is-daily-word-view .verse-item--daily-word-focus .verse-num{font-weight:700}
+html.is-daily-word-view .verse-item--daily-word-focus .verse-text{font-weight:600}
+.daily-word-return-btn{display:block;width:calc(100% - 4px);max-width:100%;margin:10px auto 14px;padding:10px 14px;min-height:46px;border:0.5px solid rgba(184,134,11,0.42);border-top:0.5px solid rgba(184,134,11,0.2);border-radius:0 0 10px 10px;background:rgba(255,250,244,0.96);color:#5a3818;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.daily-word-return-btn:active{transform:scale(0.99);opacity:0.9;background:rgba(255,245,225,1)}
 .verse-actions{display:flex;gap:6px;margin-top:8px;padding-left:40px}
 .action-btn{background:#F8F4EF;border:0.5px solid #D5C8BB;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;color:#3D2817}
 .action-btn:active{background:#EDE6DE}
@@ -618,7 +630,7 @@ html.reader-verse-active main.content{padding-bottom:70px}
   letter-spacing:-.15px;
 }
 .verse-toolbar-target-wrap{position:relative;flex-shrink:0;min-width:auto}
-.verse-toolbar-target-btn{flex-shrink:0;min-height:40px;min-width:92px;width:auto;max-width:none;padding:0 8px;background:#DCEBE6;border:1px solid rgba(180,140,90,.5);border-radius:10px;font-size:clamp(12.5px,3.45vw,13px);font-weight:700;color:#5A321C;font-family:inherit;cursor:pointer;white-space:nowrap;overflow:visible;text-overflow:clip;-webkit-tap-highlight-color:transparent;box-sizing:border-box;opacity:1}
+.verse-toolbar-target-btn{flex-shrink:0;min-height:40px;min-width:90px;width:auto;max-width:none;padding:0 7px;background:#DCEBE6;border:1px solid rgba(180,140,90,.5);border-radius:10px;font-size:clamp(12px,3.35vw,13px);font-weight:700;color:#5A321C;font-family:inherit;cursor:pointer;white-space:nowrap;overflow:visible;text-overflow:clip;-webkit-tap-highlight-color:transparent;box-sizing:border-box;opacity:1}
 #opt4VerseToolbar.opt4-bar-mode{gap:2px}
 .verse-toolbar-target-btn:hover,
 .verse-toolbar-target-btn:active,
@@ -663,13 +675,15 @@ html.reader-verse-active main.content{padding-bottom:70px}
   pointer-events:auto!important;
   cursor:pointer!important;
 }
-.verse-toolbar-target-menu{position:absolute;left:0;bottom:calc(100% + 6px);min-width:128px;max-height:min(260px,calc(100dvh - 120px));overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff;border:0.5px solid rgba(180,140,90,.5);border-radius:12px;box-shadow:0 4px 16px rgba(74,37,17,.18);padding:4px;display:flex;flex-direction:column;gap:2px;z-index:220}
+.verse-toolbar-target-menu{position:absolute;left:0;bottom:calc(100% + 6px);min-width:168px;max-height:min(260px,calc(100dvh - 120px));overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff;border:0.5px solid rgba(180,140,90,.5);border-radius:12px;box-shadow:0 4px 16px rgba(74,37,17,.18);padding:4px;display:flex;flex-direction:column;gap:2px;z-index:220}
 .verse-toolbar-target-menu[hidden]{display:none}
-.verse-toolbar-target-menu-item{text-align:left;min-height:44px;padding:0 10px;background:transparent;border:none;border-radius:8px;font-size:14px;font-weight:600;color:#4A2511;font-family:inherit;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.verse-toolbar-target-menu-item{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;min-height:44px;padding:0 12px;background:transparent;border:none;border-radius:8px;font-size:14px;font-weight:600;color:#4A2511;font-family:inherit;cursor:pointer;white-space:nowrap;width:100%;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 .opt4-bottom-bar .verse-toolbar-target-menu-item{min-height:44px!important;height:auto!important}
+.verse-toolbar-target-menu-label{flex:1;min-width:0}
+.verse-toolbar-target-menu-suffix{flex-shrink:0;font-size:14px;font-weight:600;color:#8b6a32;line-height:1}
+.verse-toolbar-target-menu-divider{height:1px;margin:4px 10px;background:rgba(180,140,90,.22);flex-shrink:0}
 .verse-toolbar-target-menu-item:active{background:rgba(244,232,205,.6)}
 .verse-toolbar-target-menu-item.active{background:rgba(200,152,73,.2);color:#8b5e2c}
-.verse-toolbar-target-menu-item.active::before{content:"✓ "}
 .verse-toolbar-more-overlay{display:none;position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.35);align-items:flex-end;justify-content:center;box-sizing:border-box;padding:16px 16px calc(12px + env(safe-area-inset-bottom,0px))}
 .verse-toolbar-more-overlay.active{display:flex}
 .verse-toolbar-more-sheet{background:#fdfaf5;border-radius:16px 16px 0 0;width:100%;max-width:var(--reader-frame-width,420px);min-width:0;box-sizing:border-box;margin:0 auto;padding:8px 0;box-shadow:0 -4px 24px rgba(0,0,0,.12);max-height:calc(100dvh - 32px - env(safe-area-inset-bottom,0px) - var(--scripture-dock-height) - var(--opt4-bottom-bar-height));overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -720,6 +734,13 @@ html.reader-verse-active main.content{padding-bottom:70px}
 .verse-range-btn-all{padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#B8860B,#9a7018);color:#fff;width:100%;position:relative;z-index:3;pointer-events:auto}
 .verse-range-apply{padding:12px;border-radius:12px;background:#c89849;color:#fff;border:none;font-weight:700;cursor:pointer;font-family:inherit;font-size:15px;width:100%;margin-top:0;-webkit-tap-highlight-color:transparent}.verse-range-apply:active{background:#a87a35}
 .verse-range-split{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:8px 0 10px;align-items:stretch;touch-action:pan-x pan-y pinch-zoom}
+.verse-range-back-wrap{display:flex;justify-content:center;margin-top:18px;padding-top:4px;flex-shrink:0}
+.verse-range-back-to-text{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;background:rgba(255,250,244,.92);border:1px solid rgba(184,134,11,.42);border-radius:10px;font-size:14px;font-weight:700;color:#5a3818;font-family:inherit;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;box-sizing:border-box;transition:transform .15s ease,background-color .15s ease}
+.verse-range-back-to-text:active{background:rgba(255,245,225,1);transform:scale(0.99)}
+.verse-range-back-to-text:focus-visible{outline:2px solid rgba(184,134,11,.55);outline-offset:2px}
+@media (hover:hover){
+  .verse-range-back-to-text:hover{background:rgba(255,245,225,.98)}
+}
 .verse-range-column{display:flex;flex-direction:column;min-width:0;touch-action:pan-x pan-y pinch-zoom}
 .verse-range-column:first-child{padding-right:8px;border-right:2px solid #c89849}
 .verse-range-column:last-child{padding-left:8px;position:relative}
@@ -1642,11 +1663,13 @@ if ("serviceWorker" in navigator) {
     </div>
     <div id="opt4VerseToolbar" class="opt4-bar-mode">
       <div class="verse-toolbar-target-wrap">
-        <button type="button" class="verse-toolbar-target-btn" id="verseToolbarTargetButton" onclick="toggleVerseToolbarTargetMenu()" aria-haspopup="true" aria-expanded="false">장 선택 ▼</button>
+        <button type="button" class="verse-toolbar-target-btn" id="verseToolbarTargetButton" onclick="toggleVerseToolbarTargetMenu()" aria-haspopup="true" aria-expanded="false">본문 찾기 ▼</button>
         <div class="verse-toolbar-target-menu" id="verseToolbarTargetMenu" hidden role="menu">
-          <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="chapter" onclick="chooseVerseListenTargetMode('chapter')" role="menuitemradio">장 전체 선택</button>
-          <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="range" onclick="chooseVerseListenTargetMode('range')" role="menuitemradio">절 선택</button>
-          <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="clear" onclick="chooseVerseListenTargetMode('clear')" role="menuitem">선택 취소</button>
+          <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="chapter-nav" onclick="openVerseToolbarChapterNav()" role="menuitem" aria-label="현재 책의 장 이동"><span class="verse-toolbar-target-menu-label">장 이동</span><span class="verse-toolbar-target-menu-suffix" aria-hidden="true">〉</span></button>
+          <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="range" onclick="chooseVerseListenTargetMode('range')" role="menuitemradio" aria-label="현재 장의 구절 찾기"><span class="verse-toolbar-target-menu-label">구절 찾기</span><span class="verse-toolbar-target-menu-suffix" aria-hidden="true">〉</span></button>
+          <div class="verse-toolbar-target-menu-divider" role="separator"></div>
+          <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="chapter" onclick="chooseVerseListenTargetMode('chapter')" role="menuitemradio" aria-label="현재 장 전체 구절 선택"><span class="verse-toolbar-target-menu-label">전체 선택</span><span class="verse-toolbar-target-menu-suffix" aria-hidden="true">✓</span></button>
+          <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="clear" onclick="chooseVerseListenTargetMode('clear')" role="menuitem" aria-label="선택한 구절 모두 해제"><span class="verse-toolbar-target-menu-label">선택 해제</span><span class="verse-toolbar-target-menu-suffix" aria-hidden="true">↺</span></button>
         </div>
       </div>
       <button type="button" class="opt4-verse-listen" id="opt4VerseListen" data-audio-action="play-verse-to-end">전체 듣기</button>
@@ -3874,6 +3897,17 @@ function unifiedBcApplyChapter(ch) {
     GomnaAnalytics.trackNavigateChapter(name, ch, 'select', testament);
   }
   renderVerses(1);
+  if (window.__verseToolbarChapterNavFromMenu) {
+    window.__verseToolbarChapterNavFromMenu = false;
+    closeVerseToolbarTargetMenu();
+    requestAnimationFrame(function() {
+      var verseList = document.getElementById('verseList');
+      if (verseList) {
+        try { verseList.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { verseList.scrollIntoView({ block: 'start' }); }
+      }
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e2) { window.scrollTo(0, 0); }
+    });
+  }
   loadCommentaryData();
   var commentaryPopupEl = document.getElementById('commentaryPopup');
   if (commentaryPopupEl && commentaryPopupEl.classList.contains('show')) {
@@ -4207,14 +4241,20 @@ function syncVerseToolbarTargetMenuActive() {
   document.querySelectorAll('.verse-toolbar-target-menu-item').forEach(function(item) {
     var mode = item.getAttribute('data-target-mode');
     // 기능용 verseListenMode(기본 chapter)가 아니라 사용자 메뉴 선택만 체크 표시
-    item.classList.toggle('active', mode !== 'clear' && mode === userVerseTargetChoice);
+    item.classList.toggle('active', mode !== 'clear' && mode !== 'chapter-nav' && mode === userVerseTargetChoice);
   });
+}
+
+function openVerseToolbarChapterNav() {
+  closeVerseToolbarTargetMenu();
+  window.__verseToolbarChapterNavFromMenu = true;
+  openUnifiedBookChapterModal();
 }
 
 function syncVerseToolbarTargetButton() {
   var btn = document.getElementById('verseToolbarTargetButton');
   if (!btn) return;
-  var label = '장 선택';
+  var label = '본문 찾기';
   if (verseListenMode === 'selected') {
     label = '선택한 절';
   } else if (verseListenMode === 'range') {
@@ -4574,6 +4614,9 @@ function getVerseRangeModalHtml() {
     '<div class="verse-grid" id="verseRangeEndGrid"></div></div>' +
     '<button type="button" id="rangeEndMoveAction" class="verse-range-move-action" data-range-move-action hidden disabled aria-hidden="true">이동 →</button>' +
     '</div></div>' +
+    '<div class="verse-range-back-wrap">' +
+    '<button type="button" class="verse-range-back-to-text" onclick="closeVerseRangeModal()" aria-label="본문으로 돌아가기">← 본문으로</button>' +
+    '</div>' +
     '</div>';
 }
 
@@ -5696,6 +5739,85 @@ function loadAds() {
 
   window.addEventListener('gomna:verse_list_rendered',scheduleTry);
   window.addEventListener('gomna:manifest_loaded',scheduleTry);
+})();
+</script>
+<script>
+/* ── home daily read: 오늘 말씀 열기 → 단일 구절 + 홈 카드로 돌아가기 ── */
+(function(){
+  'use strict';
+  var pending=null;
+  var returnLock=false;
+  var returnBtn=null;
+  try{
+    var p=new URLSearchParams(location.search);
+    if(p.get('source')==='home-daily-read'){
+      var book=(p.get('book')||'').trim();
+      var chapter=parseInt(p.get('chapter'),10);
+      var verse=parseInt(p.get('verse')||'1',10);
+      if(book&&!isNaN(chapter)&&!isNaN(verse))pending={book:book,chapter:chapter,verse:verse};
+    }
+  }catch(e){}
+  if(!pending)return;
+
+  document.documentElement.classList.add('is-daily-word-view');
+
+  window.returnToTodayWordCard=function(){
+    if(returnLock)return false;
+    returnLock=true;
+    window.location.href='index.html#today-word-card';
+    return false;
+  };
+
+  function removeDailyReturnBtn(){
+    if(returnBtn&&returnBtn.parentNode)returnBtn.parentNode.removeChild(returnBtn);
+    returnBtn=null;
+  }
+
+  function attachDailyReturnBtn(item){
+    if(!item)return;
+    removeDailyReturnBtn();
+    var btn=document.createElement('button');
+    btn.type='button';
+    btn.className='daily-word-return-btn';
+    btn.setAttribute('data-daily-word-return','1');
+    btn.textContent='← 오늘의 말씀으로 돌아가기';
+    btn.setAttribute('aria-label','오늘의 말씀으로 돌아가기');
+    btn.addEventListener('click',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      returnToTodayWordCard();
+    });
+    item.insertAdjacentElement('afterend',btn);
+    returnBtn=btn;
+  }
+
+  function activateDailyWordView(){
+    if(!window.currentBook||window.currentBook.name!==pending.book)return false;
+    if(Number(window.currentChapter)!==pending.chapter)return false;
+    var list=document.getElementById('verseList');
+    if(!list)return false;
+    var item=list.querySelector('.verse-item[data-verse="'+pending.verse+'"]');
+    if(!item)return false;
+    list.querySelectorAll('.verse-item').forEach(function(el){
+      el.classList.toggle('verse-item--daily-word-focus',el===item);
+    });
+    attachDailyReturnBtn(item);
+    try{item.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){item.scrollIntoView();}
+    return true;
+  }
+
+  function scheduleTry(){
+    var delays=[0,80,200,500,1000,2500];
+    for(var i=0;i<delays.length;i++){
+      (function(ms){setTimeout(function(){activateDailyWordView();},ms);})(delays[i]);
+    }
+  }
+
+  window.addEventListener('gomna:verse_list_rendered',function(){
+    activateDailyWordView();
+  });
+  if(document.readyState!=='loading')scheduleTry();
+  else document.addEventListener('DOMContentLoaded',scheduleTry);
 })();
 </script>
 <script>
