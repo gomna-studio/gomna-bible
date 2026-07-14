@@ -1,0 +1,57 @@
+{
+  "audioId": "genesis.002.013.cross-reference",
+  "duration": 78.936,
+  "measuredDuration": 78.936,
+  "testAudioPath": "audio/highlight-test/ko-KR/genesis/002/013/cross-reference-calm.mp3",
+  "finalMp3Duration": 78.936,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 9.415
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 9.415,
+      "end": 19.293
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 19.293,
+      "end": 29.142
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 29.142,
+      "end": 38.809
+    },
+    {
+      "type": "item",
+      "itemIndex": 3,
+      "start": 38.809,
+      "end": 48.538
+    },
+    {
+      "type": "item",
+      "itemIndex": 4,
+      "start": 48.538,
+      "end": 58.523
+    },
+    {
+      "type": "item",
+      "itemIndex": 5,
+      "start": 58.523,
+      "end": 68.536
+    },
+    {
+      "type": "item",
+      "itemIndex": 6,
+      "start": 68.536,
+      "end": 78.936
+    }
+  ]
+}

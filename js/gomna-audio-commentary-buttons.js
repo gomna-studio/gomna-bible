@@ -816,11 +816,11 @@
       closeBtn.className = 'gomna-commentary-inline-close';
       closeBtn.setAttribute('aria-label', '말씀풀이 닫기');
       closeBtn.setAttribute('title', '말씀풀이 닫기');
-      closeBtn.textContent = 'X';
+      closeBtn.textContent = '닫기';
 
       controls.appendChild(listenBtn);
-      controls.appendChild(replayBtn);
       controls.appendChild(seqBtn);
+      controls.appendChild(replayBtn);
       controls.appendChild(closeBtn);
       box.insertBefore(controls, content.nextSibling);
 
@@ -837,7 +837,7 @@
         closeBtn.className = 'gomna-commentary-inline-close';
         closeBtn.setAttribute('aria-label', '말씀풀이 닫기');
         closeBtn.setAttribute('title', '말씀풀이 닫기');
-        closeBtn.textContent = 'X';
+        closeBtn.textContent = '닫기';
         controls.appendChild(closeBtn);
       }
     }
@@ -846,31 +846,151 @@
     return controls;
   }
 
+  function getCommentaryHeaderBibleText(ctx) {
+    var sources = [];
+
+    if (typeof oldTestamentData !== 'undefined' && oldTestamentData) {
+      sources.push(oldTestamentData);
+    }
+
+    if (typeof newTestamentData !== 'undefined' && newTestamentData) {
+      sources.push(newTestamentData);
+    }
+
+    if (!ctx) return '';
+
+    for (var sourceIndex = 0; sourceIndex < sources.length; sourceIndex++) {
+      var books = sources[sourceIndex].books;
+
+      if (!books) continue;
+
+      for (var bookIndex = 0; bookIndex < books.length; bookIndex++) {
+        var book = books[bookIndex];
+
+        if (!book || book.name !== ctx.bookName || !book.chapters) continue;
+
+        for (var chapterIndex = 0; chapterIndex < book.chapters.length; chapterIndex++) {
+          var chapterData = book.chapters[chapterIndex];
+
+          if (
+            !chapterData ||
+            parseInt(chapterData.chapter, 10) !== ctx.chapter ||
+            !chapterData.verses
+          ) {
+            continue;
+          }
+
+          for (var verseIndex = 0; verseIndex < chapterData.verses.length; verseIndex++) {
+            var verseData = chapterData.verses[verseIndex];
+
+            if (verseData && parseInt(verseData.verse, 10) === ctx.verse) {
+              return String(verseData.text || '')
+                .replace(/\s+/g, ' ')
+                .trim();
+            }
+          }
+        }
+      }
+    }
+
+    return '';
+  }
+
+  function removeCommentarySectionTitleIcons() {
+    var content = getContent();
+    var titles = [
+      '원어분석',
+      '역사적배경',
+      '신학적의미',
+      '예표론',
+      '매튜헨리',
+      '설교자료',
+      '찬송가',
+      '상담적용',
+      '교차참조'
+    ];
+
+    if (!content) return;
+
+    for (var i = 0; i < titles.length; i++) {
+      var title = titles[i];
+      var section = document.getElementById('tab-' + title);
+      var host;
+      var walker;
+      var node;
+
+      if (!section || !content.contains(section)) continue;
+
+      host = findTitleHost(section, title);
+      if (!host) continue;
+
+      walker = document.createTreeWalker(
+        host,
+        NodeFilter.SHOW_TEXT
+      );
+
+      while ((node = walker.nextNode())) {
+        var raw = node.nodeValue || '';
+        var cleaned = raw.replace(
+          /^[\s\u200D\uFE0F\u2190-\u2BFF\uD83C-\uDBFF\uDC00-\uDFFF]+/,
+          ''
+        );
+
+        if (cleaned.indexOf(title) === 0) {
+          node.nodeValue = cleaned;
+          break;
+        }
+
+        if (
+          raw.trim() &&
+          !/[A-Za-z0-9가-힣]/.test(raw)
+        ) {
+          node.nodeValue = '';
+        }
+      }
+    }
+  }
+
   function updateCommentaryHeaderCopy() {
     var title = document.getElementById('commentaryTitle');
     var header = document.getElementById('popupDragHeader');
     var subtitle;
     var note;
+    var ctx;
+    var spacer;
 
     if (!title || !header) return;
 
-    title.textContent = '📖 말씀풀이';
+    removeCommentarySectionTitleIcons();
+
+    ctx = getCommentaryContext();
     subtitle = title.nextElementSibling;
 
-    if (subtitle) {
-      subtitle.textContent = '주석과 해설로 깊어지는 말씀 묵상';
+    if (ctx && typeof window.updateCompactCommentaryHeader === 'function') {
+      window.updateCompactCommentaryHeader(ctx.bookName, ctx.chapter, ctx.verse);
     }
 
     note = header.querySelector('.' + HEADER_NOTE_CLASS);
-    if (!note) {
-      note = document.createElement('div');
-      note.className = HEADER_NOTE_CLASS;
-      if (subtitle && subtitle.parentNode) {
-        subtitle.parentNode.appendChild(note);
-      }
+    if (note) note.remove();
+
+    spacer = header.firstElementChild;
+    if (spacer && spacer !== title.parentNode) {
+      spacer.style.display = 'none';
     }
 
-    note.textContent = '매튜 헨리 원문 · 원어 · 역사 · 신학 · 설교자료를 함께 살펴봅니다';
+    header.style.padding = '10px 14px';
+
+    title.parentNode.style.textAlign = 'left';
+    title.parentNode.style.flex = '1 1 auto';
+    title.parentNode.style.minWidth = '0';
+    title.parentNode.style.paddingRight = '8px';
+
+    if (subtitle && subtitle.tagName !== 'BUTTON') {
+      subtitle.style.display = 'none';
+      subtitle.style.whiteSpace = '';
+      subtitle.style.overflow = '';
+      subtitle.style.textOverflow = '';
+    }
   }
 
   function restoreMiniPlayerExpandButtonLabel() {

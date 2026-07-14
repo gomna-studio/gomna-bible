@@ -1,0 +1,51 @@
+{
+  "audioId": "genesis.001.001.original-language",
+  "duration": 73.368,
+  "measuredDuration": 73.368,
+  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/001/original-language-study.mp3",
+  "finalMp3Duration": 73.368,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 7.752
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 7.752,
+      "end": 20.304
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 20.304,
+      "end": 33.816
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 33.816,
+      "end": 43.464
+    },
+    {
+      "type": "item",
+      "itemIndex": 3,
+      "start": 43.464,
+      "end": 54.312
+    },
+    {
+      "type": "item",
+      "itemIndex": 4,
+      "start": 54.312,
+      "end": 64.416
+    },
+    {
+      "type": "closing",
+      "itemIndex": -1,
+      "start": 64.416,
+      "end": 73.368
+    }
+  ]
+}
