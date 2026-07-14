@@ -197,17 +197,25 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .chip{flex-shrink:0;background:var(--gm-btn-bg);border:var(--gm-card-border-slim);border-radius:999px;padding:7px 14px;font-size:calc(var(--font-size,17px) * 12 / 17);color:#000;cursor:pointer;font-weight:500;letter-spacing:-0.2px;transition:all .2s;white-space:nowrap;font-family:inherit}
 .chip:hover{background:var(--gm-hover-chip)}
 .chip:active{transform:scale(.95)}
-.verse-card{background:var(--gm-card-bg);border-radius:var(--gm-radius-card);padding:10px 12px;margin-bottom:6px;border:var(--gm-card-border-slim);box-shadow:var(--gm-card-shadow);position:relative;overflow:hidden;transition:background .22s ease}
-.verse-card:hover{background:var(--gm-hover-surface)}
-.verse-glow{position:absolute;inset:0;border-radius:var(--gm-radius-card);background:radial-gradient(circle at 80% 30%,rgba(255,215,120,.12) 0%,transparent 60%);pointer-events:none;animation:verseGlow 4s ease-in-out infinite 3s;opacity:0}
-@keyframes verseGlow{0%,100%{opacity:.4}50%{opacity:.8}}
-.verse-card .verse-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
-.verse-card .verse-head-btns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0}
-.verse-card .verse-tag{font-family:inherit;font-size:clamp(15px,3.6vw,16px);font-weight:700;font-style:normal;letter-spacing:.02em;color:#6e4d24;text-transform:none;opacity:0;padding-top:0;line-height:1.2}
-.verse-card .verse-text{font-size:clamp(12.5px,2.9vw,14px);color:#1f1a17;line-height:1.32;letter-spacing:-0.1px;margin-bottom:4px;padding:0;opacity:0;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.verse-card .verse-ref{font-size:13px;color:#5b3b20;font-style:normal;text-align:right;font-family:inherit;opacity:0;margin-top:6px;margin-bottom:0;line-height:1.3}
-.verse-card .verse-open-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
-.verse-card .verse-open-note{flex:1;min-width:110px;font-size:12px;color:#6a5542;line-height:1.35;letter-spacing:-.1px}
+.verse-card{background-color:#D8C8A8;border-radius:var(--gm-radius-card);padding:0;margin-bottom:6px;border:var(--gm-card-border-slim);box-shadow:var(--gm-card-shadow);position:relative;overflow:hidden;transition:box-shadow .22s ease;aspect-ratio:3/2;width:100%}
+.verse-card:hover{box-shadow:0 3px 14px rgba(90,58,20,.14)}
+.verse-card-photo-layer{position:absolute;inset:0;z-index:0;opacity:1;visibility:visible;pointer-events:none;will-change:opacity}
+.verse-card-hero{position:absolute;inset:0;line-height:0;background-color:#D8C8A8}
+.verse-card-hero img{display:block;width:100%;height:100%;object-fit:contain;object-position:center center;transition:filter .22s ease}
+.verse-card:hover .verse-card-hero img{filter:brightness(1.03)}
+.verse-card-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(18,11,6,.42) 0%,rgba(18,11,6,.16) 52%,rgba(18,11,6,.03) 100%),linear-gradient(0deg,rgba(18,11,6,.44) 0%,rgba(18,11,6,.10) 48%,rgba(18,11,6,0) 75%)}
+.verse-card-verse-layer{position:absolute;inset:0;z-index:1;display:grid;grid-template-rows:auto 1fr;min-height:100%;padding:10px 12px 11px;box-sizing:border-box;gap:0;background-color:#D8C8A8;opacity:0;visibility:hidden;pointer-events:none;will-change:opacity}
+.verse-card-verse-layer .verse-center{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:0;padding:8px 10px 10px;text-align:center}
+.verse-card-verse-layer .verse-tag{font-family:inherit;font-size:clamp(15px,3.6vw,16px);font-weight:600;font-style:normal;letter-spacing:.02em;color:#3d2818;-webkit-text-fill-color:#3d2818;text-transform:none;opacity:0;padding-top:0;line-height:1.2;text-shadow:0 1px 1px rgba(255,255,255,.28)}
+.verse-card-verse-layer .verse-text{font-size:clamp(12.5px,3.1vw,14.5px);color:#3d2818;-webkit-text-fill-color:#3d2818;line-height:1.42;letter-spacing:-0.1px;margin-bottom:5px;padding:0;opacity:0;font-weight:600;display:block;overflow:visible;white-space:normal;text-align:center;text-shadow:0 1px 1px rgba(255,255,255,.28)}
+.verse-card-verse-layer .verse-ref{font-size:clamp(12px,2.8vw,13px);color:#3d2818;-webkit-text-fill-color:#3d2818;font-style:normal;text-align:center;font-family:inherit;opacity:0;margin-top:0;margin-bottom:0;line-height:1.32;font-weight:600;text-shadow:0 1px 1px rgba(255,255,255,.28)}
+.verse-card-controls{position:absolute;inset:0;z-index:2;display:grid;grid-template-rows:auto 1fr auto;min-height:100%;padding:10px 12px 11px;box-sizing:border-box;gap:0;pointer-events:none}
+.verse-card-controls .verse-head-btns{grid-row:1;justify-self:end;align-self:start;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;pointer-events:auto}
+.verse-card-controls .verse-footer{grid-row:3;flex-shrink:0;padding-top:2px;pointer-events:auto}
+.verse-card.is-verse-active .verse-open-note{color:#5a4632;-webkit-text-fill-color:#5a4632;text-shadow:none}
+.verse-glow{display:none}
+.verse-card .verse-open-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:0;flex-wrap:wrap}
+.verse-card .verse-open-note{flex:1 1 108px;min-width:0;font-size:clamp(11px,2.6vw,12px);color:rgba(255,255,255,.94);-webkit-text-fill-color:rgba(255,255,255,.94);line-height:1.35;letter-spacing:-.1px;font-weight:600;text-align:right;text-shadow:0 1px 2px rgba(0,0,0,.52),0 2px 6px rgba(0,0,0,.28)}
 .verse-card .gm-btn-today-open{flex:0 1 auto;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:-.2px;padding:7px 13px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap;background:#bd8737;color:#FFFFFF;border:1px solid rgba(150,100,40,.32);box-shadow:none}
 .verse-card .gm-btn-today-open:hover{filter:none;background:#c89849;color:#FFFFFF;border-color:rgba(160,110,50,.36)}
 .verse-card .verse-date-btn{background:transparent;border:1px solid rgba(180,140,90,.42);color:#5a4632;font-family:inherit;font-size:12px;font-weight:500;padding:6px 10px;border-radius:14px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .2s;letter-spacing:-.1px;flex-shrink:0}
@@ -216,10 +224,11 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .verse-card .verse-today-btn{background:var(--gm-btn-bg);color:var(--gm-ink);border:1px solid rgba(180,140,90,.4);font-family:inherit;font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:var(--gm-radius-btn);cursor:pointer;transition:all .2s;letter-spacing:-.1px;box-shadow:0 1px 2px rgba(180,140,90,.12)}
 .verse-card .verse-today-btn:hover{background:var(--gm-hover-btn-strong);border-color:rgba(170,125,70,.55);box-shadow:0 1px 3px rgba(180,140,90,.14)}
 @media (max-width:375px){
-  .verse-card{padding:10px 12px}
-  .verse-card .verse-tag{font-size:15px}
-  .verse-card .gm-btn-today-open{font-size:13px;padding:7px 13px}
-  .verse-card .verse-open-note{font-size:12px;min-width:100px}
+  .verse-card-verse-layer,.verse-card-controls{padding:9px 11px 10px}
+  .verse-card-verse-layer .verse-center{padding:4px 1px 6px}
+  .verse-card-verse-layer .verse-tag{font-size:15px}
+  .verse-card .gm-btn-today-open{font-size:12.5px;padding:6px 11px}
+  .verse-card .verse-open-note{font-size:11px;min-width:0}
 }
 .audio-pending-badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.88);color:#000;border:1px solid rgba(0,0,0,.08);font-size:10px;font-weight:700;line-height:1;white-space:nowrap;flex-shrink:0}
 /* 말씀풀이 듣기 slim 카드 */
@@ -303,23 +312,7 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .cal-cell.selected.sun{color:#a82e35}
 .cal-cell.selected.sat{color:#165a85}
 .cal-hint{font-size:11px;color:#8a6e4a;text-align:center;margin-bottom:14px;line-height:1.4}
-@keyframes textRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-/* 오늘의 말씀: 아래→위, 과한 가속 없이 천천히 감속 */
-@keyframes verseRise{from{opacity:0;transform:translate3d(0,9px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
-.welcome{text-align:center;padding:18px 8px 14px;font-family:Georgia,serif;color:#000}
-.welcome-line1{font-size:calc(var(--font-size,17px) * 13 / 17);font-style:italic;opacity:0;letter-spacing:.5px;line-height:1.7;margin-bottom:6px;color:#000}
-.welcome-line2{font-size:calc(var(--font-size,17px) * 12 / 17);font-style:italic;opacity:0;letter-spacing:.4px;line-height:1.7;color:#000}
-/* 임시 화면 개선 안내 (home-ui-v73) */
-.home-ui-improvement-notice{display:flex;align-items:flex-start;gap:9px;width:100%;margin:0 0 8px;padding:9px 11px;border-radius:var(--gm-radius-card);background:rgba(248,238,216,.58);border:1px solid rgba(210,185,145,.42);box-shadow:none}
-.home-ui-improvement-notice-icon{flex-shrink:0;width:15px;height:15px;margin-top:2px;color:#8a6848}
-.home-ui-improvement-notice-icon svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.home-ui-improvement-notice-text{min-width:0;flex:1}
-.home-ui-improvement-notice-line1{font-size:12.5px;font-weight:600;color:#8A6828;line-height:1.45;letter-spacing:-.15px}
-.home-ui-improvement-notice-line2{margin-top:2px;font-size:11.5px;font-weight:500;color:#5c4a38;line-height:1.38;letter-spacing:-.1px;opacity:.92}
-.home-ui-improvement-notice-line3{margin-top:1px;font-size:11px;font-weight:500;color:#8C7344;line-height:1.38;letter-spacing:-.1px;opacity:.92}
-body:has(#overlay.show) .home-ui-improvement-notice{display:none}
-.word{display:inline-block;opacity:0;transform:translateY(8px);animation:wordIn .5s ease forwards}
-@keyframes wordIn{to{opacity:1;transform:translateY(0)}}
+@keyframes verseRise{from{opacity:0;transform:translate3d(0,8px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 .imprint-bottom{margin-top:18px;padding-top:14px;padding-bottom:30px;border-top:.5px solid rgba(255,255,255,.18);text-align:center}
 @keyframes gs-imprint-underline{
   0%{width:0;left:0;opacity:0}
@@ -346,6 +339,8 @@ body:has(#overlay.show) .home-ui-improvement-notice{display:none}
 @media (prefers-reduced-motion:reduce){
   .gs-text::after{animation:none!important;width:100%!important;left:0!important;opacity:0.55!important;height:1px;background:linear-gradient(90deg,rgba(0,0,0,.08) 0%,rgba(0,0,0,.34) 50%,rgba(0,0,0,.08) 100%)}
   .gs-arrow{animation:none}
+  .verse-card-verse-layer .verse-tag,.verse-card-verse-layer .verse-text,.verse-card-verse-layer .verse-ref{animation:none!important;opacity:1!important;transform:none!important}
+  .verse-card-photo-layer,.verse-card-verse-layer{transition-duration:150ms!important}
 }
 .overlay{position:fixed;inset:0;background:rgba(20,12,4,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:none;align-items:flex-end;z-index:100}
 .overlay.show{display:flex;animation:fadeIn .35s ease}
@@ -538,9 +533,20 @@ body:has(#overlay.show) .home-ui-improvement-notice{display:none}
     <div class="continue-arrow" aria-hidden="true">›</div>
   </button>
   <div class="verse-card">
-    <div class="verse-glow"></div>
-    <div class="verse-head">
+    <div class="verse-card-photo-layer" aria-hidden="true">
+      <div class="verse-card-hero">
+        <img src="assets/images/today-word-card-centered-padding.webp" alt="" width="1536" height="1024" decoding="async" loading="eager">
+      </div>
+      <div class="verse-card-shade" aria-hidden="true"></div>
+    </div>
+    <div class="verse-card-verse-layer" aria-hidden="true">
       <div class="verse-tag" id="verse-tag">오늘의 말씀</div>
+      <div class="verse-center">
+        <div class="verse-text" id="verse-text">"수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라"</div>
+        <div class="verse-ref" id="verse-ref">— 마태복음 11:28</div>
+      </div>
+    </div>
+    <div class="verse-card-controls">
       <div class="verse-head-btns">
         <button type="button" class="verse-today-btn" id="verseTodayBtn" onclick="resetVerseToToday()" style="display:none" data-i18n-ui="verse_back_today" translate="no">오늘로 돌아가기</button>
         <button type="button" class="verse-date-btn" onclick="openVerseDatePicker()" aria-label="다른 날짜 보기">
@@ -548,22 +554,14 @@ body:has(#overlay.show) .home-ui-improvement-notice{display:none}
           <span data-i18n-ui="verse_view_other" translate="no">다른 날짜 보기</span>
         </button>
       </div>
-    </div>
-    <div class="verse-text" id="verse-text">"수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라"</div>
-    <div class="verse-ref" id="verse-ref">— 마태복음 11:28</div>
-    <div class="verse-open-row">
-      <button type="button" class="gm-btn-today-open" onclick="openDailyVerse('read')" aria-label="오늘 말씀 열기">오늘 말씀 열기</button>
-      <span class="verse-open-note">오늘 말씀 기준으로 읽고 묵상하기</span>
+      <div class="verse-footer">
+        <div class="verse-open-row">
+          <button type="button" class="gm-btn-today-open" onclick="openDailyVerse('read')" aria-label="오늘 말씀 열기">오늘 말씀 열기</button>
+          <span class="verse-open-note">오늘 말씀 기준으로 읽고 묵상하기</span>
+        </div>
+      </div>
     </div>
   </div>
-  <aside class="home-ui-improvement-notice" role="note" aria-label="화면 개선 안내">
-    <span class="home-ui-improvement-notice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4Z"/></svg></span>
-    <div class="home-ui-improvement-notice-text">
-      <div class="home-ui-improvement-notice-line1">은혜의말씀을 더 편리하게 이용하실 수 있도록</div>
-      <div class="home-ui-improvement-notice-line2">현재 화면 구성을 개선하고 있습니다.</div>
-      <div class="home-ui-improvement-notice-line3">이용해 주셔서 감사합니다.</div>
-    </div>
-  </aside>
   <div class="quick-menu">
     <button type="button" class="quick-item" onclick="location.href='reader.html'" aria-label="성경읽기">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h7a3 3 0 013 3v13a2.5 2.5 0 00-2.5-2.5H2z"/><path d="M22 4h-7a3 3 0 00-3 3v13a2.5 2.5 0 012.5-2.5H22z"/></svg>
@@ -633,10 +631,6 @@ body:has(#overlay.show) .home-ui-improvement-notice{display:none}
     <button type="button" class="search-inline-chip" onclick="topic('감사')">#감사</button>
     <button type="button" class="search-inline-chip" onclick="topic('기도')">#기도</button>
   </div>
-  </div>
-  <div class="welcome" translate="no">
-    <div class="welcome-line1" id="welcome1" data-i18n-welcome="line1" data-text="은혜의말씀 안에서"></div>
-    <div class="welcome-line2" id="welcome2" data-i18n-welcome="line2" data-text="하나님의 놀라운 세계가 펼쳐집니다"></div>
   </div>
   <div class="imprint-bottom">
     <a class="gs-link" href="/studio" aria-label="Gomna Studio, Inc. 스튜디오 페이지"><span class="gs-text" translate="no">Gomna Studio, Inc.</span><span class="gs-arrow" aria-hidden="true">↗</span></a>
@@ -761,10 +755,18 @@ else if(hour>=18||hour<5)greetText='— 고요한 저녁입니다 —';
 document.getElementById('greeting').textContent=greetText;
 var _fd=document.getElementById('fontDisplay');
 if(_fd) _fd.textContent=fontSize+'px';
-function playVerseAnimation(){const tag=document.getElementById('verse-tag');const text=document.getElementById('verse-text');const ref=document.getElementById('verse-ref');const ease='cubic-bezier(0.25, 0.46, 0.45, 1)';[tag,text,ref].forEach(el=>{el.style.animation='none';el.style.opacity='0';el.style.transform='translate3d(0,9px,0)';});void tag.offsetWidth;setTimeout(()=>{tag.style.animation='verseRise 1.15s '+ease+' forwards';},60);setTimeout(()=>{text.style.animation='verseRise 1.35s '+ease+' forwards';},420);setTimeout(()=>{ref.style.animation='verseRise 1.1s '+ease+' forwards';},920);}
-function staggerWords(elId,text,baseDelay){const el=document.getElementById(elId);if(!el)return;const chars=String(text||'').split('');el.style.opacity='1';el.innerHTML=chars.map((c,i)=>{if(c===' ')return ' ';return '<span class="word" style="animation-delay:'+(baseDelay+i*55)+'ms">'+c+'</span>';}).join('');}
-function playWelcomeAnimation(){var w1=document.getElementById('welcome1');var w2=document.getElementById('welcome2');var t1=(w1&&w1.dataset&&w1.dataset.text)||'은혜의말씀 안에서';var t2=(w2&&w2.dataset&&w2.dataset.text)||'하나님의 놀라운 세계가 펼쳐집니다';staggerWords('welcome1',t1,0);staggerWords('welcome2',t2,800);}
-window.playWelcomeAnimation=playWelcomeAnimation;
+var _VERSE_EASE='cubic-bezier(0.22, 0.61, 0.36, 1)';
+var _verseCycleGen=0;var _verseCycleTimers=[];
+function _clearVerseCycle(){_verseCycleTimers.forEach(function(id){clearTimeout(id);});_verseCycleTimers=[];_verseCycleGen++;}
+function _verseSchedule(ms,fn){var gen=_verseCycleGen;var id=setTimeout(function(){if(gen!==_verseCycleGen)return;fn();},ms);_verseCycleTimers.push(id);return id;}
+function _verseMotionMs(ms){return window.matchMedia('(prefers-reduced-motion: reduce)').matches?Math.min(ms,150):ms;}
+function _verseTextEls(){return[document.getElementById('verse-tag'),document.getElementById('verse-text'),document.getElementById('verse-ref')];}
+function _resetVerseTextHidden(){_verseTextEls().forEach(function(el){if(!el)return;el.style.animation='none';el.style.transition='none';el.style.opacity='0';el.style.transform='translate3d(0,8px,0)';el.style.visibility='hidden';});}
+function _setLayerOpacity(layer,opacity,durationMs){if(!layer)return;var d=_verseMotionMs(durationMs);layer.style.transition=d>0?'opacity '+d+'ms '+_VERSE_EASE+', visibility 0ms linear '+(opacity>0?0:d)+'ms':'none';layer.style.opacity=String(opacity);if(opacity>0){layer.style.visibility='visible';layer.setAttribute('aria-hidden','false');}else if(d>0){_verseSchedule(d,function(){layer.style.visibility='hidden';layer.setAttribute('aria-hidden','true');});}else{layer.style.visibility='hidden';layer.setAttribute('aria-hidden','true');}}
+function _fadeVerseTextOut(durationMs){var d=_verseMotionMs(durationMs);_verseTextEls().forEach(function(el){if(!el)return;el.style.animation='none';el.style.transition='opacity '+d+'ms '+_VERSE_EASE+', transform '+d+'ms '+_VERSE_EASE;el.style.visibility='visible';el.style.opacity='0';el.style.transform='translate3d(0,4px,0)';});_verseSchedule(d,function(){_resetVerseTextHidden();});}
+function _playVerseTextIn(){var els=_verseTextEls();var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;var ease=_VERSE_EASE;var dTag=reduced?150:700,dText=reduced?150:900,dRef=reduced?150:700;void els[0].offsetWidth;_verseSchedule(250,function(){if(!els[0])return;els[0].style.visibility='visible';if(reduced){els[0].style.transition='opacity '+dTag+'ms '+ease;els[0].style.opacity='1';els[0].style.transform='none';return;}els[0].style.animation='verseRise '+dTag+'ms '+ease+' forwards';});_verseSchedule(1250,function(){if(!els[1])return;els[1].style.visibility='visible';if(reduced){els[1].style.transition='opacity '+dText+'ms '+ease;els[1].style.opacity='1';els[1].style.transform='none';return;}els[1].style.animation='verseRise '+dText+'ms '+ease+' forwards';});_verseSchedule(2600,function(){if(!els[2])return;els[2].style.visibility='visible';if(reduced){els[2].style.transition='opacity '+dRef+'ms '+ease;els[2].style.opacity='1';els[2].style.transform='none';return;}els[2].style.animation='verseRise '+dRef+'ms '+ease+' forwards';});}
+function startVerseCycle(){_clearVerseCycle();var card=document.querySelector('.verse-card');var photo=document.querySelector('.verse-card-photo-layer');var verse=document.querySelector('.verse-card-verse-layer');if(card)card.classList.remove('is-verse-active');_resetVerseTextHidden();_setLayerOpacity(photo,1,0);_setLayerOpacity(verse,0,0);_verseSchedule(4500,function(){if(card)card.classList.add('is-verse-active');_setLayerOpacity(photo,0,_verseMotionMs(1500));_setLayerOpacity(verse,1,_verseMotionMs(1500));});_verseSchedule(6000,function(){_playVerseTextIn();});_verseSchedule(12000,function(){_fadeVerseTextOut(_verseMotionMs(2000));_setLayerOpacity(verse,0,_verseMotionMs(2000));_setLayerOpacity(photo,1,_verseMotionMs(2000));_verseSchedule(_verseMotionMs(2000),function(){if(card)card.classList.remove('is-verse-active');});});_verseSchedule(14000,startVerseCycle);}
+function applyVerseForDate(d){_setVerseDOM(d);startVerseCycle();}
 // ─── 오늘의 말씀: 30개 데이터 + 1~30일 순환 + 달력 모달 ───
 const DAILY_VERSES=[
   {t:'네 시작은 미약하였으나 네 나중은 심히 창대하리라',r:'욥기 8:7'},
@@ -841,7 +843,6 @@ function _setVerseDOM(d){
   if(todayBtn)todayBtn.style.display=isToday?'none':'inline-block';
   _selectedDate=new Date(d.getFullYear(),d.getMonth(),d.getDate());
 }
-function applyVerseForDate(d){_setVerseDOM(d);if(typeof playVerseAnimation==='function')playVerseAnimation();}
 function resetVerseToToday(){applyVerseForDate(new Date());}
 const _MONTHS=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 function renderCalendar(year,month){
@@ -1022,14 +1023,8 @@ function openContinueRead(){
 }
 renderContinueCard();
 
-let verseCount=0;
-function playVerseAndCheck(){
-  playVerseAnimation();
-  verseCount++;
-  if(verseCount%2===0){setTimeout(playWelcomeAnimation,2000);}
-}
-setTimeout(()=>{playVerseAnimation();setInterval(playVerseAndCheck,8000);},1000);
-setTimeout(()=>{playWelcomeAnimation();},3000);
+_verseSchedule(1000,startVerseCycle);
+document.addEventListener('visibilitychange',function(){if(document.hidden){_clearVerseCycle();}else{startVerseCycle();}});
 function openBible(testament){
   window.location.href='reader.html?testament='+encodeURIComponent(testament);
 }
