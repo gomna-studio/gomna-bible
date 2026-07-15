@@ -345,6 +345,19 @@ body[data-i18n-mode="foreign"] .consonant-btn.cat-btn.cat-all .cat-label{font-si
 .search-result .ref{font-weight:700;color:var(--primary);font-size:14px;margin-bottom:6px}
 .search-result .text{font-size:14px;line-height:1.6}
 .search-result .text mark{background:#FFF176;padding:1px 3px;border-radius:2px}
+.search-results-main-title{font-size:16px;font-weight:800;color:var(--primary);padding:4px 0 12px;line-height:1.35}
+.search-section{margin-bottom:14px}
+.search-section-title{font-size:14px;font-weight:800;color:var(--primary);padding:8px 0 6px}
+.search-section--faith .faith-resource-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.06);border:1px solid rgba(180,140,90,.2)}
+.faith-resource-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.faith-resource-title{font-size:16px;font-weight:800;color:var(--primary)}
+.faith-resource-category{font-size:11px;font-weight:700;color:#7a5a32;background:#FDF6EE;border:1px solid rgba(180,140,90,.35);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.faith-resource-body{font-size:14px;line-height:1.75;color:var(--text);margin-bottom:12px}
+.faith-resource-related{display:flex;flex-wrap:wrap;gap:8px}
+.faith-resource-related-btn{border:1px solid rgba(180,140,90,.45);background:#fff;color:#5a3818;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.faith-resource-related-btn:active{background:#FDFAF7}
+.search-body-more-btn{display:block;width:100%;margin:6px 0 4px;padding:12px 14px;border:1px solid rgba(180,140,90,.45);border-radius:10px;background:#fff;color:#5a3818;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.search-body-more-btn:active{background:#FDFAF7}
 .fav-item{background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
 .fav-item .ref{font-weight:700;color:var(--primary);font-size:14px;margin-bottom:6px}
 .fav-item .text{font-size:14px;line-height:1.6;margin-bottom:10px}
@@ -1425,6 +1438,7 @@ html.reader-hide-chrome .verse-item.verse-item--chapter-selected .verse-num{
 }
 </style>
 <script src="gomna_category_feature.js?v=20260711-verse-toolbar-v106" defer></script>
+<script src="/js/gomna-bible-search.js?v=20260716-compact-search-v1"></script>
 <script>
 window.GOMNA_ASSET_VERSION = "20260704-pwa-cache-fix";
 if ("serviceWorker" in navigator) {
@@ -2262,6 +2276,9 @@ function loadBibleData() {
 }
 
 function initializeApp() {
+  if (window.GomnaBibleSearch && oldTestamentData && newTestamentData) {
+    GomnaBibleSearch.buildIndex(oldTestamentData, newTestamentData);
+  }
   renderOldTestament();
   renderNewTestament();
   renderEasyFind();
@@ -5118,18 +5135,16 @@ function removeFav(idx) {
   renderFavorites();
 }
 
-function doSearch() {
-  var query = document.getElementById('searchInput').value.trim();
-  if(!query) return;
-  if (window.GomnaAnalytics) GomnaAnalytics.trackSearch(query);
-  switchTab('search');
+var _searchBodyVisibleCount = 30;
+
+function searchTopicResults(query) {
   var results = [];
   [oldTestamentData, newTestamentData].forEach(function(data, idx) {
     if(!data || !data.books) return;
     data.books.forEach(function(book) {
       book.chapters.forEach(function(chapter) {
         if(!chapter.verses) return;
-          chapter.verses.forEach(function(verse) {
+        chapter.verses.forEach(function(verse) {
           if(verse.text.indexOf(query) >= 0) {
             results.push({ref: book.name + ' ' + chapter.chapter + ':' + verse.verse, text: verse.text, book: book.name, chapter: chapter.chapter, verse: verse.verse, testament: idx === 0 ? 'old' : 'new'});
           }
@@ -5137,18 +5152,118 @@ function doSearch() {
       });
     });
   });
-  
+  return results;
+}
+
+function _escapeSearchHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, function(m) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+  });
+}
+
+function _highlightTopicText(text, query) {
+  var safe = _escapeSearchHtml(text);
+  try {
+    return safe.replace(new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '<mark>' + _escapeSearchHtml(query) + '</mark>');
+  } catch (e) {
+    return safe;
+  }
+}
+
+function _renderSearchResultCard(r, query, useBodyHighlight) {
+  var highlighted = useBodyHighlight && window.GomnaBibleSearch
+    ? GomnaBibleSearch.highlightText(r.text, query, r.matchType)
+    : _highlightTopicText(r.text, query);
+  return '<div class="search-result" onclick="goToVerse(\'' + r.book + '\',' + r.chapter + ',' + r.verse + ',\'' + r.testament + '\')"><div class="ref">' + _escapeSearchHtml(r.ref) + '</div><div class="text">' + highlighted + '</div></div>';
+}
+
+function _renderFaithResourceCard(card) {
+  var html = '<div class="faith-resource-card" data-faith-id="' + _escapeSearchHtml(card.id) + '">';
+  html += '<div class="faith-resource-head"><div class="faith-resource-title">' + _escapeSearchHtml(card.title) + '</div>';
+  if (card.category) {
+    html += '<div class="faith-resource-category">' + _escapeSearchHtml(card.category) + '</div>';
+  }
+  html += '</div><div class="faith-resource-body">' + _escapeSearchHtml(card.text) + '</div>';
+  html += '<div class="faith-resource-related">';
+  if (card.relatedVerse) {
+    var rv = card.relatedVerse;
+    html += '<button type="button" class="faith-resource-related-btn" onclick="goToVerse(\'' + rv.book + '\',' + rv.chapter + ',' + rv.verse + ',\'' + rv.testament + '\')">관련 본문: ' + _escapeSearchHtml(card.relatedLabel || (rv.book + ' ' + rv.chapter + ':' + rv.verse)) + '</button>';
+  }
+  if (card.relatedVerses && card.relatedVerses.length) {
+    card.relatedVerses.forEach(function(rv) {
+      var label = rv.label || (rv.book + ' ' + rv.chapter + ':' + rv.verse);
+      html += '<button type="button" class="faith-resource-related-btn" onclick="goToVerse(\'' + rv.book + '\',' + rv.chapter + ',' + rv.verse + ',\'' + rv.testament + '\')">' + _escapeSearchHtml(label) + '</button>';
+    });
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function renderSearchResults(query, topicResults, faithResults, bodyResults, bodyVisibleCount) {
   var container = document.getElementById('searchResultsArea');
-  if(results.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><div class="msg">"' + query + '" 검색 결과가 없습니다</div></div>';
+  if (!container) return;
+  var hasTopic = topicResults.length > 0;
+  var hasFaith = faithResults.length > 0;
+  var hasBody = bodyResults.length > 0;
+  if (!hasTopic && !hasFaith && !hasBody) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><div class="msg">입력한 주제나 말씀을 찾지 못했습니다. 검색어를 짧게 입력해 보세요.</div></div>';
     return;
   }
-  var html = '<div class="section-title">🔍 "' + query + '" (' + results.length + '건)</div>';
-  results.slice(0, 100).forEach(function(r) {
-    var highlighted = r.text.replace(new RegExp(query, 'g'), '<mark>' + query + '</mark>');
-    html += '<div class="search-result" onclick="goToVerse(\'' + r.book + '\',' + r.chapter + ',' + r.verse + ',\'' + r.testament + '\')"><div class="ref">' + r.ref + '</div><div class="text">' + highlighted + '</div></div>';
-  });
+  var html = '<div class="search-results-main-title">성경 말씀 검색 결과</div>';
+  if (hasTopic) {
+    html += '<div class="search-section search-section--topic"><div class="search-section-title">주제별 검색 결과</div>';
+    topicResults.slice(0, 100).forEach(function(r) {
+      html += _renderSearchResultCard(r, query, false);
+    });
+    html += '</div>';
+  }
+  if (hasFaith) {
+    html += '<div class="search-section search-section--faith"><div class="search-section-title">신앙 자료 검색 결과</div>';
+    faithResults.forEach(function(card) {
+      html += _renderFaithResourceCard(card);
+    });
+    html += '</div>';
+  }
+  if (hasBody) {
+    var visible = Math.min(bodyVisibleCount, bodyResults.length);
+    html += '<div class="search-section search-section--body"><div class="search-section-title">성경 본문 검색 결과</div>';
+    bodyResults.slice(0, visible).forEach(function(r) {
+      html += _renderSearchResultCard(r, query, true);
+    });
+    if (bodyResults.length > visible) {
+      html += '<button type="button" class="search-body-more-btn" onclick="showMoreBodySearchResults()">성경 본문 결과 더 보기</button>';
+    }
+    html += '</div>';
+  }
   container.innerHTML = html;
+}
+
+function showMoreBodySearchResults() {
+  _searchBodyVisibleCount += 30;
+  if (_lastSearchQuery) doSearch(false);
+}
+
+var _lastSearchQuery = '';
+
+function doSearch(resetBodyCount) {
+  var query = document.getElementById('searchInput').value.trim();
+  if(!query) return;
+  if (resetBodyCount !== false) _searchBodyVisibleCount = 30;
+  _lastSearchQuery = query;
+  if (window.GomnaAnalytics) GomnaAnalytics.trackSearch(query);
+  switchTab('search');
+  if (window.GomnaBibleSearch && oldTestamentData && newTestamentData) {
+    GomnaBibleSearch.buildIndex(oldTestamentData, newTestamentData);
+  }
+  var topicResults = searchTopicResults(query);
+  var faithResults = window.GomnaBibleSearch ? GomnaBibleSearch.searchFaithResources(query) : [];
+  var bodyResults = [];
+  if (window.GomnaBibleSearch) {
+    bodyResults = GomnaBibleSearch.shouldUseLordPrayerBodyResults(query)
+      ? GomnaBibleSearch.getLordPrayerBodyResults()
+      : GomnaBibleSearch.searchBody(query);
+  }
+  renderSearchResults(query, topicResults, faithResults, bodyResults, _searchBodyVisibleCount);
 }
 
 function doSearchFromReader() {
