@@ -108,10 +108,12 @@ html.is-daily-word-view #opt4BottomBar{display:none!important}
 html.is-daily-word-view .scripture-dock{display:none!important}
 html.is-daily-word-view .reader-dock-top{display:none!important}
 html.is-daily-word-view .verse-item--daily-word-focus{background:transparent!important;box-shadow:none!important;border:none!important}
-html.is-daily-word-view .verse-item--daily-word-focus .verse-num,
-html.is-daily-word-view .verse-item--daily-word-focus .verse-text{color:#9A6A24;-webkit-text-fill-color:#9A6A24;text-shadow:0 1px 1px rgba(255,255,255,.35)}
-html.is-daily-word-view .verse-item--daily-word-focus .verse-num{font-weight:700}
-html.is-daily-word-view .verse-item--daily-word-focus .verse-text{font-weight:600}
+html.is-daily-word-view .verse-item--daily-word-focus .verse-num{color:#2B211A;-webkit-text-fill-color:#2B211A;font-weight:700}
+html.is-daily-word-view .verse-item--daily-word-focus .verse-text{color:var(--text);-webkit-text-fill-color:var(--text);font-weight:500}
+html.is-daily-word-view #verseReadHeader.verse-read-header{position:sticky;top:0;z-index:90}
+html.is-daily-word-view #verseReadTitleBtn.verse-read-title{min-height:44px;width:100%;touch-action:manipulation}
+html.is-daily-word-view #unifiedBookChapterModal.unified-bc-overlay.active{z-index:10200!important}
+html.is-daily-word-view main.content > .view:not(#verseView){display:none!important}
 .daily-word-return-btn{display:block;width:calc(100% - 4px);max-width:100%;margin:10px auto 14px;padding:10px 14px;min-height:46px;border:0.5px solid rgba(184,134,11,0.42);border-top:0.5px solid rgba(184,134,11,0.2);border-radius:0 0 10px 10px;background:rgba(255,250,244,0.96);color:#5a3818;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 .daily-word-return-btn:active{transform:scale(0.99);opacity:0.9;background:rgba(255,245,225,1)}
 .verse-actions{display:flex;gap:6px;margin-top:8px;padding-left:40px}
@@ -1449,7 +1451,7 @@ if ("serviceWorker" in navigator) {
 <body>
 <!-- haptic-tap-feedback -->
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
-<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();activateEasyViewEarly();});}else{activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
+<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();activateEasyViewEarly();});}else{activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('source')==='home-daily-read'&&p.get('book'))document.documentElement.classList.add('is-daily-word-view');if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
 <div class="phone-frame"><div id="appTopChrome"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
   <span class="gs-text">Gomna Studio, Inc.</span>
   <span class="gs-arrow">↗</span>
@@ -3770,8 +3772,6 @@ function renderUnifiedModalFooter() {
 }
 
 function renderUnifiedModalBody() {
-  renderUnifiedModalHead();
-  renderUnifiedModalFooter();
   var body = document.getElementById('unifiedBcBody');
   if (!body) return;
   var html = '';
@@ -3787,11 +3787,17 @@ function renderUnifiedModalBody() {
     }
     html += '</div>';
   }
+  body.style.visibility = 'hidden';
   body.innerHTML = html;
+  body.scrollTop = 0;
+  renderUnifiedModalHead();
+  renderUnifiedModalFooter();
   if (unifiedBcState.step === 'chapters') {
     var curBtn = body.querySelector('.unified-bc-ch--cur');
     if (curBtn) curBtn.scrollIntoView({ block: 'center' });
+    else body.scrollTop = 0;
   }
+  body.style.visibility = '';
 }
 
 function unifiedBcGoBookList() {
@@ -3896,6 +3902,7 @@ function unifiedBcGoCategoryList() {
 
 function unifiedBcApplyChapter(ch) {
   if (!unifiedBcState.selectedBook) return;
+  var wasDaily = document.documentElement.classList.contains('is-daily-word-view');
   var name = unifiedBcState.selectedBook;
   var testament = unifiedBcState.testament;
   var displayChapters = unifiedBcState.displayChapters;
@@ -3914,6 +3921,9 @@ function unifiedBcApplyChapter(ch) {
     GomnaAnalytics.trackNavigateChapter(name, ch, 'select', testament);
   }
   renderVerses(1);
+  if (wasDaily && typeof window.exitDailyWordView === 'function') {
+    window.exitDailyWordView();
+  }
   if (window.__verseToolbarChapterNavFromMenu) {
     window.__verseToolbarChapterNavFromMenu = false;
     closeVerseToolbarTargetMenu();
@@ -3944,6 +3954,7 @@ function openUnifiedBookChapterModal() {
   unifiedBcCloseCatSheet();
   var el = document.getElementById('unifiedBookChapterModal');
   if (!el) return;
+  if (el.parentNode !== document.body) document.body.appendChild(el);
   el.classList.add('active');
   el.setAttribute('aria-hidden', 'false');
   document.documentElement.classList.add('unified-bc-lock-scroll');
@@ -5888,6 +5899,21 @@ function loadAds() {
     returnBtn=null;
   }
 
+  window.exitDailyWordView=function(){
+    if(!document.documentElement.classList.contains('is-daily-word-view'))return;
+    pending=null;
+    document.documentElement.classList.remove('is-daily-word-view');
+    removeDailyReturnBtn();
+    var list=document.getElementById('verseList');
+    if(list){
+      list.querySelectorAll('.verse-item').forEach(function(el){
+        el.classList.remove('verse-item--daily-word-focus');
+        el.style.display='';
+      });
+    }
+    if(typeof updateOpt4BottomBar==='function')updateOpt4BottomBar();
+  };
+
   function attachDailyReturnBtn(item){
     if(!item)return;
     removeDailyReturnBtn();
@@ -5917,7 +5943,7 @@ function loadAds() {
       el.classList.toggle('verse-item--daily-word-focus',el===item);
     });
     attachDailyReturnBtn(item);
-    try{item.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){item.scrollIntoView();}
+    try{item.scrollIntoView({block:'center'});}catch(e){item.scrollIntoView();}
     return true;
   }
 
