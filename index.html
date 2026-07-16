@@ -217,7 +217,7 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .verse-glow{display:none}
 .verse-card .verse-open-row{display:block;margin:0}
 .verse-card .verse-open-note{display:none!important}
-.verse-card .gm-btn-today-open{position:absolute;left:calc(19px + 4% + 12px);bottom:calc(3.5% + 21px);transform:none;z-index:3;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:-.2px;padding:7px 13px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap;background:#87965F;color:#FFFFFF;border:2px solid #87965F;box-shadow:none;pointer-events:auto}
+.verse-card .gm-btn-today-open{position:absolute;left:calc(19px + 4% + 12px);bottom:calc(3.5% + 13px);transform:none;z-index:3;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:-.2px;padding:5px 13px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap;background:#87965F;color:#FFFFFF;border:2px solid #87965F;box-shadow:none;pointer-events:auto}
 .verse-card .gm-btn-today-open:hover{filter:none;background:#94A56B;color:#FFFFFF;border-color:#94A56B}
 .verse-card .gm-btn-today-open:active{background:#74834F;border-color:#74834F;color:#FFFFFF}
 .verse-card .gm-btn-today-open:focus-visible{outline:2px solid rgba(135,150,95,0.55);outline-offset:2px}
@@ -226,11 +226,14 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .verse-card .verse-date-btn svg{stroke:#6a5542;flex-shrink:0;width:11px;height:11px}
 .verse-card .verse-today-btn{background:var(--gm-btn-bg);color:var(--gm-ink);border:1px solid rgba(180,140,90,.4);font-family:inherit;font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:var(--gm-radius-btn);cursor:pointer;transition:all .2s;letter-spacing:-.1px;box-shadow:0 1px 2px rgba(180,140,90,.12)}
 .verse-card .verse-today-btn:hover{background:var(--gm-hover-btn-strong);border-color:rgba(170,125,70,.55);box-shadow:0 1px 3px rgba(180,140,90,.14)}
+@media (max-width:520px){
+  .verse-card .gm-btn-today-open{left:calc(-2px + 4% + 12px);bottom:calc(3.5% + 17px);padding:4px 12px}
+}
 @media (max-width:375px){
   .verse-card-verse-layer,.verse-card-controls{padding:9px 11px 10px}
   .verse-card-verse-layer .verse-center{padding:4px 1px 6px}
   .verse-card-verse-layer .verse-tag{font-size:15px}
-  .verse-card .gm-btn-today-open{left:calc(13px + 4% + 12px);bottom:calc(3.5% + 21px);font-size:12.5px;padding:6px 11px}
+  .verse-card .gm-btn-today-open{left:calc(-3px + 4% + 12px);bottom:calc(3.5% + 17px);font-size:12.5px;padding:4px 11px}
 }
 .audio-pending-badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.88);color:#000;border:1px solid rgba(0,0,0,.08);font-size:10px;font-weight:700;line-height:1;white-space:nowrap;flex-shrink:0}
 /* 말씀풀이 듣기 slim 카드 */
@@ -836,13 +839,16 @@ const DAILY_VERSES=[
   {t:'수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라',r:'마태복음 11:28'}
 ];
 function getVerseForDate(d){return DAILY_VERSES[((d.getDate()-1)%30+30)%30];}
-function _isSameDate(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
-let _selectedDate=new Date();
+function _localDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
+function _isSameDate(a,b){const aa=_localDay(a),bb=_localDay(b);return aa.getTime()===bb.getTime();}
+let _selectedDate;
+let _hasUserSelectedDailyDate=false;
 let _calendarMonth=new Date();
 function _setVerseDOM(d){
-  const v=getVerseForDate(d);
-  const today=new Date();
-  const isToday=_isSameDate(d,today);
+  const selDate=_localDay(d);
+  _selectedDate=selDate;
+  const isToday=_isSameDate(selDate,new Date());
+  const v=getVerseForDate(selDate);
   const lang=window.__gomnaLastLang||'ko';
   const tag=document.getElementById('verse-tag');
   if(tag){
@@ -875,10 +881,9 @@ function _setVerseDOM(d){
     ref.setAttribute('translate','no');
   }
   const todayBtn=document.getElementById('verseTodayBtn');
-  if(todayBtn)todayBtn.style.display=isToday?'none':'inline-block';
-  _selectedDate=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  if(todayBtn)todayBtn.style.display=(_hasUserSelectedDailyDate&&!isToday)?'inline-block':'none';
 }
-function resetVerseToToday(){applyVerseForDate(new Date());}
+function resetVerseToToday(){_hasUserSelectedDailyDate=false;applyVerseForDate(new Date());}
 const _MONTHS=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 function renderCalendar(year,month){
   const grid=document.getElementById('calGrid');
@@ -902,6 +907,7 @@ function renderCalendar(year,month){
   grid.querySelectorAll('.cal-cell:not(.empty)').forEach(function(c){
     c.addEventListener('click',function(){
       const d=parseInt(c.getAttribute('data-d'),10);
+      _hasUserSelectedDailyDate=true;
       applyVerseForDate(new Date(_calendarMonth.getFullYear(),_calendarMonth.getMonth(),d));
       closeVerseDatePicker();
     });
@@ -918,11 +924,8 @@ function openVerseDatePicker(){
 }
 function closeVerseDatePicker(){document.getElementById('versePopup').classList.remove('show');}
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){const p=document.getElementById('versePopup');if(p&&p.classList.contains('show'))closeVerseDatePicker();}});
-function _restoreDailyWordDateFromSession(){try{const raw=sessionStorage.getItem('gomna_daily_word_date');if(!raw)return null;const d=new Date(raw);if(isNaN(d.getTime()))return null;return d;}catch(e){return null;}}
 function scrollToTodayWordCardFromHash(){if(location.hash!=='#today-word-card')return;const card=document.getElementById('today-word-card');if(!card)return;const scrollFn=function(){try{card.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){card.scrollIntoView();}};requestAnimationFrame(function(){setTimeout(scrollFn,80);});}
-const _restoredDailyDate=_restoreDailyWordDateFromSession();
-if(_restoredDailyDate)_selectedDate=_restoredDailyDate;
-_setVerseDOM(_selectedDate||new Date());
+_setVerseDOM(new Date());
 scrollToTodayWordCardFromHash();
 window.addEventListener('hashchange',scrollToTodayWordCardFromHash);
 
@@ -969,7 +972,6 @@ function openDailyVerse(mode){
   }
   const t=getDailyVerseTarget();
   if(!t){window.location.href='reader.html';return;}
-  try{sessionStorage.setItem('gomna_daily_word_date',(_selectedDate||new Date()).toISOString());}catch(e){}
   const params=new URLSearchParams();
   params.set('book',t.book);
   params.set('chapter',String(t.chapter));
