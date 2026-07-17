@@ -975,6 +975,7 @@ function openDailyVerse(mode){
   const params=new URLSearchParams();
   params.set('book',t.book);
   params.set('chapter',String(t.chapter));
+  params.set('verseStart',String(t.startVerse));
   params.set('verse',String(t.startVerse));
   params.set('source','home-daily-read');
   window.location.href='reader.html?'+params.toString();

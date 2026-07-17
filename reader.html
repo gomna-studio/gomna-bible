@@ -10,7 +10,7 @@
 <meta name="description" content="은혜의말씀 - 성경 66권 절별 목회주석 앱. 원어분석·역사적배경·신학적의미·설교자료 제공">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');if(p.get('source')==='home-daily-read'&&p.get('book'))document.documentElement.classList.add('home-daily-read-pending');}catch(e){}})();</script>
+<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if((src==='home-daily-read'||src==='search-related'||src==='guide-related')&&p.get('book'))document.documentElement.classList.add('scripture-entry-pending');}catch(e){}})();</script>
 <meta name="theme-color" content="#a87a35">
 <!-- Open Graph 메타 태그 (공유용) -->
 <meta property="og:title" content="은혜의말씀">
@@ -116,12 +116,12 @@ html.is-daily-word-view #unifiedBookChapterModal.unified-bc-overlay.active{z-ind
 html.is-daily-word-view main.content > .view:not(#verseView){display:none!important}
 .daily-word-return-btn{display:block;width:calc(100% - 4px);max-width:100%;margin:10px auto 14px;padding:10px 14px;min-height:46px;border:0.5px solid rgba(184,134,11,0.42);border-top:0.5px solid rgba(184,134,11,0.2);border-radius:0 0 10px 10px;background:rgba(255,250,244,0.96);color:#5a3818;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 .daily-word-return-btn:active{transform:scale(0.99);opacity:0.9;background:rgba(255,245,225,1)}
-html.home-daily-read-pending #readerDockTop,
-html.home-daily-read-pending #mobileTopPullSpacer,
-html.home-daily-read-pending main.content,
-html.home-daily-read-pending #verseReadHeader,
-html.home-daily-read-pending #opt4BottomBar,
-html.home-daily-read-pending #scriptureDock{visibility:hidden}
+html.scripture-entry-pending #readerDockTop,
+html.scripture-entry-pending #mobileTopPullSpacer,
+html.scripture-entry-pending main.content,
+html.scripture-entry-pending #verseReadHeader,
+html.scripture-entry-pending #opt4BottomBar,
+html.scripture-entry-pending #scriptureDock{visibility:hidden}
 .verse-actions{display:flex;gap:6px;margin-top:8px;padding-left:40px}
 .action-btn{background:#F8F4EF;border:0.5px solid #D5C8BB;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;color:#3D2817}
 .action-btn:active{background:#EDE6DE}
@@ -1457,7 +1457,7 @@ if ("serviceWorker" in navigator) {
 <body>
 <!-- haptic-tap-feedback -->
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
-<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function hasHomeDailyReadQuery(){try{var p=new URLSearchParams(location.search);return p.get('source')==='home-daily-read'&&!!(p.get('book')||'').trim();}catch(e){return false;}}function prepHomeDailyReadViewEarly(){try{if(!hasHomeDailyReadQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var vv=document.getElementById('verseView');if(vv)vv.classList.add('active');}catch(e){}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();prepHomeDailyReadViewEarly();activateEasyViewEarly();});}else{prepHomeDailyReadViewEarly();activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
+<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function hasScriptureEntryQuery(){try{var p=new URLSearchParams(location.search);var src=p.get('source');return(src==='home-daily-read'||src==='search-related'||src==='guide-related')&&!!(p.get('book')||'').trim();}catch(e){return false;}}function prepScriptureEntryViewEarly(){try{if(!hasScriptureEntryQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var vv=document.getElementById('verseView');if(vv)vv.classList.add('active');}catch(e){}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();prepScriptureEntryViewEarly();activateEasyViewEarly();});}else{prepScriptureEntryViewEarly();activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
 <div class="phone-frame"><div id="appTopChrome"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
   <span class="gs-text">Gomna Studio, Inc.</span>
   <span class="gs-arrow">↗</span>
@@ -2196,9 +2196,11 @@ function applyNavigationFromQuery() {
       currentChapter = chapterNum;
       document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
       document.getElementById('verseView').classList.add('active');
-      var verseRaw = p.get('verse');
+      var entrySource = p.get('source');
+      var isScriptureEntry = entrySource === 'home-daily-read' || entrySource === 'search-related' || entrySource === 'guide-related';
+      var verseRaw = p.get('verseStart') || p.get('verse');
       var verseNum = verseRaw != null && verseRaw !== '' ? parseInt(verseRaw, 10) : NaN;
-      renderVerses(!isNaN(verseNum) && verseNum >= 1 ? verseNum : undefined);
+      renderVerses(!isScriptureEntry && !isNaN(verseNum) && verseNum >= 1 ? verseNum : undefined);
       loadCommentaryData();
     } else {
       selectBook(book, chCount, testament);
@@ -2233,8 +2235,16 @@ function applyNavigationFromQuery() {
     if (si) si.value = qRaw;
     var siNew = document.getElementById('searchInputReader');
     if (siNew) siNew.value = qRaw;
+    var searchRestorePending = readSearchReturnPending();
+    if (searchRestorePending && searchRestorePending.bodyVisibleCount) {
+      _searchBodyVisibleCount = searchRestorePending.bodyVisibleCount;
+    }
     switchTab('search');
-    doSearch();
+    doSearch(searchRestorePending ? false : undefined);
+    if (searchRestorePending) {
+      restoreSearchReturnScroll(searchRestorePending);
+      clearSearchReturnState();
+    }
     syncReaderNavActive();
     return;
   }
@@ -2254,8 +2264,8 @@ function runDeferredUrlNavigation() {
   function run() {
     try { applyNavigationFromQuery(); } catch (e) {}
     function finishRun() {
-      if (document.documentElement.classList.contains('home-daily-read-pending') && typeof window.__gomnaRevealHomeDailyRead === 'function') {
-        window.__gomnaRevealHomeDailyRead();
+      if (document.documentElement.classList.contains('scripture-entry-pending') && typeof window.__gomnaRevealScriptureEntry === 'function') {
+        window.__gomnaRevealScriptureEntry();
       }
       syncReaderNavActive();
     }
@@ -2859,10 +2869,13 @@ function renderVerses(highlightVerse) {
       chapter: currentChapter
     }
   }));
-  var skipHomeDailyScroll = false;
-  try { skipHomeDailyScroll = new URLSearchParams(location.search).get('source') === 'home-daily-read'; } catch (e) {}
-  // 진입/딥링크는 위치만 이동하고 선택 상태는 만들지 않는다 (home-daily-read는 별도 경로)
-  if (highlightVerse && !skipHomeDailyScroll && Number(highlightVerse) > 1) {
+  var skipEntryScroll = false;
+  try {
+    var entrySrc = new URLSearchParams(location.search).get('source');
+    skipEntryScroll = entrySrc === 'home-daily-read' || entrySrc === 'search-related' || entrySrc === 'guide-related';
+  } catch (e) {}
+  // 진입/딥링크는 위치만 이동하고 선택 상태는 만들지 않는다 (scripture entry는 별도 경로)
+  if (highlightVerse && !skipEntryScroll && Number(highlightVerse) > 1) {
     requestAnimationFrame(function() {
       scrollVerseIntoView(highlightVerse);
     });
@@ -3940,7 +3953,9 @@ function unifiedBcApplyChapter(ch) {
     GomnaAnalytics.trackNavigateChapter(name, ch, 'select', testament);
   }
   renderVerses(1);
-  if (typeof window.exitDailyWordView === 'function') {
+  if (typeof window.exitScriptureEntryView === 'function') {
+    window.exitScriptureEntryView();
+  } else if (typeof window.exitDailyWordView === 'function') {
     window.exitDailyWordView();
   }
   if (window.__verseToolbarChapterNavFromMenu) {
@@ -5101,6 +5116,7 @@ function applyRange(startOpt, endOpt) {
 
 function prevChapter() {
   if (currentChapter > 1) {
+    if (typeof window.exitScriptureEntryView === 'function') window.exitScriptureEntryView();
     selectedVerseNum = null;
     currentChapter--;
     if (window.GomnaAnalytics && currentBook) GomnaAnalytics.trackNavigateChapter(currentBook.name, currentChapter, 'prev', currentBook.testament);
@@ -5111,6 +5127,7 @@ function prevChapter() {
 }
 function nextChapter() {
   if (currentChapter < currentBook.chapters) {
+    if (typeof window.exitScriptureEntryView === 'function') window.exitScriptureEntryView();
     selectedVerseNum = null;
     currentChapter++;
     if (window.GomnaAnalytics && currentBook) GomnaAnalytics.trackNavigateChapter(currentBook.name, currentChapter, 'next', currentBook.testament);
@@ -5217,12 +5234,12 @@ function _renderFaithResourceCard(card) {
   html += '<div class="faith-resource-related">';
   if (card.relatedVerse) {
     var rv = card.relatedVerse;
-    html += '<button type="button" class="faith-resource-related-btn" onclick="goToVerse(\'' + rv.book + '\',' + rv.chapter + ',' + rv.verse + ',\'' + rv.testament + '\')">관련 본문: ' + _escapeSearchHtml(card.relatedLabel || (rv.book + ' ' + rv.chapter + ':' + rv.verse)) + '</button>';
+    html += '<button type="button" class="faith-resource-related-btn" onclick="' + _faithRelatedScriptureOnclick(rv, 'search-related', card.relatedLabel, card.id) + '">' + _escapeSearchHtml(_formatFaithRelatedScriptureBtnText(card.relatedLabel, rv)) + '</button>';
   }
   if (card.relatedVerses && card.relatedVerses.length) {
     card.relatedVerses.forEach(function(rv) {
-      var label = rv.label || (rv.book + ' ' + rv.chapter + ':' + rv.verse);
-      html += '<button type="button" class="faith-resource-related-btn" onclick="goToVerse(\'' + rv.book + '\',' + rv.chapter + ',' + rv.verse + ',\'' + rv.testament + '\')">' + _escapeSearchHtml(label) + '</button>';
+      var label = rv.label || (rv.book + ' ' + rv.chapter + ':' + (rv.verseEnd && rv.verseEnd !== rv.verse ? rv.verse + '~' + rv.verseEnd : rv.verse));
+      html += '<button type="button" class="faith-resource-related-btn" onclick="' + _faithRelatedScriptureOnclick(rv, 'search-related', label, card.id) + '">' + _escapeSearchHtml(_formatFaithRelatedScriptureBtnText(label, rv)) + '</button>';
     });
   }
   html += '</div></div>';
@@ -5274,6 +5291,116 @@ function showMoreBodySearchResults() {
 }
 
 var _lastSearchQuery = '';
+var SEARCH_RETURN_STATE_KEY = 'gomna_search_return_state';
+var SEARCH_RETURN_PENDING_KEY = 'gomna_search_return_pending';
+var SEARCH_RETURN_STATE_MAX_AGE_MS = 30 * 60 * 1000;
+
+function _formatFaithRelatedScriptureBtnText(label, rv) {
+  var refLabel = label || (rv.book + ' ' + rv.chapter + ':' + (rv.verseEnd && rv.verseEnd !== rv.verse ? rv.verse + '~' + rv.verseEnd : rv.verse));
+  return '관련 본문으로 가기 · ' + refLabel;
+}
+
+function readSearchReturnState() {
+  try {
+    var raw = sessionStorage.getItem(SEARCH_RETURN_STATE_KEY);
+    if (!raw) return null;
+    var state = JSON.parse(raw);
+    if (!state || !state.query) return null;
+    if (state.timestamp && Date.now() - state.timestamp > SEARCH_RETURN_STATE_MAX_AGE_MS) {
+      sessionStorage.removeItem(SEARCH_RETURN_STATE_KEY);
+      return null;
+    }
+    return state;
+  } catch (e) { return null; }
+}
+
+function readSearchReturnPending() {
+  try {
+    var raw = sessionStorage.getItem(SEARCH_RETURN_PENDING_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+
+function saveSearchReturnState(faithCardId) {
+  try {
+    var query = (_lastSearchQuery || '').trim();
+    if (!query) {
+      var si = document.getElementById('searchInput');
+      query = si ? si.value.trim() : '';
+    }
+    if (!query) return;
+    var scrollEl = typeof getBibleListScrollContainer === 'function'
+      ? getBibleListScrollContainer()
+      : (document.scrollingElement || document.documentElement);
+    var scrollY = scrollEl ? scrollEl.scrollTop : (window.scrollY || 0);
+    sessionStorage.setItem(SEARCH_RETURN_STATE_KEY, JSON.stringify({
+      query: query,
+      scrollY: scrollY,
+      source: 'search-related',
+      faithCardId: faithCardId || null,
+      returnPath: 'reader.html',
+      bodyVisibleCount: _searchBodyVisibleCount,
+      timestamp: Date.now()
+    }));
+  } catch (e) {}
+}
+
+function clearSearchReturnState() {
+  try {
+    sessionStorage.removeItem(SEARCH_RETURN_STATE_KEY);
+    sessionStorage.removeItem(SEARCH_RETURN_PENDING_KEY);
+  } catch (e) {}
+}
+
+function returnToSearchResults() {
+  var state = readSearchReturnState();
+  if (state && state.query) {
+    try {
+      sessionStorage.setItem(SEARCH_RETURN_PENDING_KEY, JSON.stringify({
+        scrollY: state.scrollY,
+        faithCardId: state.faithCardId || null,
+        bodyVisibleCount: state.bodyVisibleCount || 30
+      }));
+    } catch (e) {}
+    window.location.href = 'reader.html?q=' + encodeURIComponent(state.query);
+    return false;
+  }
+  window.location.href = 'reader.html?focus=search';
+  return false;
+}
+
+function restoreSearchReturnScroll(pending) {
+  if (!pending) return;
+  function applyScroll() {
+    var scrollEl = typeof getBibleListScrollContainer === 'function'
+      ? getBibleListScrollContainer()
+      : (document.scrollingElement || document.documentElement);
+    if (!scrollEl) return;
+    if (pending.faithCardId) {
+      var card = document.querySelector('.faith-resource-card[data-faith-id="' + pending.faithCardId + '"]');
+      if (card) {
+        var cardRect = card.getBoundingClientRect();
+        var scrollRect = scrollEl.getBoundingClientRect ? scrollEl.getBoundingClientRect() : { top: 0 };
+        var nextTop = scrollEl.scrollTop + (cardRect.top - scrollRect.top) - 12;
+        scrollEl.scrollTop = Math.max(0, nextTop);
+        return;
+      }
+    }
+    if (typeof pending.scrollY === 'number' && pending.scrollY >= 0) {
+      scrollEl.scrollTop = pending.scrollY;
+    }
+  }
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        setTimeout(applyScroll, 60);
+      });
+    });
+  } else {
+    setTimeout(applyScroll, 100);
+  }
+}
 
 function doSearch(resetBodyCount) {
   var query = document.getElementById('searchInput').value.trim();
@@ -5313,7 +5440,123 @@ function returnToReader() {
   }
 }
 
+function buildScriptureEntryVerseList(verseStart, verseEnd, maxVerse) {
+  var start = parseInt(verseStart, 10);
+  var end = parseInt(verseEnd, 10);
+  if (isNaN(start) || start < 1) return [];
+  if (isNaN(end) || end < start) end = start;
+  if (start > end) { var tmp = start; start = end; end = tmp; }
+  if (maxVerse && maxVerse > 0) {
+    if (start > maxVerse) return [];
+    if (end > maxVerse) end = maxVerse;
+  }
+  var list = [];
+  for (var v = start; v <= end; v++) list.push(v);
+  return list;
+}
+
+function parseRelatedScriptureLabelRange(label, chapter) {
+  if (!label || !chapter) return null;
+  var text = String(label);
+  var rangeMatch = text.match(/(\d+)\s*[:\uFF1A]\s*(\d+)\s*[~\uFF5E\-–]\s*(\d+)/);
+  if (rangeMatch && Number(rangeMatch[1]) === Number(chapter)) {
+    return { start: Number(rangeMatch[2]), end: Number(rangeMatch[3]) };
+  }
+  var singleMatch = text.match(/(\d+)\s*[:\uFF1A]\s*(\d+)/);
+  if (singleMatch && Number(singleMatch[1]) === Number(chapter)) {
+    var verse = Number(singleMatch[2]);
+    return { start: verse, end: verse };
+  }
+  return null;
+}
+
+function resolveScriptureEntryRange(opts) {
+  if (!opts) return null;
+  var chapter = parseInt(opts.chapter, 10);
+  if (isNaN(chapter) || chapter < 1) return null;
+  var start = parseInt(opts.verseStart != null ? opts.verseStart : (opts.verse != null ? opts.verse : NaN), 10);
+  var end = parseInt(opts.verseEnd != null ? opts.verseEnd : start, 10);
+  if (isNaN(start) || start < 1) return null;
+  if (isNaN(end) || end < 1) end = start;
+  if ((!opts.verseEnd || end === start) && opts.relatedLabel) {
+    var parsed = parseRelatedScriptureLabelRange(opts.relatedLabel, chapter);
+    if (parsed) {
+      start = parsed.start;
+      end = parsed.end;
+    }
+  }
+  if (start > end) { var swap = start; start = end; end = swap; }
+  return { verseStart: start, verseEnd: end };
+}
+
+function parseScriptureEntryFromSearchParams(p) {
+  if (!p) return null;
+  var source = p.get('source');
+  if (source !== 'home-daily-read' && source !== 'search-related' && source !== 'guide-related') return null;
+  var book = (p.get('book') || '').trim();
+  if (!book) return null;
+  var chapter = parseInt(p.get('chapter'), 10);
+  if (isNaN(chapter) || chapter < 1) return null;
+  var verseStart = parseInt(p.get('verseStart') || p.get('verse') || '1', 10);
+  var verseEndRaw = p.get('verseEnd');
+  var verseEnd = verseEndRaw != null && verseEndRaw !== '' ? parseInt(verseEndRaw, 10) : verseStart;
+  if (isNaN(verseStart) || verseStart < 1) return null;
+  if (isNaN(verseEnd) || verseEnd < 1) verseEnd = verseStart;
+  if (verseStart > verseEnd) { var swapStart = verseStart; verseStart = verseEnd; verseEnd = swapStart; }
+  var maxVerse = window.currentVerseCount && Number(window.currentChapter) === chapter ? window.currentVerseCount : 0;
+  var verses = buildScriptureEntryVerseList(verseStart, verseEnd, maxVerse);
+  if (!verses.length) return null;
+  return {
+    source: source,
+    book: book,
+    chapter: chapter,
+    verses: verses,
+    scrollVerse: verses[0],
+    guideTestament: p.get('guideTestament') || null,
+    guideCat: (p.get('guideCat') || '').trim() || null
+  };
+}
+
+function openScriptureHighlightEntry(opts) {
+  if (!opts || !opts.book) return;
+  var chapter = parseInt(opts.chapter, 10);
+  if (isNaN(chapter) || chapter < 1) return;
+  var range = resolveScriptureEntryRange(opts);
+  if (!range) return;
+  var verseStart = range.verseStart;
+  var verseEnd = range.verseEnd;
+  var params = new URLSearchParams();
+  params.set('book', opts.book);
+  params.set('chapter', String(chapter));
+  params.set('verseStart', String(verseStart));
+  if (verseEnd !== verseStart) params.set('verseEnd', String(verseEnd));
+  if (opts.source === 'home-daily-read') params.set('verse', String(verseStart));
+  params.set('source', opts.source || 'search-related');
+  if (opts.testament) params.set('testament', opts.testament);
+  if (opts.guideTestament) params.set('guideTestament', opts.guideTestament);
+  if (opts.guideCat) params.set('guideCat', opts.guideCat);
+  window.location.href = 'reader.html?' + params.toString();
+}
+
+function _faithRelatedScriptureOnclick(rv, source, relatedLabel, faithCardId) {
+  var range = resolveScriptureEntryRange({
+    chapter: rv.chapter,
+    verse: rv.verse,
+    verseStart: rv.verseStart != null ? rv.verseStart : rv.verse,
+    verseEnd: rv.verseEnd,
+    relatedLabel: relatedLabel || rv.label || ''
+  });
+  if (!range) return '';
+  var entry = 'openScriptureHighlightEntry({book:\'' + rv.book + '\',chapter:' + rv.chapter + ',verseStart:' + range.verseStart + ',verseEnd:' + range.verseEnd + ',source:\'' + (source || 'search-related') + '\',testament:\'' + rv.testament + '\'})';
+  if (source === 'search-related') {
+    var idArg = faithCardId ? '\'' + String(faithCardId).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\'' : 'null';
+    return 'saveSearchReturnState(' + idArg + ');' + entry;
+  }
+  return entry;
+}
+
 function goToVerse(book, chapter, verse, testament) {
+  if (typeof window.exitScriptureEntryView === 'function') window.exitScriptureEntryView();
   var data = testament === 'old' ? oldTestamentData : newTestamentData;
   var bookData = findBook(data, book);
   if(bookData) {
@@ -5887,20 +6130,15 @@ function loadAds() {
 })();
 </script>
 <script>
-/* ── home daily read: 오늘 말씀 → 일반 본문 + 해당 절 강조 + 홈 카드로 돌아가기 ── */
+/* ── scripture entry: 오늘의 말씀 / 검색 관련 본문 / 길잡이 연관 구절 공통 본문 진입 ── */
 (function(){
   'use strict';
   var pending=null;
   var returnLock=false;
   var returnBtn=null;
+  var entryRevealCompleted=false;
   try{
-    var p=new URLSearchParams(location.search);
-    if(p.get('source')==='home-daily-read'){
-      var book=(p.get('book')||'').trim();
-      var chapter=parseInt(p.get('chapter'),10);
-      var verse=parseInt(p.get('verse')||'1',10);
-      if(book&&!isNaN(chapter)&&!isNaN(verse))pending={book:book,chapter:chapter,verse:verse};
-    }
+    pending=parseScriptureEntryFromSearchParams(new URLSearchParams(location.search));
   }catch(e){}
   if(!pending)return;
 
@@ -5916,18 +6154,37 @@ function loadAds() {
     returnBtn=null;
   }
 
-  window.exitDailyWordView=function(){
+  function clearSourceReturnUI(){
+    removeDailyReturnBtn();
+    if(typeof window.__gomnaClearGuideEntryReturn==='function')window.__gomnaClearGuideEntryReturn();
+  }
+
+  window.exitScriptureEntryView=function(){
     if(!pending)return;
     pending=null;
-    removeDailyReturnBtn();
+    clearSourceReturnUI();
     if(typeof clearVerseSelection==='function')clearVerseSelection();
-    revealHomeDailyRead();
+    revealScriptureEntry();
   };
+  window.exitDailyWordView=window.exitScriptureEntryView;
 
-  function revealHomeDailyRead(){
-    document.documentElement.classList.remove('home-daily-read-pending');
+  function revealScriptureEntry(){
+    document.documentElement.classList.remove('scripture-entry-pending');
   }
-  window.__gomnaRevealHomeDailyRead=revealHomeDailyRead;
+  window.__gomnaRevealScriptureEntry=revealScriptureEntry;
+  window.__gomnaRevealHomeDailyRead=revealScriptureEntry;
+
+  function getScriptureEntryViewportInsets(){
+    var hdr=document.getElementById('verseReadHeader');
+    var bar=document.getElementById('opt4BottomBar');
+    var dock=document.getElementById('scriptureDock');
+    var topInset=hdr&&hdr.offsetParent!==null?hdr.getBoundingClientRect().height:0;
+    var bottomInset=0;
+    if(bar&&bar.offsetParent!==null)bottomInset+=bar.getBoundingClientRect().height;
+    if(dock&&dock.offsetParent!==null)bottomInset+=dock.getBoundingClientRect().height;
+    var pullOffset=typeof getMobileTopPullOffset==='function'?getMobileTopPullOffset():0;
+    return{top:topInset+pullOffset+12,bottom:bottomInset+12};
+  }
 
   function getElementDocumentTop(el){
     var top=0;
@@ -5938,23 +6195,48 @@ function loadAds() {
     return top;
   }
 
-  function scrollHomeDailyVerseInstant(verseNum){
+  function centerScriptureEntryRangeInViewport(firstItem,lastItem){
+    if(!firstItem||!lastItem)return;
+    var scrollEl=typeof getBibleListScrollContainer==='function'
+      ?getBibleListScrollContainer()
+      :(document.scrollingElement||document.documentElement);
+    if(!scrollEl)return;
+    void firstItem.offsetHeight;
+    void lastItem.offsetHeight;
+    var insets=getScriptureEntryViewportInsets();
+    var usableTop=insets.top;
+    var usableBottom=window.innerHeight-insets.bottom;
+    var usableHeight=Math.max(0,usableBottom-usableTop);
+    var viewportCenter=(usableTop+usableBottom)/2;
+    var firstRect=firstItem.getBoundingClientRect();
+    var lastRect=lastItem.getBoundingClientRect();
+    var rangeTop=firstRect.top;
+    var rangeBottom=lastRect.bottom;
+    var rangeHeight=Math.max(0,rangeBottom-rangeTop);
+    var rangeCenter=(rangeTop+rangeBottom)/2;
+    var currentTop=scrollEl.scrollTop||window.pageYOffset||0;
+    var nextTop;
+    if(rangeHeight>=usableHeight-8){
+      nextTop=currentTop+(rangeTop-usableTop);
+    }else{
+      nextTop=currentTop+(rangeCenter-viewportCenter);
+    }
+    if(nextTop<0)nextTop=0;
+    var maxScroll=Math.max(0,(scrollEl.scrollHeight||0)-(scrollEl.clientHeight||window.innerHeight));
+    if(nextTop>maxScroll)nextTop=maxScroll;
+    try{scrollEl.scrollTo({top:nextTop,behavior:'auto'});}catch(e){scrollEl.scrollTop=nextTop;}
+  }
+
+  function scrollScriptureEntryVerseInstant(verseNum){
     var item=document.querySelector('#verseList .verse-item[data-verse="'+verseNum+'"]');
     if(!item)return;
     var scrollEl=typeof getBibleListScrollContainer==='function'
       ?getBibleListScrollContainer()
       :(document.scrollingElement||document.documentElement);
     if(!scrollEl)return;
-    var hdr=document.getElementById('verseReadHeader');
-    var bar=document.getElementById('opt4BottomBar');
-    var dock=document.getElementById('scriptureDock');
-    var topInset=hdr&&hdr.offsetParent!==null?hdr.getBoundingClientRect().height:0;
-    var bottomInset=0;
-    if(bar&&bar.offsetParent!==null)bottomInset+=bar.getBoundingClientRect().height;
-    if(dock&&dock.offsetParent!==null)bottomInset+=dock.getBoundingClientRect().height;
-    var pullOffset=typeof getMobileTopPullOffset==='function'?getMobileTopPullOffset():0;
-    var padTop=topInset+pullOffset+12;
-    var padBottom=bottomInset+12;
+    var insets=getScriptureEntryViewportInsets();
+    var padTop=insets.top;
+    var padBottom=insets.bottom;
     void item.offsetHeight;
     var itemDocTop=getElementDocumentTop(item);
     var itemHeight=item.offsetHeight||0;
@@ -5972,49 +6254,113 @@ function loadAds() {
     try{scrollEl.scrollTo({top:nextTop,behavior:'auto'});}catch(e){scrollEl.scrollTop=nextTop;}
   }
 
-  function finishDailyWordReveal(item){
-    scrollHomeDailyVerseInstant(pending.verse);
-    revealHomeDailyRead();
-    attachDailyReturnBtn(item);
+  function attachSourceReturnUI(anchorItem){
+    if(!pending||!anchorItem)return;
+    if(pending.source==='home-daily-read'){
+      removeDailyReturnBtn();
+      var btn=document.createElement('button');
+      btn.type='button';
+      btn.className='daily-word-return-btn';
+      btn.setAttribute('data-daily-word-return','1');
+      btn.textContent='← 오늘의 말씀으로 돌아가기';
+      btn.setAttribute('aria-label','오늘의 말씀으로 돌아가기');
+      btn.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        returnToTodayWordCard();
+      });
+      anchorItem.insertAdjacentElement('afterend',btn);
+      returnBtn=btn;
+      return;
+    }
+    if(pending.source==='search-related'){
+      removeDailyReturnBtn();
+      var searchBtn=document.createElement('button');
+      searchBtn.type='button';
+      searchBtn.className='daily-word-return-btn';
+      searchBtn.setAttribute('data-search-return','1');
+      searchBtn.textContent='← 검색 결과로 돌아가기';
+      searchBtn.setAttribute('aria-label','검색 결과로 돌아가기');
+      searchBtn.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(typeof returnToSearchResults==='function')returnToSearchResults();
+      });
+      anchorItem.insertAdjacentElement('afterend',searchBtn);
+      returnBtn=searchBtn;
+      return;
+    }
+    if(pending.source==='guide-related'&&pending.guideCat&&typeof window.__gomnaAttachGuideEntryReturn==='function'){
+      window.__gomnaAttachGuideEntryReturn(anchorItem,pending.guideTestament||'old',pending.guideCat);
+    }
   }
 
-  function attachDailyReturnBtn(item){
-    if(!item)return;
-    removeDailyReturnBtn();
-    var btn=document.createElement('button');
-    btn.type='button';
-    btn.className='daily-word-return-btn';
-    btn.setAttribute('data-daily-word-return','1');
-    btn.textContent='← 오늘의 말씀으로 돌아가기';
-    btn.setAttribute('aria-label','오늘의 말씀으로 돌아가기');
-    btn.addEventListener('click',function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      returnToTodayWordCard();
-    });
-    item.insertAdjacentElement('afterend',btn);
-    returnBtn=btn;
+  function finishScriptureEntryReveal(firstItem,lastItem){
+    if(pending.source==='search-related'){
+      attachSourceReturnUI(lastItem);
+      function applySearchRangeCenter(){
+        centerScriptureEntryRangeInViewport(firstItem,lastItem);
+        entryRevealCompleted=true;
+        revealScriptureEntry();
+      }
+      if(typeof requestAnimationFrame==='function'){
+        requestAnimationFrame(function(){
+          requestAnimationFrame(applySearchRangeCenter);
+        });
+      }else{
+        applySearchRangeCenter();
+      }
+      return;
+    }
+    scrollScriptureEntryVerseInstant(pending.scrollVerse||pending.verses[0]);
+    revealScriptureEntry();
+    attachSourceReturnUI(lastItem);
+    entryRevealCompleted=true;
   }
 
-  function activateDailyWordHighlight(){
-    if(!pending){revealHomeDailyRead();return false;}
+  function refreshPendingVerses(){
+    if(!pending)return false;
+    try{
+      var fresh=parseScriptureEntryFromSearchParams(new URLSearchParams(location.search));
+      if(!fresh||fresh.source!==pending.source||fresh.book!==pending.book||fresh.chapter!==pending.chapter)return false;
+      pending.verses=fresh.verses.slice();
+      pending.scrollVerse=fresh.scrollVerse;
+      return pending.verses.length>0;
+    }catch(e){return false;}
+  }
+
+  function activateScriptureEntryHighlight(){
+    if(!pending){revealScriptureEntry();return false;}
     if(!window.currentBook||window.currentBook.name!==pending.book)return false;
     if(Number(window.currentChapter)!==pending.chapter)return false;
+    refreshPendingVerses();
+    if(!pending.verses.length){revealScriptureEntry();return false;}
     var list=document.getElementById('verseList');
-    if(!list){revealHomeDailyRead();return false;}
-    var item=list.querySelector('.verse-item[data-verse="'+pending.verse+'"]');
-    if(!item){revealHomeDailyRead();return false;}
-    if(typeof restoreVerseSelection==='function')restoreVerseSelection([pending.verse]);
+    if(!list){revealScriptureEntry();return false;}
+    var highlightVerses=pending.verses.slice();
+    if(window.currentVerseCount&&window.currentVerseCount>0){
+      highlightVerses=buildScriptureEntryVerseList(highlightVerses[0],highlightVerses[highlightVerses.length-1],window.currentVerseCount);
+      if(!highlightVerses.length){revealScriptureEntry();return false;}
+      pending.verses=highlightVerses;
+      pending.scrollVerse=highlightVerses[0];
+    }
+    var firstVerse=highlightVerses[0];
+    var lastVerse=highlightVerses[highlightVerses.length-1];
+    var firstItem=list.querySelector('.verse-item[data-verse="'+firstVerse+'"]');
+    var lastItem=list.querySelector('.verse-item[data-verse="'+lastVerse+'"]');
+    if(!firstItem||!lastItem){revealScriptureEntry();return false;}
+    if(typeof restoreVerseSelection==='function')restoreVerseSelection(highlightVerses);
+    if(entryRevealCompleted)return true;
     if(typeof requestAnimationFrame==='function'){
-      requestAnimationFrame(function(){finishDailyWordReveal(item);});
+      requestAnimationFrame(function(){finishScriptureEntryReveal(firstItem,lastItem);});
     }else{
-      finishDailyWordReveal(item);
+      finishScriptureEntryReveal(firstItem,lastItem);
     }
     return true;
   }
 
   window.addEventListener('gomna:verse_list_rendered',function(){
-    activateDailyWordHighlight();
+    activateScriptureEntryHighlight();
   });
 })();
 </script>

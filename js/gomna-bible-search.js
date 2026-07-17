@@ -260,6 +260,8 @@
           book: LORD_PRAYER_BOOK,
           chapter: LORD_PRAYER_CHAPTER,
           verse: LORD_PRAYER_VERSE_START,
+          verseStart: LORD_PRAYER_VERSE_START,
+          verseEnd: LORD_PRAYER_VERSE_END,
           testament: 'new'
         }
       });
