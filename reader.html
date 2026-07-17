@@ -10,7 +10,7 @@
 <meta name="description" content="은혜의말씀 - 성경 66권 절별 목회주석 앱. 원어분석·역사적배경·신학적의미·설교자료 제공">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');}catch(e){}})();</script>
+<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');if(p.get('source')==='home-daily-read'&&p.get('book'))document.documentElement.classList.add('home-daily-read-pending');}catch(e){}})();</script>
 <meta name="theme-color" content="#a87a35">
 <!-- Open Graph 메타 태그 (공유용) -->
 <meta property="og:title" content="은혜의말씀">
@@ -116,6 +116,12 @@ html.is-daily-word-view #unifiedBookChapterModal.unified-bc-overlay.active{z-ind
 html.is-daily-word-view main.content > .view:not(#verseView){display:none!important}
 .daily-word-return-btn{display:block;width:calc(100% - 4px);max-width:100%;margin:10px auto 14px;padding:10px 14px;min-height:46px;border:0.5px solid rgba(184,134,11,0.42);border-top:0.5px solid rgba(184,134,11,0.2);border-radius:0 0 10px 10px;background:rgba(255,250,244,0.96);color:#5a3818;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 .daily-word-return-btn:active{transform:scale(0.99);opacity:0.9;background:rgba(255,245,225,1)}
+html.home-daily-read-pending #readerDockTop,
+html.home-daily-read-pending #mobileTopPullSpacer,
+html.home-daily-read-pending main.content,
+html.home-daily-read-pending #verseReadHeader,
+html.home-daily-read-pending #opt4BottomBar,
+html.home-daily-read-pending #scriptureDock{visibility:hidden}
 .verse-actions{display:flex;gap:6px;margin-top:8px;padding-left:40px}
 .action-btn{background:#F8F4EF;border:0.5px solid #D5C8BB;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;color:#3D2817}
 .action-btn:active{background:#EDE6DE}
@@ -1451,7 +1457,7 @@ if ("serviceWorker" in navigator) {
 <body>
 <!-- haptic-tap-feedback -->
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
-<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();activateEasyViewEarly();});}else{activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('source')==='home-daily-read'&&p.get('book'))document.documentElement.classList.add('is-daily-word-view');if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
+<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function hasHomeDailyReadQuery(){try{var p=new URLSearchParams(location.search);return p.get('source')==='home-daily-read'&&!!(p.get('book')||'').trim();}catch(e){return false;}}function prepHomeDailyReadViewEarly(){try{if(!hasHomeDailyReadQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var vv=document.getElementById('verseView');if(vv)vv.classList.add('active');}catch(e){}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();prepHomeDailyReadViewEarly();activateEasyViewEarly();});}else{prepHomeDailyReadViewEarly();activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
 <div class="phone-frame"><div id="appTopChrome"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
   <span class="gs-text">Gomna Studio, Inc.</span>
   <span class="gs-arrow">↗</span>
@@ -2190,7 +2196,9 @@ function applyNavigationFromQuery() {
       currentChapter = chapterNum;
       document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
       document.getElementById('verseView').classList.add('active');
-      renderVerses();
+      var verseRaw = p.get('verse');
+      var verseNum = verseRaw != null && verseRaw !== '' ? parseInt(verseRaw, 10) : NaN;
+      renderVerses(!isNaN(verseNum) && verseNum >= 1 ? verseNum : undefined);
       loadCommentaryData();
     } else {
       selectBook(book, chCount, testament);
@@ -2245,7 +2253,17 @@ function applyNavigationFromQuery() {
 function runDeferredUrlNavigation() {
   function run() {
     try { applyNavigationFromQuery(); } catch (e) {}
-    syncReaderNavActive();
+    function finishRun() {
+      if (document.documentElement.classList.contains('home-daily-read-pending') && typeof window.__gomnaRevealHomeDailyRead === 'function') {
+        window.__gomnaRevealHomeDailyRead();
+      }
+      syncReaderNavActive();
+    }
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(finishRun);
+    } else {
+      finishRun();
+    }
   }
   if (typeof requestAnimationFrame === 'function') {
     requestAnimationFrame(function() { setTimeout(run, 0); });
@@ -2841,8 +2859,10 @@ function renderVerses(highlightVerse) {
       chapter: currentChapter
     }
   }));
-  // 진입/딥링크는 위치만 이동하고 선택 상태는 만들지 않는다
-  if (highlightVerse && Number(highlightVerse) > 1) {
+  var skipHomeDailyScroll = false;
+  try { skipHomeDailyScroll = new URLSearchParams(location.search).get('source') === 'home-daily-read'; } catch (e) {}
+  // 진입/딥링크는 위치만 이동하고 선택 상태는 만들지 않는다 (home-daily-read는 별도 경로)
+  if (highlightVerse && !skipHomeDailyScroll && Number(highlightVerse) > 1) {
     requestAnimationFrame(function() {
       scrollVerseIntoView(highlightVerse);
     });
@@ -3902,7 +3922,6 @@ function unifiedBcGoCategoryList() {
 
 function unifiedBcApplyChapter(ch) {
   if (!unifiedBcState.selectedBook) return;
-  var wasDaily = document.documentElement.classList.contains('is-daily-word-view');
   var name = unifiedBcState.selectedBook;
   var testament = unifiedBcState.testament;
   var displayChapters = unifiedBcState.displayChapters;
@@ -3921,7 +3940,7 @@ function unifiedBcApplyChapter(ch) {
     GomnaAnalytics.trackNavigateChapter(name, ch, 'select', testament);
   }
   renderVerses(1);
-  if (wasDaily && typeof window.exitDailyWordView === 'function') {
+  if (typeof window.exitDailyWordView === 'function') {
     window.exitDailyWordView();
   }
   if (window.__verseToolbarChapterNavFromMenu) {
@@ -5868,7 +5887,7 @@ function loadAds() {
 })();
 </script>
 <script>
-/* ── home daily read: 오늘 말씀 열기 → 단일 구절 + 홈 카드로 돌아가기 ── */
+/* ── home daily read: 오늘 말씀 → 일반 본문 + 해당 절 강조 + 홈 카드로 돌아가기 ── */
 (function(){
   'use strict';
   var pending=null;
@@ -5885,8 +5904,6 @@ function loadAds() {
   }catch(e){}
   if(!pending)return;
 
-  document.documentElement.classList.add('is-daily-word-view');
-
   window.returnToTodayWordCard=function(){
     if(returnLock)return false;
     returnLock=true;
@@ -5900,19 +5917,66 @@ function loadAds() {
   }
 
   window.exitDailyWordView=function(){
-    if(!document.documentElement.classList.contains('is-daily-word-view'))return;
+    if(!pending)return;
     pending=null;
-    document.documentElement.classList.remove('is-daily-word-view');
     removeDailyReturnBtn();
-    var list=document.getElementById('verseList');
-    if(list){
-      list.querySelectorAll('.verse-item').forEach(function(el){
-        el.classList.remove('verse-item--daily-word-focus');
-        el.style.display='';
-      });
-    }
-    if(typeof updateOpt4BottomBar==='function')updateOpt4BottomBar();
+    if(typeof clearVerseSelection==='function')clearVerseSelection();
+    revealHomeDailyRead();
   };
+
+  function revealHomeDailyRead(){
+    document.documentElement.classList.remove('home-daily-read-pending');
+  }
+  window.__gomnaRevealHomeDailyRead=revealHomeDailyRead;
+
+  function getElementDocumentTop(el){
+    var top=0;
+    while(el){
+      top+=el.offsetTop;
+      el=el.offsetParent;
+    }
+    return top;
+  }
+
+  function scrollHomeDailyVerseInstant(verseNum){
+    var item=document.querySelector('#verseList .verse-item[data-verse="'+verseNum+'"]');
+    if(!item)return;
+    var scrollEl=typeof getBibleListScrollContainer==='function'
+      ?getBibleListScrollContainer()
+      :(document.scrollingElement||document.documentElement);
+    if(!scrollEl)return;
+    var hdr=document.getElementById('verseReadHeader');
+    var bar=document.getElementById('opt4BottomBar');
+    var dock=document.getElementById('scriptureDock');
+    var topInset=hdr&&hdr.offsetParent!==null?hdr.getBoundingClientRect().height:0;
+    var bottomInset=0;
+    if(bar&&bar.offsetParent!==null)bottomInset+=bar.getBoundingClientRect().height;
+    if(dock&&dock.offsetParent!==null)bottomInset+=dock.getBoundingClientRect().height;
+    var pullOffset=typeof getMobileTopPullOffset==='function'?getMobileTopPullOffset():0;
+    var padTop=topInset+pullOffset+12;
+    var padBottom=bottomInset+12;
+    void item.offsetHeight;
+    var itemDocTop=getElementDocumentTop(item);
+    var itemHeight=item.offsetHeight||0;
+    var viewport=window.innerHeight;
+    var nextTop=itemDocTop-padTop;
+    if(itemHeight+padTop+padBottom+24<viewport){
+      var centered=itemDocTop-((viewport-itemHeight)/2);
+      var minTop=itemDocTop-padTop;
+      var maxTop=itemDocTop+itemHeight-(viewport-padBottom);
+      nextTop=Math.min(Math.max(centered,minTop),maxTop);
+    }
+    if(nextTop<0)nextTop=0;
+    var maxScroll=Math.max(0,(scrollEl.scrollHeight||0)-(scrollEl.clientHeight||viewport));
+    if(nextTop>maxScroll)nextTop=maxScroll;
+    try{scrollEl.scrollTo({top:nextTop,behavior:'auto'});}catch(e){scrollEl.scrollTop=nextTop;}
+  }
+
+  function finishDailyWordReveal(item){
+    scrollHomeDailyVerseInstant(pending.verse);
+    revealHomeDailyRead();
+    attachDailyReturnBtn(item);
+  }
 
   function attachDailyReturnBtn(item){
     if(!item)return;
@@ -5932,33 +5996,26 @@ function loadAds() {
     returnBtn=btn;
   }
 
-  function activateDailyWordView(){
+  function activateDailyWordHighlight(){
+    if(!pending){revealHomeDailyRead();return false;}
     if(!window.currentBook||window.currentBook.name!==pending.book)return false;
     if(Number(window.currentChapter)!==pending.chapter)return false;
     var list=document.getElementById('verseList');
-    if(!list)return false;
+    if(!list){revealHomeDailyRead();return false;}
     var item=list.querySelector('.verse-item[data-verse="'+pending.verse+'"]');
-    if(!item)return false;
-    list.querySelectorAll('.verse-item').forEach(function(el){
-      el.classList.toggle('verse-item--daily-word-focus',el===item);
-    });
-    attachDailyReturnBtn(item);
-    try{item.scrollIntoView({block:'center'});}catch(e){item.scrollIntoView();}
+    if(!item){revealHomeDailyRead();return false;}
+    if(typeof restoreVerseSelection==='function')restoreVerseSelection([pending.verse]);
+    if(typeof requestAnimationFrame==='function'){
+      requestAnimationFrame(function(){finishDailyWordReveal(item);});
+    }else{
+      finishDailyWordReveal(item);
+    }
     return true;
   }
 
-  function scheduleTry(){
-    var delays=[0,80,200,500,1000,2500];
-    for(var i=0;i<delays.length;i++){
-      (function(ms){setTimeout(function(){activateDailyWordView();},ms);})(delays[i]);
-    }
-  }
-
   window.addEventListener('gomna:verse_list_rendered',function(){
-    activateDailyWordView();
+    activateDailyWordHighlight();
   });
-  if(document.readyState!=='loading')scheduleTry();
-  else document.addEventListener('DOMContentLoaded',scheduleTry);
 })();
 </script>
 <script>
