@@ -202,7 +202,7 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .verse-card:hover{box-shadow:0 3px 14px rgba(90,58,20,.14)}
 .verse-card-photo-layer{position:absolute;inset:0;z-index:0;opacity:1;visibility:visible;pointer-events:none;will-change:opacity}
 .verse-card-hero{position:absolute;inset:0;line-height:0;background-color:#D8C8A8}
-.verse-card-hero img{display:block;width:100%;height:100%;object-fit:contain;object-position:center 46%;transition:filter .22s ease}
+.verse-card-hero img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 46%;transition:filter .22s ease}
 .verse-card:hover .verse-card-hero img{filter:brightness(1.03)}
 .verse-card-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(18,11,6,.42) 0%,rgba(18,11,6,.16) 52%,rgba(18,11,6,.03) 100%),linear-gradient(0deg,rgba(18,11,6,.44) 0%,rgba(18,11,6,.10) 48%,rgba(18,11,6,0) 75%)}
 .verse-card-verse-layer{position:absolute;inset:0;z-index:1;display:grid;grid-template-rows:auto 1fr;min-height:100%;padding:10px 12px 11px;box-sizing:border-box;gap:0;background-color:#D8C8A8;opacity:0;visibility:hidden;pointer-events:none;will-change:opacity}
@@ -217,23 +217,23 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .verse-glow{display:none}
 .verse-card .verse-open-row{display:block;margin:0}
 .verse-card .verse-open-note{display:none!important}
-.verse-card .gm-btn-today-open{position:absolute;left:calc(19px + 4% + 12px);bottom:calc(3.5% + 13px);transform:none;z-index:3;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:-.2px;padding:5px 13px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap;background:#87965F;color:#FFFFFF;border:2px solid #87965F;box-shadow:none;pointer-events:auto}
-.verse-card .gm-btn-today-open:hover{filter:none;background:#94A56B;color:#FFFFFF;border-color:#94A56B}
-.verse-card .gm-btn-today-open:active{background:#74834F;border-color:#74834F;color:#FFFFFF}
-.verse-card .gm-btn-today-open:focus-visible{outline:2px solid rgba(135,150,95,0.55);outline-offset:2px}
+.verse-card .gm-btn-today-open{position:absolute;right:12px;bottom:10px;left:auto;transform:none;z-index:3;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:-.1px;padding:6px 13px;border-radius:14px;cursor:pointer;transition:all .2s;white-space:nowrap;background:transparent;color:#111;border:1px solid rgba(0,0,0,0.7);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:auto}
+.verse-card .gm-btn-today-open:hover{filter:none;background:rgba(255,255,255,0.18);color:#000;border-color:#000}
+.verse-card .gm-btn-today-open:active{background:rgba(255,255,255,0.18);color:#000;border-color:#000}
+.verse-card .gm-btn-today-open:focus-visible{outline:2px solid rgba(0,0,0,0.35);outline-offset:2px}
 .verse-card .verse-date-btn{background:transparent;border:1px solid rgba(180,140,90,.42);color:#5a4632;font-family:inherit;font-size:12px;font-weight:500;padding:6px 10px;border-radius:14px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .2s;letter-spacing:-.1px;flex-shrink:0}
 .verse-card .verse-date-btn:hover{background:var(--gm-hover-btn-strong);border-color:rgba(170,125,70,.55)}
 .verse-card .verse-date-btn svg{stroke:#6a5542;flex-shrink:0;width:11px;height:11px}
 .verse-card .verse-today-btn{background:var(--gm-btn-bg);color:var(--gm-ink);border:1px solid rgba(180,140,90,.4);font-family:inherit;font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:var(--gm-radius-btn);cursor:pointer;transition:all .2s;letter-spacing:-.1px;box-shadow:0 1px 2px rgba(180,140,90,.12)}
 .verse-card .verse-today-btn:hover{background:var(--gm-hover-btn-strong);border-color:rgba(170,125,70,.55);box-shadow:0 1px 3px rgba(180,140,90,.14)}
 @media (max-width:520px){
-  .verse-card .gm-btn-today-open{left:calc(-2px + 4% + 12px);bottom:calc(3.5% + 17px);padding:4px 12px}
+  .verse-card .gm-btn-today-open{padding:6px 12px}
 }
 @media (max-width:375px){
   .verse-card-verse-layer,.verse-card-controls{padding:9px 11px 10px}
   .verse-card-verse-layer .verse-center{padding:4px 1px 6px}
   .verse-card-verse-layer .verse-tag{font-size:15px}
-  .verse-card .gm-btn-today-open{left:calc(-3px + 4% + 12px);bottom:calc(3.5% + 17px);font-size:12.5px;padding:4px 11px}
+  .verse-card .gm-btn-today-open{font-size:12.5px;padding:6px 11px}
 }
 .audio-pending-badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.88);color:#000;border:1px solid rgba(0,0,0,.08);font-size:10px;font-weight:700;line-height:1;white-space:nowrap;flex-shrink:0}
 /* 말씀풀이 듣기 slim 카드 */
@@ -430,10 +430,10 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .home-cookie-button-accept{background:#B8751F;color:#fff}
 .home-cookie-button-reject{background:#fff;color:#5D4516;border:1px solid rgba(184,134,11,.35)}
 /* ── HOME COLOR TEST 20260715 (local only, revert via index-before-home-color-test-20260715.html) ── */
-.container .verse-card .gm-btn-today-open{background:#87965F;color:#FFFFFF;border:2px solid #87965F}
-.container .verse-card .gm-btn-today-open:hover{background:#94A56B;border-color:#94A56B;color:#FFFFFF}
-.container .verse-card .gm-btn-today-open:active{background:#74834F;border-color:#74834F;color:#FFFFFF}
-.container .verse-card .gm-btn-today-open:focus-visible{outline:2px solid rgba(135,150,95,0.55);outline-offset:2px}
+.container .verse-card .gm-btn-today-open{background:transparent;color:#111;border:1px solid rgba(0,0,0,0.7);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.container .verse-card .gm-btn-today-open:hover{background:rgba(255,255,255,0.18);border-color:#000;color:#000}
+.container .verse-card .gm-btn-today-open:active{background:rgba(255,255,255,0.18);border-color:#000;color:#000}
+.container .verse-card .gm-btn-today-open:focus-visible{outline:2px solid rgba(0,0,0,0.35);outline-offset:2px}
 .container .verse-card .verse-date-btn{color:#9A6A24;border-color:#C9A66B;background:transparent}
 .container .verse-card .verse-date-btn svg{stroke:#9A6A24}
 .container .verse-card .verse-date-btn:hover{background:rgba(201,166,107,0.18);border-color:#C9A66B}
@@ -572,7 +572,7 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
   <div class="verse-card" id="today-word-card">
     <div class="verse-card-photo-layer" aria-hidden="true">
       <div class="verse-card-hero">
-        <img src="assets/images/today-word-card-centered-padding.webp" alt="" width="1536" height="1024" decoding="async" loading="eager">
+        <img src="assets/images/today-word-shepherd-tree-final.webp" alt="" width="2062" height="1310" decoding="async" loading="eager">
       </div>
       <div class="verse-card-shade" aria-hidden="true"></div>
     </div>
@@ -593,7 +593,7 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
       </div>
       <div class="verse-footer">
         <div class="verse-open-row">
-          <button type="button" class="gm-btn-today-open" onclick="openDailyVerse('read')" aria-label="오늘의 말씀 읽고 묵상하기">오늘의 말씀 읽고 묵상하기</button>
+          <button type="button" class="gm-btn-today-open" onclick="openDailyVerse('read')" aria-label="오늘의 말씀 묵상하기">오늘의 말씀 묵상하기</button>
           <span class="verse-open-note" aria-hidden="true">오늘 말씀 기준으로 읽고 묵상하기</span>
         </div>
       </div>
