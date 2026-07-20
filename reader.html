@@ -10,7 +10,7 @@
 <meta name="description" content="은혜의말씀 - 성경 66권 절별 목회주석 앱. 원어분석·역사적배경·신학적의미·설교자료 제공">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if((src==='home-daily-read'||src==='search-related'||src==='guide-related')&&p.get('book'))document.documentElement.classList.add('scripture-entry-pending');}catch(e){}})();</script>
+<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if((src==='home-daily-read'||src==='search-related'||src==='guide-related')&&p.get('book'))document.documentElement.classList.add('scripture-entry-pending');var qEarly=(p.get('q')||'').trim();if(qEarly){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
 <meta name="theme-color" content="#a87a35">
 <!-- Open Graph 메타 태그 (공유용) -->
 <meta property="og:title" content="은혜의말씀">
@@ -122,6 +122,8 @@ html.scripture-entry-pending main.content,
 html.scripture-entry-pending #verseReadHeader,
 html.scripture-entry-pending #opt4BottomBar,
 html.scripture-entry-pending #scriptureDock{visibility:hidden}
+html.search-entry-pending #readerDockTop,html.search-entry-pending #mobileTopPullSpacer,html.search-entry-pending main.content,html.search-entry-pending #scriptureDock{visibility:hidden;pointer-events:none}
+html.search-entry-pending::before{content:'';position:fixed;inset:0;z-index:200000;background:#FDF8F3;pointer-events:auto;touch-action:none}
 .verse-actions{display:flex;gap:6px;margin-top:8px;padding-left:40px}
 .action-btn{background:#F8F4EF;border:0.5px solid #D5C8BB;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;color:#3D2817}
 .action-btn:active{background:#EDE6DE}
@@ -2262,7 +2264,7 @@ function applyNavigationFromQuery() {
 
 function runDeferredUrlNavigation() {
   function run() {
-    try { applyNavigationFromQuery(); } catch (e) {}
+    try { applyNavigationFromQuery(); } catch (e) { document.documentElement.classList.remove('search-entry-pending'); }
     function finishRun() {
       if (document.documentElement.classList.contains('scripture-entry-pending') && typeof window.__gomnaRevealScriptureEntry === 'function') {
         window.__gomnaRevealScriptureEntry();
@@ -5403,6 +5405,8 @@ function restoreSearchReturnScroll(pending) {
 }
 
 function doSearch(resetBodyCount) {
+  var hadSearchEntryPending = document.documentElement.classList.contains('search-entry-pending');
+  try {
   var query = document.getElementById('searchInput').value.trim();
   if(!query) return;
   if (resetBodyCount !== false) _searchBodyVisibleCount = 30;
@@ -5421,6 +5425,18 @@ function doSearch(resetBodyCount) {
       : GomnaBibleSearch.searchBody(query);
   }
   renderSearchResults(query, topicResults, faithResults, bodyResults, _searchBodyVisibleCount);
+  } finally {
+    if (!hadSearchEntryPending) return;
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          document.documentElement.classList.remove('search-entry-pending');
+        });
+      });
+    } else {
+      document.documentElement.classList.remove('search-entry-pending');
+    }
+  }
 }
 
 function doSearchFromReader() {
