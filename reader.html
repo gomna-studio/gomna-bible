@@ -898,6 +898,136 @@ html.unified-bc-lock-scroll body{overflow:hidden;height:100%}
 .verse-read-more-item{display:block;width:100%;padding:16px;border:none;border-bottom:1px solid #eee;background:transparent;text-align:left;font-size:15px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit}
 .verse-read-more-item:last-of-type{border-bottom:none}
 
+/* 일반 본문 단일 제스처 viewport/surface — 활성 시에만 DOM에 존재 */
+html.plain-verse-gesture-active{
+  overflow:hidden!important;
+  overscroll-behavior:none;
+}
+html.plain-verse-gesture-active body{
+  overflow:hidden!important;
+  overscroll-behavior:none;
+  touch-action:none;
+}
+#verseGestureViewport{
+  position:fixed;
+  z-index:40;
+  overflow:hidden;
+  touch-action:none;
+  overscroll-behavior:none;
+  box-sizing:border-box;
+  background:var(--cream,#FDF8F3);
+  -webkit-tap-highlight-color:transparent;
+}
+#verseGestureSurface{
+  transform-origin:0 0;
+  will-change:auto;
+  transition:none;
+}
+#verseGestureSurface.is-gesture-active{
+  will-change:transform;
+  transition:none;
+  contain:layout style;
+}
+#verseGestureSurface > #verseReadHeader.verse-read-header{
+  display:grid!important;
+  position:relative;
+  top:auto;
+  z-index:1;
+  width:100%;
+  box-sizing:border-box;
+}
+#verseGestureSurface > #verseView.view{
+  display:block!important;
+  width:100%;
+  box-sizing:border-box;
+}
+#verseGestureSurface #verseReadHeader button,
+#verseGestureSurface #verseReadHeader a{
+  pointer-events:auto;
+  touch-action:manipulation;
+}
+
+/* 말씀풀이 팝업 전용 pan/pinch — 브라우저 pinch-zoom·내부 scroll 대체 */
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryPopup.show{
+  touch-action:none!important;
+}
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryPopupBox{
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  touch-action:none!important;
+}
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryGestureViewport{
+  position:relative;
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
+  overflow:hidden;
+  touch-action:none;
+  overscroll-behavior:none;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryGestureSurface{
+  transform-origin:0 0;
+  will-change:auto;
+  transition:none;
+  box-sizing:border-box;
+  width:100%;
+}
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryGestureSurface.commentary-gesture-active{
+  will-change:transform;
+  transition:none;
+  contain:layout style;
+}
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryGestureSurface > #popupDragHeader,
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryGestureSurface > #commentaryContent{
+  touch-action:none!important;
+}
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryContent{
+  overflow:hidden!important;
+  overflow-x:hidden!important;
+  overflow-y:hidden!important;
+  flex:0 0 auto!important;
+  min-height:auto!important;
+  max-height:none!important;
+  -webkit-overflow-scrolling:auto!important;
+  overscroll-behavior:none!important;
+  scrollbar-width:none;
+}
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryContent::-webkit-scrollbar{
+  display:none;
+  width:0;
+  height:0;
+}
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #popupDragHeader{
+  flex-shrink:0!important;
+  touch-action:none!important;
+  cursor:default!important;
+}
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #gomnaCommentaryInlineControls,
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryPopupBox > .gomna-audio-commentary-controls-footer,
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryPopupBox > .gomna-commentary-inline-controls{
+  flex-shrink:0!important;
+  position:relative!important;
+  z-index:6!important;
+  touch-action:manipulation!important;
+  pointer-events:auto!important;
+}
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #gomnaCommentaryInlineControls button,
+body.gomna-commentary-popup-open.commentary-gesture-engine-active .gomna-commentary-inline-controls button,
+body.gomna-commentary-popup-open.commentary-gesture-engine-active .gomna-audio-commentary-controls-footer button{
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryGestureSurface .commentary-tab,
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryGestureSurface button,
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryGestureSurface a,
+body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryGestureSurface [onclick]{
+  pointer-events:auto;
+  touch-action:manipulation;
+}
+
 /* ── Premium Scripture Dock (mobile mockup) ── */
 :root{
   --gm-ink:#3d2818;
@@ -3294,6 +3424,9 @@ function showCommentary(verseNum) {
       targetTab.classList.add('active');
       targetTab.style.display = 'block';
     }
+    if (typeof window.__gomnaCommentaryGestureSync === 'function') {
+      window.__gomnaCommentaryGestureSync();
+    }
   }, 10);
 }
 
@@ -3313,6 +3446,9 @@ function switchCommentaryTab(btn, tabId) {
   if(target) {
     target.classList.add('active');
     target.style.display = 'block'; // 선택된 것만 표시
+  }
+  if (typeof window.__gomnaCommentaryGestureOnTabChange === 'function') {
+    window.__gomnaCommentaryGestureOnTabChange();
   }
 }
 
@@ -3529,6 +3665,9 @@ function parseBibleRefs(text) {
 }
 
 function closeCommentary() {
+  if (typeof window.__gomnaCommentaryGestureTeardown === 'function') {
+    window.__gomnaCommentaryGestureTeardown();
+  }
   if (window.GOMNA_AUDIO_COMMENTARY_BUTTONS && window.GOMNA_AUDIO_COMMENTARY_BUTTONS.stopIfCommentaryAudio) {
     window.GOMNA_AUDIO_COMMENTARY_BUTTONS.stopIfCommentaryAudio();
   }
@@ -3613,6 +3752,7 @@ function showAllTabs() {
     var hComment = document.getElementById('popupDragHeader');
     var hRange = document.getElementById('verseRangeDragHeader');
     if (hComment && hComment.contains(e.target) && e.target.tagName !== 'BUTTON') {
+      if (window.__gomnaCommentaryGestureIsActive && window.__gomnaCommentaryGestureIsActive()) return;
       startDrag('commentaryPopupBox', e.clientX, e.clientY, e);
     } else if (hRange && hRange.contains(e.target) && e.target.tagName !== 'BUTTON') {
       startDrag('verseRangeModalBox', e.clientX, e.clientY, e);
@@ -3634,6 +3774,7 @@ function showAllTabs() {
     var t = e.touches[0];
     if (!t) return;
     if (hComment && hComment.contains(e.target) && e.target.tagName !== 'BUTTON') {
+      if (window.__gomnaCommentaryGestureIsActive && window.__gomnaCommentaryGestureIsActive()) return;
       startDrag('commentaryPopupBox', t.clientX, t.clientY);
     } else if (hRange && hRange.contains(e.target) && e.target.tagName !== 'BUTTON') {
       startDrag('verseRangeModalBox', t.clientX, t.clientY);
@@ -4037,6 +4178,7 @@ function updateOpt4BottomBar() {
     closeVerseReadMoreMenu();
     closeVerseToolbarMoreMenu();
     closeVerseToolbarTargetMenu();
+    if (typeof window.syncPlainVerseGestureMode === 'function') window.syncPlainVerseGestureMode();
     return;
   }
   document.documentElement.classList.add('reader-verse-active', 'reader-verse-toolbar-mode');
@@ -4062,6 +4204,7 @@ function updateOpt4BottomBar() {
   if (headerNext) headerNext.disabled = currentChapter >= chCount;
   updateVerseToolbar();
   syncScriptureDockActive();
+  if (typeof window.syncPlainVerseGestureMode === 'function') window.syncPlainVerseGestureMode();
 }
 
 function getVerseRefLabel(verseNum) {
@@ -4159,6 +4302,10 @@ function restoreVerseSelection(verseNums) {
 }
 
 function scrollVerseIntoView(verseNum) {
+  if (typeof window.__gomnaPlainVerseGestureScrollToVerse === 'function' &&
+      window.__gomnaPlainVerseGestureScrollToVerse(verseNum)) {
+    return;
+  }
   var item = document.querySelector('#verseList .verse-item[data-verse="' + verseNum + '"]');
   if (!item) return;
   try {
@@ -4569,9 +4716,1375 @@ function opt4ToolbarDeselect() {
 }
 
 function resetVerseViewScroll() {
+  if (typeof window.__gomnaPlainVerseGestureResetPan === 'function' && window.__gomnaPlainVerseGestureResetPan()) return;
   var scrollEl = typeof getBibleListScrollContainer === 'function' ? getBibleListScrollContainer() : (document.scrollingElement || document.documentElement);
   if (scrollEl) scrollEl.scrollTop = 0;
 }
+
+/* 일반 성경 본문 전용 — 단일 viewport/surface + Pointer Events pan/pinch/inertia.
+   document scroll과 transform을 섞지 않음. 다른 화면에는 비활성. */
+(function() {
+  var MIN_SCALE = 1;
+  var MAX_SCALE = 2.5;
+  var DRAG_SLOP_PX = 8;
+  var EDGE_KEEP_PX = 48;
+  var INERTIA_WINDOW_MS = 100;
+  var INERTIA_MIN_SPEED = 0.08; /* px/ms */
+  var INERTIA_MAX_SPEED = 3.5; /* px/ms */
+  var INERTIA_RELEASE_BOOST = 1.2;
+  var INERTIA_FRICTION = 0.0055;
+  var INERTIA_STOP_SPEED = 0.02; /* px/ms */
+  var GESTURE_LAYER_RELEASE_MS = 150;
+
+  var active = false;
+  var viewport = null;
+  var surface = null;
+  var headerPh = null;
+  var viewPh = null;
+  var bound = false;
+
+  var scale = 1;
+  var panX = 0;
+  var panY = 0;
+  var targetScale = 1;
+  var targetPanX = 0;
+  var targetPanY = 0;
+  var renderedScale = 1;
+  var renderedPanX = 0;
+  var renderedPanY = 0;
+  var paintRaf = 0;
+  var gestureLayerTimer = 0;
+
+  var baseW = 0;
+  var baseH = 0;
+  var headerBaseH = 0;
+  var viewportW = 0;
+  var viewportH = 0;
+  var vpLeft = 0;
+  var vpTop = 0;
+  var minPanX = 0;
+  var maxPanX = 0;
+  var minPanY = 0;
+  var maxPanY = 0;
+
+  var pointers = new Map();
+  var mode = 'idle'; /* idle | pending | pan | pinch */
+  var dragStarted = false;
+  var didDrag = false;
+  var didPinch = false;
+  var suppressClick = false;
+  var startClientX = 0;
+  var startClientY = 0;
+  var startPanX = 0;
+  var startPanY = 0;
+  var pinchStartDist = 0;
+  var pinchStartScale = 1;
+  var pinchStartPanX = 0;
+  var pinchStartPanY = 0;
+  var pinchStartMidX = 0;
+  var pinchStartMidY = 0;
+  var velSamples = [];
+  var inertiaRaf = 0;
+  var inertiaActive = false;
+
+  function $(id) { return document.getElementById(id); }
+  function nowMs() {
+    return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  }
+  function isOverlayOpen(el) {
+    if (!el) return false;
+    if (el.classList.contains('active')) return true;
+    if (el.getAttribute('aria-hidden') === 'false') return true;
+    var cs = window.getComputedStyle(el);
+    return cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity || '1') > 0.01;
+  }
+  function isPlainBibleVerseGestureMode() {
+    var root = document.documentElement;
+    if (!root.classList.contains('reader-verse-active')) return false;
+    if (root.classList.contains('is-daily-word-view')) return false;
+    if (root.classList.contains('search-entry-pending')) return false;
+    if (root.classList.contains('scripture-entry-pending')) return false;
+    var vv = $('verseView');
+    if (!vv || !vv.classList.contains('active')) return false;
+    if (!$('verseList') || !$('verseReadHeader')) return false;
+    if (isOverlayOpen($('unifiedBookChapterModal'))) return false;
+    if (isOverlayOpen($('verseRangeModal'))) return false;
+    var popup = $('commentaryPopup') || document.querySelector('.popup-overlay');
+    if (popup && isOverlayOpen(popup)) return false;
+    return true;
+  }
+  function visibleChromeTop(id) {
+    var el = $(id);
+    if (!el) return null;
+    var r = el.getBoundingClientRect();
+    var cs = window.getComputedStyle(el);
+    if (cs.display === 'none' || cs.visibility === 'hidden' || r.height < 1) return null;
+    return r.top;
+  }
+  function getViewportBox() {
+    var phone = document.querySelector('.phone-frame');
+    var pr = phone ? phone.getBoundingClientRect() : { left: 0, width: window.innerWidth, top: 0 };
+    var vv = window.visualViewport;
+    /* phone-frame은 #verseView 이동 후 높이가 줄어들 수 있으므로 하단은 고정 바와 visualViewport 기준 */
+    var viewBottom = vv ? (vv.offsetTop + vv.height) : window.innerHeight;
+    var top = Math.max(0, pr.top);
+    var chrome = $('appTopChrome');
+    if (chrome) {
+      var cr = chrome.getBoundingClientRect();
+      var cs = window.getComputedStyle(chrome);
+      if (cs.display !== 'none' && cs.visibility !== 'hidden' && cr.height > 1) {
+        top = Math.max(top, cr.bottom);
+      }
+    }
+    var dock = $('readerDockTop');
+    if (dock) {
+      var dr = dock.getBoundingClientRect();
+      var dcs = window.getComputedStyle(dock);
+      if (dcs.display !== 'none' && dcs.visibility !== 'hidden' && dr.height > 1) {
+        top = Math.max(top, dr.bottom);
+      }
+    }
+    var bottom = viewBottom;
+    var barTop = visibleChromeTop('opt4BottomBar');
+    var scriptureTop = visibleChromeTop('scriptureDock');
+    var cookieTop = visibleChromeTop('cookie-banner');
+    if (barTop != null) bottom = Math.min(bottom, barTop);
+    if (scriptureTop != null) bottom = Math.min(bottom, scriptureTop);
+    if (cookieTop != null) bottom = Math.min(bottom, cookieTop);
+    var left = pr.left;
+    var width = pr.width || window.innerWidth;
+    var height = Math.max(120, bottom - top);
+    return { left: left, top: top, width: width, height: height };
+  }
+  function updateBounds() {
+    var scaledW = baseW * scale;
+    var scaledH = baseH * scale;
+    var scaledHeaderH = headerBaseH * scale;
+    minPanY = Math.min(0, viewportH - scaledH - 24);
+    maxPanY = Math.max(0, viewportH - scaledHeaderH - 16);
+    if (scale <= 1 || scaledW <= viewportW) {
+      minPanX = 0;
+      maxPanX = 0;
+    } else {
+      minPanX = viewportW - EDGE_KEEP_PX - scaledW;
+      maxPanX = EDGE_KEEP_PX;
+    }
+  }
+  function clampX(x) {
+    if (x < minPanX) return minPanX;
+    if (x > maxPanX) return maxPanX;
+    return x;
+  }
+  function clampY(y) {
+    if (y < minPanY) return minPanY;
+    if (y > maxPanY) return maxPanY;
+    return y;
+  }
+  function clampScale(s) {
+    if (s < MIN_SCALE) return MIN_SCALE;
+    if (s > MAX_SCALE) return MAX_SCALE;
+    return s;
+  }
+  function cancelPaintRaf() {
+    if (!paintRaf) return;
+    cancelAnimationFrame(paintRaf);
+    paintRaf = 0;
+  }
+  function cancelInertia() {
+    inertiaActive = false;
+    if (!inertiaRaf) return;
+    cancelAnimationFrame(inertiaRaf);
+    inertiaRaf = 0;
+  }
+  function cancelGestureLayerRelease() {
+    if (!gestureLayerTimer) return;
+    clearTimeout(gestureLayerTimer);
+    gestureLayerTimer = 0;
+  }
+  function markGestureLayer() {
+    cancelGestureLayerRelease();
+    if (surface) surface.classList.add('is-gesture-active');
+  }
+  function scheduleGestureLayerRelease() {
+    cancelGestureLayerRelease();
+    gestureLayerTimer = setTimeout(function() {
+      gestureLayerTimer = 0;
+      if (!surface) return;
+      if (inertiaActive || pointers.size || mode === 'pan' || mode === 'pinch' || mode === 'pending') return;
+      surface.classList.remove('is-gesture-active');
+    }, GESTURE_LAYER_RELEASE_MS);
+  }
+  function commitTransform() {
+    if (!surface) return;
+    /* 단일 transform 기록 경로 — 값은 항상 target과 동일 */
+    surface.style.transform = 'translate3d(' + targetPanX + 'px,' + targetPanY + 'px,0) scale(' + targetScale + ')';
+  }
+  function paintFrame() {
+    paintRaf = 0;
+    if (!surface) return;
+    if (targetScale <= 1) targetPanX = 0;
+    targetPanX = clampX(targetPanX);
+    targetPanY = clampY(targetPanY);
+    targetScale = clampScale(targetScale);
+    /* drag/관성 중 보간 없음 — rendered = target 즉시 */
+    renderedPanX = targetPanX;
+    renderedPanY = targetPanY;
+    renderedScale = targetScale;
+    panX = renderedPanX;
+    panY = renderedPanY;
+    scale = renderedScale;
+    commitTransform();
+  }
+  function schedulePaint() {
+    if (paintRaf) return;
+    paintRaf = requestAnimationFrame(paintFrame);
+  }
+  function flushPaint() {
+    cancelPaintRaf();
+    paintFrame();
+  }
+  function latestClient(e) {
+    var samples = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : null;
+    var latest = (samples && samples.length) ? samples[samples.length - 1] : e;
+    return { x: latest.clientX, y: latest.clientY };
+  }
+  function applyViewportBox(box) {
+    vpLeft = box.left;
+    vpTop = box.top;
+    viewportW = box.width;
+    viewportH = box.height;
+    viewport.style.left = box.left + 'px';
+    viewport.style.top = box.top + 'px';
+    viewport.style.width = box.width + 'px';
+    viewport.style.height = box.height + 'px';
+  }
+  function measureBaseSizes() {
+    if (!surface || !viewport) return;
+    applyViewportBox(getViewportBox());
+    var prev = surface.style.transform;
+    surface.style.transform = 'none';
+    baseW = surface.offsetWidth || surface.scrollWidth || viewportW;
+    baseH = Math.max(surface.offsetHeight || 0, surface.scrollHeight || 0, surface.clientHeight || 0);
+    var header = $('verseReadHeader');
+    headerBaseH = header ? (header.offsetHeight || header.clientHeight || 0) : 0;
+    surface.style.transform = prev || '';
+    updateBounds();
+  }
+  function layoutViewportOnly() {
+    if (!viewport) return;
+    applyViewportBox(getViewportBox());
+    updateBounds();
+    targetPanX = clampX(targetPanX);
+    targetPanY = clampY(targetPanY);
+    schedulePaint();
+  }
+  function clearPointers() {
+    pointers.clear();
+  }
+  function pointerList() {
+    var arr = [];
+    pointers.forEach(function(p) { arr.push(p); });
+    return arr;
+  }
+  function distBetween(a, b) {
+    var dx = a.x - b.x;
+    var dy = a.y - b.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+  function midBetween(a, b) {
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  }
+  function recordVel(x, y) {
+    var t = nowMs();
+    velSamples.push({ t: t, x: x, y: y });
+    var cut = t - INERTIA_WINDOW_MS;
+    while (velSamples.length && velSamples[0].t < cut) velSamples.shift();
+  }
+  /* 최근 표본의 구간 속도를 시간 가중 평균 — 단위 px/ms */
+  function velocity() {
+    if (velSamples.length < 2) return { vx: 0, vy: 0 };
+    var sumW = 0;
+    var sumVx = 0;
+    var sumVy = 0;
+    var t0 = velSamples[0].t;
+    for (var i = 1; i < velSamples.length; i++) {
+      var a = velSamples[i - 1];
+      var b = velSamples[i];
+      var dt = b.t - a.t;
+      if (dt <= 0) continue;
+      var w = dt * (1 + (b.t - t0) / INERTIA_WINDOW_MS);
+      sumVx += ((b.x - a.x) / dt) * w;
+      sumVy += ((b.y - a.y) / dt) * w;
+      sumW += w;
+    }
+    if (sumW <= 0) return { vx: 0, vy: 0 };
+    return { vx: sumVx / sumW, vy: sumVy / sumW };
+  }
+  function startInertia() {
+    var v = velocity();
+    var vx = scale <= 1 ? 0 : v.vx * INERTIA_RELEASE_BOOST;
+    var vy = v.vy * INERTIA_RELEASE_BOOST;
+    var speed = Math.sqrt(vx * vx + vy * vy);
+    if (speed < INERTIA_MIN_SPEED) return false;
+    if (speed > INERTIA_MAX_SPEED) {
+      var k = INERTIA_MAX_SPEED / speed;
+      vx *= k;
+      vy *= k;
+    }
+    cancelInertia();
+    markGestureLayer();
+    inertiaActive = true;
+    var last = nowMs();
+    function step(ts) {
+      inertiaRaf = 0;
+      if (!inertiaActive || !surface) return;
+      var t = typeof ts === 'number' ? ts : nowMs();
+      var dt = Math.min(34, Math.max(4, t - last));
+      last = t;
+      vx *= Math.exp(-INERTIA_FRICTION * dt);
+      vy *= Math.exp(-INERTIA_FRICTION * dt);
+      var rawX = targetPanX + vx * dt;
+      var rawY = targetPanY + vy * dt;
+      var nextX = clampX(rawX);
+      var nextY = clampY(rawY);
+      if (nextX !== rawX) vx = 0;
+      if (nextY !== rawY) vy = 0;
+      targetPanX = nextX;
+      targetPanY = nextY;
+      if (targetScale <= 1) targetPanX = 0;
+      /* 관성 프레임도 동일 paint 경로로 transform 1회 */
+      flushPaint();
+      if (Math.abs(vx) < INERTIA_STOP_SPEED && Math.abs(vy) < INERTIA_STOP_SPEED) {
+        inertiaActive = false;
+        scheduleGestureLayerRelease();
+        return;
+      }
+      inertiaRaf = requestAnimationFrame(step);
+    }
+    inertiaRaf = requestAnimationFrame(step);
+    return true;
+  }
+  function ensureDom() {
+    if (viewport && surface) return true;
+    var header = $('verseReadHeader');
+    var view = $('verseView');
+    var phone = document.querySelector('.phone-frame');
+    if (!header || !view || !phone || !header.parentNode || !view.parentNode) return false;
+    headerPh = document.createComment('plain-verse-gesture-header');
+    viewPh = document.createComment('plain-verse-gesture-view');
+    header.parentNode.insertBefore(headerPh, header);
+    view.parentNode.insertBefore(viewPh, view);
+    viewport = document.createElement('div');
+    viewport.id = 'verseGestureViewport';
+    surface = document.createElement('div');
+    surface.id = 'verseGestureSurface';
+    surface.appendChild(header);
+    surface.appendChild(view);
+    viewport.appendChild(surface);
+    phone.appendChild(viewport);
+    return true;
+  }
+  function teardownDom() {
+    var header = $('verseReadHeader');
+    var view = $('verseView');
+    if (header && headerPh && headerPh.parentNode) {
+      headerPh.parentNode.insertBefore(header, headerPh);
+      headerPh.parentNode.removeChild(headerPh);
+    }
+    if (view && viewPh && viewPh.parentNode) {
+      viewPh.parentNode.insertBefore(view, viewPh);
+      viewPh.parentNode.removeChild(viewPh);
+    }
+    headerPh = null;
+    viewPh = null;
+    if (viewport && viewport.parentNode) viewport.parentNode.removeChild(viewport);
+    viewport = null;
+    surface = null;
+  }
+  function bindDocPointerFollow() {
+    document.addEventListener('pointermove', onPointerMove, true);
+    document.addEventListener('pointerup', onPointerUp, true);
+    document.addEventListener('pointercancel', onPointerUp, true);
+  }
+  function unbindDocPointerFollow() {
+    document.removeEventListener('pointermove', onPointerMove, true);
+    document.removeEventListener('pointerup', onPointerUp, true);
+    document.removeEventListener('pointercancel', onPointerUp, true);
+  }
+  function bindEvents() {
+    if (!viewport || bound) return;
+    bound = true;
+    viewport.addEventListener('pointerdown', onPointerDown);
+    viewport.addEventListener('click', onClickCapture, true);
+  }
+  function unbindEvents() {
+    if (!viewport || !bound) return;
+    bound = false;
+    viewport.removeEventListener('pointerdown', onPointerDown);
+    viewport.removeEventListener('click', onClickCapture, true);
+    unbindDocPointerFollow();
+  }
+  function onClickCapture(e) {
+    if (!suppressClick) return;
+    suppressClick = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  function capturePointer(id) {
+    if (!viewport) return;
+    try { viewport.setPointerCapture(id); } catch (err) {}
+  }
+  function beginPanFromPointer(p) {
+    mode = 'pending';
+    dragStarted = false;
+    didDrag = false;
+    startClientX = p.x;
+    startClientY = p.y;
+    startPanX = renderedPanX;
+    startPanY = renderedPanY;
+    targetPanX = renderedPanX;
+    targetPanY = renderedPanY;
+    velSamples = [];
+    recordVel(p.x, p.y);
+  }
+  function beginPinch() {
+    var pts = pointerList();
+    if (pts.length < 2) return;
+    mode = 'pinch';
+    dragStarted = true;
+    didPinch = true;
+    didDrag = true;
+    markGestureLayer();
+    pts.forEach(function(p) { capturePointer(p.id); });
+    pinchStartDist = distBetween(pts[0], pts[1]) || 1;
+    var mid = midBetween(pts[0], pts[1]);
+    pinchStartMidX = mid.x;
+    pinchStartMidY = mid.y;
+    pinchStartScale = scale;
+    pinchStartPanX = panX;
+    pinchStartPanY = panY;
+    cancelInertia();
+  }
+  function applyPinch(pts) {
+    if (pts.length < 2 || pinchStartDist <= 0) return;
+    var d = distBetween(pts[0], pts[1]);
+    var next = clampScale(pinchStartScale * (d / pinchStartDist));
+    var mid = midBetween(pts[0], pts[1]);
+    /* screen = vp + pan + local * scale → local = (screen - vp - pan) / scale */
+    var localX = (pinchStartMidX - vpLeft - pinchStartPanX) / (pinchStartScale || 1);
+    var localY = (pinchStartMidY - vpTop - pinchStartPanY) / (pinchStartScale || 1);
+    targetScale = next;
+    scale = next;
+    updateBounds();
+    targetPanX = (mid.x - vpLeft) - localX * next;
+    targetPanY = (mid.y - vpTop) - localY * next;
+    if (next <= 1) targetPanX = 0;
+    targetPanX = clampX(targetPanX);
+    targetPanY = clampY(targetPanY);
+    schedulePaint();
+  }
+  function onPointerDown(e) {
+    if (!active || !viewport) return;
+    if (!isPlainBibleVerseGestureMode()) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    suppressClick = false;
+    cancelGestureLayerRelease();
+    cancelInertia();
+    var c = latestClient(e);
+    pointers.set(e.pointerId, { id: e.pointerId, x: c.x, y: c.y });
+    if (pointers.size === 1) bindDocPointerFollow();
+    if (pointers.size >= 2) {
+      beginPinch();
+      if (e.cancelable) e.preventDefault();
+      return;
+    }
+    beginPanFromPointer({ x: c.x, y: c.y });
+  }
+  function onPointerMove(e) {
+    if (!active || !pointers.has(e.pointerId)) return;
+    var c = latestClient(e);
+    pointers.set(e.pointerId, { id: e.pointerId, x: c.x, y: c.y });
+    var pts = pointerList();
+    if (mode === 'pinch' || pts.length >= 2) {
+      if (pts.length >= 2) {
+        if (mode !== 'pinch') beginPinch();
+        if (e.cancelable) e.preventDefault();
+        applyPinch(pts);
+      }
+      return;
+    }
+    if (mode !== 'pending' && mode !== 'pan') return;
+    /* 최초 pointerdown 기준 절대 pan — drag 확정 시 시작점 재설정 금지 */
+    var dx = c.x - startClientX;
+    var dy = c.y - startClientY;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    if (!dragStarted) {
+      if (dist <= DRAG_SLOP_PX) return;
+      dragStarted = true;
+      didDrag = true;
+      mode = 'pan';
+      markGestureLayer();
+      capturePointer(e.pointerId);
+    }
+    if (e.cancelable) e.preventDefault();
+    recordVel(c.x, c.y);
+    if (targetScale <= 1) {
+      targetPanX = 0;
+      targetPanY = clampY(startPanY + dy);
+    } else {
+      targetPanX = clampX(startPanX + dx);
+      targetPanY = clampY(startPanY + dy);
+    }
+    schedulePaint();
+  }
+  function onPointerUp(e) {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.delete(e.pointerId);
+    try { if (viewport) viewport.releasePointerCapture(e.pointerId); } catch (err) {}
+    if (pointers.size >= 2) {
+      beginPinch();
+      return;
+    }
+    if (pointers.size === 1) {
+      /* 핀치 → 한 손가락 pan 이어가기 */
+      flushPaint();
+      var p = pointerList()[0];
+      mode = 'pan';
+      dragStarted = true;
+      markGestureLayer();
+      startClientX = p.x;
+      startClientY = p.y;
+      startPanX = renderedPanX;
+      startPanY = renderedPanY;
+      targetPanX = renderedPanX;
+      targetPanY = renderedPanY;
+      velSamples = [];
+      recordVel(p.x, p.y);
+      return;
+    }
+    /* 모든 포인터 종료 */
+    unbindDocPointerFollow();
+    flushPaint();
+    if (didDrag || didPinch) suppressClick = true;
+    var runInertia = didDrag && !didPinch;
+    var wasGesture = didDrag || didPinch;
+    mode = 'idle';
+    dragStarted = false;
+    didDrag = false;
+    didPinch = false;
+    clearPointers();
+    if (runInertia && startInertia()) return;
+    if (wasGesture) scheduleGestureLayerRelease();
+  }
+  function resetTransformState() {
+    cancelInertia();
+    cancelPaintRaf();
+    cancelGestureLayerRelease();
+    clearPointers();
+    mode = 'idle';
+    dragStarted = false;
+    didDrag = false;
+    didPinch = false;
+    suppressClick = false;
+    scale = 1;
+    panX = 0;
+    panY = 0;
+    targetScale = 1;
+    targetPanX = 0;
+    targetPanY = 0;
+    renderedScale = 1;
+    renderedPanX = 0;
+    renderedPanY = 0;
+    velSamples = [];
+    if (surface) {
+      surface.classList.remove('is-gesture-active');
+      updateBounds();
+      commitTransform();
+    }
+  }
+  function activate() {
+    if (active) {
+      layoutViewportOnly();
+      return;
+    }
+    if (!ensureDom()) return;
+    active = true;
+    document.documentElement.classList.add('plain-verse-gesture-active');
+    bindEvents();
+    resetTransformState();
+    measureBaseSizes();
+    commitTransform();
+    /* 문서 스크롤 고정 — 이후 세로 이동은 panY만 */
+    var se = document.scrollingElement || document.documentElement;
+    if (se) se.scrollTop = 0;
+  }
+  function deactivate() {
+    if (!active && !viewport) return;
+    cancelInertia();
+    cancelPaintRaf();
+    cancelGestureLayerRelease();
+    unbindEvents();
+    clearPointers();
+    resetTransformState();
+    teardownDom();
+    active = false;
+    document.documentElement.classList.remove('plain-verse-gesture-active');
+  }
+  function syncMode() {
+    if (isPlainBibleVerseGestureMode()) activate();
+    else deactivate();
+  }
+  function resetPan() {
+    if (!active) return false;
+    resetTransformState();
+    measureBaseSizes();
+    commitTransform();
+    return true;
+  }
+  function scrollToVerse(verseNum) {
+    if (!active || !surface) return false;
+    var item = document.querySelector('#verseList .verse-item[data-verse="' + verseNum + '"]');
+    if (!item) return false;
+    measureBaseSizes();
+    var y = 0;
+    var el = item;
+    while (el && el !== surface) {
+      y += el.offsetTop;
+      el = el.offsetParent;
+    }
+    var mid = y + (item.offsetHeight || 0) / 2;
+    targetScale = scale;
+    targetPanX = scale <= 1 ? 0 : panX;
+    targetPanY = clampY(viewportH * 0.35 - mid * scale);
+    flushPaint();
+    return true;
+  }
+  function onResize() {
+    if (!active) return;
+    layoutViewportOnly();
+    measureBaseSizes();
+    targetPanX = clampX(panX);
+    targetPanY = clampY(panY);
+    flushPaint();
+  }
+  function onVerseRendered() {
+    if (!active) {
+      syncMode();
+      return;
+    }
+    resetTransformState();
+    measureBaseSizes();
+    commitTransform();
+  }
+
+  window.syncPlainVerseGestureMode = syncMode;
+  window.__gomnaPlainVerseGestureResetPan = resetPan;
+  window.__gomnaPlainVerseGestureScrollToVerse = scrollToVerse;
+  window.addEventListener('gomna:verse_list_rendered', onVerseRendered);
+  window.addEventListener('resize', onResize);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', onResize);
+    window.visualViewport.addEventListener('scroll', onResize);
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target || !e.target.closest) return;
+    if (e.target.closest('.scripture-guide-info-btn') || e.target.closest('.cat-section--scripture-guide .section-title')) {
+      deactivate();
+    }
+  }, true);
+})();
+
+/* 말씀풀이 팝업 전용 — 일반 본문 verseGesture와 상태·이벤트 완전 분리 */
+(function() {
+  var CG_MIN_SCALE = 1;
+  var CG_MAX_SCALE = 2.5;
+  var CG_DRAG_SLOP_PX = 8;
+  var CG_EDGE_KEEP_PX = 64;
+  var CG_INERTIA_WINDOW_MS = 100;
+  var CG_INERTIA_MIN_SPEED = 0.08;
+  var CG_INERTIA_MAX_SPEED = 3.5;
+  var CG_INERTIA_RELEASE_BOOST = 1.2;
+  var CG_INERTIA_FRICTION = 0.0055;
+  var CG_INERTIA_STOP_SPEED = 0.02;
+  var CG_LAYER_RELEASE_MS = 150;
+
+  var commentaryGestureActive = false;
+  var commentaryGestureViewport = null;
+  var commentaryGestureSurface = null;
+  var commentaryGestureHeaderPh = null;
+  var commentaryGestureContentPh = null;
+  var commentaryGestureBound = false;
+  var commentaryGestureScale = 1;
+  var commentaryGesturePanX = 0;
+  var commentaryGesturePanY = 0;
+  var commentaryGestureTargetScale = 1;
+  var commentaryGestureTargetPanX = 0;
+  var commentaryGestureTargetPanY = 0;
+  var commentaryGestureRenderedScale = 1;
+  var commentaryGestureRenderedPanX = 0;
+  var commentaryGestureRenderedPanY = 0;
+  var commentaryGestureRafId = 0;
+  var commentaryGestureInertiaRafId = 0;
+  var commentaryGestureInertiaActive = false;
+  var commentaryGestureLayerTimer = 0;
+  var commentaryGesturePointers = new Map();
+  var commentaryGestureMode = 'idle';
+  var commentaryGestureDragStarted = false;
+  var commentaryGestureDidDrag = false;
+  var commentaryGestureDidPinch = false;
+  var commentaryGestureSuppressClick = false;
+  var commentaryGestureStartClientX = 0;
+  var commentaryGestureStartClientY = 0;
+  var commentaryGestureStartPanX = 0;
+  var commentaryGestureStartPanY = 0;
+  var commentaryGesturePinchStartDist = 0;
+  var commentaryGesturePinchStartScale = 1;
+  var commentaryGesturePinchStartPanX = 0;
+  var commentaryGesturePinchStartPanY = 0;
+  var commentaryGesturePinchStartMidX = 0;
+  var commentaryGesturePinchStartMidY = 0;
+  var commentaryGestureVelSamples = [];
+  var commentaryGestureBaseW = 0;
+  var commentaryGestureBaseH = 0;
+  var commentaryGestureViewportW = 0;
+  var commentaryGestureViewportH = 0;
+  var commentaryGestureVpLeft = 0;
+  var commentaryGestureVpTop = 0;
+  var commentaryGestureMinPanX = 0;
+  var commentaryGestureMaxPanX = 0;
+  var commentaryGestureMinPanY = 0;
+  var commentaryGestureMaxPanY = 0;
+  var commentaryGestureResizeObserver = null;
+  var commentaryGestureSavedContentStyle = null;
+  var commentaryGestureSavedBoxOverflow = null;
+  var commentaryGestureVvBound = false;
+  var commentaryGestureSyncTimer = 0;
+
+  function cg$(id) { return document.getElementById(id); }
+  function cgNow() {
+    return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  }
+  function cgIsOpen() {
+    var pop = cg$('commentaryPopup');
+    return !!(pop && pop.classList.contains('show'));
+  }
+  function cgGetFooter() {
+    return cg$('gomnaCommentaryInlineControls') ||
+      document.querySelector('#commentaryPopupBox > .gomna-commentary-inline-controls') ||
+      document.querySelector('#commentaryPopupBox > .gomna-audio-commentary-controls-footer');
+  }
+  function cgClamp(v, lo, hi) {
+    if (v < lo) return lo;
+    if (v > hi) return hi;
+    return v;
+  }
+  function cgClampScale(s) {
+    return cgClamp(s, CG_MIN_SCALE, CG_MAX_SCALE);
+  }
+  function cgUpdateBounds() {
+    var scaledW = commentaryGestureBaseW * commentaryGestureScale;
+    var scaledH = commentaryGestureBaseH * commentaryGestureScale;
+    commentaryGestureMinPanY = Math.min(0, commentaryGestureViewportH - scaledH - 16);
+    commentaryGestureMaxPanY = Math.max(0, commentaryGestureViewportH - CG_EDGE_KEEP_PX);
+    if (commentaryGestureScale <= 1) {
+      commentaryGestureMinPanX = 0;
+      commentaryGestureMaxPanX = 0;
+    } else {
+      commentaryGestureMinPanX = Math.min(0, commentaryGestureViewportW - scaledW);
+      commentaryGestureMaxPanX = 0;
+    }
+  }
+  function cgClampX(x) { return cgClamp(x, commentaryGestureMinPanX, commentaryGestureMaxPanX); }
+  function cgClampY(y) { return cgClamp(y, commentaryGestureMinPanY, commentaryGestureMaxPanY); }
+  function cgCancelPaint() {
+    if (!commentaryGestureRafId) return;
+    cancelAnimationFrame(commentaryGestureRafId);
+    commentaryGestureRafId = 0;
+  }
+  function cgCancelInertia() {
+    commentaryGestureInertiaActive = false;
+    if (!commentaryGestureInertiaRafId) return;
+    cancelAnimationFrame(commentaryGestureInertiaRafId);
+    commentaryGestureInertiaRafId = 0;
+  }
+  function cgCancelLayerRelease() {
+    if (!commentaryGestureLayerTimer) return;
+    clearTimeout(commentaryGestureLayerTimer);
+    commentaryGestureLayerTimer = 0;
+  }
+  function cgMarkLayer() {
+    cgCancelLayerRelease();
+    if (commentaryGestureSurface) commentaryGestureSurface.classList.add('commentary-gesture-active');
+  }
+  function cgScheduleLayerRelease() {
+    cgCancelLayerRelease();
+    commentaryGestureLayerTimer = setTimeout(function() {
+      commentaryGestureLayerTimer = 0;
+      if (!commentaryGestureSurface) return;
+      if (commentaryGestureInertiaActive || commentaryGesturePointers.size ||
+          commentaryGestureMode === 'pan' || commentaryGestureMode === 'pinch' || commentaryGestureMode === 'pending') return;
+      commentaryGestureSurface.classList.remove('commentary-gesture-active');
+    }, CG_LAYER_RELEASE_MS);
+  }
+  function cgCommitTransform() {
+    if (!commentaryGestureSurface) return;
+    commentaryGestureSurface.style.transform =
+      'translate3d(' + commentaryGestureRenderedPanX + 'px,' + commentaryGestureRenderedPanY + 'px,0) scale(' + commentaryGestureRenderedScale + ')';
+  }
+  function cgPaintFrame() {
+    commentaryGestureRafId = 0;
+    if (!commentaryGestureSurface) return;
+    if (commentaryGestureTargetScale <= 1) commentaryGestureTargetPanX = 0;
+    commentaryGestureTargetPanX = cgClampX(commentaryGestureTargetPanX);
+    commentaryGestureTargetPanY = cgClampY(commentaryGestureTargetPanY);
+    commentaryGestureTargetScale = cgClampScale(commentaryGestureTargetScale);
+    commentaryGestureRenderedPanX = commentaryGestureTargetPanX;
+    commentaryGestureRenderedPanY = commentaryGestureTargetPanY;
+    commentaryGestureRenderedScale = commentaryGestureTargetScale;
+    commentaryGesturePanX = commentaryGestureRenderedPanX;
+    commentaryGesturePanY = commentaryGestureRenderedPanY;
+    commentaryGestureScale = commentaryGestureRenderedScale;
+    cgCommitTransform();
+  }
+  function cgSchedulePaint() {
+    if (commentaryGestureRafId) return;
+    commentaryGestureRafId = requestAnimationFrame(cgPaintFrame);
+  }
+  function cgFlushPaint() {
+    cgCancelPaint();
+    cgPaintFrame();
+  }
+  function cgLatestClient(e) {
+    var samples = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : null;
+    var latest = (samples && samples.length) ? samples[samples.length - 1] : e;
+    return { x: latest.clientX, y: latest.clientY };
+  }
+  function cgPointerList() {
+    var arr = [];
+    commentaryGesturePointers.forEach(function(p) { arr.push(p); });
+    return arr;
+  }
+  function cgDist(a, b) {
+    var dx = a.x - b.x;
+    var dy = a.y - b.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+  function cgMid(a, b) {
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  }
+  function cgRecordVel(x, y) {
+    var t = cgNow();
+    commentaryGestureVelSamples.push({ t: t, x: x, y: y });
+    var cut = t - CG_INERTIA_WINDOW_MS;
+    while (commentaryGestureVelSamples.length && commentaryGestureVelSamples[0].t < cut) {
+      commentaryGestureVelSamples.shift();
+    }
+  }
+  function cgVelocity() {
+    if (commentaryGestureVelSamples.length < 2) return { vx: 0, vy: 0 };
+    var sumW = 0, sumVx = 0, sumVy = 0;
+    var t0 = commentaryGestureVelSamples[0].t;
+    for (var i = 1; i < commentaryGestureVelSamples.length; i++) {
+      var a = commentaryGestureVelSamples[i - 1];
+      var b = commentaryGestureVelSamples[i];
+      var dt = b.t - a.t;
+      if (dt <= 0) continue;
+      var w = dt * (1 + (b.t - t0) / CG_INERTIA_WINDOW_MS);
+      sumVx += ((b.x - a.x) / dt) * w;
+      sumVy += ((b.y - a.y) / dt) * w;
+      sumW += w;
+    }
+    if (sumW <= 0) return { vx: 0, vy: 0 };
+    return { vx: sumVx / sumW, vy: sumVy / sumW };
+  }
+  function cgStartInertia() {
+    var v = cgVelocity();
+    var vx = commentaryGestureScale <= 1 ? 0 : v.vx * CG_INERTIA_RELEASE_BOOST;
+    var vy = v.vy * CG_INERTIA_RELEASE_BOOST;
+    var speed = Math.sqrt(vx * vx + vy * vy);
+    if (speed < CG_INERTIA_MIN_SPEED) return false;
+    if (speed > CG_INERTIA_MAX_SPEED) {
+      var k = CG_INERTIA_MAX_SPEED / speed;
+      vx *= k;
+      vy *= k;
+    }
+    cgCancelInertia();
+    cgMarkLayer();
+    commentaryGestureInertiaActive = true;
+    var last = cgNow();
+    function step(ts) {
+      commentaryGestureInertiaRafId = 0;
+      if (!commentaryGestureInertiaActive || !commentaryGestureSurface) return;
+      var t = typeof ts === 'number' ? ts : cgNow();
+      var dt = Math.min(34, Math.max(4, t - last));
+      last = t;
+      vx *= Math.exp(-CG_INERTIA_FRICTION * dt);
+      vy *= Math.exp(-CG_INERTIA_FRICTION * dt);
+      var rawX = commentaryGestureTargetPanX + vx * dt;
+      var rawY = commentaryGestureTargetPanY + vy * dt;
+      var nextX = cgClampX(rawX);
+      var nextY = cgClampY(rawY);
+      if (nextX !== rawX) vx = 0;
+      if (nextY !== rawY) vy = 0;
+      commentaryGestureTargetPanX = nextX;
+      commentaryGestureTargetPanY = nextY;
+      if (commentaryGestureTargetScale <= 1) commentaryGestureTargetPanX = 0;
+      cgFlushPaint();
+      if (Math.abs(vx) < CG_INERTIA_STOP_SPEED && Math.abs(vy) < CG_INERTIA_STOP_SPEED) {
+        commentaryGestureInertiaActive = false;
+        cgScheduleLayerRelease();
+        return;
+      }
+      commentaryGestureInertiaRafId = requestAnimationFrame(step);
+    }
+    commentaryGestureInertiaRafId = requestAnimationFrame(step);
+    return true;
+  }
+  function cgLayoutViewport() {
+    if (!commentaryGestureViewport) return;
+    var box = cg$('commentaryPopupBox');
+    var footer = cgGetFooter();
+    if (!box) return;
+    var br = box.getBoundingClientRect();
+    var top = br.top;
+    var bottom = br.bottom;
+    if (footer) {
+      var fr = footer.getBoundingClientRect();
+      if (fr.height > 1) bottom = Math.min(bottom, fr.top);
+    }
+    commentaryGestureVpLeft = br.left;
+    commentaryGestureVpTop = top;
+    commentaryGestureViewportW = br.width;
+    commentaryGestureViewportH = Math.max(120, bottom - top);
+    commentaryGestureViewport.style.width = '100%';
+    commentaryGestureViewport.style.height = commentaryGestureViewportH + 'px';
+  }
+  function cgMeasureSurface() {
+    if (!commentaryGestureSurface || !commentaryGestureViewport) return;
+    cgLayoutViewport();
+    var prev = commentaryGestureSurface.style.transform;
+    commentaryGestureSurface.style.transform = 'none';
+    commentaryGestureBaseW = commentaryGestureSurface.offsetWidth || commentaryGestureViewportW;
+    commentaryGestureBaseH = Math.max(
+      commentaryGestureSurface.offsetHeight || 0,
+      commentaryGestureSurface.scrollHeight || 0,
+      commentaryGestureSurface.clientHeight || 0
+    );
+    commentaryGestureSurface.style.transform = prev || '';
+    cgUpdateBounds();
+  }
+  function cgResetTransform(measure) {
+    cgCancelInertia();
+    cgCancelPaint();
+    commentaryGesturePointers.clear();
+    commentaryGestureMode = 'idle';
+    commentaryGestureDragStarted = false;
+    commentaryGestureDidDrag = false;
+    commentaryGestureDidPinch = false;
+    commentaryGestureSuppressClick = false;
+    commentaryGestureScale = 1;
+    commentaryGesturePanX = 0;
+    commentaryGesturePanY = 0;
+    commentaryGestureTargetScale = 1;
+    commentaryGestureTargetPanX = 0;
+    commentaryGestureTargetPanY = 0;
+    commentaryGestureRenderedScale = 1;
+    commentaryGestureRenderedPanX = 0;
+    commentaryGestureRenderedPanY = 0;
+    commentaryGestureVelSamples = [];
+    if (commentaryGestureSurface) {
+      commentaryGestureSurface.classList.remove('commentary-gesture-active');
+      if (measure) cgMeasureSurface();
+      else cgUpdateBounds();
+      cgCommitTransform();
+    }
+  }
+  function cgCapture(id) {
+    if (!commentaryGestureViewport) return;
+    try { commentaryGestureViewport.setPointerCapture(id); } catch (err) {}
+  }
+  function cgBindDoc() {
+    document.addEventListener('pointermove', cgOnPointerMove, true);
+    document.addEventListener('pointerup', cgOnPointerUp, true);
+    document.addEventListener('pointercancel', cgOnPointerUp, true);
+  }
+  function cgUnbindDoc() {
+    document.removeEventListener('pointermove', cgOnPointerMove, true);
+    document.removeEventListener('pointerup', cgOnPointerUp, true);
+    document.removeEventListener('pointercancel', cgOnPointerUp, true);
+  }
+  function cgOnClickCapture(e) {
+    if (!commentaryGestureSuppressClick) return;
+    commentaryGestureSuppressClick = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  function cgBeginPan(p) {
+    commentaryGestureMode = 'pending';
+    commentaryGestureDragStarted = false;
+    commentaryGestureDidDrag = false;
+    commentaryGestureStartClientX = p.x;
+    commentaryGestureStartClientY = p.y;
+    commentaryGestureStartPanX = commentaryGestureRenderedPanX;
+    commentaryGestureStartPanY = commentaryGestureRenderedPanY;
+    commentaryGestureTargetPanX = commentaryGestureRenderedPanX;
+    commentaryGestureTargetPanY = commentaryGestureRenderedPanY;
+    commentaryGestureVelSamples = [];
+    cgRecordVel(p.x, p.y);
+  }
+  function cgBeginPinch() {
+    var pts = cgPointerList();
+    if (pts.length < 2) return;
+    commentaryGestureMode = 'pinch';
+    commentaryGestureDragStarted = true;
+    commentaryGestureDidPinch = true;
+    commentaryGestureDidDrag = true;
+    cgMarkLayer();
+    pts.forEach(function(p) { cgCapture(p.id); });
+    commentaryGesturePinchStartDist = cgDist(pts[0], pts[1]) || 1;
+    var mid = cgMid(pts[0], pts[1]);
+    commentaryGesturePinchStartMidX = mid.x;
+    commentaryGesturePinchStartMidY = mid.y;
+    commentaryGesturePinchStartScale = commentaryGestureScale;
+    commentaryGesturePinchStartPanX = commentaryGesturePanX;
+    commentaryGesturePinchStartPanY = commentaryGesturePanY;
+    cgCancelInertia();
+  }
+  function cgApplyPinch(pts) {
+    if (pts.length < 2 || commentaryGesturePinchStartDist <= 0) return;
+    var d = cgDist(pts[0], pts[1]);
+    var next = cgClampScale(commentaryGesturePinchStartScale * (d / commentaryGesturePinchStartDist));
+    var mid = cgMid(pts[0], pts[1]);
+    var localX = (commentaryGesturePinchStartMidX - commentaryGestureVpLeft - commentaryGesturePinchStartPanX) / (commentaryGesturePinchStartScale || 1);
+    var localY = (commentaryGesturePinchStartMidY - commentaryGestureVpTop - commentaryGesturePinchStartPanY) / (commentaryGesturePinchStartScale || 1);
+    commentaryGestureTargetScale = next;
+    commentaryGestureScale = next;
+    cgUpdateBounds();
+    commentaryGestureTargetPanX = (mid.x - commentaryGestureVpLeft) - localX * next;
+    commentaryGestureTargetPanY = (mid.y - commentaryGestureVpTop) - localY * next;
+    if (next <= 1) commentaryGestureTargetPanX = 0;
+    commentaryGestureTargetPanX = cgClampX(commentaryGestureTargetPanX);
+    commentaryGestureTargetPanY = cgClampY(commentaryGestureTargetPanY);
+    cgSchedulePaint();
+  }
+  function cgOnPointerDown(e) {
+    if (!commentaryGestureActive || !commentaryGestureViewport) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    commentaryGestureSuppressClick = false;
+    cgCancelLayerRelease();
+    cgCancelInertia();
+    var c = cgLatestClient(e);
+    commentaryGesturePointers.set(e.pointerId, { id: e.pointerId, x: c.x, y: c.y });
+    if (commentaryGesturePointers.size === 1) cgBindDoc();
+    if (commentaryGesturePointers.size >= 2) {
+      cgBeginPinch();
+      if (e.cancelable) e.preventDefault();
+      return;
+    }
+    cgBeginPan({ x: c.x, y: c.y });
+  }
+  function cgOnPointerMove(e) {
+    if (!commentaryGestureActive || !commentaryGesturePointers.has(e.pointerId)) return;
+    var c = cgLatestClient(e);
+    commentaryGesturePointers.set(e.pointerId, { id: e.pointerId, x: c.x, y: c.y });
+    var pts = cgPointerList();
+    if (commentaryGestureMode === 'pinch' || pts.length >= 2) {
+      if (pts.length >= 2) {
+        if (commentaryGestureMode !== 'pinch') cgBeginPinch();
+        if (e.cancelable) e.preventDefault();
+        cgApplyPinch(pts);
+      }
+      return;
+    }
+    if (commentaryGestureMode !== 'pending' && commentaryGestureMode !== 'pan') return;
+    var dx = c.x - commentaryGestureStartClientX;
+    var dy = c.y - commentaryGestureStartClientY;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    if (!commentaryGestureDragStarted) {
+      if (dist <= CG_DRAG_SLOP_PX) return;
+      commentaryGestureDragStarted = true;
+      commentaryGestureDidDrag = true;
+      commentaryGestureMode = 'pan';
+      cgMarkLayer();
+      cgCapture(e.pointerId);
+    }
+    if (e.cancelable) e.preventDefault();
+    cgRecordVel(c.x, c.y);
+    if (commentaryGestureTargetScale <= 1) {
+      commentaryGestureTargetPanX = 0;
+      commentaryGestureTargetPanY = cgClampY(commentaryGestureStartPanY + dy);
+    } else {
+      commentaryGestureTargetPanX = cgClampX(commentaryGestureStartPanX + dx);
+      commentaryGestureTargetPanY = cgClampY(commentaryGestureStartPanY + dy);
+    }
+    cgSchedulePaint();
+  }
+  function cgOnPointerUp(e) {
+    if (!commentaryGesturePointers.has(e.pointerId)) return;
+    commentaryGesturePointers.delete(e.pointerId);
+    try { if (commentaryGestureViewport) commentaryGestureViewport.releasePointerCapture(e.pointerId); } catch (err) {}
+    if (commentaryGesturePointers.size >= 2) {
+      cgBeginPinch();
+      return;
+    }
+    if (commentaryGesturePointers.size === 1) {
+      cgFlushPaint();
+      var p = cgPointerList()[0];
+      commentaryGestureMode = 'pan';
+      commentaryGestureDragStarted = true;
+      cgMarkLayer();
+      commentaryGestureStartClientX = p.x;
+      commentaryGestureStartClientY = p.y;
+      commentaryGestureStartPanX = commentaryGestureRenderedPanX;
+      commentaryGestureStartPanY = commentaryGestureRenderedPanY;
+      commentaryGestureTargetPanX = commentaryGestureRenderedPanX;
+      commentaryGestureTargetPanY = commentaryGestureRenderedPanY;
+      commentaryGestureVelSamples = [];
+      cgRecordVel(p.x, p.y);
+      return;
+    }
+    cgUnbindDoc();
+    cgFlushPaint();
+    var runInertia = commentaryGestureDidDrag && !commentaryGestureDidPinch;
+    var wasGesture = commentaryGestureDidDrag || commentaryGestureDidPinch;
+    if (wasGesture) commentaryGestureSuppressClick = true;
+    commentaryGestureMode = 'idle';
+    commentaryGestureDragStarted = false;
+    commentaryGestureDidDrag = false;
+    commentaryGestureDidPinch = false;
+    commentaryGesturePointers.clear();
+    if (runInertia && cgStartInertia()) return;
+    if (wasGesture) cgScheduleLayerRelease();
+  }
+  function cgBindEvents() {
+    if (!commentaryGestureViewport || commentaryGestureBound) return;
+    commentaryGestureBound = true;
+    commentaryGestureViewport.addEventListener('pointerdown', cgOnPointerDown);
+    commentaryGestureViewport.addEventListener('click', cgOnClickCapture, true);
+  }
+  function cgUnbindEvents() {
+    if (!commentaryGestureViewport || !commentaryGestureBound) return;
+    commentaryGestureBound = false;
+    commentaryGestureViewport.removeEventListener('pointerdown', cgOnPointerDown);
+    commentaryGestureViewport.removeEventListener('click', cgOnClickCapture, true);
+    cgUnbindDoc();
+  }
+  function cgDisableNativeScroll() {
+    var content = cg$('commentaryContent');
+    var box = cg$('commentaryPopupBox');
+    if (content) {
+      commentaryGestureSavedContentStyle = {
+        overflow: content.style.overflow,
+        overflowX: content.style.overflowX,
+        overflowY: content.style.overflowY,
+        touchAction: content.style.touchAction,
+        scrollTop: content.scrollTop
+      };
+      content.scrollTop = 0;
+      content.style.overflow = 'hidden';
+      content.style.overflowX = 'hidden';
+      content.style.overflowY = 'hidden';
+      content.style.touchAction = 'none';
+    }
+    if (box) {
+      commentaryGestureSavedBoxOverflow = box.style.overflow;
+      box.style.overflow = 'hidden';
+      box.scrollTop = 0;
+    }
+  }
+  function cgRestoreNativeScroll() {
+    var content = cg$('commentaryContent');
+    var box = cg$('commentaryPopupBox');
+    if (content && commentaryGestureSavedContentStyle) {
+      content.style.overflow = commentaryGestureSavedContentStyle.overflow || '';
+      content.style.overflowX = commentaryGestureSavedContentStyle.overflowX || '';
+      content.style.overflowY = commentaryGestureSavedContentStyle.overflowY || '';
+      content.style.touchAction = commentaryGestureSavedContentStyle.touchAction || '';
+    }
+    commentaryGestureSavedContentStyle = null;
+    if (box) {
+      box.style.overflow = commentaryGestureSavedBoxOverflow || '';
+    }
+    commentaryGestureSavedBoxOverflow = null;
+  }
+  function cgEnsureDom() {
+    if (commentaryGestureViewport && commentaryGestureSurface) return true;
+    var box = cg$('commentaryPopupBox');
+    var header = cg$('popupDragHeader');
+    var content = cg$('commentaryContent');
+    if (!box || !header || !content || !header.parentNode || !content.parentNode) return false;
+    var footer = cgGetFooter();
+    commentaryGestureHeaderPh = document.createComment('commentary-gesture-header');
+    commentaryGestureContentPh = document.createComment('commentary-gesture-content');
+    header.parentNode.insertBefore(commentaryGestureHeaderPh, header);
+    content.parentNode.insertBefore(commentaryGestureContentPh, content);
+    commentaryGestureViewport = document.createElement('div');
+    commentaryGestureViewport.id = 'commentaryGestureViewport';
+    commentaryGestureSurface = document.createElement('div');
+    commentaryGestureSurface.id = 'commentaryGestureSurface';
+    commentaryGestureSurface.appendChild(header);
+    commentaryGestureSurface.appendChild(content);
+    commentaryGestureViewport.appendChild(commentaryGestureSurface);
+    if (footer && footer.parentNode === box) {
+      box.insertBefore(commentaryGestureViewport, footer);
+    } else if (commentaryGestureContentPh.parentNode === box) {
+      box.insertBefore(commentaryGestureViewport, commentaryGestureContentPh.nextSibling);
+    } else {
+      box.appendChild(commentaryGestureViewport);
+    }
+    return true;
+  }
+  function cgTeardownDom() {
+    var header = cg$('popupDragHeader');
+    var content = cg$('commentaryContent');
+    if (header && commentaryGestureHeaderPh && commentaryGestureHeaderPh.parentNode) {
+      commentaryGestureHeaderPh.parentNode.insertBefore(header, commentaryGestureHeaderPh);
+      commentaryGestureHeaderPh.parentNode.removeChild(commentaryGestureHeaderPh);
+    }
+    if (content && commentaryGestureContentPh && commentaryGestureContentPh.parentNode) {
+      commentaryGestureContentPh.parentNode.insertBefore(content, commentaryGestureContentPh);
+      commentaryGestureContentPh.parentNode.removeChild(commentaryGestureContentPh);
+    }
+    commentaryGestureHeaderPh = null;
+    commentaryGestureContentPh = null;
+    if (commentaryGestureViewport && commentaryGestureViewport.parentNode) {
+      commentaryGestureViewport.parentNode.removeChild(commentaryGestureViewport);
+    }
+    commentaryGestureViewport = null;
+    commentaryGestureSurface = null;
+  }
+  function cgDisconnectObserver() {
+    if (commentaryGestureResizeObserver) {
+      try { commentaryGestureResizeObserver.disconnect(); } catch (err) {}
+      commentaryGestureResizeObserver = null;
+    }
+  }
+  function cgConnectObserver() {
+    cgDisconnectObserver();
+    if (!commentaryGestureSurface || typeof ResizeObserver === 'undefined') return;
+    commentaryGestureResizeObserver = new ResizeObserver(function() {
+      if (!commentaryGestureActive) return;
+      cgMeasureSurface();
+      commentaryGestureTargetPanX = cgClampX(commentaryGestureTargetPanX);
+      commentaryGestureTargetPanY = cgClampY(commentaryGestureTargetPanY);
+      cgFlushPaint();
+    });
+    commentaryGestureResizeObserver.observe(commentaryGestureSurface);
+  }
+  function cgOnResize() {
+    if (!commentaryGestureActive) return;
+    cgMeasureSurface();
+    commentaryGestureTargetPanX = cgClampX(commentaryGesturePanX);
+    commentaryGestureTargetPanY = cgClampY(commentaryGesturePanY);
+    cgFlushPaint();
+  }
+  function cgBindVv() {
+    if (commentaryGestureVvBound) return;
+    commentaryGestureVvBound = true;
+    window.addEventListener('resize', cgOnResize);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', cgOnResize);
+      window.visualViewport.addEventListener('scroll', cgOnResize);
+    }
+  }
+  function cgUnbindVv() {
+    if (!commentaryGestureVvBound) return;
+    commentaryGestureVvBound = false;
+    window.removeEventListener('resize', cgOnResize);
+    if (window.visualViewport) {
+      window.visualViewport.removeEventListener('resize', cgOnResize);
+      window.visualViewport.removeEventListener('scroll', cgOnResize);
+    }
+  }
+  function cgActivate() {
+    if (!cgIsOpen()) return;
+    if (!cgEnsureDom()) return;
+    document.documentElement.classList.add('commentary-gesture-engine-active');
+    document.body.classList.add('commentary-gesture-engine-active');
+    cgDisableNativeScroll();
+    if (!commentaryGestureActive) {
+      commentaryGestureActive = true;
+      cgBindEvents();
+      cgBindVv();
+      cgConnectObserver();
+    }
+    cgResetTransform(false);
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        if (!commentaryGestureActive || !cgIsOpen()) return;
+        cgMeasureSurface();
+        cgFlushPaint();
+      });
+    });
+  }
+  function cgTeardown() {
+    if (commentaryGestureSyncTimer) {
+      clearTimeout(commentaryGestureSyncTimer);
+      commentaryGestureSyncTimer = 0;
+    }
+    cgCancelInertia();
+    cgCancelPaint();
+    cgCancelLayerRelease();
+    cgUnbindEvents();
+    cgUnbindVv();
+    cgDisconnectObserver();
+    commentaryGesturePointers.clear();
+    cgRestoreNativeScroll();
+    if (commentaryGestureSurface) {
+      commentaryGestureSurface.classList.remove('commentary-gesture-active');
+      commentaryGestureSurface.style.transform = '';
+    }
+    cgTeardownDom();
+    commentaryGestureActive = false;
+    commentaryGestureMode = 'idle';
+    commentaryGestureDragStarted = false;
+    commentaryGestureDidDrag = false;
+    commentaryGestureDidPinch = false;
+    commentaryGestureSuppressClick = false;
+    commentaryGestureScale = 1;
+    commentaryGesturePanX = 0;
+    commentaryGesturePanY = 0;
+    commentaryGestureTargetScale = 1;
+    commentaryGestureTargetPanX = 0;
+    commentaryGestureTargetPanY = 0;
+    commentaryGestureRenderedScale = 1;
+    commentaryGestureRenderedPanX = 0;
+    commentaryGestureRenderedPanY = 0;
+    document.documentElement.classList.remove('commentary-gesture-engine-active');
+    document.body.classList.remove('commentary-gesture-engine-active');
+  }
+  function cgSync() {
+    if (!cgIsOpen()) {
+      cgTeardown();
+      return;
+    }
+    if (commentaryGestureSyncTimer) clearTimeout(commentaryGestureSyncTimer);
+    commentaryGestureSyncTimer = setTimeout(function() {
+      commentaryGestureSyncTimer = 0;
+      cgActivate();
+    }, 40);
+  }
+  function cgOnTabChange() {
+    if (!commentaryGestureActive) {
+      cgSync();
+      return;
+    }
+    cgCancelInertia();
+    cgResetTransform(false);
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        if (!commentaryGestureActive) return;
+        cgMeasureSurface();
+        cgFlushPaint();
+      });
+    });
+  }
+
+  window.__gomnaCommentaryGestureSync = cgSync;
+  window.__gomnaCommentaryGestureTeardown = cgTeardown;
+  window.__gomnaCommentaryGestureOnTabChange = cgOnTabChange;
+  window.__gomnaCommentaryGestureIsActive = function() { return commentaryGestureActive; };
+})();
 
 function initVerseToolbarEvents() {
   var verseView = document.getElementById('verseView');
