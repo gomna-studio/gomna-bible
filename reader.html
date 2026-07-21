@@ -1028,6 +1028,77 @@ body.gomna-commentary-popup-open.commentary-gesture-engine-active #commentaryGes
   touch-action:manipulation;
 }
 
+/* 책·장 선택 모달 전용 pan/pinch — #unifiedBcBody 내부 scroll 대체 */
+html.unified-bc-gesture-engine-active #unifiedBookChapterModal.unified-bc-overlay.active{
+  touch-action:none!important;
+}
+html.unified-bc-gesture-engine-active #unifiedBookChapterModal .unified-bc-box{
+  touch-action:none!important;
+  overflow:hidden!important;
+}
+html.unified-bc-gesture-engine-active #unifiedBcGestureViewport{
+  position:relative;
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
+  overflow:hidden;
+  touch-action:none;
+  overscroll-behavior:none;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+  background:#faf6ed;
+}
+html.unified-bc-gesture-engine-active #unifiedBcGestureSurface{
+  transform-origin:0 0;
+  will-change:auto;
+  transition:none;
+  box-sizing:border-box;
+  width:100%;
+  background:#faf6ed;
+}
+html.unified-bc-gesture-engine-active #unifiedBcGestureSurface.unified-bc-gesture-active{
+  will-change:transform;
+  transition:none;
+  contain:layout style;
+}
+html.unified-bc-gesture-engine-active #unifiedBcGestureSurface > #unifiedBcHead,
+html.unified-bc-gesture-engine-active #unifiedBcGestureSurface > #unifiedBcBody{
+  touch-action:none!important;
+}
+html.unified-bc-gesture-engine-active #unifiedBcBody.unified-bc-body{
+  overflow:hidden!important;
+  overflow-x:hidden!important;
+  overflow-y:hidden!important;
+  flex:0 0 auto!important;
+  min-height:auto!important;
+  max-height:none!important;
+  -webkit-overflow-scrolling:auto!important;
+  overscroll-behavior:none!important;
+  scrollbar-width:none;
+}
+html.unified-bc-gesture-engine-active #unifiedBcBody.unified-bc-body::-webkit-scrollbar{
+  display:none;
+  width:0;
+  height:0;
+}
+html.unified-bc-gesture-engine-active #unifiedBcHead.unified-bc-head{
+  flex-shrink:0!important;
+}
+html.unified-bc-gesture-engine-active #unifiedBcFooter.unified-bc-footer{
+  flex-shrink:0!important;
+  position:relative!important;
+  z-index:6!important;
+  touch-action:manipulation!important;
+  pointer-events:auto!important;
+}
+html.unified-bc-gesture-engine-active #unifiedBcFooter button,
+html.unified-bc-gesture-engine-active #unifiedBcGestureSurface button,
+html.unified-bc-gesture-engine-active #unifiedBcGestureSurface a,
+html.unified-bc-gesture-engine-active #unifiedBcGestureSurface [onclick]{
+  pointer-events:auto;
+  touch-action:manipulation;
+}
+
 /* ── Premium Scripture Dock (mobile mockup) ── */
 :root{
   --gm-ink:#3d2818;
@@ -3970,10 +4041,16 @@ function renderUnifiedModalBody() {
   renderUnifiedModalFooter();
   if (unifiedBcState.step === 'chapters') {
     var curBtn = body.querySelector('.unified-bc-ch--cur');
-    if (curBtn) curBtn.scrollIntoView({ block: 'center' });
-    else body.scrollTop = 0;
+    if (curBtn && !(window.__gomnaUnifiedBcGestureIsActive && window.__gomnaUnifiedBcGestureIsActive())) {
+      curBtn.scrollIntoView({ block: 'center' });
+    } else {
+      body.scrollTop = 0;
+    }
   }
   body.style.visibility = '';
+  if (typeof window.__gomnaUnifiedBcGestureOnContentChange === 'function') {
+    window.__gomnaUnifiedBcGestureOnContentChange();
+  }
 }
 
 function unifiedBcGoBookList() {
@@ -4136,9 +4213,15 @@ function openUnifiedBookChapterModal() {
   el.setAttribute('aria-hidden', 'false');
   document.documentElement.classList.add('unified-bc-lock-scroll');
   renderUnifiedModalBody();
+  if (typeof window.__gomnaUnifiedBcGestureSync === 'function') {
+    window.__gomnaUnifiedBcGestureSync();
+  }
 }
 
 function closeUnifiedBookChapterModal() {
+  if (typeof window.__gomnaUnifiedBcGestureTeardown === 'function') {
+    window.__gomnaUnifiedBcGestureTeardown();
+  }
   var el = document.getElementById('unifiedBookChapterModal');
   if (el) {
     el.classList.remove('active');
@@ -6084,6 +6167,691 @@ function resetVerseViewScroll() {
   window.__gomnaCommentaryGestureTeardown = cgTeardown;
   window.__gomnaCommentaryGestureOnTabChange = cgOnTabChange;
   window.__gomnaCommentaryGestureIsActive = function() { return commentaryGestureActive; };
+})();
+
+/* 책·장 선택 모달 전용 — verse/commentary 제스처와 상태·이벤트 완전 분리 */
+(function() {
+  var UBC_MIN_SCALE = 1;
+  var UBC_MAX_SCALE = 2.5;
+  var UBC_DRAG_SLOP_PX = 8;
+  var UBC_EDGE_KEEP_PX = 64;
+  var UBC_INERTIA_WINDOW_MS = 100;
+  var UBC_INERTIA_MIN_SPEED = 0.08;
+  var UBC_INERTIA_MAX_SPEED = 3.5;
+  var UBC_INERTIA_RELEASE_BOOST = 1.2;
+  var UBC_INERTIA_FRICTION = 0.0055;
+  var UBC_INERTIA_STOP_SPEED = 0.02;
+  var UBC_LAYER_RELEASE_MS = 150;
+
+  var unifiedBcGestureActive = false;
+  var unifiedBcGestureViewport = null;
+  var unifiedBcGestureSurface = null;
+  var unifiedBcGestureHeadPh = null;
+  var unifiedBcGestureBodyPh = null;
+  var unifiedBcGestureBound = false;
+  var unifiedBcGestureScale = 1;
+  var unifiedBcGesturePanX = 0;
+  var unifiedBcGesturePanY = 0;
+  var unifiedBcGestureTargetScale = 1;
+  var unifiedBcGestureTargetPanX = 0;
+  var unifiedBcGestureTargetPanY = 0;
+  var unifiedBcGestureRenderedScale = 1;
+  var unifiedBcGestureRenderedPanX = 0;
+  var unifiedBcGestureRenderedPanY = 0;
+  var unifiedBcGestureRafId = 0;
+  var unifiedBcGestureInertiaRafId = 0;
+  var unifiedBcGestureInertiaActive = false;
+  var unifiedBcGestureLayerTimer = 0;
+  var unifiedBcGesturePointers = new Map();
+  var unifiedBcGestureMode = 'idle';
+  var unifiedBcGestureDragStarted = false;
+  var unifiedBcGestureDidDrag = false;
+  var unifiedBcGestureDidPinch = false;
+  var unifiedBcGestureSuppressClick = false;
+  var unifiedBcGestureStartClientX = 0;
+  var unifiedBcGestureStartClientY = 0;
+  var unifiedBcGestureStartPanX = 0;
+  var unifiedBcGestureStartPanY = 0;
+  var unifiedBcGesturePinchStartDist = 0;
+  var unifiedBcGesturePinchStartScale = 1;
+  var unifiedBcGesturePinchStartPanX = 0;
+  var unifiedBcGesturePinchStartPanY = 0;
+  var unifiedBcGesturePinchStartMidX = 0;
+  var unifiedBcGesturePinchStartMidY = 0;
+  var unifiedBcGestureVelSamples = [];
+  var unifiedBcGestureBaseW = 0;
+  var unifiedBcGestureBaseH = 0;
+  var unifiedBcGestureViewportW = 0;
+  var unifiedBcGestureViewportH = 0;
+  var unifiedBcGestureVpLeft = 0;
+  var unifiedBcGestureVpTop = 0;
+  var unifiedBcGestureMinPanX = 0;
+  var unifiedBcGestureMaxPanX = 0;
+  var unifiedBcGestureMinPanY = 0;
+  var unifiedBcGestureMaxPanY = 0;
+  var unifiedBcGestureResizeObserver = null;
+  var unifiedBcGestureSavedBodyStyle = null;
+  var unifiedBcGestureSavedBoxOverflow = null;
+  var unifiedBcGestureVvBound = false;
+  var unifiedBcGestureSyncTimer = 0;
+
+  function ubc$(id) { return document.getElementById(id); }
+  function ubcNow() {
+    return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  }
+  function ubcIsOpen() {
+    var el = ubc$('unifiedBookChapterModal');
+    return !!(el && el.classList.contains('active'));
+  }
+  function ubcClamp(v, lo, hi) {
+    if (v < lo) return lo;
+    if (v > hi) return hi;
+    return v;
+  }
+  function ubcClampScale(s) { return ubcClamp(s, UBC_MIN_SCALE, UBC_MAX_SCALE); }
+  function ubcUpdateBounds() {
+    var scaledW = unifiedBcGestureBaseW * unifiedBcGestureScale;
+    var scaledH = unifiedBcGestureBaseH * unifiedBcGestureScale;
+    unifiedBcGestureMinPanY = Math.min(0, unifiedBcGestureViewportH - scaledH - 16);
+    unifiedBcGestureMaxPanY = Math.max(0, unifiedBcGestureViewportH - UBC_EDGE_KEEP_PX);
+    if (unifiedBcGestureScale <= 1) {
+      unifiedBcGestureMinPanX = 0;
+      unifiedBcGestureMaxPanX = 0;
+    } else {
+      unifiedBcGestureMinPanX = Math.min(0, unifiedBcGestureViewportW - scaledW);
+      unifiedBcGestureMaxPanX = 0;
+    }
+  }
+  function ubcClampX(x) { return ubcClamp(x, unifiedBcGestureMinPanX, unifiedBcGestureMaxPanX); }
+  function ubcClampY(y) { return ubcClamp(y, unifiedBcGestureMinPanY, unifiedBcGestureMaxPanY); }
+  function ubcCancelPaint() {
+    if (!unifiedBcGestureRafId) return;
+    cancelAnimationFrame(unifiedBcGestureRafId);
+    unifiedBcGestureRafId = 0;
+  }
+  function ubcCancelInertia() {
+    unifiedBcGestureInertiaActive = false;
+    if (!unifiedBcGestureInertiaRafId) return;
+    cancelAnimationFrame(unifiedBcGestureInertiaRafId);
+    unifiedBcGestureInertiaRafId = 0;
+  }
+  function ubcCancelLayerRelease() {
+    if (!unifiedBcGestureLayerTimer) return;
+    clearTimeout(unifiedBcGestureLayerTimer);
+    unifiedBcGestureLayerTimer = 0;
+  }
+  function ubcMarkLayer() {
+    ubcCancelLayerRelease();
+    if (unifiedBcGestureSurface) unifiedBcGestureSurface.classList.add('unified-bc-gesture-active');
+  }
+  function ubcScheduleLayerRelease() {
+    ubcCancelLayerRelease();
+    unifiedBcGestureLayerTimer = setTimeout(function() {
+      unifiedBcGestureLayerTimer = 0;
+      if (!unifiedBcGestureSurface) return;
+      if (unifiedBcGestureInertiaActive || unifiedBcGesturePointers.size ||
+          unifiedBcGestureMode === 'pan' || unifiedBcGestureMode === 'pinch' || unifiedBcGestureMode === 'pending') return;
+      unifiedBcGestureSurface.classList.remove('unified-bc-gesture-active');
+    }, UBC_LAYER_RELEASE_MS);
+  }
+  function ubcCommitTransform() {
+    if (!unifiedBcGestureSurface) return;
+    unifiedBcGestureSurface.style.transform =
+      'translate3d(' + unifiedBcGestureRenderedPanX + 'px,' + unifiedBcGestureRenderedPanY + 'px,0) scale(' + unifiedBcGestureRenderedScale + ')';
+  }
+  function ubcPaintFrame() {
+    unifiedBcGestureRafId = 0;
+    if (!unifiedBcGestureSurface) return;
+    if (unifiedBcGestureTargetScale <= 1) unifiedBcGestureTargetPanX = 0;
+    unifiedBcGestureTargetPanX = ubcClampX(unifiedBcGestureTargetPanX);
+    unifiedBcGestureTargetPanY = ubcClampY(unifiedBcGestureTargetPanY);
+    unifiedBcGestureTargetScale = ubcClampScale(unifiedBcGestureTargetScale);
+    unifiedBcGestureRenderedPanX = unifiedBcGestureTargetPanX;
+    unifiedBcGestureRenderedPanY = unifiedBcGestureTargetPanY;
+    unifiedBcGestureRenderedScale = unifiedBcGestureTargetScale;
+    unifiedBcGesturePanX = unifiedBcGestureRenderedPanX;
+    unifiedBcGesturePanY = unifiedBcGestureRenderedPanY;
+    unifiedBcGestureScale = unifiedBcGestureRenderedScale;
+    ubcCommitTransform();
+  }
+  function ubcSchedulePaint() {
+    if (unifiedBcGestureRafId) return;
+    unifiedBcGestureRafId = requestAnimationFrame(ubcPaintFrame);
+  }
+  function ubcFlushPaint() {
+    ubcCancelPaint();
+    ubcPaintFrame();
+  }
+  function ubcLatestClient(e) {
+    var samples = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : null;
+    var latest = (samples && samples.length) ? samples[samples.length - 1] : e;
+    return { x: latest.clientX, y: latest.clientY };
+  }
+  function ubcPointerList() {
+    var arr = [];
+    unifiedBcGesturePointers.forEach(function(p) { arr.push(p); });
+    return arr;
+  }
+  function ubcDist(a, b) {
+    var dx = a.x - b.x;
+    var dy = a.y - b.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+  function ubcMid(a, b) {
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  }
+  function ubcRecordVel(x, y) {
+    var t = ubcNow();
+    unifiedBcGestureVelSamples.push({ t: t, x: x, y: y });
+    var cut = t - UBC_INERTIA_WINDOW_MS;
+    while (unifiedBcGestureVelSamples.length && unifiedBcGestureVelSamples[0].t < cut) {
+      unifiedBcGestureVelSamples.shift();
+    }
+  }
+  function ubcVelocity() {
+    if (unifiedBcGestureVelSamples.length < 2) return { vx: 0, vy: 0 };
+    var sumW = 0, sumVx = 0, sumVy = 0;
+    var t0 = unifiedBcGestureVelSamples[0].t;
+    for (var i = 1; i < unifiedBcGestureVelSamples.length; i++) {
+      var a = unifiedBcGestureVelSamples[i - 1];
+      var b = unifiedBcGestureVelSamples[i];
+      var dt = b.t - a.t;
+      if (dt <= 0) continue;
+      var w = dt * (1 + (b.t - t0) / UBC_INERTIA_WINDOW_MS);
+      sumVx += ((b.x - a.x) / dt) * w;
+      sumVy += ((b.y - a.y) / dt) * w;
+      sumW += w;
+    }
+    if (sumW <= 0) return { vx: 0, vy: 0 };
+    return { vx: sumVx / sumW, vy: sumVy / sumW };
+  }
+  function ubcStartInertia() {
+    var v = ubcVelocity();
+    var vx = unifiedBcGestureScale <= 1 ? 0 : v.vx * UBC_INERTIA_RELEASE_BOOST;
+    var vy = v.vy * UBC_INERTIA_RELEASE_BOOST;
+    var speed = Math.sqrt(vx * vx + vy * vy);
+    if (speed < UBC_INERTIA_MIN_SPEED) return false;
+    if (speed > UBC_INERTIA_MAX_SPEED) {
+      var k = UBC_INERTIA_MAX_SPEED / speed;
+      vx *= k;
+      vy *= k;
+    }
+    ubcCancelInertia();
+    ubcMarkLayer();
+    unifiedBcGestureInertiaActive = true;
+    var last = ubcNow();
+    function step(ts) {
+      unifiedBcGestureInertiaRafId = 0;
+      if (!unifiedBcGestureInertiaActive || !unifiedBcGestureSurface) return;
+      var t = typeof ts === 'number' ? ts : ubcNow();
+      var dt = Math.min(34, Math.max(4, t - last));
+      last = t;
+      vx *= Math.exp(-UBC_INERTIA_FRICTION * dt);
+      vy *= Math.exp(-UBC_INERTIA_FRICTION * dt);
+      var rawX = unifiedBcGestureTargetPanX + vx * dt;
+      var rawY = unifiedBcGestureTargetPanY + vy * dt;
+      var nextX = ubcClampX(rawX);
+      var nextY = ubcClampY(rawY);
+      if (nextX !== rawX) vx = 0;
+      if (nextY !== rawY) vy = 0;
+      unifiedBcGestureTargetPanX = nextX;
+      unifiedBcGestureTargetPanY = nextY;
+      if (unifiedBcGestureTargetScale <= 1) unifiedBcGestureTargetPanX = 0;
+      ubcFlushPaint();
+      if (Math.abs(vx) < UBC_INERTIA_STOP_SPEED && Math.abs(vy) < UBC_INERTIA_STOP_SPEED) {
+        unifiedBcGestureInertiaActive = false;
+        ubcScheduleLayerRelease();
+        return;
+      }
+      unifiedBcGestureInertiaRafId = requestAnimationFrame(step);
+    }
+    unifiedBcGestureInertiaRafId = requestAnimationFrame(step);
+    return true;
+  }
+  function ubcLayoutViewport() {
+    if (!unifiedBcGestureViewport) return;
+    var box = document.querySelector('#unifiedBookChapterModal .unified-bc-box');
+    var footer = ubc$('unifiedBcFooter');
+    if (!box) return;
+    var br = box.getBoundingClientRect();
+    var top = br.top;
+    var bottom = br.bottom;
+    if (footer && !footer.hidden) {
+      var fr = footer.getBoundingClientRect();
+      if (fr.height > 1) bottom = Math.min(bottom, fr.top);
+    }
+    unifiedBcGestureVpLeft = br.left;
+    unifiedBcGestureVpTop = top;
+    unifiedBcGestureViewportW = br.width;
+    unifiedBcGestureViewportH = Math.max(120, bottom - top);
+    unifiedBcGestureViewport.style.width = '100%';
+    unifiedBcGestureViewport.style.height = unifiedBcGestureViewportH + 'px';
+  }
+  function ubcMeasureSurface() {
+    if (!unifiedBcGestureSurface || !unifiedBcGestureViewport) return;
+    ubcLayoutViewport();
+    var prev = unifiedBcGestureSurface.style.transform;
+    unifiedBcGestureSurface.style.transform = 'none';
+    unifiedBcGestureBaseW = unifiedBcGestureSurface.offsetWidth || unifiedBcGestureViewportW;
+    unifiedBcGestureBaseH = Math.max(
+      unifiedBcGestureSurface.offsetHeight || 0,
+      unifiedBcGestureSurface.scrollHeight || 0,
+      unifiedBcGestureSurface.clientHeight || 0
+    );
+    unifiedBcGestureSurface.style.transform = prev || '';
+    ubcUpdateBounds();
+  }
+  function ubcResetTransform(measure) {
+    ubcCancelInertia();
+    ubcCancelPaint();
+    unifiedBcGesturePointers.clear();
+    unifiedBcGestureMode = 'idle';
+    unifiedBcGestureDragStarted = false;
+    unifiedBcGestureDidDrag = false;
+    unifiedBcGestureDidPinch = false;
+    unifiedBcGestureSuppressClick = false;
+    unifiedBcGestureScale = 1;
+    unifiedBcGesturePanX = 0;
+    unifiedBcGesturePanY = 0;
+    unifiedBcGestureTargetScale = 1;
+    unifiedBcGestureTargetPanX = 0;
+    unifiedBcGestureTargetPanY = 0;
+    unifiedBcGestureRenderedScale = 1;
+    unifiedBcGestureRenderedPanX = 0;
+    unifiedBcGestureRenderedPanY = 0;
+    unifiedBcGestureVelSamples = [];
+    if (unifiedBcGestureSurface) {
+      unifiedBcGestureSurface.classList.remove('unified-bc-gesture-active');
+      if (measure) ubcMeasureSurface();
+      else ubcUpdateBounds();
+      ubcCommitTransform();
+    }
+  }
+  function ubcCapture(id) {
+    if (!unifiedBcGestureViewport) return;
+    try { unifiedBcGestureViewport.setPointerCapture(id); } catch (err) {}
+  }
+  function ubcBindDoc() {
+    document.addEventListener('pointermove', ubcOnPointerMove, true);
+    document.addEventListener('pointerup', ubcOnPointerUp, true);
+    document.addEventListener('pointercancel', ubcOnPointerUp, true);
+  }
+  function ubcUnbindDoc() {
+    document.removeEventListener('pointermove', ubcOnPointerMove, true);
+    document.removeEventListener('pointerup', ubcOnPointerUp, true);
+    document.removeEventListener('pointercancel', ubcOnPointerUp, true);
+  }
+  function ubcOnClickCapture(e) {
+    if (!unifiedBcGestureSuppressClick) return;
+    unifiedBcGestureSuppressClick = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  function ubcBeginPan(p) {
+    unifiedBcGestureMode = 'pending';
+    unifiedBcGestureDragStarted = false;
+    unifiedBcGestureDidDrag = false;
+    unifiedBcGestureStartClientX = p.x;
+    unifiedBcGestureStartClientY = p.y;
+    unifiedBcGestureStartPanX = unifiedBcGestureRenderedPanX;
+    unifiedBcGestureStartPanY = unifiedBcGestureRenderedPanY;
+    unifiedBcGestureTargetPanX = unifiedBcGestureRenderedPanX;
+    unifiedBcGestureTargetPanY = unifiedBcGestureRenderedPanY;
+    unifiedBcGestureVelSamples = [];
+    ubcRecordVel(p.x, p.y);
+  }
+  function ubcBeginPinch() {
+    var pts = ubcPointerList();
+    if (pts.length < 2) return;
+    unifiedBcGestureMode = 'pinch';
+    unifiedBcGestureDragStarted = true;
+    unifiedBcGestureDidPinch = true;
+    unifiedBcGestureDidDrag = true;
+    ubcMarkLayer();
+    pts.forEach(function(p) { ubcCapture(p.id); });
+    unifiedBcGesturePinchStartDist = ubcDist(pts[0], pts[1]) || 1;
+    var mid = ubcMid(pts[0], pts[1]);
+    unifiedBcGesturePinchStartMidX = mid.x;
+    unifiedBcGesturePinchStartMidY = mid.y;
+    unifiedBcGesturePinchStartScale = unifiedBcGestureScale;
+    unifiedBcGesturePinchStartPanX = unifiedBcGesturePanX;
+    unifiedBcGesturePinchStartPanY = unifiedBcGesturePanY;
+    ubcCancelInertia();
+  }
+  function ubcApplyPinch(pts) {
+    if (pts.length < 2 || unifiedBcGesturePinchStartDist <= 0) return;
+    var d = ubcDist(pts[0], pts[1]);
+    var next = ubcClampScale(unifiedBcGesturePinchStartScale * (d / unifiedBcGesturePinchStartDist));
+    var mid = ubcMid(pts[0], pts[1]);
+    var localX = (unifiedBcGesturePinchStartMidX - unifiedBcGestureVpLeft - unifiedBcGesturePinchStartPanX) / (unifiedBcGesturePinchStartScale || 1);
+    var localY = (unifiedBcGesturePinchStartMidY - unifiedBcGestureVpTop - unifiedBcGesturePinchStartPanY) / (unifiedBcGesturePinchStartScale || 1);
+    unifiedBcGestureTargetScale = next;
+    unifiedBcGestureScale = next;
+    ubcUpdateBounds();
+    unifiedBcGestureTargetPanX = (mid.x - unifiedBcGestureVpLeft) - localX * next;
+    unifiedBcGestureTargetPanY = (mid.y - unifiedBcGestureVpTop) - localY * next;
+    if (next <= 1) unifiedBcGestureTargetPanX = 0;
+    unifiedBcGestureTargetPanX = ubcClampX(unifiedBcGestureTargetPanX);
+    unifiedBcGestureTargetPanY = ubcClampY(unifiedBcGestureTargetPanY);
+    ubcSchedulePaint();
+  }
+  function ubcOnPointerDown(e) {
+    if (!unifiedBcGestureActive || !unifiedBcGestureViewport) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    /* 분류 시트 위에서는 제스처 무시 */
+    var sheet = ubc$('unifiedBcCatSheet');
+    if (sheet && sheet.classList.contains('active')) return;
+    unifiedBcGestureSuppressClick = false;
+    ubcCancelLayerRelease();
+    ubcCancelInertia();
+    var c = ubcLatestClient(e);
+    unifiedBcGesturePointers.set(e.pointerId, { id: e.pointerId, x: c.x, y: c.y });
+    if (unifiedBcGesturePointers.size === 1) ubcBindDoc();
+    if (unifiedBcGesturePointers.size >= 2) {
+      ubcBeginPinch();
+      if (e.cancelable) e.preventDefault();
+      return;
+    }
+    ubcBeginPan({ x: c.x, y: c.y });
+  }
+  function ubcOnPointerMove(e) {
+    if (!unifiedBcGestureActive || !unifiedBcGesturePointers.has(e.pointerId)) return;
+    var c = ubcLatestClient(e);
+    unifiedBcGesturePointers.set(e.pointerId, { id: e.pointerId, x: c.x, y: c.y });
+    var pts = ubcPointerList();
+    if (unifiedBcGestureMode === 'pinch' || pts.length >= 2) {
+      if (pts.length >= 2) {
+        if (unifiedBcGestureMode !== 'pinch') ubcBeginPinch();
+        if (e.cancelable) e.preventDefault();
+        ubcApplyPinch(pts);
+      }
+      return;
+    }
+    if (unifiedBcGestureMode !== 'pending' && unifiedBcGestureMode !== 'pan') return;
+    var dx = c.x - unifiedBcGestureStartClientX;
+    var dy = c.y - unifiedBcGestureStartClientY;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    if (!unifiedBcGestureDragStarted) {
+      if (dist <= UBC_DRAG_SLOP_PX) return;
+      unifiedBcGestureDragStarted = true;
+      unifiedBcGestureDidDrag = true;
+      unifiedBcGestureMode = 'pan';
+      ubcMarkLayer();
+      ubcCapture(e.pointerId);
+    }
+    if (e.cancelable) e.preventDefault();
+    ubcRecordVel(c.x, c.y);
+    if (unifiedBcGestureTargetScale <= 1) {
+      unifiedBcGestureTargetPanX = 0;
+      unifiedBcGestureTargetPanY = ubcClampY(unifiedBcGestureStartPanY + dy);
+    } else {
+      unifiedBcGestureTargetPanX = ubcClampX(unifiedBcGestureStartPanX + dx);
+      unifiedBcGestureTargetPanY = ubcClampY(unifiedBcGestureStartPanY + dy);
+    }
+    ubcSchedulePaint();
+  }
+  function ubcOnPointerUp(e) {
+    if (!unifiedBcGesturePointers.has(e.pointerId)) return;
+    unifiedBcGesturePointers.delete(e.pointerId);
+    try { if (unifiedBcGestureViewport) unifiedBcGestureViewport.releasePointerCapture(e.pointerId); } catch (err) {}
+    if (unifiedBcGesturePointers.size >= 2) {
+      ubcBeginPinch();
+      return;
+    }
+    if (unifiedBcGesturePointers.size === 1) {
+      ubcFlushPaint();
+      var p = ubcPointerList()[0];
+      unifiedBcGestureMode = 'pan';
+      unifiedBcGestureDragStarted = true;
+      ubcMarkLayer();
+      unifiedBcGestureStartClientX = p.x;
+      unifiedBcGestureStartClientY = p.y;
+      unifiedBcGestureStartPanX = unifiedBcGestureRenderedPanX;
+      unifiedBcGestureStartPanY = unifiedBcGestureRenderedPanY;
+      unifiedBcGestureTargetPanX = unifiedBcGestureRenderedPanX;
+      unifiedBcGestureTargetPanY = unifiedBcGestureRenderedPanY;
+      unifiedBcGestureVelSamples = [];
+      ubcRecordVel(p.x, p.y);
+      return;
+    }
+    ubcUnbindDoc();
+    ubcFlushPaint();
+    var runInertia = unifiedBcGestureDidDrag && !unifiedBcGestureDidPinch;
+    var wasGesture = unifiedBcGestureDidDrag || unifiedBcGestureDidPinch;
+    if (wasGesture) unifiedBcGestureSuppressClick = true;
+    unifiedBcGestureMode = 'idle';
+    unifiedBcGestureDragStarted = false;
+    unifiedBcGestureDidDrag = false;
+    unifiedBcGestureDidPinch = false;
+    unifiedBcGesturePointers.clear();
+    if (runInertia && ubcStartInertia()) return;
+    if (wasGesture) ubcScheduleLayerRelease();
+  }
+  function ubcBindEvents() {
+    if (!unifiedBcGestureViewport || unifiedBcGestureBound) return;
+    unifiedBcGestureBound = true;
+    unifiedBcGestureViewport.addEventListener('pointerdown', ubcOnPointerDown);
+    unifiedBcGestureViewport.addEventListener('click', ubcOnClickCapture, true);
+  }
+  function ubcUnbindEvents() {
+    if (!unifiedBcGestureViewport || !unifiedBcGestureBound) return;
+    unifiedBcGestureBound = false;
+    unifiedBcGestureViewport.removeEventListener('pointerdown', ubcOnPointerDown);
+    unifiedBcGestureViewport.removeEventListener('click', ubcOnClickCapture, true);
+    ubcUnbindDoc();
+  }
+  function ubcDisableNativeScroll() {
+    var body = ubc$('unifiedBcBody');
+    var box = document.querySelector('#unifiedBookChapterModal .unified-bc-box');
+    if (body) {
+      unifiedBcGestureSavedBodyStyle = {
+        overflow: body.style.overflow,
+        overflowX: body.style.overflowX,
+        overflowY: body.style.overflowY,
+        touchAction: body.style.touchAction,
+        scrollTop: body.scrollTop
+      };
+      body.scrollTop = 0;
+      body.style.overflow = 'hidden';
+      body.style.overflowX = 'hidden';
+      body.style.overflowY = 'hidden';
+      body.style.touchAction = 'none';
+    }
+    if (box) {
+      unifiedBcGestureSavedBoxOverflow = box.style.overflow;
+      box.style.overflow = 'hidden';
+      box.scrollTop = 0;
+    }
+  }
+  function ubcRestoreNativeScroll() {
+    var body = ubc$('unifiedBcBody');
+    var box = document.querySelector('#unifiedBookChapterModal .unified-bc-box');
+    if (body && unifiedBcGestureSavedBodyStyle) {
+      body.style.overflow = unifiedBcGestureSavedBodyStyle.overflow || '';
+      body.style.overflowX = unifiedBcGestureSavedBodyStyle.overflowX || '';
+      body.style.overflowY = unifiedBcGestureSavedBodyStyle.overflowY || '';
+      body.style.touchAction = unifiedBcGestureSavedBodyStyle.touchAction || '';
+    }
+    unifiedBcGestureSavedBodyStyle = null;
+    if (box) box.style.overflow = unifiedBcGestureSavedBoxOverflow || '';
+    unifiedBcGestureSavedBoxOverflow = null;
+  }
+  function ubcEnsureDom() {
+    if (unifiedBcGestureViewport && unifiedBcGestureSurface) return true;
+    var box = document.querySelector('#unifiedBookChapterModal .unified-bc-box');
+    var head = ubc$('unifiedBcHead');
+    var body = ubc$('unifiedBcBody');
+    var footer = ubc$('unifiedBcFooter');
+    if (!box || !head || !body || !head.parentNode || !body.parentNode) return false;
+    unifiedBcGestureHeadPh = document.createComment('unified-bc-gesture-head');
+    unifiedBcGestureBodyPh = document.createComment('unified-bc-gesture-body');
+    head.parentNode.insertBefore(unifiedBcGestureHeadPh, head);
+    body.parentNode.insertBefore(unifiedBcGestureBodyPh, body);
+    unifiedBcGestureViewport = document.createElement('div');
+    unifiedBcGestureViewport.id = 'unifiedBcGestureViewport';
+    unifiedBcGestureSurface = document.createElement('div');
+    unifiedBcGestureSurface.id = 'unifiedBcGestureSurface';
+    unifiedBcGestureSurface.appendChild(head);
+    unifiedBcGestureSurface.appendChild(body);
+    unifiedBcGestureViewport.appendChild(unifiedBcGestureSurface);
+    if (footer && footer.parentNode === box) {
+      box.insertBefore(unifiedBcGestureViewport, footer);
+    } else if (unifiedBcGestureBodyPh.parentNode === box) {
+      box.insertBefore(unifiedBcGestureViewport, unifiedBcGestureBodyPh.nextSibling);
+    } else {
+      box.insertBefore(unifiedBcGestureViewport, box.firstChild);
+    }
+    return true;
+  }
+  function ubcTeardownDom() {
+    var head = ubc$('unifiedBcHead');
+    var body = ubc$('unifiedBcBody');
+    if (head && unifiedBcGestureHeadPh && unifiedBcGestureHeadPh.parentNode) {
+      unifiedBcGestureHeadPh.parentNode.insertBefore(head, unifiedBcGestureHeadPh);
+      unifiedBcGestureHeadPh.parentNode.removeChild(unifiedBcGestureHeadPh);
+    }
+    if (body && unifiedBcGestureBodyPh && unifiedBcGestureBodyPh.parentNode) {
+      unifiedBcGestureBodyPh.parentNode.insertBefore(body, unifiedBcGestureBodyPh);
+      unifiedBcGestureBodyPh.parentNode.removeChild(unifiedBcGestureBodyPh);
+    }
+    unifiedBcGestureHeadPh = null;
+    unifiedBcGestureBodyPh = null;
+    if (unifiedBcGestureViewport && unifiedBcGestureViewport.parentNode) {
+      unifiedBcGestureViewport.parentNode.removeChild(unifiedBcGestureViewport);
+    }
+    unifiedBcGestureViewport = null;
+    unifiedBcGestureSurface = null;
+  }
+  function ubcDisconnectObserver() {
+    if (unifiedBcGestureResizeObserver) {
+      try { unifiedBcGestureResizeObserver.disconnect(); } catch (err) {}
+      unifiedBcGestureResizeObserver = null;
+    }
+  }
+  function ubcConnectObserver() {
+    ubcDisconnectObserver();
+    if (!unifiedBcGestureSurface || typeof ResizeObserver === 'undefined') return;
+    unifiedBcGestureResizeObserver = new ResizeObserver(function() {
+      if (!unifiedBcGestureActive) return;
+      ubcMeasureSurface();
+      unifiedBcGestureTargetPanX = ubcClampX(unifiedBcGestureTargetPanX);
+      unifiedBcGestureTargetPanY = ubcClampY(unifiedBcGestureTargetPanY);
+      ubcFlushPaint();
+    });
+    unifiedBcGestureResizeObserver.observe(unifiedBcGestureSurface);
+  }
+  function ubcOnResize() {
+    if (!unifiedBcGestureActive) return;
+    ubcMeasureSurface();
+    unifiedBcGestureTargetPanX = ubcClampX(unifiedBcGesturePanX);
+    unifiedBcGestureTargetPanY = ubcClampY(unifiedBcGesturePanY);
+    ubcFlushPaint();
+  }
+  function ubcBindVv() {
+    if (unifiedBcGestureVvBound) return;
+    unifiedBcGestureVvBound = true;
+    window.addEventListener('resize', ubcOnResize);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', ubcOnResize);
+      window.visualViewport.addEventListener('scroll', ubcOnResize);
+    }
+  }
+  function ubcUnbindVv() {
+    if (!unifiedBcGestureVvBound) return;
+    unifiedBcGestureVvBound = false;
+    window.removeEventListener('resize', ubcOnResize);
+    if (window.visualViewport) {
+      window.visualViewport.removeEventListener('resize', ubcOnResize);
+      window.visualViewport.removeEventListener('scroll', ubcOnResize);
+    }
+  }
+  function ubcActivate() {
+    if (!ubcIsOpen()) return;
+    if (!ubcEnsureDom()) return;
+    document.documentElement.classList.add('unified-bc-gesture-engine-active');
+    ubcDisableNativeScroll();
+    if (!unifiedBcGestureActive) {
+      unifiedBcGestureActive = true;
+      ubcBindEvents();
+      ubcBindVv();
+      ubcConnectObserver();
+    }
+    ubcResetTransform(false);
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        if (!unifiedBcGestureActive || !ubcIsOpen()) return;
+        ubcMeasureSurface();
+        ubcFlushPaint();
+      });
+    });
+  }
+  function ubcTeardown() {
+    if (unifiedBcGestureSyncTimer) {
+      clearTimeout(unifiedBcGestureSyncTimer);
+      unifiedBcGestureSyncTimer = 0;
+    }
+    ubcCancelInertia();
+    ubcCancelPaint();
+    ubcCancelLayerRelease();
+    ubcUnbindEvents();
+    ubcUnbindVv();
+    ubcDisconnectObserver();
+    unifiedBcGesturePointers.clear();
+    ubcRestoreNativeScroll();
+    if (unifiedBcGestureSurface) {
+      unifiedBcGestureSurface.classList.remove('unified-bc-gesture-active');
+      unifiedBcGestureSurface.style.transform = '';
+    }
+    ubcTeardownDom();
+    unifiedBcGestureActive = false;
+    unifiedBcGestureMode = 'idle';
+    unifiedBcGestureDragStarted = false;
+    unifiedBcGestureDidDrag = false;
+    unifiedBcGestureDidPinch = false;
+    unifiedBcGestureSuppressClick = false;
+    unifiedBcGestureScale = 1;
+    unifiedBcGesturePanX = 0;
+    unifiedBcGesturePanY = 0;
+    unifiedBcGestureTargetScale = 1;
+    unifiedBcGestureTargetPanX = 0;
+    unifiedBcGestureTargetPanY = 0;
+    unifiedBcGestureRenderedScale = 1;
+    unifiedBcGestureRenderedPanX = 0;
+    unifiedBcGestureRenderedPanY = 0;
+    document.documentElement.classList.remove('unified-bc-gesture-engine-active');
+  }
+  function ubcSync() {
+    if (!ubcIsOpen()) {
+      ubcTeardown();
+      return;
+    }
+    if (unifiedBcGestureSyncTimer) clearTimeout(unifiedBcGestureSyncTimer);
+    unifiedBcGestureSyncTimer = setTimeout(function() {
+      unifiedBcGestureSyncTimer = 0;
+      ubcActivate();
+    }, 40);
+  }
+  function ubcOnContentChange() {
+    if (!ubcIsOpen()) return;
+    if (!unifiedBcGestureActive) {
+      ubcSync();
+      return;
+    }
+    ubcCancelInertia();
+    ubcResetTransform(false);
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        if (!unifiedBcGestureActive) return;
+        ubcMeasureSurface();
+        ubcFlushPaint();
+      });
+    });
+  }
+
+  window.__gomnaUnifiedBcGestureSync = ubcSync;
+  window.__gomnaUnifiedBcGestureTeardown = ubcTeardown;
+  window.__gomnaUnifiedBcGestureOnContentChange = ubcOnContentChange;
+  window.__gomnaUnifiedBcGestureIsActive = function() { return unifiedBcGestureActive; };
 })();
 
 function initVerseToolbarEvents() {
