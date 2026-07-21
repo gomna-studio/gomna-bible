@@ -4804,6 +4804,16 @@ function resetVerseViewScroll() {
   if (scrollEl) scrollEl.scrollTop = 0;
 }
 
+/* 터치 제스처 엔진 공통 기기 판별 — UA·화면 너비 미사용.
+   맥북/데스크톱(마우스·트랙패드)은 false → 브라우저 세로 스크롤 유지. */
+function gomnaShouldUseTouchGestureEngine() {
+  var touchPoints = Number(navigator.maxTouchPoints || 0);
+  var coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  var noHover = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
+  return touchPoints > 0 && (coarse || noHover);
+}
+window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
+
 /* 일반 성경 본문 전용 — 단일 viewport/surface + Pointer Events pan/pinch/inertia.
    document scroll과 transform을 섞지 않음. 다른 화면에는 비활성. */
 (function() {
@@ -4882,6 +4892,7 @@ function resetVerseViewScroll() {
     return cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity || '1') > 0.01;
   }
   function isPlainBibleVerseGestureMode() {
+    if (typeof gomnaShouldUseTouchGestureEngine === 'function' && !gomnaShouldUseTouchGestureEngine()) return false;
     var root = document.documentElement;
     if (!root.classList.contains('reader-verse-active')) return false;
     if (root.classList.contains('is-daily-word-view')) return false;
@@ -6137,6 +6148,10 @@ function resetVerseViewScroll() {
     document.body.classList.remove('commentary-gesture-engine-active');
   }
   function cgSync() {
+    if (typeof gomnaShouldUseTouchGestureEngine === 'function' && !gomnaShouldUseTouchGestureEngine()) {
+      cgTeardown();
+      return;
+    }
     if (!cgIsOpen()) {
       cgTeardown();
       return;
@@ -6821,6 +6836,10 @@ function resetVerseViewScroll() {
     document.documentElement.classList.remove('unified-bc-gesture-engine-active');
   }
   function ubcSync() {
+    if (typeof gomnaShouldUseTouchGestureEngine === 'function' && !gomnaShouldUseTouchGestureEngine()) {
+      ubcTeardown();
+      return;
+    }
     if (!ubcIsOpen()) {
       ubcTeardown();
       return;
