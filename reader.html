@@ -202,7 +202,16 @@ body[data-i18n-mode="foreign"] .consonant-btn.cat-btn.cat-all .cat-label{font-si
 .consonant-btn.cat-btn.cat-all.active{background:#FFFFFF;color:#3D2817;border-color:#E0D6CC}
 .consonant-btn.cat-btn.cat-all:active,
 .consonant-btn.cat-btn.cat-all.active:active{background:#F8F4EF;color:#3D2817;border-color:#E0D6CC}
-.filtered-books{margin-top:14px}
+.filtered-books{margin-top:14px;margin-bottom:0}
+/* 분류 버튼 줄 바로 아래 인라인 결과 */
+.easy-category-block > .filtered-books{
+  margin-top:8px;
+  margin-bottom:18px;
+}
+.consonant-grid.cat-grid > .filtered-books{
+  margin-top:10px;
+  margin-bottom:8px;
+}
 .filtered-title{font-size:13px;color:var(--text-light);margin-bottom:12px;font-weight:600}
 .consonant-btn.cat-btn.easy-cat--old{background:#F7EEDC;color:#17120F;border-color:rgba(139,94,44,.22)}
 .consonant-btn.cat-btn.easy-cat--new{background:#EAF2EF;color:#17120F;border-color:rgba(74,119,110,.28)}
@@ -249,12 +258,21 @@ body[data-i18n-mode="foreign"] .consonant-btn.cat-btn.cat-all .cat-label{font-si
   box-sizing:border-box;
 }
 .mode-seg-btn.is-active,
-.mode-seg-btn.active,
-.easy-mode-seg-btn.is-active{
+.mode-seg-btn.active{
   background:#FFFFFF;
   color:#3D2817;
   border-color:#8B5E2C;
   box-shadow:0 1px 2px rgba(90,56,24,.08);
+}
+/* 쉬운찾기 분류별·가나다 active: 동일 1px 테두리 */
+.easy-mode-seg-btn.is-active{
+  background:#FFFFFF;
+  color:#3D2817;
+  border-width:1px;
+  border-style:solid;
+  border-color:#8B5E2C;
+  box-shadow:none;
+  outline:none;
 }
 .mode-seg-btn:not(.is-active):not(.active):active,
 .easy-mode-seg-btn:not(.is-active):active{
@@ -265,15 +283,126 @@ body[data-i18n-mode="foreign"] .consonant-btn.cat-btn.cat-all .cat-label{font-si
   display:none!important;
 }
 #easyView:not(.easy-view--ganada) .easy-ganada-root,
+#easyView:not(.easy-view--ganada) .easy-book-search,
+#easyView:not(.easy-view--ganada) .easy-ganada-quick,
 #easyView:not(.easy-view--ganada) .easy-ganada-index,
 #easyView:not(.easy-view--ganada) .easy-ganada-bubble{
   display:none!important;
 }
-.easy-ganada-root{
-  margin-top:8px;
-  padding-right:22px;
+/* 가나다: 가로 초성 버튼 사용 — 세로 인덱스·말풍선은 숨김 */
+#easyView.easy-view--ganada .easy-ganada-index,
+#easyView.easy-view--ganada .easy-ganada-bubble{
+  display:none!important;
+}
+.easy-book-search{
+  position:relative;
+  width:100%;
+  max-width:100%;
+  margin:4px 0 10px;
   box-sizing:border-box;
   min-width:0;
+}
+.easy-book-search-input{
+  display:block;
+  width:100%;
+  min-width:0;
+  height:46px;
+  box-sizing:border-box;
+  margin:0;
+  padding:0 44px 0 14px;
+  border:1px solid rgba(184,134,11,.42);
+  border-radius:12px;
+  background:#FFFFFF;
+  color:#3D2817;
+  font-family:inherit;
+  font-size:15px;
+  font-weight:500;
+  line-height:1.3;
+  outline:none;
+  -webkit-appearance:none;
+  appearance:none;
+}
+.easy-book-search-input:focus{
+  border-color:#8B5E2C;
+  box-shadow:0 0 0 2px rgba(139,94,44,.12);
+}
+.easy-book-search-clear{
+  position:absolute;
+  right:4px;
+  top:50%;
+  transform:translateY(-50%);
+  width:38px;
+  height:38px;
+  margin:0;
+  padding:0;
+  border:none;
+  border-radius:10px;
+  background:transparent;
+  color:#8a6332;
+  font-family:inherit;
+  font-size:16px;
+  font-weight:700;
+  line-height:1;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.easy-book-search-clear:active{background:rgba(139,94,44,.08)}
+.easy-ganada-quick{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:stretch;
+  gap:6px;
+  width:100%;
+  max-width:100%;
+  margin:0 0 12px;
+  box-sizing:border-box;
+  min-width:0;
+}
+.easy-ganada-quick-btn{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:40px;
+  min-height:40px;
+  padding:8px 12px;
+  margin:0;
+  border:0.5px solid rgba(139,94,44,.22);
+  border-radius:12px;
+  background:#FDF6EE;
+  color:#3D2817;
+  font-family:inherit;
+  font-size:14px;
+  font-weight:700;
+  line-height:1;
+  text-align:center;
+  cursor:pointer;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-appearance:none;
+  appearance:none;
+}
+.easy-ganada-quick-btn.is-active{
+  background:#FFFFFF;
+  color:#3D2817;
+  border:2px solid #8B5E2C;
+  padding:7px 11px;
+}
+/* 초성 “전체” active만 테두리 1px (ㄱ·ㄴ·ㄷ 등은 기존 유지) */
+.easy-ganada-quick-btn.is-active[data-easy-cons="all"]{
+  border:1px solid #8B5E2C;
+  padding:8px 12px;
+  box-shadow:none;
+  outline:none;
+}
+.easy-ganada-quick-btn:active{background:#F8F4EF}
+.easy-ganada-root{
+  margin-top:4px;
+  padding-right:0;
+  box-sizing:border-box;
+  min-width:0;
+  width:100%;
+  max-width:100%;
 }
 .easy-ganada-group{
   margin:0 0 20px;
@@ -290,66 +419,11 @@ body[data-i18n-mode="foreign"] .consonant-btn.cat-btn.cat-all .cat-label{font-si
   scroll-margin-top:72px;
 }
 .easy-ganada-index{
-  position:fixed;
-  right:max(2px, calc((100vw - min(100vw, var(--reader-frame-width,420px))) / 2 + 2px));
-  top:50%;
-  transform:translateY(-50%);
-  z-index:85;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:0;
-  max-height:calc(100dvh - var(--reader-dock-top-height,54px) - var(--scripture-dock-height,68px) - env(safe-area-inset-bottom,0px) - 28px);
-  padding:6px 1px;
-  box-sizing:border-box;
-  pointer-events:auto;
-  touch-action:none;
-  user-select:none;
-  -webkit-user-select:none;
-}
-.easy-ganada-index-item{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-width:18px;
-  min-height:14px;
-  padding:1px 3px;
-  margin:0;
-  border:none;
-  background:transparent;
-  color:#8a6332;
-  font-family:inherit;
-  font-size:11px;
-  font-weight:700;
-  line-height:1;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-}
-.easy-ganada-index-item.is-active{
-  color:#3F6C63;
+  display:none;
 }
 .easy-ganada-bubble{
-  position:fixed;
-  left:50%;
-  top:46%;
-  transform:translate(-50%,-50%);
-  z-index:86;
-  width:64px;
-  height:64px;
-  border-radius:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(61,40,23,.82);
-  color:#fff;
-  font-size:28px;
-  font-weight:800;
-  pointer-events:none;
-  opacity:0;
-  transition:opacity .15s ease;
+  display:none;
 }
-.easy-ganada-bubble.is-visible{opacity:1}
 .search-result{background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.05);cursor:pointer}
 .search-result:active{background:#FDFAF7}
 .search-result .ref{font-weight:700;color:var(--primary);font-size:14px;margin-bottom:6px}
@@ -2703,7 +2777,9 @@ function renderEasyFind() {
   }
 
   easyFindBrowseMode = 'category';
-  var html = '<!-- gomna-easy v30 :: header all-books chip + category | ganada -->';
+  easyGanadaActiveCons = 'all';
+  easyGanadaComposing = false;
+  var html = '<!-- gomna-easy v31 :: inline category results + ganada search/quick -->';
   html += '<div class="consonant-grid cat-grid">';
   html += '<div class="easy-mode-seg" role="tablist" aria-label="쉬운찾기 보기 전환">';
   html += '<button type="button" class="easy-mode-seg-btn is-active" role="tab" aria-selected="true" data-easy-mode="category" onclick="setEasyFindBrowseMode(\'category\')">분류별</button>';
@@ -2721,13 +2797,18 @@ function renderEasyFind() {
   html += '</div>';
   html += '</div>';
   html += '<div class="filtered-books" id="filteredBooks"></div>';
+  html += '<div class="easy-book-search" id="easyBookSearch" hidden>';
+  html += '<input type="text" id="easyBookSearchInput" class="easy-book-search-input" placeholder="성경책 이름을 입력하세요" aria-label="성경책 이름 검색" inputmode="search" autocomplete="off" spellcheck="false">';
+  html += '<button type="button" id="easyBookSearchClear" class="easy-book-search-clear" hidden aria-label="검색어 지우기">✕</button>';
+  html += '</div>';
+  html += '<div class="easy-ganada-quick" id="easyGanadaQuick" hidden role="toolbar" aria-label="초성 빠른 선택"></div>';
   html += '<div class="easy-ganada-root" id="easyGanadaRoot" hidden></div>';
-  html += '<div class="easy-ganada-index" id="easyGanadaIndex" hidden aria-label="초성 빠른 이동"></div>';
+  html += '<div class="easy-ganada-index" id="easyGanadaIndex" hidden aria-hidden="true"></div>';
   html += '<div class="easy-ganada-bubble" id="easyGanadaBubble" hidden aria-hidden="true"></div>';
   var easyView = document.getElementById('easyView');
   easyView.classList.remove('easy-view--ganada', 'easy-view--filtered');
   easyView.innerHTML = html;
-  bindEasyGanadaIndexEvents();
+  bindEasyBookSearchEvents();
 
   if (typeof window.GomnaApplyUiI18n === 'function') {
     try { window.GomnaApplyUiI18n(lang); } catch(e) {}
@@ -2737,6 +2818,8 @@ function renderEasyFind() {
 
 var easyFindBrowseMode = 'category';
 var easyGanadaBubbleTimer = null;
+var easyGanadaActiveCons = 'all';
+var easyGanadaComposing = false;
 
 function getEasyFindConsonant(str) {
   var c = getInitialConsonant(str);
@@ -2746,6 +2829,41 @@ function getEasyFindConsonant(str) {
   if (c === 'ㅆ') return 'ㅅ';
   if (c === 'ㅉ') return 'ㅈ';
   return c;
+}
+
+function placeEasyFilteredBooksAfter(targetElement) {
+  var host = document.getElementById('filteredBooks');
+  if (!host || !targetElement || !targetElement.parentNode) return;
+  if (host === targetElement) return;
+  if (targetElement.nextElementSibling === host) return;
+  targetElement.parentNode.insertBefore(host, targetElement.nextSibling);
+}
+
+function ensureEasyCategoryResultVisible() {
+  var host = document.getElementById('filteredBooks');
+  if (!host) return;
+  var title = host.querySelector('.filtered-title') || host;
+  var scrollEl = typeof getBibleListScrollContainer === 'function'
+    ? getBibleListScrollContainer()
+    : (document.scrollingElement || document.documentElement);
+  if (!scrollEl) return;
+  var rect = title.getBoundingClientRect();
+  var dock = document.getElementById('scriptureDock');
+  var dockH = 0;
+  try {
+    if (dock && window.getComputedStyle(dock).display !== 'none') {
+      dockH = dock.getBoundingClientRect().height || 0;
+    }
+  } catch (e) {}
+  var visibleBottom = window.innerHeight - dockH - 8;
+  if (rect.top < visibleBottom) return;
+  var delta = rect.top - (visibleBottom - 52);
+  if (delta <= 0) return;
+  try {
+    scrollEl.scrollBy({ top: delta, behavior: 'smooth' });
+  } catch (e) {
+    scrollEl.scrollTop += delta;
+  }
 }
 
 function setEasyFindBrowseMode(mode) {
@@ -2761,6 +2879,15 @@ function setEasyFindBrowseMode(mode) {
   if (mode === 'ganada') {
     easyView.classList.add('easy-view--ganada');
     easyView.classList.remove('easy-view--filtered');
+    var host = document.getElementById('filteredBooks');
+    if (host) host.innerHTML = '';
+    easyGanadaActiveCons = 'all';
+    easyGanadaComposing = false;
+    var input = document.getElementById('easyBookSearchInput');
+    if (input) input.value = '';
+    syncEasyBookSearchClear();
+    showEasyGanadaChrome();
+    renderEasyGanadaQuick();
     renderEasyGanadaList();
     try { resetBibleListScroll(); } catch (e) {}
     return;
@@ -2793,10 +2920,36 @@ function leaveEasyGanadaModeChrome() {
   });
 }
 
+function showEasyGanadaChrome() {
+  var search = document.getElementById('easyBookSearch');
+  var quick = document.getElementById('easyGanadaQuick');
+  var root = document.getElementById('easyGanadaRoot');
+  if (search) search.hidden = false;
+  if (quick) quick.hidden = false;
+  if (root) root.hidden = false;
+  var index = document.getElementById('easyGanadaIndex');
+  var bubble = document.getElementById('easyGanadaBubble');
+  if (index) { index.hidden = true; index.innerHTML = ''; }
+  if (bubble) {
+    bubble.hidden = true;
+    bubble.classList.remove('is-visible');
+    bubble.textContent = '';
+  }
+}
+
 function hideEasyGanadaChrome() {
+  var search = document.getElementById('easyBookSearch');
+  var quick = document.getElementById('easyGanadaQuick');
   var root = document.getElementById('easyGanadaRoot');
   var index = document.getElementById('easyGanadaIndex');
   var bubble = document.getElementById('easyGanadaBubble');
+  var input = document.getElementById('easyBookSearchInput');
+  if (input) input.value = '';
+  easyGanadaActiveCons = 'all';
+  easyGanadaComposing = false;
+  syncEasyBookSearchClear();
+  if (search) search.hidden = true;
+  if (quick) { quick.hidden = true; quick.innerHTML = ''; }
   if (root) { root.hidden = true; root.innerHTML = ''; }
   if (index) { index.hidden = true; index.innerHTML = ''; }
   if (bubble) {
@@ -2815,11 +2968,11 @@ function buildEasyBookCardHtml(b) {
   return '<button class="book-btn' + bookTestCls + '" onclick="selectBook(\'' + b.name + '\',' + b.chapters + ',\'' + b.testament + '\')"><div class="name">' + b.name + '</div><div class="chapters">' + b.chapters + getChapterUnit(b.name) + '</div></button>';
 }
 
-function renderEasyGanadaList() {
-  var root = document.getElementById('easyGanadaRoot');
-  var index = document.getElementById('easyGanadaIndex');
-  var bubble = document.getElementById('easyGanadaBubble');
-  if (!root || !index) return;
+function normalizeEasyBookSearchQuery(q) {
+  return String(q || '').trim().replace(/\s+/g, '');
+}
+
+function getEasyGanadaGroupData() {
   var order = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
   var groups = {};
   order.forEach(function(c) { groups[c] = []; });
@@ -2832,98 +2985,181 @@ function renderEasyGanadaList() {
       return String(a.name).localeCompare(String(b.name), 'ko');
     });
   });
-  var present = order.filter(function(c) { return groups[c].length > 0; });
-  var html = '';
-  present.forEach(function(c) {
-    html += '<section class="easy-ganada-group" id="easy-cons-' + c + '" data-easy-cons="' + c + '">';
-    html += '<h3 class="easy-ganada-heading">' + c + '</h3>';
-    html += '<div class="book-grid">';
-    groups[c].forEach(function(b) { html += buildEasyBookCardHtml(b); });
-    html += '</div></section>';
+  return {
+    order: order,
+    groups: groups,
+    present: order.filter(function(c) { return groups[c].length > 0; })
+  };
+}
+
+function syncEasyBookSearchClear() {
+  var input = document.getElementById('easyBookSearchInput');
+  var clear = document.getElementById('easyBookSearchClear');
+  if (!clear) return;
+  clear.hidden = !(input && String(input.value || '').length > 0);
+}
+
+function setEasyGanadaQuickActive(key) {
+  var quick = document.getElementById('easyGanadaQuick');
+  if (!quick) return;
+  quick.querySelectorAll('.easy-ganada-quick-btn').forEach(function(btn) {
+    var on = key != null && btn.getAttribute('data-easy-cons') === key;
+    btn.classList.toggle('is-active', on);
   });
+}
+
+function renderEasyGanadaQuick() {
+  var quick = document.getElementById('easyGanadaQuick');
+  if (!quick) return;
+  var data = getEasyGanadaGroupData();
+  var html = '<button type="button" class="easy-ganada-quick-btn" data-easy-cons="all" aria-label="전체">전체</button>';
+  data.present.forEach(function(c) {
+    html += '<button type="button" class="easy-ganada-quick-btn" data-easy-cons="' + c + '" aria-label="' + c + '">' + c + '</button>';
+  });
+  quick.innerHTML = html;
+  quick.hidden = false;
+  var q = normalizeEasyBookSearchQuery(
+    (document.getElementById('easyBookSearchInput') || {}).value || ''
+  );
+  if (q) setEasyGanadaQuickActive(null);
+  else setEasyGanadaQuickActive(easyGanadaActiveCons || 'all');
+}
+
+function renderEasyGanadaList() {
+  var root = document.getElementById('easyGanadaRoot');
+  if (!root) return;
+  var input = document.getElementById('easyBookSearchInput');
+  var raw = input ? String(input.value || '') : '';
+  var q = normalizeEasyBookSearchQuery(raw);
+  var html = '';
+  if (q) {
+    setEasyGanadaQuickActive(null);
+    var books = getAllBooks().filter(function(b) {
+      return normalizeEasyBookSearchQuery(b.name).indexOf(q) !== -1;
+    });
+    books.sort(function(a, b) {
+      return String(a.name).localeCompare(String(b.name), 'ko');
+    });
+    var displayQ = String(raw).trim();
+    if (!books.length) {
+      html = '<div class="empty-state"><div class="msg">해당 이름의 성경책이 없습니다</div></div>';
+    } else {
+      html = '<div class="filtered-title" translate="no">' + _escR('"' + displayQ + '" 검색 결과 (' + books.length + ')') + '</div>';
+      html += '<div class="book-grid">';
+      books.forEach(function(b) { html += buildEasyBookCardHtml(b); });
+      html += '</div>';
+    }
+  } else {
+    var data = getEasyGanadaGroupData();
+    var cons = easyGanadaActiveCons || 'all';
+    setEasyGanadaQuickActive(cons);
+    if (cons !== 'all') {
+      var list = data.groups[cons] || [];
+      html += '<section class="easy-ganada-group" data-easy-cons="' + cons + '">';
+      html += '<h3 class="easy-ganada-heading">' + cons + '으로 시작하는 성경책 (' + list.length + ')</h3>';
+      html += '<div class="book-grid">';
+      list.forEach(function(b) { html += buildEasyBookCardHtml(b); });
+      html += '</div></section>';
+    } else {
+      data.present.forEach(function(c) {
+        html += '<section class="easy-ganada-group" id="easy-cons-' + c + '" data-easy-cons="' + c + '">';
+        html += '<h3 class="easy-ganada-heading">' + c + '</h3>';
+        html += '<div class="book-grid">';
+        data.groups[c].forEach(function(b) { html += buildEasyBookCardHtml(b); });
+        html += '</div></section>';
+      });
+    }
+  }
   root.innerHTML = html;
   root.hidden = false;
-  index.innerHTML = present.map(function(c) {
-    return '<button type="button" class="easy-ganada-index-item" data-easy-cons="' + c + '" aria-label="' + c + '">' + c + '</button>';
-  }).join('');
-  index.hidden = false;
-  if (bubble) bubble.hidden = false;
+  var index = document.getElementById('easyGanadaIndex');
+  var bubble = document.getElementById('easyGanadaBubble');
+  if (index) { index.hidden = true; index.innerHTML = ''; }
+  if (bubble) {
+    bubble.hidden = true;
+    bubble.classList.remove('is-visible');
+    bubble.textContent = '';
+  }
+}
+
+function clearEasyBookSearchAndRestoreAll() {
+  var input = document.getElementById('easyBookSearchInput');
+  if (input) input.value = '';
+  easyGanadaActiveCons = 'all';
+  syncEasyBookSearchClear();
+  renderEasyGanadaList();
+  if (input) {
+    try { input.focus(); } catch (e) {}
+  }
+}
+
+function onEasyGanadaQuickSelect(cons) {
+  if (!cons) return;
+  var input = document.getElementById('easyBookSearchInput');
+  if (input) input.value = '';
+  syncEasyBookSearchClear();
+  easyGanadaActiveCons = cons;
+  renderEasyGanadaList();
+}
+
+function bindEasyBookSearchEvents() {
+  var search = document.getElementById('easyBookSearch');
+  var input = document.getElementById('easyBookSearchInput');
+  var clear = document.getElementById('easyBookSearchClear');
+  var quick = document.getElementById('easyGanadaQuick');
+  if (search && search.getAttribute('data-easy-search-bound') !== '1') {
+    search.setAttribute('data-easy-search-bound', '1');
+    if (input) {
+      input.addEventListener('compositionstart', function() {
+        easyGanadaComposing = true;
+      });
+      input.addEventListener('compositionend', function() {
+        easyGanadaComposing = false;
+        syncEasyBookSearchClear();
+        if (easyFindBrowseMode === 'ganada') renderEasyGanadaList();
+      });
+      input.addEventListener('input', function() {
+        syncEasyBookSearchClear();
+        if (easyGanadaComposing) return;
+        if (easyFindBrowseMode === 'ganada') renderEasyGanadaList();
+      });
+    }
+    if (clear) {
+      clear.addEventListener('click', function(e) {
+        e.preventDefault();
+        clearEasyBookSearchAndRestoreAll();
+      });
+    }
+  }
+  if (quick && quick.getAttribute('data-easy-quick-bound') !== '1') {
+    quick.setAttribute('data-easy-quick-bound', '1');
+    quick.addEventListener('click', function(e) {
+      var btn = e.target && e.target.closest && e.target.closest('.easy-ganada-quick-btn');
+      if (!btn || !quick.contains(btn)) return;
+      e.preventDefault();
+      onEasyGanadaQuickSelect(btn.getAttribute('data-easy-cons') || 'all');
+    });
+  }
 }
 
 function showEasyGanadaBubble(letter) {
   var bubble = document.getElementById('easyGanadaBubble');
   if (!bubble || !letter) return;
-  bubble.hidden = false;
-  bubble.textContent = letter;
-  bubble.classList.add('is-visible');
-  if (easyGanadaBubbleTimer) clearTimeout(easyGanadaBubbleTimer);
-  easyGanadaBubbleTimer = setTimeout(function() {
-    bubble.classList.remove('is-visible');
-    easyGanadaBubbleTimer = null;
-  }, 450);
+  bubble.hidden = true;
+  bubble.classList.remove('is-visible');
+  bubble.textContent = '';
 }
 
 function scrollToEasyGanadaConsonant(letter, fromScrub) {
   if (!letter || easyFindBrowseMode !== 'ganada') return;
-  var target = document.getElementById('easy-cons-' + letter);
-  if (!target) return;
-  var scrollEl = typeof getBibleListScrollContainer === 'function'
-    ? getBibleListScrollContainer()
-    : (document.scrollingElement || document.documentElement);
-  if (!scrollEl) return;
-  var header = document.getElementById('readerDockTop');
-  var headerH = header && header.offsetParent !== null ? header.getBoundingClientRect().height : 0;
-  if (!headerH) headerH = 54;
-  var rect = target.getBoundingClientRect();
-  var currentTop = scrollEl.scrollTop || window.pageYOffset || 0;
-  var nextTop = currentTop + rect.top - headerH - 10;
-  if (nextTop < 0) nextTop = 0;
-  try {
-    scrollEl.scrollTo({ top: nextTop, behavior: fromScrub ? 'auto' : 'smooth' });
-  } catch (e) {
-    scrollEl.scrollTop = nextTop;
-  }
-  document.querySelectorAll('.easy-ganada-index-item').forEach(function(btn) {
-    btn.classList.toggle('is-active', btn.getAttribute('data-easy-cons') === letter);
-  });
-  showEasyGanadaBubble(letter);
+  onEasyGanadaQuickSelect(letter);
 }
 
 function bindEasyGanadaIndexEvents() {
+  /* 세로 초성 인덱스는 가로 빠른 선택으로 대체됨 — 중복 바인딩 방지용 no-op */
   var index = document.getElementById('easyGanadaIndex');
   if (!index || index.getAttribute('data-easy-index-bound') === '1') return;
   index.setAttribute('data-easy-index-bound', '1');
-
-  function letterFromPoint(clientX, clientY) {
-    var el = document.elementFromPoint(clientX, clientY);
-    if (!el) return null;
-    var item = el.closest && el.closest('.easy-ganada-index-item');
-    return item ? item.getAttribute('data-easy-cons') : null;
-  }
-
-  var lastLetter = null;
-  index.addEventListener('click', function(e) {
-    var item = e.target.closest('.easy-ganada-index-item');
-    if (!item) return;
-    e.preventDefault();
-    scrollToEasyGanadaConsonant(item.getAttribute('data-easy-cons'), false);
-  });
-  index.addEventListener('touchstart', function(e) {
-    if (!e.touches || !e.touches[0]) return;
-    var letter = letterFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-    if (!letter) return;
-    lastLetter = letter;
-    scrollToEasyGanadaConsonant(letter, true);
-  }, { passive: true });
-  index.addEventListener('touchmove', function(e) {
-    if (!e.touches || !e.touches[0]) return;
-    var letter = letterFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-    if (!letter || letter === lastLetter) return;
-    lastLetter = letter;
-    scrollToEasyGanadaConsonant(letter, true);
-  }, { passive: true });
-  index.addEventListener('touchend', function() { lastLetter = null; }, { passive: true });
-  index.addEventListener('touchcancel', function() { lastLetter = null; }, { passive: true });
 }
 
 function showAllBooks(btn) {
@@ -2934,6 +3170,8 @@ function showAllBooks(btn) {
   if (btn && btn.classList && btn.classList.contains('consonant-btn')) btn.classList.add('active');
   var easyView = document.getElementById('easyView');
   if (easyView) easyView.classList.remove('easy-view--filtered');
+  var block = document.getElementById('easyCategoryBlock');
+  if (block) placeEasyFilteredBooksAfter(block);
   var all = getAllBooks();
   var lang = _getCurTL();
   var isKorean = !lang || lang === 'ko';
@@ -2958,6 +3196,10 @@ function filterByCategory(key, btn) {
   if(btn) btn.classList.add('active');
   var easyView = document.getElementById('easyView');
   if (easyView) easyView.classList.add('easy-view--filtered');
+  if (btn && btn.closest) {
+    var list = btn.closest('.easy-cat-list');
+    if (list) placeEasyFilteredBooksAfter(list);
+  }
   var all = getAllBooks();
   var bookSet = {};
   window.GomnaBibleCategories.getBooks(key).forEach(function(n){ bookSet[n] = 1; });
@@ -2979,7 +3221,7 @@ function filterByCategory(key, btn) {
   if(filtered.length > 0) html += '</div>';
   var host = document.getElementById('filteredBooks');
   if (host) host.innerHTML = html;
-  try { resetBibleListScroll(); } catch (e) {}
+  ensureEasyCategoryResultVisible();
 }
 
 function filterByConsonant(c, btn) {
