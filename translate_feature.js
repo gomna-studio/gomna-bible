@@ -915,17 +915,400 @@
     return /(?:^|;\s*)googtrans=/.test(document.cookie || '');
   }
 
+  // ----------------------------------------------------------------
+  // Home language-flash pending: hide Korean source until GT finishes.
+  // Separate from `_bookObserver` (book-name i18n).
+  // ----------------------------------------------------------------
+  var _gtPendingObserver = null;
+  var _gtPendingStableTimer = null;
+  var _gtPendingRaf1 = 0;
+  var _gtPendingRaf2 = 0;
+  var _gtPendingBaselines = null;
+  var _gtPendingWatching = false;
+  var _gtPendingFirstChangeMs = 0;
+  var _gtPendingLastRelevantChangeMs = 0;
+  var _gtPendingLastChangedCount = 0;
+  var GT_PENDING_STABLE_MS = 900;
+  var GT_PENDING_MIN_MS = 1200;
+  var GT_PENDING_HANGUL_RE = /[\uAC00-\uD7A3]/;
+
+  function startTranslationPending() {
+    try {
+      document.documentElement.classList.add('gt-translation-pending');
+      if (window.__gomnaTranslationPendingFailsafe) {
+        clearTimeout(window.__gomnaTranslationPendingFailsafe);
+        window.__gomnaTranslationPendingFailsafe = null;
+      }
+      window.__gomnaTranslationPendingFailsafe = setTimeout(function () {
+        endTranslationPending();
+      }, 6000);
+    } catch (e) { /* ignore */ }
+  }
+
+  function endTranslationPending() {
+    try {
+      document.documentElement.classList.remove('gt-translation-pending');
+      if (window.__gomnaTranslationPendingFailsafe) {
+        clearTimeout(window.__gomnaTranslationPendingFailsafe);
+        window.__gomnaTranslationPendingFailsafe = null;
+      }
+      if (_gtPendingStableTimer) {
+        clearTimeout(_gtPendingStableTimer);
+        _gtPendingStableTimer = null;
+      }
+      if (_gtPendingRaf1) {
+        cancelAnimationFrame(_gtPendingRaf1);
+        _gtPendingRaf1 = 0;
+      }
+      if (_gtPendingRaf2) {
+        cancelAnimationFrame(_gtPendingRaf2);
+        _gtPendingRaf2 = 0;
+      }
+      if (_gtPendingObserver) {
+        _gtPendingObserver.disconnect();
+        _gtPendingObserver = null;
+      }
+      _gtPendingBaselines = null;
+      _gtPendingWatching = false;
+      _gtPendingFirstChangeMs = 0;
+      _gtPendingLastRelevantChangeMs = 0;
+      _gtPendingLastChangedCount = 0;
+      /* Spinner/banner often become visible the moment pending lifts — reinforce hide once. */
+      try { injectWidgetHideStyles(); } catch (e2) { /* ignore */ }
+    } catch (e) { /* ignore */ }
+  }
+
+  function isGtPendingI18nManagedEl(el) {
+    if (!el || !el.closest) return true;
+    if (el.closest('[translate="no"], .notranslate')) return true;
+    if (el.closest(
+      '[data-i18n-ui],[data-i18n-category],[data-i18n-cat-short],[data-i18n-cat-name],' +
+      '[data-i18n-cat-foreign],[data-i18n-foreign-all],[data-i18n-testament],[data-i18n-welcome]'
+    )) return true;
+    if (el.getAttribute && (
+      el.getAttribute('translate') === 'no' ||
+      el.hasAttribute('data-i18n-ui') ||
+      el.hasAttribute('data-i18n-category') ||
+      el.hasAttribute('data-i18n-cat-short') ||
+      el.hasAttribute('data-i18n-cat-name') ||
+      el.hasAttribute('data-i18n-cat-foreign') ||
+      el.hasAttribute('data-i18n-foreign-all') ||
+      el.hasAttribute('data-i18n-testament') ||
+      el.hasAttribute('data-i18n-welcome')
+    )) return true;
+    return false;
+  }
+
+  function isGtPendingIgnoredMutationTarget(node) {
+    var el = node;
+    if (!el) return true;
+    if (el.nodeType === 3) el = el.parentElement;
+    if (!el || !el.closest) return true;
+    var tag = el.tagName;
+    if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'TEXTAREA' ||
+        tag === 'IFRAME' || tag === 'SVG' || tag === 'PATH' || tag === 'CIRCLE' ||
+        tag === 'IMG' || tag === 'SOURCE') return true;
+    if (el.getAttribute && (
+      el.getAttribute('aria-hidden') === 'true' ||
+      el.hasAttribute('hidden')
+    )) return true;
+    if (el.closest('[aria-hidden="true"], [hidden]')) return true;
+    if (el.closest('svg')) return true;
+    if (el.closest(
+      '#google_translate_element,#gt-feature-toast,#gtModal,.gt-modal,' +
+      '#goog-gt-tt,.goog-te-banner-frame,.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,' +
+      '.VIpgJd-ZVi9od-aZ2wEe-wOHMyf-ti6hGc,.VIpgJd-ZVi9od-ORHb-OEVmcd'
+    )) return true;
+    if (el.closest('iframe.skiptranslate, .skiptranslate > iframe')) return true;
+    if (isGtPendingI18nManagedEl(el)) return true;
+    return false;
+  }
+
+  function isGtPendingVisibleProbeEl(el) {
+    if (!el || !el.getAttribute) return false;
+    if (el.getAttribute('aria-hidden') === 'true' || el.hasAttribute('hidden')) return false;
+    if (el.closest && el.closest('[aria-hidden="true"], [hidden]')) return false;
+    /* Do not use getComputedStyle visibility: pending CSS sets body>*{visibility:hidden}. */
+    try {
+      if (el.style && el.style.display === 'none') return false;
+    } catch (e) { /* ignore */ }
+    return true;
+  }
+
+  function getTranslationProbeEls() {
+    var sels = [
+      '.title',
+      '.sub',
+      '#greeting',
+      '#continueLabel',
+      '.gm-btn-today-open',
+      '#verse-tag',
+      '.card.old .card-name',
+      '.card.old .card-desc',
+      '.card.new .card-name',
+      '.card.new .card-desc',
+      '.card.easy .card-desc',
+      '.quick-item .quick-name',
+      '.quick-item .quick-desc',
+      '.commentary-slim-name',
+      '.commentary-slim-desc'
+    ];
+    var out = [];
+    var seen = [];
+    for (var i = 0; i < sels.length; i++) {
+      var nodes = document.querySelectorAll(sels[i]);
+      for (var j = 0; j < nodes.length; j++) {
+        var el = nodes[j];
+        if (!el || isGtPendingI18nManagedEl(el)) continue;
+        if (!isGtPendingVisibleProbeEl(el)) continue;
+        var text = String(el.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!text) continue;
+        if (seen.indexOf(el) !== -1) continue;
+        seen.push(el);
+        out.push(el);
+      }
+    }
+    return out;
+  }
+
+  function captureTranslationBaselines() {
+    var els = getTranslationProbeEls();
+    var map = [];
+    for (var i = 0; i < els.length; i++) {
+      map.push({
+        el: els[i],
+        text: String(els[i].textContent || '').replace(/\s+/g, ' ').trim()
+      });
+    }
+    return map;
+  }
+
+  function hasTranslatedDirClass() {
+    var html = document.documentElement;
+    return !!(html && (html.classList.contains('translated-ltr') || html.classList.contains('translated-rtl')));
+  }
+
+  function countChangedProbes() {
+    var changed = 0;
+    var total = 0;
+    if (!_gtPendingBaselines) return { changed: 0, total: 0 };
+    for (var i = 0; i < _gtPendingBaselines.length; i++) {
+      var item = _gtPendingBaselines[i];
+      if (!item || !item.el) continue;
+      total += 1;
+      var now = String(item.el.textContent || '').replace(/\s+/g, ' ').trim();
+      if (now !== item.text) changed += 1;
+    }
+    return { changed: changed, total: total };
+  }
+
+  function hasProbeThresholdMet() {
+    var c = countChangedProbes();
+    if (c.total >= 5) return c.changed >= Math.ceil(c.total / 2);
+    if (c.total >= 3) return c.changed >= 3;
+    return false;
+  }
+
+  function canCompleteWithSparseProbes() {
+    var c = countChangedProbes();
+    /* 1–2 probes: never finish on probe count alone; require DOM text churn + stability. */
+    return c.total > 0 && c.total <= 2 && c.changed >= 1 && !!_gtPendingFirstChangeMs;
+  }
+
+  function probesStillHaveHangul() {
+    if (!_gtPendingBaselines || !_gtPendingBaselines.length) return false;
+    for (var i = 0; i < _gtPendingBaselines.length; i++) {
+      var item = _gtPendingBaselines[i];
+      if (!item || !item.el) continue;
+      if (!item.el.isConnected) continue;
+      if (isGtPendingI18nManagedEl(item.el)) continue;
+      if (!isGtPendingVisibleProbeEl(item.el)) continue;
+      var now = String(item.el.textContent || '');
+      if (GT_PENDING_HANGUL_RE.test(now)) return true;
+    }
+    return false;
+  }
+
+  function noteRelevantTranslationChange() {
+    var now = Date.now();
+    if (!_gtPendingFirstChangeMs) _gtPendingFirstChangeMs = now;
+    _gtPendingLastRelevantChangeMs = now;
+    scheduleTranslationPendingRecheck(GT_PENDING_STABLE_MS);
+  }
+
+  function scheduleTranslationPendingRecheck(delay) {
+    if (_gtPendingStableTimer) {
+      clearTimeout(_gtPendingStableTimer);
+      _gtPendingStableTimer = null;
+    }
+    _gtPendingStableTimer = setTimeout(function () {
+      _gtPendingStableTimer = null;
+      tryFinishTranslationPending();
+    }, Math.max(20, delay || GT_PENDING_STABLE_MS));
+  }
+
+  function tryFinishTranslationPending() {
+    if (!document.documentElement.classList.contains('gt-translation-pending')) return;
+    if (!hasTranslatedDirClass()) return;
+
+    var probeOk = hasProbeThresholdMet() || canCompleteWithSparseProbes();
+    if (!probeOk) return;
+    /* Multi-wave mobile GT: keep pending while probe UI labels still contain Hangul. */
+    if (probesStillHaveHangul()) {
+      scheduleTranslationPendingRecheck(GT_PENDING_STABLE_MS);
+      return;
+    }
+    if (!_gtPendingFirstChangeMs) return;
+
+    var now = Date.now();
+    var sinceFirst = now - _gtPendingFirstChangeMs;
+    var sinceLast = now - (_gtPendingLastRelevantChangeMs || _gtPendingFirstChangeMs);
+    if (sinceFirst < GT_PENDING_MIN_MS) {
+      scheduleTranslationPendingRecheck(GT_PENDING_MIN_MS - sinceFirst + 20);
+      return;
+    }
+    if (sinceLast < GT_PENDING_STABLE_MS) {
+      scheduleTranslationPendingRecheck(GT_PENDING_STABLE_MS - sinceLast + 20);
+      return;
+    }
+
+    _gtPendingRaf1 = requestAnimationFrame(function () {
+      _gtPendingRaf1 = 0;
+      _gtPendingRaf2 = requestAnimationFrame(function () {
+        _gtPendingRaf2 = 0;
+        if (probesStillHaveHangul()) {
+          scheduleTranslationPendingRecheck(GT_PENDING_STABLE_MS);
+          return;
+        }
+        endTranslationPending();
+      });
+    });
+  }
+
+  function mutationHasRelevantTextChange(mutations) {
+    if (!mutations || !mutations.length) return false;
+    for (var i = 0; i < mutations.length; i++) {
+      var m = mutations[i];
+      if (m.type === 'characterData') {
+        if (!isGtPendingIgnoredMutationTarget(m.target)) return true;
+        continue;
+      }
+      if (m.type === 'childList') {
+        var nodes = [];
+        var a;
+        for (a = 0; a < m.addedNodes.length; a++) nodes.push(m.addedNodes[a]);
+        for (a = 0; a < m.removedNodes.length; a++) nodes.push(m.removedNodes[a]);
+        for (var n = 0; n < nodes.length; n++) {
+          var node = nodes[n];
+          if (!node) continue;
+          if (node.nodeType === 3) {
+            if (String(node.nodeValue || '').replace(/\s+/g, '').length &&
+                !isGtPendingIgnoredMutationTarget(node)) return true;
+            continue;
+          }
+          if (node.nodeType !== 1) continue;
+          if (isGtPendingIgnoredMutationTarget(node)) continue;
+          var text = String(node.textContent || '').replace(/\s+/g, ' ').trim();
+          if (text) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function onTranslationPendingMutations(mutations) {
+    var contentChanged = mutationHasRelevantTextChange(mutations);
+    var probe = countChangedProbes();
+    var probeIncreased = probe.changed > _gtPendingLastChangedCount;
+    if (probeIncreased) _gtPendingLastChangedCount = probe.changed;
+    if (contentChanged || probeIncreased) noteRelevantTranslationChange();
+    else if (hasTranslatedDirClass()) tryFinishTranslationPending();
+  }
+
+  function watchTranslationPendingComplete() {
+    if (_gtPendingWatching) return;
+    if (!document.documentElement.classList.contains('gt-translation-pending')) return;
+    _gtPendingWatching = true;
+    _gtPendingFirstChangeMs = 0;
+    _gtPendingLastRelevantChangeMs = 0;
+    _gtPendingLastChangedCount = 0;
+    _gtPendingBaselines = captureTranslationBaselines();
+    try {
+      _gtPendingObserver = new MutationObserver(function (mutations) {
+        onTranslationPendingMutations(mutations);
+      });
+      _gtPendingObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+      var root = document.querySelector('.container') || document.body;
+      if (root) {
+        _gtPendingObserver.observe(root, {
+          childList: true,
+          subtree: true,
+          characterData: true
+        });
+      }
+      /* Class may already be present; probe may already differ. */
+      var initial = countChangedProbes();
+      _gtPendingLastChangedCount = initial.changed;
+      if (initial.changed > 0 || hasTranslatedDirClass()) {
+        if (initial.changed > 0) noteRelevantTranslationChange();
+        else tryFinishTranslationPending();
+      }
+    } catch (e) {
+      /* failsafe timer will clear pending */
+    }
+  }
+
   function injectWidgetHideStyles() {
-    if (document.getElementById('gt-widget-hide')) return;
-    const s = document.createElement('style');
-    s.id = 'gt-widget-hide';
-    s.textContent =
-      'body{top:0!important;position:static!important}' +
-      '.goog-te-banner-frame,.goog-te-banner-frame.skiptranslate,iframe.goog-te-banner-frame,#goog-gt-tt,.goog-te-balloon-frame,.skiptranslate>iframe{display:none!important;visibility:hidden!important}' +
+    var css =
+      /* Keep page from being pushed down by Google banner. */
+      'html body,html.translated-ltr body,html.translated-rtl body{' +
+        'top:0!important;margin-top:0!important;position:static!important' +
+      '}' +
+      /* Classic banner / tooltip chrome. */
+      '.goog-te-banner-frame,.goog-te-banner-frame.skiptranslate,' +
+      'iframe.goog-te-banner-frame,#goog-gt-tt,.goog-te-balloon-frame,' +
+      '.VIpgJd-yAWNEb-L7lbkb,#goog-gt-vt,' +
+      '.skiptranslate>iframe,' +
+      'iframe.VIpgJd-ZVi9od-ORHb-OEVmcd,.VIpgJd-ZVi9od-ORHb-OEVmcd{' +
+        'display:none!important;visibility:hidden!important;opacity:0!important;' +
+        'pointer-events:none!important;width:0!important;height:0!important;border:0!important' +
+      '}' +
+      /* Body-direct banner host only (not .goog-te-gadget / tooltips with ids). */
+      'body > .skiptranslate:not(.goog-te-gadget):not(#goog-gt-tt):not(.VIpgJd-yAWNEb-L7lbkb){' +
+        'display:none!important;visibility:hidden!important;opacity:0!important;' +
+        'pointer-events:none!important;height:0!important;overflow:hidden!important' +
+      '}' +
+      /* Blue circular Google Translate loading badge (observed outside #google_translate_element). */
+      '.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,' +
+      '.VIpgJd-ZVi9od-aZ2wEe-wOHMyf-ti6hGc,' +
+      '.VIpgJd-ZVi9od-aZ2wEe-OiiCO,' +
+      '.VIpgJd-ZVi9od-aZ2wEe-OiiCO-ti6hGc,' +
+      'svg.VIpgJd-ZVi9od-aZ2wEe,' +
+      '.VIpgJd-ZVi9od-aZ2wEe-Jt5cK,' +
+      '.goog-te-spinner-pos,.goog-te-spinner-animation,.goog-te-spinner,.goog-te-spinner-image{' +
+        'display:none!important;visibility:hidden!important;opacity:0!important;' +
+        'pointer-events:none!important;width:0!important;height:0!important' +
+      '}' +
       '.goog-text-highlighted{background:transparent!important;box-shadow:none!important;border:0!important}' +
       'font[style*="vertical-align"]{vertical-align:baseline!important}' +
-      '#google_translate_element{position:fixed!important;left:-9999px!important;top:-9999px!important;width:1px!important;height:1px!important;overflow:hidden!important;visibility:hidden!important;pointer-events:none!important;opacity:0!important}';
-    document.head.appendChild(s);
+      '#google_translate_element{' +
+        'position:fixed!important;left:-9999px!important;top:-9999px!important;' +
+        'width:1px!important;height:1px!important;overflow:hidden!important;' +
+        'visibility:hidden!important;pointer-events:none!important;opacity:0!important' +
+      '}';
+
+    var s = document.getElementById('gt-widget-hide');
+    if (!s) {
+      s = document.createElement('style');
+      s.id = 'gt-widget-hide';
+      document.head.appendChild(s);
+    }
+    s.textContent = css;
+    /* Re-append last so later Google-injected sheets do not outrank these hides. */
+    if (s.parentNode) s.parentNode.appendChild(s);
   }
 
   function ensureTranslateWidget() {
@@ -948,12 +1331,17 @@
         }, 'google_translate_element');
         window.__gtWidgetLoaded = true;
       } catch (e) { /* swallow — retry logic below will keep polling */ }
+      /* Widget init injects banner/spinner nodes + sheets; reinforce hide CSS once. */
+      try { injectWidgetHideStyles(); } catch (e2) { /* ignore */ }
     };
 
     const script = document.createElement('script');
     script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
     script.async = true;
-    script.onerror = function () { showToast('번역 서비스 로드 실패 · Translation service failed to load'); };
+    script.onerror = function () {
+      showToast('번역 서비스 로드 실패 · Translation service failed to load');
+      endTranslationPending();
+    };
     document.head.appendChild(script);
   }
 
@@ -1022,6 +1410,7 @@
     // the saved language automatically. The widget cannot reliably
     // retranslate an already-translated DOM (e.g. ENG → ESP), so reload
     // is required to go from any source → any target.
+    startTranslationPending();
     setGoogTransCookie(country[3]);
     closeModal();
     showToast('🌐 ' + country[1] + ' · ' + country[4] + ' 적용 중...');
@@ -1381,6 +1770,17 @@
     // is still set — load the widget so the page is auto-translated.
     if (hasGoogTransCookie()) {
       ensureTranslateWidget();
+      if (document.documentElement.classList.contains('gt-translation-pending')) {
+        // Re-arm failsafe so observer/timers are cleaned on timeout (not only class remove).
+        if (window.__gomnaTranslationPendingFailsafe) {
+          clearTimeout(window.__gomnaTranslationPendingFailsafe);
+          window.__gomnaTranslationPendingFailsafe = null;
+        }
+        window.__gomnaTranslationPendingFailsafe = setTimeout(function () {
+          endTranslationPending();
+        }, 6000);
+        watchTranslationPendingComplete();
+      }
       if (tl && BOOK_LANG_IDX[tl]) {
         // Wait briefly for the widget to perform its initial pass so our
         // book-name replacements aren't immediately overwritten.
@@ -1389,6 +1789,8 @@
         // any of our managed elements that were not protected by translate="no".
         setTimeout(function () { applyUiTextI18n(tl); }, 1400);
       }
+    } else {
+      endTranslationPending();
     }
   }
 

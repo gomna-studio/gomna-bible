@@ -14,6 +14,73 @@
 })();
 </script>
 <meta charset="UTF-8">
+<script>
+(function () {
+  try {
+    var m = (document.cookie || '').match(/(?:^|;\s*)googtrans=([^;]+)/);
+    if (!m) return;
+    var raw = decodeURIComponent(m[1]);
+    var parts = String(raw || '').split('/');
+    var targetLang = parts[2] || '';
+    if (!targetLang || targetLang === 'ko') return;
+    window.__gomnaInitialTranslateTarget = targetLang;
+    document.documentElement.classList.add('gt-translation-pending');
+    if (window.__gomnaTranslationPendingFailsafe) {
+      clearTimeout(window.__gomnaTranslationPendingFailsafe);
+    }
+    window.__gomnaTranslationPendingFailsafe = setTimeout(function () {
+      try { document.documentElement.classList.remove('gt-translation-pending'); } catch (e) {}
+      window.__gomnaTranslationPendingFailsafe = null;
+    }, 6000);
+  } catch (e) {}
+})();
+</script>
+<style id="gt-translation-pending-css">
+html.gt-translation-pending,
+html.gt-translation-pending body{
+  background:#F0E4CD!important;
+}
+html.gt-translation-pending body{
+  overflow:hidden!important;
+}
+html.gt-translation-pending body > *{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+html.gt-translation-pending body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:2147483000;
+  background:#F0E4CD;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+html.gt-translation-pending body::after{
+  content:"";
+  position:fixed;
+  left:50%;
+  top:50%;
+  width:28px;
+  height:28px;
+  margin:-14px 0 0 -14px;
+  border-radius:50%;
+  z-index:2147483001;
+  visibility:visible!important;
+  pointer-events:none!important;
+  background:
+    radial-gradient(circle at 32% 32%,#c89849 0 34%,transparent 38%),
+    radial-gradient(circle at 68% 62%,rgba(168,122,53,.5) 0 26%,transparent 32%);
+  animation:gtPendingPulse 1.1s ease-in-out infinite;
+}
+@keyframes gtPendingPulse{
+  0%,100%{opacity:.55;transform:scale(.92)}
+  50%{opacity:1;transform:scale(1)}
+}
+@media (prefers-reduced-motion:reduce){
+  html.gt-translation-pending body::after{animation:none;opacity:.85;transform:none}
+}
+</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#a87a35">
 <title>은혜의말씀</title>
@@ -1164,7 +1231,7 @@ function closeSettings(){var p=document.getElementById('settingsPopup');if(p)p.c
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
-<script src="translate_feature.js" defer></script>
+<script src="translate_feature.js?v=20260721-lang-flash-fix-v3" defer></script>
 <script>
 (function(){
   'use strict';
