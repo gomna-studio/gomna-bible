@@ -185,6 +185,111 @@
   const STORAGE_KEY = 'gomna_translate_recent';
 
   // ------------------------------------------------------------------
+  // Language modal i18n (KO / EN / JA; other app langs → English fallback).
+  // Decided once when the modal opens — not from Google-translated DOM.
+  // ------------------------------------------------------------------
+  const MODAL_UI = {
+    ko: {
+      title: '언어 선택',
+      popular: '인기 언어',
+      viewAll: '🌐 125개국 전체 보기 〉',
+      backPopular: '〈 인기 언어로 돌아가기',
+      searchLabel: '국가 또는 언어 검색',
+      searchPlaceholder: '국가명이나 언어를 입력하세요',
+      noResults: '검색 결과 없음',
+      detected: '자동 감지됨',
+      recent: '최근 사용',
+      footer: '© Gomna Studio, Inc. · Google 번역 제공 · 125개국 지원',
+      close: '닫기',
+      selected: '현재 언어',
+      asia: '아시아',
+      seasia: '동남아시아·오세아니아',
+      americas: '아메리카',
+      europe: '유럽',
+      africa: '아프리카'
+    },
+    en: {
+      title: 'Select Language',
+      popular: 'Popular Languages',
+      viewAll: '🌐 View All 125 Countries 〉',
+      backPopular: '〈 Back to Popular Languages',
+      searchLabel: 'Search by Country or Language',
+      searchPlaceholder: 'Enter a country or language',
+      noResults: 'No results found',
+      detected: 'Detected',
+      recent: 'Recent',
+      footer: '© Gomna Studio, Inc. · Powered by Google Translate · 125 countries supported',
+      close: 'Close',
+      selected: 'Current language',
+      asia: 'Asia',
+      seasia: 'Southeast Asia & Oceania',
+      americas: 'Americas',
+      europe: 'Europe',
+      africa: 'Africa'
+    },
+    ja: {
+      title: '言語を選択',
+      popular: '人気の言語',
+      viewAll: '🌐 125か国をすべて表示 〉',
+      backPopular: '〈 人気の言語に戻る',
+      searchLabel: '国名または言語で検索',
+      searchPlaceholder: '国名または言語を入力してください',
+      noResults: '検索結果がありません',
+      detected: '自動検出',
+      recent: '最近使用',
+      footer: '© Gomna Studio, Inc. · Google翻訳提供 · 125か国対応',
+      close: '閉じる',
+      selected: '現在の言語',
+      asia: 'アジア',
+      seasia: '東南アジア・オセアニア',
+      americas: 'アメリカ',
+      europe: 'ヨーロッパ',
+      africa: 'アフリカ'
+    }
+  };
+
+  // Full-list regional grouping for the same COUNTRIES dataset (no second list).
+  const COUNTRY_REGION = (function () {
+    var map = {};
+    var groups = {
+      africa: ['NG', 'GH', 'ZW', 'KE', 'TZ', 'UG', 'RW', 'ZA', 'ET', 'SO', 'MG', 'SN', 'CI', 'MA', 'DZ', 'TN', 'LY', 'SD', 'EG'],
+      seasia: ['MM', 'KH', 'LA', 'TH', 'VN', 'MY', 'ID', 'PH', 'SG', 'AU', 'NZ'],
+      americas: ['US', 'CA', 'MX', 'AR', 'CL', 'CO', 'PE', 'VE', 'EC', 'CU', 'UY', 'PY', 'BO', 'CR', 'PA', 'GT', 'HN', 'NI', 'SV', 'DO', 'PR', 'BR'],
+      europe: ['GB', 'IE', 'CY', 'GR', 'MT', 'AL', 'MK', 'BA', 'RS', 'ME', 'HR', 'SI', 'BG', 'RO', 'MD', 'HU', 'SK', 'CZ', 'PL', 'LT', 'LV', 'EE', 'BY', 'UA', 'RU', 'FI', 'SE', 'NO', 'DK', 'IS', 'NL', 'BE', 'DE', 'AT', 'CH', 'LU', 'FR', 'IT', 'VA', 'ES', 'PT'],
+      asia: ['KR', 'IN', 'JP', 'CN', 'TW', 'HK', 'MO', 'MN', 'BD', 'LK', 'NP', 'PK', 'AF', 'IR', 'IL', 'SA', 'AE', 'SY', 'JO', 'LB', 'IQ', 'KW', 'QA', 'BH', 'OM', 'YE', 'KZ', 'UZ', 'AZ', 'GE', 'AM', 'TR']
+    };
+    Object.keys(groups).forEach(function (key) {
+      groups[key].forEach(function (code) { map[code] = key; });
+    });
+    return map;
+  })();
+
+  const ALL_REGION_ORDER = ['asia', 'seasia', 'americas', 'europe', 'africa'];
+
+  // Rare DisplayNames edge cases only (not a full triple-name table).
+  const COUNTRY_NAME_EXCEPTIONS = {
+    CI: { ko: '코트디부아르', en: 'Ivory Coast', ja: 'コートジボワール' },
+    VA: { ko: '바티칸', en: 'Vatican City', ja: 'バチカン' },
+    TW: { ko: '대만', en: 'Taiwan', ja: '台湾' },
+    HK: { ko: '홍콩', en: 'Hong Kong', ja: '香港' },
+    MO: { ko: '마카오', en: 'Macau', ja: 'マカオ' }
+  };
+
+  const COUNTRY_SEARCH_ALIASES = {
+    US: ['usa', 'america', 'united states of america', '미국', 'アメリカ', '英語'],
+    GB: ['uk', 'britain', 'england', 'great britain', '영국', 'イギリス'],
+    KR: ['korea', 'south korea', '한국', '대한민국', '韓国', '韓国語', '한국어'],
+    JP: ['japan', '일본', '日本', '日本語'],
+    CN: ['china', 'prc', '중국', '中国', '中国語'],
+    ZA: ['rsa', 's. africa', 'south africa', '남아공', '남아프리카', '南アフリカ'],
+    AE: ['uae', 'emirates', '아랍에미리트', 'アラブ首長国連邦']
+  };
+
+  var _gtModalUiLang = 'ko';
+  var _gtModalView = 'popular';
+  var _displayNamesCache = {};
+
+  // ------------------------------------------------------------------
   // Helpers
   // ------------------------------------------------------------------
   function flag(code) {
@@ -197,6 +302,89 @@
   function findByCode(code) {
     for (let i = 0; i < COUNTRIES.length; i++) if (COUNTRIES[i][0] === code) return COUNTRIES[i];
     return null;
+  }
+
+  function resolveModalUiLang() {
+    var code = 'ko';
+    try {
+      if (window.GomnaReaderLangBridge &&
+          typeof window.GomnaReaderLangBridge.getActiveLanguage === 'function') {
+        code = window.GomnaReaderLangBridge.getActiveLanguage() || 'ko';
+      } else {
+        code = getActiveLangCode() || 'ko';
+      }
+    } catch (e) {
+      try { code = getActiveLangCode() || 'ko'; } catch (e2) { code = 'ko'; }
+    }
+    code = String(code || 'ko').toLowerCase();
+    if (code === 'ko' || code.indexOf('ko-') === 0) return 'ko';
+    if (code === 'en' || code.indexOf('en-') === 0) return 'en';
+    if (code === 'ja' || code.indexOf('ja-') === 0) return 'ja';
+    return 'en';
+  }
+
+  function getModalUi() {
+    return MODAL_UI[_gtModalUiLang] || MODAL_UI.en;
+  }
+
+  function getModalRegionLabel(key) {
+    var ui = getModalUi();
+    return ui[key] || key;
+  }
+
+  function getLocalizedCountryName(iso2, uiLang, countryRow) {
+    var lang = uiLang || 'en';
+    var ex = COUNTRY_NAME_EXCEPTIONS[iso2];
+    if (ex) {
+      if (lang === 'ko') return ex.ko;
+      if (lang === 'ja') return ex.ja;
+      return ex.en;
+    }
+    var locale = (lang === 'ko') ? 'ko-KR' : (lang === 'ja') ? 'ja-JP' : 'en';
+    try {
+      if (typeof Intl !== 'undefined' && Intl.DisplayNames) {
+        if (!_displayNamesCache[locale]) {
+          _displayNamesCache[locale] = new Intl.DisplayNames([locale], { type: 'region' });
+        }
+        var named = _displayNamesCache[locale].of(iso2);
+        if (named) return named;
+      }
+    } catch (e) { /* fall through */ }
+    var c = countryRow || findByCode(iso2);
+    if (!c) return iso2;
+    return (lang === 'ko') ? c[1] : c[2];
+  }
+
+  var _langNamesCache = {};
+  function getLocalizedLanguageName(gtCode, uiLang) {
+    if (!gtCode) return '';
+    var code = (gtCode === 'iw') ? 'he' : String(gtCode);
+    var locale = (uiLang === 'ko') ? 'ko' : (uiLang === 'ja') ? 'ja' : 'en';
+    var cacheKey = locale + ':' + code;
+    if (_langNamesCache[cacheKey] != null) return _langNamesCache[cacheKey];
+    var named = '';
+    try {
+      if (typeof Intl !== 'undefined' && Intl.DisplayNames) {
+        named = new Intl.DisplayNames([locale], { type: 'language' }).of(code) || '';
+      }
+    } catch (e) { named = ''; }
+    _langNamesCache[cacheKey] = named;
+    return named;
+  }
+
+  function getCountrySearchNames(c) {
+    var names = [c[0], c[1], c[2], c[3], c[4], c[5]];
+    try {
+      names.push(getLocalizedCountryName(c[0], 'ko', c));
+      names.push(getLocalizedCountryName(c[0], 'en', c));
+      names.push(getLocalizedCountryName(c[0], 'ja', c));
+      names.push(getLocalizedLanguageName(c[3], 'ko'));
+      names.push(getLocalizedLanguageName(c[3], 'en'));
+      names.push(getLocalizedLanguageName(c[3], 'ja'));
+    } catch (e) { /* ignore */ }
+    var aliases = COUNTRY_SEARCH_ALIASES[c[0]];
+    if (aliases) names = names.concat(aliases);
+    return names;
   }
 
   function getRecent() {
@@ -974,6 +1162,12 @@
         return window.GomnaUII18n.getLanguage() || 'ko';
       }
     }
+    if (isReaderPage() && typeof window.getReaderUiLangCode === 'function') {
+      try {
+        var readerUi = window.getReaderUiLangCode();
+        if (readerUi === 'ko' || readerUi === 'en' || readerUi === 'ja') return readerUi;
+      } catch (e) { /* ignore */ }
+    }
     return getCurrentTargetLang() || 'ko';
   }
 
@@ -1242,6 +1436,10 @@
             detail: { lang: tlNow || null }
           }));
         } catch (e3) { /* ignore */ }
+        try { window.__gomnaBridgeDisplayLang = null; } catch (ePendClr) { /* ignore */ }
+        if (window.GomnaReaderLangBridge && typeof window.GomnaReaderLangBridge.syncAllBridges === 'function') {
+          try { window.GomnaReaderLangBridge.syncAllBridges(); } catch (eSyncBr) { /* ignore */ }
+        }
       }
     } catch (e) { /* ignore */ }
   }
@@ -1682,6 +1880,49 @@
     return false;
   }
 
+  var _gtReaderRetranslateTimer = null;
+  function retranslateReaderBody(reason) {
+    if (!isReaderPage()) return false;
+    var lang = getCurrentTargetLang();
+    if (!lang || lang === 'ko') return false;
+    if (!hasGoogTransCookie()) return false;
+    ensureTranslateWidget();
+    if (_gtReaderRetranslateTimer) {
+      clearTimeout(_gtReaderRetranslateTimer);
+      _gtReaderRetranslateTimer = null;
+    }
+    /* Debounce rapid chapter jumps; keep reading position (caller restores separately). */
+    _gtReaderRetranslateTimer = setTimeout(function () {
+      _gtReaderRetranslateTimer = null;
+      var still = getCurrentTargetLang();
+      if (!still || still === 'ko' || !hasGoogTransCookie()) return;
+      try {
+        var select = document.querySelector('select.goog-te-combo');
+        if (select) {
+          /* Force Google to notice Korean source DOM inserted after prior translation. */
+          var prev = select.value;
+          if (prev === still) {
+            select.value = '';
+            try {
+              select.dispatchEvent(new Event('change', { bubbles: true }));
+            } catch (e0) { /* ignore */ }
+            setTimeout(function () { triggerWidgetLanguage(still, 0); }, 30);
+          } else {
+            triggerWidgetLanguage(still, 0);
+          }
+        } else {
+          triggerWidgetLanguage(still, 0);
+        }
+        if (BOOK_LANG_IDX[still]) {
+          setTimeout(function () { applyBookNameI18n(still); }, 800);
+        }
+        applyUiTextI18n(still);
+      } catch (e1) { /* ignore */ }
+    }, reason === 'renderVerses' ? 80 : 0);
+    return true;
+  }
+  window.GomnaReaderRetranslateBody = retranslateReaderBody;
+
   function showToast(msg) {
     let t = document.getElementById('gt-feature-toast');
     if (!t) {
@@ -1696,19 +1937,77 @@
     window.__gtToastTimer = setTimeout(function () { t.style.display = 'none'; }, 2500);
   }
 
-  function applyLanguage(country) {
+  function saveRecentForeignLanguage(langCode) {
+    if (!langCode || langCode === 'ko') return;
+    try { localStorage.setItem('gomna_recent_foreign_language', langCode); } catch (e) { /* ignore */ }
+    if (window.GomnaReaderLangBridge && typeof window.GomnaReaderLangBridge.setRecentForeignLanguage === 'function') {
+      try { window.GomnaReaderLangBridge.setRecentForeignLanguage(langCode); } catch (e2) { /* ignore */ }
+    }
+  }
+
+  function dispatchReaderLanguageChange(activeLanguage, source) {
+    var recent = null;
+    try { recent = localStorage.getItem('gomna_recent_foreign_language'); } catch (e) { /* ignore */ }
+    if ((!recent || recent === 'ko') && activeLanguage && activeLanguage !== 'ko') recent = activeLanguage;
+    if (!recent || recent === 'ko') recent = 'en';
+    try {
+      window.dispatchEvent(new CustomEvent('gomna:languagechange', {
+        detail: {
+          activeLanguage: activeLanguage || 'ko',
+          recentForeignLanguage: recent,
+          source: source || 'translate_feature'
+        }
+      }));
+    } catch (e2) { /* ignore */ }
+    if (window.GomnaReaderLangBridge && typeof window.GomnaReaderLangBridge.syncAllBridges === 'function') {
+      try { window.GomnaReaderLangBridge.syncAllBridges(); } catch (e3) { /* ignore */ }
+    }
+  }
+
+  function prepareReaderLanguageTransition(nextLang, source) {
+    if (!isReaderPage()) return;
+    if (window.GomnaReaderLangBridge && typeof window.GomnaReaderLangBridge.prepareTransition === 'function') {
+      try { window.GomnaReaderLangBridge.prepareTransition(nextLang, source || 'translate_feature'); } catch (e) { /* ignore */ }
+    }
+  }
+
+  function syncReaderUiLanguageStorage(nextLang) {
+    if (!isReaderPage()) return;
+    try {
+      if (nextLang === 'ko' || nextLang === 'en' || nextLang === 'ja') {
+        localStorage.setItem('gomna_ui_language', nextLang);
+      } else {
+        localStorage.removeItem('gomna_ui_language');
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function applyLanguage(country, opts) {
     if (!country) return;
+    opts = opts || {};
+    var applySource = opts.source || 'language-modal';
     saveRecent(country[0]);
 
     const nextLang = country[3];
     const currentLang = getActiveLangCode();
     const homeNative = isHomePage() && isNativeHomeLanguage(nextLang);
+    const readerNativePair = isReaderPage() && isNativeHomeLanguage(nextLang);
+
+    if (nextLang && nextLang !== 'ko') {
+      saveRecentForeignLanguage(nextLang);
+    }
 
     // No-op: same language already active (unless cleaning a Google-translated DOM).
-    if (currentLang === nextLang && !(homeNative && isGoogleTranslatedDom())) {
+    // Capture current BEFORE any optimistic display flag so EN/JA taps are not no-ops.
+    if (currentLang === nextLang && !(homeNative && isGoogleTranslatedDom()) &&
+        !(readerNativePair && nextLang === 'ko' && isGoogleTranslatedDom())) {
       closeModal();
+      try { window.__gomnaBridgeDisplayLang = null; } catch (ePend2) { /* ignore */ }
+      dispatchReaderLanguageChange(nextLang, applySource + '-noop');
       return;
     }
+
+    try { window.__gomnaBridgeDisplayLang = nextLang; } catch (ePend) { /* ignore */ }
 
     if (window.GomnaAnalytics) {
       GomnaAnalytics.trackChangeTranslation(currentLang || 'ko', nextLang);
@@ -1734,7 +2033,9 @@
       if (typeof window.__gomnaRefreshHomeI18n === 'function') {
         try { window.__gomnaRefreshHomeI18n(); } catch (e2) { /* ignore */ }
       }
+      try { window.__gomnaBridgeDisplayLang = null; } catch (ePend3) { /* ignore */ }
       endTranslationPending();
+      dispatchReaderLanguageChange(nextLang, applySource + '-home-native');
       return;
     }
 
@@ -1746,11 +2047,79 @@
       }
     }
 
-    // Korean = source language → undo translation.
+    syncReaderUiLanguageStorage(nextLang);
+    prepareReaderLanguageTransition(nextLang, applySource);
+
+    /*
+     * Reader ko/en/ja:
+     * - No full EN/JA Bible verse datasets exist in this repo (Korean bodies only).
+     * - Body text uses Google Translate Element.
+     * - KO→EN / KO→JA: in-place widget trigger (no reload) for immediate response.
+     * - EN↔JA or any already-translated → other: reload (widget cannot reliably retranslate).
+     * - →KO: reload to restore clean Korean source DOM.
+     */
+    if (readerNativePair) {
+      closeModal();
+      dispatchReaderLanguageChange(nextLang, applySource + '-reader-native');
+
+      if (nextLang === 'ko') {
+        var wasTranslatedDom = isGoogleTranslatedDom();
+        clearGoogTransCookie();
+        if (wasTranslatedDom) {
+          showToast('🌐 한국어로 복원 중... · Restoring Korean...');
+          setTimeout(function () { location.reload(); }, 200);
+          return;
+        }
+        try { window.__gomnaBridgeDisplayLang = null; } catch (ePend4) { /* ignore */ }
+        if (typeof window.syncReaderNativeUiLangClass === 'function') {
+          try { window.syncReaderNativeUiLangClass(); } catch (eSync) { /* ignore */ }
+        }
+        if (typeof window.updateOpt4BottomBar === 'function') {
+          try { window.updateOpt4BottomBar(); } catch (eBar) { /* ignore */ }
+        }
+        endTranslationPending({ immediate: true });
+        return;
+      }
+
+      /* en / ja */
+      setGoogTransCookie(nextLang);
+      var needReload = isGoogleTranslatedDom() && currentLang && currentLang !== 'ko' && currentLang !== nextLang;
+      if (needReload) {
+        startTranslationPending();
+        showToast('🌐 ' + country[1] + ' · ' + country[4] + ' 적용 중...');
+        setTimeout(function () { location.reload(); }, 200);
+        return;
+      }
+
+      startTranslationPending();
+      ensureTranslateWidget();
+      triggerWidgetLanguage(nextLang);
+      watchTranslationPendingComplete();
+      if (BOOK_LANG_IDX[nextLang]) {
+        setTimeout(function () { applyBookNameI18n(nextLang); }, 900);
+      }
+      setTimeout(function () { applyUiTextI18n(nextLang); }, 400);
+      if (typeof window.syncReaderNativeUiLangClass === 'function') {
+        try { window.syncReaderNativeUiLangClass(); } catch (eSync2) { /* ignore */ }
+      }
+      if (typeof window.updateOpt4BottomBar === 'function') {
+        try { window.updateOpt4BottomBar(); } catch (eBar2) { /* ignore */ }
+      }
+      if (typeof window.updateVerseToolbar === 'function') {
+        try { window.updateVerseToolbar(); } catch (eTb) { /* ignore */ }
+      }
+      if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.apply === 'function') {
+        try { window.GomnaCommentaryI18n.apply(); } catch (eCi) { /* ignore */ }
+      }
+      return;
+    }
+
+    // Korean = source language → undo translation (non-native / Google-only langs).
     if (nextLang === 'ko') {
       clearGoogTransCookie();
       closeModal();
       showToast('🌐 한국어로 복원 중... · Restoring Korean...');
+      dispatchReaderLanguageChange('ko', applySource);
       setTimeout(function () { location.reload(); }, 250);
       return;
     }
@@ -1765,29 +2134,39 @@
     setGoogTransCookie(nextLang);
     closeModal();
     showToast('🌐 ' + country[1] + ' · ' + country[4] + ' 적용 중...');
+    dispatchReaderLanguageChange(nextLang, applySource);
     setTimeout(function () { location.reload(); }, 250);
   }
 
+  function applyLanguageByCode(langCode, source) {
+    var code = (langCode || '').toLowerCase();
+    if (!code) return;
+    var country = findAnchorForLang(code) || COUNTRIES.find(function (c) { return c[3] === code; });
+    if (!country && code === 'ko') country = findByCode('KR');
+    if (!country) return;
+    applyLanguage(country, { source: source || 'apply-by-code' });
+  }
+
   function searchCountries(query) {
-    const q = (query || '').trim().toLowerCase();
-    if (!q) return [];
+    const qRaw = (query || '').trim();
+    if (!qRaw) return [];
+    const q = qRaw.toLowerCase();
     const out = [];
     for (let i = 0; i < COUNTRIES.length; i++) {
       const c = COUNTRIES[i];
-      const ko = c[1].toLowerCase();
-      const en = c[2].toLowerCase();
-      const langKo = c[4].toLowerCase();
-      const langNative = c[5].toLowerCase();
+      const names = getCountrySearchNames(c);
       let score = 0;
-      if (ko === q || en === q) score = 100;
-      else if (ko.startsWith(q) || en.startsWith(q)) score = 80;
-      else if (langKo === q || langNative === q) score = 75;
-      else if (ko.indexOf(q) >= 0 || en.indexOf(q) >= 0) score = 60;
-      else if (langKo.indexOf(q) >= 0 || langNative.indexOf(q) >= 0) score = 40;
+      for (let n = 0; n < names.length; n++) {
+        if (!names[n]) continue;
+        const hay = String(names[n]).toLowerCase();
+        if (hay === q) score = Math.max(score, 100);
+        else if (hay.startsWith(q)) score = Math.max(score, 80);
+        else if (hay.indexOf(q) >= 0) score = Math.max(score, 60);
+      }
       if (score > 0) out.push([score, c]);
     }
     out.sort(function (a, b) { return b[0] - a[0]; });
-    return out.slice(0, 30).map(function (x) { return x[1]; });
+    return out.slice(0, 40).map(function (x) { return x[1]; });
   }
 
   function escapeHtml(s) {
@@ -1862,6 +2241,13 @@
 .gt-result-lang{font-size:11.5px;color:#a87a35;margin-top:1px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\
 .gt-no-results{text-align:center;padding:18px;color:#a89890;font-size:13px}\
 .gt-foot{padding:8px 18px 14px;text-align:center;font-size:10.5px;color:#a89890;border-top:.5px solid rgba(180,140,90,.18)}\
+.gt-view-all-btn{display:flex;align-items:center;justify-content:center;width:100%;margin:12px 0 2px;padding:12px 14px;border-radius:14px;border:.5px solid rgba(200,152,73,.45);background:linear-gradient(135deg,#fff8eb 0%,#f5e8d0 100%);color:#3d2818;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}\
+.gt-view-all-btn:active{transform:scale(.98);opacity:.85}\
+.gt-back-btn{display:flex;align-items:center;gap:4px;width:100%;margin:0 0 8px;padding:8px 2px;border:none;background:transparent;color:#8a5a2a;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent}\
+.gt-back-btn:active{opacity:.7}\
+.gt-all-sticky{position:sticky;top:0;z-index:2;background:#faf6ed;padding:2px 0 8px;margin:0 0 2px}\
+.gt-all-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}\
+.gt-all-grid .gt-pop-label{white-space:normal;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.25;max-height:2.6em;text-overflow:ellipsis}\
 @media (max-width:480px){\
 .gt-modal{padding:0;align-items:flex-end}\
 .gt-sheet{max-width:100%;max-height:90vh;border-radius:24px 24px 0 0}\
@@ -1870,12 +2256,17 @@
 .gt-pop-flag{font-size:24px}\
 .gt-pop-label{font-size:10px}\
 .gt-region-name{font-size:10.5px}\
+.gt-all-grid{grid-template-columns:repeat(3,1fr);gap:5px}\
 }\
 @media (max-width:360px){\
 .gt-popular-grid{gap:4px}\
 .gt-pop-btn{padding:7px 2px 6px}\
 .gt-pop-flag{font-size:22px}\
 .gt-pop-label{font-size:9.5px;letter-spacing:-.2px}\
+.gt-all-grid{grid-template-columns:repeat(2,1fr);gap:5px}\
+}\
+@media (min-width:420px){\
+.gt-all-grid{grid-template-columns:repeat(4,1fr)}\
 }';
 
   function injectStyles() {
@@ -1890,12 +2281,14 @@
   // Modal rendering
   // ------------------------------------------------------------------
   function renderSuggested(label, country) {
-    return '<div class="gt-section-label">' + label + '</div>' +
+    var uiLang = _gtModalUiLang;
+    var name = getLocalizedCountryName(country[0], uiLang, country);
+    return '<div class="gt-section-label">' + escapeHtml(label) + '</div>' +
       '<button type="button" class="gt-suggested" data-code="' + country[0] + '">' +
       '<div class="gt-suggested-flag">' + flag(country[0]) + '</div>' +
       '<div class="gt-suggested-info">' +
       '<div class="gt-suggested-tag">' + escapeHtml(country[5]) + '</div>' +
-      '<div class="gt-suggested-name">' + escapeHtml(country[1]) + ' · ' + escapeHtml(country[4]) + '</div>' +
+      '<div class="gt-suggested-name">' + escapeHtml(name) + ' · ' + escapeHtml(country[4]) + '</div>' +
       '</div>' +
       '<div class="gt-suggested-arrow">›</div>' +
       '</button>';
@@ -1907,105 +2300,220 @@
   };
 
   // Shorter button labels for countries whose full names overflow a
-  // 4-column grid on narrow phones. Only the listed codes are overridden;
-  // everything else falls back to c[1] / c[2] from the master COUNTRIES list.
-  // Tuple: [koShort, enShort].
+  // 4-column grid on narrow phones. Only the listed codes are overridden.
   const POPULAR_NAME_OVERRIDE = {
-    'ZA': ['남아공',  'S. Africa'],
-    'GB': ['영국',    'UK'],
-    'US': ['미국',    'USA']
+    'ZA': { ko: '남아공', en: 'S. Africa', ja: '南ア' },
+    'GB': { ko: '영국', en: 'UK', ja: '英国' },
+    'US': { ko: '미국', en: 'USA', ja: '米国' }
   };
 
-  function getPopularLabel(c, langIdx) {
+  function getPopularLabel(c, uiLang) {
     const ov = POPULAR_NAME_OVERRIDE[c[0]];
-    if (ov) return (langIdx === 0) ? ov[0] : ov[1];
-    return (langIdx === 0) ? c[1] : c[2];
+    if (ov) {
+      if (uiLang === 'ko') return ov.ko;
+      if (uiLang === 'ja') return ov.ja;
+      return ov.en;
+    }
+    return getLocalizedCountryName(c[0], uiLang || 'en', c);
+  }
+
+  function renderCountryCard(c, uiLang, activeAnchorCode) {
+    const isActive = (c[0] === activeAnchorCode);
+    const cls = 'gt-pop-btn' + (isActive ? ' gt-pop-btn-active' : '');
+    const label = getPopularLabel(c, uiLang);
+    const ui = getModalUi();
+    return '<button type="button" class="' + cls + '" data-code="' + c[0] + '"' +
+      (isActive ? ' aria-current="true"' : '') + '>' +
+      (isActive ? '<div class="gt-pop-check" aria-label="' + escapeHtml(ui.selected) + '">✓</div>' : '') +
+      '<div class="gt-pop-flag">' + flag(c[0]) + '</div>' +
+      '<div class="gt-pop-label">' + escapeHtml(label) + '</div>' +
+      '</button>';
+  }
+
+  function renderRegionBlock(regionKey, codes, uiLang, activeAnchorCode, gridClass) {
+    if (!codes || !codes.length) return '';
+    let html = '<div class="gt-region">' +
+      '<div class="gt-region-head">' +
+      '<span class="gt-region-emoji" aria-hidden="true">' + (REGION_EMOJI[regionKey] || '') + '</span>' +
+      '<span class="gt-region-name">' + escapeHtml(getModalRegionLabel(regionKey)) + '</span>' +
+      '<span class="gt-region-rule" aria-hidden="true"></span>' +
+      '</div>' +
+      '<div class="' + (gridClass || 'gt-popular-grid') + '">';
+    codes.forEach(function (code) {
+      const c = findByCode(code);
+      if (!c) return;
+      html += renderCountryCard(c, uiLang, activeAnchorCode);
+    });
+    html += '</div></div>';
+    return html;
   }
 
   function renderPopularRegions() {
     const activeLang = getActiveLangCode();
     const activeAnchorCode = (LANG_ANCHOR[activeLang] || '');
-    const labelIdx = (activeLang === 'ko') ? 0 : 1;
+    const uiLang = _gtModalUiLang;
     let html = '<div class="gt-regions">';
     POPULAR_REGIONS.forEach(function (region) {
-      const regionLabel = getRegionLabel(region.key, activeLang);
-      html += '<div class="gt-region">' +
-        '<div class="gt-region-head">' +
-        '<span class="gt-region-emoji" aria-hidden="true">' + (REGION_EMOJI[region.key] || '') + '</span>' +
-        '<span class="gt-region-name">' + escapeHtml(regionLabel) + '</span>' +
-        '<span class="gt-region-rule" aria-hidden="true"></span>' +
-        '</div>' +
-        '<div class="gt-popular-grid">';
-      region.codes.forEach(function (code) {
-        const c = findByCode(code);
-        if (!c) return;
-        const isActive = (code === activeAnchorCode);
-        const cls = 'gt-pop-btn' + (isActive ? ' gt-pop-btn-active' : '');
-        const label = getPopularLabel(c, labelIdx);
-        html += '<button type="button" class="' + cls + '" data-code="' + c[0] + '"' +
-          (isActive ? ' aria-current="true"' : '') + '>' +
-          (isActive ? '<div class="gt-pop-check" aria-label="현재 언어">✓</div>' : '') +
-          '<div class="gt-pop-flag">' + flag(c[0]) + '</div>' +
-          '<div class="gt-pop-label">' + escapeHtml(label) + '</div>' +
-          '</button>';
-      });
-      html += '</div></div>';
+      html += renderRegionBlock(region.key, region.codes, uiLang, activeAnchorCode, 'gt-popular-grid');
     });
     html += '</div>';
     return html;
   }
 
-  function renderBody() {
+  function renderAllCountriesView(filterQuery) {
+    const ui = getModalUi();
+    const uiLang = _gtModalUiLang;
+    const activeLang = getActiveLangCode();
+    const activeAnchorCode = (LANG_ANCHOR[activeLang] || '');
+    const q = (filterQuery || '').trim();
+    const matched = q ? searchCountries(q) : COUNTRIES.slice();
+    const matchedSet = {};
+    matched.forEach(function (c) { matchedSet[c[0]] = true; });
+
+    let html = '<div class="gt-all-view">' +
+      '<button type="button" class="gt-back-btn" data-gt-view="popular">' +
+      escapeHtml(ui.backPopular) + '</button>' +
+      '<div class="gt-all-sticky">' +
+      '<div class="gt-section-label">' + escapeHtml(ui.searchLabel) + '</div>' +
+      '<div class="gt-search-wrap">' +
+      '<svg class="gt-search-icon" viewBox="0 0 24 24" fill="none" stroke="#3d2818" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
+      '<input type="search" class="gt-search-input" id="gtSearchInput" placeholder="' +
+      escapeHtml(ui.searchPlaceholder) + '" autocomplete="off" value="' + escapeHtml(q) + '">' +
+      '</div></div>';
+
+    if (q && matched.length === 0) {
+      html += '<div class="gt-no-results">' + escapeHtml(ui.noResults) + '</div></div>';
+      return html;
+    }
+
+    html += '<div class="gt-regions gt-all-regions">';
+    ALL_REGION_ORDER.forEach(function (regionKey) {
+      const codes = [];
+      COUNTRIES.forEach(function (c) {
+        if (COUNTRY_REGION[c[0]] !== regionKey) return;
+        if (q && !matchedSet[c[0]]) return;
+        codes.push(c[0]);
+      });
+      html += renderRegionBlock(regionKey, codes, uiLang, activeAnchorCode, 'gt-all-grid');
+    });
+
+    const orphanCodes = [];
+    COUNTRIES.forEach(function (c) {
+      if (COUNTRY_REGION[c[0]]) return;
+      if (q && !matchedSet[c[0]]) return;
+      orphanCodes.push(c[0]);
+    });
+    if (orphanCodes.length) {
+      html += renderRegionBlock('asia', orphanCodes, uiLang, activeAnchorCode, 'gt-all-grid');
+    }
+
+    html += '</div></div>';
+    return html;
+  }
+
+  function renderPopularBody() {
+    const ui = getModalUi();
     const detected = detectLanguage();
     const recent = getRecent();
     const activeLang = getActiveLangCode();
     const activeCountry = (activeLang && activeLang !== 'ko') ? findAnchorForLang(activeLang) : null;
     let html = '';
 
-    // Avoid showing the same flag twice (e.g., suggesting Vietnam when the
-    // user already viewed Vietnam, or when Vietnam is the current language).
     function sameLang(a, b) { return a && b && a[3] === b[3]; }
 
     if (detected && !sameLang(detected, activeCountry)) {
-      html += renderSuggested('자동 감지됨 · Detected', detected);
+      html += renderSuggested(ui.detected, detected);
     }
     if (recent && !sameLang(recent, detected) && !sameLang(recent, activeCountry)) {
-      html += renderSuggested('최근 사용 · Recent', recent);
+      html += renderSuggested(ui.recent, recent);
     }
 
-    html += '<div class="gt-section-label">' +
-      '인기 언어 · Popular Languages · 20개국' +
-      '</div>';
+    html += '<div class="gt-section-label">' + escapeHtml(ui.popular) + '</div>';
     html += renderPopularRegions();
 
-    html += '<div class="gt-section-label">전체 검색 · Search (' + COUNTRIES.length + '+ 나라)</div>' +
+    html += '<button type="button" class="gt-view-all-btn" data-gt-view="all">' +
+      escapeHtml(ui.viewAll) + '</button>';
+
+    html += '<div class="gt-section-label">' + escapeHtml(ui.searchLabel) + '</div>' +
       '<div class="gt-search-wrap">' +
       '<svg class="gt-search-icon" viewBox="0 0 24 24" fill="none" stroke="#3d2818" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
-      '<input type="search" class="gt-search-input" id="gtSearchInput" placeholder="나라 입력 (예: Vietnam, 베트남, 영어)" autocomplete="off">' +
+      '<input type="search" class="gt-search-input" id="gtSearchInput" placeholder="' +
+      escapeHtml(ui.searchPlaceholder) + '" autocomplete="off">' +
       '</div>' +
       '<div class="gt-results" id="gtResults"></div>';
 
     return html;
   }
 
+  function renderBody() {
+    if (_gtModalView === 'all') return renderAllCountriesView('');
+    return renderPopularBody();
+  }
+
   function renderResults(query) {
+    const ui = getModalUi();
+    if (_gtModalView === 'all') {
+      const body = document.querySelector('#gtModal .gt-body');
+      if (!body) return;
+      body.innerHTML = renderAllCountriesView(query);
+      const input = document.getElementById('gtSearchInput');
+      if (input) {
+        input.focus();
+        try {
+          var len = input.value.length;
+          input.setSelectionRange(len, len);
+        } catch (e) { /* ignore */ }
+      }
+      return;
+    }
     const list = searchCountries(query);
     const el = document.getElementById('gtResults');
     if (!el) return;
     if (!query.trim()) { el.innerHTML = ''; return; }
     if (list.length === 0) {
-      el.innerHTML = '<div class="gt-no-results">검색 결과가 없습니다 · No results</div>';
+      el.innerHTML = '<div class="gt-no-results">' + escapeHtml(ui.noResults) + '</div>';
       return;
     }
+    const uiLang = _gtModalUiLang;
     el.innerHTML = list.map(function (c) {
+      var name = getLocalizedCountryName(c[0], uiLang, c);
       return '<button type="button" class="gt-result" data-code="' + c[0] + '">' +
         '<div class="gt-result-flag">' + flag(c[0]) + '</div>' +
         '<div class="gt-result-info">' +
-        '<div class="gt-result-country">' + escapeHtml(c[1]) + ' · ' + escapeHtml(c[2]) + '</div>' +
+        '<div class="gt-result-country">' + escapeHtml(name) + '</div>' +
         '<div class="gt-result-lang">' + escapeHtml(c[4]) + ' / ' + escapeHtml(c[5]) + '</div>' +
         '</div>' +
         '</button>';
     }).join('');
+  }
+
+  function applyModalChrome() {
+    const modal = document.getElementById('gtModal');
+    if (!modal) return;
+    const ui = getModalUi();
+    modal.setAttribute('aria-label', ui.title);
+    modal.setAttribute('translate', 'no');
+    modal.classList.add('notranslate');
+    const title = modal.querySelector('.gt-head-title');
+    if (title) title.textContent = '🌐 ' + ui.title;
+    const closeBtn = modal.querySelector('.gt-close');
+    if (closeBtn) closeBtn.setAttribute('aria-label', ui.close);
+    const foot = modal.querySelector('.gt-foot');
+    if (foot) foot.textContent = ui.footer;
+    const sheet = modal.querySelector('.gt-sheet');
+    if (sheet) {
+      sheet.setAttribute('translate', 'no');
+      sheet.classList.add('notranslate');
+    }
+  }
+
+  function refreshModalBody() {
+    const modal = document.getElementById('gtModal');
+    if (!modal) return;
+    const body = modal.querySelector('.gt-body');
+    if (!body) return;
+    body.innerHTML = renderBody();
+    applyModalChrome();
   }
 
   var _gtModalDelegatesBound = false;
@@ -2016,19 +2524,20 @@
     if (document.getElementById('gtModal')) return;
     const modal = document.createElement('div');
     modal.id = 'gtModal';
-    modal.className = 'gt-modal';
+    modal.className = 'gt-modal notranslate';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     modal.setAttribute('aria-hidden', 'true');
-    modal.setAttribute('aria-label', '언어 선택');
+    modal.setAttribute('aria-label', 'Select Language');
+    modal.setAttribute('translate', 'no');
     modal.innerHTML =
-      '<div class="gt-sheet">' +
+      '<div class="gt-sheet notranslate" translate="no">' +
       '<div class="gt-head">' +
-      '<div class="gt-head-title">🌐 언어 선택 · Choose your language</div>' +
-      '<button type="button" class="gt-close" aria-label="닫기">✕</button>' +
+      '<div class="gt-head-title">🌐 Select Language</div>' +
+      '<button type="button" class="gt-close" aria-label="Close">✕</button>' +
       '</div>' +
       '<div class="gt-body"></div>' +
-      '<div class="gt-foot">© Gomna Studio, Inc. · Powered by Google Translate · ' + COUNTRIES.length + '개국 지원</div>' +
+      '<div class="gt-foot">© Gomna Studio, Inc.</div>' +
       '</div>';
     document.body.appendChild(modal);
 
@@ -2042,6 +2551,13 @@
         const closeBtn = e.target.closest && e.target.closest('.gt-close');
         if (closeBtn && modal.contains(closeBtn)) {
           closeModal();
+          return;
+        }
+        const viewBtn = e.target.closest && e.target.closest('[data-gt-view]');
+        if (viewBtn && modal.contains(viewBtn)) {
+          const next = viewBtn.getAttribute('data-gt-view');
+          _gtModalView = (next === 'all') ? 'all' : 'popular';
+          refreshModalBody();
           return;
         }
         const item = e.target.closest && e.target.closest('[data-code]');
@@ -2062,8 +2578,11 @@
   function openModal() {
     const modal = document.getElementById('gtModal');
     if (!modal) return;
+    _gtModalUiLang = resolveModalUiLang();
+    _gtModalView = 'popular';
     const body = modal.querySelector('.gt-body');
     body.innerHTML = renderBody();
+    applyModalChrome();
 
     if (body.getAttribute('data-gt-search-delegate') !== '1') {
       body.setAttribute('data-gt-search-delegate', '1');
@@ -2084,6 +2603,7 @@
     const modal = document.getElementById('gtModal');
     if (!modal) return;
     // Pure dismiss: never clear language storage, googtrans, Google state, or reload.
+    _gtModalView = 'popular';
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
@@ -2218,6 +2738,12 @@
       });
     }
   }
+
+  window.GomnaOpenLanguageModal = openModal;
+  window.GomnaCloseLanguageModal = closeModal;
+  window.GomnaApplyLanguageByCode = applyLanguageByCode;
+  window.GomnaGetActiveLangCode = getActiveLangCode;
+  window.GomnaFindAnchorForLang = findAnchorForLang;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
