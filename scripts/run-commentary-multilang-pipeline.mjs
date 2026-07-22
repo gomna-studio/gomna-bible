@@ -4,10 +4,18 @@
  *
  * Planning mode (default): --dry-run only.
  * Narration stage: --stage narration --dry-run| --write
+ * Audio stage: --stage audio --dry-run| --write
  */
 
 import fs from 'fs';
 import path from 'path';
+import {
+  atomicCreateMp3,
+  createEmptyAudioCounters,
+  requestCommentaryMp3,
+  validateApprovedNarrationTarget,
+  validateMp3File,
+} from './lib/commentary-multilang-audio.mjs';
 import {
   buildCommentaryMultilangTargets,
   inventoryCommentarySource,
@@ -32,12 +40,15 @@ const ABSOLUTELY_FORBIDDEN = new Set([
   '--overwrite',
 ]);
 
+const ACCEPTED_STAGES = new Set(['narration', 'audio']);
+
 const REQUIRED_TRANSLATION_FLAG = '1';
 const REQUIRED_ALLOWED_TARGET =
   'genesis:1:1-3:original-language:en-US,ja-JP';
 const REQUIRED_REPAIR_ALLOWED_TARGET =
   'genesis:1:2-3:original-language:en-US';
 const REQUIRED_REPAIR_FLAG = '1';
+const REQUIRED_AUDIO_FLAG = '1';
 
 function printUsage() {
   return [
@@ -59,9 +70,20 @@ function printUsage() {
     '  ... --stage narration --repair-invalid-drafts --dry-run',
     '  ... --stage narration --repair-invalid-drafts --write',
     '',
+    'Usage (audio stage):',
+    '  node scripts/run-commentary-multilang-pipeline.mjs \\',
+    '    --locales en-US,ja-JP --book genesis --chapter 1 \\',
+    '    --from-verse 1 --to-verse 3 --type original-language \\',
+    '    --stage audio --dry-run',
+    '',
+    '  node scripts/run-commentary-multilang-pipeline.mjs \\',
+    '    ... --stage audio --write',
+    '',
     'Notes:',
     '  Planning mode requires --dry-run and rejects --write.',
     '  Narration write requires --stage narration --write plus env guards.',
+    '  Audio write requires --stage audio --write plus audio env guards.',
+    '  Accepted stages: narration, audio.',
     '  --upload/--publish/--force/--overwrite are always rejected.',
     '  Optional: --json (planning mode).',
   ].join('\n');
@@ -589,10 +611,14 @@ function classifyNarrationAction(target, koreanSource) {
   };
 }
 
+function buildRequestedTargetString(args) {
+  return `${args.book}:${args.chapter}:${args.fromVerse}-${args.toVerse}:${args.type}:${args.locales}`;
+}
+
 function assertNarrationWriteGuards(args) {
   const flag = process.env.GOMNA_COMMENTARY_MULTILANG_TRANSLATION;
   const allowed = process.env.GOMNA_COMMENTARY_MULTILANG_ALLOWED_TARGET;
-  const expected = `${args.book}:${args.chapter}:${args.fromVerse}-${args.toVerse}:${args.type}:${args.locales}`;
+  const expected = buildRequestedTargetString(args);
 
   if (flag !== REQUIRED_TRANSLATION_FLAG) {
     throw new Error(
@@ -629,6 +655,24 @@ function assertNarrationWriteGuards(args) {
   if (expected !== REQUIRED_ALLOWED_TARGET) {
     throw new Error(
       `Request ${expected} is outside the allowed write target ${REQUIRED_ALLOWED_TARGET}`,
+    );
+  }
+}
+
+function assertAudioWriteGuards(args) {
+  const flag = process.env.GOMNA_COMMENTARY_MULTILANG_AUDIO;
+  const allowed = process.env.GOMNA_COMMENTARY_MULTILANG_ALLOWED_TARGET;
+  const expected = buildRequestedTargetString(args);
+
+  if (flag !== REQUIRED_AUDIO_FLAG) {
+    throw new Error(
+      `GOMNA_COMMENTARY_MULTILANG_AUDIO must be exactly "${REQUIRED_AUDIO_FLAG}" for --write`,
+    );
+  }
+
+  if (allowed !== expected) {
+    throw new Error(
+      `GOMNA_COMMENTARY_MULTILANG_ALLOWED_TARGET must be exactly "${expected}"`,
     );
   }
 }
@@ -1411,6 +1455,291 @@ async function runNarrationStage(args, plan) {
   process.exit(0);
 }
 
+function classifyAudioAction(target) {
+  const validated = validateApprovedNarrationTarget({
+    target,
+    toAbsolute,
+  });
+
+  if (!validated.ok) {
+    return {
+      action: validated.action,
+      reason: validated.reason,
+      audioId: target.audioId,
+    };
+  }
+
+  const audioAbs = toAbsolute(target.audioPath);
+  if (fs.existsSync(audioAbs)) {
+    const mp3 = validateMp3File(audioAbs);
+    if (!mp3.ok) {
+      return {
+        action: 'block_invalid_existing_mp3',
+        reason: mp3.reason,
+        audioId: target.audioId,
+      };
+    }
+
+    return {
+      action: 'skip_existing_verified',
+      reason: `existing MP3 duration=${mp3.duration} size=${mp3.byteSize}`,
+      audioId: target.audioId,
+      byteSize: mp3.byteSize,
+      duration: mp3.duration,
+      sha256: mp3.sha256,
+      validated,
+    };
+  }
+
+  return {
+    action: 'planned_generate_audio',
+    reason: 'approved narration ready; MP3 absent',
+    audioId: target.audioId,
+    validated,
+  };
+}
+
+function buildAudioPreflight(plan) {
+  const actions = [];
+  const blockers = [];
+
+  for (const target of plan.targets) {
+    const classified = classifyAudioAction(target);
+    actions.push({
+      target,
+      ...classified,
+    });
+
+    if (String(classified.action).startsWith('block_')) {
+      blockers.push(
+        `${classified.audioId}: ${classified.action} (${classified.reason})`,
+      );
+    }
+  }
+
+  const planned = actions.filter(
+    (item) => item.action === 'planned_generate_audio',
+  );
+  const skipped = actions.filter(
+    (item) => item.action === 'skip_existing_verified',
+  );
+  const hardBlockers = actions.filter((item) =>
+    String(item.action).startsWith('block_'),
+  );
+
+  return {
+    actions,
+    blockers,
+    hardBlockers,
+    planned,
+    skipped,
+    plannedTargets: planned.length,
+    skippedExistingTargets: skipped.length,
+  };
+}
+
+function printAudioPlan(plan, preflight, mode) {
+  console.log('○ Request');
+  console.log(
+    `  stage=audio mode=${mode} locales=${plan.locales.join(',')} book=${plan.bookId} chapter=${plan.chapter} verses=${plan.fromVerse}-${plan.toVerse} type=${plan.types.join(',')}`,
+  );
+  console.log('');
+  console.log('○ Locale target count');
+  console.log(`  ${plan.targetCount}`);
+  console.log('');
+  console.log('○ Audio actions');
+  for (const item of preflight.actions) {
+    console.log(
+      `  - ${item.target.locale} | ${item.target.bookId}/${item.target.chapter}/${item.target.verse} | ${item.target.type} | ${item.target.audioId} | ${item.action} | ${item.target.audioPath}`,
+    );
+  }
+  console.log('');
+  console.log('○ planned_generate_audio');
+  console.log(`  ${preflight.plannedTargets}`);
+  for (const item of preflight.planned) {
+    console.log(`  - ${item.audioId}`);
+  }
+  console.log('');
+  console.log('○ skip_existing_verified');
+  console.log(`  ${preflight.skippedExistingTargets}`);
+  for (const item of preflight.skipped) {
+    console.log(`  - ${item.audioId}`);
+  }
+  console.log('');
+  console.log('○ plannedTargets');
+  console.log(`  ${preflight.plannedTargets}`);
+  console.log('○ skippedExistingTargets');
+  console.log(`  ${preflight.skippedExistingTargets}`);
+  console.log('');
+  console.log('○ Blockers');
+  if (!preflight.blockers.length) {
+    console.log('  none');
+  } else {
+    for (const blocker of preflight.blockers) {
+      console.log(`  - ${blocker}`);
+    }
+  }
+  console.log('');
+  console.log(
+    mode === 'dry-run'
+      ? '○ Mode: audio dry-run (no API call, no writes, no directories)'
+      : '○ Mode: audio write',
+  );
+}
+
+function printAudioCounters(counters) {
+  console.log('○ API counters (current audio write execution only)');
+  console.log(`  plannedTargets=${counters.plannedTargets}`);
+  console.log(`  attemptedTargets=${counters.attemptedTargets}`);
+  console.log(`  successfulTargets=${counters.successfulTargets}`);
+  console.log(`  failedTargets=${counters.failedTargets}`);
+  console.log(`  skippedExistingTargets=${counters.skippedExistingTargets}`);
+  console.log(`  totalApiCalls=${counters.totalApiCalls}`);
+  console.log(`  retriedCalls=${counters.retriedCalls}`);
+}
+
+async function runAudioStage(args, plan) {
+  if (args.write) {
+    assertAudioWriteGuards(args);
+  }
+
+  const preflight = buildAudioPreflight(plan);
+  printAudioPlan(plan, preflight, args.write ? 'write' : 'dry-run');
+
+  if (args.dryRun) {
+    if (preflight.hardBlockers.length) {
+      console.error('○ STOP: audio preflight hard blockers present');
+      process.exit(1);
+    }
+    process.exit(0);
+  }
+
+  if (preflight.hardBlockers.length) {
+    console.error('○ STOP: aborting before API call due to unsafe audio target state');
+    process.exit(1);
+  }
+
+  const counters = createEmptyAudioCounters();
+  counters.plannedTargets = preflight.plannedTargets;
+  counters.skippedExistingTargets = preflight.skippedExistingTargets;
+
+  const results = [];
+  let apiKey = null;
+
+  for (const item of preflight.actions) {
+    if (item.action === 'skip_existing_verified') {
+      results.push({
+        audioId: item.audioId,
+        action: item.action,
+        ok: true,
+        untouched: true,
+      });
+      continue;
+    }
+
+    if (item.action !== 'planned_generate_audio') {
+      results.push({
+        audioId: item.audioId,
+        action: item.action,
+        ok: false,
+        error: item.reason,
+      });
+      continue;
+    }
+
+    // Read API key only immediately before the first real audio request.
+    if (apiKey == null) {
+      apiKey = getOpenAiApiKey();
+    }
+
+    counters.attemptedTargets += 1;
+    console.log(`○ Generating audio ${item.audioId}`);
+
+    const speech = await requestCommentaryMp3({
+      apiKey,
+      narrationText: item.validated.narrationText,
+      ttsConfig: item.validated.ttsConfig,
+      maxAttempts: 2,
+      counters,
+    });
+
+    if (!speech.ok) {
+      counters.failedTargets += 1;
+      console.error(`○ Audio generation failed: ${item.audioId}`);
+      console.error(`  ${speech.error}`);
+      results.push({
+        audioId: item.audioId,
+        action: 'audio_generation_failed',
+        ok: false,
+        error: speech.error,
+      });
+      continue;
+    }
+
+    try {
+      const published = atomicCreateMp3({
+        mp3Path: toAbsolute(item.target.audioPath),
+        audioBytes: speech.audioBytes,
+        model: speech.model,
+        voice: speech.voice,
+        voicePreset: speech.voicePreset,
+        apiAttempts: speech.attempts,
+      });
+      counters.successfulTargets += 1;
+      console.log(`○ Wrote MP3: ${item.target.audioPath}`);
+      console.log(
+        `  bytes=${published.byteSize} duration=${published.duration} sha256=${published.sha256}`,
+      );
+      results.push({
+        audioId: item.audioId,
+        action: 'created_audio',
+        ok: true,
+        audioPath: item.target.audioPath,
+        byteSize: published.byteSize,
+        duration: published.duration,
+        sha256: published.sha256,
+      });
+    } catch (error) {
+      counters.failedTargets += 1;
+      console.error(`○ Audio write failed: ${item.audioId}`);
+      console.error(`  ${error.message}`);
+      results.push({
+        audioId: item.audioId,
+        action: 'audio_write_failed',
+        ok: false,
+        error: error.message,
+      });
+    }
+  }
+
+  const created = results.filter((item) => item.action === 'created_audio');
+  const failed = results.filter((item) => !item.ok);
+  const skipped = results.filter(
+    (item) => item.action === 'skip_existing_verified',
+  );
+
+  console.log('');
+  console.log('○ Audio write summary');
+  console.log(`  skipped_existing_verified=${skipped.length}`);
+  console.log(`  created_audio=${created.length}`);
+  console.log(`  failures=${failed.length}`);
+  printAudioCounters(counters);
+  for (const item of created) {
+    console.log(
+      `  + ${item.audioId} bytes=${item.byteSize} duration=${item.duration}`,
+    );
+  }
+  for (const item of failed) {
+    console.log(`  ! ${item.audioId} ${item.action}: ${item.error}`);
+  }
+
+  if (failed.length) {
+    process.exit(1);
+  }
+
+  process.exit(0);
+}
+
 function runPlanningMode(args) {
   if (!args.dryRun) {
     console.error('○ Error: planning mode requires --dry-run');
@@ -1419,7 +1748,7 @@ function runPlanningMode(args) {
   }
 
   if (args.write) {
-    console.error('○ Error: --write requires --stage narration');
+    console.error('○ Error: --write requires --stage narration or --stage audio');
     console.error(printUsage());
     process.exit(1);
   }
@@ -1508,13 +1837,15 @@ async function main() {
     }
   }
 
-  if (args.stage && args.stage !== 'narration') {
+  if (args.stage && !ACCEPTED_STAGES.has(args.stage)) {
     console.error(`○ Error: unsupported --stage ${args.stage}`);
     process.exit(1);
   }
 
-  if (args.write && args.stage !== 'narration') {
-    console.error('○ Error: --write requires --stage narration');
+  if (args.write && !ACCEPTED_STAGES.has(args.stage)) {
+    console.error(
+      '○ Error: --write requires --stage narration or --stage audio',
+    );
     console.error(printUsage());
     process.exit(1);
   }
@@ -1531,28 +1862,37 @@ async function main() {
     process.exit(1);
   }
 
-  if (args.stage === 'narration') {
+  if (args.stage === 'narration' || args.stage === 'audio') {
     if (!args.dryRun && !args.write) {
       console.error(
-        '○ Error: --stage narration requires either --dry-run or --write',
+        `○ Error: --stage ${args.stage} requires either --dry-run or --write`,
       );
       process.exit(1);
     }
 
     if (args.types != null) {
       console.error(
-        '○ Error: --types all is rejected for the narration stage in this pilot',
+        `○ Error: --types all is rejected for the ${args.stage} stage in this pilot`,
       );
       process.exit(1);
     }
 
     if (args.type == null || String(args.type).trim() === '') {
-      console.error('○ Error: --type is required for the narration stage');
+      console.error(`○ Error: --type is required for the ${args.stage} stage`);
       process.exit(1);
     }
 
     if (args.json) {
-      console.error('○ Error: --json is not supported for --stage narration');
+      console.error(
+        `○ Error: --json is not supported for --stage ${args.stage}`,
+      );
+      process.exit(1);
+    }
+
+    if (args.stage === 'audio' && args.repairInvalidDrafts) {
+      console.error(
+        '○ Error: --repair-invalid-drafts is invalid for --stage audio',
+      );
       process.exit(1);
     }
 
@@ -1571,7 +1911,12 @@ async function main() {
       process.exit(1);
     }
 
-    await runNarrationStage(args, plan);
+    if (args.stage === 'narration') {
+      await runNarrationStage(args, plan);
+      return;
+    }
+
+    await runAudioStage(args, plan);
     return;
   }
 
