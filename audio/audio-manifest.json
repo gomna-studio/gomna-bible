@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-07-08T16:05:00.000Z",
-  "totalAudios": 23648,
+  "lastUpdated": "2026-07-22T14:39:50.976Z",
+  "totalAudios": 23650,
   "audios": {
     "genesis.001.001.bible": {
       "id": "genesis.001.001.bible",
@@ -378433,6 +378433,38 @@
       "fileSize": 0,
       "status": "published",
       "preview": "그가 아비의 마음을 자녀에게로 돌이키게 하고 자녀들의 마음을 그들의 아비에게로 돌이키게 하리라 돌이키지 아니하면 두렵건대 내가 와서 저주로 그 땅을 칠까 하노라 하시니라"
+    },
+    "genesis.001.001.original-language.en-US": {
+      "id": "genesis.001.001.original-language.en-US",
+      "book": "Genesis",
+      "bookId": "genesis",
+      "language": "en-US",
+      "chapter": 1,
+      "verse": 1,
+      "type": "original-language",
+      "typeKr": "원어분석",
+      "voicePreset": "study",
+      "filePath": "https://pub-1606395d18b84b29b95f841e5fe9e008.r2.dev/commentary/en-US/genesis/001/001/original-language-study.mp3",
+      "duration": 66,
+      "fileSize": 1056000,
+      "status": "published",
+      "preview": "The key original words in this verse are 'bereshit' and 'bara'."
+    },
+    "genesis.001.001.original-language.ja-JP": {
+      "id": "genesis.001.001.original-language.ja-JP",
+      "book": "創世記",
+      "bookId": "genesis",
+      "language": "ja-JP",
+      "chapter": 1,
+      "verse": 1,
+      "type": "original-language",
+      "typeKr": "원어분석",
+      "voicePreset": "study",
+      "filePath": "https://pub-1606395d18b84b29b95f841e5fe9e008.r2.dev/commentary/ja-JP/genesis/001/001/original-language-study.mp3",
+      "duration": 82.152,
+      "fileSize": 1314432,
+      "status": "published",
+      "preview": "この節の重要な原語は「ベレシート」と「バーラー」です。"
     }
   }
 }
