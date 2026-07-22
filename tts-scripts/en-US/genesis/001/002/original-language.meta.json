@@ -1,0 +1,41 @@
+{
+  "sourcePath": "tts-scripts/ko-KR/genesis/001/002/original-language.txt",
+  "sourceHashAlgorithm": "sha256",
+  "sourceHash": "2f99f84958a40c6665fbf2ede893e15c53a8c0dcc61bfc8c4cbb96f6665bcdf3",
+  "sourceLocale": "ko-KR",
+  "targetLocale": "en-US",
+  "status": "approved",
+  "translatedAt": "2026-07-22T21:21:18Z",
+  "bookId": "genesis",
+  "chapter": 1,
+  "verse": 2,
+  "type": "original-language",
+  "paragraphCount": 3,
+  "cardCount": 5,
+  "narrationHashAlgorithm": "sha256",
+  "narrationHash": "b4845035cf2069a5b4d4fdb7712916a8716a70a2d13cdad4b2a4618c2229ed6f",
+  "model": "gpt-4o-2024-08-06",
+  "structureValidated": true,
+  "sourceStructure": {
+    "paragraphCount": 3,
+    "lineCounts": [
+      1,
+      5,
+      1
+    ],
+    "totalLineCount": 7
+  },
+  "narrationStructure": {
+    "paragraphCount": 3,
+    "lineCounts": [
+      1,
+      5,
+      1
+    ],
+    "totalLineCount": 7
+  },
+  "repairReason": "invalid_card_line_structure",
+  "previousNarrationSha256": "7af406fdf1c26aa811c64f64f4c2213afe205b2cde9e497a86930604d7c5c2c9",
+  "reviewedAt": "2026-07-22T21:59:05Z",
+  "approvedAt": "2026-07-22T21:59:05Z"
+}
