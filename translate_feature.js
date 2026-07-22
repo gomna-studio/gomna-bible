@@ -371,7 +371,7 @@
   const WELCOME_I18N = {
     line1: [
       '은혜의말씀 안에서',
-      'In the Words of Grace,',
+      'In the Word of Grace,',
       'En las Palabras de Gracia,',
       'Nas Palavras da Graça,',
       '在恩典之言中，',
@@ -538,9 +538,17 @@
 
     // Generic UI labels
     document.querySelectorAll('[data-i18n-ui]').forEach(function (el) {
+      if (el.getAttribute('data-gomna-native-translate-owned') === '1') return;
+      if (document.documentElement.classList.contains('gomna-native-i18n-active') &&
+          (el.hasAttribute('data-i18n-key') ||
+           el.hasAttribute('data-i18n-placeholder') ||
+           el.hasAttribute('data-i18n-aria-label') ||
+           el.hasAttribute('data-i18n-title'))) {
+        return;
+      }
       const k = el.getAttribute('data-i18n-ui');
       const e = UI_LABELS[k];
-      if (e && e[idx]) el.textContent = e[idx];
+      if (e && e[idx] && (el.textContent || '') !== e[idx]) el.textContent = e[idx];
     });
 
     // Welcome message — stored in data-text so the existing typing animation
@@ -676,13 +684,13 @@
 
   const VERSE_TODAY_LABEL = {
     'ko': '오늘의 말씀',
-    'en': "Today's Word",
+    'en': 'Verse of the Day',
     'es': 'Palabra de Hoy',
     'pt': 'Palavra de Hoje',
     'zh': '今日金句', 'zh-CN': '今日金句', 'zh-TW': '今日金句',
     'fr': 'Parole du Jour',
     'de': 'Wort des Tages',
-    'ja': '今日のみことば',
+    'ja': '今日の聖句',
     'vi': 'Lời Hôm Nay',
     'hi': 'आज का वचन',
     'id': 'Firman Hari Ini',
@@ -715,13 +723,13 @@
     }
     switch (code) {
       case 'ko':                              return m + '월 ' + day + '일의 말씀';
-      case 'en':                              return 'Word for ' + fmt;
+      case 'en':                              return 'Verse for ' + fmt;
       case 'es':                              return 'Palabra para el ' + fmt;
       case 'pt':                              return 'Palavra para ' + fmt;
       case 'zh': case 'zh-CN': case 'zh-TW':  return m + '月' + day + '日的金句';
       case 'fr':                              return 'Parole pour le ' + fmt;
       case 'de':                              return 'Wort für den ' + fmt;
-      case 'ja':                              return m + '月' + day + '日のみことば';
+      case 'ja':                              return m + '月' + day + '日の聖句';
       case 'vi':                              return 'Lời cho ngày ' + day + ' tháng ' + m;
       case 'hi':                              return fmt + ' का वचन';
       case 'id':                              return 'Firman untuk ' + fmt;
@@ -742,6 +750,11 @@
   window.GomnaTranslateVerseTag = function (d, isToday, lang) {
     if (!d) return '';
     return translateVerseTag(d, lang || window.__gomnaLastLang || 'ko', !!isToday);
+  };
+
+  window.GomnaTranslateBookName = function (bookKo, lang) {
+    if (!bookKo) return bookKo;
+    return translateBookText(bookKo, lang || window.__gomnaLastLang || 'ko');
   };
 
   // Common-prefix safety: longest names first so that "예레미야애가"
@@ -798,8 +811,169 @@
     return v[2] || null;
   }
 
+  function isHomePage() {
+    return !!(document.body && document.body.getAttribute('data-gomna-page') === 'home');
+  }
+
+  function isReaderPage() {
+    try {
+      if (document.body && document.body.getAttribute('data-gomna-page') === 'reader') return true;
+      var path = String(location.pathname || '').toLowerCase();
+      return path.indexOf('reader.html') !== -1 || /(^|\/)reader\/?$/.test(path);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function getNativeHomeLanguage() {
+    try {
+      var stored = localStorage.getItem('gomna_ui_language');
+      if (stored === 'ko' || stored === 'en' || stored === 'ja') return stored;
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+
+  function isNativeHomeLanguage(lang) {
+    return lang === 'ko' || lang === 'en' || lang === 'ja';
+  }
+
+  /**
+   * Resolve home display language as one coherent state.
+   * Delegates to GomnaUII18n.resolveInitialHomeLanguage when available.
+   */
+  function resolveHomeDisplayLanguage() {
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.resolveInitialHomeLanguage === 'function') {
+      var shared = window.GomnaUII18n.resolveInitialHomeLanguage();
+      if (shared && shared.mode === 'native' && isNativeHomeLanguage(shared.lang)) {
+        return { lang: shared.lang, mode: 'native' };
+      }
+      if (shared && shared.mode === 'google' && shared.lang) {
+        return { lang: shared.lang, mode: 'google' };
+      }
+    }
+
+    try {
+      var stored = localStorage.getItem('gomna_ui_language');
+      if (isNativeHomeLanguage(stored)) {
+        return { lang: stored, mode: 'native' };
+      }
+    } catch (e) { /* ignore */ }
+
+    var cookieLang = getCurrentTargetLang();
+    if (cookieLang === 'en' || cookieLang === 'ja') {
+      try { localStorage.setItem('gomna_ui_language', cookieLang); } catch (e2) { /* ignore */ }
+      return { lang: cookieLang, mode: 'native' };
+    }
+    if (!cookieLang || cookieLang === 'ko') {
+      try { localStorage.setItem('gomna_ui_language', 'ko'); } catch (e3) { /* ignore */ }
+      return { lang: 'ko', mode: 'native' };
+    }
+    return { lang: cookieLang, mode: 'google' };
+  }
+
+  var _homeLangRestoreRaf1 = 0;
+  var _homeLangRestoreRaf2 = 0;
+  var _homeLangRestoreBound = false;
+  var _homeLangRestoreRunning = false;
+
+  function restoreHomeLanguageState(reason) {
+    if (!isHomePage()) return;
+    if (_homeLangRestoreRunning) return;
+    _homeLangRestoreRunning = true;
+    try {
+      var resolved = resolveHomeDisplayLanguage();
+      var html = document.documentElement;
+
+      // Stuck boot hides every [data-i18n-key] leaf — always clear on home restore.
+      try { html.classList.remove('gomna-ui-i18n-boot'); } catch (e0) { /* ignore */ }
+      if (window.GomnaUII18n && typeof window.GomnaUII18n.clearBoot === 'function') {
+        try { window.GomnaUII18n.clearBoot(); } catch (e1) { /* ignore */ }
+      }
+
+      if (resolved.mode === 'native') {
+        // Native home must not keep Google pending / observers alive.
+        endTranslationPending({ immediate: true });
+
+        if (resolved.lang === 'ko') clearGoogTransCookie();
+        else setGoogTransCookie(resolved.lang);
+
+        if (window.GomnaUII18n && typeof window.GomnaUII18n.apply === 'function') {
+          window.GomnaUII18n.apply(resolved.lang);
+        } else {
+          html.classList.add('gomna-native-i18n-active');
+          html.setAttribute('data-gomna-ui-lang', resolved.lang);
+        }
+
+        applyUiTextI18n(resolved.lang);
+        if (typeof window.__gomnaRefreshHomeI18n === 'function') {
+          try { window.__gomnaRefreshHomeI18n(); } catch (e2) { /* ignore */ }
+        }
+        return;
+      }
+
+      // Google fallback languages: preserve cookie/pending; never force en/ja native copy.
+      if (html.classList.contains('gomna-native-i18n-active') &&
+          window.GomnaUII18n && typeof window.GomnaUII18n.deactivate === 'function') {
+        // Only deactivate if storage was already cleared for unsupported langs.
+        try {
+          if (!getNativeHomeLanguage()) window.GomnaUII18n.deactivate();
+        } catch (e3) { /* ignore */ }
+      }
+    } finally {
+      _homeLangRestoreRunning = false;
+    }
+  }
+
+  function scheduleHomeLanguageRestore(reason) {
+    if (!isHomePage()) return;
+    if (_homeLangRestoreRaf1) {
+      cancelAnimationFrame(_homeLangRestoreRaf1);
+      _homeLangRestoreRaf1 = 0;
+    }
+    if (_homeLangRestoreRaf2) {
+      cancelAnimationFrame(_homeLangRestoreRaf2);
+      _homeLangRestoreRaf2 = 0;
+    }
+    _homeLangRestoreRaf1 = requestAnimationFrame(function () {
+      _homeLangRestoreRaf1 = 0;
+      _homeLangRestoreRaf2 = requestAnimationFrame(function () {
+        _homeLangRestoreRaf2 = 0;
+        restoreHomeLanguageState(reason || 'scheduled');
+      });
+    });
+  }
+
+  function bindHomeLanguageRestoreEvents() {
+    if (_homeLangRestoreBound) return;
+    _homeLangRestoreBound = true;
+    window.addEventListener('pageshow', function (e) {
+      if (!isHomePage()) return;
+      restoreHomeLanguageState(e && e.persisted ? 'pageshow-bfcache' : 'pageshow');
+      if (e && e.persisted) scheduleHomeLanguageRestore('pageshow-bfcache-raf');
+    });
+    window.addEventListener('popstate', function () {
+      if (!isHomePage()) return;
+      scheduleHomeLanguageRestore('popstate');
+    });
+  }
+
+  window.restoreHomeLanguageState = restoreHomeLanguageState;
+
+  function isGoogleTranslatedDom() {
+    var html = document.documentElement;
+    return !!(html && (html.classList.contains('translated-ltr') || html.classList.contains('translated-rtl')));
+  }
+
   // Resolves the "active" language code (cookie target, or "ko" if no cookie).
   function getActiveLangCode() {
+    if (isHomePage()) {
+      var native = getNativeHomeLanguage();
+      if (native) return native;
+      if (window.GomnaUII18n && typeof window.GomnaUII18n.isActive === 'function' &&
+          window.GomnaUII18n.isActive() && typeof window.GomnaUII18n.getLanguage === 'function') {
+        return window.GomnaUII18n.getLanguage() || 'ko';
+      }
+    }
     return getCurrentTargetLang() || 'ko';
   }
 
@@ -831,8 +1005,20 @@
     if (_bookLangActive === lang && _bookObserver) return; // already running
     _bookLangActive = lang;
 
+    function isInsideCommentaryPopup(node) {
+      var el = node;
+      if (!el) return false;
+      if (el.nodeType === 3) el = el.parentNode;
+      try {
+        return !!(el && el.closest && el.closest('#commentaryPopup'));
+      } catch (e) {
+        return false;
+      }
+    }
+
     function visit(node) {
       if (!node) return;
+      if (isInsideCommentaryPopup(node)) return;
       if (node.nodeType === 3) {
         const p = node.parentNode;
         if (!p) return;
@@ -843,6 +1029,7 @@
         return;
       }
       if (node.nodeType !== 1) return;
+      if (node.id === 'commentaryPopup') return;
       if (node.classList && node.classList.contains('notranslate')) return;
       if (node.getAttribute && node.getAttribute('translate') === 'no') return;
       const tag = node.tagName;
@@ -866,6 +1053,7 @@
       for (let i = 0; i < mutations.length; i++) {
         const m = mutations[i];
         if (m.type === 'characterData') {
+          if (isInsideCommentaryPopup(m.target)) continue;
           const p = m.target.parentNode;
           if (!p) continue;
           const tag = p.tagName;
@@ -873,6 +1061,7 @@
           const t = translateBookText(m.target.nodeValue, lang);
           if (t !== m.target.nodeValue) m.target.nodeValue = t;
         } else if (m.type === 'childList') {
+          if (isInsideCommentaryPopup(m.target)) continue;
           for (let j = 0; j < m.addedNodes.length; j++) visit(m.addedNodes[j]);
         }
       }
@@ -928,9 +1117,23 @@
   var _gtPendingFirstChangeMs = 0;
   var _gtPendingLastRelevantChangeMs = 0;
   var _gtPendingLastChangedCount = 0;
+  var _gtReaderBootRaf1 = 0;
+  var _gtReaderBootRaf2 = 0;
+  var _gtReaderBootFadeTimer = 0;
   var GT_PENDING_STABLE_MS = 900;
   var GT_PENDING_MIN_MS = 1200;
+  var GT_READER_STABLE_MS = 600;
+  var GT_READER_MIN_MS = 550;
+  var GT_READER_BOOT_FADE_MS = 150;
   var GT_PENDING_HANGUL_RE = /[\uAC00-\uD7A3]/;
+
+  function getPendingStableMs() {
+    return isReaderPage() ? GT_READER_STABLE_MS : GT_PENDING_STABLE_MS;
+  }
+
+  function getPendingMinMs() {
+    return isReaderPage() ? GT_READER_MIN_MS : GT_PENDING_MIN_MS;
+  }
 
   function startTranslationPending() {
     try {
@@ -945,7 +1148,60 @@
     } catch (e) { /* ignore */ }
   }
 
-  function endTranslationPending() {
+  // Reader-only: fade out beige skeleton overlay after translated DOM is painted.
+  // Safe to call multiple times; no-op on home / when boot class is absent.
+  function releaseReaderBootOverlay(opts) {
+    var immediate = !!(opts && opts.immediate);
+    try {
+      var html = document.documentElement;
+      if (!html) return;
+      var pending = html.classList.contains('gomna-reader-boot-pending') ||
+        html.classList.contains('gomna-reader-boot-leaving') ||
+        /* legacy class from earlier gate — clear if still present */
+        html.classList.contains('gt-reader-prepaint-pending');
+      if (!pending) {
+        html.removeAttribute('data-gomna-reader-target-lang');
+        return;
+      }
+      if (_gtReaderBootRaf1) {
+        cancelAnimationFrame(_gtReaderBootRaf1);
+        _gtReaderBootRaf1 = 0;
+      }
+      if (_gtReaderBootRaf2) {
+        cancelAnimationFrame(_gtReaderBootRaf2);
+        _gtReaderBootRaf2 = 0;
+      }
+      if (_gtReaderBootFadeTimer) {
+        clearTimeout(_gtReaderBootFadeTimer);
+        _gtReaderBootFadeTimer = 0;
+      }
+      function clearBoot() {
+        _gtReaderBootRaf1 = 0;
+        _gtReaderBootRaf2 = 0;
+        _gtReaderBootFadeTimer = 0;
+        try {
+          html.classList.remove('gomna-reader-boot-pending');
+          html.classList.remove('gomna-reader-boot-leaving');
+          html.classList.remove('gt-reader-prepaint-pending');
+          html.removeAttribute('data-gomna-reader-target-lang');
+        } catch (e2) { /* ignore */ }
+      }
+      if (immediate) {
+        clearBoot();
+        return;
+      }
+      _gtReaderBootRaf1 = requestAnimationFrame(function () {
+        _gtReaderBootRaf1 = 0;
+        _gtReaderBootRaf2 = requestAnimationFrame(function () {
+          _gtReaderBootRaf2 = 0;
+          try { html.classList.add('gomna-reader-boot-leaving'); } catch (e3) { /* ignore */ }
+          _gtReaderBootFadeTimer = setTimeout(clearBoot, GT_READER_BOOT_FADE_MS);
+        });
+      });
+    } catch (e) { /* ignore */ }
+  }
+
+  function endTranslationPending(opts) {
     try {
       document.documentElement.classList.remove('gt-translation-pending');
       if (window.__gomnaTranslationPendingFailsafe) {
@@ -975,6 +1231,18 @@
       _gtPendingLastChangedCount = 0;
       /* Spinner/banner often become visible the moment pending lifts — reinforce hide once. */
       try { injectWidgetHideStyles(); } catch (e2) { /* ignore */ }
+      /* Reader boot skeleton: fade out after paint (immediate for ko / no-cookie). */
+      if (isReaderPage()) {
+        var immediate = !!(opts && opts.immediate);
+        var tlNow = getCurrentTargetLang();
+        if (!hasGoogTransCookie() || !tlNow || tlNow === 'ko') immediate = true;
+        releaseReaderBootOverlay({ immediate: immediate });
+        try {
+          window.dispatchEvent(new CustomEvent('gomna:reader-translation-settled', {
+            detail: { lang: tlNow || null }
+          }));
+        } catch (e3) { /* ignore */ }
+      }
     } catch (e) { /* ignore */ }
   }
 
@@ -985,6 +1253,10 @@
       '[data-i18n-ui],[data-i18n-category],[data-i18n-cat-short],[data-i18n-cat-name],' +
       '[data-i18n-cat-foreign],[data-i18n-foreign-all],[data-i18n-testament],[data-i18n-welcome]'
     )) return true;
+    if (document.documentElement.classList.contains('gomna-native-i18n-active') &&
+        el.closest('[data-i18n-key],[data-i18n-placeholder],[data-i18n-aria-label],[data-i18n-title]')) {
+      return true;
+    }
     if (el.getAttribute && (
       el.getAttribute('translate') === 'no' ||
       el.hasAttribute('data-i18n-ui') ||
@@ -994,7 +1266,13 @@
       el.hasAttribute('data-i18n-cat-foreign') ||
       el.hasAttribute('data-i18n-foreign-all') ||
       el.hasAttribute('data-i18n-testament') ||
-      el.hasAttribute('data-i18n-welcome')
+      el.hasAttribute('data-i18n-welcome') ||
+      (document.documentElement.classList.contains('gomna-native-i18n-active') && (
+        el.hasAttribute('data-i18n-key') ||
+        el.hasAttribute('data-i18n-placeholder') ||
+        el.hasAttribute('data-i18n-aria-label') ||
+        el.hasAttribute('data-i18n-title')
+      ))
     )) return true;
     return false;
   }
@@ -1051,7 +1329,19 @@
       '.quick-item .quick-name',
       '.quick-item .quick-desc',
       '.commentary-slim-name',
-      '.commentary-slim-desc'
+      '.commentary-slim-desc',
+      /* reader.html: chrome + verse UI labels used for GT completion probes */
+      '#verseReadTitleText',
+      '#readerDockTopTitle',
+      '.scripture-dock-label',
+      '#opt4BottomPrev',
+      '#opt4BottomNext',
+      '#opt4BottomChapters',
+      '#opt4VerseListen',
+      '#opt4VerseCommentary',
+      '.home-btn',
+      '.logo-text',
+      '.verse-text'
     ];
     var out = [];
     var seen = [];
@@ -1104,12 +1394,15 @@
 
   function hasProbeThresholdMet() {
     var c = countChangedProbes();
+    /* Reader: require at least 2 probes to leave Korean source text. */
+    if (isReaderPage()) return c.changed >= 2;
     if (c.total >= 5) return c.changed >= Math.ceil(c.total / 2);
     if (c.total >= 3) return c.changed >= 3;
     return false;
   }
 
   function canCompleteWithSparseProbes() {
+    if (isReaderPage()) return false;
     var c = countChangedProbes();
     /* 1–2 probes: never finish on probe count alone; require DOM text churn + stability. */
     return c.total > 0 && c.total <= 2 && c.changed >= 1 && !!_gtPendingFirstChangeMs;
@@ -1133,7 +1426,7 @@
     var now = Date.now();
     if (!_gtPendingFirstChangeMs) _gtPendingFirstChangeMs = now;
     _gtPendingLastRelevantChangeMs = now;
-    scheduleTranslationPendingRecheck(GT_PENDING_STABLE_MS);
+    scheduleTranslationPendingRecheck(getPendingStableMs());
   }
 
   function scheduleTranslationPendingRecheck(delay) {
@@ -1144,7 +1437,7 @@
     _gtPendingStableTimer = setTimeout(function () {
       _gtPendingStableTimer = null;
       tryFinishTranslationPending();
-    }, Math.max(20, delay || GT_PENDING_STABLE_MS));
+    }, Math.max(20, delay || getPendingStableMs()));
   }
 
   function tryFinishTranslationPending() {
@@ -1155,7 +1448,7 @@
     if (!probeOk) return;
     /* Multi-wave mobile GT: keep pending while probe UI labels still contain Hangul. */
     if (probesStillHaveHangul()) {
-      scheduleTranslationPendingRecheck(GT_PENDING_STABLE_MS);
+      scheduleTranslationPendingRecheck(getPendingStableMs());
       return;
     }
     if (!_gtPendingFirstChangeMs) return;
@@ -1163,12 +1456,14 @@
     var now = Date.now();
     var sinceFirst = now - _gtPendingFirstChangeMs;
     var sinceLast = now - (_gtPendingLastRelevantChangeMs || _gtPendingFirstChangeMs);
-    if (sinceFirst < GT_PENDING_MIN_MS) {
-      scheduleTranslationPendingRecheck(GT_PENDING_MIN_MS - sinceFirst + 20);
+    var minMs = getPendingMinMs();
+    var stableMs = getPendingStableMs();
+    if (sinceFirst < minMs) {
+      scheduleTranslationPendingRecheck(minMs - sinceFirst + 20);
       return;
     }
-    if (sinceLast < GT_PENDING_STABLE_MS) {
-      scheduleTranslationPendingRecheck(GT_PENDING_STABLE_MS - sinceLast + 20);
+    if (sinceLast < stableMs) {
+      scheduleTranslationPendingRecheck(stableMs - sinceLast + 20);
       return;
     }
 
@@ -1177,7 +1472,7 @@
       _gtPendingRaf2 = requestAnimationFrame(function () {
         _gtPendingRaf2 = 0;
         if (probesStillHaveHangul()) {
-          scheduleTranslationPendingRecheck(GT_PENDING_STABLE_MS);
+          scheduleTranslationPendingRecheck(getPendingStableMs());
           return;
         }
         endTranslationPending();
@@ -1216,7 +1511,27 @@
     return false;
   }
 
+  function maybeRefreshReaderVerseBaselines() {
+    if (!isReaderPage() || !_gtPendingBaselines) return;
+    var verses = document.querySelectorAll('.verse-text');
+    if (!verses.length) return;
+    var hasVerseBaseline = false;
+    for (var i = 0; i < _gtPendingBaselines.length; i++) {
+      var el = _gtPendingBaselines[i] && _gtPendingBaselines[i].el;
+      if (el && el.classList && el.classList.contains('verse-text')) {
+        hasVerseBaseline = true;
+        break;
+      }
+    }
+    if (!hasVerseBaseline) {
+      _gtPendingBaselines = captureTranslationBaselines();
+      var initial = countChangedProbes();
+      _gtPendingLastChangedCount = initial.changed;
+    }
+  }
+
   function onTranslationPendingMutations(mutations) {
+    maybeRefreshReaderVerseBaselines();
     var contentChanged = mutationHasRelevantTextChange(mutations);
     var probe = countChangedProbes();
     var probeIncreased = probe.changed > _gtPendingLastChangedCount;
@@ -1241,7 +1556,9 @@
         attributes: true,
         attributeFilter: ['class']
       });
-      var root = document.querySelector('.container') || document.body;
+      var root = document.querySelector('.container') ||
+        document.querySelector('.phone-frame') ||
+        document.body;
       if (root) {
         _gtPendingObserver.observe(root, {
           childList: true,
@@ -1383,20 +1700,54 @@
     if (!country) return;
     saveRecent(country[0]);
 
-    const currentLang = getCurrentTargetLang();
+    const nextLang = country[3];
+    const currentLang = getActiveLangCode();
+    const homeNative = isHomePage() && isNativeHomeLanguage(nextLang);
 
-    // No-op: same language already active.
-    if (currentLang === country[3]) {
+    // No-op: same language already active (unless cleaning a Google-translated DOM).
+    if (currentLang === nextLang && !(homeNative && isGoogleTranslatedDom())) {
       closeModal();
       return;
     }
 
     if (window.GomnaAnalytics) {
-      GomnaAnalytics.trackChangeTranslation(currentLang || 'ko', country[3]);
+      GomnaAnalytics.trackChangeTranslation(currentLang || 'ko', nextLang);
+    }
+
+    // Home ko/en/ja: instant native UI swap (no pending / no Google widget).
+    if (homeNative) {
+      try { localStorage.setItem('gomna_ui_language', nextLang); } catch (e) { /* ignore */ }
+      if (nextLang === 'ko') clearGoogTransCookie();
+      else setGoogTransCookie(nextLang);
+      closeModal();
+
+      // Leaving a Google-translated DOM for native mode needs one cleanup reload.
+      if (isGoogleTranslatedDom()) {
+        location.reload();
+        return;
+      }
+
+      if (window.GomnaUII18n && typeof window.GomnaUII18n.setLanguage === 'function') {
+        window.GomnaUII18n.setLanguage(nextLang);
+      }
+      applyUiTextI18n(nextLang);
+      if (typeof window.__gomnaRefreshHomeI18n === 'function') {
+        try { window.__gomnaRefreshHomeI18n(); } catch (e2) { /* ignore */ }
+      }
+      endTranslationPending();
+      return;
+    }
+
+    // Home + unsupported language: drop native mode, use Google Translate path.
+    if (isHomePage()) {
+      try { localStorage.removeItem('gomna_ui_language'); } catch (e3) { /* ignore */ }
+      if (window.GomnaUII18n && typeof window.GomnaUII18n.deactivate === 'function') {
+        window.GomnaUII18n.deactivate();
+      }
     }
 
     // Korean = source language → undo translation.
-    if (country[3] === 'ko') {
+    if (nextLang === 'ko') {
       clearGoogTransCookie();
       closeModal();
       showToast('🌐 한국어로 복원 중... · Restoring Korean...');
@@ -1411,7 +1762,7 @@
     // retranslate an already-translated DOM (e.g. ENG → ESP), so reload
     // is required to go from any source → any target.
     startTranslationPending();
-    setGoogTransCookie(country[3]);
+    setGoogTransCookie(nextLang);
     closeModal();
     showToast('🌐 ' + country[1] + ' · ' + country[4] + ' 적용 중...');
     setTimeout(function () { location.reload(); }, 250);
@@ -1657,6 +2008,10 @@
     }).join('');
   }
 
+  var _gtModalDelegatesBound = false;
+  var _gtModalEscapeBound = false;
+  var _gtModalOpener = null;
+
   function injectModal() {
     if (document.getElementById('gtModal')) return;
     const modal = document.createElement('div');
@@ -1664,6 +2019,7 @@
     modal.className = 'gt-modal';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-hidden', 'true');
     modal.setAttribute('aria-label', '언어 선택');
     modal.innerHTML =
       '<div class="gt-sheet">' +
@@ -1676,12 +2032,31 @@
       '</div>';
     document.body.appendChild(modal);
 
-    modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
-    modal.querySelector('.gt-close').addEventListener('click', closeModal);
+    if (!_gtModalDelegatesBound) {
+      _gtModalDelegatesBound = true;
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) {
+          closeModal();
+          return;
+        }
+        const closeBtn = e.target.closest && e.target.closest('.gt-close');
+        if (closeBtn && modal.contains(closeBtn)) {
+          closeModal();
+          return;
+        }
+        const item = e.target.closest && e.target.closest('[data-code]');
+        if (!item || !modal.contains(item)) return;
+        const c = findByCode(item.getAttribute('data-code'));
+        if (c) applyLanguage(c);
+      });
+    }
 
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
-    });
+    if (!_gtModalEscapeBound) {
+      _gtModalEscapeBound = true;
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
+      });
+    }
   }
 
   function openModal() {
@@ -1690,19 +2065,17 @@
     const body = modal.querySelector('.gt-body');
     body.innerHTML = renderBody();
 
-    body.addEventListener('click', function (e) {
-      const item = e.target.closest('[data-code]');
-      if (!item) return;
-      const c = findByCode(item.getAttribute('data-code'));
-      if (c) applyLanguage(c);
-    });
-
-    const input = document.getElementById('gtSearchInput');
-    if (input) {
-      input.addEventListener('input', function (e) { renderResults(e.target.value); });
+    if (body.getAttribute('data-gt-search-delegate') !== '1') {
+      body.setAttribute('data-gt-search-delegate', '1');
+      body.addEventListener('input', function (e) {
+        if (e.target && e.target.id === 'gtSearchInput') renderResults(e.target.value);
+      });
     }
 
+    const input = document.getElementById('gtSearchInput');
+    _gtModalOpener = document.activeElement;
     modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
     setTimeout(function () { if (input && window.matchMedia('(min-width:481px)').matches) input.focus(); }, 250);
   }
@@ -1710,8 +2083,23 @@
   function closeModal() {
     const modal = document.getElementById('gtModal');
     if (!modal) return;
+    // Pure dismiss: never clear language storage, googtrans, Google state, or reload.
     modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    var opener = _gtModalOpener;
+    _gtModalOpener = null;
+    if (opener && typeof opener.focus === 'function' && document.contains(opener)) {
+      try { opener.focus(); } catch (e) { /* ignore */ }
+    } else {
+      var gtBtn = document.querySelector('.gt-btn');
+      if (gtBtn && typeof gtBtn.focus === 'function') {
+        try { gtBtn.focus(); } catch (e2) { /* ignore */ }
+      }
+    }
+    if (isHomePage()) {
+      restoreHomeLanguageState('language-modal-close');
+    }
   }
 
   // ------------------------------------------------------------------
@@ -1753,6 +2141,7 @@
   function init() {
     injectStyles();
     injectModal();
+    bindHomeLanguageRestoreEvents();
     if (!injectButtons()) {
       // Header may render later — retry briefly.
       let tries = 0;
@@ -1761,6 +2150,16 @@
         if (injectButtons() || tries > 20) clearInterval(t);
       }, 150);
     }
+
+    // Home native ko/en/ja: apply local bundle only — no Google widget / pending.
+    if (isHomePage()) {
+      var homeResolved = resolveHomeDisplayLanguage();
+      if (homeResolved.mode === 'native' && isNativeHomeLanguage(homeResolved.lang)) {
+        restoreHomeLanguageState('init');
+        return;
+      }
+    }
+
     // Apply curated UI text (categories, welcome message) for the current
     // language — runs both for Korean (default) and translated pages.
     const tl = hasGoogTransCookie() ? getCurrentTargetLang() : null;
@@ -1770,16 +2169,29 @@
     // is still set — load the widget so the page is auto-translated.
     if (hasGoogTransCookie()) {
       ensureTranslateWidget();
-      if (document.documentElement.classList.contains('gt-translation-pending')) {
-        // Re-arm failsafe so observer/timers are cleaned on timeout (not only class remove).
-        if (window.__gomnaTranslationPendingFailsafe) {
-          clearTimeout(window.__gomnaTranslationPendingFailsafe);
-          window.__gomnaTranslationPendingFailsafe = null;
+      var needsPending = document.documentElement.classList.contains('gt-translation-pending') ||
+        (isReaderPage() && tl && tl !== 'ko') ||
+        (isReaderPage() && (
+          document.documentElement.classList.contains('gomna-reader-boot-pending') ||
+          document.documentElement.classList.contains('gt-reader-prepaint-pending')
+        ));
+      if (needsPending) {
+        if (!document.documentElement.classList.contains('gt-translation-pending')) {
+          startTranslationPending();
+        } else {
+          // Re-arm failsafe so observer/timers are cleaned on timeout (not only class remove).
+          if (window.__gomnaTranslationPendingFailsafe) {
+            clearTimeout(window.__gomnaTranslationPendingFailsafe);
+            window.__gomnaTranslationPendingFailsafe = null;
+          }
+          window.__gomnaTranslationPendingFailsafe = setTimeout(function () {
+            endTranslationPending();
+          }, 6000);
         }
-        window.__gomnaTranslationPendingFailsafe = setTimeout(function () {
-          endTranslationPending();
-        }, 6000);
         watchTranslationPendingComplete();
+      } else if (isReaderPage()) {
+        // ko / no target: never keep reader boot skeleton visible.
+        releaseReaderBootOverlay({ immediate: true });
       }
       if (tl && BOOK_LANG_IDX[tl]) {
         // Wait briefly for the widget to perform its initial pass so our
@@ -1790,7 +2202,20 @@
         setTimeout(function () { applyUiTextI18n(tl); }, 1400);
       }
     } else {
-      endTranslationPending();
+      endTranslationPending({ immediate: true });
+    }
+
+    // bfcache / back-forward: only force-reveal for Korean / no googtrans.
+    // Do NOT release on translated-* alone — GT may still be mid-pass.
+    if (isReaderPage()) {
+      window.addEventListener('pageshow', function () {
+        try {
+          var tlPs = getCurrentTargetLang();
+          if (!hasGoogTransCookie() || !tlPs || tlPs === 'ko') {
+            releaseReaderBootOverlay({ immediate: true });
+          }
+        } catch (e) { /* ignore */ }
+      });
     }
   }
 

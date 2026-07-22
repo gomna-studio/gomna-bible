@@ -6,7 +6,8 @@
   if (!location.search) return;
   try {
     var p = new URLSearchParams(location.search);
-    // reader로 넘겨야 하는 실제 진입 쿼리만 전달. ?v= 캐시버스트는 홈에 남긴다.
+    // reader로 넘겨야 하는 실제 진입 쿼리만 전달.
+    // source=pwa / v= 캐시버스트 / 홈 전용 쿼리는 홈에 남긴다.
     var forward = ['book', 'chapter', 'testament', 'easy', 'favorites', 'q', 'focus', 'dockPreview'];
     var shouldForward = forward.some(function (k) { return p.has(k); });
     if (shouldForward) location.replace('reader.html' + location.search);
@@ -17,13 +18,73 @@
 <script>
 (function () {
   try {
-    var m = (document.cookie || '').match(/(?:^|;\s*)googtrans=([^;]+)/);
-    if (!m) return;
-    var raw = decodeURIComponent(m[1]);
-    var parts = String(raw || '').split('/');
-    var targetLang = parts[2] || '';
-    if (!targetLang || targetLang === 'ko') return;
-    window.__gomnaInitialTranslateTarget = targetLang;
+    var html = document.documentElement;
+    var STORAGE_KEY = 'gomna_ui_language';
+
+    function clearIncompleteGoogTrans() {
+      try {
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=' + location.hostname;
+      } catch (eClear) { /* ignore */ }
+    }
+
+    function readGoogTransTarget() {
+      try {
+        var m = (document.cookie || '').match(/(?:^|;\s*)googtrans=([^;]+)/);
+        if (!m) return '';
+        var raw = decodeURIComponent(m[1] || '');
+        var parts = String(raw || '').split('/');
+        var target = parts[2] || '';
+        if (!target || target === 'null' || target === 'undefined') {
+          clearIncompleteGoogTrans();
+          return '';
+        }
+        return target;
+      } catch (eRead) {
+        return '';
+      }
+    }
+
+    // First-paint language gate (mirrors GomnaUII18n.resolveInitialHomeLanguage).
+    // 1) explicit localStorage ko/en/ja
+    // 2) clear googtrans en/ja (or other Google langs)
+    // 3) otherwise default ko and persist
+    var stored = null;
+    try {
+      var s = localStorage.getItem(STORAGE_KEY);
+      if (s === 'ko' || s === 'en' || s === 'ja') stored = s;
+    } catch (e0) {}
+
+    var targetLang = readGoogTransTarget();
+    var native = stored;
+    var googleTarget = null;
+
+    if (!native) {
+      if (targetLang === 'en' || targetLang === 'ja') {
+        native = targetLang;
+        try { localStorage.setItem(STORAGE_KEY, native); } catch (e1) { /* ignore */ }
+      } else if (!targetLang || targetLang === 'ko') {
+        native = 'ko';
+        try { localStorage.setItem(STORAGE_KEY, 'ko'); } catch (e2) { /* ignore */ }
+        if (targetLang === 'ko') clearIncompleteGoogTrans();
+      } else {
+        googleTarget = targetLang;
+      }
+    }
+
+    if (native) {
+      window.__gomnaInitialNativeUiLang = native;
+      html.setAttribute('data-gomna-ui-lang', native);
+      html.lang = native === 'ja' ? 'ja' : (native === 'en' ? 'en' : 'ko');
+      html.classList.remove('gt-translation-pending', 'translated-ltr', 'translated-rtl');
+      // ko source DOM is already Korean — do not hide it behind boot.
+      // en/ja hide Korean leaves until native apply finishes.
+      if (native !== 'ko') html.classList.add('gomna-ui-i18n-boot');
+      return;
+    }
+
+    if (!googleTarget) return;
+    window.__gomnaInitialTranslateTarget = googleTarget;
     document.documentElement.classList.add('gt-translation-pending');
     if (window.__gomnaTranslationPendingFailsafe) {
       clearTimeout(window.__gomnaTranslationPendingFailsafe);
@@ -35,6 +96,10 @@
   } catch (e) {}
 })();
 </script>
+<style id="gomna-ui-i18n-boot-css">
+html.gomna-ui-i18n-boot [data-i18n-key]:not(img){visibility:hidden}
+</style>
+<script src="js/gomna-ui-i18n.js?v=20260722-home-ko-default-v1"></script>
 <style id="gt-translation-pending-css">
 html.gt-translation-pending,
 html.gt-translation-pending body{
@@ -100,10 +165,10 @@ html.gt-translation-pending body::after{
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="은혜의말씀">
 <meta name="twitter:description" content="개역한글 성경 주석 앱">
-<link rel="manifest" href="manifest.json?v=20260603-01">
+<link rel="manifest" href="manifest.json?v=20260722-home-ko-default-v1">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <script>
-window.GOMNA_ASSET_VERSION = "20260712-easyfind-direct-v3";
+window.GOMNA_ASSET_VERSION = "20260722-home-ko-default-v1";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -218,6 +283,53 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 .card-name,.name{font-size:12px;font-weight:600;letter-spacing:-0.24px;line-height:1.2;color:#2a1c0c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-desc,.desc{font-size:9.5px;font-weight:500;color:#8a6332;margin-top:1px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-arrow{color:#a87a35;font-weight:600}
+/* en/ja: show full card titles (no ellipsis); keep 3-col layout & KO sizes unchanged */
+html[data-gomna-ui-lang="en"] .cards .card-label,
+html[data-gomna-ui-lang="ja"] .cards .card-label{
+  min-height:3.55em;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-items:center;
+  box-sizing:border-box;
+}
+html[data-gomna-ui-lang="en"] .cards .card-name,
+html[data-gomna-ui-lang="ja"] .cards .card-name{
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+  word-break:normal;
+  overflow-wrap:break-word;
+  line-height:1.22;
+  letter-spacing:-.35px;
+  max-width:100%;
+  min-height:2.44em;
+}
+html[data-gomna-ui-lang="en"] .cards .card-desc,
+html[data-gomna-ui-lang="ja"] .cards .card-desc{
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+  word-break:normal;
+  overflow-wrap:break-word;
+  line-height:1.22;
+  max-width:100%;
+  min-height:2.5em;
+}
+html[data-gomna-ui-lang="en"] .cards .card-name{font-size:10.5px}
+html[data-gomna-ui-lang="ja"] .cards .card-name{font-size:11px}
+html[data-gomna-ui-lang="en"] .cards .card-desc{font-size:8.5px}
+html[data-gomna-ui-lang="ja"] .cards .card-desc{font-size:9px}
+html[data-gomna-ui-lang="en"] .quick-desc,
+html[data-gomna-ui-lang="ja"] .quick-desc{
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+  line-height:1.2;
+  max-width:100%;
+}
+html[data-gomna-ui-lang="en"] .quick-desc{font-size:8px;letter-spacing:-.35px}
+html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .card-search-icon{width:30px;height:30px;border-radius:6px;background:linear-gradient(135deg,#F2E4C4,#E8D4A8);border:1px solid rgba(180,140,90,.28);display:flex;align-items:center;justify-content:center;box-shadow:none}
 .card-search-icon svg{width:15px;height:15px;stroke:#7a5828;fill:none;stroke-width:2.2}
 .search{background:var(--gm-card-bg);border-radius:var(--gm-radius-card);padding:7px 8px 7px 14px;display:flex;align-items:center;color:#888;font-size:13px;margin-bottom:4px;border:var(--gm-card-border-slim);box-shadow:var(--gm-card-shadow);width:100%;font-family:inherit;text-align:left;transition:background .22s ease}
@@ -613,21 +725,21 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 })();
 </script>
 </head>
-<body>
+<body data-gomna-page="home">
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
 <div class="container">
-  <div class="greeting" id="greeting">— 좋은 아침입니다 —</div>
+  <div class="greeting" id="greeting" data-i18n-key="home.greeting.morning">— 좋은 아침입니다 —</div>
   <div class="header">
-    <img src="logo-home.png?v=1" alt="은혜의말씀" class="logo-img">
+    <img src="logo-home.png?v=1" alt="은혜의말씀" class="logo-img" data-i18n-key="brand.logoAlt">
     <div class="title-block">
-      <div class="title">은혜의말씀</div>
-      <div class="sub">Holy Bible · Korean Revised</div>
+      <div class="title" data-i18n-key="brand.title">은혜의말씀</div>
+      <div class="sub" data-i18n-key="brand.subtitle">Holy Bible · Korean Revised</div>
     </div>
-    <button class="settings-btn" onclick="openSettings()" title="설정" aria-label="설정">
+    <button class="settings-btn" onclick="openSettings()" title="설정" aria-label="설정" data-i18n-title="settings.openAria" data-i18n-aria-label="settings.openAria">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     </button>
   </div>
-  <button type="button" class="continue-card" id="continueCard" onclick="openContinueRead()" aria-label="이어서 읽기">
+  <button type="button" class="continue-card" id="continueCard" onclick="openContinueRead()" aria-label="이어서 읽기" data-i18n-aria-label="home.continue.aria">
     <div class="continue-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M9 7h7M9 11h5"/></svg></div>
     <div class="continue-info">
       <div class="continue-label" id="continueLabel">처음부터 성경 읽기</div>
@@ -644,7 +756,7 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
       <div class="verse-card-shade" aria-hidden="true"></div>
     </div>
     <div class="verse-card-verse-layer" aria-hidden="true">
-      <div class="verse-tag" id="verse-tag">오늘의 말씀</div>
+      <div class="verse-tag" id="verse-tag" data-i18n-key="home.todayWord.tag">오늘의 말씀</div>
       <div class="verse-center">
         <div class="verse-text" id="verse-text">"수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라"</div>
         <div class="verse-ref" id="verse-ref">— 마태복음 11:28</div>
@@ -652,88 +764,88 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
     </div>
     <div class="verse-card-controls">
       <div class="verse-head-btns">
-        <button type="button" class="verse-today-btn" id="verseTodayBtn" onclick="resetVerseToToday()" style="display:none" data-i18n-ui="verse_back_today" translate="no">오늘로 돌아가기</button>
-        <button type="button" class="verse-date-btn" onclick="openVerseDatePicker()" aria-label="다른 날짜 보기">
+        <button type="button" class="verse-today-btn" id="verseTodayBtn" onclick="resetVerseToToday()" style="display:none" data-i18n-ui="verse_back_today" data-i18n-key="home.todayWord.backToday" translate="no">오늘로 돌아가기</button>
+        <button type="button" class="verse-date-btn" onclick="openVerseDatePicker()" aria-label="다른 날짜 보기" data-i18n-aria-label="home.todayWord.otherDate">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span data-i18n-ui="verse_view_other" translate="no">다른 날짜 보기</span>
+          <span data-i18n-ui="verse_view_other" data-i18n-key="home.todayWord.otherDate" translate="no">다른 날짜 보기</span>
         </button>
       </div>
       <div class="verse-footer">
         <div class="verse-open-row">
-          <button type="button" class="gm-btn-today-open" onclick="openDailyVerse('read')" aria-label="오늘의 말씀 묵상하기">오늘의 말씀 묵상하기</button>
-          <span class="verse-open-note" aria-hidden="true">오늘 말씀 기준으로 읽고 묵상하기</span>
+          <button type="button" class="gm-btn-today-open" onclick="openDailyVerse('read')" aria-label="오늘의 말씀 묵상하기" data-i18n-key="home.todayWord.open" data-i18n-aria-label="home.todayWord.open">오늘의 말씀 묵상하기</button>
+          <span class="verse-open-note" aria-hidden="true" data-i18n-key="home.todayWord.openNote">오늘 말씀 기준으로 읽고 묵상하기</span>
         </div>
       </div>
     </div>
   </div>
   <div class="quick-menu">
-    <button type="button" class="quick-item" onclick="location.href='reader.html'" aria-label="성경읽기">
+    <button type="button" class="quick-item" onclick="location.href='reader.html'" aria-label="성경읽기" data-i18n-aria-label="home.quick.read">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h7a3 3 0 013 3v13a2.5 2.5 0 00-2.5-2.5H2z"/><path d="M22 4h-7a3 3 0 00-3 3v13a2.5 2.5 0 012.5-2.5H22z"/></svg>
-      <span class="quick-name">성경읽기</span><span class="quick-desc">책·장·절로</span>
+      <span class="quick-name" data-i18n-key="home.quick.read">성경읽기</span><span class="quick-desc" data-i18n-key="home.quick.readDesc">책·장·절로</span>
     </button>
-    <button type="button" class="quick-item" onclick="location.href='reader.html?book=%EC%B0%BD%EC%84%B8%EA%B8%B0&chapter=1'" aria-label="오디오">
+    <button type="button" class="quick-item" onclick="location.href='reader.html?book=%EC%B0%BD%EC%84%B8%EA%B8%B0&chapter=1'" aria-label="오디오" data-i18n-aria-label="home.quick.audio">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-      <span class="quick-name">오디오</span><span class="quick-desc">듣고 묵상하기</span>
+      <span class="quick-name" data-i18n-key="home.quick.audio">오디오</span><span class="quick-desc" data-i18n-key="home.quick.audioDesc">듣고 묵상하기</span>
     </button>
-    <button type="button" class="quick-item" onclick="scrollToTopics()" aria-label="주제별">
+    <button type="button" class="quick-item" onclick="scrollToTopics()" aria-label="주제별" data-i18n-aria-label="home.quick.topics">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-      <span class="quick-name">주제별</span><span class="quick-desc">말씀 찾아보기</span>
+      <span class="quick-name" data-i18n-key="home.quick.topics">주제별</span><span class="quick-desc" data-i18n-key="home.quick.topicsDesc">말씀 찾아보기</span>
     </button>
-    <button type="button" class="quick-item" onclick="location.href='reader.html?favorites'" aria-label="보관함">
+    <button type="button" class="quick-item" onclick="location.href='reader.html?favorites'" aria-label="보관함" data-i18n-aria-label="home.quick.archive">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
-      <span class="quick-name">보관함</span><span class="quick-desc">저장한 말씀</span>
+      <span class="quick-name" data-i18n-key="home.quick.archive">보관함</span><span class="quick-desc" data-i18n-key="home.quick.archiveDesc">저장한 말씀</span>
     </button>
   </div>
-  <button type="button" class="commentary-slim-card" onclick="openMainCommentaryListen()" aria-label="말씀풀이 듣기, 오디오 확장버젼 준비중">
+  <button type="button" class="commentary-slim-card" onclick="openMainCommentaryListen()" aria-label="말씀풀이 듣기, 오디오 확장버젼 준비중" data-i18n-aria-label="home.commentary.title">
     <div class="commentary-slim-icon" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M9 7h7M9 11h5"/></svg>
     </div>
     <div class="commentary-slim-info">
       <div class="commentary-slim-title-row">
-        <span class="commentary-slim-name">말씀풀이 듣기</span>
-        <span class="audio-pending-badge">오디오 확장버젼 준비중</span>
+        <span class="commentary-slim-name" data-i18n-key="home.commentary.title">말씀풀이 듣기</span>
+        <span class="audio-pending-badge" data-i18n-key="home.commentary.badge">오디오 확장버젼 준비중</span>
       </div>
-      <div class="commentary-slim-desc">원어·역사·신학·교차참조 9개 표</div>
+      <div class="commentary-slim-desc" data-i18n-key="home.commentary.desc">원어·역사·신학·교차참조 9개 표</div>
     </div>
     <span class="commentary-slim-arrow" aria-hidden="true">›</span>
   </button>
   <div class="cards">
-    <button type="button" class="card old" onclick="openBible('old')" ontouchstart="" aria-label="구약 39권 장·절로 읽기">
+    <button type="button" class="card old" onclick="openBible('old')" ontouchstart="" aria-label="구약 39권 장·절로 읽기" data-i18n-aria-label="home.oldTestament.title">
       <div class="card-visual">
         <div class="book" id="book-old">
           <img class="home-bible-cover" src="images/home/bible-old.png" alt="" aria-hidden="true" decoding="async">
         </div>
       </div>
-      <div class="card-label"><div class="card-name">구약 39권</div><div class="card-desc">장·절로 읽기 <span class="card-arrow">›</span></div></div>
+      <div class="card-label"><div class="card-name" data-i18n-key="home.oldTestament.title">구약 39권</div><div class="card-desc" data-i18n-key="home.testament.readByChapter">장·절로 읽기 <span class="card-arrow">›</span></div></div>
     </button>
-    <button type="button" class="card new" onclick="openBible('new')" ontouchstart="" aria-label="신약 27권 장·절로 읽기">
+    <button type="button" class="card new" onclick="openBible('new')" ontouchstart="" aria-label="신약 27권 장·절로 읽기" data-i18n-aria-label="home.newTestament.title">
       <div class="card-visual">
         <div class="book" id="book-new">
           <img class="home-bible-cover" src="images/home/bible-new.png" alt="" aria-hidden="true" decoding="async">
         </div>
       </div>
-      <div class="card-label"><div class="card-name">신약 27권</div><div class="card-desc">장·절로 읽기 <span class="card-arrow">›</span></div></div>
+      <div class="card-label"><div class="card-name" data-i18n-key="home.newTestament.title">신약 27권</div><div class="card-desc" data-i18n-key="home.testament.readByChapter">장·절로 읽기 <span class="card-arrow">›</span></div></div>
     </button>
-    <a class="card easy" id="homeEasyFindBtn" href="./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3" role="link" aria-label="말씀 바로찾기 분류별로 찾기">
+    <a class="card easy" id="homeEasyFindBtn" href="./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3" role="link" aria-label="말씀 바로찾기 분류별로 찾기" data-i18n-aria-label="home.easyFind.title">
       <div class="card-visual">
         <div class="card-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
       </div>
-      <div class="card-label"><div class="card-name" data-i18n-ui="find_word" translate="no">말씀 바로찾기</div><div class="card-desc">분류별로 찾기 <span class="card-arrow">›</span></div></div>
+      <div class="card-label"><div class="card-name" data-i18n-ui="find_word" data-i18n-key="home.easyFind.title" translate="no">말씀 바로찾기</div><div class="card-desc" data-i18n-key="home.easyFind.desc">분류별로 찾기 <span class="card-arrow">›</span></div></div>
     </a>
   </div>
   <div class="search-shell" id="homeSearchShell">
   <form class="search" id="homeSearchForm" onsubmit="submitSearch(event)" onclick="activateSearch()">
-    <input id="homeSearchInput" class="search-input" type="search" placeholder="성경 말씀 찾기 (예: 사랑, 믿음, 로마서 8장)" aria-label="성경 검색어 입력" autocomplete="off">
-    <button type="submit" class="search-icon search-submit" aria-label="검색 실행"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+    <input id="homeSearchInput" class="search-input" type="search" placeholder="성경 말씀 찾기 (예: 사랑, 믿음, 로마서 8장)" aria-label="성경 검색어 입력" autocomplete="off" data-i18n-placeholder="search.placeholder.home" data-i18n-aria-label="search.inputAria">
+    <button type="submit" class="search-icon search-submit" aria-label="검색 실행" data-i18n-aria-label="search.submitAria"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
   </form>
-  <div class="search-inline-topics" id="searchInlineTopics" aria-label="검색창 안 주제별 검색">
-    <button type="button" class="search-inline-chip" onclick="topic('사랑')">#사랑</button>
-    <button type="button" class="search-inline-chip" onclick="topic('믿음')">#믿음</button>
-    <button type="button" class="search-inline-chip" onclick="topic('소망')">#소망</button>
-    <button type="button" class="search-inline-chip" onclick="topic('평안')">#평안</button>
-    <button type="button" class="search-inline-chip" onclick="topic('위로')">#위로</button>
-    <button type="button" class="search-inline-chip" onclick="topic('감사')">#감사</button>
-    <button type="button" class="search-inline-chip" onclick="topic('기도')">#기도</button>
+  <div class="search-inline-topics" id="searchInlineTopics" aria-label="검색창 안 주제별 검색" data-i18n-aria-label="search.topicsAria">
+    <button type="button" class="search-inline-chip" onclick="topic('사랑')" data-i18n-key="search.chip.love">#사랑</button>
+    <button type="button" class="search-inline-chip" onclick="topic('믿음')" data-i18n-key="search.chip.faith">#믿음</button>
+    <button type="button" class="search-inline-chip" onclick="topic('소망')" data-i18n-key="search.chip.hope">#소망</button>
+    <button type="button" class="search-inline-chip" onclick="topic('평안')" data-i18n-key="search.chip.peace">#평안</button>
+    <button type="button" class="search-inline-chip" onclick="topic('위로')" data-i18n-key="search.chip.comfort">#위로</button>
+    <button type="button" class="search-inline-chip" onclick="topic('감사')" data-i18n-key="search.chip.gratitude">#감사</button>
+    <button type="button" class="search-inline-chip" onclick="topic('기도')" data-i18n-key="search.chip.prayer">#기도</button>
   </div>
   </div>
   <div class="imprint-bottom">
@@ -744,11 +856,11 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
   <div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-handle"></div>
     <div class="sheet-tabs">
-      <button class="tab" data-tab="old" onclick="switchTab('old')">구약</button>
-      <button class="tab" data-tab="new" onclick="switchTab('new')">신약</button>
-      <button class="tab" data-tab="easy" type="button" onclick="window.location.assign('./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3')">쉬운찾기</button>
-      <button class="tab" data-tab="bookmark" onclick="switchTab('bookmark')">내 보관함</button>
-      <button class="tab home-tab" onclick="closeSheet()">← 홈으로</button>
+      <button class="tab" data-tab="old" onclick="switchTab('old')" data-i18n-key="home.sheet.oldTestament">구약</button>
+      <button class="tab" data-tab="new" onclick="switchTab('new')" data-i18n-key="home.sheet.newTestament">신약</button>
+      <button class="tab" data-tab="easy" type="button" onclick="window.location.assign('./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3')" data-i18n-key="home.sheet.easyFind">쉬운찾기</button>
+      <button class="tab" data-tab="bookmark" onclick="switchTab('bookmark')" data-i18n-key="home.sheet.archive">내 보관함</button>
+      <button class="tab home-tab" onclick="closeSheet()" data-i18n-key="common.home">← 홈으로</button>
       <button class="sheet-close" onclick="closeSheet()">✕</button>
     </div>
     <div class="sheet-body" id="sheet-body"></div>
@@ -757,33 +869,33 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 <div class="toast" id="toast"></div>
 <div class="popup-overlay" id="settingsPopup">
   <div class="popup-box">
-    <div class="popup-title">⚙️ 글자 크기 설정</div>
+    <div class="popup-title" data-i18n-key="settings.fontSize">⚙️ 글자 크기 설정</div>
     <div class="font-control">
       <button class="font-btn" onclick="changeFont(-1)">−</button>
       <span class="font-size-display" id="fontDisplay">17px</span>
       <button class="font-btn" onclick="changeFont(1)">+</button>
     </div>
-    <button class="popup-close" onclick="closeSettings()">닫기</button>
+    <button class="popup-close" onclick="closeSettings()" data-i18n-key="common.close">닫기</button>
   </div>
 </div>
 <div class="popup-overlay" id="versePopup" onclick="if(event.target===this)closeVerseDatePicker()">
   <div class="popup-box verse-cal-box">
     <div class="verse-cal-head">
-      <button type="button" class="cal-nav" onclick="navMonth(-1)" aria-label="이전 달">‹</button>
+      <button type="button" class="cal-nav" onclick="navMonth(-1)" aria-label="이전 달" data-i18n-aria-label="home.calendar.previousMonth">‹</button>
       <div class="cal-title" id="calTitle">2026년 5월</div>
-      <button type="button" class="cal-nav" onclick="navMonth(1)" aria-label="다음 달">›</button>
+      <button type="button" class="cal-nav" onclick="navMonth(1)" aria-label="다음 달" data-i18n-aria-label="home.calendar.nextMonth">›</button>
     </div>
-    <div class="cal-week"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+    <div class="cal-week"><span data-i18n-key="home.calendar.weekday.sun">일</span><span data-i18n-key="home.calendar.weekday.mon">월</span><span data-i18n-key="home.calendar.weekday.tue">화</span><span data-i18n-key="home.calendar.weekday.wed">수</span><span data-i18n-key="home.calendar.weekday.thu">목</span><span data-i18n-key="home.calendar.weekday.fri">금</span><span data-i18n-key="home.calendar.weekday.sat">토</span></div>
     <div class="cal-grid" id="calGrid"></div>
-    <div class="cal-hint">날짜를 누르면 그날의 말씀이 표시됩니다 (1~30일 순환)</div>
-    <button type="button" class="popup-close" onclick="closeVerseDatePicker()">닫기</button>
+    <div class="cal-hint" data-i18n-key="home.calendar.hint">날짜를 누르면 그날의 말씀이 표시됩니다 (1~30일 순환)</div>
+    <button type="button" class="popup-close" onclick="closeVerseDatePicker()" data-i18n-key="common.close">닫기</button>
   </div>
 </div>
-<div id="home-cookie-banner" class="home-cookie-banner" role="dialog" aria-label="분석 쿠키 동의 안내" hidden>
-  <p class="home-cookie-text">서비스 개선을 위한 방문 통계 수집에 동의하시겠습니까? 거부해도 이용 제한은 없습니다.</p>
+<div id="home-cookie-banner" class="home-cookie-banner" role="dialog" aria-label="분석 쿠키 동의 안내" data-i18n-aria-label="home.cookie.aria" hidden>
+  <p class="home-cookie-text" data-i18n-key="home.cookie.text">서비스 개선을 위한 방문 통계 수집에 동의하시겠습니까? 거부해도 이용 제한은 없습니다.</p>
   <div class="home-cookie-actions">
-    <button type="button" class="home-cookie-button home-cookie-button-reject" id="home-cookie-reject">거부</button>
-    <button type="button" class="home-cookie-button home-cookie-button-accept" id="home-cookie-accept">동의</button>
+    <button type="button" class="home-cookie-button home-cookie-button-reject" id="home-cookie-reject" data-i18n-key="home.cookie.reject">거부</button>
+    <button type="button" class="home-cookie-button home-cookie-button-accept" id="home-cookie-accept" data-i18n-key="home.cookie.accept">동의</button>
   </div>
 </div>
 <script>
@@ -852,11 +964,28 @@ function getConsonant(name){const c=name.charCodeAt(0);if(c<0xAC00||c>0xD7A3)ret
 let currentCons='전체';
 let currentCategory=null; // selected category key from translate_feature.js (or null = all)
 var fontSize = 17;
-const hour=new Date().getHours();
-let greetText='— 좋은 아침입니다 —';
-if(hour>=12&&hour<18)greetText='— 평안한 오후입니다 —';
-else if(hour>=18||hour<5)greetText='— 고요한 저녁입니다 —';
-document.getElementById('greeting').textContent=greetText;
+function _homeUiLang(){
+  if(window.GomnaUII18n&&typeof window.GomnaUII18n.getLanguage==='function'&&document.documentElement.classList.contains('gomna-native-i18n-active')){
+    return window.GomnaUII18n.getLanguage()||'ko';
+  }
+  return window.__gomnaLastLang||'ko';
+}
+function _homeT(key){
+  if(window.GomnaUII18n&&typeof window.GomnaUII18n.t==='function')return window.GomnaUII18n.t(key,_homeUiLang())||'';
+  return '';
+}
+function _applyGreetingI18n(){
+  const el=document.getElementById('greeting');
+  if(!el)return;
+  const hour=new Date().getHours();
+  let key='home.greeting.morning';
+  if(hour>=12&&hour<18)key='home.greeting.afternoon';
+  else if(hour>=18||hour<5)key='home.greeting.evening';
+  el.setAttribute('data-i18n-key',key);
+  const text=_homeT(key);
+  if(text)el.textContent=text;
+}
+_applyGreetingI18n();
 var _fd=document.getElementById('fontDisplay');
 if(_fd) _fd.textContent=fontSize+'px';
 var _VERSE_EASE='cubic-bezier(0.22, 0.61, 0.36, 1)';
@@ -873,37 +1002,46 @@ function _fadeVerseToPhoto(photo,verse,card){var verseOut=_verseMotionMs(3000);v
 function startVerseCycle(){_clearVerseCycle();var card=document.querySelector('.verse-card');var photo=document.querySelector('.verse-card-photo-layer');var verse=document.querySelector('.verse-card-verse-layer');if(card)card.classList.remove('is-verse-active');_resetVerseTextHidden();_setLayerOpacity(photo,1,0);_setLayerOpacity(verse,0,0);_verseSchedule(4500,function(){if(card)card.classList.add('is-verse-active');_setLayerOpacity(photo,0,_verseMotionMs(1500));_setLayerOpacity(verse,1,_verseMotionMs(1500));});_verseSchedule(6000,function(){_playVerseTextIn();});_verseSchedule(14000,function(){_fadeVerseToPhoto(photo,verse,card);});_verseSchedule(17400,startVerseCycle);}
 function applyVerseForDate(d){_setVerseDOM(d);startVerseCycle();}
 // ─── 오늘의 말씀: 30개 데이터 + 1~30일 순환 + 달력 모달 ───
+// Daily verses multilingual sources (home native i18n; no runtime fetch)
+// Korean: existing 개역한글 data (t/r unchanged; used for reader navigation)
+// English: World English Bible, Protestant Edition (WEBP), Public Domain
+//   source: https://ebible.org/Scriptures/engwebp_vpl.zip
+//   SHA-256: f5c7bd6d09cf5b9ddd188726f6a4dac0096228c4478401853de20a5d845d72a7
+// Japanese: Japanese Kougo-yaku 口語訳「聖書」1954/1955年版, Public Domain source
+//   source: https://raw.githubusercontent.com/seven1m/open-bibles/master/jpn-kougo.osis.xml
+//   SHA-256: 6930015f5d0faf49f3038a7e2f482aeb45939510b6acb8a8fb1945640c1d91b6
+// Extracted: 2026-07-22
 const DAILY_VERSES=[
-  {t:'네 시작은 미약하였으나 네 나중은 심히 창대하리라',r:'욥기 8:7'},
-  {t:'여호와는 나의 목자시니 내게 부족함이 없으리로다',r:'시편 23:1'},
-  {t:'너희 염려를 다 주께 맡겨 버리라 이는 저가 너희를 권고하심이니라',r:'베드로전서 5:7'},
-  {t:'아무 것도 염려하지 말고 오직 모든 일에 기도와 간구로 너희 구할 것을 감사함으로 하나님께 아뢰라',r:'빌립보서 4:6'},
-  {t:'하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라',r:'시편 46:1'},
-  {t:'하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 저를 믿는 자마다 멸망치 않고 영생을 얻게 하려 하심이니라',r:'요한복음 3:16'},
-  {t:'사랑하는 자들아 우리가 서로 사랑하자 사랑은 하나님께 속한 것이니',r:'요한일서 4:7'},
-  {t:'그런즉 믿음, 소망, 사랑, 이 세 가지는 항상 있을 것인데 그 중에 제일은 사랑이라',r:'고린도전서 13:13'},
-  {t:'내가 확신하노니 사망이나 생명이나 다른 아무 피조물이라도 우리를 우리 주 그리스도 예수 안에 있는 하나님의 사랑에서 끊을 수 없으리라',r:'로마서 8:38-39'},
-  {t:'내게 능력 주시는 자 안에서 내가 모든 것을 할 수 있느니라',r:'빌립보서 4:13'},
-  {t:'믿음은 바라는 것들의 실상이요 보지 못하는 것들의 증거니',r:'히브리서 11:1'},
-  {t:'예수께서 이르시되 할 수 있거든이 무슨 말이냐 믿는 자에게는 능치 못할 일이 없느니라',r:'마가복음 9:23'},
-  {t:'너희 중에 누구든지 지혜가 부족하거든 모든 사람에게 후히 주시고 꾸짖지 아니하시는 하나님께 구하라 그리하면 주시리라',r:'야고보서 1:5'},
-  {t:'여호와의 말씀이니라 너희를 향한 나의 생각을 내가 아나니 평안이요 재앙이 아니니라 너희에게 미래와 희망을 주려 하는 생각이라',r:'예레미야 29:11'},
-  {t:'우리가 알거니와 하나님을 사랑하는 자 곧 그 뜻대로 부르심을 입은 자들에게는 모든 것이 합력하여 선을 이루느니라',r:'로마서 8:28'},
-  {t:'오직 여호와를 앙망하는 자는 새 힘을 얻으리니 독수리의 날개치며 올라감 같을 것이요',r:'이사야 40:31'},
-  {t:'너는 마음을 다하여 여호와를 의뢰하고 네 명철을 의지하지 말라',r:'잠언 3:5'},
-  {t:'주의 말씀은 내 발에 등이요 내 길에 빛이니이다',r:'시편 119:105'},
-  {t:'사람이 마음으로 자기의 길을 계획할지라도 그 걸음을 인도하시는 자는 여호와시니라',r:'잠언 16:9'},
-  {t:'강하고 담대하라 두려워 말며 놀라지 말라 네가 어디로 가든지 네 하나님 여호와가 너와 함께 하느니라',r:'여호수아 1:9'},
-  {t:'두려워 말라 내가 너와 함께 함이니라 놀라지 말라 나는 네 하나님이 됨이니라',r:'이사야 41:10'},
-  {t:'마음을 강하게 하고 담대히 하라 그들을 두려워 말라 그들 앞에서 떨지 말라',r:'신명기 31:6'},
-  {t:'하나님이 우리에게 주신 것은 두려워하는 마음이 아니요 오직 능력과 사랑과 근신하는 마음이니',r:'디모데후서 1:7'},
-  {t:'구하라 그러면 너희에게 주실 것이요 찾으라 그러면 찾을 것이요 문을 두드리라 그러면 너희에게 열릴 것이니',r:'마태복음 7:7'},
-  {t:'이러므로 너희 죄를 서로 고하며 병 낫기를 위하여 서로 기도하라 의인의 간구는 역사하는 힘이 많으니라',r:'야고보서 5:16'},
-  {t:'쉬지 말고 기도하라',r:'데살로니가전서 5:17'},
-  {t:'감사함으로 그 문에 들어가며 찬송함으로 그 궁정에 들어가서 그에게 감사하며 그 이름을 송축할지어다',r:'시편 100:4'},
-  {t:'주 안에서 항상 기뻐하라 내가 다시 말하노니 기뻐하라',r:'빌립보서 4:4'},
-  {t:'범사에 감사하라 이는 그리스도 예수 안에서 너희를 향하신 하나님의 뜻이니라',r:'데살로니가전서 5:18'},
-  {t:'수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라',r:'마태복음 11:28'}
+  {t:'네 시작은 미약하였으나 네 나중은 심히 창대하리라',r:'욥기 8:7',i18n:{en:'Though your beginning was small, yet your latter end would greatly increase.',ja:'あなたの初めは小さくあっても、あなたの終りは非常に大きくなるであろう。'}},
+  {t:'여호와는 나의 목자시니 내게 부족함이 없으리로다',r:'시편 23:1',i18n:{en:'A Psalm by David. The LORD is my shepherd; I shall lack nothing.',ja:'主はわたしの牧者であって、わたしには乏しいことがない。'}},
+  {t:'너희 염려를 다 주께 맡겨 버리라 이는 저가 너희를 권고하심이니라',r:'베드로전서 5:7',i18n:{en:'casting all your worries on him, because he cares for you.',ja:'神はあなたがたをかえりみていて下さるのであるから、自分の思いわずらいを、いっさい神にゆだねるがよい。'}},
+  {t:'아무 것도 염려하지 말고 오직 모든 일에 기도와 간구로 너희 구할 것을 감사함으로 하나님께 아뢰라',r:'빌립보서 4:6',i18n:{en:'In nothing be anxious, but in everything, by prayer and petition with thanksgiving, let your requests be made known to God.',ja:'何事も思い煩ってはならない。ただ、事ごとに、感謝をもって祈と願いとをささげ、あなたがたの求めるところを神に申し上げるがよい。'}},
+  {t:'하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라',r:'시편 46:1',i18n:{en:'For the Chief Musician. By the sons of Korah. According to Alamoth. God is our refuge and strength, a very present help in trouble.',ja:'神はわれらの避け所また力である。悩める時のいと近き助けである。'}},
+  {t:'하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 저를 믿는 자마다 멸망치 않고 영생을 얻게 하려 하심이니라',r:'요한복음 3:16',i18n:{en:'For God so loved the world, that he gave his only born Son, that whoever believes in him should not perish, but have eternal life.',ja:'神はそのひとり子を賜わったほどに、この世を愛して下さった。それは御子を信じる者がひとりも滅びないで、永遠の命を得るためである。'}},
+  {t:'사랑하는 자들아 우리가 서로 사랑하자 사랑은 하나님께 속한 것이니',r:'요한일서 4:7',i18n:{en:'Beloved, let’s love one another, for love is of God; and everyone who loves has been born of God and knows God.',ja:'愛する者たちよ。わたしたちは互に愛し合おうではないか。愛は、神から出たものなのである。すべて愛する者は、神から生れた者であって、神を知っている。'}},
+  {t:'그런즉 믿음, 소망, 사랑, 이 세 가지는 항상 있을 것인데 그 중에 제일은 사랑이라',r:'고린도전서 13:13',i18n:{en:'But now faith, hope, and love remain—these three. The greatest of these is love.',ja:'このように、いつまでも存続するものは、信仰と希望と愛と、この三つである。このうちで最も大いなるものは、愛である。'}},
+  {t:'내가 확신하노니 사망이나 생명이나 다른 아무 피조물이라도 우리를 우리 주 그리스도 예수 안에 있는 하나님의 사랑에서 끊을 수 없으리라',r:'로마서 8:38-39',i18n:{en:'For I am persuaded that neither death, nor life, nor angels, nor principalities, nor things present, nor things to come, nor powers, nor height, nor depth, nor any other created thing will be able to separate us from God’s love which is in Christ Jesus our Lord.',ja:'わたしは確信する。死も生も、天使も支配者も、現在のものも将来のものも、力あるものも、 高いものも深いものも、その他どんな被造物も、わたしたちの主キリスト・イエスにおける神の愛から、わたしたちを引き離すことはできないのである。'}},
+  {t:'내게 능력 주시는 자 안에서 내가 모든 것을 할 수 있느니라',r:'빌립보서 4:13',i18n:{en:'I can do all things through Christ who strengthens me.',ja:'わたしを強くして下さるかたによって、何事でもすることができる。'}},
+  {t:'믿음은 바라는 것들의 실상이요 보지 못하는 것들의 증거니',r:'히브리서 11:1',i18n:{en:'Now faith is assurance of things hoped for, proof of things not seen.',ja:'さて、信仰とは、望んでいる事がらを確信し、まだ見ていない事実を確認することである。'}},
+  {t:'예수께서 이르시되 할 수 있거든이 무슨 말이냐 믿는 자에게는 능치 못할 일이 없느니라',r:'마가복음 9:23',i18n:{en:'Jesus said to him, “If you can believe, all things are possible to him who believes.”',ja:'イエスは彼に言われた、「もしできれば、と言うのか。信ずる者には、どんな事でもできる」。'}},
+  {t:'너희 중에 누구든지 지혜가 부족하거든 모든 사람에게 후히 주시고 꾸짖지 아니하시는 하나님께 구하라 그리하면 주시리라',r:'야고보서 1:5',i18n:{en:'But if any of you lacks wisdom, let him ask of God, who gives to all liberally and without reproach, and it will be given to him.',ja:'あなたがたのうち、知恵に不足している者があれば、その人は、とがめもせずに惜しみなくすべての人に与える神に、願い求めるがよい。そうすれば、与えられるであろう。'}},
+  {t:'여호와의 말씀이니라 너희를 향한 나의 생각을 내가 아나니 평안이요 재앙이 아니니라 너희에게 미래와 희망을 주려 하는 생각이라',r:'예레미야 29:11',i18n:{en:'For I know the thoughts that I think toward you,” says the LORD, “thoughts of peace, and not of evil, to give you hope and a future.',ja:'主は言われる、わたしがあなたがたに対していだいている計画はわたしが知っている。それは災を与えようというのではなく、平安を与えようとするものであり、あなたがたに将来を与え、希望を与えようとするものである。'}},
+  {t:'우리가 알거니와 하나님을 사랑하는 자 곧 그 뜻대로 부르심을 입은 자들에게는 모든 것이 합력하여 선을 이루느니라',r:'로마서 8:28',i18n:{en:'We know that all things work together for good for those who love God, for those who are called according to his purpose.',ja:'神は、神を愛する者たち、すなわち、ご計画に従って召された者たちと共に働いて、万事を益となるようにして下さることを、わたしたちは知っている。'}},
+  {t:'오직 여호와를 앙망하는 자는 새 힘을 얻으리니 독수리의 날개치며 올라감 같을 것이요',r:'이사야 40:31',i18n:{en:'but those who wait for the LORD will renew their strength. They will mount up with wings like eagles. They will run, and not be weary. They will walk, and not faint.',ja:'しかし主を待ち望む者は新たなる力を得、わしのように翼をはって、のぼることができる。走っても疲れることなく、歩いても弱ることはない。'}},
+  {t:'너는 마음을 다하여 여호와를 의뢰하고 네 명철을 의지하지 말라',r:'잠언 3:5',i18n:{en:'Trust in the LORD with all your heart, and don’t lean on your own understanding.',ja:'心をつくして主に信頼せよ、自分の知識にたよってはならない。'}},
+  {t:'주의 말씀은 내 발에 등이요 내 길에 빛이니이다',r:'시편 119:105',i18n:{en:'Your word is a lamp to my feet, and a light for my path.',ja:'あなたのみ言葉はわが足のともしび、わが道の光です。'}},
+  {t:'사람이 마음으로 자기의 길을 계획할지라도 그 걸음을 인도하시는 자는 여호와시니라',r:'잠언 16:9',i18n:{en:'A man’s heart plans his course, but the LORD directs his steps.',ja:'人は心に自分の道を考え計る、しかし、その歩みを導く者は主である。'}},
+  {t:'강하고 담대하라 두려워 말며 놀라지 말라 네가 어디로 가든지 네 하나님 여호와가 너와 함께 하느니라',r:'여호수아 1:9',i18n:{en:'Haven’t I commanded you? Be strong and courageous. Don’t be afraid. Don’t be dismayed, for the LORD your God is with you wherever you go.”',ja:'わたしはあなたに命じたではないか。強く、また雄々しくあれ。あなたがどこへ行くにも、あなたの神、主が共におられるゆえ、恐れてはならない、おののいてはならない」。'}},
+  {t:'두려워 말라 내가 너와 함께 함이니라 놀라지 말라 나는 네 하나님이 됨이니라',r:'이사야 41:10',i18n:{en:'Don’t you be afraid, for I am with you. Don’t be dismayed, for I am your God. I will strengthen you. Yes, I will help you. Yes, I will uphold you with the right hand of my righteousness.',ja:'恐れてはならない、わたしはあなたと共にいる。驚いてはならない、わたしはあなたの神である。わたしはあなたを強くし、あなたを助け、わが勝利の右の手をもって、あなたをささえる。'}},
+  {t:'마음을 강하게 하고 담대히 하라 그들을 두려워 말라 그들 앞에서 떨지 말라',r:'신명기 31:6',i18n:{en:'Be strong and courageous. Don’t be afraid or scared of them, for the LORD your God himself is who goes with you. He will not fail you nor forsake you.”',ja:'あなたがたは強く、かつ勇ましくなければならない。彼らを恐れ、おののいてはならない。あなたの神、主があなたと共に行かれるからである。主は決してあなたを見放さず、またあなたを見捨てられないであろう」。'}},
+  {t:'하나님이 우리에게 주신 것은 두려워하는 마음이 아니요 오직 능력과 사랑과 근신하는 마음이니',r:'디모데후서 1:7',i18n:{en:'For God didn’t give us a spirit of fear, but of power, love, and self-control.',ja:'というのは、神がわたしたちに下さったのは、臆する霊ではなく、力と愛と慎みとの霊なのである。'}},
+  {t:'구하라 그러면 너희에게 주실 것이요 찾으라 그러면 찾을 것이요 문을 두드리라 그러면 너희에게 열릴 것이니',r:'마태복음 7:7',i18n:{en:'“Ask, and it will be given you. Seek, and you will find. Knock, and it will be opened for you.',ja:'求めよ、そうすれば、与えられるであろう。捜せ、そうすれば、見いだすであろう。門をたたけ、そうすれば、あけてもらえるであろう。'}},
+  {t:'이러므로 너희 죄를 서로 고하며 병 낫기를 위하여 서로 기도하라 의인의 간구는 역사하는 힘이 많으니라',r:'야고보서 5:16',i18n:{en:'Confess your sins to one another and pray for one another, that you may be healed. The insistent prayer of a righteous person is powerfully effective.',ja:'だから、互に罪を告白し合い、また、いやされるようにお互のために祈りなさい。義人の祈は、大いに力があり、効果のあるものである。'}},
+  {t:'쉬지 말고 기도하라',r:'데살로니가전서 5:17',i18n:{en:'Pray without ceasing.',ja:'絶えず祈りなさい。'}},
+  {t:'감사함으로 그 문에 들어가며 찬송함으로 그 궁정에 들어가서 그에게 감사하며 그 이름을 송축할지어다',r:'시편 100:4',i18n:{en:'Enter into his gates with thanksgiving, and into his courts with praise. Give thanks to him, and bless his name.',ja:'感謝しつつ、その門に入り、ほめたたえつつ、その大庭に入れ。主に感謝し、そのみ名をほめまつれ。'}},
+  {t:'주 안에서 항상 기뻐하라 내가 다시 말하노니 기뻐하라',r:'빌립보서 4:4',i18n:{en:'Rejoice in the Lord always! Again I will say, “Rejoice!”',ja:'あなたがたは、主にあっていつも喜びなさい。繰り返して言うが、喜びなさい。'}},
+  {t:'범사에 감사하라 이는 그리스도 예수 안에서 너희를 향하신 하나님의 뜻이니라',r:'데살로니가전서 5:18',i18n:{en:'In everything give thanks, for this is the will of God in Christ Jesus toward you.',ja:'すべての事について、感謝しなさい。これが、キリスト・イエスにあって、神があなたがたに求めておられることである。'}},
+  {t:'수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라',r:'마태복음 11:28',i18n:{en:'“Come to me, all you who labor and are heavily burdened, and I will give you rest.',ja:'すべて重荷を負うて苦労している者は、わたしのもとにきなさい。あなたがたを休ませてあげよう。'}}
 ];
 function getVerseForDate(d){return DAILY_VERSES[((d.getDate()-1)%30+30)%30];}
 function _localDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
@@ -911,12 +1049,80 @@ function _isSameDate(a,b){const aa=_localDay(a),bb=_localDay(b);return aa.getTim
 let _selectedDate;
 let _hasUserSelectedDailyDate=false;
 let _calendarMonth=new Date();
+let _dailyVerseFitRaf=0;
+let _dailyVerseFitResizeBound=false;
+function _dailyVerseMinFontPx(){
+  try{
+    return window.matchMedia('(max-width: 480px)').matches?13:15;
+  }catch(e){
+    return 15;
+  }
+}
+function _dailyVerseOverflows(txt,center){
+  if(!txt)return false;
+  if(txt.scrollHeight>txt.clientHeight+1)return true;
+  if(center&&center.scrollHeight>center.clientHeight+1)return true;
+  return false;
+}
+function fitDailyVerseText(){
+  const txt=document.getElementById('verse-text');
+  if(!txt)return;
+  const center=txt.closest('.verse-center');
+  // Reset to stylesheet default, then shrink only if needed.
+  txt.style.fontSize='';
+  txt.style.lineHeight='';
+  const base=parseFloat(window.getComputedStyle(txt).fontSize)||14.5;
+  const minPx=_dailyVerseMinFontPx();
+  let size=base;
+  const lh=parseFloat(window.getComputedStyle(txt).lineHeight);
+  const baseLhRatio=(lh&&base)?(lh/base):1.42;
+  const minLhRatio=1.32;
+  while(_dailyVerseOverflows(txt,center)&&size>minPx+0.001){
+    size=Math.max(minPx, Math.round((size-0.5)*2)/2);
+    txt.style.fontSize=size+'px';
+    txt.style.lineHeight=String(Math.max(minLhRatio, baseLhRatio));
+  }
+  if(_dailyVerseOverflows(txt,center)){
+    try{
+      console.warn('[gomna] daily verse still overflows at min font', {
+        minPx:minPx,
+        width:window.innerWidth,
+        ref:(document.getElementById('verse-ref')||{}).textContent||'',
+        preview:(txt.textContent||'').slice(0,80)
+      });
+    }catch(e){}
+  }
+}
+function scheduleFitDailyVerseText(){
+  if(_dailyVerseFitRaf)cancelAnimationFrame(_dailyVerseFitRaf);
+  _dailyVerseFitRaf=requestAnimationFrame(function(){
+    _dailyVerseFitRaf=0;
+    fitDailyVerseText();
+  });
+}
+function ensureDailyVerseFitResizeListener(){
+  if(_dailyVerseFitResizeBound)return;
+  _dailyVerseFitResizeBound=true;
+  window.addEventListener('resize',function(){
+    if(_dailyVerseFitRaf)cancelAnimationFrame(_dailyVerseFitRaf);
+    _dailyVerseFitRaf=requestAnimationFrame(function(){
+      _dailyVerseFitRaf=0;
+      fitDailyVerseText();
+    });
+  },{passive:true});
+  window.addEventListener('orientationchange',function(){
+    scheduleFitDailyVerseText();
+  },{passive:true});
+}
 function _setVerseDOM(d){
   const selDate=_localDay(d);
   _selectedDate=selDate;
   const isToday=_isSameDate(selDate,new Date());
   const v=getVerseForDate(selDate);
-  const lang=window.__gomnaLastLang||'ko';
+  const nativeActive=document.documentElement.classList.contains('gomna-native-i18n-active');
+  const lang=(nativeActive&&window.GomnaUII18n)
+    ? (window.GomnaUII18n.getLanguage()||'ko')
+    : (window.__gomnaLastLang||'ko');
   const tag=document.getElementById('verse-tag');
   if(tag){
     // Tag is locale-formatted manually (custom translation + Intl date),
@@ -926,29 +1132,65 @@ function _setVerseDOM(d){
       : (isToday?'오늘의 말씀':((d.getMonth()+1)+'월 '+d.getDate()+'일의 말씀'));
     tag.textContent=tagText;
     tag.setAttribute('translate','no');
+    if(isToday)tag.setAttribute('data-i18n-key','home.todayWord.tag');
+    else tag.removeAttribute('data-i18n-key');
   }
   const txt=document.getElementById('verse-text');
-  if(txt){
-    // Verse body — let Google Translate widget handle this so foreign-
-    // language users see it in their language. Strip any previous
-    // translate="no" we may have set in older versions.
-    txt.textContent='"'+v.t+'"';
-    txt.removeAttribute('translate');
-  }
   const ref=document.getElementById('verse-ref');
-  if(ref){
-    // Reference — translate the Korean book name via our 66-book table so
-    // "마태복음 11:28" becomes "Matthew 11:28" / "Mateo 11:28" /
-    // "馬太福音 11:28" exactly. We manage this ourselves so we keep
-    // translate="no" to keep Google out of it.
-    const refLocalized=(typeof window.GomnaTranslateBookRef==='function')
+  const nativeLang=(nativeActive&&(lang==='ko'||lang==='en'||lang==='ja'))?lang:null;
+  let body=v.t;
+  let bodyLang='ko';
+  let bibleVersion='KRV';
+  let refText=v.r;
+  if(nativeLang==='en'&&v.i18n&&v.i18n.en){
+    body=v.i18n.en;
+    bodyLang='en';
+    bibleVersion='WEBP';
+    refText=(typeof window.GomnaTranslateBookRef==='function')?window.GomnaTranslateBookRef(v.r,'en'):v.r;
+  }else if(nativeLang==='ja'&&v.i18n&&v.i18n.ja){
+    body=v.i18n.ja;
+    bodyLang='ja';
+    bibleVersion='Kougo-1954-1955';
+    refText=(typeof window.GomnaTranslateBookRef==='function')?window.GomnaTranslateBookRef(v.r,'ja'):v.r;
+  }else if(nativeLang==='ko'){
+    body=v.t;
+    bodyLang='ko';
+    bibleVersion='KRV';
+    refText=v.r;
+  }else{
+    // Unsupported / Google fallback: Korean body remains GT target.
+    body=v.t;
+    refText=(typeof window.GomnaTranslateBookRef==='function')
       ? window.GomnaTranslateBookRef(v.r,lang)
       : v.r;
-    ref.textContent='— '+refLocalized;
+  }
+  if(txt){
+    txt.textContent='"'+body+'"';
+    if(nativeLang){
+      txt.setAttribute('translate','no');
+      txt.setAttribute('lang',bodyLang);
+      txt.setAttribute('data-bible-version',bibleVersion);
+    }else{
+      txt.removeAttribute('translate');
+      txt.removeAttribute('lang');
+      txt.removeAttribute('data-bible-version');
+    }
+  }
+  if(ref){
+    ref.textContent='— '+refText;
     ref.setAttribute('translate','no');
+    if(nativeLang){
+      ref.setAttribute('lang',bodyLang);
+      ref.setAttribute('data-bible-version',bibleVersion);
+    }else{
+      ref.removeAttribute('lang');
+      ref.removeAttribute('data-bible-version');
+    }
   }
   const todayBtn=document.getElementById('verseTodayBtn');
   if(todayBtn)todayBtn.style.display=(_hasUserSelectedDailyDate&&!isToday)?'inline-block':'none';
+  ensureDailyVerseFitResizeListener();
+  scheduleFitDailyVerseText();
 }
 function resetVerseToToday(){_hasUserSelectedDailyDate=false;applyVerseForDate(new Date());}
 const _MONTHS=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
@@ -956,7 +1198,12 @@ function renderCalendar(year,month){
   const grid=document.getElementById('calGrid');
   const title=document.getElementById('calTitle');
   if(!grid||!title)return;
-  title.textContent=year+'년 '+_MONTHS[month];
+  const lang=_homeUiLang();
+  if(window.GomnaUII18n&&typeof window.GomnaUII18n.formatCalendarMonth==='function'&&document.documentElement.classList.contains('gomna-native-i18n-active')){
+    title.textContent=window.GomnaUII18n.formatCalendarMonth(year,month,lang);
+  }else{
+    title.textContent=year+'년 '+_MONTHS[month];
+  }
   const startWd=new Date(year,month,1).getDay();
   const daysInMonth=new Date(year,month+1,0).getDate();
   const today=new Date();
@@ -968,7 +1215,11 @@ function renderCalendar(year,month){
     if(wd===0)cls.push('sun');else if(wd===6)cls.push('sat');
     if(today.getFullYear()===year&&today.getMonth()===month&&today.getDate()===d)cls.push('today');
     if(_selectedDate.getFullYear()===year&&_selectedDate.getMonth()===month&&_selectedDate.getDate()===d)cls.push('selected');
-    html+='<button type="button" class="'+cls.join(' ')+'" data-d="'+d+'" aria-label="'+(month+1)+'월 '+d+'일">'+d+'</button>';
+    var dayAria=(month+1)+'월 '+d+'일';
+    if(window.GomnaUII18n&&typeof window.GomnaUII18n.formatCalendarDayAria==='function'&&document.documentElement.classList.contains('gomna-native-i18n-active')){
+      dayAria=window.GomnaUII18n.formatCalendarDayAria(month+1,d,lang);
+    }
+    html+='<button type="button" class="'+cls.join(' ')+'" data-d="'+d+'" aria-label="'+escapeHtml(dayAria)+'">'+d+'</button>';
   }
   grid.innerHTML=html;
   grid.querySelectorAll('.cal-cell:not(.empty)').forEach(function(c){
@@ -1098,6 +1349,9 @@ function _readLastRead(){
   }catch(e){return null;}
 }
 function _lastReadDayWord(ts){
+  if(window.GomnaUII18n&&typeof window.GomnaUII18n.formatRelativeDay==='function'&&document.documentElement.classList.contains('gomna-native-i18n-active')){
+    return window.GomnaUII18n.formatRelativeDay(ts,_homeUiLang());
+  }
   const d=new Date(ts);
   if(isNaN(d.getTime()))return'';
   const now=new Date();
@@ -1113,21 +1367,35 @@ function renderContinueCard(){
   const title=document.getElementById('continueTitle');
   const sub=document.getElementById('continueSub');
   if(!label||!title||!sub)return;
+  const lang=_homeUiLang();
+  const native=document.documentElement.classList.contains('gomna-native-i18n-active')&&window.GomnaUII18n;
   const d=_readLastRead();
   if(d){
     const dayWord=_lastReadDayWord(d.timestamp);
-    label.textContent='이어서 읽기';
-    title.textContent=d.book+' '+d.chapter+'장'+(dayWord?' · '+dayWord+' 읽던 곳':'');
+    label.textContent=native?(_homeT('home.continue.resume')||'이어서 읽기'):'이어서 읽기';
+    if(native&&typeof window.GomnaUII18n.formatContinueTitle==='function'){
+      title.textContent=window.GomnaUII18n.formatContinueTitle(d.book,d.chapter,dayWord,lang);
+    }else{
+      title.textContent=d.book+' '+d.chapter+'장'+(dayWord?' · '+dayWord+' 읽던 곳':'');
+    }
     if(d.timestamp&&!isNaN(new Date(d.timestamp).getTime())){
       const t=new Date(d.timestamp);
       const hh=String(t.getHours()).padStart(2,'0');
       const mm=String(t.getMinutes()).padStart(2,'0');
-      sub.textContent=(dayWord||'')+' '+hh+':'+mm+'에 읽었습니다';
+      if(native&&typeof window.GomnaUII18n.formatContinueSub==='function'){
+        sub.textContent=window.GomnaUII18n.formatContinueSub(dayWord,hh+':'+mm,lang);
+      }else{
+        sub.textContent=(dayWord||'')+' '+hh+':'+mm+'에 읽었습니다';
+      }
       sub.style.display='';
     }else{sub.style.display='none';}
   }else{
-    label.textContent='처음부터 성경 읽기';
-    title.textContent='창세기 1장';
+    label.textContent=native?(_homeT('home.continue.start')||'처음부터 성경 읽기'):'처음부터 성경 읽기';
+    if(native&&typeof window.GomnaUII18n.formatBookChapter==='function'){
+      title.textContent=window.GomnaUII18n.formatBookChapter('창세기',1,lang);
+    }else{
+      title.textContent='창세기 1장';
+    }
     sub.style.display='none';
   }
 }
@@ -1167,14 +1435,55 @@ function openCategory(catKey){
 }
 function closeSheet(){if(easyOpenTimer){clearTimeout(easyOpenTimer);easyOpenTimer=null;}document.getElementById('overlay').classList.remove('show');setTimeout(()=>{document.getElementById('book-old').classList.remove('opening');document.getElementById('book-new').classList.remove('opening');const lamp=document.getElementById('lamp');if(lamp)lamp.classList.remove('lit');},400);}
 function closeIfBg(e){if(e.target.id==='overlay')closeSheet();}
-function switchTab(tab,easyInitialCons){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));const b=document.getElementById('sheet-body');if(tab==='old'){b.innerHTML=oldData.map(c=>'<div class="cat"><div class="cat-title">'+c.cat+'</div><div class="book-grid">'+c.books.map(bk=>'<button class="book-item" onclick="clickBook(\''+bk[0]+'\')">'+bk[0]+'<small>'+bk[1]+'장</small></button>').join('')+'</div></div>').join('');}else if(tab==='new'){b.innerHTML=newData.map(c=>'<div class="cat"><div class="cat-title">'+c.cat+'</div><div class="book-grid">'+c.books.map(bk=>'<button class="book-item" onclick="clickBook(\''+bk[0]+'\')">'+bk[0]+'<small>'+bk[1]+'장</small></button>').join('')+'</div></div>').join('');}else if(tab==='easy'){currentCons=(easyInitialCons!==undefined&&easyInitialCons!==null)?easyInitialCons:'전체';renderEasy();}else{b.innerHTML='<div class="bookmark-empty"><div class="icon">★</div>아직 저장한 말씀이 없습니다.<br>마음에 닿은 구절을 ★로 저장해보세요.</div>';}b.scrollTop=0;}
+function _homeBookLabel(bookKo,lang){
+  if(typeof window.GomnaTranslateBookName==='function'){
+    try{return window.GomnaTranslateBookName(bookKo,lang)||bookKo;}catch(e){}
+  }
+  return bookKo;
+}
+function _homeChapterLabel(n,lang){
+  if(window.GomnaUII18n&&typeof window.GomnaUII18n.formatChapterCount==='function'&&document.documentElement.classList.contains('gomna-native-i18n-active')){
+    return window.GomnaUII18n.formatChapterCount(n,lang);
+  }
+  return n+'장';
+}
+function _homeBookButtonsHtml(books,lang){
+  return books.map(function(bk){
+    return '<button class="book-item" onclick="clickBook(\''+bk[0]+'\')">'+escapeHtml(_homeBookLabel(bk[0],lang))+'<small>'+escapeHtml(_homeChapterLabel(bk[1],lang))+'</small></button>';
+  }).join('');
+}
+function switchTab(tab,easyInitialCons){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  const b=document.getElementById('sheet-body');
+  const lang=_homeUiLang();
+  if(tab==='old'){
+    b.innerHTML=oldData.map(c=>'<div class="cat"><div class="cat-title">'+c.cat+'</div><div class="book-grid">'+_homeBookButtonsHtml(c.books,lang)+'</div></div>').join('');
+  }else if(tab==='new'){
+    b.innerHTML=newData.map(c=>'<div class="cat"><div class="cat-title">'+c.cat+'</div><div class="book-grid">'+_homeBookButtonsHtml(c.books,lang)+'</div></div>').join('');
+  }else if(tab==='easy'){
+    currentCons=(easyInitialCons!==undefined&&easyInitialCons!==null)?easyInitialCons:'전체';
+    renderEasy();
+  }else{
+    const emptyTitle=_homeT('home.bookmark.emptyTitle')||'아직 저장한 말씀이 없습니다.';
+    const emptyDesc=_homeT('home.bookmark.emptyDesc')||'마음에 닿은 구절을 ★로 저장해보세요.';
+    b.innerHTML='<div class="bookmark-empty"><div class="icon">★</div>'+escapeHtml(emptyTitle)+'<br>'+escapeHtml(emptyDesc)+'</div>';
+  }
+  b.scrollTop=0;
+}
 function renderEasy(){
   const b=document.getElementById('sheet-body');
   if(!b)return;
   const cats=(window.GomnaBibleCategories&&window.GomnaBibleCategories.list)||[];
   if(cats.length>0){
-    const lang=(function(){const m=(document.cookie||'').match(/(?:^|;\s*)googtrans=([^;]+)/);if(!m)return null;const v=decodeURIComponent(m[1]).split('/');return v[2]||null;})();
-    const idx=(window.GomnaBibleCategories&&typeof window.GomnaBibleCategories.getLabel==='function')?null:0;
+    const lang=(function(){
+      if(document.documentElement.classList.contains('gomna-native-i18n-active')&&window.GomnaUII18n){
+        return window.GomnaUII18n.getLanguage()||'ko';
+      }
+      const m=(document.cookie||'').match(/(?:^|;\s*)googtrans=([^;]+)/);
+      if(!m)return null;
+      const v=decodeURIComponent(m[1]).split('/');
+      return v[2]||null;
+    })();
     let filtered;
     if(currentCategory){
       const set=new Set(window.GomnaBibleCategories.getBooks(currentCategory));
@@ -1204,13 +1513,14 @@ function renderEasy(){
     b.innerHTML='<!-- gomna-easy-modal v27 :: 7-row grid, OT|NT headers, no emojis -->'+
       '<div class="cons-grid cat-cons-grid">'+allBtn+otHdr+ntHdr+catBtns+'</div>'+
       '<div class="cons-label" translate="no">'+escapeHtml(titleText)+'</div>'+
-      '<div class="book-grid">'+filtered.map(bk=>'<button class="book-item" onclick="clickBook(\''+bk[0]+'\')">'+bk[0]+'<small>'+bk[1]+'장</small></button>').join('')+'</div>';
+      '<div class="book-grid">'+_homeBookButtonsHtml(filtered,lang||'ko')+'</div>';
     return;
   }
   // Fallback (translate_feature.js not loaded yet) — use the legacy consonant view.
+  const lang=_homeUiLang();
   const filtered=currentCons==='전체'?allBooks:allBooks.filter(bk=>getConsonant(bk[0])===currentCons);
   const labelText=currentCons==='전체'?'전체 성경 (66권)':currentCons+'으로 시작하는 책 ('+filtered.length+'권)';
-  b.innerHTML='<div class="cons-grid">'+consonants.map(c=>'<button class="cons'+(c===currentCons?' active':'')+'" onclick="setCons(\''+c+'\')">'+c+'</button>').join('')+'</div><div class="cons-label">'+labelText+'</div><div class="book-grid">'+filtered.map(bk=>'<button class="book-item" onclick="clickBook(\''+bk[0]+'\')">'+bk[0]+'<small>'+bk[1]+'장</small></button>').join('')+'</div>';
+  b.innerHTML='<div class="cons-grid">'+consonants.map(c=>'<button class="cons'+(c===currentCons?' active':'')+'" onclick="setCons(\''+c+'\')">'+c+'</button>').join('')+'</div><div class="cons-label">'+labelText+'</div><div class="book-grid">'+_homeBookButtonsHtml(filtered,lang)+'</div>';
 }
 function setCategory(key){currentCategory=key;renderEasy();}
 function setCons(c){currentCons=c;renderEasy();}
@@ -1231,7 +1541,44 @@ function closeSettings(){var p=document.getElementById('settingsPopup');if(p)p.c
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
-<script src="translate_feature.js?v=20260721-lang-flash-fix-v3" defer></script>
+<script src="translate_feature.js?v=20260722-home-ko-default-v1" defer></script>
+<script>
+(function(){
+  function refreshHomeI18n(){
+    try{
+      if(typeof _applyGreetingI18n==='function')_applyGreetingI18n();
+      if(typeof renderContinueCard==='function')renderContinueCard();
+      if(typeof _selectedDate!=='undefined'&&_selectedDate&&typeof _setVerseDOM==='function')_setVerseDOM(_selectedDate);
+      if(typeof window.__gomnaSyncGlobeI18n==='function')window.__gomnaSyncGlobeI18n();
+      var vp=document.getElementById('versePopup');
+      if(vp&&vp.classList.contains('show')&&typeof renderCalendar==='function'&&typeof _calendarMonth!=='undefined'){
+        renderCalendar(_calendarMonth.getFullYear(),_calendarMonth.getMonth());
+      }
+      var ov=document.getElementById('overlay');
+      if(ov&&ov.classList.contains('show')){
+        var activeTab=document.querySelector('.sheet-tabs .tab.active');
+        if(activeTab&&activeTab.dataset&&activeTab.dataset.tab&&typeof switchTab==='function'){
+          switchTab(activeTab.dataset.tab);
+        }
+      }
+      var fontView=document.getElementById('fontSettingsView');
+      var titleEl=document.getElementById('settingsSheetTitle');
+      if(titleEl&&fontView&&!fontView.hidden&&window.GomnaUII18n){
+        var wantTitle=window.GomnaUII18n.t('settings.fontSize');
+        if(wantTitle&&titleEl.textContent!==wantTitle)titleEl.textContent=wantTitle;
+      }
+      var closeBtn=document.querySelector('#settingsPopup .settings-sheet-close');
+      if(closeBtn&&window.GomnaUII18n&&document.documentElement.classList.contains('gomna-native-i18n-active')){
+        var wantClose=window.GomnaUII18n.t('common.close');
+        if(wantClose&&closeBtn.textContent!==wantClose)closeBtn.textContent=wantClose;
+      }
+    }catch(e){}
+  }
+  window.__gomnaRefreshHomeI18n=refreshHomeI18n;
+  // GomnaUII18n.apply dispatches on window; listen there (not only document).
+  window.addEventListener('gomna:ui-language-changed',refreshHomeI18n);
+})();
+</script>
 <script>
 (function(){
   'use strict';
@@ -1274,11 +1621,48 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
       label.className='gt-home-lang-label';
       btn.appendChild(label);
     }
-    if(label.textContent!=='Language')label.textContent='Language';
-    if(label.getAttribute('translate')!=='no')label.setAttribute('translate','no');
+    label.setAttribute('data-i18n-key','language.short');
+    btn.setAttribute('data-i18n-aria-label','language.openAria');
+    btn.setAttribute('data-i18n-title','language.openAria');
+    var shortLabel='언어';
+    var openAria='언어 선택';
+    if(window.GomnaUII18n&&document.documentElement.classList.contains('gomna-native-i18n-active')){
+      shortLabel=window.GomnaUII18n.t('language.short')||shortLabel;
+      openAria=window.GomnaUII18n.t('language.openAria')||openAria;
+      label.setAttribute('translate','no');
+      btn.setAttribute('translate','no');
+      if(!btn.getAttribute('data-gomna-native-translate-owned'))btn.setAttribute('data-gomna-native-translate-owned','1');
+      if(!label.getAttribute('data-gomna-native-translate-owned'))label.setAttribute('data-gomna-native-translate-owned','1');
+    }
+    label.textContent=shortLabel;
+    btn.setAttribute('aria-label',openAria);
+    btn.setAttribute('title',openAria);
     btn.dataset.globeDecorated='true';
     return true;
   }
+  function syncGlobeI18n(){
+    var btns=document.querySelectorAll('.header .gt-btn');
+    for(var i=0;i<btns.length;i++){
+      var btn=btns[i];
+      var label=btn.querySelector('.gt-home-lang-label');
+      if(!label)continue;
+      label.setAttribute('data-i18n-key','language.short');
+      btn.setAttribute('data-i18n-aria-label','language.openAria');
+      btn.setAttribute('data-i18n-title','language.openAria');
+      var shortLabel='언어';
+      var openAria='언어 선택';
+      if(window.GomnaUII18n&&document.documentElement.classList.contains('gomna-native-i18n-active')){
+        shortLabel=window.GomnaUII18n.t('language.short')||shortLabel;
+        openAria=window.GomnaUII18n.t('language.openAria')||openAria;
+        label.setAttribute('translate','no');
+        btn.setAttribute('translate','no');
+      }
+      label.textContent=shortLabel;
+      btn.setAttribute('aria-label',openAria);
+      btn.setAttribute('title',openAria);
+    }
+  }
+  window.__gomnaSyncGlobeI18n=syncGlobeI18n;
   function tryDecorate(){
     var btns=document.querySelectorAll('.header .gt-btn');
     if(!btns.length)return false;

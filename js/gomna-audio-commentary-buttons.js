@@ -5,9 +5,6 @@
   var ALL_TABS_AUDIO_ATTR = 'data-gomna-commentary-sequence-bound';
   var TAB_AUDIO_ATTR = 'data-gomna-commentary-tab-audio-bound';
   var ALL_TABS_BUTTON_SELECTOR = '[data-gomna-commentary-sequence-button="true"]';
-  var SEQUENCE_IDLE_LABEL = '▶ 전체듣기';
-  var SEQUENCE_PLAYING_LABEL = '⏸ 전체 일시정지';
-  var SEQUENCE_PAUSED_LABEL = '▶ 전체 이어듣기';
   var ACTIVE_BUTTON_CLASS = 'gomna-audio-commentary-button--active';
   var ACTIVE_TAB_CLASS = 'gomna-audio-commentary-tab--active';
   var ACTIVE_SECTION_CLASS = 'gomna-audio-commentary-section--active';
@@ -41,6 +38,64 @@
   // English originals can later be generated with a separate en-US voice,
   // split from Korean exposition, or exposed as a dedicated English button.
   // For now, commentary audio remains a ko-KR Korean exposition track.
+  var COMMENTARY_TAB_I18N_KEYS = {
+    'original-language': 'commentary.tab.original',
+    history: 'commentary.tab.history',
+    theology: 'commentary.tab.theology',
+    typology: 'commentary.tab.typology',
+    'matthew-henry': 'commentary.tab.matthewHenry',
+    sermon: 'commentary.tab.sermon',
+    hymn: 'commentary.tab.hymn',
+    counseling: 'commentary.tab.counseling',
+    'cross-reference': 'commentary.tab.crossReference'
+  };
+
+  function commentaryUiT(key, fallback) {
+    if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.t === 'function') {
+      var value = window.GomnaCommentaryI18n.t(key);
+      if (value != null && value !== '') return value;
+    }
+    return fallback;
+  }
+
+  function commentaryUiIsNative() {
+    return !!(window.GomnaCommentaryI18n && window.GomnaCommentaryI18n.isNativeLang());
+  }
+
+  function setCommentaryUiText(el, key, text) {
+    if (!el) return;
+    if ((el.textContent || '') !== text) el.textContent = text;
+    if (key && el.getAttribute('data-gomna-commentary-i18n') !== key) {
+      el.setAttribute('data-gomna-commentary-i18n', key);
+    }
+    if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.lockLeaf === 'function') {
+      window.GomnaCommentaryI18n.lockLeaf(el, key || el.getAttribute('data-gomna-commentary-i18n'));
+    } else if (!commentaryUiIsNative() && el.getAttribute('data-gomna-commentary-native-lock') === '1') {
+      el.classList.remove('notranslate');
+      el.removeAttribute('translate');
+      el.removeAttribute('lang');
+      el.removeAttribute('data-gomna-commentary-native-lock');
+    }
+  }
+
+  function commentaryItemLabel(item) {
+    if (!item) return '';
+    var key = COMMENTARY_TAB_I18N_KEYS[item.type];
+    return key ? commentaryUiT(key, item.title) : item.title;
+  }
+
+  function sequenceIdleLabel() {
+    return '▶ ' + commentaryUiT('commentary.audio.listenAll', '전체듣기');
+  }
+
+  function sequencePlayingLabel() {
+    return '⏸ ' + commentaryUiT('commentary.audio.listenAllPause', '전체 일시정지');
+  }
+
+  function sequencePausedLabel() {
+    return '▶ ' + commentaryUiT('commentary.audio.listenAllResume', '전체 이어듣기');
+  }
+
   var COMMENTARY_TYPE_TEMPLATES = [
     { title: '원어분석', tabId: 'tab-원어분석', type: 'original-language' },
     { title: '역사적배경', tabId: 'tab-역사적배경', type: 'history' },
@@ -684,12 +739,12 @@
     if (!footer) return null;
 
     footer.classList.add(CONTROLS_FOOTER_CLASS);
-    footer.setAttribute('aria-label', '말씀풀이 오디오 컨트롤');
+    footer.setAttribute('aria-label', commentaryUiT('commentary.audio.controlsAria', '말씀풀이 오디오 컨트롤'));
 
     if (closeButton) {
       closeButton.classList.add('gomna-audio-commentary-close-button');
-      closeButton.setAttribute('aria-label', '말씀풀이 닫기');
-      closeButton.setAttribute('title', '말씀풀이 닫기');
+      closeButton.setAttribute('aria-label', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
+      closeButton.setAttribute('title', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
       closeButton.textContent = '✕';
     }
 
@@ -790,33 +845,33 @@
       controls.id = INLINE_CONTROLS_ID;
       controls.className = 'gomna-commentary-inline-controls';
       controls.setAttribute('role', 'group');
-      controls.setAttribute('aria-label', '말씀풀이 오디오 컨트롤');
+      controls.setAttribute('aria-label', commentaryUiT('commentary.audio.controlsAria', '말씀풀이 오디오 컨트롤'));
 
       listenBtn = document.createElement('button');
       listenBtn.type = 'button';
       listenBtn.id = LISTEN_BTN_ID;
       listenBtn.className = 'gomna-commentary-inline-button gomna-commentary-inline-listen';
-      listenBtn.textContent = '▶ 듣기';
+      setCommentaryUiText(listenBtn, 'commentary.audio.listen', '▶ ' + commentaryUiT('commentary.audio.listen', '듣기'));
 
       replayBtn = document.createElement('button');
       replayBtn.type = 'button';
       replayBtn.id = REPLAY_BTN_ID;
       replayBtn.className = 'gomna-commentary-inline-button gomna-commentary-inline-replay';
-      replayBtn.textContent = '↻ 다시듣기';
+      setCommentaryUiText(replayBtn, 'commentary.audio.replay', '↻ ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
 
       seqBtn = document.createElement('button');
       seqBtn.type = 'button';
       seqBtn.id = SEQUENCE_BTN_ID;
       seqBtn.className = 'gomna-commentary-inline-button gomna-commentary-inline-sequence';
-      seqBtn.textContent = SEQUENCE_IDLE_LABEL;
+      setCommentaryUiText(seqBtn, 'commentary.audio.listenAll', sequenceIdleLabel());
 
       closeBtn = document.createElement('button');
       closeBtn.type = 'button';
       closeBtn.id = INLINE_CLOSE_BTN_ID;
       closeBtn.className = 'gomna-commentary-inline-close';
-      closeBtn.setAttribute('aria-label', '말씀풀이 닫기');
-      closeBtn.setAttribute('title', '말씀풀이 닫기');
-      closeBtn.textContent = '닫기';
+      closeBtn.setAttribute('aria-label', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
+      closeBtn.setAttribute('title', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
+      setCommentaryUiText(closeBtn, 'commentary.close', commentaryUiT('commentary.close', '닫기'));
 
       controls.appendChild(listenBtn);
       controls.appendChild(seqBtn);
@@ -835,11 +890,17 @@
         closeBtn.type = 'button';
         closeBtn.id = INLINE_CLOSE_BTN_ID;
         closeBtn.className = 'gomna-commentary-inline-close';
-        closeBtn.setAttribute('aria-label', '말씀풀이 닫기');
-        closeBtn.setAttribute('title', '말씀풀이 닫기');
-        closeBtn.textContent = '닫기';
+        closeBtn.setAttribute('aria-label', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
+        closeBtn.setAttribute('title', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
+        setCommentaryUiText(closeBtn, 'commentary.close', commentaryUiT('commentary.close', '닫기'));
         controls.appendChild(closeBtn);
       }
+    }
+
+    if (closeBtn) {
+      closeBtn.setAttribute('aria-label', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
+      closeBtn.setAttribute('title', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
+      setCommentaryUiText(closeBtn, 'commentary.close', commentaryUiT('commentary.close', '닫기'));
     }
 
     bindInlineControlsDirect(listenBtn, replayBtn, seqBtn, closeBtn);
@@ -1161,13 +1222,13 @@
 
     if (item.published) {
       btn.setAttribute('data-audio-action', 'play');
-      btn.setAttribute('aria-label', item.title + ' 듣기');
-      btn.textContent = '▶ 듣기';
+      btn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.listen', '듣기'));
+      setCommentaryUiText(btn, 'commentary.audio.listen', '▶ ' + commentaryUiT('commentary.audio.listen', '듣기'));
     } else {
       btn.className += ' gomna-audio-commentary-button--pending';
       btn.disabled = true;
-      btn.setAttribute('aria-label', item.title + ' 준비 중');
-      btn.textContent = '준비 중';
+      btn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.preparing', '준비 중'));
+      setCommentaryUiText(btn, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
     }
 
     return btn;
@@ -1182,26 +1243,40 @@
 
     if (item.published) {
       btn.disabled = false;
-      btn.setAttribute('aria-label', item.title + ' 처음부터 다시듣기');
-      btn.textContent = '↻ 다시듣기';
+      btn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
+      setCommentaryUiText(btn, 'commentary.audio.replay', '↻ ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
     } else {
       btn.disabled = true;
       btn.classList.add('gomna-audio-commentary-button--pending');
-      btn.setAttribute('aria-label', item.title + ' 준비 중');
-      btn.textContent = '준비 중';
+      btn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.preparing', '준비 중'));
+      setCommentaryUiText(btn, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
     }
 
     return btn;
   }
 
   function findTitleHost(section, title) {
+    var child = section && section.firstElementChild;
+    while (child) {
+      if (
+        child.tagName === 'DIV' &&
+        !child.classList.contains('commentary-verse-ref') &&
+        !child.classList.contains('commentary-verse-ref-bottom') &&
+        !child.classList.contains('empty-state')
+      ) {
+        return child;
+      }
+      child = child.nextElementSibling;
+    }
+
     var candidates = section.querySelectorAll('h3, h4, h5, strong, div, button');
+    var localized = title;
 
     for (var i = 0; i < candidates.length; i++) {
       var el = candidates[i];
       var text = (el.textContent || '').replace(/\s+/g, ' ').trim();
 
-      if (text.indexOf(title) === -1) continue;
+      if (text.indexOf(title) === -1 && text.indexOf(localized) === -1) continue;
       if (el.querySelector && el.querySelector('.gomna-audio-commentary-button')) continue;
       if (el.children && el.children.length > 3) continue;
 
@@ -1288,13 +1363,13 @@
       button.disabled = false;
       button.classList.remove('gomna-audio-commentary-button--pending');
       button.setAttribute('data-audio-action', 'play');
-      button.setAttribute('aria-label', item.title + ' 듣기');
+      button.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.listen', '듣기'));
     } else {
       button.disabled = true;
       button.classList.add('gomna-audio-commentary-button--pending');
       button.removeAttribute('data-audio-action');
-      button.setAttribute('aria-label', item.title + ' 준비 중');
-      button.textContent = '준비 중';
+      button.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.preparing', '준비 중'));
+      setCommentaryUiText(button, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
       button.classList.remove(ACTIVE_BUTTON_CLASS);
       button.setAttribute('aria-pressed', 'false');
     }
@@ -1308,13 +1383,13 @@
     if (item.published) {
       button.disabled = false;
       button.classList.remove('gomna-audio-commentary-button--pending');
-      button.setAttribute('aria-label', item.title + ' 처음부터 다시듣기');
-      button.textContent = '↻ 다시듣기';
+      button.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
+      setCommentaryUiText(button, 'commentary.audio.replay', '↻ ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
     } else {
       button.disabled = true;
       button.classList.add('gomna-audio-commentary-button--pending');
-      button.setAttribute('aria-label', item.title + ' 준비 중');
-      button.textContent = '준비 중';
+      button.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.preparing', '준비 중'));
+      setCommentaryUiText(button, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
       button.classList.remove(ACTIVE_BUTTON_CLASS);
       button.setAttribute('aria-pressed', 'false');
     }
@@ -1393,7 +1468,7 @@
 
     allTabsButton.classList.remove('commentary-tab', 'active');
     allTabsButton.classList.add('gomna-audio-commentary-button', SEQUENCE_BUTTON_CLASS);
-    allTabsButton.setAttribute('aria-label', '전체 말씀풀이 듣기');
+    allTabsButton.setAttribute('aria-label', commentaryUiT('commentary.audio.listenAllAria', '전체 말씀풀이 듣기'));
 
     if (controlsFooter && allTabsButton.parentNode !== controlsFooter) {
       controlsFooter.insertBefore(allTabsButton, closeButton || null);
@@ -1402,13 +1477,13 @@
     if (!publishedIds.length) {
       allTabsButton.disabled = true;
       allTabsButton.classList.add('gomna-audio-commentary-button--pending');
-      allTabsButton.textContent = '준비 중';
+      setCommentaryUiText(allTabsButton, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
       return;
     }
 
     allTabsButton.disabled = false;
     allTabsButton.classList.remove('gomna-audio-commentary-button--pending');
-    allTabsButton.textContent = SEQUENCE_IDLE_LABEL;
+    setCommentaryUiText(allTabsButton, 'commentary.audio.listenAll', sequenceIdleLabel());
 
     if (allTabsButton.getAttribute(ALL_TABS_AUDIO_ATTR) === 'true') return;
 
@@ -1442,36 +1517,36 @@
       replayBtn.disabled = true;
       listenBtn.classList.add('gomna-commentary-inline-button--pending');
       replayBtn.classList.add('gomna-commentary-inline-button--pending');
-      listenBtn.textContent = '준비 중';
-      replayBtn.textContent = '준비 중';
-      listenBtn.setAttribute('aria-label', item.title + ' 준비 중');
-      replayBtn.setAttribute('aria-label', item.title + ' 준비 중');
+      setCommentaryUiText(listenBtn, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
+      setCommentaryUiText(replayBtn, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
+      listenBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.preparing', '준비 중'));
+      replayBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.preparing', '준비 중'));
     } else {
       listenBtn.disabled = false;
       replayBtn.disabled = false;
       listenBtn.classList.remove('gomna-commentary-inline-button--pending');
       replayBtn.classList.remove('gomna-commentary-inline-button--pending');
-      replayBtn.textContent = '↻ 다시듣기';
-      replayBtn.setAttribute('aria-label', item.title + ' 처음부터 다시듣기');
+      setCommentaryUiText(replayBtn, 'commentary.audio.replay', '↻ ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
+      replayBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
 
       if (activeAudioId === item.audioId) {
         if (state && state.isPaused) {
-          listenBtn.textContent = '▶ 이어듣기';
-          listenBtn.setAttribute('aria-label', item.title + ' 이어듣기');
+          setCommentaryUiText(listenBtn, 'commentary.audio.resume', '▶ ' + commentaryUiT('commentary.audio.resume', '이어듣기'));
+          listenBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.resume', '이어듣기'));
         } else {
-          listenBtn.textContent = '⏸ 일시정지';
-          listenBtn.setAttribute('aria-label', item.title + ' 일시정지');
+          setCommentaryUiText(listenBtn, 'commentary.audio.pause', '⏸ ' + commentaryUiT('commentary.audio.pause', '일시정지'));
+          listenBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.pause', '일시정지'));
         }
         listenBtn.classList.add(ACTIVE_BUTTON_CLASS);
         listenBtn.setAttribute('aria-pressed', 'true');
       } else if (isCommentaryCompleted(item.audioId)) {
-        listenBtn.textContent = '↻ 다시듣기';
-        listenBtn.setAttribute('aria-label', item.title + ' 다시듣기');
+        setCommentaryUiText(listenBtn, 'commentary.audio.replay', '↻ ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
+        listenBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
         listenBtn.classList.remove(ACTIVE_BUTTON_CLASS);
         listenBtn.setAttribute('aria-pressed', 'false');
       } else {
-        listenBtn.textContent = '▶ 듣기';
-        listenBtn.setAttribute('aria-label', item.title + ' 듣기');
+        setCommentaryUiText(listenBtn, 'commentary.audio.listen', '▶ ' + commentaryUiT('commentary.audio.listen', '듣기'));
+        listenBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.listen', '듣기'));
         listenBtn.classList.remove(ACTIVE_BUTTON_CLASS);
         listenBtn.setAttribute('aria-pressed', 'false');
       }
@@ -1480,8 +1555,8 @@
     if (!publishedIds.length) {
       seqBtn.disabled = true;
       seqBtn.classList.add('gomna-commentary-inline-button--pending');
-      seqBtn.textContent = '준비 중';
-      seqBtn.setAttribute('aria-label', '전체 말씀풀이 준비 중');
+      setCommentaryUiText(seqBtn, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
+      seqBtn.setAttribute('aria-label', commentaryUiT('commentary.audio.preparing', '준비 중'));
       return;
     }
 
@@ -1489,16 +1564,22 @@
     seqBtn.classList.remove('gomna-commentary-inline-button--pending');
 
     if (hasActiveCommentarySequence(state)) {
-      seqBtn.textContent = state.isPaused ? SEQUENCE_PAUSED_LABEL : SEQUENCE_PLAYING_LABEL;
+      setCommentaryUiText(
+        seqBtn,
+        state.isPaused ? 'commentary.audio.listenAllResume' : 'commentary.audio.listenAllPause',
+        state.isPaused ? sequencePausedLabel() : sequencePlayingLabel()
+      );
       seqBtn.setAttribute(
         'aria-label',
-        state.isPaused ? '전체 말씀풀이 이어듣기' : '전체 말씀풀이 일시정지'
+        state.isPaused
+          ? commentaryUiT('commentary.audio.listenAllResumeAria', '전체 말씀풀이 이어듣기')
+          : commentaryUiT('commentary.audio.listenAllPauseAria', '전체 말씀풀이 일시정지')
       );
       seqBtn.classList.add(ACTIVE_TAB_CLASS);
       seqBtn.setAttribute('aria-pressed', state.isPaused ? 'false' : 'true');
     } else {
-      seqBtn.textContent = SEQUENCE_IDLE_LABEL;
-      seqBtn.setAttribute('aria-label', '전체 말씀풀이 듣기');
+      setCommentaryUiText(seqBtn, 'commentary.audio.listenAll', sequenceIdleLabel());
+      seqBtn.setAttribute('aria-label', commentaryUiT('commentary.audio.listenAllAria', '전체 말씀풀이 듣기'));
       seqBtn.classList.remove(ACTIVE_TAB_CLASS);
       seqBtn.setAttribute('aria-pressed', 'false');
     }
@@ -1992,7 +2073,7 @@
       if (!button) continue;
 
       if (!item.published) {
-        button.textContent = '준비 중';
+        setCommentaryUiText(button, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
         button.removeAttribute('data-audio-action');
         button.classList.remove(ACTIVE_BUTTON_CLASS);
         button.setAttribute('aria-pressed', 'false');
@@ -2005,18 +2086,18 @@
 
       if (activeAudioId === item.audioId) {
         if (state && state.isPaused) {
-          button.textContent = '▶ 이어듣기';
-          button.setAttribute('aria-label', item.title + ' 이어듣기');
+          setCommentaryUiText(button, 'commentary.audio.resume', '▶ ' + commentaryUiT('commentary.audio.resume', '이어듣기'));
+          button.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.resume', '이어듣기'));
         } else {
-          button.textContent = '⏸ 일시정지';
-          button.setAttribute('aria-label', item.title + ' 일시정지');
+          setCommentaryUiText(button, 'commentary.audio.pause', '⏸ ' + commentaryUiT('commentary.audio.pause', '일시정지'));
+          button.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.pause', '일시정지'));
         }
       } else if (isCommentaryCompleted(item.audioId)) {
-        button.textContent = '↻ 다시듣기';
-        button.setAttribute('aria-label', item.title + ' 다시듣기');
+        setCommentaryUiText(button, 'commentary.audio.replay', '↻ ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
+        button.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
       } else {
-        button.textContent = '▶ 듣기';
-        button.setAttribute('aria-label', item.title + ' 듣기');
+        setCommentaryUiText(button, 'commentary.audio.listen', '▶ ' + commentaryUiT('commentary.audio.listen', '듣기'));
+        button.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.listen', '듣기'));
       }
 
       if (activeAudioId === item.audioId) {
@@ -2038,22 +2119,28 @@
 
     var publishedIds = getPublishedSequenceAudioIds();
     if (!publishedIds.length) {
-      allTabsButton.textContent = '준비 중';
+      setCommentaryUiText(allTabsButton, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
       return;
     }
 
     var sequenceActive = hasActiveCommentarySequence(state);
     if (sequenceActive) {
-      allTabsButton.textContent = state.isPaused ? SEQUENCE_PAUSED_LABEL : SEQUENCE_PLAYING_LABEL;
+      setCommentaryUiText(
+        allTabsButton,
+        state.isPaused ? 'commentary.audio.listenAllResume' : 'commentary.audio.listenAllPause',
+        state.isPaused ? sequencePausedLabel() : sequencePlayingLabel()
+      );
       allTabsButton.setAttribute(
         'aria-label',
-        state.isPaused ? '전체 말씀풀이 이어듣기' : '전체 말씀풀이 일시정지'
+        state.isPaused
+          ? commentaryUiT('commentary.audio.listenAllResumeAria', '전체 말씀풀이 이어듣기')
+          : commentaryUiT('commentary.audio.listenAllPauseAria', '전체 말씀풀이 일시정지')
       );
       allTabsButton.classList.add(ACTIVE_TAB_CLASS);
       allTabsButton.setAttribute('aria-pressed', state.isPaused ? 'false' : 'true');
     } else {
-      allTabsButton.textContent = SEQUENCE_IDLE_LABEL;
-      allTabsButton.setAttribute('aria-label', '전체 말씀풀이 듣기');
+      setCommentaryUiText(allTabsButton, 'commentary.audio.listenAll', sequenceIdleLabel());
+      allTabsButton.setAttribute('aria-label', commentaryUiT('commentary.audio.listenAllAria', '전체 말씀풀이 듣기'));
       allTabsButton.classList.remove(ACTIVE_TAB_CLASS);
       allTabsButton.setAttribute('aria-pressed', 'false');
     }
@@ -2083,11 +2170,20 @@
   }
 
   function getTabButtonForItem(content, item) {
+    if (!content || !item) return null;
+
+    var byId = content.querySelector(
+      '.commentary-tab[data-gomna-commentary-tab-id="' + item.tabId + '"]'
+    );
+    if (byId) return byId;
+
     var tabs = content.querySelectorAll('.commentary-tab');
+    var localized = commentaryItemLabel(item);
 
     for (var i = 0; i < tabs.length; i++) {
       if (tabs[i].matches(ALL_TABS_BUTTON_SELECTOR)) continue;
-      if ((tabs[i].textContent || '').replace(/\s+/g, ' ').trim() === item.title) {
+      var text = (tabs[i].textContent || '').replace(/\s+/g, ' ').trim();
+      if (text === item.title || text === localized) {
         return tabs[i];
       }
     }
@@ -2179,6 +2275,9 @@
     updateCommentaryButtonLabels();
     syncCommentaryFooterControls(content);
     syncInlineControls(content);
+    if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.apply === 'function') {
+      window.GomnaCommentaryI18n.apply(popup);
+    }
   }
 
   function scheduleAddCommentaryButtons() {
