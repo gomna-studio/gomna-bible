@@ -5,6 +5,7 @@
  * Planning mode (default): --dry-run only.
  * Narration stage: --stage narration --dry-run| --write
  * Audio stage: --stage audio --dry-run| --write
+ * Cue stage: --stage cue --dry-run| --write
  */
 
 import fs from 'fs';
@@ -16,6 +17,11 @@ import {
   validateApprovedNarrationTarget,
   validateMp3File,
 } from './lib/commentary-multilang-audio.mjs';
+import {
+  atomicCreateCueFile,
+  createEmptyCueCounters,
+  validateCueTargetInputs,
+} from './lib/commentary-multilang-cue.mjs';
 import {
   buildCommentaryMultilangTargets,
   inventoryCommentarySource,
@@ -40,7 +46,7 @@ const ABSOLUTELY_FORBIDDEN = new Set([
   '--overwrite',
 ]);
 
-const ACCEPTED_STAGES = new Set(['narration', 'audio']);
+const ACCEPTED_STAGES = new Set(['narration', 'audio', 'cue']);
 
 const REQUIRED_TRANSLATION_FLAG = '1';
 const REQUIRED_ALLOWED_TARGET =
@@ -49,6 +55,7 @@ const REQUIRED_REPAIR_ALLOWED_TARGET =
   'genesis:1:2-3:original-language:en-US';
 const REQUIRED_REPAIR_FLAG = '1';
 const REQUIRED_AUDIO_FLAG = '1';
+const REQUIRED_CUE_FLAG = '1';
 
 function printUsage() {
   return [
@@ -79,11 +86,21 @@ function printUsage() {
     '  node scripts/run-commentary-multilang-pipeline.mjs \\',
     '    ... --stage audio --write',
     '',
+    'Usage (cue stage):',
+    '  node scripts/run-commentary-multilang-pipeline.mjs \\',
+    '    --locales en-US,ja-JP --book genesis --chapter 1 \\',
+    '    --from-verse 1 --to-verse 3 --type original-language \\',
+    '    --stage cue --dry-run',
+    '',
+    '  node scripts/run-commentary-multilang-pipeline.mjs \\',
+    '    ... --stage cue --write',
+    '',
     'Notes:',
     '  Planning mode requires --dry-run and rejects --write.',
     '  Narration write requires --stage narration --write plus env guards.',
     '  Audio write requires --stage audio --write plus audio env guards.',
-    '  Accepted stages: narration, audio.',
+    '  Cue write requires --stage cue --write plus cue env guards.',
+    '  Accepted stages: narration, audio, cue.',
     '  --upload/--publish/--force/--overwrite are always rejected.',
     '  Optional: --json (planning mode).',
   ].join('\n');
@@ -667,6 +684,24 @@ function assertAudioWriteGuards(args) {
   if (flag !== REQUIRED_AUDIO_FLAG) {
     throw new Error(
       `GOMNA_COMMENTARY_MULTILANG_AUDIO must be exactly "${REQUIRED_AUDIO_FLAG}" for --write`,
+    );
+  }
+
+  if (allowed !== expected) {
+    throw new Error(
+      `GOMNA_COMMENTARY_MULTILANG_ALLOWED_TARGET must be exactly "${expected}"`,
+    );
+  }
+}
+
+function assertCueWriteGuards(args) {
+  const flag = process.env.GOMNA_COMMENTARY_MULTILANG_CUE;
+  const allowed = process.env.GOMNA_COMMENTARY_MULTILANG_ALLOWED_TARGET;
+  const expected = buildRequestedTargetString(args);
+
+  if (flag !== REQUIRED_CUE_FLAG) {
+    throw new Error(
+      `GOMNA_COMMENTARY_MULTILANG_CUE must be exactly "${REQUIRED_CUE_FLAG}" for --write`,
     );
   }
 
@@ -1740,6 +1775,290 @@ async function runAudioStage(args, plan) {
   process.exit(0);
 }
 
+function classifyCueAction(target) {
+  return validateCueTargetInputs({
+    target,
+    toAbsolute,
+    analyzeAudio: true,
+  });
+}
+
+function buildCuePreflight(plan) {
+  const actions = [];
+  const blockers = [];
+
+  for (const target of plan.targets) {
+    const classified = classifyCueAction(target);
+    actions.push({
+      target,
+      audioId: target.audioId,
+      ...classified,
+    });
+
+    if (String(classified.action).startsWith('block_')) {
+      blockers.push(
+        `${target.audioId}: ${classified.action} (${classified.reason})`,
+      );
+    }
+  }
+
+  const planned = actions.filter(
+    (item) => item.action === 'planned_generate_cue',
+  );
+  const skipped = actions.filter(
+    (item) => item.action === 'skip_existing_verified',
+  );
+  const hardBlockers = actions.filter((item) =>
+    String(item.action).startsWith('block_'),
+  );
+
+  return {
+    actions,
+    blockers,
+    hardBlockers,
+    planned,
+    skipped,
+    plannedTargets: planned.length,
+    skippedExistingTargets: skipped.length,
+  };
+}
+
+function printCueDiagnostics(item) {
+  const selection = item.selection || {};
+  const silence = item.silence || {};
+  const expected = item.expected || {};
+  const mp3 = item.mp3 || {};
+  const speechUnits = item.speechUnits || [];
+  const primaryPlan = selection.primaryPlan || null;
+
+  console.log(`○ Cue diagnostics ${item.target.audioId}`);
+  console.log(`  locale=${item.target.locale}`);
+  console.log(
+    `  identity=${item.target.bookId}/${item.target.chapter}/${item.target.verse}/${item.target.type}`,
+  );
+  console.log(`  mp3Path=${item.target.audioPath}`);
+  console.log(`  cuePath=${item.target.cuePath}`);
+  console.log(`  mp3Duration=${mp3.duration ?? 'n/a'}`);
+  console.log(`  speechUnitCount=${speechUnits.length || 'n/a'}`);
+  console.log(`  cardCount=${item.target.cardCount}`);
+  console.log(
+    `  expectedBoundaries=${JSON.stringify(expected.expectedBoundaries || selection.expectedBoundaries || [])}`,
+  );
+  console.log(
+    `  primaryCandidateCount=${silence.primaryCandidateCount ?? silence.candidateCount ?? 'n/a'}`,
+  );
+  console.log(
+    `  supplementalOnlyCandidateCount=${silence.supplementalOnlyCandidateCount ?? 'n/a'}`,
+  );
+  console.log(
+    `  primaryPlanResult=${primaryPlan ? `${primaryPlan.ok ? 'ok' : primaryPlan.action}:${primaryPlan.reason || ''}` : 'n/a'}`,
+  );
+  console.log(
+    `  fallbackRequired=${selection.fallbackRequired ?? 'n/a'}`,
+  );
+  console.log(`  strategy=${selection.strategy ?? 'n/a'}`);
+  console.log(
+    `  selectedBoundaries=${JSON.stringify(selection.selectedBoundaries || [])}`,
+  );
+  console.log(
+    `  selectedBoundarySources=${JSON.stringify(selection.selectedSources || [])}`,
+  );
+  console.log(
+    `  selectedSilenceDurations=${JSON.stringify(selection.selectedSilenceDurations || [])}`,
+  );
+  console.log(
+    `  boundaryDifferences=${JSON.stringify(selection.boundaryDifferences || [])}`,
+  );
+  console.log(`  maximumBoundaryDifference=${selection.maxDifference ?? 'n/a'}`);
+  console.log(`  introDuration=${selection.introDuration ?? 'n/a'}`);
+  console.log(
+    `  cardDurations=${JSON.stringify(selection.cardDurations || [])}`,
+  );
+  console.log(`  closingDuration=${selection.closingDuration ?? 'n/a'}`);
+  console.log(
+    `  minimumCardDuration=${selection.minimumCardDuration ?? 'n/a'}`,
+  );
+  console.log(
+    `  segmentDurations=${JSON.stringify(selection.segmentDurations || [])}`,
+  );
+  console.log(`  plannedAction=${item.action}`);
+  if (item.reason) {
+    console.log(`  reason=${item.reason}`);
+  }
+}
+
+function printCuePlan(plan, preflight, mode) {
+  console.log('○ Request');
+  console.log(
+    `  stage=cue mode=${mode} locales=${plan.locales.join(',')} book=${plan.bookId} chapter=${plan.chapter} verses=${plan.fromVerse}-${plan.toVerse} type=${plan.types.join(',')}`,
+  );
+  console.log('');
+  console.log('○ Locale target count');
+  console.log(`  ${plan.targetCount}`);
+  console.log('');
+  console.log('○ Cue actions');
+  for (const item of preflight.actions) {
+    console.log(
+      `  - ${item.target.locale} | ${item.target.bookId}/${item.target.chapter}/${item.target.verse} | ${item.target.type} | ${item.target.audioId} | ${item.action} | ${item.target.cuePath}`,
+    );
+  }
+  console.log('');
+
+  for (const item of preflight.actions) {
+    printCueDiagnostics(item);
+    console.log('');
+  }
+
+  console.log('○ planned_generate_cue');
+  console.log(`  ${preflight.plannedTargets}`);
+  for (const item of preflight.planned) {
+    console.log(`  - ${item.audioId}`);
+  }
+  console.log('');
+  console.log('○ skip_existing_verified');
+  console.log(`  ${preflight.skippedExistingTargets}`);
+  for (const item of preflight.skipped) {
+    console.log(`  - ${item.audioId}`);
+  }
+  console.log('');
+  console.log('○ plannedTargets');
+  console.log(`  ${preflight.plannedTargets}`);
+  console.log('○ skippedExistingTargets');
+  console.log(`  ${preflight.skippedExistingTargets}`);
+  console.log('');
+  console.log('○ Blockers');
+  if (!preflight.blockers.length) {
+    console.log('  none');
+  } else {
+    for (const blocker of preflight.blockers) {
+      console.log(`  - ${blocker}`);
+    }
+  }
+  console.log('');
+  console.log(
+    mode === 'dry-run'
+      ? '○ Mode: cue dry-run (no API call, no writes, no directories)'
+      : '○ Mode: cue write',
+  );
+}
+
+function printCueCounters(counters) {
+  console.log('○ Cue counters (current cue write execution only)');
+  console.log(`  plannedTargets=${counters.plannedTargets}`);
+  console.log(`  attemptedTargets=${counters.attemptedTargets}`);
+  console.log(`  successfulTargets=${counters.successfulTargets}`);
+  console.log(`  failedTargets=${counters.failedTargets}`);
+  console.log(`  skippedExistingTargets=${counters.skippedExistingTargets}`);
+}
+
+function runCueStage(args, plan) {
+  if (args.write) {
+    assertCueWriteGuards(args);
+  }
+
+  const preflight = buildCuePreflight(plan);
+  printCuePlan(plan, preflight, args.write ? 'write' : 'dry-run');
+
+  if (args.dryRun) {
+    if (preflight.hardBlockers.length) {
+      console.error('○ STOP: cue preflight hard blockers present');
+      process.exit(1);
+    }
+    process.exit(0);
+  }
+
+  if (preflight.hardBlockers.length) {
+    console.error('○ STOP: aborting before cue write due to unsafe target state');
+    process.exit(1);
+  }
+
+  const counters = createEmptyCueCounters();
+  counters.plannedTargets = preflight.plannedTargets;
+  counters.skippedExistingTargets = preflight.skippedExistingTargets;
+
+  const results = [];
+
+  for (const item of preflight.actions) {
+    if (item.action === 'skip_existing_verified') {
+      results.push({
+        audioId: item.audioId,
+        action: item.action,
+        ok: true,
+        untouched: true,
+      });
+      continue;
+    }
+
+    if (item.action !== 'planned_generate_cue') {
+      results.push({
+        audioId: item.audioId,
+        action: item.action,
+        ok: false,
+        error: item.reason,
+      });
+      continue;
+    }
+
+    counters.attemptedTargets += 1;
+    console.log(`○ Writing cue ${item.audioId}`);
+
+    try {
+      const published = atomicCreateCueFile({
+        cuePath: toAbsolute(item.target.cuePath),
+        document: item.cueDocument,
+        target: item.target,
+        durationSeconds: item.mp3.duration,
+        cardCount: item.target.cardCount,
+      });
+      counters.successfulTargets += 1;
+      console.log(`○ Wrote Cue: ${item.target.cuePath}`);
+      console.log(`  bytes=${published.byteSize}`);
+      results.push({
+        audioId: item.audioId,
+        action: 'created_cue',
+        ok: true,
+        cuePath: item.target.cuePath,
+        byteSize: published.byteSize,
+      });
+    } catch (error) {
+      counters.failedTargets += 1;
+      console.error(`○ Cue write failed: ${item.audioId}`);
+      console.error(`  ${error.message}`);
+      results.push({
+        audioId: item.audioId,
+        action: 'cue_write_failed',
+        ok: false,
+        error: error.message,
+      });
+    }
+  }
+
+  const created = results.filter((item) => item.action === 'created_cue');
+  const failed = results.filter((item) => !item.ok);
+  const skipped = results.filter(
+    (item) => item.action === 'skip_existing_verified',
+  );
+
+  console.log('');
+  console.log('○ Cue write summary');
+  console.log(`  skipped_existing_verified=${skipped.length}`);
+  console.log(`  created_cue=${created.length}`);
+  console.log(`  failures=${failed.length}`);
+  printCueCounters(counters);
+  for (const item of created) {
+    console.log(`  + ${item.audioId} bytes=${item.byteSize}`);
+  }
+  for (const item of failed) {
+    console.log(`  ! ${item.audioId} ${item.action}: ${item.error}`);
+  }
+
+  if (failed.length) {
+    process.exit(1);
+  }
+
+  process.exit(0);
+}
+
 function runPlanningMode(args) {
   if (!args.dryRun) {
     console.error('○ Error: planning mode requires --dry-run');
@@ -1748,7 +2067,9 @@ function runPlanningMode(args) {
   }
 
   if (args.write) {
-    console.error('○ Error: --write requires --stage narration or --stage audio');
+    console.error(
+      '○ Error: --write requires --stage narration, --stage audio, or --stage cue',
+    );
     console.error(printUsage());
     process.exit(1);
   }
@@ -1844,7 +2165,7 @@ async function main() {
 
   if (args.write && !ACCEPTED_STAGES.has(args.stage)) {
     console.error(
-      '○ Error: --write requires --stage narration or --stage audio',
+      '○ Error: --write requires --stage narration, --stage audio, or --stage cue',
     );
     console.error(printUsage());
     process.exit(1);
@@ -1862,7 +2183,11 @@ async function main() {
     process.exit(1);
   }
 
-  if (args.stage === 'narration' || args.stage === 'audio') {
+  if (
+    args.stage === 'narration' ||
+    args.stage === 'audio' ||
+    args.stage === 'cue'
+  ) {
     if (!args.dryRun && !args.write) {
       console.error(
         `○ Error: --stage ${args.stage} requires either --dry-run or --write`,
@@ -1896,6 +2221,13 @@ async function main() {
       process.exit(1);
     }
 
+    if (args.stage === 'cue' && args.repairInvalidDrafts) {
+      console.error(
+        '○ Error: --repair-invalid-drafts is invalid for --stage cue',
+      );
+      process.exit(1);
+    }
+
     let plan;
     try {
       plan = buildCommentaryMultilangTargets({
@@ -1916,7 +2248,12 @@ async function main() {
       return;
     }
 
-    await runAudioStage(args, plan);
+    if (args.stage === 'audio') {
+      await runAudioStage(args, plan);
+      return;
+    }
+
+    runCueStage(args, plan);
     return;
   }
 
