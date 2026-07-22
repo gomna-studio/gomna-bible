@@ -267,9 +267,45 @@
     return state ? (Number(state.currentTime) || 0) : 0;
   }
 
+  function parseCommentaryHighlightAudioId(audioId) {
+    var raw;
+    var match;
+    var bookId;
+    var chapter;
+    var verse;
+    var type;
+    var locale;
+    var baseAudioId;
+
+    if (typeof audioId !== 'string' || !audioId) return null;
+
+    raw = audioId;
+    match = raw.match(
+      /^([a-z0-9]+)\.(\d+)\.(\d+)\.([a-z0-9-]+)(?:\.(en-US|ja-JP))?$/
+    );
+    if (!match) return null;
+
+    bookId = match[1];
+    chapter = match[2];
+    verse = match[3];
+    type = match[4];
+    locale = match[5] || 'ko-KR';
+    baseAudioId = bookId + '.' + chapter + '.' + verse + '.' + type;
+
+    return {
+      audioId: raw,
+      baseAudioId: baseAudioId,
+      bookId: bookId,
+      chapter: chapter,
+      verse: verse,
+      type: type,
+      locale: locale
+    };
+  }
+
   function getTypeFromAudioId(audioId) {
-    var parts = String(audioId || '').split('.');
-    return parts.length >= 4 ? parts[parts.length - 1] : null;
+    var parsed = parseCommentaryHighlightAudioId(audioId);
+    return parsed ? parsed.type : null;
   }
 
   function getConfigForAudioId(audioId) {
@@ -435,15 +471,38 @@
   }
 
   function audioIdToTtsPath(audioId, config) {
-    var match = String(audioId || '').match(/^([a-z]+)\.(\d+)\.(\d+)\.[^.]+$/);
-    if (!match || !config || !config.textFile) return null;
-    return '/tts-scripts/ko-KR/' + match[1] + '/' + match[2] + '/' + match[3] + '/' + config.textFile;
+    var parsed = parseCommentaryHighlightAudioId(audioId);
+    if (!parsed || !config || !config.textFile) return null;
+    return (
+      '/tts-scripts/' +
+      parsed.locale +
+      '/' +
+      parsed.bookId +
+      '/' +
+      parsed.chapter +
+      '/' +
+      parsed.verse +
+      '/' +
+      config.textFile
+    );
   }
 
   function audioIdToCuePath(audioId) {
-    var match = String(audioId || '').match(/^([a-z]+)\.(\d+)\.(\d+)\.([^.]+)$/);
-    if (!match) return null;
-    return '/audio/cues/ko-KR/' + match[1] + '/' + match[2] + '/' + match[3] + '/' + match[4] + '.json';
+    var parsed = parseCommentaryHighlightAudioId(audioId);
+    if (!parsed) return null;
+    return (
+      '/audio/cues/' +
+      parsed.locale +
+      '/' +
+      parsed.bookId +
+      '/' +
+      parsed.chapter +
+      '/' +
+      parsed.verse +
+      '/' +
+      parsed.type +
+      '.json'
+    );
   }
 
   function rowIndicesKey(indices) {
