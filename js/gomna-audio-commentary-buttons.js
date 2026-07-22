@@ -28,6 +28,7 @@
   var currentCueKey = null;
   var touchStartY = 0;
   var modalTouchListenersBound = false;
+  var languageChangeListenerBound = false;
 
   var currentContext = null;
   var currentCommentaryItems = [];
@@ -649,6 +650,85 @@
     return bookId + '.' + pad3(chapter) + '.' + pad3(verse) + '.' + type;
   }
 
+  function resolveCommentaryAudioTarget(baseAudioId) {
+    var raw = null;
+    var normalized = 'ko';
+    var primary;
+
+    try {
+      if (typeof window.GomnaGetActiveLangCode === 'function') {
+        raw = window.GomnaGetActiveLangCode();
+      }
+    } catch (e0) {
+      raw = null;
+    }
+
+    if (!raw) {
+      try {
+        if (
+          window.GomnaReaderLangBridge &&
+          typeof window.GomnaReaderLangBridge.getActiveLanguage === 'function'
+        ) {
+          raw = window.GomnaReaderLangBridge.getActiveLanguage();
+        }
+      } catch (e1) {
+        raw = null;
+      }
+    }
+
+    if (raw != null && String(raw).trim()) {
+      primary = String(raw)
+        .trim()
+        .toLowerCase()
+        .replace(/_/g, '-')
+        .split('-')[0];
+      if (primary) normalized = primary;
+    }
+
+    if (normalized === 'en') {
+      return {
+        baseAudioId: baseAudioId,
+        audioId: baseAudioId + '.en-US',
+        locale: 'en-US',
+        language: 'en'
+      };
+    }
+
+    if (normalized === 'ja') {
+      return {
+        baseAudioId: baseAudioId,
+        audioId: baseAudioId + '.ja-JP',
+        locale: 'ja-JP',
+        language: 'ja'
+      };
+    }
+
+    return {
+      baseAudioId: baseAudioId,
+      audioId: baseAudioId,
+      locale: 'ko-KR',
+      language: 'ko'
+    };
+  }
+
+  function showCommentaryLanguageUnavailableMessage(language) {
+    var message;
+
+    if (language === 'en') {
+      message = 'Audio commentary in English is being prepared.';
+    } else if (language === 'ja') {
+      message = '日本語の音声解説は準備中です。';
+    } else {
+      return;
+    }
+
+    if (typeof window.GOMNA_AUDIO_TOAST === 'function') {
+      window.GOMNA_AUDIO_TOAST(message);
+    } else {
+      console.warn('[GOMNA_AUDIO]', message);
+    }
+  }
+
   function getPopup() {
     return document.getElementById('commentaryPopup');
   }
@@ -1183,14 +1263,23 @@
     resetCommentaryPlaybackState();
     currentContext = ctx;
     currentCommentaryItems = COMMENTARY_TYPE_TEMPLATES.map(function(template) {
-      var audioId = buildCommentaryAudioId(ctx.bookId, ctx.chapter, ctx.verse, template.type);
+      var baseAudioId = buildCommentaryAudioId(
+        ctx.bookId,
+        ctx.chapter,
+        ctx.verse,
+        template.type
+      );
+      var target = resolveCommentaryAudioTarget(baseAudioId);
 
       return {
         title: template.title,
         tabId: template.tabId,
         type: template.type,
-        audioId: audioId,
-        published: isPublishedAudioId(audioId)
+        baseAudioId: baseAudioId,
+        audioId: target.audioId,
+        locale: target.locale,
+        language: target.language,
+        published: isPublishedAudioId(target.audioId)
       };
     });
     currentCommentaryAudioIds = currentCommentaryItems.map(function(item) {
@@ -1737,7 +1826,8 @@
 
       audioId = cueEl.getAttribute('data-audio-id');
       item = getItemByAudioId(audioId);
-      if (!item || !item.published) return;
+      // Matthew Henry cues keep the locale-free base ID for lookup and playback.
+      if (!item || !isPublishedAudioId(audioId)) return;
 
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -1827,12 +1917,32 @@
 
   function getItemByAudioId(audioId) {
     for (var i = 0; i < currentCommentaryItems.length; i++) {
-      if (currentCommentaryItems[i].audioId === audioId) {
+      if (
+        currentCommentaryItems[i].audioId === audioId ||
+        currentCommentaryItems[i].baseAudioId === audioId
+      ) {
         return currentCommentaryItems[i];
       }
     }
 
     return null;
+  }
+
+  function applyResolvedCommentaryTarget(item) {
+    var baseId;
+    var target;
+
+    if (!item) return null;
+
+    baseId = item.baseAudioId || item.audioId;
+    target = resolveCommentaryAudioTarget(baseId);
+    item.baseAudioId = baseId;
+    item.audioId = target.audioId;
+    item.locale = target.locale;
+    item.language = target.language;
+    item.published = isPublishedAudioId(target.audioId);
+
+    return target;
   }
 
   var CommentaryAudioController = {
@@ -1865,10 +1975,21 @@
     playSingle: function(audioId) {
       var engine = this.getEngine();
       var state = this.getState();
+      var item = getItemByAudioId(audioId);
+      var target;
+      var resolvedAudioId;
 
-      if (!engine || !engine.playAudioById || !getItemByAudioId(audioId)) return false;
+      if (!engine || !engine.playAudioById || !item) return false;
 
-      if (state && state.currentAudioId === audioId) {
+      target = applyResolvedCommentaryTarget(item);
+      resolvedAudioId = target.audioId;
+
+      if ((target.language === 'en' || target.language === 'ja') && !item.published) {
+        showCommentaryLanguageUnavailableMessage(target.language);
+        return false;
+      }
+
+      if (state && state.currentAudioId === resolvedAudioId) {
         if (state.isPlaying && engine.pauseAudio) {
           engine.pauseAudio();
           updateCommentaryButtonLabels();
@@ -1882,8 +2003,7 @@
         }
       }
 
-      this.startSingleFromBeginning(audioId);
-      return true;
+      return this.startSingleFromBeginning(item.baseAudioId || audioId);
     },
 
     replaySingle: function(audioId) {
@@ -1893,14 +2013,25 @@
     startSingleFromBeginning: function(audioId) {
       var engine = this.getEngine();
       var state = this.getState();
+      var item = getItemByAudioId(audioId);
+      var target;
+      var resolvedAudioId;
 
-      if (!engine || !engine.playAudioById || !getItemByAudioId(audioId)) return false;
+      if (!engine || !engine.playAudioById || !item) return false;
 
-      clearCommentaryCompleted(audioId);
+      target = applyResolvedCommentaryTarget(item);
+      resolvedAudioId = target.audioId;
+
+      if ((target.language === 'en' || target.language === 'ja') && !item.published) {
+        showCommentaryLanguageUnavailableMessage(target.language);
+        return false;
+      }
+
+      clearCommentaryCompleted(resolvedAudioId);
       currentCueKey = null;
       lastSequenceQueueIndex = -1;
       this.stopForTransition(engine, state);
-      engine.playAudioById(audioId, { startTime: 0 });
+      engine.playAudioById(resolvedAudioId, { startTime: 0 });
       updateCommentaryButtonLabels();
       return true;
     },
@@ -2238,10 +2369,63 @@
   }
 
   function refreshPublishedFlags() {
+    var item;
+    var i;
+
     if (!currentCommentaryItems.length) return;
 
-    for (var i = 0; i < currentCommentaryItems.length; i++) {
-      currentCommentaryItems[i].published = isPublishedAudioId(currentCommentaryItems[i].audioId);
+    for (i = 0; i < currentCommentaryItems.length; i++) {
+      item = currentCommentaryItems[i];
+      applyResolvedCommentaryTarget(item);
+    }
+
+    currentCommentaryAudioIds = currentCommentaryItems.map(function(entry) {
+      return entry.audioId;
+    });
+  }
+
+  function handleCommentaryLanguageChange() {
+    var previousIds = [];
+    var i;
+    var item;
+    var previousId;
+    var button;
+    var replayButton;
+    var section;
+    var content;
+
+    if (!currentCommentaryItems.length) return;
+
+    for (i = 0; i < currentCommentaryItems.length; i++) {
+      previousIds.push(currentCommentaryItems[i].audioId);
+    }
+
+    refreshPublishedFlags();
+
+    for (i = 0; i < currentCommentaryItems.length; i++) {
+      item = currentCommentaryItems[i];
+      previousId = previousIds[i];
+      button =
+        findCommentaryButtonByAudioId(previousId) ||
+        findCommentaryButtonByAudioId(item.audioId);
+      replayButton =
+        findReplayButtonByAudioId(previousId) ||
+        findReplayButtonByAudioId(item.audioId);
+
+      if (button) updateSingleCommentaryButton(button, item);
+      if (replayButton) updateReplayButton(replayButton, item);
+
+      section = document.getElementById(item.tabId);
+      if (section) {
+        section.setAttribute('data-audio-target', item.audioId);
+      }
+    }
+
+    content = getContent();
+    updateCommentaryButtonLabels();
+    if (content) {
+      syncInlineControls(content);
+      syncCommentaryFooterControls(content);
     }
   }
 
@@ -2454,6 +2638,11 @@
   });
 
   window.addEventListener('audio:error', updateCommentaryButtonLabels);
+
+  if (!languageChangeListenerBound) {
+    languageChangeListenerBound = true;
+    window.addEventListener('gomna:languagechange', handleCommentaryLanguageChange);
+  }
 
   window.GOMNA_AUDIO_COMMENTARY_BUTTONS = {
     isCommentaryAudioId: isCommentaryAudioId,
