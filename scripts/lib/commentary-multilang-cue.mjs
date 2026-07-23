@@ -90,9 +90,20 @@ export function spokenCharacterWeight(text) {
   return compact.length;
 }
 
+function pushSpeechUnit(units, kind, text, itemIndex = -1) {
+  units.push({
+    kind,
+    itemIndex,
+    text,
+    weight: spokenCharacterWeight(text),
+  });
+}
+
 /**
  * Build ordered speech units from approved narration.
- * Card count comes from source/approved metadata, never a global five-card assumption.
+ * Card boundaries come from approved metadata cardCount plus deterministic
+ * narration structure matches — never from fixed paragraph-shape guesses like
+ * "always 3 paragraphs" or "always 3 lines per Matthew Henry card".
  */
 export function buildNarrationSpeechUnits(narrationText, cardCount, {
   type,
@@ -102,72 +113,145 @@ export function buildNarrationSpeechUnits(narrationText, cardCount, {
   const signature = buildNarrationStructureSignature(paragraphs);
   const expectedCards = Number(cardCount);
   const policy = type ? getCueSegmentPolicy(type) : null;
+  const paragraphsPerItem =
+    type && getCommentaryType(type)?.paragraphsPerItem
+      ? Number(getCommentaryType(type).paragraphsPerItem)
+      : 1;
+  const allOnes = signature.lineCounts.every((count) => count === 1);
+  const paraCount = signature.paragraphCount;
 
   if (!Number.isFinite(expectedCards) || expectedCards < 1) {
     throw new Error(`cardCount must be >= 1, got ${cardCount}`);
   }
 
-  let introText;
+  let introText = null;
   let cardTexts = [];
   let bridgeTexts = [];
   let closingText = null;
+  let matched = false;
 
+  // Classic intro + packed card lines + closing: [1, cardCount, 1]
   if (
-    signature.paragraphCount === 3 &&
+    paraCount === 3 &&
     signature.lineCounts[0] === 1 &&
     signature.lineCounts[2] === 1 &&
-    signature.lineCounts[1] > 0
+    signature.lineCounts[1] === expectedCards
   ) {
     introText = paragraphs[0][0];
     cardTexts = paragraphs[1].slice();
     closingText = paragraphs[2][0];
-  } else if (
+    matched = true;
+  }
+
+  // Hymn-only bridge form: intro + bridge + cards + closing (all single-line paragraphs)
+  if (
+    !matched &&
     type === 'hymn' &&
     policy?.allowBridge &&
-    signature.paragraphCount === expectedCards + 3 &&
-    signature.lineCounts.every((count) => count === 1)
+    allOnes &&
+    paraCount === expectedCards + 3
   ) {
     introText = paragraphs[0][0];
     bridgeTexts = [paragraphs[1][0]];
     cardTexts = paragraphs.slice(2, 2 + expectedCards).map((lines) => lines[0]);
     closingText = paragraphs[paragraphs.length - 1][0];
-  } else if (
-    type === 'matthew-henry' &&
-    policy?.allowMultiParagraphItems
-  ) {
-    const paragraphsPerItem = getCommentaryType(type).paragraphsPerItem || 3;
-    const body = paragraphs.slice(1);
-    const block = expectedCards * paragraphsPerItem;
-    if (body.length !== block && body.length !== block + 1) {
-      throw new Error(
-        `matthew-henry narration body length ${body.length} incompatible with ${expectedCards} cards x ${paragraphsPerItem}`,
-      );
-    }
-    introText = paragraphs[0].join('\n');
-    for (let index = 0; index < expectedCards; index += 1) {
-      const chunk = body
-        .slice(index * paragraphsPerItem, (index + 1) * paragraphsPerItem)
-        .map((lines) => lines.join('\n'))
-        .join('\n');
-      cardTexts.push(chunk);
-    }
-    if (body.length === block + 1) {
-      closingText = body[body.length - 1].join('\n');
-    }
-  } else if (
-    signature.paragraphCount >= expectedCards + 1 &&
-    signature.lineCounts.every((count) => count === 1)
+    matched = true;
+  }
+
+  // Packed intro + card lines: [1, cardCount]
+  if (
+    !matched &&
+    paraCount === 2 &&
+    signature.lineCounts[0] === 1 &&
+    signature.lineCounts[1] === expectedCards
   ) {
     introText = paragraphs[0][0];
-    const body = paragraphs.slice(1);
-    const hasClosing =
-      includeClosing !== false &&
-      body.length === expectedCards + 1;
-    cardTexts = (hasClosing ? body.slice(0, -1) : body).map((lines) => lines[0]);
-    closingText = hasClosing ? body[body.length - 1][0] : null;
-  } else {
+    cardTexts = paragraphs[1].slice();
+    matched = true;
+  }
+
+  // Matthew Henry: preserve actual cardCount with variable lines / paragraph shapes
+  if (!matched && type === 'matthew-henry' && policy?.allowMultiParagraphItems) {
+    const linesPerCard = Number.isFinite(paragraphsPerItem) && paragraphsPerItem > 0
+      ? paragraphsPerItem
+      : 3;
+
+    // Packed flat body: [1, cardCount * linesPerCard]
+    if (
+      paraCount === 2 &&
+      signature.lineCounts[0] === 1 &&
+      signature.lineCounts[1] === expectedCards * linesPerCard
+    ) {
+      introText = paragraphs[0][0];
+      const lines = paragraphs[1];
+      for (let index = 0; index < expectedCards; index += 1) {
+        cardTexts.push(
+          lines
+            .slice(index * linesPerCard, (index + 1) * linesPerCard)
+            .join('\n'),
+        );
+      }
+      matched = true;
+    }
+
+    // One body paragraph per card (variable line counts), optional closing paragraph
+    if (!matched && paraCount >= expectedCards + 1) {
+      const body = paragraphs.slice(1);
+      if (body.length === expectedCards || body.length === expectedCards + 1) {
+        introText = paragraphs[0].join('\n');
+        const cardParas =
+          body.length === expectedCards + 1 ? body.slice(0, -1) : body;
+        cardTexts = cardParas.map((lines) => lines.join('\n'));
+        if (body.length === expectedCards + 1) {
+          closingText = body[body.length - 1].join('\n');
+        }
+        matched = true;
+      }
+    }
+
+    // Legacy multi-paragraph-per-card body (cardCount * linesPerCard paragraphs)
+    if (!matched) {
+      const body = paragraphs.slice(1);
+      const block = expectedCards * linesPerCard;
+      if (body.length === block || body.length === block + 1) {
+        introText = paragraphs[0].join('\n');
+        for (let index = 0; index < expectedCards; index += 1) {
+          cardTexts.push(
+            body
+              .slice(index * linesPerCard, (index + 1) * linesPerCard)
+              .map((lines) => lines.join('\n'))
+              .join('\n'),
+          );
+        }
+        if (body.length === block + 1) {
+          closingText = body[body.length - 1].join('\n');
+        }
+        matched = true;
+      }
+    }
+  }
+
+  // All single-line paragraphs keyed by cardCount (+ optional intro/closing)
+  if (!matched && allOnes) {
+    if (paraCount === expectedCards + 2) {
+      introText = paragraphs[0][0];
+      cardTexts = paragraphs.slice(1, 1 + expectedCards).map((lines) => lines[0]);
+      closingText = paragraphs[paragraphs.length - 1][0];
+      matched = true;
+    } else if (paraCount === expectedCards + 1) {
+      introText = paragraphs[0][0];
+      cardTexts = paragraphs.slice(1).map((lines) => lines[0]);
+      matched = true;
+    } else if (paraCount === expectedCards && !policy?.requireClosing) {
+      // Cards-only (sermon / cross-reference): one paragraph per card, no intro/closing
+      cardTexts = paragraphs.map((lines) => lines[0]);
+      matched = true;
+    }
+  }
+
+  if (!matched) {
     throw new Error(
-      `unsupported narration structure for cue speech units: ${JSON.stringify(signature.lineCounts)}`,
+      `unable to determine card boundaries from narration structure: ${JSON.stringify(signature.lineCounts)} (cardCount=${expectedCards})`,
     );
   }
 
@@ -177,66 +261,66 @@ export function buildNarrationSpeechUnits(narrationText, cardCount, {
     );
   }
 
-  const units = [
-    {
-      kind: 'intro',
-      itemIndex: -1,
-      text: introText,
-      weight: spokenCharacterWeight(introText),
-    },
-  ];
+  const units = [];
+  if (introText != null) {
+    pushSpeechUnit(units, 'intro', introText);
+  }
 
   for (const bridgeText of bridgeTexts) {
-    units.push({
-      kind: 'bridge',
-      itemIndex: -1,
-      text: bridgeText,
-      weight: spokenCharacterWeight(bridgeText),
-    });
+    pushSpeechUnit(units, 'bridge', bridgeText);
   }
 
   for (let index = 0; index < cardTexts.length; index += 1) {
-    const text = cardTexts[index];
-    units.push({
-      kind: 'item',
-      itemIndex: index,
-      text,
-      weight: spokenCharacterWeight(text),
-    });
+    pushSpeechUnit(units, 'item', cardTexts[index], index);
   }
 
-  const closingNeeded =
-    includeClosing === true ||
-    (includeClosing !== false &&
-      closingText != null &&
-      (policy ? policy.requireClosing || closingText != null : true));
-
-  if (closingNeeded && closingText != null) {
-    units.push({
-      kind: 'closing',
-      itemIndex: -1,
-      text: closingText,
-      weight: spokenCharacterWeight(closingText),
-    });
+  // Closing only when present in the approved narration (and not explicitly disabled).
+  if (closingText != null && includeClosing !== false) {
+    pushSpeechUnit(units, 'closing', closingText);
+  } else if (includeClosing === true) {
+    throw new Error('closing speech unit required but missing from narration');
   } else if (policy?.requireClosing && closingText == null) {
     throw new Error(`type ${type} requires a closing speech unit`);
+  }
+
+  if (units.length < 2) {
+    throw new Error('speechUnits must contain at least two units');
   }
 
   return units;
 }
 
-export function calculateExpectedBoundaries(speechUnits, durationSeconds) {
+/** Optional scale for formulaic intro/bridge/closing expected-boundary weights. */
+export const EDGE_EXPECTED_WEIGHT_SCALE = 0.5;
+
+export function calculateExpectedBoundaries(
+  speechUnits,
+  durationSeconds,
+  { edgeWeightScale = 1 } = {},
+) {
   if (!Array.isArray(speechUnits) || speechUnits.length < 2) {
-    throw new Error('speechUnits must contain at least intro and one more unit');
+    throw new Error('speechUnits must contain at least two units');
   }
   if (!isFinitePositive(durationSeconds)) {
     throw new Error(`invalid duration: ${durationSeconds}`);
+  }
+  const scale = Number(edgeWeightScale);
+  if (!Number.isFinite(scale) || scale <= 0) {
+    throw new Error(`invalid edgeWeightScale=${edgeWeightScale}`);
   }
 
   const weights = speechUnits.map((unit) => {
     const weight = Number(unit.weight);
     if (!Number.isFinite(weight) || weight <= 0) {
       throw new Error('every speech unit must have a positive weight');
+    }
+    if (
+      scale !== 1 &&
+      (unit.kind === 'intro' ||
+        unit.kind === 'bridge' ||
+        unit.kind === 'closing')
+    ) {
+      return weight * scale;
     }
     return weight;
   });
@@ -255,6 +339,7 @@ export function calculateExpectedBoundaries(speechUnits, durationSeconds) {
     expectedBoundaries: expected,
     boundaryCount: expected.length,
     speechUnitCount: speechUnits.length,
+    edgeWeightScale: scale,
   };
 }
 
@@ -467,8 +552,19 @@ function normalizeCandidateList(candidates) {
     .sort((a, b) => a.silenceEnd - b.silenceEnd);
 }
 
+function minimumDurationForSpeechUnit(
+  unit,
+  {
+    minCardDuration = MIN_CARD_SEGMENT_DURATION_SECONDS,
+    minEdgeDuration = MIN_EDGE_SEGMENT_DURATION_SECONDS,
+  } = {},
+) {
+  return unit?.kind === 'item' ? minCardDuration : minEdgeDuration;
+}
+
 /**
  * Validate intro/card/closing duration rules for a boundary plan.
+ * When speechUnits are provided, each segment uses item vs edge minimums.
  */
 export function validateSegmentDurationRules(
   selectedBoundaries,
@@ -476,6 +572,7 @@ export function validateSegmentDurationRules(
   {
     minCardDuration = MIN_CARD_SEGMENT_DURATION_SECONDS,
     minEdgeDuration = MIN_EDGE_SEGMENT_DURATION_SECONDS,
+    speechUnits = null,
   } = {},
 ) {
   const points = [0, ...selectedBoundaries.map(Number), Number(durationSeconds)];
@@ -498,17 +595,60 @@ export function validateSegmentDurationRules(
     }
   }
 
+  const segmentDurations = [];
+  for (let index = 0; index < points.length - 1; index += 1) {
+    segmentDurations.push(points[index + 1] - points[index]);
+  }
+
+  if (Array.isArray(speechUnits) && speechUnits.length === segmentDurations.length) {
+    const cardDurations = [];
+    let introDuration = null;
+    let closingDuration = null;
+
+    for (let index = 0; index < speechUnits.length; index += 1) {
+      const unit = speechUnits[index];
+      const duration = segmentDurations[index];
+      const minimum = minimumDurationForSpeechUnit(unit, {
+        minCardDuration,
+        minEdgeDuration,
+      });
+      if (!(duration >= minimum - 1e-9)) {
+        return {
+          ok: false,
+          action: 'block_minimum_segment_duration',
+          reason: `${unit.kind} duration ${duration} < ${minimum}`,
+          introDuration,
+          cardDurations,
+          closingDuration,
+          segmentDurations,
+          minimumCardDuration: cardDurations.length
+            ? Math.min(...cardDurations)
+            : null,
+        };
+      }
+      if (unit.kind === 'intro') introDuration = duration;
+      if (unit.kind === 'closing') closingDuration = duration;
+      if (unit.kind === 'item') cardDurations.push(duration);
+    }
+
+    return {
+      ok: true,
+      introDuration,
+      cardDurations,
+      closingDuration,
+      segmentDurations,
+      minimumCardDuration: cardDurations.length
+        ? Math.min(...cardDurations)
+        : null,
+    };
+  }
+
   const introDuration = points[1] - points[0];
   const closingDuration = points[points.length - 1] - points[points.length - 2];
   const cardDurations = [];
   for (let index = 1; index < points.length - 2; index += 1) {
     cardDurations.push(points[index + 1] - points[index]);
   }
-  const segmentDurations = [
-    introDuration,
-    ...cardDurations,
-    closingDuration,
-  ];
 
   if (!(introDuration >= minEdgeDuration - 1e-9)) {
     return {
@@ -612,6 +752,7 @@ export function selectOrderedSilenceBoundaries({
   minEdgeDuration = MIN_EDGE_SEGMENT_DURATION_SECONDS,
   maxBoundaryDistance = MAX_BOUNDARY_DISTANCE_SECONDS,
   optimizeFallback = false,
+  speechUnits = null,
 } = {}) {
   const expected = Array.isArray(expectedBoundaries)
     ? expectedBoundaries.map(Number)
@@ -657,6 +798,20 @@ export function selectOrderedSilenceBoundaries({
     };
   }
 
+  const units =
+    Array.isArray(speechUnits) && speechUnits.length === boundaryCount + 1
+      ? speechUnits
+      : null;
+  const minFirst = units
+    ? minimumDurationForSpeechUnit(units[0], { minCardDuration, minEdgeDuration })
+    : minEdgeDuration;
+  const minLast = units
+    ? minimumDurationForSpeechUnit(units[units.length - 1], {
+        minCardDuration,
+        minEdgeDuration,
+      })
+    : minEdgeDuration;
+
   const infinity = Number.POSITIVE_INFINITY;
   const emptyCost = () => ({
     totalDistance: infinity,
@@ -678,9 +833,9 @@ export function selectOrderedSilenceBoundaries({
   for (let candidateIndex = 0; candidateIndex < unique.length; candidateIndex += 1) {
     const candidate = unique[candidateIndex];
     const boundary = candidate.silenceEnd;
-    // Intro must be >= minEdge; closing checked against final boundary later.
-    if (boundary < minEdgeDuration) continue;
-    if (durationSeconds - boundary < minEdgeDuration) continue;
+    // First / last segment minimums depend on whether those units are cards or edges.
+    if (boundary < minFirst) continue;
+    if (durationSeconds - boundary < minLast) continue;
 
     const distance = Math.abs(boundary - expected[0]);
     // Only explore paths that can still satisfy the fixed 2.0s limit.
@@ -700,6 +855,13 @@ export function selectOrderedSilenceBoundaries({
   }
 
   for (let boundaryIndex = 1; boundaryIndex < boundaryCount; boundaryIndex += 1) {
+    const gapMinimum = units
+      ? minimumDurationForSpeechUnit(units[boundaryIndex], {
+          minCardDuration,
+          minEdgeDuration,
+        })
+      : minCardDuration;
+
     for (
       let candidateIndex = 0;
       candidateIndex < unique.length;
@@ -707,13 +869,13 @@ export function selectOrderedSilenceBoundaries({
     ) {
       const currentCandidate = unique[candidateIndex];
       const current = currentCandidate.silenceEnd;
-      if (durationSeconds - current < minEdgeDuration) continue;
+      if (durationSeconds - current < minLast) continue;
 
       for (let previousIndex = 0; previousIndex < candidateIndex; previousIndex += 1) {
         const previousCandidate = unique[previousIndex];
         const previousBoundary = previousCandidate.silenceEnd;
-        // Gap between consecutive selected boundaries is always a card segment.
-        if (current - previousBoundary < minCardDuration) continue;
+        // Gap between consecutive selected boundaries is the unit at boundaryIndex.
+        if (current - previousBoundary < gapMinimum) continue;
 
         const previousCost = costs[boundaryIndex - 1][previousIndex];
         if (!Number.isFinite(previousCost.totalDistance)) continue;
@@ -748,7 +910,7 @@ export function selectOrderedSilenceBoundaries({
 
   for (let candidateIndex = 0; candidateIndex < unique.length; candidateIndex += 1) {
     const boundary = unique[candidateIndex].silenceEnd;
-    if (durationSeconds - boundary < minEdgeDuration) continue;
+    if (durationSeconds - boundary < minLast) continue;
     const cost = costs[boundaryCount - 1][candidateIndex];
     if (!Number.isFinite(cost.totalDistance)) continue;
     if (compare(cost, bestCost) < 0) {
@@ -802,7 +964,7 @@ export function selectOrderedSilenceBoundaries({
   const durationCheck = validateSegmentDurationRules(
     selectedBoundaries,
     durationSeconds,
-    { minCardDuration, minEdgeDuration },
+    { minCardDuration, minEdgeDuration, speechUnits: units },
   );
   if (!durationCheck.ok) {
     return {
@@ -855,17 +1017,18 @@ export function selectOrderedSilenceBoundaries({
 /**
  * Primary-first planning with controlled supplemental fallback.
  */
-export function planCueBoundaries({
+function planCueBoundariesForExpected({
   silence,
   expectedBoundaries,
   durationSeconds,
-} = {}) {
-  const expected = expectedBoundaries;
+  speechUnits,
+}) {
   const primaryPlan = selectOrderedSilenceBoundaries({
     candidates: silence.primaryCandidates,
-    expectedBoundaries: expected,
+    expectedBoundaries,
     durationSeconds,
     optimizeFallback: false,
+    speechUnits,
   });
 
   if (primaryPlan.ok) {
@@ -880,9 +1043,10 @@ export function planCueBoundaries({
 
   const fallbackPlan = selectOrderedSilenceBoundaries({
     candidates: silence.mergedCandidates,
-    expectedBoundaries: expected,
+    expectedBoundaries,
     durationSeconds,
     optimizeFallback: true,
+    speechUnits,
   });
 
   if (fallbackPlan.ok) {
@@ -902,6 +1066,60 @@ export function planCueBoundaries({
     primaryPlan,
     fallbackPlan,
   };
+}
+
+/**
+ * Primary-first silence planning. If character-weight expectations fail the
+ * fixed 2.0s rule, retry once with reduced intro/bridge/closing weights.
+ */
+export function planCueBoundaries({
+  silence,
+  expectedBoundaries,
+  durationSeconds,
+  speechUnits = null,
+} = {}) {
+  const primaryAttempt = planCueBoundariesForExpected({
+    silence,
+    expectedBoundaries,
+    durationSeconds,
+    speechUnits,
+  });
+  if (primaryAttempt.ok) {
+    return primaryAttempt;
+  }
+
+  if (
+    Array.isArray(speechUnits) &&
+    speechUnits.some(
+      (unit) =>
+        unit.kind === 'intro' ||
+        unit.kind === 'bridge' ||
+        unit.kind === 'closing',
+    )
+  ) {
+    try {
+      const scaled = calculateExpectedBoundaries(speechUnits, durationSeconds, {
+        edgeWeightScale: EDGE_EXPECTED_WEIGHT_SCALE,
+      });
+      const scaledAttempt = planCueBoundariesForExpected({
+        silence,
+        expectedBoundaries: scaled.expectedBoundaries,
+        durationSeconds,
+        speechUnits,
+      });
+      if (scaledAttempt.ok) {
+        return {
+          ...scaledAttempt,
+          expectedWeightScale: EDGE_EXPECTED_WEIGHT_SCALE,
+          primaryWeightPlan: primaryAttempt,
+        };
+      }
+    } catch {
+      // Keep the original character-weight failure below.
+    }
+  }
+
+  return primaryAttempt;
 }
 
 export function buildCommentaryCueDocument({
@@ -1024,8 +1242,22 @@ export function validateCommentaryCueDocument(document, {
 
   const first = document.segments[0];
   const last = document.segments[document.segments.length - 1];
-  if (first.type !== 'intro' || first.itemIndex !== -1) {
-    return { ok: false, reason: 'first segment must be intro with itemIndex -1' };
+  if (first.type === 'intro') {
+    if (first.itemIndex !== -1) {
+      return { ok: false, reason: 'intro segment must use itemIndex -1' };
+    }
+  } else if (first.type === 'item') {
+    if (first.itemIndex !== 0) {
+      return {
+        ok: false,
+        reason: 'first card segment must use itemIndex 0 when intro is absent',
+      };
+    }
+  } else {
+    return {
+      ok: false,
+      reason: 'first segment must be intro or the first card item',
+    };
   }
   if (Math.abs(Number(first.start) - 0) > 1e-9) {
     return { ok: false, reason: 'first segment must start at 0' };
@@ -1071,9 +1303,13 @@ export function validateCommentaryCueDocument(document, {
     previousEnd = end;
 
     const duration = end - start;
-    if (index === 0) {
-      if (segment.type !== 'intro') {
-        return { ok: false, reason: 'segment 0 type must be intro' };
+
+    if (segment.type === 'intro') {
+      if (index !== 0) {
+        return { ok: false, reason: 'intro segment must be first' };
+      }
+      if (segment.itemIndex !== -1) {
+        return { ok: false, reason: 'intro segment must use itemIndex -1' };
       }
       if (!(duration >= MIN_EDGE_SEGMENT_DURATION_SECONDS - 1e-9)) {
         return {
@@ -1334,6 +1570,7 @@ export function validateCueTargetInputs({
           silence,
           expectedBoundaries: expected.expectedBoundaries,
           durationSeconds: mp3.duration,
+          speechUnits,
         });
       } catch (error) {
         return {
@@ -1443,6 +1680,7 @@ export function validateCueTargetInputs({
     silence,
     expectedBoundaries: expected.expectedBoundaries,
     durationSeconds: mp3.duration,
+    speechUnits,
   });
 
   if (!selected.ok) {

@@ -115,7 +115,8 @@ const TYPE_DEFINITIONS = [
     }),
     cueSegmentPolicy: Object.freeze({
       allowBridge: false,
-      requireClosing: true,
+      // Closing only when present in the approved narration.
+      requireClosing: false,
       allowMultiParagraphItems: false,
     }),
     uploadEligible: true,
@@ -150,7 +151,8 @@ const TYPE_DEFINITIONS = [
     }),
     cueSegmentPolicy: Object.freeze({
       allowBridge: false,
-      requireClosing: true,
+      // Closing only when present in the approved narration.
+      requireClosing: false,
       allowMultiParagraphItems: false,
     }),
     uploadEligible: true,
@@ -185,7 +187,8 @@ const TYPE_DEFINITIONS = [
     }),
     cueSegmentPolicy: Object.freeze({
       allowBridge: false,
-      requireClosing: true,
+      // Closing only when present in the approved narration.
+      requireClosing: false,
       allowMultiParagraphItems: false,
     }),
     uploadEligible: true,
@@ -293,7 +296,8 @@ const TYPE_DEFINITIONS = [
     }),
     cueSegmentPolicy: Object.freeze({
       allowBridge: true,
-      requireClosing: true,
+      // Closing only when present in the approved narration.
+      requireClosing: false,
       allowMultiParagraphItems: false,
     }),
     uploadEligible: true,
@@ -328,7 +332,8 @@ const TYPE_DEFINITIONS = [
     }),
     cueSegmentPolicy: Object.freeze({
       allowBridge: false,
-      requireClosing: true,
+      // Closing only when present in the approved narration.
+      requireClosing: false,
       allowMultiParagraphItems: false,
     }),
     uploadEligible: true,
