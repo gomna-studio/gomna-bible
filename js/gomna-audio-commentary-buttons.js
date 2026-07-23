@@ -34,6 +34,7 @@
   var currentCommentaryItems = [];
   var currentCommentaryAudioIds = [];
   var currentSequenceSource = '';
+  var currentSelectedType = 'original-language';
 
   // Future Matthew Henry audio option:
   // English originals can later be generated with a separate en-US voice,
@@ -1599,7 +1600,9 @@
     if (!item || !listenBtn || !replayBtn || !seqBtn) return;
 
     listenBtn.setAttribute('data-audio-id', item.audioId);
+    listenBtn.setAttribute('data-gomna-commentary-type', item.type);
     replayBtn.setAttribute('data-audio-replay-id', item.audioId);
+    replayBtn.setAttribute('data-gomna-commentary-type', item.type);
 
     if (!item.published) {
       listenBtn.disabled = true;
@@ -1674,19 +1677,46 @@
     }
   }
 
+  function getItemByType(type) {
+    var normalized = String(type || '').trim();
+    var i;
+
+    if (!normalized) return null;
+
+    for (i = 0; i < currentCommentaryItems.length; i++) {
+      if (currentCommentaryItems[i].type === normalized) {
+        return currentCommentaryItems[i];
+      }
+    }
+
+    return null;
+  }
+
   function getActiveCommentaryItem(content) {
     var activeTab;
     var item;
+    var typeFromWindow;
 
-    if (!content) return currentCommentaryItems[0] || null;
+    if (!content) {
+      return getItemByType(currentSelectedType) || currentCommentaryItems[0] || null;
+    }
 
     activeTab = content.querySelector('.commentary-tab.active:not(' + ALL_TABS_BUTTON_SELECTOR + ')') ||
       content.querySelector('.commentary-tab.' + ACTIVE_TAB_CLASS + ':not(' + ALL_TABS_BUTTON_SELECTOR + ')');
 
     if (activeTab) {
       item = getItemByTabButton(content, activeTab);
-      if (item) return item;
+      if (item) {
+        currentSelectedType = item.type;
+        return item;
+      }
     }
+
+    typeFromWindow =
+      (typeof window.currentCommentaryType === 'string' && window.currentCommentaryType) ||
+      currentSelectedType;
+    item = getItemByType(typeFromWindow);
+    if (item) return item;
 
     return currentCommentaryItems[0] || null;
   }
@@ -1879,31 +1909,80 @@
       if (tabs[i].matches(ALL_TABS_BUTTON_SELECTOR)) continue;
       if (tabs[i].getAttribute(TAB_AUDIO_ATTR) === 'true') continue;
 
-      tabs[i].setAttribute(TAB_AUDIO_ATTR, 'true');
-      tabs[i].addEventListener('click', function() {
-        var item = getItemByTabButton(content, this);
+      // Ensure stable internal type IDs even on older rendered markup.
+      if (!tabs[i].getAttribute('data-gomna-commentary-type')) {
+        for (var j = 0; j < COMMENTARY_TYPE_TEMPLATES.length; j++) {
+          if (COMMENTARY_TYPE_TEMPLATES[j].tabId === tabs[i].getAttribute('data-gomna-commentary-tab-id')) {
+            tabs[i].setAttribute(
+              'data-gomna-commentary-type',
+              COMMENTARY_TYPE_TEMPLATES[j].type
+            );
+            break;
+          }
+        }
+      }
 
-        if (!item) return;
-        jumpSequenceToItemIfActive(item);
+      tabs[i].setAttribute(TAB_AUDIO_ATTR, 'true');
+      // Tabs must remain clickable regardless of manifest/audio readiness.
+      tabs[i].disabled = false;
+      tabs[i].removeAttribute('aria-disabled');
+      tabs[i].style.pointerEvents = '';
+      tabs[i].addEventListener('click', function(event) {
+        var tab = this;
+        var type = String(tab.getAttribute('data-gomna-commentary-type') || '').trim();
+        var tabId = String(tab.getAttribute('data-gomna-commentary-tab-id') || '').trim();
+        var item = getItemByTabButton(content, tab);
+
+        // Panel switch first (independent of published audio). Prefer type IDs.
+        if (typeof window.switchCommentaryTab === 'function') {
+          window.switchCommentaryTab(tab, tabId || (item && item.tabId) || '');
+        } else if (type) {
+          currentSelectedType = type;
+        }
+
+        if (item) {
+          currentSelectedType = item.type;
+          // Sequence seek is optional; never early-return before panel switch.
+          jumpSequenceToItemIfActive(item);
+        } else if (type) {
+          currentSelectedType = type;
+        }
+
+        // Audio/cue sync after panel is open. Preparing audio only affects listen UI.
         setTimeout(function() {
           syncCommentaryFooterControls(content);
           syncInlineControls(content);
           updateCommentaryButtonLabels();
+          clearInactiveCommentaryHighlights();
         }, 0);
       });
     }
   }
 
   function getItemByTabButton(content, tab) {
+    var type;
+    var tabId;
+    var i;
+    var item;
+
     if (!tab) return null;
 
-    for (var i = 0; i < currentCommentaryItems.length; i++) {
-      var item = currentCommentaryItems[i];
-      if (getTabButtonForItem(content, item) === tab) {
-        return item;
+    type = String(tab.getAttribute('data-gomna-commentary-type') || '').trim();
+    if (type) {
+      item = getItemByType(type);
+      if (item) return item;
+    }
+
+    tabId = String(tab.getAttribute('data-gomna-commentary-tab-id') || '').trim();
+    if (tabId) {
+      for (i = 0; i < currentCommentaryItems.length; i++) {
+        if (currentCommentaryItems[i].tabId === tabId) {
+          return currentCommentaryItems[i];
+        }
       }
     }
 
+    // Never resolve commentary type from visible ko/en/ja label text.
     return null;
   }
 
@@ -2234,8 +2313,8 @@
       if (activeAudioId === item.audioId) {
         button.classList.add(ACTIVE_BUTTON_CLASS);
         button.setAttribute('aria-pressed', 'true');
-        markActiveCommentaryTab(content, item);
-        markActiveCommentarySection(content, item);
+        // Audio playback must never steal the selected commentary tab/panel.
+        // Panel visibility and .active selection belong to user tab clicks.
       } else {
         button.classList.remove(ACTIVE_BUTTON_CLASS);
         button.setAttribute('aria-pressed', 'false');
@@ -2303,23 +2382,70 @@
   function getTabButtonForItem(content, item) {
     if (!content || !item) return null;
 
+    var byType = content.querySelector(
+      '.commentary-tab[data-gomna-commentary-type="' + item.type + '"]'
+    );
+    if (byType) return byType;
+
     var byId = content.querySelector(
       '.commentary-tab[data-gomna-commentary-tab-id="' + item.tabId + '"]'
     );
     if (byId) return byId;
 
-    var tabs = content.querySelectorAll('.commentary-tab');
-    var localized = commentaryItemLabel(item);
+    // Do not fall back to visible label text (ko/en/ja). Type IDs are authoritative.
+    return null;
+  }
 
-    for (var i = 0; i < tabs.length; i++) {
-      if (tabs[i].matches(ALL_TABS_BUTTON_SELECTOR)) continue;
-      var text = (tabs[i].textContent || '').replace(/\s+/g, ' ').trim();
-      if (text === item.title || text === localized) {
-        return tabs[i];
+  function clearInactiveCommentaryHighlights() {
+    try {
+      if (
+        window.GOMNA_CARD_HIGHLIGHT &&
+        typeof window.GOMNA_CARD_HIGHLIGHT.clearHighlight === 'function'
+      ) {
+        window.GOMNA_CARD_HIGHLIGHT.clearHighlight();
+        return;
       }
+    } catch (e0) {
+      /* ignore */
     }
 
-    return null;
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.gomna-card-highlight-active, .gomna-commentary-card-highlight'),
+      function(node) {
+        node.classList.remove('gomna-card-highlight-active');
+        node.classList.remove('gomna-commentary-card-highlight');
+      }
+    );
+  }
+
+  function onCommentaryTypeSelected(type) {
+    var content = getContent();
+    var item = getItemByType(type);
+    var tab;
+
+    if (item) {
+      currentSelectedType = item.type;
+    } else if (type) {
+      currentSelectedType = String(type);
+    }
+
+    if (!content) return;
+
+    // Panel visibility is already handled by switchCommentaryTab.
+    // Only sync audio selection / cue targets / highlight cleanup here.
+    clearActiveCommentaryDisplay(content);
+    if (item) {
+      tab = getTabButtonForItem(content, item);
+      if (tab) {
+        tab.classList.add(ACTIVE_TAB_CLASS);
+        tab.setAttribute('aria-current', 'true');
+      }
+      markActiveCommentarySection(content, item);
+    }
+    syncCommentaryFooterControls(content);
+    syncInlineControls(content);
+    updateCommentaryButtonLabels();
+    clearInactiveCommentaryHighlights();
   }
 
   function getReplayButtonForItem(content, item) {
@@ -2333,10 +2459,8 @@
 
     if (!tab) return;
 
-    if (!tab.classList.contains('active') && typeof window.switchCommentaryTab === 'function') {
-      window.switchCommentaryTab(tab, item.tabId);
-    }
-
+    // Visual audio-active marker only. Never call switchCommentaryTab here —
+    // unpublished/preparing audio and active playback must not change panels.
     tab.classList.add(ACTIVE_TAB_CLASS);
     tab.setAttribute('aria-current', 'true');
   }
@@ -2654,8 +2778,16 @@
     },
     getSequenceAudioIds: function() {
       return getPublishedSequenceAudioIds().slice();
+    },
+    getActiveItem: function() {
+      return getActiveCommentaryItem(getContent());
+    },
+    getSelectedType: function() {
+      return currentSelectedType;
     }
   };
+
+  window.__gomnaCommentaryOnTypeSelected = onCommentaryTypeSelected;
 
   console.log('[GOMNA_AUDIO] gomna-audio-commentary-buttons.js loaded');
 })();

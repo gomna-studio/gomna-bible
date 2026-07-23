@@ -1494,6 +1494,10 @@
 
   window.GOMNA_CARD_HIGHLIGHT = {
     startPlaybackVisualTick: startPlaybackVisualTick,
-    stopPlaybackVisualTick: stopPlaybackVisualTick
+    stopPlaybackVisualTick: stopPlaybackVisualTick,
+    clearHighlight: clearHighlight
   };
+
+  // Compatibility alias used by commentary tab selection cleanup.
+  window.GomnaCardHighlightTest = window.GOMNA_CARD_HIGHLIGHT;
 })();
