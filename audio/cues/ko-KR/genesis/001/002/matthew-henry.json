@@ -1,0 +1,33 @@
+{
+  "audioId": "genesis.001.002.matthew-henry",
+  "duration": 54,
+  "measuredDuration": 54,
+  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/002/matthew-henry-calm.mp3",
+  "finalMp3Duration": 54,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 10.878583
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 10.878583,
+      "end": 24.924667
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 24.924667,
+      "end": 38.6385
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 38.6385,
+      "end": 54
+    }
+  ]
+}

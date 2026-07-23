@@ -1,0 +1,39 @@
+{
+  "audioId": "genesis.001.003.hymn",
+  "duration": 56.856,
+  "measuredDuration": 56.856,
+  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/003/hymn-soft.mp3",
+  "finalMp3Duration": 56.856,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 9.470542
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 9.470542,
+      "end": 21.842208
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 21.842208,
+      "end": 32.855875
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 32.855875,
+      "end": 44.867667
+    },
+    {
+      "type": "item",
+      "itemIndex": 3,
+      "start": 44.867667,
+      "end": 56.856
+    }
+  ]
+}
