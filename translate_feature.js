@@ -1425,11 +1425,14 @@
       _gtPendingLastChangedCount = 0;
       /* Spinner/banner often become visible the moment pending lifts — reinforce hide once. */
       try { injectWidgetHideStyles(); } catch (e2) { /* ignore */ }
+      try { unlockReaderScrollLocks(); } catch (eUnlock) { /* ignore */ }
       /* Reader boot skeleton: fade out after paint (immediate for ko / no-cookie). */
       if (isReaderPage()) {
         var immediate = !!(opts && opts.immediate);
         var tlNow = getCurrentTargetLang();
         if (!hasGoogTransCookie() || !tlNow || tlNow === 'ko') immediate = true;
+        /* Already-translated cookie boot: never keep the blocking overlay. */
+        if (isGoogleTranslatedDom()) immediate = true;
         releaseReaderBootOverlay({ immediate: immediate });
         try {
           window.dispatchEvent(new CustomEvent('gomna:reader-translation-settled', {
@@ -1649,7 +1652,15 @@
       scheduleTranslationPendingRecheck(getPendingStableMs());
       return;
     }
-    if (!_gtPendingFirstChangeMs) return;
+    /*
+     * Cookie-boot / already-translated pages never emit a post-baseline mutation,
+     * so firstChangeMs stays 0. Without this, reader boot overlay
+     * (pointer-events:auto) can leave the page unscrollable until failsafe.
+     */
+    if (!_gtPendingFirstChangeMs) {
+      _gtPendingFirstChangeMs = Date.now();
+      _gtPendingLastRelevantChangeMs = _gtPendingFirstChangeMs;
+    }
 
     var now = Date.now();
     var sinceFirst = now - _gtPendingFirstChangeMs;
@@ -1778,9 +1789,14 @@
 
   function injectWidgetHideStyles() {
     var css =
-      /* Keep page from being pushed down by Google banner. */
+      /* Keep page from being pushed down by Google banner.
+       * Also neutralize GT inline height/min-height so EN/JA match KO scroll layout. */
+      'html.translated-ltr,html.translated-rtl{' +
+        'height:auto!important' +
+      '}' +
       'html body,html.translated-ltr body,html.translated-rtl body{' +
-        'top:0!important;margin-top:0!important;position:static!important' +
+        'top:0!important;margin-top:0!important;position:static!important;' +
+        'min-height:0!important' +
       '}' +
       /* Classic banner / tooltip chrome. */
       '.goog-te-banner-frame,.goog-te-banner-frame.skiptranslate,' +
@@ -1826,6 +1842,33 @@
     if (s.parentNode) s.parentNode.appendChild(s);
   }
 
+  /**
+   * Strip Google Translate inline styles that Korean mode never has, so EN/JA
+   * keep the same document scroll / plain-verse gesture layout as KO.
+   */
+  function normalizeReaderScrollStylesToKoreanBaseline() {
+    if (!isReaderPage()) return;
+    try {
+      var html = document.documentElement;
+      var body = document.body;
+      if (!html || !body) return;
+
+      /* GT sets: position:relative; min-height:100%; top:40px */
+      body.style.removeProperty('position');
+      body.style.removeProperty('top');
+      body.style.removeProperty('min-height');
+      body.style.removeProperty('margin-top');
+      if (body.style.overflow === 'hidden') body.style.removeProperty('overflow');
+      if (body.style.overflowX === 'hidden') body.style.removeProperty('overflowX');
+      if (body.style.overflowY === 'hidden') body.style.removeProperty('overflowY');
+      if (body.style.touchAction === 'none') body.style.removeProperty('touch-action');
+      if (!(body.getAttribute('style') || '').trim()) body.removeAttribute('style');
+
+      /* GT sets html style height:100% which KO never has. */
+      if (html.style.height === '100%') html.style.removeProperty('height');
+    } catch (e) { /* ignore */ }
+  }
+
   function ensureTranslateWidget() {
     if (window.__gtWidgetLoaded || window.__gtWidgetLoading) return;
     window.__gtWidgetLoading = true;
@@ -1855,9 +1898,35 @@
     script.async = true;
     script.onerror = function () {
       showToast('번역 서비스 로드 실패 · Translation service failed to load');
-      endTranslationPending();
+      endTranslationPending({ immediate: true });
+      try { unlockReaderScrollLocks(); } catch (eUnlockErr) { /* ignore */ }
     };
     document.head.appendChild(script);
+  }
+
+  function unlockReaderScrollLocks() {
+    try {
+      if (document.body) {
+        if (document.body.style.overflow === 'hidden') document.body.style.overflow = '';
+        if (document.body.style.overflowX === 'hidden') document.body.style.overflowX = '';
+        if (document.body.style.overflowY === 'hidden') document.body.style.overflowY = '';
+        if (document.body.style.touchAction === 'none') document.body.style.touchAction = '';
+      }
+    } catch (e0) { /* ignore */ }
+    try { injectWidgetHideStyles(); } catch (e1) { /* ignore */ }
+    try { normalizeReaderScrollStylesToKoreanBaseline(); } catch (eNorm) { /* ignore */ }
+    try {
+      var html = document.documentElement;
+      if (
+        html &&
+        (html.classList.contains('gomna-reader-boot-pending') ||
+          html.classList.contains('gomna-reader-boot-leaving') ||
+          html.classList.contains('gt-reader-prepaint-pending')) &&
+        (isGoogleTranslatedDom() || !hasGoogTransCookie() || getCurrentTargetLang() === 'ko')
+      ) {
+        releaseReaderBootOverlay({ immediate: true });
+      }
+    } catch (e2) { /* ignore */ }
   }
 
   function triggerWidgetLanguage(targetLang, attempts) {
@@ -1872,10 +1941,49 @@
       select.dispatchEvent(evt);
       return true;
     }
+    /*
+     * InlineLayout.SIMPLE no longer exposes select.goog-te-combo.
+     * Cookie + widget init often still applies translation (translated-ltr).
+     * Treat matching applied DOM as success so we do not false-fail.
+     */
+    if (targetLang && targetLang !== 'ko' && isGoogleTranslatedDom()) {
+      var applied = getCurrentTargetLang();
+      if (applied === targetLang) {
+        try {
+          endTranslationPending({ immediate: true });
+          unlockReaderScrollLocks();
+        } catch (eOk) { /* ignore */ }
+        return true;
+      }
+    }
     if (attempts < 50) { // up to ~7.5s
       setTimeout(function () { triggerWidgetLanguage(targetLang, attempts + 1); }, 150);
       return false;
     }
+    /*
+     * iPhone / no-combo path: cookie is already set; reload lets Google apply
+     * on boot when the in-place combo trigger cannot run.
+     */
+    if (
+      isReaderPage() &&
+      targetLang &&
+      targetLang !== 'ko' &&
+      hasGoogTransCookie() &&
+      getCurrentTargetLang() === targetLang &&
+      !isGoogleTranslatedDom()
+    ) {
+      try {
+        endTranslationPending({ immediate: true });
+        unlockReaderScrollLocks();
+      } catch (eReload) { /* ignore */ }
+      showToast('🌐 번역 적용 중... · Applying translation...');
+      setTimeout(function () { location.reload(); }, 200);
+      return false;
+    }
+    try {
+      endTranslationPending({ immediate: true });
+      unlockReaderScrollLocks();
+    } catch (eFail) { /* ignore */ }
     showToast('번역 적용 실패 · Could not apply translation');
     return false;
   }
@@ -1922,6 +2030,7 @@
     return true;
   }
   window.GomnaReaderRetranslateBody = retranslateReaderBody;
+  window.GomnaNormalizeReaderScrollStyles = normalizeReaderScrollStylesToKoreanBaseline;
 
   function showToast(msg) {
     let t = document.getElementById('gt-feature-toast');
@@ -1999,8 +2108,18 @@
 
     // No-op: same language already active (unless cleaning a Google-translated DOM).
     // Capture current BEFORE any optimistic display flag so EN/JA taps are not no-ops.
-    if (currentLang === nextLang && !(homeNative && isGoogleTranslatedDom()) &&
-        !(readerNativePair && nextLang === 'ko' && isGoogleTranslatedDom())) {
+    // Reader en/ja can report "active" via gomna_ui_language while the verse body is
+    // still Korean (Google not applied) — do not no-op in that stuck state.
+    var readerBodyNeedsGoogle =
+      readerNativePair &&
+      nextLang !== 'ko' &&
+      !isGoogleTranslatedDom();
+    if (
+      currentLang === nextLang &&
+      !readerBodyNeedsGoogle &&
+      !(homeNative && isGoogleTranslatedDom()) &&
+      !(readerNativePair && nextLang === 'ko' && isGoogleTranslatedDom())
+    ) {
       closeModal();
       try { window.__gomnaBridgeDisplayLang = null; } catch (ePend2) { /* ignore */ }
       dispatchReaderLanguageChange(nextLang, applySource + '-noop');

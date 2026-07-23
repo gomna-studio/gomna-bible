@@ -247,6 +247,7 @@
   };
 
   var boundAudio = null;
+  var boundAudioId = null;
   var lastRowIndex = -1;
   var lastRowIndicesKey = '';
   var activeAudioId = null;
@@ -259,8 +260,29 @@
     return getTypeFromAudioId(audioId) === 'cross-reference';
   }
 
+  function getLivePlaybackAudio(state) {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var live = engine && engine._state ? engine._state.currentAudio : null;
+    var liveId = engine && engine._state ? engine._state.currentAudioId : null;
+
+    if (
+      live &&
+      state &&
+      state.currentAudioId &&
+      liveId === state.currentAudioId
+    ) {
+      return live;
+    }
+
+    if (boundAudio && boundAudioId && state && boundAudioId === state.currentAudioId) {
+      return boundAudio;
+    }
+
+    return live || boundAudio || null;
+  }
+
   function getPlaybackCurrentTime(state, audio) {
-    var element = audio || boundAudio;
+    var element = audio || getLivePlaybackAudio(state);
     if (element && Number.isFinite(element.currentTime)) {
       return element.currentTime;
     }
@@ -298,6 +320,7 @@
       bookId: bookId,
       chapter: chapter,
       verse: verse,
+      verseNum: parseInt(verse, 10),
       type: type,
       locale: locale
     };
@@ -317,6 +340,36 @@
     return config ? document.getElementById(config.tabId) : null;
   }
 
+  function extractVerseNumFromRef(ref) {
+    var text = String(ref || '').replace(/\s+/g, ' ').trim();
+    var match;
+
+    if (!text) return null;
+
+    match = text.match(/(\d+)\s*:\s*(\d+)\s*$/);
+    if (match) return parseInt(match[2], 10);
+
+    match = text.match(/(?:^|\s)(\d+)\s*(?:절|節)(?:\s|$)/);
+    if (match) return parseInt(match[1], 10);
+
+    return null;
+  }
+
+  function rowMatchesAudioVerse(row, parsed) {
+    var sourceVerse;
+    var displayVerse;
+
+    if (!row || !parsed || !parsed.verseNum) return true;
+
+    sourceVerse = extractVerseNumFromRef(row.getAttribute('data-commentary-source-ref'));
+    if (sourceVerse != null) return sourceVerse === parsed.verseNum;
+
+    displayVerse = extractVerseNumFromRef(row.getAttribute('data-verse-ref'));
+    if (displayVerse != null) return displayVerse === parsed.verseNum;
+
+    return true;
+  }
+
   function getRows(section, config) {
     if (!section || !config) return [];
     return Array.prototype.filter.call(
@@ -325,6 +378,30 @@
         return item.querySelectorAll(config.cellSelector).length >= config.minCells;
       }
     );
+  }
+
+  function getRowsForAudioId(audioId, section, config) {
+    var parsed = parseCommentaryHighlightAudioId(audioId);
+    var rows = getRows(section, config);
+    var matched;
+
+    if (!parsed || !rows.length) return rows;
+
+    matched = rows.filter(function (row) {
+      return rowMatchesAudioVerse(row, parsed);
+    });
+
+    // If the panel was rebuilt for the playing verse, matched === rows.
+    // If stale rows from another verse linger, keep only the playing verse.
+    return matched.length ? matched : rows;
+  }
+
+  function resetHighlightForAudioId(audioId) {
+    if (activeAudioId === audioId) return;
+    clearHighlight();
+    activeAudioId = audioId || null;
+    lastRowIndex = -1;
+    lastRowIndicesKey = '';
   }
 
   function getScrollBehavior() {
@@ -666,7 +743,7 @@
     }
 
     var section = getSection(config);
-    var rows = getRows(section, config);
+    var rows = getRowsForAudioId(audioId, section, config);
     var cuePath = audioIdToCuePath(audioId);
 
     if (!cuePath) {
@@ -686,7 +763,8 @@
           mode: 'cue',
           duration: cue.duration,
           segments: cue.segments,
-          words: Array.isArray(cue.words) ? cue.words : null
+          words: Array.isArray(cue.words) ? cue.words : null,
+          parsed: parseCommentaryHighlightAudioId(audioId)
         };
         return segmentsByAudioId[audioId];
       })
@@ -794,7 +872,8 @@
     var allowWhenPaused = !!opts.allowWhenPaused;
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
-    var config = state ? getConfigForAudioId(state.currentAudioId) : null;
+    var audioId = state && state.currentAudioId;
+    var config = audioId ? getConfigForAudioId(audioId) : null;
     var section;
     var rows;
     var segmentBundle;
@@ -802,10 +881,17 @@
     var timing;
     var indicesKey;
     var currentTime;
+    var liveAudio;
 
-    if (!state || !state.currentAudioId || !config) {
+    if (!state || !audioId || !config) {
       clearHighlight();
       return;
+    }
+
+    // Playing audio ID is the only source of truth for verse/type/locale.
+    if (activeAudioId !== audioId) {
+      resetHighlightForAudioId(audioId);
+      activeConfig = config;
     }
 
     if (!allowWhenPaused && !state.isPlaying) {
@@ -813,19 +899,18 @@
     }
 
     section = getSection(config);
-    rows = getRows(section, config);
+    rows = getRowsForAudioId(audioId, section, config);
     if (!rows.length) {
       clearHighlight();
       return;
     }
 
-    segmentBundle = segmentsByAudioId[state.currentAudioId];
+    segmentBundle = segmentsByAudioId[audioId];
     if (!segmentBundle || !segmentBundle.segments) return;
 
     segments = segmentBundle.segments;
-    currentTime = isCrossReferenceAudioId(state.currentAudioId)
-      ? getPlaybackCurrentTime(state, boundAudio)
-      : (Number(state.currentTime) || 0);
+    liveAudio = getLivePlaybackAudio(state);
+    currentTime = getPlaybackCurrentTime(state, liveAudio);
 
     if (segmentBundle.mode === 'cue') {
       timing = rowIndexAtTimeFromCue(segments, currentTime);
@@ -910,13 +995,15 @@
       boundAudio.removeEventListener('seeked', handlePlaybackSeeked);
     }
     boundAudio = null;
+    boundAudioId = null;
   }
 
   function bindAudio(audio, audioId) {
-    if (boundAudio === audio) return;
+    if (boundAudio === audio && boundAudioId === audioId) return;
     unbindAudio();
     if (!audio) return;
     boundAudio = audio;
+    boundAudioId = audioId || null;
     boundAudio.addEventListener('seeked', handlePlaybackSeeked);
   }
 
@@ -928,7 +1015,8 @@
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
     var audio = engine && engine._state ? engine._state.currentAudio : null;
-    var config = state ? getConfigForAudioId(state.currentAudioId) : null;
+    var audioId = state && state.currentAudioId;
+    var config = audioId ? getConfigForAudioId(audioId) : null;
 
     if (!isHighlightableActive(state)) {
       activeAudioId = null;
@@ -938,17 +1026,20 @@
       return;
     }
 
+    if (activeAudioId !== audioId) {
+      resetHighlightForAudioId(audioId);
+    }
     activeConfig = config;
 
     if (state.isPlaying) {
-      bindAudio(audio, state.currentAudioId);
+      bindAudio(audio, audioId);
       startPlaybackVisualTick();
       refreshCardHighlight({ shouldFollow: true, allowWhenPaused: false });
       return;
     }
 
     if (state.isPaused) {
-      bindAudio(audio, state.currentAudioId);
+      bindAudio(audio, audioId);
       return;
     }
 
@@ -961,6 +1052,8 @@
     var config = getConfigForAudioId(audioId);
     if (!audioId || !config) return;
 
+    // New play target: drop previous verse highlight/cue binding immediately.
+    resetHighlightForAudioId(audioId);
     activeAudioId = audioId;
     activeConfig = config;
     loadSegments(audioId, config).then(function () {

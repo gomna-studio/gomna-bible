@@ -651,40 +651,78 @@
     return bookId + '.' + pad3(chapter) + '.' + pad3(verse) + '.' + type;
   }
 
-  function resolveCommentaryAudioTarget(baseAudioId) {
-    var raw = null;
-    var normalized = 'ko';
+  /**
+   * App language for commentary audio — only the user's selected app language.
+   * Never use navigator.language, translated button labels, or previous audio locale.
+   * Mapping: ko → base ID, en → .en-US, ja/jp → .ja-JP
+   */
+  function normalizeAppLangCode(raw) {
     var primary;
 
+    if (raw == null || !String(raw).trim()) return null;
+
+    primary = String(raw)
+      .trim()
+      .toLowerCase()
+      .replace(/_/g, '-')
+      .split('-')[0];
+
+    if (primary === 'jp') primary = 'ja';
+    if (primary === 'ko' || primary === 'en' || primary === 'ja') return primary;
+    return null;
+  }
+
+  function getSelectedAppLanguageForAudio() {
+    var raw = null;
+
+    // 1) Language-change event latch (set before button refresh).
+    raw = normalizeAppLangCode(window.__gomnaCommentaryAudioLang);
+    if (raw) return raw;
+
+    // 2) Pending bridge display lang during applyLanguage.
+    try {
+      raw = normalizeAppLangCode(window.__gomnaBridgeDisplayLang);
+      if (raw) return raw;
+    } catch (e0) { /* ignore */ }
+
+    // 3) Explicit app selection storage (ko/en/ja).
+    try {
+      raw = normalizeAppLangCode(localStorage.getItem('gomna_ui_language'));
+      if (raw) return raw;
+    } catch (e1) { /* ignore */ }
+
+    // 4) Reader UI resolver (cookie / combo / storage).
+    try {
+      if (typeof window.getReaderUiLangCode === 'function') {
+        raw = normalizeAppLangCode(window.getReaderUiLangCode());
+        if (raw) return raw;
+      }
+    } catch (e2) { /* ignore */ }
+
+    // 5) Reader lang bridge.
+    try {
+      if (
+        window.GomnaReaderLangBridge &&
+        typeof window.GomnaReaderLangBridge.getActiveLanguage === 'function'
+      ) {
+        raw = normalizeAppLangCode(window.GomnaReaderLangBridge.getActiveLanguage());
+        if (raw) return raw;
+      }
+    } catch (e3) { /* ignore */ }
+
+    // 6) Shared active-lang helper last.
     try {
       if (typeof window.GomnaGetActiveLangCode === 'function') {
-        raw = window.GomnaGetActiveLangCode();
+        raw = normalizeAppLangCode(window.GomnaGetActiveLangCode());
+        if (raw) return raw;
       }
-    } catch (e0) {
-      raw = null;
-    }
+    } catch (e4) { /* ignore */ }
 
-    if (!raw) {
-      try {
-        if (
-          window.GomnaReaderLangBridge &&
-          typeof window.GomnaReaderLangBridge.getActiveLanguage === 'function'
-        ) {
-          raw = window.GomnaReaderLangBridge.getActiveLanguage();
-        }
-      } catch (e1) {
-        raw = null;
-      }
-    }
+    return 'ko';
+  }
 
-    if (raw != null && String(raw).trim()) {
-      primary = String(raw)
-        .trim()
-        .toLowerCase()
-        .replace(/_/g, '-')
-        .split('-')[0];
-      if (primary) normalized = primary;
-    }
+  function resolveCommentaryAudioTarget(baseAudioId) {
+    var normalized = getSelectedAppLanguageForAudio() || 'ko';
 
     if (normalized === 'en') {
       return {
@@ -1173,7 +1211,10 @@
   function getCommentaryContext() {
     var content = getContent();
     var pick = content && content.querySelector('.commentary-nav-pick-txt');
-    var text = pick ? pick.textContent.replace(/\s+/g, ' ').trim() : '';
+    var sourceRef = pick && pick.getAttribute('data-commentary-source-ref');
+    var text = String(sourceRef || (pick && pick.textContent) || '')
+      .replace(/\s+/g, ' ')
+      .trim();
     var match = text.match(/^(.+?)\s+(\d+):(\d+)$/);
 
     if (match) {
@@ -1200,6 +1241,19 @@
           chapter: window.currentChapter,
           verse: parseInt(match[3], 10)
         };
+      }
+
+      // Fallback: keep current book/chapter, take verse from source ref digits if present.
+      if (bookIdFromCurrent && sourceRef) {
+        var verseOnly = sourceRef.match(/(\d+)\s*:\s*(\d+)\s*$/);
+        if (verseOnly) {
+          return {
+            bookName: window.currentBook.name,
+            bookId: bookIdFromCurrent,
+            chapter: parseInt(verseOnly[1], 10) || window.currentChapter,
+            verse: parseInt(verseOnly[2], 10)
+          };
+        }
       }
     }
 
@@ -2086,7 +2140,10 @@
     },
 
     replaySingle: function(audioId) {
-      return this.startSingleFromBeginning(audioId);
+      var item = getItemByAudioId(audioId);
+      if (!item) return false;
+      // Same resolution path as playSingle: locale comes from active language.
+      return this.startSingleFromBeginning(item.baseAudioId || audioId);
     },
 
     startSingleFromBeginning: function(audioId) {
@@ -2409,9 +2466,13 @@
       /* ignore */
     }
 
+    // Must match gomna-card-highlight-test.js ACTIVE_CLASS.
     Array.prototype.forEach.call(
-      document.querySelectorAll('.gomna-card-highlight-active, .gomna-commentary-card-highlight'),
+      document.querySelectorAll(
+        '.gomna-commentary-card-active, .gomna-card-highlight-active, .gomna-commentary-card-highlight'
+      ),
       function(node) {
+        node.classList.remove('gomna-commentary-card-active');
         node.classList.remove('gomna-card-highlight-active');
         node.classList.remove('gomna-commentary-card-highlight');
       }
@@ -2508,7 +2569,39 @@
     });
   }
 
-  function handleCommentaryLanguageChange() {
+  function stopCommentaryIfLanguageMismatch(nextLang) {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var currentId;
+    var expected;
+
+    if (!engine || !state || !state.currentAudioId || !isCommentaryAudioId(state.currentAudioId)) {
+      return;
+    }
+
+    currentId = String(state.currentAudioId);
+    if (nextLang === 'ja') {
+      expected = /\.ja-JP$/;
+    } else if (nextLang === 'en') {
+      expected = /\.en-US$/;
+    } else {
+      expected = null;
+    }
+
+    if (nextLang === 'ja' || nextLang === 'en') {
+      if (!expected.test(currentId)) {
+        try { engine.stopAudio(); } catch (e0) { /* ignore */ }
+      }
+      return;
+    }
+
+    // ko: stop localized EN/JA tracks so Korean base IDs take over cleanly.
+    if (/\.(en-US|ja-JP)$/.test(currentId)) {
+      try { engine.stopAudio(); } catch (e1) { /* ignore */ }
+    }
+  }
+
+  function handleCommentaryLanguageChange(event) {
     var previousIds = [];
     var i;
     var item;
@@ -2517,6 +2610,27 @@
     var replayButton;
     var section;
     var content;
+    var nextLang = null;
+    var detail = event && event.detail;
+
+    // Order: latch selected app language FIRST, then recompute audio IDs / cues / buttons.
+    if (detail && detail.activeLanguage) {
+      nextLang = normalizeAppLangCode(detail.activeLanguage);
+    }
+    if (!nextLang) {
+      nextLang = getSelectedAppLanguageForAudio();
+    }
+    if (nextLang) {
+      window.__gomnaCommentaryAudioLang = nextLang;
+      try {
+        if (nextLang === 'ko' || nextLang === 'en' || nextLang === 'ja') {
+          localStorage.setItem('gomna_ui_language', nextLang);
+        }
+      } catch (eStore) { /* ignore */ }
+    }
+
+    stopCommentaryIfLanguageMismatch(nextLang || 'ko');
+    clearInactiveCommentaryHighlights();
 
     if (!currentCommentaryItems.length) return;
 
@@ -2551,6 +2665,7 @@
       syncInlineControls(content);
       syncCommentaryFooterControls(content);
     }
+    clearInactiveCommentaryHighlights();
   }
 
   function addCommentaryButtons() {
@@ -2784,8 +2899,17 @@
     },
     getSelectedType: function() {
       return currentSelectedType;
-    }
+    },
+    getAppLanguage: getSelectedAppLanguageForAudio,
+    resolveAudioTarget: resolveCommentaryAudioTarget
   };
+
+  // Latch current app language on boot so first play never falls back via stale defaults.
+  try {
+    window.__gomnaCommentaryAudioLang = getSelectedAppLanguageForAudio();
+  } catch (eBootLang) {
+    window.__gomnaCommentaryAudioLang = 'ko';
+  }
 
   window.__gomnaCommentaryOnTypeSelected = onCommentaryTypeSelected;
 
