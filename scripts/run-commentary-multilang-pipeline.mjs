@@ -7,6 +7,7 @@
  * Audio stage: --stage audio --dry-run| --write
  * Cue stage: --stage cue --dry-run| --write
  * Upload stage: --stage upload --dry-run| --write
+ * Manifest stage: --stage manifest --dry-run| --write
  */
 
 import fs from 'fs';
@@ -23,6 +24,18 @@ import {
   createEmptyCueCounters,
   validateCueTargetInputs,
 } from './lib/commentary-multilang-cue.mjs';
+import {
+  GLOBAL_MANIFEST_LOCK_PATH,
+  REQUIRED_MANIFEST_FLAG,
+  acquireManifestLock,
+  buildManifestLockPath,
+  classifyManifestTarget,
+  createEmptyManifestCounters,
+  createProductionManifestAdapters,
+  isManifestTestMode,
+  releaseManifestLock,
+  writeManifestForTargets,
+} from './lib/commentary-multilang-manifest.mjs';
 import {
   buildCommentaryMultilangTargets,
   inventoryCommentarySource,
@@ -54,12 +67,19 @@ import {
 
 const ABSOLUTELY_FORBIDDEN = new Set([
   '--upload',
+  '--manifest',
   '--publish',
   '--force',
   '--overwrite',
 ]);
 
-const ACCEPTED_STAGES = new Set(['narration', 'audio', 'cue', 'upload']);
+const ACCEPTED_STAGES = new Set([
+  'narration',
+  'audio',
+  'cue',
+  'upload',
+  'manifest',
+]);
 
 const REQUIRED_TRANSLATION_FLAG = '1';
 const REQUIRED_ALLOWED_TARGET =
@@ -118,14 +138,24 @@ function printUsage() {
     '  node scripts/run-commentary-multilang-pipeline.mjs \\',
     '    ... --stage upload --write',
     '',
+    'Usage (manifest stage):',
+    '  node scripts/run-commentary-multilang-pipeline.mjs \\',
+    '    --locales en-US,ja-JP --book genesis --chapter 1 \\',
+    '    --from-verse 1 --to-verse 3 --type original-language \\',
+    '    --stage manifest --dry-run',
+    '',
+    '  node scripts/run-commentary-multilang-pipeline.mjs \\',
+    '    ... --stage manifest --write',
+    '',
     'Notes:',
     '  Planning mode requires --dry-run and rejects --write.',
     '  Narration write requires --stage narration --write plus env guards.',
     '  Audio write requires --stage audio --write plus audio env guards.',
     '  Cue write requires --stage cue --write plus cue env guards.',
     '  Upload write requires --stage upload --write plus upload env guards.',
-    '  Accepted stages: narration, audio, cue, upload.',
-    '  --upload/--publish/--force/--overwrite are always rejected.',
+    '  Manifest write requires --stage manifest --write plus manifest env guards.',
+    '  Accepted stages: narration, audio, cue, upload, manifest.',
+    '  --upload/--manifest/--publish/--force/--overwrite are always rejected.',
     '  Optional: --json (planning mode).',
   ].join('\n');
 }
@@ -744,6 +774,24 @@ function assertUploadWriteGuards(args) {
   if (flag !== REQUIRED_UPLOAD_FLAG) {
     throw new Error(
       `GOMNA_COMMENTARY_MULTILANG_UPLOAD must be exactly "${REQUIRED_UPLOAD_FLAG}" for --write`,
+    );
+  }
+
+  if (allowed !== expected) {
+    throw new Error(
+      `GOMNA_COMMENTARY_MULTILANG_ALLOWED_TARGET must be exactly "${expected}"`,
+    );
+  }
+}
+
+function assertManifestWriteGuards(args) {
+  const flag = process.env.GOMNA_COMMENTARY_MULTILANG_MANIFEST;
+  const allowed = process.env.GOMNA_COMMENTARY_MULTILANG_ALLOWED_TARGET;
+  const expected = buildRequestedTargetString(args);
+
+  if (flag !== REQUIRED_MANIFEST_FLAG) {
+    throw new Error(
+      `GOMNA_COMMENTARY_MULTILANG_MANIFEST must be exactly "${REQUIRED_MANIFEST_FLAG}" for --write`,
     );
   }
 
@@ -2423,6 +2471,273 @@ async function runUploadStage(args, plan) {
   process.exit(exitCode);
 }
 
+async function buildManifestPreflight(plan, counters = null, adapters = null) {
+  if (!adapters || typeof adapters.remoteInspector !== 'function') {
+    throw new Error('manifest adapters.remoteInspector is required');
+  }
+  if (!adapters || typeof adapters.manifestLoader !== 'function') {
+    throw new Error('manifest adapters.manifestLoader is required');
+  }
+
+  const actions = [];
+  const blockers = [];
+
+  for (const target of plan.targets) {
+    const classified = await classifyManifestTarget({
+      target,
+      root: ROOT,
+      toAbsolute,
+      counters,
+      manifestLoader: adapters.manifestLoader,
+      remoteInspector: adapters.remoteInspector,
+    });
+    actions.push({
+      target,
+      ...classified,
+    });
+
+    if (String(classified.action).startsWith('block_')) {
+      blockers.push(
+        `${classified.manifestId || classified.audioId || target.audioId}: ${classified.action} (${classified.reason})`,
+      );
+    }
+  }
+
+  const planned = actions.filter(
+    (item) => item.action === 'planned_manifest_append',
+  );
+  const skipped = actions.filter(
+    (item) => item.action === 'skip_existing_manifest_verified',
+  );
+  const hardBlockers = actions.filter((item) =>
+    String(item.action).startsWith('block_'),
+  );
+
+  return {
+    actions,
+    blockers,
+    hardBlockers,
+    planned,
+    skipped,
+    plannedTargets: plan.targets.length,
+    plannedManifestEntries: planned.length,
+    existingManifestVerifiedTargets: skipped.length,
+  };
+}
+
+function printManifestDiagnostics(item) {
+  console.log(`○ Manifest diagnostics ${item.manifestId || item.target?.audioId}`);
+  console.log(`  locale=${item.locale}`);
+  console.log(`  book=${item.book}`);
+  console.log(`  chapter=${item.chapter}`);
+  console.log(`  verse=${item.verse}`);
+  console.log(`  manifestId=${item.manifestId}`);
+  console.log(`  publicUrl=${item.publicUrl ?? 'n/a'}`);
+  console.log(`  localSize=${item.localSize ?? 'n/a'}`);
+  console.log(`  localSha256=${item.localSha256 ?? 'n/a'}`);
+  console.log(`  localDuration=${item.localDuration ?? 'n/a'}`);
+  console.log(`  cueSegmentCount=${item.cueSegmentCount ?? 'n/a'}`);
+  console.log(`  cueItemCount=${item.cueItemCount ?? 'n/a'}`);
+  console.log(`  remoteResult=${item.remoteResult ?? 'n/a'}`);
+  console.log(`  manifestResult=${item.manifestResult ?? item.action}`);
+  console.log(`  action=${item.action}`);
+  if (item.reason) {
+    console.log(`  reason=${item.reason}`);
+  }
+}
+
+function printManifestPlan(plan, preflight, mode) {
+  console.log('○ Request');
+  console.log(
+    `  stage=manifest mode=${mode} locales=${plan.locales.join(',')} book=${plan.bookId} chapter=${plan.chapter} verses=${plan.fromVerse}-${plan.toVerse} type=${plan.types.join(',')}`,
+  );
+  console.log('');
+  console.log('○ Locale target count');
+  console.log(`  ${plan.targetCount}`);
+  console.log('');
+  console.log('○ Manifest actions');
+  for (const item of preflight.actions) {
+    console.log(
+      `  - ${item.locale} | ${item.book}/${item.chapter}/${item.verse} | ${item.manifestId} | ${item.action} | ${item.publicUrl || 'n/a'}`,
+    );
+  }
+  console.log('');
+
+  for (const item of preflight.actions) {
+    printManifestDiagnostics(item);
+    console.log('');
+  }
+
+  console.log('○ planned_manifest_append');
+  console.log(`  ${preflight.plannedManifestEntries}`);
+  for (const item of preflight.planned) {
+    console.log(`  - ${item.manifestId}`);
+  }
+  console.log('');
+  console.log('○ skip_existing_manifest_verified');
+  console.log(`  ${preflight.existingManifestVerifiedTargets}`);
+  for (const item of preflight.skipped) {
+    console.log(`  - ${item.manifestId}`);
+  }
+  console.log('');
+  console.log('○ plannedTargets');
+  console.log(`  ${preflight.plannedTargets}`);
+  console.log('○ plannedManifestEntries');
+  console.log(`  ${preflight.plannedManifestEntries}`);
+  console.log('○ existingManifestVerifiedTargets');
+  console.log(`  ${preflight.existingManifestVerifiedTargets}`);
+  console.log('');
+  console.log('○ Blockers');
+  if (!preflight.blockers.length) {
+    console.log('  none');
+  } else {
+    for (const blocker of preflight.blockers) {
+      console.log(`  - ${blocker}`);
+    }
+  }
+  console.log('');
+  console.log(
+    mode === 'dry-run'
+      ? '○ Mode: manifest dry-run (no lock, no manifest write, no R2 mutation)'
+      : '○ Mode: manifest write',
+  );
+}
+
+function printManifestCounters(counters) {
+  console.log('○ Manifest counters (current manifest write execution only)');
+  console.log(`  plannedTargets=${counters.plannedTargets}`);
+  console.log(`  cueValidatedTargets=${counters.cueValidatedTargets}`);
+  console.log(`  remoteVerifiedTargets=${counters.remoteVerifiedTargets}`);
+  console.log(
+    `  existingManifestVerifiedTargets=${counters.existingManifestVerifiedTargets}`,
+  );
+  console.log(`  plannedManifestEntries=${counters.plannedManifestEntries}`);
+  console.log(`  writtenManifestEntries=${counters.writtenManifestEntries}`);
+  console.log(`  blockedTargets=${counters.blockedTargets}`);
+  console.log(`  failedTargets=${counters.failedTargets}`);
+  console.log(
+    `  remoteVerificationAttempts=${counters.remoteVerificationAttempts}`,
+  );
+  console.log(`  manifestLockAcquired=${counters.manifestLockAcquired}`);
+  console.log(`  manifestLockReleased=${counters.manifestLockReleased}`);
+}
+
+async function runManifestStage(args, plan) {
+  if (isManifestTestMode()) {
+    console.error(
+      '○ STOP: GOMNA_COMMENTARY_MULTILANG_TEST_MODE=1 blocks the production manifest stage',
+    );
+    process.exit(1);
+  }
+
+  if (args.dryRun) {
+    const adapters = createProductionManifestAdapters();
+    const preflight = await buildManifestPreflight(plan, null, adapters);
+    printManifestPlan(plan, preflight, 'dry-run');
+    console.log('○ Manifest lock');
+    console.log(`  manifestLockPath=${GLOBAL_MANIFEST_LOCK_PATH}`);
+    console.log('  manifestLockAcquired=false');
+    console.log('  acquired=false (dry-run does not acquire a write lock)');
+    if (preflight.hardBlockers.length) {
+      console.error('○ STOP: manifest preflight hard blockers present');
+      process.exit(1);
+    }
+    process.exit(0);
+  }
+
+  assertManifestWriteGuards(args);
+
+  const adapters = createProductionManifestAdapters();
+  const lockPath = buildManifestLockPath();
+  const counters = createEmptyManifestCounters();
+  let lockHeld = false;
+  let exitCode = 0;
+
+  try {
+    const lock = acquireManifestLock(lockPath);
+    if (!lock.ok) {
+      console.error(`○ STOP: ${lock.action}`);
+      console.error(`  ${lock.reason}`);
+      console.error(`  manifestLockPath=${lockPath}`);
+      process.exit(1);
+    }
+    lockHeld = true;
+    counters.manifestLockAcquired = 1;
+
+    console.log('○ Manifest lock');
+    console.log(`  manifestLockPath=${lockPath}`);
+    console.log('  manifestLockAcquired=true');
+    console.log('  acquired=true');
+
+    const result = await writeManifestForTargets({
+      targets: plan.targets,
+      toAbsolute,
+      counters,
+      manifestLoader: adapters.manifestLoader,
+      manifestWriter: adapters.manifestWriter,
+      remoteInspector: adapters.remoteInspector,
+    });
+
+    printManifestPlan(
+      plan,
+      {
+        actions: result.classifications,
+        blockers: (result.blockers || []).map(
+          (item) =>
+            `${item.manifestId}: ${item.action} (${item.reason})`,
+        ),
+        hardBlockers: result.blockers || [],
+        planned: (result.classifications || []).filter(
+          (item) => item.action === 'planned_manifest_append',
+        ),
+        skipped: (result.classifications || []).filter(
+          (item) => item.action === 'skip_existing_manifest_verified',
+        ),
+        plannedTargets: plan.targets.length,
+        plannedManifestEntries: (result.classifications || []).filter(
+          (item) => item.action === 'planned_manifest_append',
+        ).length,
+        existingManifestVerifiedTargets: (result.classifications || []).filter(
+          (item) => item.action === 'skip_existing_manifest_verified',
+        ).length,
+      },
+      'write',
+    );
+
+    if (!result.ok) {
+      exitCode = 1;
+      console.error(`○ STOP: ${result.action}: ${result.reason}`);
+    } else {
+      console.log('');
+      console.log('○ Manifest write summary');
+      console.log(`  written=${result.written}`);
+      console.log(
+        `  writtenManifestEntries=${result.writtenManifestEntries || 0}`,
+      );
+      console.log(`  action=${result.action}`);
+    }
+  } catch (error) {
+    exitCode = 1;
+    console.error(`○ STOP: manifest write failed: ${error.message}`);
+  } finally {
+    if (lockHeld) {
+      const released = releaseManifestLock(lockPath);
+      counters.manifestLockReleased = released.ok ? 1 : 0;
+      console.log('○ Manifest lock');
+      console.log(`  manifestLockPath=${lockPath}`);
+      console.log(`  manifestLockReleased=${released.ok}`);
+      console.log(`  released=${released.ok}`);
+      if (!released.ok) {
+        console.error(`  release failed: ${released.reason}`);
+        exitCode = 1;
+      }
+    }
+    printManifestCounters(counters);
+  }
+
+  process.exit(exitCode);
+}
+
 function runPlanningMode(args) {
   if (!args.dryRun) {
     console.error('○ Error: planning mode requires --dry-run');
@@ -2432,7 +2747,7 @@ function runPlanningMode(args) {
 
   if (args.write) {
     console.error(
-      '○ Error: --write requires --stage narration, --stage audio, --stage cue, or --stage upload',
+      '○ Error: --write requires --stage narration, --stage audio, --stage cue, --stage upload, or --stage manifest',
     );
     console.error(printUsage());
     process.exit(1);
@@ -2529,7 +2844,7 @@ async function main() {
 
   if (args.write && !ACCEPTED_STAGES.has(args.stage)) {
     console.error(
-      '○ Error: --write requires --stage narration, --stage audio, --stage cue, or --stage upload',
+      '○ Error: --write requires --stage narration, --stage audio, --stage cue, --stage upload, or --stage manifest',
     );
     console.error(printUsage());
     process.exit(1);
@@ -2551,7 +2866,8 @@ async function main() {
     args.stage === 'narration' ||
     args.stage === 'audio' ||
     args.stage === 'cue' ||
-    args.stage === 'upload'
+    args.stage === 'upload' ||
+    args.stage === 'manifest'
   ) {
     if (!args.dryRun && !args.write) {
       console.error(
@@ -2600,6 +2916,13 @@ async function main() {
       process.exit(1);
     }
 
+    if (args.stage === 'manifest' && args.repairInvalidDrafts) {
+      console.error(
+        '○ Error: --repair-invalid-drafts is invalid for --stage manifest',
+      );
+      process.exit(1);
+    }
+
     let plan;
     try {
       plan = buildCommentaryMultilangTargets({
@@ -2630,7 +2953,12 @@ async function main() {
       return;
     }
 
-    await runUploadStage(args, plan);
+    if (args.stage === 'upload') {
+      await runUploadStage(args, plan);
+      return;
+    }
+
+    await runManifestStage(args, plan);
     return;
   }
 
