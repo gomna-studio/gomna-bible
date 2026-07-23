@@ -1,0 +1,39 @@
+{
+  "audioId": "genesis.001.001.history.ja-JP",
+  "duration": 88.104,
+  "measuredDuration": 88.104,
+  "testAudioPath": "audio/v1/ja-JP/genesis/001/001/history-warm.mp3",
+  "finalMp3Duration": 88.104,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 4.939833
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 4.939833,
+      "end": 33.00375
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 33.00375,
+      "end": 53.0885
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 53.0885,
+      "end": 71.42375
+    },
+    {
+      "type": "closing",
+      "itemIndex": -1,
+      "start": 71.42375,
+      "end": 88.104
+    }
+  ]
+}

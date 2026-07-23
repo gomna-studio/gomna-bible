@@ -1,0 +1,33 @@
+{
+  "audioId": "genesis.001.003.history.en-US",
+  "duration": 53.76,
+  "measuredDuration": 53.76,
+  "testAudioPath": "audio/v1/en-US/genesis/001/003/history-warm.mp3",
+  "finalMp3Duration": 53.76,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 7.761625
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 7.761625,
+      "end": 24.138125
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 24.138125,
+      "end": 39.478375
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 39.478375,
+      "end": 53.76
+    }
+  ]
+}

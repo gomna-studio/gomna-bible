@@ -1,0 +1,63 @@
+{
+  "audioId": "genesis.001.003.cross-reference.en-US",
+  "duration": 82.512,
+  "measuredDuration": 82.512,
+  "testAudioPath": "audio/v1/en-US/genesis/001/003/cross-reference-calm.mp3",
+  "finalMp3Duration": 82.512,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 7.500333
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 7.500333,
+      "end": 14.490625
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 14.490625,
+      "end": 23.466417
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 23.466417,
+      "end": 32.391833
+    },
+    {
+      "type": "item",
+      "itemIndex": 3,
+      "start": 32.391833,
+      "end": 42.533792
+    },
+    {
+      "type": "item",
+      "itemIndex": 4,
+      "start": 42.533792,
+      "end": 48.782792
+    },
+    {
+      "type": "item",
+      "itemIndex": 5,
+      "start": 48.782792,
+      "end": 60.728417
+    },
+    {
+      "type": "item",
+      "itemIndex": 6,
+      "start": 60.728417,
+      "end": 72.014583
+    },
+    {
+      "type": "item",
+      "itemIndex": 7,
+      "start": 72.014583,
+      "end": 82.512
+    }
+  ]
+}
