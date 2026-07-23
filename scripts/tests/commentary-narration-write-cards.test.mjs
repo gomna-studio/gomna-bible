@@ -4,13 +4,18 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { loadCommentarySourceCards } from '../lib/commentary-multilang-targets.mjs';
-import { buildCommentaryMultilangTargets } from '../lib/commentary-multilang-targets.mjs';
 import {
-  buildNarrationPreflight,
+  loadCommentarySourceCards,
+  buildCommentaryMultilangTargets,
+} from '../lib/commentary-multilang-targets.mjs';
+import {
   buildNarrationTranslationOptions,
   runPlannedNarrationTranslations,
 } from '../run-commentary-multilang-pipeline.mjs';
+import {
+  inspectKoreanSourceText,
+  sha256Text,
+} from '../lib/commentary-multilang-translation.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -33,8 +38,8 @@ function cleanupTemp() {
   fs.rmSync(TEMP_DIR, { recursive: true, force: true });
 }
 
-function buildEightTypePlan() {
-  return buildCommentaryMultilangTargets({
+function buildSyntheticPlannedActions() {
+  const plan = buildCommentaryMultilangTargets({
     locales: 'en-US,ja-JP',
     bookId: 'genesis',
     chapter: 1,
@@ -42,18 +47,69 @@ function buildEightTypePlan() {
     toVerse: 3,
     types: EIGHT_TYPES.join(','),
   });
+  assert.equal(plan.targetCount, 48);
+
+  const actions = [];
+  for (const target of plan.targets) {
+    const sourcePath = `tts-scripts/ko-KR/genesis/001/${String(target.verse).padStart(3, '0')}/${target.type}.txt`;
+    const absolutePath = path.join(ROOT, sourcePath);
+    const text = fs.readFileSync(absolutePath, 'utf8');
+    const extracted = loadCommentarySourceCards(
+      target.bookId,
+      target.chapter,
+      target.verse,
+      target.type,
+    );
+    const inspection = inspectKoreanSourceText(text, {
+      sourcePath,
+      sourceBytes: Buffer.from(text, 'utf8'),
+      type: target.type,
+      cardCount: extracted.cardCount,
+      cards: extracted.cards,
+    });
+    assert.equal(inspection.ok, true, inspection.errors?.join('; '));
+
+    // Keep write-path assertions independent of whether production drafts exist.
+    const fixtureNarration = path.join(
+      TEMP_DIR,
+      'narrations',
+      path.basename(target.narrationPath),
+    );
+    const fixtureMeta = path.join(
+      TEMP_DIR,
+      'meta',
+      path.basename(target.metaPath),
+    );
+
+    actions.push({
+      action: 'planned_translation',
+      audioId: target.audioId,
+      target: {
+        ...target,
+        narrationPath: fixtureNarration,
+        metaPath: fixtureMeta,
+      },
+      koreanSource: {
+        ok: true,
+        text,
+        cards: extracted.cards,
+        cardCount: extracted.cardCount,
+        sourcePath,
+        absolutePath,
+        sourceSha256: sha256Text(text),
+      },
+    });
+  }
+  return actions;
 }
 
 test('write options always pass koreanSource.cards for all eight non-OL types', () => {
-  const plan = buildEightTypePlan();
-  assert.equal(plan.targetCount, 48);
-
-  const preflight = buildNarrationPreflight(plan);
-  assert.equal(preflight.planned.length, 48);
-  assert.equal(preflight.hardBlockers.length, 0);
+  const actions = buildSyntheticPlannedActions();
+  assert.equal(actions.length, 48);
 
   const seenTypes = new Set();
-  for (const item of preflight.planned) {
+  for (const item of actions) {
+    assert.equal(item.action, 'planned_translation');
     assert.notEqual(item.target.type, 'original-language');
     seenTypes.add(item.target.type);
 
@@ -92,15 +148,14 @@ test('write options always pass koreanSource.cards for all eight non-OL types', 
 
 test('write path with cards enters fake translator for all 48 targets', async () => {
   const markerPath = path.join(TEMP_DIR, 'fake-translate-calls.json');
-  const plan = buildEightTypePlan();
-  const preflight = buildNarrationPreflight(plan);
-  assert.equal(preflight.planned.length, 48);
+  const actions = buildSyntheticPlannedActions();
+  assert.equal(actions.length, 48);
 
   let openaiCalls = 0;
   const fakeTranslateCalls = [];
 
   const translationRun = await runPlannedNarrationTranslations({
-    actions: preflight.actions,
+    actions,
     apiKey: 'must-not-call-openai',
     model: 'fake-model',
     counters: { totalCalls: 0 },
@@ -161,19 +216,15 @@ test('write path with cards enters fake translator for all 48 targets', async ()
     });
   }
 
-  // No production narration / metadata writes from this mock path.
-  for (const item of preflight.planned) {
-    const narrationAbs = path.join(ROOT, item.target.narrationPath);
-    const metaAbs = path.join(ROOT, item.target.metaPath);
-    assert.equal(fs.existsSync(narrationAbs), false, item.target.narrationPath);
-    assert.equal(fs.existsSync(metaAbs), false, item.target.metaPath);
+  for (const item of actions) {
+    assert.equal(fs.existsSync(item.target.narrationPath), false);
+    assert.equal(fs.existsSync(item.target.metaPath), false);
   }
 });
 
 test('write path without cards is blocked before fake translator', async () => {
-  const plan = buildEightTypePlan();
-  const preflight = buildNarrationPreflight(plan);
-  const sample = preflight.planned.find(
+  const actions = buildSyntheticPlannedActions();
+  const sample = actions.find(
     (item) => item.target.type === 'history' && item.target.verse === 1,
   );
   assert.ok(sample);

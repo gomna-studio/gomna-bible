@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +18,48 @@ const PIPELINE = path.join(ROOT, 'scripts/run-commentary-multilang-pipeline.mjs'
 
 const EIGHT_TYPES =
   'history,theology,typology,matthew-henry,sermon,hymn,counseling,cross-reference';
+
+function createMissingEightTypeFixture() {
+  const fixtureRoot = fs.mkdtempSync(
+    path.join(os.tmpdir(), 'gomna-narration-dryrun-fixture-'),
+  );
+  fs.symlinkSync(
+    path.join(ROOT, 'gomna_data_genesis.js'),
+    path.join(fixtureRoot, 'gomna_data_genesis.js'),
+  );
+  fs.mkdirSync(path.join(fixtureRoot, 'audio'), { recursive: true });
+  fs.symlinkSync(
+    path.join(ROOT, 'audio/audio-manifest.json'),
+    path.join(fixtureRoot, 'audio/audio-manifest.json'),
+  );
+  fs.mkdirSync(path.join(fixtureRoot, 'tts-scripts'), { recursive: true });
+  fs.symlinkSync(
+    path.join(ROOT, 'tts-scripts/ko-KR'),
+    path.join(fixtureRoot, 'tts-scripts/ko-KR'),
+  );
+
+  for (const locale of ['en-US', 'ja-JP']) {
+    for (const verse of [1, 2, 3]) {
+      const v = String(verse).padStart(3, '0');
+      const scriptDir = path.join(
+        fixtureRoot,
+        `tts-scripts/${locale}/genesis/001/${v}`,
+      );
+      fs.mkdirSync(scriptDir, { recursive: true });
+      for (const file of [
+        'original-language.txt',
+        'original-language.meta.json',
+      ]) {
+        fs.symlinkSync(
+          path.join(ROOT, `tts-scripts/${locale}/genesis/001/${v}/${file}`),
+          path.join(scriptDir, file),
+        );
+      }
+    }
+  }
+
+  return fixtureRoot;
+}
 
 function readKoSource(verse, type) {
   return fs.readFileSync(
@@ -114,43 +157,49 @@ test('original-language still requires at least three paragraphs', () => {
 });
 
 test('narration dry-run for eight types plans all 48 translations with zero blockers', () => {
-  const result = spawnSync(
-    process.execPath,
-    [
-      PIPELINE,
-      '--locales',
-      'en-US,ja-JP',
-      '--book',
-      'genesis',
-      '--chapter',
-      '1',
-      '--from-verse',
-      '1',
-      '--to-verse',
-      '3',
-      '--types',
-      EIGHT_TYPES,
-      '--stage',
-      'narration',
-      '--dry-run',
-    ],
-    {
-      cwd: ROOT,
-      encoding: 'utf8',
-      env: {
-        ...process.env,
-        OPENAI_API_KEY: '',
+  const fixtureRoot = createMissingEightTypeFixture();
+  try {
+    const result = spawnSync(
+      process.execPath,
+      [
+        PIPELINE,
+        '--locales',
+        'en-US,ja-JP',
+        '--book',
+        'genesis',
+        '--chapter',
+        '1',
+        '--from-verse',
+        '1',
+        '--to-verse',
+        '3',
+        '--types',
+        EIGHT_TYPES,
+        '--stage',
+        'narration',
+        '--dry-run',
+      ],
+      {
+        cwd: ROOT,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          GOMNA_ROOT: fixtureRoot,
+          OPENAI_API_KEY: '',
+        },
       },
-    },
-  );
+    );
 
-  assert.equal(result.status, 0, result.stderr || result.stdout);
-  assert.match(result.stdout, /○ Locale target count\n {2}48/);
-  assert.match(result.stdout, /○ planned_translation\n {2}48/);
-  assert.match(result.stdout, /○ API translations required\n {2}48/);
-  assert.match(result.stdout, /○ Blockers\n {2}none/);
-  assert.doesNotMatch(result.stdout, /original-language/);
-  assert.doesNotMatch(result.stdout, /paragraph count must be at least 3/);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.match(result.stdout, /○ Locale target count\n {2}48/);
+    assert.match(result.stdout, /○ planned_translation\n {2}48/);
+    assert.match(result.stdout, /○ API translations required\n {2}48/);
+    assert.match(result.stdout, /○ Blockers\n {2}none/);
+    assert.doesNotMatch(result.stdout, /original-language/);
+    assert.doesNotMatch(result.stdout, /paragraph count must be at least 3/);
+  } finally {
+    fs.rmSync(fixtureRoot, { recursive: true, force: true });
+  }
 });
 
 test('original-language six targets remain complete and approved', () => {

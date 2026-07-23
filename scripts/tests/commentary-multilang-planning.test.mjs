@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import vm from 'node:vm';
@@ -11,6 +12,74 @@ import {
 import { buildCommentaryMultilangTargets } from '../lib/commentary-multilang-targets.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+
+function createMissingEightTypeFixture() {
+  const fixtureRoot = fs.mkdtempSync(
+    path.join(os.tmpdir(), 'gomna-planning-fixture-'),
+  );
+  fs.symlinkSync(
+    path.join(ROOT, 'gomna_data_genesis.js'),
+    path.join(fixtureRoot, 'gomna_data_genesis.js'),
+  );
+  fs.mkdirSync(path.join(fixtureRoot, 'audio'), { recursive: true });
+  fs.symlinkSync(
+    path.join(ROOT, 'audio/audio-manifest.json'),
+    path.join(fixtureRoot, 'audio/audio-manifest.json'),
+  );
+  fs.mkdirSync(path.join(fixtureRoot, 'tts-scripts'), { recursive: true });
+  fs.symlinkSync(
+    path.join(ROOT, 'tts-scripts/ko-KR'),
+    path.join(fixtureRoot, 'tts-scripts/ko-KR'),
+  );
+
+  for (const locale of ['en-US', 'ja-JP']) {
+    for (const verse of [1, 2, 3]) {
+      const v = String(verse).padStart(3, '0');
+      const scriptDir = path.join(
+        fixtureRoot,
+        `tts-scripts/${locale}/genesis/001/${v}`,
+      );
+      fs.mkdirSync(scriptDir, { recursive: true });
+      for (const file of [
+        'original-language.txt',
+        'original-language.meta.json',
+      ]) {
+        fs.symlinkSync(
+          path.join(ROOT, `tts-scripts/${locale}/genesis/001/${v}/${file}`),
+          path.join(scriptDir, file),
+        );
+      }
+
+      const audioDir = path.join(
+        fixtureRoot,
+        `audio/v1/${locale}/genesis/001/${v}`,
+      );
+      fs.mkdirSync(audioDir, { recursive: true });
+      fs.symlinkSync(
+        path.join(
+          ROOT,
+          `audio/v1/${locale}/genesis/001/${v}/original-language-study.mp3`,
+        ),
+        path.join(audioDir, 'original-language-study.mp3'),
+      );
+
+      const cueDir = path.join(
+        fixtureRoot,
+        `audio/cues/${locale}/genesis/001/${v}`,
+      );
+      fs.mkdirSync(cueDir, { recursive: true });
+      fs.symlinkSync(
+        path.join(
+          ROOT,
+          `audio/cues/${locale}/genesis/001/${v}/original-language.json`,
+        ),
+        path.join(cueDir, 'original-language.json'),
+      );
+    }
+  }
+
+  return fixtureRoot;
+}
 
 const EXPECTED_CARD_COUNTS = Object.freeze({
   'original-language': 5,
@@ -89,48 +158,65 @@ test('sermon indexes are contiguous 0-5 and cross-reference 0-7', () => {
   xr.forEach((card, index) => assert.equal(card.itemIndex, index));
 });
 
-test('planning --types all yields 54 unique targets with 6 complete and 48 missing narrations', () => {
-  const plan = buildCommentaryMultilangTargets({
-    locales: 'en-US,ja-JP',
-    bookId: 'genesis',
-    chapter: 1,
-    fromVerse: 1,
-    toVerse: 3,
-    types: 'all',
-  });
+test('planning --types all yields 54 unique targets with 6 complete and 48 missing narrations', async () => {
+  const fixtureRoot = createMissingEightTypeFixture();
+  try {
+    process.env.GOMNA_ROOT = fixtureRoot;
+    const { buildCommentaryMultilangTargets: buildPlan } = await import(
+      `../lib/commentary-multilang-targets.mjs?fixture=${Date.now()}`
+    );
 
-  assert.equal(plan.targetCount, 54);
-  assert.equal(plan.sourceCount, 27);
-  assert.equal(plan.types.length, 9);
-  assert.equal(new Set(plan.targets.map((target) => target.audioId)).size, 54);
+    const plan = buildPlan({
+      locales: 'en-US,ja-JP',
+      bookId: 'genesis',
+      chapter: 1,
+      fromVerse: 1,
+      toVerse: 3,
+      types: 'all',
+    });
 
-  const complete = plan.targets.filter(
-    (target) =>
-      target.narrationExists &&
-      target.metaApproved &&
-      target.audioExists &&
-      target.cueExists &&
-      target.manifestPublished,
-  );
-  const missingNarration = plan.targets.filter((target) => !target.narrationExists);
+    assert.equal(plan.targetCount, 54);
+    assert.equal(plan.sourceCount, 27);
+    assert.equal(plan.types.length, 9);
+    assert.equal(new Set(plan.targets.map((target) => target.audioId)).size, 54);
 
-  assert.equal(complete.length, 6);
-  assert.equal(missingNarration.length, 48);
-  assert.ok(complete.every((target) => target.type === 'original-language'));
-  assert.ok(missingNarration.every((target) => target.type !== 'original-language'));
+    const complete = plan.targets.filter(
+      (target) =>
+        target.narrationExists &&
+        target.metaApproved &&
+        target.audioExists &&
+        target.cueExists &&
+        target.manifestPublished,
+    );
+    const missingNarration = plan.targets.filter(
+      (target) => !target.narrationExists,
+    );
 
-  for (const definition of listCommentaryTypes()) {
-    const typed = plan.targets.filter((target) => target.type === definition.type);
-    assert.equal(typed.length, 6);
-    for (const target of typed) {
-      assert.equal(target.cardCount, EXPECTED_CARD_COUNTS[definition.type]);
-      assert.equal(target.voicePreset, definition.voicePreset);
-      assert.equal(
-        path.basename(target.audioPath),
-        `${definition.type}-${definition.voicePreset}.mp3`,
+    assert.equal(complete.length, 6);
+    assert.equal(missingNarration.length, 48);
+    assert.ok(complete.every((target) => target.type === 'original-language'));
+    assert.ok(
+      missingNarration.every((target) => target.type !== 'original-language'),
+    );
+
+    for (const definition of listCommentaryTypes()) {
+      const typed = plan.targets.filter(
+        (target) => target.type === definition.type,
       );
-      assert.equal(path.basename(target.cuePath), `${definition.type}.json`);
+      assert.equal(typed.length, 6);
+      for (const target of typed) {
+        assert.equal(target.cardCount, EXPECTED_CARD_COUNTS[definition.type]);
+        assert.equal(target.voicePreset, definition.voicePreset);
+        assert.equal(
+          path.basename(target.audioPath),
+          `${definition.type}-${definition.voicePreset}.mp3`,
+        );
+        assert.equal(path.basename(target.cuePath), `${definition.type}.json`);
+      }
     }
+  } finally {
+    delete process.env.GOMNA_ROOT;
+    fs.rmSync(fixtureRoot, { recursive: true, force: true });
   }
 });
 

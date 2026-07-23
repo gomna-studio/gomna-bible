@@ -11,6 +11,7 @@ import {
   assertVoicePresetForType,
   getCommentaryType,
   getCommentaryVoicePreset,
+  getNarrationStructurePolicy,
 } from './commentary-type-registry.mjs';
 import { getLocaleConfig } from './commentary-multilang-registry.mjs';
 import {
@@ -793,17 +794,44 @@ export function validateApprovedNarrationTarget({
     };
   }
 
+  if (!String(narrationText || '').trim()) {
+    return {
+      ok: false,
+      action: 'block_structure_mismatch',
+      reason: 'narration is empty',
+    };
+  }
+
   const sourceStructure = parseNarrationStructure(sourceText);
   const narrationStructure = parseNarrationStructure(narrationText);
   const sourceSignature = buildNarrationStructureSignature(sourceStructure);
   const narrationSignature = buildNarrationStructureSignature(narrationStructure);
 
-  if (sourceSignature.paragraphCount < 3 || narrationSignature.paragraphCount < 3) {
+  let structurePolicy;
+  try {
+    structurePolicy = getNarrationStructurePolicy(target.type);
+    getCommentaryType(target.type);
+  } catch (error) {
     return {
       ok: false,
-      action: 'block_structure_mismatch',
-      reason: 'narration must include intro, card lines, and closing',
+      action: 'block_unsupported_audio_preset',
+      reason: error.message,
     };
+  }
+
+  // original-language keeps the intro/card-lines/closing minimum.
+  // Other registered types mirror the Korean source paragraph count as-is.
+  if (structurePolicy.requireExactThreeParagraphs === true) {
+    if (
+      sourceSignature.paragraphCount < 3 ||
+      narrationSignature.paragraphCount < 3
+    ) {
+      return {
+        ok: false,
+        action: 'block_structure_mismatch',
+        reason: 'narration must include intro, card lines, and closing',
+      };
+    }
   }
 
   for (let i = 0; i < narrationStructure.length; i += 1) {
@@ -830,6 +858,41 @@ export function validateApprovedNarrationTarget({
       ok: false,
       action: 'block_structure_mismatch',
       reason: `structure source=${JSON.stringify(sourceSignature.lineCounts)} narration=${JSON.stringify(narrationSignature.lineCounts)}`,
+    };
+  }
+
+  if (
+    Array.isArray(target.cardIdentities) &&
+    target.cardIdentities.length !== Number(target.cardCount)
+  ) {
+    return {
+      ok: false,
+      action: 'block_structure_mismatch',
+      reason: `cardIdentities length ${target.cardIdentities.length} != cardCount ${target.cardCount}`,
+    };
+  }
+
+  if (Array.isArray(target.cardIdentities)) {
+    for (let index = 0; index < target.cardIdentities.length; index += 1) {
+      const identity = target.cardIdentities[index];
+      if (identity == null || !String(identity).trim()) {
+        return {
+          ok: false,
+          action: 'block_structure_mismatch',
+          reason: `empty card identity at itemIndex ${index}`,
+        };
+      }
+    }
+  }
+
+  if (
+    Array.isArray(data.cardIdentities) &&
+    JSON.stringify(data.cardIdentities) !== JSON.stringify(target.cardIdentities || [])
+  ) {
+    return {
+      ok: false,
+      action: 'block_structure_mismatch',
+      reason: 'metadata cardIdentities do not match target card order',
     };
   }
 
