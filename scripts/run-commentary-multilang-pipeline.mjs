@@ -6,6 +6,7 @@
  * Narration stage: --stage narration --dry-run| --write
  * Audio stage: --stage audio --dry-run| --write
  * Cue stage: --stage cue --dry-run| --write
+ * Upload stage: --stage upload --dry-run| --write
  */
 
 import fs from 'fs';
@@ -38,6 +39,18 @@ import {
   translateCommentaryNarration,
   validateTranslatedNarrationStructure,
 } from './lib/commentary-multilang-translation.mjs';
+import {
+  GLOBAL_UPLOAD_LOCK_PATH,
+  UPLOAD_WRITE_PROTECTIONS,
+  acquireUploadLock,
+  buildUploadLockPath,
+  classifyUploadTarget,
+  createEmptyUploadCounters,
+  createProductionUploadAdapters,
+  isUploadTestMode,
+  releaseUploadLock,
+  uploadOneTarget,
+} from './lib/commentary-multilang-upload.mjs';
 
 const ABSOLUTELY_FORBIDDEN = new Set([
   '--upload',
@@ -46,7 +59,7 @@ const ABSOLUTELY_FORBIDDEN = new Set([
   '--overwrite',
 ]);
 
-const ACCEPTED_STAGES = new Set(['narration', 'audio', 'cue']);
+const ACCEPTED_STAGES = new Set(['narration', 'audio', 'cue', 'upload']);
 
 const REQUIRED_TRANSLATION_FLAG = '1';
 const REQUIRED_ALLOWED_TARGET =
@@ -56,6 +69,7 @@ const REQUIRED_REPAIR_ALLOWED_TARGET =
 const REQUIRED_REPAIR_FLAG = '1';
 const REQUIRED_AUDIO_FLAG = '1';
 const REQUIRED_CUE_FLAG = '1';
+const REQUIRED_UPLOAD_FLAG = '1';
 
 function printUsage() {
   return [
@@ -95,12 +109,22 @@ function printUsage() {
     '  node scripts/run-commentary-multilang-pipeline.mjs \\',
     '    ... --stage cue --write',
     '',
+    'Usage (upload stage):',
+    '  node scripts/run-commentary-multilang-pipeline.mjs \\',
+    '    --locales en-US,ja-JP --book genesis --chapter 1 \\',
+    '    --from-verse 1 --to-verse 3 --type original-language \\',
+    '    --stage upload --dry-run',
+    '',
+    '  node scripts/run-commentary-multilang-pipeline.mjs \\',
+    '    ... --stage upload --write',
+    '',
     'Notes:',
     '  Planning mode requires --dry-run and rejects --write.',
     '  Narration write requires --stage narration --write plus env guards.',
     '  Audio write requires --stage audio --write plus audio env guards.',
     '  Cue write requires --stage cue --write plus cue env guards.',
-    '  Accepted stages: narration, audio, cue.',
+    '  Upload write requires --stage upload --write plus upload env guards.',
+    '  Accepted stages: narration, audio, cue, upload.',
     '  --upload/--publish/--force/--overwrite are always rejected.',
     '  Optional: --json (planning mode).',
   ].join('\n');
@@ -702,6 +726,24 @@ function assertCueWriteGuards(args) {
   if (flag !== REQUIRED_CUE_FLAG) {
     throw new Error(
       `GOMNA_COMMENTARY_MULTILANG_CUE must be exactly "${REQUIRED_CUE_FLAG}" for --write`,
+    );
+  }
+
+  if (allowed !== expected) {
+    throw new Error(
+      `GOMNA_COMMENTARY_MULTILANG_ALLOWED_TARGET must be exactly "${expected}"`,
+    );
+  }
+}
+
+function assertUploadWriteGuards(args) {
+  const flag = process.env.GOMNA_COMMENTARY_MULTILANG_UPLOAD;
+  const allowed = process.env.GOMNA_COMMENTARY_MULTILANG_ALLOWED_TARGET;
+  const expected = buildRequestedTargetString(args);
+
+  if (flag !== REQUIRED_UPLOAD_FLAG) {
+    throw new Error(
+      `GOMNA_COMMENTARY_MULTILANG_UPLOAD must be exactly "${REQUIRED_UPLOAD_FLAG}" for --write`,
     );
   }
 
@@ -2059,6 +2101,328 @@ function runCueStage(args, plan) {
   process.exit(0);
 }
 
+async function buildUploadPreflight(plan, counters = null, adapters = null) {
+  if (!adapters || typeof adapters.remoteInspector !== 'function') {
+    throw new Error('upload adapters.remoteInspector is required');
+  }
+
+  const actions = [];
+  const blockers = [];
+
+  for (const target of plan.targets) {
+    const classified = await classifyUploadTarget({
+      target,
+      root: ROOT,
+      toAbsolute,
+      counters,
+      remoteInspector: adapters.remoteInspector,
+    });
+    actions.push({
+      target,
+      ...classified,
+    });
+
+    if (String(classified.action).startsWith('block_')) {
+      blockers.push(
+        `${classified.audioId}: ${classified.action} (${classified.reason})`,
+      );
+    }
+  }
+
+  const planned = actions.filter((item) => item.action === 'planned_upload');
+  const skipped = actions.filter(
+    (item) => item.action === 'skip_existing_verified',
+  );
+  const hardBlockers = actions.filter((item) =>
+    String(item.action).startsWith('block_'),
+  );
+
+  return {
+    actions,
+    blockers,
+    hardBlockers,
+    planned,
+    skipped,
+    plannedTargets: planned.length,
+    skippedExistingTargets: skipped.length,
+  };
+}
+
+function printUploadDiagnostics(item) {
+  console.log(`○ Upload diagnostics ${item.audioId}`);
+  console.log(`  locale=${item.locale}`);
+  console.log(`  identity=${item.identity}`);
+  console.log(`  localMp3Path=${item.localMp3Path}`);
+  console.log(`  localByteSize=${item.localByteSize ?? 'n/a'}`);
+  console.log(`  localDuration=${item.localDuration ?? 'n/a'}`);
+  console.log(`  localSha256=${item.localSha256 ?? 'n/a'}`);
+  console.log(`  r2Bucket=${item.r2Bucket}`);
+  console.log(`  r2Key=${item.r2Key ?? 'n/a'}`);
+  console.log(`  publicUrl=${item.publicUrl ?? 'n/a'}`);
+  console.log(`  remoteHttpStatus=${item.remoteHttpStatus ?? 'n/a'}`);
+  console.log(`  remoteByteSize=${item.remoteByteSize ?? 'n/a'}`);
+  console.log(`  remoteDuration=${item.remoteDuration ?? 'n/a'}`);
+  console.log(`  remoteSha256=${item.remoteSha256 ?? 'n/a'}`);
+  console.log(`  action=${item.action}`);
+  if (item.reason) {
+    console.log(`  reason=${item.reason}`);
+  }
+}
+
+function printUploadPlan(plan, preflight, mode) {
+  console.log('○ Request');
+  console.log(
+    `  stage=upload mode=${mode} locales=${plan.locales.join(',')} book=${plan.bookId} chapter=${plan.chapter} verses=${plan.fromVerse}-${plan.toVerse} type=${plan.types.join(',')}`,
+  );
+  console.log('');
+  console.log('○ Locale target count');
+  console.log(`  ${plan.targetCount}`);
+  console.log('');
+  console.log('○ Upload actions');
+  for (const item of preflight.actions) {
+    console.log(
+      `  - ${item.target.locale} | ${item.target.bookId}/${item.target.chapter}/${item.target.verse} | ${item.target.type} | ${item.target.audioId} | ${item.action} | ${item.r2Key || item.target.audioPath}`,
+    );
+  }
+  console.log('');
+
+  for (const item of preflight.actions) {
+    printUploadDiagnostics(item);
+    console.log('');
+  }
+
+  console.log('○ planned_upload');
+  console.log(`  ${preflight.plannedTargets}`);
+  for (const item of preflight.planned) {
+    console.log(`  - ${item.audioId}`);
+  }
+  console.log('');
+  console.log('○ skip_existing_verified');
+  console.log(`  ${preflight.skippedExistingTargets}`);
+  for (const item of preflight.skipped) {
+    console.log(`  - ${item.audioId}`);
+  }
+  console.log('');
+  console.log('○ plannedTargets');
+  console.log(`  ${preflight.plannedTargets}`);
+  console.log('○ skippedExistingTargets');
+  console.log(`  ${preflight.skippedExistingTargets}`);
+  console.log('');
+  console.log('○ Blockers');
+  if (!preflight.blockers.length) {
+    console.log('  none');
+  } else {
+    for (const blocker of preflight.blockers) {
+      console.log(`  - ${blocker}`);
+    }
+  }
+  console.log('');
+  console.log(
+    mode === 'dry-run'
+      ? '○ Mode: upload dry-run (no API call, no Wrangler put, no R2 mutation)'
+      : '○ Mode: upload write',
+  );
+}
+
+function printUploadCounters(counters) {
+  console.log('○ Upload counters (current upload write execution only)');
+  console.log(`  plannedTargets=${counters.plannedTargets}`);
+  console.log(`  attemptedTargets=${counters.attemptedTargets}`);
+  console.log(`  successfulTargets=${counters.successfulTargets}`);
+  console.log(`  failedTargets=${counters.failedTargets}`);
+  console.log(`  skippedExistingTargets=${counters.skippedExistingTargets}`);
+  console.log(`  remotePreflightChecks=${counters.remotePreflightChecks}`);
+  console.log(
+    `  remoteImmediateRechecks=${counters.remoteImmediateRechecks}`,
+  );
+  console.log(`  totalUploadAttempts=${counters.totalUploadAttempts}`);
+  console.log(
+    `  remoteVerificationAttempts=${counters.remoteVerificationAttempts}`,
+  );
+  console.log(`  uploadLockAcquired=${counters.uploadLockAcquired}`);
+  console.log(`  uploadLockReleased=${counters.uploadLockReleased}`);
+}
+
+function printUploadWriteProtections() {
+  console.log('○ Upload write protections');
+  console.log(
+    `  localSingleWriterLock=${UPLOAD_WRITE_PROTECTIONS.localSingleWriterLock}`,
+  );
+  console.log(
+    `  globalUploadLock=${UPLOAD_WRITE_PROTECTIONS.globalUploadLock}`,
+  );
+  console.log(`  uploadLockPath=${GLOBAL_UPLOAD_LOCK_PATH}`);
+  console.log(
+    `  immediateRemoteRecheck=${UPLOAD_WRITE_PROTECTIONS.immediateRemoteRecheck}`,
+  );
+  console.log(
+    `  onePutMaximumPerTarget=${UPLOAD_WRITE_PROTECTIONS.onePutMaximumPerTarget}`,
+  );
+  console.log(
+    `  postUploadByteVerification=${UPLOAD_WRITE_PROTECTIONS.postUploadByteVerification}`,
+  );
+  console.log(
+    `  externalWriterRaceNotAtomicallyEliminated=${UPLOAD_WRITE_PROTECTIONS.externalWriterRaceNotAtomicallyEliminated}`,
+  );
+  console.log(
+    `  nativeWranglerConditionalCreate=${UPLOAD_WRITE_PROTECTIONS.nativeWranglerConditionalCreate}`,
+  );
+}
+
+async function runUploadStage(args, plan) {
+  // Test mode must never inherit production write guards or real I/O adapters.
+  if (isUploadTestMode()) {
+    console.error(
+      '○ STOP: GOMNA_COMMENTARY_MULTILANG_TEST_MODE=1 blocks the production upload stage',
+    );
+    process.exit(1);
+  }
+
+  if (args.dryRun) {
+    const adapters = createProductionUploadAdapters();
+    const preflight = await buildUploadPreflight(plan, null, adapters);
+    printUploadPlan(plan, preflight, 'dry-run');
+    console.log('○ Upload lock');
+    console.log(`  uploadLockPath=${GLOBAL_UPLOAD_LOCK_PATH}`);
+    console.log('  uploadLockAcquired=false');
+    console.log('  acquired=false (dry-run does not acquire a write lock)');
+    if (preflight.hardBlockers.length) {
+      console.error('○ STOP: upload preflight hard blockers present');
+      process.exit(1);
+    }
+    process.exit(0);
+  }
+
+  assertUploadWriteGuards(args);
+
+  const adapters = createProductionUploadAdapters();
+  const lockPath = buildUploadLockPath();
+  const counters = createEmptyUploadCounters();
+  let lockHeld = false;
+  let exitCode = 0;
+
+  try {
+    const lock = acquireUploadLock(lockPath);
+    if (!lock.ok) {
+      console.error(`○ STOP: ${lock.action}`);
+      console.error(`  ${lock.reason}`);
+      console.error(`  uploadLockPath=${lockPath}`);
+      process.exit(1);
+    }
+    lockHeld = true;
+    counters.uploadLockAcquired = 1;
+
+    printUploadWriteProtections();
+    console.log('○ Upload lock');
+    console.log(`  uploadLockPath=${lockPath}`);
+    console.log('  uploadLockAcquired=true');
+    console.log('  acquired=true');
+
+    const preflight = await buildUploadPreflight(plan, counters, adapters);
+    printUploadPlan(plan, preflight, 'write');
+
+    if (preflight.hardBlockers.length) {
+      console.error(
+        '○ STOP: aborting before upload due to unsafe target state',
+      );
+      exitCode = 1;
+      return;
+    }
+
+    counters.plannedTargets = preflight.plannedTargets;
+    counters.skippedExistingTargets = preflight.skippedExistingTargets;
+
+    const results = [];
+
+    for (const item of preflight.actions) {
+      if (item.action === 'skip_existing_verified') {
+        results.push({
+          audioId: item.audioId,
+          action: item.action,
+          ok: true,
+          untouched: true,
+        });
+        continue;
+      }
+
+      if (item.action !== 'planned_upload') {
+        counters.failedTargets += 1;
+        results.push({
+          audioId: item.audioId,
+          action: item.action,
+          ok: false,
+          error: item.reason,
+        });
+        continue;
+      }
+
+      console.log(`○ Uploading ${item.audioId}`);
+      const uploaded = await uploadOneTarget({
+        target: item.target,
+        classified: item,
+        toAbsolute,
+        counters,
+        remoteInspector: adapters.remoteInspector,
+        wranglerRunner: adapters.wranglerRunner,
+        sleep: adapters.sleep,
+      });
+      results.push(uploaded);
+
+      if (uploaded.ok) {
+        console.log(`○ Upload result: ${uploaded.action}`);
+        console.log(`  r2Key=${uploaded.r2Key}`);
+        console.log(`  publicUrl=${uploaded.publicUrl}`);
+      } else {
+        console.error(`○ Upload failed: ${item.audioId}`);
+        console.error(`  ${uploaded.action}: ${uploaded.reason}`);
+      }
+    }
+
+    const successful = results.filter((item) => item.ok && !item.untouched);
+    const failed = results.filter((item) => !item.ok);
+    const skipped = results.filter(
+      (item) => item.action === 'skip_existing_verified',
+    );
+
+    if (failed.length) {
+      exitCode = 1;
+    }
+
+    console.log('');
+    console.log('○ Upload write summary');
+    console.log(`  skipped_existing_verified=${skipped.length}`);
+    console.log(`  successful=${successful.length}`);
+    console.log(`  failures=${failed.length}`);
+    for (const item of successful) {
+      console.log(`  + ${item.audioId} ${item.action}`);
+    }
+    for (const item of failed) {
+      console.log(
+        `  ! ${item.audioId} ${item.action}: ${item.error || item.reason}`,
+      );
+    }
+  } catch (error) {
+    exitCode = 1;
+    console.error(`○ STOP: upload write failed: ${error.message}`);
+  } finally {
+    if (lockHeld) {
+      const released = releaseUploadLock(lockPath);
+      counters.uploadLockReleased = released.ok ? 1 : 0;
+      console.log('○ Upload lock');
+      console.log(`  uploadLockPath=${lockPath}`);
+      console.log(`  uploadLockReleased=${released.ok}`);
+      console.log(`  released=${released.ok}`);
+      if (!released.ok) {
+        console.error(`  release failed: ${released.reason}`);
+        exitCode = 1;
+      }
+    }
+    printUploadCounters(counters);
+  }
+
+  process.exit(exitCode);
+}
+
 function runPlanningMode(args) {
   if (!args.dryRun) {
     console.error('○ Error: planning mode requires --dry-run');
@@ -2068,7 +2432,7 @@ function runPlanningMode(args) {
 
   if (args.write) {
     console.error(
-      '○ Error: --write requires --stage narration, --stage audio, or --stage cue',
+      '○ Error: --write requires --stage narration, --stage audio, --stage cue, or --stage upload',
     );
     console.error(printUsage());
     process.exit(1);
@@ -2165,7 +2529,7 @@ async function main() {
 
   if (args.write && !ACCEPTED_STAGES.has(args.stage)) {
     console.error(
-      '○ Error: --write requires --stage narration, --stage audio, or --stage cue',
+      '○ Error: --write requires --stage narration, --stage audio, --stage cue, or --stage upload',
     );
     console.error(printUsage());
     process.exit(1);
@@ -2186,7 +2550,8 @@ async function main() {
   if (
     args.stage === 'narration' ||
     args.stage === 'audio' ||
-    args.stage === 'cue'
+    args.stage === 'cue' ||
+    args.stage === 'upload'
   ) {
     if (!args.dryRun && !args.write) {
       console.error(
@@ -2228,6 +2593,13 @@ async function main() {
       process.exit(1);
     }
 
+    if (args.stage === 'upload' && args.repairInvalidDrafts) {
+      console.error(
+        '○ Error: --repair-invalid-drafts is invalid for --stage upload',
+      );
+      process.exit(1);
+    }
+
     let plan;
     try {
       plan = buildCommentaryMultilangTargets({
@@ -2253,7 +2625,12 @@ async function main() {
       return;
     }
 
-    runCueStage(args, plan);
+    if (args.stage === 'cue') {
+      runCueStage(args, plan);
+      return;
+    }
+
+    await runUploadStage(args, plan);
     return;
   }
 
