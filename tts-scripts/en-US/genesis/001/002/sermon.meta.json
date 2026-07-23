@@ -1,0 +1,38 @@
+{
+  "sourcePath": "tts-scripts/ko-KR/genesis/001/002/sermon.txt",
+  "sourceHashAlgorithm": "sha256",
+  "sourceHash": "c195ea9d771552f8c88560427b77a0bcec750f8a6fa6d20fe64ce5f94eede85f",
+  "sourceLocale": "ko-KR",
+  "targetLocale": "en-US",
+  "status": "approved",
+  "translatedAt": "2026-07-23T03:21:28Z",
+  "bookId": "genesis",
+  "chapter": 1,
+  "verse": 2,
+  "type": "sermon",
+  "paragraphCount": 2,
+  "cardCount": 6,
+  "narrationHashAlgorithm": "sha256",
+  "narrationHash": "f1192a293efa4da21b6f9c3dd56aadd6b7e91db670ee5a0815c9c50b63f80c5d",
+  "model": "gpt-4o-2024-08-06",
+  "humanReviewRequired": false,
+  "structureValidated": true,
+  "sourceStructure": {
+    "paragraphCount": 2,
+    "lineCounts": [
+      1,
+      6
+    ],
+    "totalLineCount": 7
+  },
+  "narrationStructure": {
+    "paragraphCount": 2,
+    "lineCounts": [
+      1,
+      6
+    ],
+    "totalLineCount": 7
+  },
+  "reviewedAt": "2026-07-23T03:48:44Z",
+  "approvedAt": "2026-07-23T03:48:44Z"
+}

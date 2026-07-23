@@ -1,0 +1,50 @@
+{
+  "sourcePath": "tts-scripts/ko-KR/genesis/001/001/cross-reference.txt",
+  "sourceHashAlgorithm": "sha256",
+  "sourceHash": "22dced5e1201552233aadc042e921493c59566f1241007351ab2080045403600",
+  "sourceLocale": "ko-KR",
+  "targetLocale": "ja-JP",
+  "status": "approved",
+  "translatedAt": "2026-07-23T03:21:09Z",
+  "bookId": "genesis",
+  "chapter": 1,
+  "verse": 1,
+  "type": "cross-reference",
+  "paragraphCount": 8,
+  "cardCount": 8,
+  "narrationHashAlgorithm": "sha256",
+  "narrationHash": "2b03a77de0cd6c74c0a07ffc98d9b4a448c38db77b4b0f5953c2dfde039a3256",
+  "model": "gpt-4o-2024-08-06",
+  "humanReviewRequired": false,
+  "structureValidated": true,
+  "sourceStructure": {
+    "paragraphCount": 8,
+    "lineCounts": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "totalLineCount": 8
+  },
+  "narrationStructure": {
+    "paragraphCount": 8,
+    "lineCounts": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "totalLineCount": 8
+  },
+  "reviewedAt": "2026-07-23T03:48:44Z",
+  "approvedAt": "2026-07-23T03:48:44Z"
+}
