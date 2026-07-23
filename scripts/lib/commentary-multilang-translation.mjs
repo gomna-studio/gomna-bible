@@ -6,6 +6,10 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import {
+  getCommentaryType,
+  getNarrationStructurePolicy,
+} from './commentary-type-registry.mjs';
 import { getLocaleConfig } from './commentary-multilang-registry.mjs';
 
 const fsExistsSync = fs.existsSync.bind(fs);
@@ -31,6 +35,8 @@ const LOCALE_PROMPT = Object.freeze({
       'Write natural spoken American English suitable for calm study narration.',
       'Use clear sentence rhythm for TTS.',
       'Use standard Protestant biblical terminology.',
+    ].join(' '),
+    originalLanguageRules: [
       'Retain original-language terms in readable Latin transliteration exactly as implied by the Korean source (for example: tohu, bohu, hoshekh, tehom, ruach, amar, yehi, or, wayehi, Elohim).',
       'Do not invent transliterations that are absent from the Korean source.',
     ].join(' '),
@@ -40,6 +46,8 @@ const LOCALE_PROMPT = Object.freeze({
     languageRules: [
       'Write natural spoken Japanese in a polite explanatory narration style.',
       'Use established Japanese biblical terminology.',
+    ].join(' '),
+    originalLanguageRules: [
       'Retain original-language terms in katakana consistently (for example: トフー, ボフー, ホシェク, テホーム, ルーアハ, アマル, イェヒー, オール, バイェヒー, エロヒム) when the Korean source presents those Hebrew terms.',
       'Do not invent transliterations that are absent from the Korean source.',
     ].join(' '),
@@ -248,22 +256,29 @@ export function validateTranslatedNarrationStructure({
     );
   }
 
-  if (String(type) === 'original-language') {
-    if (narrationSignature.paragraphCount !== 3) {
-      errors.push(
-        `original-language requires exactly 3 paragraphs (got ${narrationSignature.paragraphCount})`,
-      );
-    }
-    if (narrationSignature.lineCounts[0] !== 1) {
-      errors.push('Introduction paragraph must contain exactly 1 line');
-    }
-    if (narrationSignature.lineCounts[2] !== 1) {
-      errors.push('Closing paragraph must contain exactly 1 line');
-    }
-    if (Number(cardCount) > 0 && narrationSignature.lineCounts[1] !== Number(cardCount)) {
-      errors.push(
-        `Middle paragraph line count must equal cardCount=${cardCount} (got ${narrationSignature.lineCounts[1]})`,
-      );
+  if (type) {
+    const policy = getNarrationStructurePolicy(type);
+    if (policy.requireExactThreeParagraphs) {
+      if (narrationSignature.paragraphCount !== 3) {
+        errors.push(
+          `${type} requires exactly 3 paragraphs (got ${narrationSignature.paragraphCount})`,
+        );
+      }
+      if (narrationSignature.lineCounts[0] !== 1) {
+        errors.push('Introduction paragraph must contain exactly 1 line');
+      }
+      if (narrationSignature.lineCounts[2] !== 1) {
+        errors.push('Closing paragraph must contain exactly 1 line');
+      }
+      if (Number(cardCount) > 0 && narrationSignature.lineCounts[1] !== Number(cardCount)) {
+        errors.push(
+          `Middle paragraph line count must equal cardCount=${cardCount} (got ${narrationSignature.lineCounts[1]})`,
+        );
+      }
+    } else if (Number(cardCount) > 0) {
+      // Non-original-language types mirror Korean source structure; card count
+      // is validated by the planner/extractor, not forced into 3 paragraphs.
+      getCommentaryType(type);
     }
   }
 
@@ -275,7 +290,11 @@ export function validateTranslatedNarrationStructure({
     }
   }
 
-  if (paragraphs.length >= 2) {
+  if (
+    type &&
+    getNarrationStructurePolicy(type).requireExactThreeParagraphs &&
+    paragraphs.length >= 2
+  ) {
     const cardLines = paragraphs[1];
     const uniqueCards = new Set(cardLines);
     if (uniqueCards.size !== cardLines.length) {
@@ -374,6 +393,7 @@ export function buildDraftNarrationMetadata({
   type,
   paragraphCount,
   cardCount,
+  cardIdentities,
   narrationHash,
   model,
   translatedAt,
@@ -384,6 +404,7 @@ export function buildDraftNarrationMetadata({
   structureValidated,
 }) {
   getLocaleConfig(targetLocale);
+  getCommentaryType(type);
 
   const metadata = {
     sourcePath,
@@ -404,6 +425,10 @@ export function buildDraftNarrationMetadata({
     model,
     humanReviewRequired: true,
   };
+
+  if (Array.isArray(cardIdentities)) {
+    metadata.cardIdentities = cardIdentities.map((identity) => String(identity));
+  }
 
   if (structureValidated) {
     metadata.structureValidated = true;
@@ -666,6 +691,19 @@ function buildSystemPrompt({
     throw new Error(`No translation prompt for locale: ${targetLocale}`);
   }
 
+  const policy = getNarrationStructurePolicy(type);
+  const rules = [localePrompt.languageRules];
+  if (policy.retainHebrewTerms) {
+    rules.push(localePrompt.originalLanguageRules);
+    rules.push(
+      'Preserve Hebrew/Greek transliterations that exist in the Korean source; do not invent new ones.',
+    );
+  } else {
+    rules.push(
+      'Do not force original-language transliteration rules onto this commentary type.',
+    );
+  }
+
   return [
     'You are translating Korean Bible commentary narration for text-to-speech.',
     `Target locale: ${localePrompt.label}.`,
@@ -679,14 +717,13 @@ function buildSystemPrompt({
     'Do not merge card lines.',
     'Do not split one source line into multiple target lines.',
     'Do not add or remove blank-line paragraph boundaries.',
-    'Preserve introduction → card lines → closing order.',
+    'Preserve the source paragraph and line structure exactly.',
     'Do not summarize or omit content.',
     'Do not add theological claims.',
     'Do not add headings, numbering, markdown, notes, or wrappers.',
     'Preserve Bible references accurately.',
-    'Preserve Hebrew/Greek transliterations that exist in the Korean source; do not invent new ones.',
     'Preserve the source doctrinal tone without strengthening or weakening it.',
-    localePrompt.languageRules,
+    ...rules,
   ].join('\n');
 }
 

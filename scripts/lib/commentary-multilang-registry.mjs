@@ -1,7 +1,15 @@
 /**
  * Locale registry and pure path/ID helpers for multilingual commentary automation.
  * Read-only: no filesystem writes, no network, no side effects at import time.
+ *
+ * Commentary-type metadata lives in commentary-type-registry.mjs.
  */
+
+import {
+  buildCommentaryCueFileName,
+  buildCommentaryMp3FileName,
+  getCommentaryVoicePreset,
+} from './commentary-type-registry.mjs';
 
 const PUBLIC_R2_BASE_URL =
   'https://pub-1606395d18b84b29b95f841e5fe9e008.r2.dev';
@@ -18,7 +26,6 @@ const LOCALE_REGISTRY = Object.freeze({
     cueRoot: 'audio/cues/en-US',
     r2Root: 'commentary/en-US',
     publicR2BaseUrl: PUBLIC_R2_BASE_URL,
-    defaultVoicePreset: 'study',
   }),
   'ja-JP': Object.freeze({
     locale: 'ja-JP',
@@ -29,7 +36,6 @@ const LOCALE_REGISTRY = Object.freeze({
     cueRoot: 'audio/cues/ja-JP',
     r2Root: 'commentary/ja-JP',
     publicR2BaseUrl: PUBLIC_R2_BASE_URL,
-    defaultVoicePreset: 'study',
   }),
 });
 
@@ -154,42 +160,45 @@ export function buildAudioPath(
   voicePreset,
 ) {
   const config = getLocaleConfig(locale);
-  const preset = requireNonEmptyString(
-    'voicePreset',
-    voicePreset || config.defaultVoicePreset,
+  const commentaryType = requireNonEmptyString('type', type);
+  const fileName = buildCommentaryMp3FileName(
+    commentaryType,
+    voicePreset || getCommentaryVoicePreset(commentaryType),
   );
   return [
     config.audioRoot,
     requireNonEmptyString('bookId', bookId),
     pad3(chapter),
     pad3(verse),
-    `${requireNonEmptyString('type', type)}-${preset}.mp3`,
+    fileName,
   ].join('/');
 }
 
 export function buildCuePath(bookId, chapter, verse, type, locale) {
   const config = getLocaleConfig(locale);
+  const commentaryType = requireNonEmptyString('type', type);
   return [
     config.cueRoot,
     requireNonEmptyString('bookId', bookId),
     pad3(chapter),
     pad3(verse),
-    `${requireNonEmptyString('type', type)}.json`,
+    buildCommentaryCueFileName(commentaryType),
   ].join('/');
 }
 
 export function buildR2Key(bookId, chapter, verse, type, locale, voicePreset) {
   const config = getLocaleConfig(locale);
-  const preset = requireNonEmptyString(
-    'voicePreset',
-    voicePreset || config.defaultVoicePreset,
+  const commentaryType = requireNonEmptyString('type', type);
+  const fileName = buildCommentaryMp3FileName(
+    commentaryType,
+    voicePreset || getCommentaryVoicePreset(commentaryType),
   );
   return [
     config.r2Root,
     requireNonEmptyString('bookId', bookId),
     pad3(chapter),
     pad3(verse),
-    `${requireNonEmptyString('type', type)}-${preset}.mp3`,
+    fileName,
   ].join('/');
 }
 

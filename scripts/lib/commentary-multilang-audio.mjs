@@ -7,6 +7,11 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
+import {
+  assertVoicePresetForType,
+  getCommentaryType,
+  getCommentaryVoicePreset,
+} from './commentary-type-registry.mjs';
 import { getLocaleConfig } from './commentary-multilang-registry.mjs';
 import {
   buildKoreanSourcePath,
@@ -27,6 +32,37 @@ export const ENGLISH_STUDY_BASE_INSTRUCTIONS =
 
 export const JAPANESE_STUDY_BASE_INSTRUCTIONS =
   '落ち着いた温かく明瞭な日本語で、聖書解説を学びのペースでゆっくり読んでください。文の間に自然な間を置いてください。';
+
+const PRESET_BASE_INSTRUCTIONS = Object.freeze({
+  study: Object.freeze({
+    'en-US': ENGLISH_STUDY_BASE_INSTRUCTIONS,
+    'ja-JP': JAPANESE_STUDY_BASE_INSTRUCTIONS,
+  }),
+  warm: Object.freeze({
+    'en-US':
+      'Read this Bible commentary in warm, clear American English, with a pastoral tone and natural pauses between sentences.',
+    'ja-JP':
+      '温かく明瞭な日本語で、牧会的なトーンの聖書解説を自然な間を置きながら読んでください。',
+  }),
+  calm: Object.freeze({
+    'en-US':
+      'Read this Bible commentary in calm, gentle American English, with unhurried clarity and natural pauses between sentences.',
+    'ja-JP':
+      '落ち着いたやさしい日本語で、急がず明瞭に聖書解説を読み、文の間に自然な間を置いてください。',
+  }),
+  strong: Object.freeze({
+    'en-US':
+      'Read this Bible commentary in clear, confident American English suitable for sermon material, with firm pacing and natural pauses between sentences.',
+    'ja-JP':
+      '説教資料にふさわしい、はっきりとした自信ある日本語で聖書解説を読み、文の間に自然な間を置いてください。',
+  }),
+  soft: Object.freeze({
+    'en-US':
+      'Read this Bible commentary in soft, reverent American English suitable for hymn meditation, with gentle pacing and natural pauses between sentences.',
+    'ja-JP':
+      '賛美の黙想にふさわしい、やわらかく敬虔な日本語で聖書解説を読み、文の間に自然な間を置いてください。',
+  }),
+});
 
 const REJECTED_TARGET_LOCALES = new Set(['ko', 'ko-KR']);
 
@@ -265,13 +301,34 @@ export function buildStudyTtsInstructions(locale, pronunciationTerms) {
   throw new Error(`unsupported locale for study instructions: ${normalizedLocale}`);
 }
 
+export function buildPresetTtsInstructions(locale, voicePreset, {
+  type,
+  pronunciationTerms,
+} = {}) {
+  const normalizedLocale = String(locale || '').trim();
+  const preset = String(voicePreset || '').trim();
+  const base = PRESET_BASE_INSTRUCTIONS[preset]?.[normalizedLocale];
+  if (!base) {
+    throw new Error(
+      `unsupported locale/preset instructions: ${normalizedLocale}/${preset}`,
+    );
+  }
+
+  if (String(type || '') === 'original-language') {
+    return buildStudyTtsInstructions(normalizedLocale, pronunciationTerms);
+  }
+
+  return base;
+}
+
 /**
- * Resolve pilot-compatible TTS configuration for a locale + study preset.
- * When narrationText is provided, instructions are target-specific.
+ * Resolve TTS configuration for a locale + registered type preset.
+ * Hebrew-term instructions apply only to original-language.
  */
 export function resolveCommentaryTtsConfig({
   locale,
-  voicePreset = DEFAULT_AUDIO_VOICE_PRESET,
+  type,
+  voicePreset,
   narrationText,
   cardCount,
   pronunciationTerms,
@@ -283,36 +340,48 @@ export function resolveCommentaryTtsConfig({
 
   getLocaleConfig(normalizedLocale);
 
-  const preset = String(voicePreset || '').trim();
-  if (preset !== DEFAULT_AUDIO_VOICE_PRESET) {
-    throw new Error(
-      `Unsupported audio preset: ${preset}. Only "${DEFAULT_AUDIO_VOICE_PRESET}" is supported`,
-    );
+  const commentaryType = String(type || '').trim();
+  if (!commentaryType) {
+    throw new Error('type is required to resolve commentary TTS config');
   }
 
-  let terms = pronunciationTerms;
-  if (!terms) {
-    if (narrationText == null) {
-      throw new Error(
-        'narrationText or pronunciationTerms is required to resolve target-specific instructions',
+  const expectedPreset = getCommentaryVoicePreset(commentaryType);
+  const preset = assertVoicePresetForType(
+    commentaryType,
+    voicePreset || expectedPreset,
+  );
+
+  let terms = pronunciationTerms || [];
+  if (commentaryType === 'original-language') {
+    if (!terms.length) {
+      if (narrationText == null) {
+        throw new Error(
+          'narrationText or pronunciationTerms is required for original-language TTS instructions',
+        );
+      }
+      terms = extractOriginalLanguagePronunciationTerms(
+        normalizedLocale,
+        narrationText,
+        { cardCount },
       );
     }
-    terms = extractOriginalLanguagePronunciationTerms(
-      normalizedLocale,
-      narrationText,
-      { cardCount },
-    );
+  } else {
+    terms = [];
   }
 
-  const instructions = buildStudyTtsInstructions(normalizedLocale, terms);
+  const instructions = buildPresetTtsInstructions(normalizedLocale, preset, {
+    type: commentaryType,
+    pronunciationTerms: terms,
+  });
 
   return {
     locale: normalizedLocale,
+    type: commentaryType,
     endpoint: OPENAI_SPEECH_URL,
     model: DEFAULT_AUDIO_MODEL,
     voice: DEFAULT_AUDIO_VOICE,
     responseFormat: DEFAULT_AUDIO_RESPONSE_FORMAT,
-    voicePreset: DEFAULT_AUDIO_VOICE_PRESET,
+    voicePreset: preset,
     instructions,
     pronunciationTerms: terms,
   };
@@ -610,14 +679,18 @@ export function validateApprovedNarrationTarget({
     };
   }
 
-  const voicePreset = String(
-    target?.voicePreset || DEFAULT_AUDIO_VOICE_PRESET,
-  ).trim();
-  if (voicePreset !== DEFAULT_AUDIO_VOICE_PRESET) {
+  let voicePreset;
+  try {
+    const definition = getCommentaryType(target?.type);
+    voicePreset = assertVoicePresetForType(
+      definition.type,
+      target?.voicePreset || definition.voicePreset,
+    );
+  } catch (error) {
     return {
       ok: false,
       action: 'block_unsupported_audio_preset',
-      reason: `voicePreset=${voicePreset} is unsupported; only study is allowed`,
+      reason: error.message,
     };
   }
 
@@ -855,6 +928,7 @@ export function validateApprovedNarrationTarget({
   try {
     ttsConfig = resolveCommentaryTtsConfig({
       locale,
+      type: target.type,
       voicePreset,
       narrationText,
       cardCount: target.cardCount,

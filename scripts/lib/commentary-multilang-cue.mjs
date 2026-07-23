@@ -12,6 +12,10 @@ import {
   validateMp3File,
 } from './commentary-multilang-audio.mjs';
 import {
+  getCommentaryType,
+  getCueSegmentPolicy,
+} from './commentary-type-registry.mjs';
+import {
   buildNarrationStructureSignature,
   parseNarrationStructure,
 } from './commentary-multilang-translation.mjs';
@@ -86,14 +90,27 @@ export function spokenCharacterWeight(text) {
   return compact.length;
 }
 
-export function buildNarrationSpeechUnits(narrationText, cardCount) {
+/**
+ * Build ordered speech units from approved narration.
+ * Card count comes from source/approved metadata, never a global five-card assumption.
+ */
+export function buildNarrationSpeechUnits(narrationText, cardCount, {
+  type,
+  includeClosing,
+} = {}) {
   const paragraphs = parseNarrationStructure(narrationText);
   const signature = buildNarrationStructureSignature(paragraphs);
   const expectedCards = Number(cardCount);
+  const policy = type ? getCueSegmentPolicy(type) : null;
+
+  if (!Number.isFinite(expectedCards) || expectedCards < 1) {
+    throw new Error(`cardCount must be >= 1, got ${cardCount}`);
+  }
 
   let introText;
-  let cardTexts;
-  let closingText;
+  let cardTexts = [];
+  let bridgeTexts = [];
+  let closingText = null;
 
   if (
     signature.paragraphCount === 3 &&
@@ -105,21 +122,55 @@ export function buildNarrationSpeechUnits(narrationText, cardCount) {
     cardTexts = paragraphs[1].slice();
     closingText = paragraphs[2][0];
   } else if (
-    signature.paragraphCount >= 3 &&
+    type === 'hymn' &&
+    policy?.allowBridge &&
+    signature.paragraphCount === expectedCards + 3 &&
     signature.lineCounts.every((count) => count === 1)
   ) {
     introText = paragraphs[0][0];
-    cardTexts = paragraphs.slice(1, -1).map((lines) => lines[0]);
+    bridgeTexts = [paragraphs[1][0]];
+    cardTexts = paragraphs.slice(2, 2 + expectedCards).map((lines) => lines[0]);
     closingText = paragraphs[paragraphs.length - 1][0];
+  } else if (
+    type === 'matthew-henry' &&
+    policy?.allowMultiParagraphItems
+  ) {
+    const paragraphsPerItem = getCommentaryType(type).paragraphsPerItem || 3;
+    const body = paragraphs.slice(1);
+    const block = expectedCards * paragraphsPerItem;
+    if (body.length !== block && body.length !== block + 1) {
+      throw new Error(
+        `matthew-henry narration body length ${body.length} incompatible with ${expectedCards} cards x ${paragraphsPerItem}`,
+      );
+    }
+    introText = paragraphs[0].join('\n');
+    for (let index = 0; index < expectedCards; index += 1) {
+      const chunk = body
+        .slice(index * paragraphsPerItem, (index + 1) * paragraphsPerItem)
+        .map((lines) => lines.join('\n'))
+        .join('\n');
+      cardTexts.push(chunk);
+    }
+    if (body.length === block + 1) {
+      closingText = body[body.length - 1].join('\n');
+    }
+  } else if (
+    signature.paragraphCount >= expectedCards + 1 &&
+    signature.lineCounts.every((count) => count === 1)
+  ) {
+    introText = paragraphs[0][0];
+    const body = paragraphs.slice(1);
+    const hasClosing =
+      includeClosing !== false &&
+      body.length === expectedCards + 1;
+    cardTexts = (hasClosing ? body.slice(0, -1) : body).map((lines) => lines[0]);
+    closingText = hasClosing ? body[body.length - 1][0] : null;
   } else {
     throw new Error(
       `unsupported narration structure for cue speech units: ${JSON.stringify(signature.lineCounts)}`,
     );
   }
 
-  if (!Number.isFinite(expectedCards) || expectedCards < 1) {
-    throw new Error(`cardCount must be >= 1, got ${cardCount}`);
-  }
   if (cardTexts.length !== expectedCards) {
     throw new Error(
       `card line count ${cardTexts.length} != cardCount ${expectedCards}`,
@@ -135,6 +186,15 @@ export function buildNarrationSpeechUnits(narrationText, cardCount) {
     },
   ];
 
+  for (const bridgeText of bridgeTexts) {
+    units.push({
+      kind: 'bridge',
+      itemIndex: -1,
+      text: bridgeText,
+      weight: spokenCharacterWeight(bridgeText),
+    });
+  }
+
   for (let index = 0; index < cardTexts.length; index += 1) {
     const text = cardTexts[index];
     units.push({
@@ -145,19 +205,29 @@ export function buildNarrationSpeechUnits(narrationText, cardCount) {
     });
   }
 
-  units.push({
-    kind: 'closing',
-    itemIndex: -1,
-    text: closingText,
-    weight: spokenCharacterWeight(closingText),
-  });
+  const closingNeeded =
+    includeClosing === true ||
+    (includeClosing !== false &&
+      closingText != null &&
+      (policy ? policy.requireClosing || closingText != null : true));
+
+  if (closingNeeded && closingText != null) {
+    units.push({
+      kind: 'closing',
+      itemIndex: -1,
+      text: closingText,
+      weight: spokenCharacterWeight(closingText),
+    });
+  } else if (policy?.requireClosing && closingText == null) {
+    throw new Error(`type ${type} requires a closing speech unit`);
+  }
 
   return units;
 }
 
 export function calculateExpectedBoundaries(speechUnits, durationSeconds) {
   if (!Array.isArray(speechUnits) || speechUnits.length < 2) {
-    throw new Error('speechUnits must contain at least intro and closing');
+    throw new Error('speechUnits must contain at least intro and one more unit');
   }
   if (!isFinitePositive(durationSeconds)) {
     throw new Error(`invalid duration: ${durationSeconds}`);
@@ -871,6 +941,9 @@ export function validateCommentaryCueDocument(document, {
   target,
   durationSeconds,
   cardCount,
+  type,
+  requireClosing,
+  allowBridge,
 } = {}) {
   if (!document || typeof document !== 'object' || Array.isArray(document)) {
     return { ok: false, reason: 'cue document must be an object' };
@@ -930,21 +1003,29 @@ export function validateCommentaryCueDocument(document, {
     return { ok: false, reason: 'segments must be a non-empty array' };
   }
 
-  const expectedSegmentCount = Number(cardCount) + 2;
-  if (document.segments.length !== expectedSegmentCount) {
-    return {
-      ok: false,
-      reason: `segment count ${document.segments.length} != ${expectedSegmentCount}`,
-    };
+  const commentaryType = String(type || target?.type || '').trim();
+  let policy = null;
+  if (commentaryType) {
+    try {
+      policy = getCueSegmentPolicy(commentaryType);
+    } catch (error) {
+      return { ok: false, reason: error.message };
+    }
   }
+
+  const bridgeAllowed =
+    allowBridge != null ? !!allowBridge : !!(policy && policy.allowBridge);
+  const closingRequired =
+    requireClosing != null
+      ? !!requireClosing
+      : policy
+        ? !!policy.requireClosing
+        : true;
 
   const first = document.segments[0];
   const last = document.segments[document.segments.length - 1];
   if (first.type !== 'intro' || first.itemIndex !== -1) {
     return { ok: false, reason: 'first segment must be intro with itemIndex -1' };
-  }
-  if (last.type !== 'closing' || last.itemIndex !== -1) {
-    return { ok: false, reason: 'last segment must be closing with itemIndex -1' };
   }
   if (Math.abs(Number(first.start) - 0) > 1e-9) {
     return { ok: false, reason: 'first segment must start at 0' };
@@ -956,8 +1037,21 @@ export function validateCommentaryCueDocument(document, {
     };
   }
 
+  if (closingRequired) {
+    if (last.type !== 'closing' || last.itemIndex !== -1) {
+      return { ok: false, reason: 'last segment must be closing with itemIndex -1' };
+    }
+  } else if (last.type === 'closing' && last.itemIndex !== -1) {
+    return { ok: false, reason: 'closing segment must use itemIndex -1' };
+  } else if (last.type !== 'closing' && last.type !== 'item') {
+    return {
+      ok: false,
+      reason: 'last segment must be closing or the final card item',
+    };
+  }
+
   let previousEnd = null;
-  let itemIndex = 0;
+  const seenItemIndexes = [];
   for (let index = 0; index < document.segments.length; index += 1) {
     const segment = document.segments[index];
     if (!segment || typeof segment !== 'object') {
@@ -989,9 +1083,32 @@ export function validateCommentaryCueDocument(document, {
       }
       continue;
     }
-    if (index === document.segments.length - 1) {
-      if (segment.type !== 'closing') {
-        return { ok: false, reason: 'final segment type must be closing' };
+
+    if (segment.type === 'bridge') {
+      if (!bridgeAllowed) {
+        return {
+          ok: false,
+          reason: `bridge segment not allowed for type ${commentaryType || 'unknown'}`,
+        };
+      }
+      if (segment.itemIndex !== -1) {
+        return { ok: false, reason: 'bridge segment must use itemIndex -1' };
+      }
+      if (!(duration >= MIN_EDGE_SEGMENT_DURATION_SECONDS - 1e-9)) {
+        return {
+          ok: false,
+          reason: `bridge duration ${duration} < ${MIN_EDGE_SEGMENT_DURATION_SECONDS}`,
+        };
+      }
+      continue;
+    }
+
+    if (segment.type === 'closing') {
+      if (index !== document.segments.length - 1) {
+        return { ok: false, reason: 'closing segment must be final' };
+      }
+      if (segment.itemIndex !== -1) {
+        return { ok: false, reason: 'closing segment must use itemIndex -1' };
       }
       if (!(duration >= MIN_EDGE_SEGMENT_DURATION_SECONDS - 1e-9)) {
         return {
@@ -1001,28 +1118,58 @@ export function validateCommentaryCueDocument(document, {
       }
       continue;
     }
+
     if (segment.type !== 'item') {
       return { ok: false, reason: `segment ${index} type must be item` };
     }
-    if (segment.itemIndex !== itemIndex) {
+    if (!Number.isInteger(segment.itemIndex) || segment.itemIndex < 0) {
       return {
         ok: false,
-        reason: `segment ${index} itemIndex=${segment.itemIndex} expected=${itemIndex}`,
+        reason: `segment ${index} itemIndex must be a non-negative integer`,
       };
     }
+    seenItemIndexes.push(segment.itemIndex);
     if (!(duration >= MIN_CARD_SEGMENT_DURATION_SECONDS - 1e-9)) {
       return {
         ok: false,
-        reason: `card ${itemIndex + 1} duration ${duration} < ${MIN_CARD_SEGMENT_DURATION_SECONDS}`,
+        reason: `card ${segment.itemIndex + 1} duration ${duration} < ${MIN_CARD_SEGMENT_DURATION_SECONDS}`,
       };
     }
-    itemIndex += 1;
   }
 
-  if (itemIndex !== Number(cardCount)) {
+  const expectedCount = Number(cardCount);
+  if (!Number.isInteger(expectedCount) || expectedCount < 1) {
+    return { ok: false, reason: `invalid cardCount: ${cardCount}` };
+  }
+
+  if (seenItemIndexes.length !== expectedCount) {
     return {
       ok: false,
-      reason: `card itemIndex count ${itemIndex} != cardCount ${cardCount}`,
+      reason: `card itemIndex count ${seenItemIndexes.length} != cardCount ${expectedCount}`,
+    };
+  }
+
+  for (let expected = 0; expected < expectedCount; expected += 1) {
+    const matches = seenItemIndexes.filter((value) => value === expected);
+    if (matches.length === 0) {
+      return { ok: false, reason: `missing itemIndex ${expected}` };
+    }
+    if (matches.length > 1) {
+      return { ok: false, reason: `duplicate itemIndex ${expected}` };
+    }
+    if (seenItemIndexes[expected] !== expected) {
+      return {
+        ok: false,
+        reason: `item indexes out of source order at position ${expected}`,
+      };
+    }
+  }
+
+  const maxSeen = Math.max(...seenItemIndexes);
+  if (maxSeen !== expectedCount - 1) {
+    return {
+      ok: false,
+      reason: `extra or incomplete itemIndex range: max=${maxSeen} expected=${expectedCount - 1}`,
     };
   }
 
@@ -1115,6 +1262,7 @@ export function validateCueTargetInputs({
     speechUnits = buildNarrationSpeechUnits(
       validated.narrationText,
       target.cardCount,
+      { type: target.type },
     );
   } catch (error) {
     return {
@@ -1158,6 +1306,7 @@ export function validateCueTargetInputs({
       target,
       durationSeconds: mp3.duration,
       cardCount: target.cardCount,
+      type: target.type,
     });
 
     if (!existingValidation.ok) {
@@ -1334,6 +1483,7 @@ export function validateCueTargetInputs({
     target,
     durationSeconds: mp3.duration,
     cardCount: target.cardCount,
+    type: target.type,
   });
   if (!documentValidation.ok) {
     return {
@@ -1419,6 +1569,7 @@ export function atomicCreateCueFile(options = {}) {
       target: options.target,
       durationSeconds: options.durationSeconds,
       cardCount: options.cardCount,
+      type: options.target?.type || options.type,
     });
     if (!validation.ok) {
       throw new Error(validation.reason);

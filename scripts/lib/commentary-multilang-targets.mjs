@@ -7,7 +7,13 @@ import fs from 'fs';
 import path from 'path';
 import vm from 'vm';
 import { fileURLToPath } from 'url';
-import { COMMENTARY_TYPES } from './commentary-highlight-plan.mjs';
+import {
+  COMMENTARY_TYPES,
+  assertTypeCardHighlightEligible,
+  extractSourceCards,
+  getCommentaryType,
+  resolveCommentaryTypes,
+} from './commentary-type-registry.mjs';
 import {
   buildAudioPath,
   buildBaseCommentaryAudioId,
@@ -172,26 +178,7 @@ function loadManifestAudios() {
 }
 
 function resolveTypeConfigs({ type, types }) {
-  const hasType = type != null && String(type).trim() !== '';
-  const hasTypes = types != null && String(types).trim() !== '';
-
-  if (hasType === hasTypes) {
-    throw new Error('Exactly one of type or types=all is required');
-  }
-
-  if (hasTypes) {
-    if (String(types).trim() !== 'all') {
-      throw new Error('types must be exactly "all" when provided');
-    }
-    return COMMENTARY_TYPES.slice();
-  }
-
-  const requested = String(type).trim();
-  const matched = COMMENTARY_TYPES.find((item) => item.type === requested);
-  if (!matched) {
-    throw new Error(`Unknown commentary type: ${requested}`);
-  }
-  return [matched];
+  return resolveCommentaryTypes({ type, types });
 }
 
 function parseMetaApproval(metaAbsolutePath) {
@@ -315,24 +302,31 @@ export function buildCommentaryMultilangTargets(options = {}) {
     }
 
     for (const typeConfig of typeConfigs) {
-      const rows = entry[typeConfig.tableKey];
-      if (!Array.isArray(rows) || rows.length === 0) {
+      let cards;
+      try {
+        cards = extractSourceCards(entry, typeConfig.type);
+        assertTypeCardHighlightEligible(typeConfig.type);
+      } catch (error) {
         blockers.push(
-          `Missing or empty ${typeConfig.tableKey} for ${verseKey}`,
+          `${verseKey}.${typeConfig.type}: ${error.message}`,
         );
         continue;
       }
+
+      const cardCount = cards.length;
+      const cardIdentities = cards.map((card) => card.identity);
 
       sourceKeys.push({
         verseKey,
         chapter,
         verse,
         type: typeConfig.type,
-        cardCount: rows.length,
+        cardCount,
         tableKey: typeConfig.tableKey,
+        cardIdentities,
       });
 
-      const voicePreset = typeConfig.voicePreset || 'study';
+      const voicePreset = getCommentaryType(typeConfig.type).voicePreset;
       const baseAudioId = buildBaseCommentaryAudioId(
         bookId,
         chapter,
@@ -354,7 +348,9 @@ export function buildCommentaryMultilangTargets(options = {}) {
           chapter,
           verse,
           type: typeConfig.type,
-          cardCount: rows.length,
+          cardCount,
+          cardIdentities,
+          cards,
           baseAudioId,
           audioId,
           voicePreset,
@@ -407,6 +403,7 @@ export function buildCommentaryMultilangTargets(options = {}) {
           verse3: pad3(verse),
           verseKey,
           tableKey: typeConfig.tableKey,
+          cardHighlightEligible: true,
         };
 
         const state = inspectLocalState(target);
@@ -431,7 +428,7 @@ export function buildCommentaryMultilangTargets(options = {}) {
     throw new Error(blockers.join('\n'));
   }
 
-  if (blockers.some((item) => item.startsWith('Missing or empty'))) {
+  if (blockers.some((item) => item.includes('Missing source table') || item.includes('Empty source table'))) {
     throw new Error(blockers.join('\n'));
   }
 

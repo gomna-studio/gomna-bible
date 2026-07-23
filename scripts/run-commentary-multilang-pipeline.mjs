@@ -42,6 +42,10 @@ import {
   ROOT,
 } from './lib/commentary-multilang-targets.mjs';
 import {
+  buildAllowedTargetString,
+  resolveCommentaryTypes,
+} from './lib/commentary-type-registry.mjs';
+import {
   DEFAULT_TRANSLATION_MODEL,
   atomicCreateDraftPair,
   buildKoreanSourcePath,
@@ -82,8 +86,6 @@ const ACCEPTED_STAGES = new Set([
 ]);
 
 const REQUIRED_TRANSLATION_FLAG = '1';
-const REQUIRED_ALLOWED_TARGET =
-  'genesis:1:1-3:original-language:en-US,ja-JP';
 const REQUIRED_REPAIR_ALLOWED_TARGET =
   'genesis:1:2-3:original-language:en-US';
 const REQUIRED_REPAIR_FLAG = '1';
@@ -97,6 +99,14 @@ function printUsage() {
     '  node scripts/run-commentary-multilang-pipeline.mjs \\',
     '    --locales en-US,ja-JP --book genesis --chapter 1 \\',
     '    --from-verse 1 --to-verse 3 --type original-language --dry-run',
+    '',
+    '  node scripts/run-commentary-multilang-pipeline.mjs \\',
+    '    --locales en-US,ja-JP --book genesis --chapter 1 \\',
+    '    --from-verse 1 --to-verse 3 --types history,theology --dry-run',
+    '',
+    '  node scripts/run-commentary-multilang-pipeline.mjs \\',
+    '    --locales en-US,ja-JP --book genesis --chapter 1 \\',
+    '    --from-verse 1 --to-verse 3 --types all --dry-run',
     '',
     'Usage (narration stage):',
     '  node scripts/run-commentary-multilang-pipeline.mjs \\',
@@ -148,6 +158,8 @@ function printUsage() {
     '    ... --stage manifest --write',
     '',
     'Notes:',
+    '  Exactly one of --type or --types is required.',
+    '  --types accepts a comma-separated registered-type list or "all".',
     '  Planning mode requires --dry-run and rejects --write.',
     '  Narration write requires --stage narration --write plus env guards.',
     '  Audio write requires --stage audio --write plus audio env guards.',
@@ -683,7 +695,15 @@ function classifyNarrationAction(target, koreanSource) {
 }
 
 function buildRequestedTargetString(args) {
-  return `${args.book}:${args.chapter}:${args.fromVerse}-${args.toVerse}:${args.type}:${args.locales}`;
+  return buildAllowedTargetString({
+    book: args.book,
+    chapter: args.chapter,
+    fromVerse: args.fromVerse,
+    toVerse: args.toVerse,
+    type: args.type,
+    types: args.types,
+    locales: args.locales,
+  });
 }
 
 function assertNarrationWriteGuards(args) {
@@ -717,15 +737,9 @@ function assertNarrationWriteGuards(args) {
     return;
   }
 
-  if (allowed !== REQUIRED_ALLOWED_TARGET) {
+  if (allowed !== expected) {
     throw new Error(
-      `GOMNA_COMMENTARY_MULTILANG_ALLOWED_TARGET must be exactly "${REQUIRED_ALLOWED_TARGET}"`,
-    );
-  }
-
-  if (expected !== REQUIRED_ALLOWED_TARGET) {
-    throw new Error(
-      `Request ${expected} is outside the allowed write target ${REQUIRED_ALLOWED_TARGET}`,
+      `GOMNA_COMMENTARY_MULTILANG_ALLOWED_TARGET must be exactly "${expected}"`,
     );
   }
 }
@@ -2876,15 +2890,10 @@ async function main() {
       process.exit(1);
     }
 
-    if (args.types != null) {
-      console.error(
-        `○ Error: --types all is rejected for the ${args.stage} stage in this pilot`,
-      );
-      process.exit(1);
-    }
-
-    if (args.type == null || String(args.type).trim() === '') {
-      console.error(`○ Error: --type is required for the ${args.stage} stage`);
+    try {
+      resolveCommentaryTypes({ type: args.type, types: args.types });
+    } catch (error) {
+      console.error(`○ Error: ${error.message}`);
       process.exit(1);
     }
 
@@ -2932,6 +2941,7 @@ async function main() {
         fromVerse: args.fromVerse,
         toVerse: args.toVerse,
         type: args.type,
+        types: args.types,
       });
     } catch (error) {
       console.error(`○ Error: ${error.message}`);

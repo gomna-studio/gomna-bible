@@ -8,19 +8,26 @@ import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import {
-  DEFAULT_AUDIO_VOICE_PRESET,
   sha256Bytes,
   validateApprovedNarrationTarget,
   validateMp3File,
 } from './commentary-multilang-audio.mjs';
 import { ROOT } from './commentary-multilang-targets.mjs';
+import {
+  assertTypeUploadEligible,
+  assertVoicePresetForType,
+  getCommentaryVoicePreset,
+  isRegisteredCommentaryType,
+} from './commentary-type-registry.mjs';
 
 export const R2_BUCKET = 'gomna-bible-audio-prod';
 export const PUBLIC_BASE_URL =
   'https://pub-1606395d18b84b29b95f841e5fe9e008.r2.dev';
 export const CONTENT_TYPE = 'audio/mpeg';
 export const SUPPORTED_UPLOAD_LOCALES = Object.freeze(['en-US', 'ja-JP']);
+/** @deprecated Use the commentary-type registry. Kept for older call sites. */
 export const SUPPORTED_UPLOAD_TYPE = 'original-language';
+/** @deprecated Use the commentary-type registry. Kept for older call sites. */
 export const SUPPORTED_VOICE_PRESET = 'study';
 export const REQUIRED_UPLOAD_FLAG = '1';
 export const DURATION_MATCH_EPSILON_SECONDS = 0.001;
@@ -120,7 +127,7 @@ function assertSafePathSegment(label, value, pattern) {
 
 /**
  * Build the multilingual R2 object key.
- * Pattern: commentary/{locale}/{book}/{chapter3}/{verse3}/{type}-study.mp3
+ * Pattern: commentary/{locale}/{book}/{chapter3}/{verse3}/{type}-{preset}.mp3
  */
 export function buildMultilangR2Key({
   locale,
@@ -128,7 +135,7 @@ export function buildMultilangR2Key({
   chapter,
   verse,
   type,
-  voicePreset = SUPPORTED_VOICE_PRESET,
+  voicePreset,
 } = {}) {
   const normalizedLocale = String(locale || '').trim();
   if (FORBIDDEN_LOCALE_SET.has(normalizedLocale)) {
@@ -141,18 +148,11 @@ export function buildMultilangR2Key({
   }
 
   const normalizedType = String(type || '').trim();
-  if (normalizedType !== SUPPORTED_UPLOAD_TYPE) {
-    throw new Error(
-      `Unsupported upload type: ${normalizedType}. Allowed: ${SUPPORTED_UPLOAD_TYPE}`,
-    );
-  }
-
-  const normalizedPreset = String(voicePreset || '').trim();
-  if (normalizedPreset !== SUPPORTED_VOICE_PRESET) {
-    throw new Error(
-      `Unsupported upload voicePreset: ${normalizedPreset}. Allowed: ${SUPPORTED_VOICE_PRESET}`,
-    );
-  }
+  assertTypeUploadEligible(normalizedType);
+  const normalizedPreset = assertVoicePresetForType(
+    normalizedType,
+    voicePreset || getCommentaryVoicePreset(normalizedType),
+  );
 
   const book = assertSafePathSegment('bookId', String(bookId || '').trim(), BOOK_PATTERN);
   const chapter3 = pad3(chapter);
@@ -250,10 +250,13 @@ export function validateMultilangR2Key(r2Key, expected = {}) {
 
   const type = fileMatch[1];
   const voicePreset = fileMatch[2];
-  if (type !== SUPPORTED_UPLOAD_TYPE || voicePreset !== SUPPORTED_VOICE_PRESET) {
-    throw new Error(
-      `R2 key must end with ${SUPPORTED_UPLOAD_TYPE}-${SUPPORTED_VOICE_PRESET}.mp3: ${r2Key}`,
-    );
+  if (!isRegisteredCommentaryType(type)) {
+    throw new Error(`R2 key type is unregistered: ${type}`);
+  }
+  try {
+    assertVoicePresetForType(type, voicePreset);
+  } catch (error) {
+    throw new Error(`R2 key preset mismatch: ${error.message}`);
   }
 
   if (expected.locale && locale !== expected.locale) {
@@ -323,10 +326,13 @@ export function validateLocalAudioPath(localRelativePath, expected = {}) {
 
   const type = fileMatch[1];
   const voicePreset = fileMatch[2];
-  if (type !== SUPPORTED_UPLOAD_TYPE || voicePreset !== SUPPORTED_VOICE_PRESET) {
-    throw new Error(
-      `Local MP3 must be ${SUPPORTED_UPLOAD_TYPE}-${SUPPORTED_VOICE_PRESET}.mp3: ${localRelativePath}`,
-    );
+  if (!isRegisteredCommentaryType(type)) {
+    throw new Error(`Local MP3 type is unregistered: ${type}`);
+  }
+  try {
+    assertVoicePresetForType(type, voicePreset);
+  } catch (error) {
+    throw new Error(`Local MP3 preset mismatch: ${error.message}`);
   }
 
   if (expected.locale && locale !== expected.locale) {
@@ -371,7 +377,8 @@ export function validateUploadTargetPaths({
     chapter: target.chapter,
     verse: target.verse,
     type: target.type,
-    voicePreset: target.voicePreset || SUPPORTED_VOICE_PRESET,
+    voicePreset:
+      target.voicePreset || getCommentaryVoicePreset(target.type),
   };
 
   validateLocalAudioPath(localRelativePath, expected);
@@ -901,22 +908,18 @@ export async function classifyUploadTarget({
   }
 
   const commentaryType = String(target?.type || '').trim();
-  if (commentaryType !== SUPPORTED_UPLOAD_TYPE) {
+  let voicePreset;
+  try {
+    assertTypeUploadEligible(commentaryType);
+    voicePreset = assertVoicePresetForType(
+      commentaryType,
+      target?.voicePreset || getCommentaryVoicePreset(commentaryType),
+    );
+  } catch (error) {
     return {
       ...base,
       action: 'block_unsupported_upload_type',
-      reason: `unsupported upload type: ${commentaryType}. Allowed: ${SUPPORTED_UPLOAD_TYPE}`,
-    };
-  }
-
-  const voicePreset = String(
-    target?.voicePreset || DEFAULT_AUDIO_VOICE_PRESET,
-  ).trim();
-  if (voicePreset !== SUPPORTED_VOICE_PRESET) {
-    return {
-      ...base,
-      action: 'block_unsupported_upload_type',
-      reason: `voicePreset=${voicePreset} is unsupported; only ${SUPPORTED_VOICE_PRESET} is allowed`,
+      reason: error.message,
     };
   }
 

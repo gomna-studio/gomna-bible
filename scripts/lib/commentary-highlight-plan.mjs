@@ -1,14 +1,7 @@
-export const COMMENTARY_TYPES = [
-  { type: 'original-language', voicePreset: 'study', tableKey: '표1_원어분석' },
-  { type: 'history', voicePreset: 'warm', tableKey: '표2_역사적배경' },
-  { type: 'theology', voicePreset: 'warm', tableKey: '표3_신학적의미' },
-  { type: 'typology', voicePreset: 'study', tableKey: '표4_예표론' },
-  { type: 'matthew-henry', voicePreset: 'calm', tableKey: '표5_매튜헨리', paragraphsPerItem: 3 },
-  { type: 'sermon', voicePreset: 'strong', tableKey: '표6_설교자료' },
-  { type: 'hymn', voicePreset: 'soft', tableKey: '표7_찬송가' },
-  { type: 'counseling', voicePreset: 'warm', tableKey: '표8_상담적용' },
-  { type: 'cross-reference', voicePreset: 'calm', tableKey: '표9_교차참조' },
-];
+import { COMMENTARY_TYPES as REGISTRY_COMMENTARY_TYPES } from './commentary-type-registry.mjs';
+
+/** Compatibility export — authoritative metadata lives in commentary-type-registry.mjs */
+export const COMMENTARY_TYPES = REGISTRY_COMMENTARY_TYPES;
 
 const VERIFIED_SPECIAL_PLANS = {
   'genesis.001.001.hymn': [

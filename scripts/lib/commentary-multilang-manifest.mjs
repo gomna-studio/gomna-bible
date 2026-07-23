@@ -7,7 +7,6 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import {
-  DEFAULT_AUDIO_VOICE_PRESET,
   sha256Bytes,
   validateApprovedNarrationTarget,
   validateMp3File,
@@ -16,6 +15,15 @@ import {
   validateCommentaryCueDocument,
 } from './commentary-multilang-cue.mjs';
 import { ROOT } from './commentary-multilang-targets.mjs';
+import {
+  assertTypeManifestEligible,
+  assertVoicePresetForType,
+  getCommentaryManifestPreview,
+  getCommentaryTypeKr,
+  getCommentaryVoicePreset,
+  isRegisteredCommentaryType,
+  listCommentaryTypes,
+} from './commentary-type-registry.mjs';
 import {
   DURATION_MATCH_EPSILON_SECONDS,
   PUBLIC_BASE_URL,
@@ -31,9 +39,12 @@ export const MANIFEST_RELATIVE_PATH = 'audio/audio-manifest.json';
 export const DEFAULT_MANIFEST_PATH = path.join(ROOT, MANIFEST_RELATIVE_PATH);
 
 export const SUPPORTED_MANIFEST_LOCALES = Object.freeze(['en-US', 'ja-JP']);
+/** @deprecated Use the commentary-type registry. */
 export const SUPPORTED_MANIFEST_TYPE = 'original-language';
+/** @deprecated Use the commentary-type registry. */
 export const SUPPORTED_VOICE_PRESET = 'study';
 export const REQUIRED_MANIFEST_FLAG = '1';
+/** @deprecated Use getCommentaryTypeKr(type). */
 export const MANIFEST_TYPE_KR = '원어분석';
 export const MANIFEST_STATUS_PUBLISHED = 'published';
 
@@ -44,19 +55,23 @@ export const GLOBAL_MANIFEST_LOCK_PATH =
 export const TEST_MODE_ENV = 'GOMNA_COMMENTARY_MULTILANG_TEST_MODE';
 
 /**
- * Fixed per-locale original-language previews, taken from the authoritative
- * Genesis 1:1 multilingual entries (same pattern as Korean type-fixed previews).
+ * Fixed per-locale previews from the authoritative type registry.
  */
-export const MULTILANG_TYPE_PREVIEWS = Object.freeze({
-  'en-US': Object.freeze({
-    'original-language':
-      "The key original words in this verse are 'bereshit' and 'bara'.",
-  }),
-  'ja-JP': Object.freeze({
-    'original-language':
-      'この節の重要な原語は「ベレシート」と「バーラー」です。',
-  }),
-});
+export const MULTILANG_TYPE_PREVIEWS = Object.freeze(
+  Object.fromEntries(
+    ['en-US', 'ja-JP'].map((locale) => [
+      locale,
+      Object.freeze(
+        Object.fromEntries(
+          listCommentaryTypes().map((definition) => [
+            definition.type,
+            definition.previews[locale],
+          ]),
+        ),
+      ),
+    ]),
+  ),
+);
 
 export const MULTILANG_BOOK_DISPLAY_NAMES = Object.freeze({
   'en-US': Object.freeze({ genesis: 'Genesis' }),
@@ -216,16 +231,8 @@ export function buildManifestPreview(locale, type) {
   if (!SUPPORTED_LOCALE_SET.has(normalizedLocale)) {
     throw new Error(`Unsupported manifest locale: ${normalizedLocale}`);
   }
-  if (normalizedType !== SUPPORTED_MANIFEST_TYPE) {
-    throw new Error(`Unsupported manifest type: ${normalizedType}`);
-  }
-  const preview = MULTILANG_TYPE_PREVIEWS[normalizedLocale]?.[normalizedType];
-  if (typeof preview !== 'string' || !preview) {
-    throw new Error(
-      `Missing manifest preview template for ${normalizedLocale}/${normalizedType}`,
-    );
-  }
-  return preview;
+  assertTypeManifestEligible(normalizedType);
+  return getCommentaryManifestPreview(normalizedLocale, normalizedType);
 }
 
 export function buildCanonicalManifestId({
@@ -243,9 +250,10 @@ export function buildCanonicalManifestId({
     throw new Error(`Unsupported manifest locale: ${normalizedLocale}`);
   }
   const normalizedType = String(type || '').trim();
-  if (normalizedType !== SUPPORTED_MANIFEST_TYPE) {
+  if (!isRegisteredCommentaryType(normalizedType)) {
     throw new Error(`Unsupported manifest type: ${normalizedType}`);
   }
+  assertTypeManifestEligible(normalizedType);
   const book = String(bookId || '').trim();
   if (!book || book.includes('/') || book.includes('\\') || book.includes('..')) {
     throw new Error(`Invalid bookId: ${bookId}`);
@@ -259,15 +267,16 @@ export function buildCanonicalManifestPublicUrl({
   chapter,
   verse,
   type = SUPPORTED_MANIFEST_TYPE,
-  voicePreset = SUPPORTED_VOICE_PRESET,
+  voicePreset,
 } = {}) {
+  const normalizedType = String(type || '').trim();
   const r2Key = buildMultilangR2Key({
     locale,
     bookId,
     chapter,
     verse,
-    type,
-    voicePreset,
+    type: normalizedType,
+    voicePreset: voicePreset || getCommentaryVoicePreset(normalizedType),
   });
   return buildMultilangPublicUrl(r2Key);
 }
@@ -281,19 +290,17 @@ export function buildCanonicalManifestEntry({
   chapter,
   verse,
   type = SUPPORTED_MANIFEST_TYPE,
-  voicePreset = SUPPORTED_VOICE_PRESET,
+  voicePreset,
   durationSeconds,
   fileSize,
 } = {}) {
   const normalizedLocale = String(locale || '').trim();
   const normalizedType = String(type || '').trim();
-  const normalizedPreset = String(voicePreset || '').trim();
-
-  if (normalizedPreset !== SUPPORTED_VOICE_PRESET) {
-    throw new Error(
-      `Unsupported manifest voicePreset: ${normalizedPreset}. Allowed: ${SUPPORTED_VOICE_PRESET}`,
-    );
-  }
+  assertTypeManifestEligible(normalizedType);
+  const normalizedPreset = assertVoicePresetForType(
+    normalizedType,
+    voicePreset || getCommentaryVoicePreset(normalizedType),
+  );
 
   const id = buildCanonicalManifestId({
     bookId,
@@ -324,7 +331,7 @@ export function buildCanonicalManifestEntry({
     chapter: Number(chapter),
     verse: Number(verse),
     type: normalizedType,
-    typeKr: MANIFEST_TYPE_KR,
+    typeKr: getCommentaryTypeKr(normalizedType),
     voicePreset: normalizedPreset,
     filePath,
     duration: normalizeManifestDuration(durationSeconds),
@@ -548,6 +555,7 @@ export function validateManifestCueGate({
     target,
     durationSeconds,
     cardCount: cardCount ?? target.cardCount,
+    type: target.type,
   });
   if (!validated.ok) {
     return {
@@ -651,7 +659,6 @@ export function createEmptyManifestCounters() {
 function assertSupportedManifestTarget(target) {
   const locale = String(target?.locale || '').trim();
   const type = String(target?.type || '').trim();
-  const preset = String(target?.voicePreset || DEFAULT_AUDIO_VOICE_PRESET).trim();
 
   if (FORBIDDEN_LOCALE_SET.has(locale) || locale === 'ko') {
     return {
@@ -667,18 +674,19 @@ function assertSupportedManifestTarget(target) {
       reason: `unsupported manifest locale: ${locale}`,
     };
   }
-  if (type !== SUPPORTED_MANIFEST_TYPE) {
+
+  let preset;
+  try {
+    assertTypeManifestEligible(type);
+    preset = assertVoicePresetForType(
+      type,
+      target?.voicePreset || getCommentaryVoicePreset(type),
+    );
+  } catch (error) {
     return {
       ok: false,
       action: 'block_unsupported_type',
-      reason: `unsupported manifest type: ${type}`,
-    };
-  }
-  if (preset !== SUPPORTED_VOICE_PRESET) {
-    return {
-      ok: false,
-      action: 'block_unsupported_preset',
-      reason: `unsupported manifest voicePreset: ${preset}`,
+      reason: error.message,
     };
   }
   return { ok: true, locale, type, preset };
@@ -763,7 +771,7 @@ export async function classifyManifestTarget({
       chapter: target.chapter,
       verse: target.verse,
       type: target.type,
-      voicePreset: target.voicePreset || SUPPORTED_VOICE_PRESET,
+      voicePreset: target.voicePreset || getCommentaryVoicePreset(target.type),
     });
     publicUrl = buildMultilangPublicUrl(r2Key);
     validateMultilangR2Key(r2Key, {
@@ -772,7 +780,7 @@ export async function classifyManifestTarget({
       chapter: target.chapter,
       verse: target.verse,
       type: target.type,
-      voicePreset: target.voicePreset || SUPPORTED_VOICE_PRESET,
+      voicePreset: target.voicePreset || getCommentaryVoicePreset(target.type),
     });
   } catch (error) {
     return {
@@ -900,7 +908,7 @@ export async function classifyManifestTarget({
       chapter: target.chapter,
       verse: target.verse,
       type: target.type,
-      voicePreset: target.voicePreset || SUPPORTED_VOICE_PRESET,
+      voicePreset: target.voicePreset || getCommentaryVoicePreset(target.type),
       durationSeconds: mp3.duration,
       fileSize: mp3.byteSize,
     });
