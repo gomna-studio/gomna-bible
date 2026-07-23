@@ -12,6 +12,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import {
   atomicCreateMp3,
   createEmptyAudioCounters,
@@ -838,7 +839,161 @@ function assertManifestWriteGuards(args) {
   }
 }
 
-function buildNarrationPreflight(plan) {
+/**
+ * Build the exact translateCommentaryNarration options used by narration write.
+ * Dry-run and write must share the same koreanSource.cards array.
+ */
+export function buildNarrationTranslationOptions(item, extras = {}) {
+  if (!item || !item.target || !item.koreanSource) {
+    throw new Error('planned narration item with target and koreanSource is required');
+  }
+
+  const options = {
+    sourceText: item.koreanSource.text,
+    sourceBytes: extras.sourceBytes,
+    sourceLocale: 'ko-KR',
+    targetLocale: item.target.locale,
+    bookId: item.target.bookId,
+    chapter: item.target.chapter,
+    verse: item.target.verse,
+    type: item.target.type,
+    cardCount: item.target.cardCount,
+    cards: item.koreanSource.cards,
+    sourcePath: item.koreanSource.sourcePath,
+    sourceSha256: item.koreanSource.sourceSha256,
+    apiKey: extras.apiKey,
+    model: extras.model || DEFAULT_TRANSLATION_MODEL,
+    counters: extras.counters,
+  };
+
+  if (extras.maxAttempts != null) {
+    options.maxAttempts = extras.maxAttempts;
+  }
+  if (extras.repairReason != null) {
+    options.repairReason = extras.repairReason;
+  }
+  if (extras.previousNarrationSha256 != null) {
+    options.previousNarrationSha256 = extras.previousNarrationSha256;
+  }
+  if (extras.fetchImpl != null) {
+    options.fetchImpl = extras.fetchImpl;
+  }
+
+  return options;
+}
+
+/**
+ * Execute planned narration translations with an injectable translator.
+ * Production write and mock write tests share this path.
+ */
+export async function runPlannedNarrationTranslations({
+  actions,
+  translateFn = translateCommentaryNarration,
+  readSourceBytes = (absolutePath) => fs.readFileSync(absolutePath),
+  apiKey,
+  model = DEFAULT_TRANSLATION_MODEL,
+  counters,
+} = {}) {
+  if (!Array.isArray(actions)) {
+    throw new Error('actions must be an array');
+  }
+  if (typeof translateFn !== 'function') {
+    throw new Error('translateFn must be a function');
+  }
+
+  const translationCalls = [];
+  const results = [];
+
+  for (const item of actions) {
+    if (item.action === 'skip_approved') {
+      results.push({
+        audioId: item.audioId,
+        action: 'skip_approved',
+        ok: true,
+      });
+      continue;
+    }
+
+    if (item.action === 'existing_draft_requires_review') {
+      results.push({
+        audioId: item.audioId,
+        action: 'existing_draft_requires_review',
+        ok: true,
+        untouched: true,
+        error: item.reason,
+      });
+      continue;
+    }
+
+    if (item.action !== 'planned_translation') {
+      results.push({
+        audioId: item.audioId,
+        action: item.action,
+        ok: false,
+        error: item.reason,
+      });
+      continue;
+    }
+
+    const options = buildNarrationTranslationOptions(item, {
+      sourceBytes: readSourceBytes(item.koreanSource.absolutePath),
+      apiKey,
+      model,
+      counters,
+    });
+
+    // Match dry-run inspection: non-OL types require cards before any translator call.
+    const sourceInspection = inspectKoreanSourceText(item.koreanSource.text, {
+      sourcePath: item.koreanSource.sourcePath,
+      sourceBytes: options.sourceBytes,
+      type: item.target.type,
+      cardCount: item.target.cardCount,
+      cards: options.cards,
+    });
+    if (!sourceInspection.ok) {
+      results.push({
+        audioId: item.audioId,
+        action: 'translation_failed',
+        ok: false,
+        error: sourceInspection.errors.join('; '),
+        errors: sourceInspection.errors,
+        reachedTranslator: false,
+      });
+      continue;
+    }
+
+    translationCalls.push(options);
+
+    const translation = await translateFn(options);
+    if (!translation || translation.ok !== true) {
+      results.push({
+        audioId: item.audioId,
+        action: 'translation_failed',
+        ok: false,
+        error: translation?.error || 'translation failed',
+        errors: translation?.errors || [],
+        reachedTranslator: true,
+      });
+      continue;
+    }
+
+    results.push({
+      audioId: item.audioId,
+      action: 'translation_ok',
+      ok: true,
+      reachedTranslator: true,
+      translation,
+    });
+  }
+
+  return {
+    translationCalls,
+    results,
+    counters,
+  };
+}
+
+export function buildNarrationPreflight(plan) {
   const sourceCache = new Map();
   const actions = [];
   const blockers = [];
@@ -1322,25 +1477,17 @@ async function runRepairStage(args, plan) {
 
     console.log(`○ Repairing ${item.audioId}`);
 
-    const translation = await translateCommentaryNarration({
-      sourceText: item.koreanSource.text,
-      sourceBytes: fs.readFileSync(item.koreanSource.absolutePath),
-      sourceLocale: 'ko-KR',
-      targetLocale: item.target.locale,
-      bookId: item.target.bookId,
-      chapter: item.target.chapter,
-      verse: item.target.verse,
-      type: item.target.type,
-      cardCount: item.target.cardCount,
-      sourcePath: item.koreanSource.sourcePath,
-      sourceSha256: item.koreanSource.sourceSha256,
-      apiKey,
-      model: DEFAULT_TRANSLATION_MODEL,
-      maxAttempts: 2,
-      repairReason: 'invalid_card_line_structure',
-      previousNarrationSha256: item.previousNarrationSha256,
-      counters,
-    });
+    const translation = await translateCommentaryNarration(
+      buildNarrationTranslationOptions(item, {
+        sourceBytes: fs.readFileSync(item.koreanSource.absolutePath),
+        apiKey,
+        model: DEFAULT_TRANSLATION_MODEL,
+        maxAttempts: 2,
+        repairReason: 'invalid_card_line_structure',
+        previousNarrationSha256: item.previousNarrationSha256,
+        counters,
+      }),
+    );
 
     if (!translation.ok) {
       console.error(`○ Repair translation failed: ${item.audioId}`);
@@ -1474,87 +1621,52 @@ async function runNarrationStage(args, plan) {
     totalCalls: 0,
   };
 
-  const results = [];
-
-  for (const item of preflight.actions) {
-    if (item.action === 'skip_approved') {
-      results.push({
-        audioId: item.audioId,
-        action: 'skip_approved',
-        ok: true,
-      });
-      continue;
-    }
-
-    if (item.action === 'existing_draft_requires_review') {
-      results.push({
-        audioId: item.audioId,
-        action: 'existing_draft_requires_review',
-        ok: true,
-        untouched: true,
-        error: item.reason,
-      });
-      continue;
-    }
-
-    if (item.action !== 'planned_translation') {
-      results.push({
-        audioId: item.audioId,
-        action: item.action,
-        ok: false,
-        error: item.reason,
-      });
-      continue;
-    }
-
+  const plannedItems = preflight.actions.filter(
+    (item) => item.action === 'planned_translation',
+  );
+  for (const item of plannedItems) {
     console.log(`○ Translating ${item.audioId}`);
+  }
 
-    const translation = await translateCommentaryNarration({
-      sourceText: item.koreanSource.text,
-      sourceBytes: fs.readFileSync(item.koreanSource.absolutePath),
-      sourceLocale: 'ko-KR',
-      targetLocale: item.target.locale,
-      bookId: item.target.bookId,
-      chapter: item.target.chapter,
-      verse: item.target.verse,
-      type: item.target.type,
-      cardCount: item.target.cardCount,
-      sourcePath: item.koreanSource.sourcePath,
-      sourceSha256: item.koreanSource.sourceSha256,
-      apiKey,
-      model: DEFAULT_TRANSLATION_MODEL,
-      counters,
-    });
+  const translationRun = await runPlannedNarrationTranslations({
+    actions: preflight.actions,
+    translateFn: translateCommentaryNarration,
+    readSourceBytes: (absolutePath) => fs.readFileSync(absolutePath),
+    apiKey,
+    model: DEFAULT_TRANSLATION_MODEL,
+    counters,
+  });
 
-    if (!translation.ok) {
-      console.error(`○ Translation failed: ${item.audioId}`);
-      console.error(`  ${translation.error}`);
-      results.push({
-        audioId: item.audioId,
-        action: 'translation_failed',
-        ok: false,
-        error: translation.error,
-        errors: translation.errors || [],
-      });
+  const results = [];
+  for (const item of translationRun.results) {
+    if (item.action !== 'translation_ok') {
+      if (item.action === 'translation_failed') {
+        console.error(`○ Translation failed: ${item.audioId}`);
+        console.error(`  ${item.error}`);
+      }
+      results.push(item);
       continue;
     }
 
+    const planned = plannedItems.find(
+      (entry) => entry.audioId === item.audioId,
+    );
     try {
       atomicCreateDraftPair({
-        narrationPath: toAbsolute(item.target.narrationPath),
-        metaPath: toAbsolute(item.target.metaPath),
-        narrationText: translation.narrationText,
-        metadataJson: translation.metadataJson,
-        sourceText: item.koreanSource.text,
-        targetLocale: item.target.locale,
-        type: item.target.type,
-        cardCount: item.target.cardCount,
-        expectedSourceHash: item.koreanSource.sourceSha256,
-        expectedTargetLocale: item.target.locale,
-        expectedBookId: item.target.bookId,
-        expectedChapter: item.target.chapter,
-        expectedVerse: item.target.verse,
-        expectedType: item.target.type,
+        narrationPath: toAbsolute(planned.target.narrationPath),
+        metaPath: toAbsolute(planned.target.metaPath),
+        narrationText: item.translation.narrationText,
+        metadataJson: item.translation.metadataJson,
+        sourceText: planned.koreanSource.text,
+        targetLocale: planned.target.locale,
+        type: planned.target.type,
+        cardCount: planned.target.cardCount,
+        expectedSourceHash: planned.koreanSource.sourceSha256,
+        expectedTargetLocale: planned.target.locale,
+        expectedBookId: planned.target.bookId,
+        expectedChapter: planned.target.chapter,
+        expectedVerse: planned.target.verse,
+        expectedType: planned.target.type,
       });
     } catch (error) {
       console.error(`○ Write failed: ${item.audioId}`);
@@ -1568,18 +1680,18 @@ async function runNarrationStage(args, plan) {
       continue;
     }
 
-    console.log(`○ Wrote draft narration: ${item.target.narrationPath}`);
-    console.log(`○ Wrote draft metadata: ${item.target.metaPath}`);
+    console.log(`○ Wrote draft narration: ${planned.target.narrationPath}`);
+    console.log(`○ Wrote draft metadata: ${planned.target.metaPath}`);
     results.push({
       audioId: item.audioId,
       action: 'created_draft',
       ok: true,
-      model: translation.model,
-      narrationPath: item.target.narrationPath,
-      metaPath: item.target.metaPath,
-      paragraphCount: translation.paragraphCount,
-      narrationSha256: translation.narrationSha256,
-      sourceSha256: translation.metadata.sourceHash,
+      model: item.translation.model,
+      narrationPath: planned.target.narrationPath,
+      metaPath: planned.target.metaPath,
+      paragraphCount: item.translation.paragraphCount,
+      narrationSha256: item.translation.narrationSha256,
+      sourceSha256: item.translation.metadata.sourceHash,
     });
   }
 
@@ -3004,7 +3116,13 @@ async function main() {
   runPlanningMode(args);
 }
 
-main().catch((error) => {
-  console.error(`○ STOP: ${error.message}`);
-  process.exit(1);
-});
+const isDirectRun =
+  process.argv[1] != null &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isDirectRun) {
+  main().catch((error) => {
+    console.error(`○ STOP: ${error.message}`);
+    process.exit(1);
+  });
+}
