@@ -160,7 +160,32 @@ export function buildKoreanSourcePath(bookId, chapter, verse, type) {
   ].join('/');
 }
 
-export function inspectKoreanSourceText(text, { sourcePath, sourceBytes } = {}) {
+function cardHasContent(card) {
+  if (!card || typeof card !== 'object') return false;
+  if (typeof card.identity === 'string' && card.identity.trim()) {
+    return true;
+  }
+  const fields = card.fields;
+  if (!fields || typeof fields !== 'object') return false;
+  return Object.values(fields).some(
+    (value) => typeof value === 'string' && value.trim(),
+  );
+}
+
+/**
+ * Inspect Korean TTS source text before translation.
+ *
+ * original-language keeps the existing intro/cards/closing paragraph guard.
+ * Other registered types do not require paragraphCount >= 3; they are validated
+ * against registry-extracted source cards (count, order, non-empty content).
+ */
+export function inspectKoreanSourceText(text, {
+  sourcePath,
+  sourceBytes,
+  type,
+  cardCount,
+  cards,
+} = {}) {
   const paragraphs = parseNarrationStructure(text);
   const signature = buildNarrationStructureSignature(paragraphs);
   const errors = [];
@@ -168,10 +193,61 @@ export function inspectKoreanSourceText(text, { sourcePath, sourceBytes } = {}) 
   if (!paragraphs.length) {
     errors.push('Korean source is empty');
   }
-  if (signature.paragraphCount < 3) {
+
+  const commentaryType = type != null ? String(type).trim() : '';
+  let policy = null;
+  if (commentaryType) {
+    try {
+      policy = getNarrationStructurePolicy(commentaryType);
+      getCommentaryType(commentaryType);
+    } catch (error) {
+      errors.push(error.message);
+      policy = null;
+    }
+  }
+
+  const requireExactThreeParagraphs =
+    !commentaryType || !policy || policy.requireExactThreeParagraphs === true;
+
+  if (requireExactThreeParagraphs && signature.paragraphCount < 3) {
     errors.push(
       `Korean source paragraph count must be at least 3 (got ${signature.paragraphCount})`,
     );
+  }
+
+  if (commentaryType && policy && !policy.requireExactThreeParagraphs) {
+    if (!Array.isArray(cards) || cards.length === 0) {
+      errors.push(
+        `Missing source cards for type ${commentaryType}; card extraction is required`,
+      );
+    } else {
+      const expectedCount = Number(cardCount);
+      if (
+        Number.isInteger(expectedCount) &&
+        expectedCount > 0 &&
+        cards.length !== expectedCount
+      ) {
+        errors.push(
+          `Extracted card count ${cards.length} != cardCount ${expectedCount}`,
+        );
+      }
+
+      for (let index = 0; index < cards.length; index += 1) {
+        const card = cards[index];
+        if (!card || typeof card !== 'object') {
+          errors.push(`Invalid source card at itemIndex ${index}`);
+          continue;
+        }
+        if (card.itemIndex !== index) {
+          errors.push(
+            `Source card itemIndex mismatch at position ${index}: got ${card.itemIndex}`,
+          );
+        }
+        if (!cardHasContent(card)) {
+          errors.push(`Empty source card at itemIndex ${index}`);
+        }
+      }
+    }
   }
 
   for (let i = 0; i < paragraphs.length; i += 1) {
@@ -198,6 +274,13 @@ export function inspectKoreanSourceText(text, { sourcePath, sourceBytes } = {}) 
     paragraphCharCounts: paragraphs.map((lines) => lines.join('\n').length),
     signature,
     sourceSha256,
+    type: commentaryType || null,
+    cardCount:
+      Array.isArray(cards) && cards.length
+        ? cards.length
+        : cardCount != null
+          ? Number(cardCount)
+          : null,
   };
 }
 
@@ -875,6 +958,9 @@ export async function translateCommentaryNarration(options = {}) {
   const sourceInspection = inspectKoreanSourceText(sourceText, {
     sourcePath: options.sourcePath,
     sourceBytes: options.sourceBytes,
+    type: options.type,
+    cardCount: options.cardCount,
+    cards: options.cards,
   });
   if (!sourceInspection.ok) {
     return {

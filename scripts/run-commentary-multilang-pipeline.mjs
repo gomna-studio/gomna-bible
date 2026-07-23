@@ -39,6 +39,7 @@ import {
 import {
   buildCommentaryMultilangTargets,
   inventoryCommentarySource,
+  loadCommentarySourceCards,
   ROOT,
 } from './lib/commentary-multilang-targets.mjs';
 import {
@@ -596,9 +597,28 @@ function readKoreanSource(bookId, chapter, verse, type) {
     };
   }
 
+  let cards = null;
+  let cardCount = null;
+  try {
+    const extracted = loadCommentarySourceCards(bookId, chapter, verse, type);
+    cards = extracted.cards;
+    cardCount = extracted.cardCount;
+  } catch (error) {
+    return {
+      ok: false,
+      sourcePath,
+      errors: [error.message],
+      text,
+      absolutePath,
+    };
+  }
+
   const inspection = inspectKoreanSourceText(text, {
     sourcePath,
     sourceBytes,
+    type,
+    cardCount,
+    cards,
   });
 
   return {
@@ -606,6 +626,8 @@ function readKoreanSource(bookId, chapter, verse, type) {
     sourcePath,
     absolutePath,
     text,
+    cards,
+    cardCount,
   };
 }
 

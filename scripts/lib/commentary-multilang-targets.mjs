@@ -534,4 +534,50 @@ export function inventoryCommentarySource() {
   };
 }
 
+/**
+ * Load registry-extracted source cards for one verse/type.
+ * Used by narration inspection so non-original-language types are validated
+ * by card extraction rather than TTS paragraph count.
+ */
+export function loadCommentarySourceCards(bookId, chapter, verse, type) {
+  const normalizedBookId = String(bookId || '').trim();
+  if (!normalizedBookId) {
+    throw new Error('bookId is required');
+  }
+  const bookName = BOOK_ID_TO_NAME[normalizedBookId];
+  if (!bookName) {
+    throw new Error(`Unsupported bookId: ${normalizedBookId}`);
+  }
+
+  const chapterNumber = Number(chapter);
+  const verseNumber = Number(verse);
+  if (!Number.isInteger(chapterNumber) || chapterNumber < 1) {
+    throw new Error(`Invalid chapter: ${chapter}`);
+  }
+  if (!Number.isInteger(verseNumber) || verseNumber < 1) {
+    throw new Error(`Invalid verse: ${verse}`);
+  }
+
+  const dataResult = loadCommentaryData(normalizedBookId);
+  if (!dataResult.ok) {
+    throw new Error(
+      `Unable to load commentary data for ${normalizedBookId}: ${dataResult.error}`,
+    );
+  }
+
+  const verseKey = buildVerseKey(bookName, chapterNumber, verseNumber);
+  const entry = dataResult.data[verseKey];
+  if (!entry || typeof entry !== 'object') {
+    throw new Error(`Missing commentary source for ${verseKey}`);
+  }
+
+  const cards = extractSourceCards(entry, type);
+  return {
+    verseKey,
+    tableKey: getCommentaryType(type).tableKey,
+    cardCount: cards.length,
+    cards,
+  };
+}
+
 export { BOOK_ID_TO_NAME, COMMENTARY_TYPES, ROOT };
