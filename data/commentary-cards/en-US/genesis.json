@@ -1,0 +1,669 @@
+{
+  "schemaVersion": 1,
+  "locale": "en-US",
+  "bookId": "genesis",
+  "sourceStore": "pastorCommentaryData",
+  "scope": "genesis-1-1-to-1-3",
+  "note": "Screen-ready structured commentary card bodies. Not wired to reader.html yet.",
+  "fieldPolicy": {
+    "nonMatthewHenry": "Same Korean field keys as pastorCommentaryData; values localized.",
+    "matthewHenry": [
+      "English Original",
+      "English Explanation",
+      "Key Insight"
+    ]
+  },
+  "verses": {
+    "창세기_1_1": {
+      "reference": "Genesis 1:1",
+      "sourceReference": "창세기 1:1",
+      "verseText": "In the beginning God created the heaven and the earth.",
+      "표1_원어분석": [
+        {
+          "원어": "בְּרֵאשִׁית (bereshit)",
+          "의미_문법": "in the beginning / preposition + noun",
+          "설교포인트": "Everything created has a beginning, but God already was before any beginning."
+        },
+        {
+          "원어": "אֱלֹהִים (elohim)",
+          "의미_문법": "God / plural form with singular verb",
+          "설교포인트": "The mystery of the Trinity is already hinted within the one God."
+        },
+        {
+          "원어": "בָּרָא (bara)",
+          "의미_문법": "to create / creation from nothing",
+          "설교포인트": "Humans make (asah); only God creates (bara)."
+        },
+        {
+          "원어": "הַשָּׁמַיִם (hashamayim)",
+          "의미_문법": "the heavens / plural",
+          "설교포인트": "Both the visible sky and the unseen spiritual realm are created."
+        },
+        {
+          "원어": "הָאָרֶץ (haarets)",
+          "의미_문법": "the earth / feminine singular",
+          "설교포인트": "This earth is not chance, but a planned work of God."
+        }
+      ],
+      "표2_역사적배경": [
+        {
+          "항목": "Ancient Near East",
+          "내용": "The Babylonian Enuma Elish tells of the world born from conflict among the gods; Scripture proclaims creation by the one God.",
+          "목회적활용": "Emphasize the uniqueness and trustworthiness of the Bible."
+        },
+        {
+          "항목": "Jewish tradition",
+          "내용": "Bereshit is linked with wisdom (Prov 8:22); the Targum renders it in connection with the Word.",
+          "목회적활용": "Connect this to Christ, the Word."
+        },
+        {
+          "항목": "Archaeology",
+          "내용": "Mesopotamian tablets (Gilgamesh) preserve similar flood and origin memories.",
+          "목회적활용": "Ancient memory is shared, yet only Scripture is strictly monotheistic."
+        }
+      ],
+      "표3_신학적의미": [
+        {
+          "교리": "Doctrine of creation",
+          "설명": "Creation from nothing (creatio ex nihilo); the world exists by God’s will.",
+          "관련구절": "Ps 33:6; Heb 11:3; Rom 4:17"
+        },
+        {
+          "교리": "Sovereignty of God",
+          "설명": "As Creator, God holds absolute authority over all creation.",
+          "관련구절": "Isa 45:12; Jer 27:5; Rev 4:11"
+        },
+        {
+          "교리": "Trinity",
+          "설명": "Elohim (plural) with a singular verb; the Spirit moves (v. 2); creation by the Word (v. 3).",
+          "관련구절": "John 1:1-3; Col 1:16"
+        }
+      ],
+      "표4_예표론": [
+        {
+          "구분": "Old Testament type",
+          "내용": "The first creation is a pattern of new creation: from chaos to order, darkness to light.",
+          "그리스도연결": "A pattern of salvation"
+        },
+        {
+          "구분": "New Testament fulfillment",
+          "내용": "John reinterprets “in the beginning” with the Word who was with God.",
+          "그리스도연결": "New creation in Christ (2 Cor 5:17)"
+        },
+        {
+          "구분": "Christology",
+          "내용": "All things were created through Him and for Him.",
+          "그리스도연결": "Col 1:16; John 1:3"
+        }
+      ],
+      "표5_매튜헨리": [
+        {
+          "English Original": "The first verse of the Bible gives us a satisfying account of the origin of the universe.",
+          "English Explanation": "The opening verse of Scripture gives a satisfying account of the origin of the universe.",
+          "Key Insight": "God’s existence is proclaimed, not proved."
+        },
+        {
+          "English Original": "We have here the work of creation and the author of that work.",
+          "English Explanation": "Here we see both the work of creation and the Author of that work.",
+          "Key Insight": "Creation is God’s first act of revealing His glory."
+        },
+        {
+          "English Original": "By faith we understand that the worlds were framed by the word of God.",
+          "English Explanation": "By faith we understand that the worlds were framed by the word of God.",
+          "Key Insight": "When creation is received by faith, the door to every truth opens."
+        }
+      ],
+      "표6_설교자료": [
+        {
+          "대지": "Title",
+          "내용": "The God of the beginning is the God of today",
+          "예화_적용": "-"
+        },
+        {
+          "대지": "Introduction",
+          "내용": "Many theories seek the origin of the universe, yet Scripture begins, “In the beginning God…”",
+          "예화_적용": "Science asks how; Scripture answers who and why."
+        },
+        {
+          "대지": "Point 1: God before the beginning (eternity)",
+          "내용": "The eternal God exists before time as Creator.",
+          "예화_적용": "The maker of a clock stands outside the clock."
+        },
+        {
+          "대지": "Point 2: The creating God (omnipotence)",
+          "내용": "He creates from nothing—the Almighty who makes the impossible possible.",
+          "예화_적용": "A testimony of a new path opened in despair."
+        },
+        {
+          "대지": "Point 3: The purposeful God (sovereignty)",
+          "내용": "Creation has purpose; every creature is made within God’s will.",
+          "예화_적용": "Why parents bring a child into the world."
+        },
+        {
+          "대지": "Conclusion",
+          "내용": "The God of the beginning still creates today.",
+          "예화_적용": "Entrust your chaos to Him."
+        }
+      ],
+      "표7_찬송가": [
+        {
+          "새찬송가": "64",
+          "통일찬송가": "13",
+          "제목": "O Come, Let Us Adore Him / Praise Him with Joy",
+          "선정이유": "A classic hymn of praise to the Creator God."
+        },
+        {
+          "새찬송가": "78",
+          "통일찬송가": "75",
+          "제목": "The Spacious Firmament / High Blue Heavens",
+          "선정이유": "Praise to the God who made the heavens."
+        },
+        {
+          "새찬송가": "40",
+          "통일찬송가": "43",
+          "제목": "How Great Thou Art",
+          "선정이유": "Praise to Christ, Maker of all things."
+        },
+        {
+          "새찬송가": "472",
+          "통일찬송가": "530",
+          "제목": "That Beautiful Name",
+          "선정이유": "A hymn that exalts the name of the Creator."
+        }
+      ],
+      "표8_상담적용": [
+        {
+          "상황": "Someone searching for meaning",
+          "성경원리": "You are not an accident but God’s creation.",
+          "실제적용": "God made you with purpose."
+        },
+        {
+          "상황": "Someone needing a new start",
+          "성경원리": "God creates from nothing.",
+          "실제적용": "Past failure is not the end."
+        },
+        {
+          "상황": "Someone who has lost control",
+          "성경원리": "God rules heaven and earth.",
+          "실제적용": "Even in confusion, the Creator remains Sovereign."
+        }
+      ],
+      "표9_교차참조": [
+        {
+          "구절": "Ps 33:6",
+          "연결점": "By the word of the Lord the heavens were made.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Isa 45:12",
+          "연결점": "I made the earth and created humankind upon it.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Ps 104:24",
+          "연결점": "O Lord, how manifold are Your works!",
+          "구분": "OT"
+        },
+        {
+          "구절": "Jer 10:12",
+          "연결점": "The Lord made the earth by His power.",
+          "구분": "OT"
+        },
+        {
+          "구절": "John 1:1-3",
+          "연결점": "In the beginning was the Word; all things were made through Him.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Col 1:16",
+          "연결점": "All things were created in Him.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Heb 11:3",
+          "연결점": "By faith we understand that the universe was formed by God’s word.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Rev 4:11",
+          "연결점": "You created all things.",
+          "구분": "NT"
+        }
+      ]
+    },
+    "창세기_1_2": {
+      "reference": "Genesis 1:2",
+      "sourceReference": "창세기 1:2",
+      "verseText": "And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.",
+      "표1_원어분석": [
+        {
+          "원어": "תֹהוּ (tohu)",
+          "의미_문법": "formlessness, chaos / noun",
+          "설교포인트": "Without God, life is shapeless and empty of meaning."
+        },
+        {
+          "원어": "בֹהוּ (bohu)",
+          "의미_문법": "emptiness, void / noun",
+          "설교포인트": "The emptiness of the soul is filled only by God’s presence."
+        },
+        {
+          "원어": "חֹשֶׁךְ (choshekh)",
+          "의미_문법": "darkness / noun",
+          "설교포인트": "Introduce God’s light over against the darkness of sin."
+        },
+        {
+          "원어": "תְּהוֹם (tehom)",
+          "의미_문법": "the deep, the abyss / noun",
+          "설교포인트": "Even in deep turmoil, God works sovereignly."
+        },
+        {
+          "원어": "רוּחַ (ruach)",
+          "의미_문법": "spirit, wind / noun",
+          "설교포인트": "Connect the Spirit’s hovering with creation and new creation."
+        }
+      ],
+      "표2_역사적배경": [
+        {
+          "항목": "Ancient Near Eastern creation tales",
+          "내용": "Mesopotamian and Ugaritic texts tell of gods conquering chaotic seas.",
+          "목회적활용": "Contrast Scripture’s God who creates by the Word, not by combat."
+        },
+        {
+          "항목": "Setting of the Pentateuch",
+          "내용": "Creation faith was handed to the wilderness community after the Exodus.",
+          "목회적활용": "Teach pilgrims in chaos to trust the Creator."
+        },
+        {
+          "항목": "Hebrew cosmology",
+          "내용": "A three-tiered world of heaven–earth–sea; the Spirit moves over the deep.",
+          "목회적활용": "Understand the ancient worldview as a bridge for modern conversation."
+        }
+      ],
+      "표3_신학적의미": [
+        {
+          "교리": "Doctrine of creation",
+          "설명": "God brings order from nothing (creatio ex nihilo).",
+          "관련구절": "Heb 11:3"
+        },
+        {
+          "교리": "Pneumatology",
+          "설명": "The Holy Spirit actively participates in the work of creation.",
+          "관련구절": "Job 33:4"
+        },
+        {
+          "교리": "Sovereignty of God",
+          "설명": "Even chaos and emptiness remain under God’s rule.",
+          "관련구절": "Isa 45:18"
+        }
+      ],
+      "표4_예표론": [
+        {
+          "구분": "Old Testament type",
+          "내용": "The Spirit hovering over chaos links to the dove after the flood.",
+          "그리스도연결": "The Spirit descending at Christ’s baptism"
+        },
+        {
+          "구분": "New Testament fulfillment",
+          "내용": "New creation in 2 Corinthians 5:17.",
+          "그리스도연결": "In Christ, chaos is re-created into order."
+        },
+        {
+          "구분": "Christology",
+          "내용": "Christ as the Word (Logos) who was with God from the beginning.",
+          "그리스도연결": "John 1:1-3"
+        }
+      ],
+      "표5_매튜헨리": [
+        {
+          "English Original": "The Spirit of God was the first mover.",
+          "English Explanation": "The Spirit of God was the first mover.",
+          "Key Insight": "The power of creation is the Holy Spirit."
+        },
+        {
+          "English Original": "Chaos makes way for cosmos when God speaks.",
+          "English Explanation": "When God speaks, chaos becomes cosmos.",
+          "Key Insight": "The authority of the Word."
+        },
+        {
+          "English Original": "Darkness serves to magnify the light that follows.",
+          "English Explanation": "Darkness serves to magnify the light that follows.",
+          "Key Insight": "The principle of glory after trial."
+        }
+      ],
+      "표6_설교자료": [
+        {
+          "대지": "Title",
+          "내용": "The Spirit over the chaos",
+          "예화_적용": "An artist turning a blank canvas into a masterpiece"
+        },
+        {
+          "대지": "Introduction",
+          "내용": "Face the chaos and emptiness of our lives.",
+          "예화_적용": "A demolition site before renovation"
+        },
+        {
+          "대지": "Point 1: Formless and void",
+          "내용": "Human existence without God",
+          "예화_적용": "A satellite lost against the night sky"
+        },
+        {
+          "대지": "Point 2: God over the darkness",
+          "내용": "Presence over chaos—the Spirit moves even in darkness.",
+          "예화_적용": "A single light after a blackout"
+        },
+        {
+          "대지": "Point 3: The Spirit’s hovering",
+          "내용": "The beginning of new creation",
+          "예화_적용": "A mother bird brooding an egg about to hatch"
+        },
+        {
+          "대지": "Conclusion",
+          "내용": "When life is yielded to the Spirit, chaos becomes calling.",
+          "예화_적용": "Art made from recycled materials"
+        }
+      ],
+      "표7_찬송가": [
+        {
+          "새찬송가": "79",
+          "통일찬송가": "40",
+          "제목": "How Great Thou Art",
+          "선정이유": "Praise for the greatness of creation."
+        },
+        {
+          "새찬송가": "40",
+          "통일찬송가": "43",
+          "제목": "How Great Thou Art",
+          "선정이유": "Thanksgiving for creation’s order."
+        },
+        {
+          "새찬송가": "191",
+          "통일찬송가": "427",
+          "제목": "Because He Lives",
+          "선정이유": "Confess God’s sovereignty in chaos."
+        },
+        {
+          "새찬송가": "452",
+          "통일찬송가": "505",
+          "제목": "What a Friend We Have in Jesus",
+          "선정이유": "Apply the Spirit’s comfort and hovering care."
+        }
+      ],
+      "표8_상담적용": [
+        {
+          "상황": "A believer depressed by emptiness",
+          "성경원리": "Bohu (emptiness) is filled by God’s presence.",
+          "실제적용": "Urge Scripture meditation and gathered worship."
+        },
+        {
+          "상황": "A young adult who has lost direction",
+          "성경원리": "The Spirit (ruach) brings order by hovering.",
+          "실제적용": "Guide them to seek the Spirit’s leading in prayer."
+        },
+        {
+          "상황": "Someone crushed by business failure",
+          "성경원리": "Even darkness (choshekh) is within God’s plan.",
+          "실제적용": "Coach them to retell failure as testimony."
+        }
+      ],
+      "표9_교차참조": [
+        {
+          "구절": "Ps 104:30",
+          "연결점": "The Spirit renews the face of the earth.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Jer 4:23",
+          "연결점": "Reuse of the language of formless and void.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Job 26:13",
+          "연결점": "By His Spirit the heavens are garnished.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Isa 45:18",
+          "연결점": "He did not create the earth a waste.",
+          "구분": "OT"
+        },
+        {
+          "구절": "John 1:1-3",
+          "연결점": "The Word (Logos) and creation.",
+          "구분": "NT"
+        },
+        {
+          "구절": "2 Cor 4:6",
+          "연결점": "God shines light out of darkness.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Col 1:16-17",
+          "연결점": "All things created through Christ.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Rev 21:5",
+          "연결점": "Behold, I make all things new.",
+          "구분": "NT"
+        }
+      ]
+    },
+    "창세기_1_3": {
+      "reference": "Genesis 1:3",
+      "sourceReference": "창세기 1:3",
+      "verseText": "And God said, Let there be light: and there was light.",
+      "표1_원어분석": [
+        {
+          "원어": "אָמַר (amar)",
+          "의미_문법": "to say / verb",
+          "설교포인트": "God’s word is power."
+        },
+        {
+          "원어": "יְהִי (yehi)",
+          "의미_문법": "let there be / jussive verb",
+          "설교포인트": "The command form calls for immediate obedience."
+        },
+        {
+          "원어": "אוֹר (or)",
+          "의미_문법": "light / noun",
+          "설교포인트": "Light symbolizes revelation and salvation."
+        },
+        {
+          "원어": "וַיְהִי (vayehi)",
+          "의미_문법": "and there was / completed action",
+          "설교포인트": "The word becomes reality."
+        },
+        {
+          "원어": "אֱלֹהִים (elohim)",
+          "의미_문법": "God / plural form with singular sense",
+          "설교포인트": "Emphasize the Creator’s sovereignty."
+        }
+      ],
+      "표2_역사적배경": [
+        {
+          "항목": "Light in the Ancient Near East",
+          "내용": "Contrasts with myths centered on sun gods.",
+          "목회적활용": "Guard against worship of created things."
+        },
+        {
+          "항목": "Israel’s wilderness experience",
+          "내용": "The pillar of fire guided by light.",
+          "목회적활용": "Connect to guidance by the Word."
+        },
+        {
+          "항목": "Purpose of Genesis",
+          "내용": "Forming the identity of the Exodus community.",
+          "목회적활용": "Proclaim a new beginning."
+        }
+      ],
+      "표3_신학적의미": [
+        {
+          "교리": "Revelation",
+          "설명": "Light is God’s self-disclosure.",
+          "관련구절": "John 1:4-5"
+        },
+        {
+          "교리": "Doctrine of creation",
+          "설명": "Declaration of creation from nothing.",
+          "관련구절": "Heb 11:3"
+        },
+        {
+          "교리": "Word Christology",
+          "설명": "Existence comes into being by the Word.",
+          "관련구절": "Col 1:16"
+        }
+      ],
+      "표4_예표론": [
+        {
+          "구분": "Old Testament type",
+          "내용": "Light in the Exodus deliverance.",
+          "그리스도연결": "Salvation under the blood in darkness"
+        },
+        {
+          "구분": "New Testament fulfillment",
+          "내용": "Jesus declares Himself the light.",
+          "그리스도연결": "John 8:12"
+        },
+        {
+          "구분": "Christology",
+          "내용": "The Word who has shone from the beginning.",
+          "그리스도연결": "2 Cor 4:6"
+        }
+      ],
+      "표5_매튜헨리": [
+        {
+          "English Original": "God's word created the first daybreak.",
+          "English Explanation": "God's word created the first daybreak.",
+          "Key Insight": "The creative power of the Word."
+        },
+        {
+          "English Original": "No creature can resist His fiat.",
+          "English Explanation": "No creature can resist His command.",
+          "Key Insight": "Sovereignty."
+        },
+        {
+          "English Original": "Light is the first blessing He bestows.",
+          "English Explanation": "Light is the first blessing He bestows.",
+          "Key Insight": "Grace comes first."
+        }
+      ],
+      "표6_설교자료": [
+        {
+          "대지": "Title",
+          "내용": "Let there be light!—the Word that pierces chaos",
+          "예화_적용": "One flashlight changing a dark room"
+        },
+        {
+          "대지": "Introduction",
+          "내용": "Modern people lost in darkness.",
+          "예화_적용": "A blackout experience"
+        },
+        {
+          "대지": "Point 1: God’s voice that opens creation",
+          "내용": "The power of the Word—God’s speech begins creation.",
+          "예화_적용": "A conductor’s downbeat"
+        },
+        {
+          "대지": "Point 2: The gift of light",
+          "내용": "The beginning of order",
+          "예화_적용": "The first ray of dawn"
+        },
+        {
+          "대지": "Point 3: The gospel shining on my life today",
+          "내용": "Light",
+          "예화_적용": "Light at the end of a tunnel"
+        },
+        {
+          "대지": "Conclusion",
+          "내용": "Proclaim Christ, the Light.",
+          "예화_적용": "A candle relay"
+        }
+      ],
+      "표7_찬송가": [
+        {
+          "새찬송가": "79",
+          "통일찬송가": "40",
+          "제목": "How Great Thou Art",
+          "선정이유": "Praise for creation and light."
+        },
+        {
+          "새찬송가": "49",
+          "통일찬송가": "70",
+          "제목": "Ye Messengers of Light",
+          "선정이유": "Proclaim the gospel as light."
+        },
+        {
+          "새찬송가": "288",
+          "통일찬송가": "204",
+          "제목": "Blessed Assurance",
+          "선정이유": "Assurance of salvation."
+        },
+        {
+          "새찬송가": "191",
+          "통일찬송가": "427",
+          "제목": "Because He Lives",
+          "선정이유": "Acknowledge His lordship."
+        }
+      ],
+      "표8_상담적용": [
+        {
+          "상황": "Spiritual darkness",
+          "성경원리": "Receive the Word of light.",
+          "실제적용": "Daily Scripture meditation"
+        },
+        {
+          "상황": "A wandering young adult",
+          "성경원리": "Set direction by following the light.",
+          "실제적용": "Connect with mentoring"
+        },
+        {
+          "상황": "Depressed feelings",
+          "성경원리": "Hope of light in darkness.",
+          "실제적용": "A gratitude journal"
+        }
+      ],
+      "표9_교차참조": [
+        {
+          "구절": "Ps 119:105",
+          "연결점": "Your word is a lamp.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Isa 60:1",
+          "연결점": "Arise, shine.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Job 38:19",
+          "연결점": "The dwelling of light.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Mal 4:2",
+          "연결점": "The sun of righteousness.",
+          "구분": "OT"
+        },
+        {
+          "구절": "John 8:12",
+          "연결점": "The light of the world.",
+          "구분": "NT"
+        },
+        {
+          "구절": "2 Cor 4:6",
+          "연결점": "Light shining in darkness.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Eph 5:8-9",
+          "연결점": "Children of light.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Rev 22:5",
+          "연결점": "Eternal light.",
+          "구분": "NT"
+        }
+      ]
+    }
+  }
+}
