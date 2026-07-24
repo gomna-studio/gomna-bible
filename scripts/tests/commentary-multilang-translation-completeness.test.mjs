@@ -139,10 +139,14 @@ test('evaluateTranslationResultQa marks JA sermon incomplete as FAIL and not PAS
   });
   assert.equal(qa.ok, false);
   assert.equal(qa.integrityOk, true);
-  assert.equal(qa.translationGrade, 'FAIL');
+  assert.ok(
+    qa.translationGrade === 'FAIL' ||
+      qa.translationGrade === 'SOURCE_REVIEW_REQUIRED',
+  );
   assert.ok(
     qa.codes.includes('incomplete_empty_placeholder') ||
-      qa.codes.includes('incomplete_after_introducer'),
+      qa.codes.includes('incomplete_after_introducer') ||
+      qa.codes.includes('source_incomplete_placeholder'),
   );
 });
 

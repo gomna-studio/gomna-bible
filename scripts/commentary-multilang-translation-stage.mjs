@@ -298,6 +298,7 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
     translationQaPassCount: 0,
     translationQaFailCount: 0,
     translationQaReviewCount: 0,
+    translationQaSourceReviewCount: 0,
     translationQaStatus: TRANSLATION_QA_STATUS.NOT_RUN,
     autoApproveCandidateCount: 0,
     estimatedApiCalls: 0,
@@ -398,6 +399,7 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
             (existing.status === 'translation-batch-ok' ||
               existing.status === 'translation-qa-passed' ||
               existing.status === 'translation-qa-review' ||
+              existing.status === 'translation-qa-source-review' ||
               existing.status === 'translation-qa-failed');
           if (keepComplete) continue;
           upsertCheckpointItem(
@@ -663,7 +665,12 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
         (item) => item.translationGrade === 'PASS',
       ).length;
       report.translationQaReviewCount = importValidation.perTarget.filter(
-        (item) => item.translationGrade === 'REVIEW_REQUIRED',
+        (item) =>
+          item.translationGrade === 'REVIEW_REQUIRED' ||
+          item.translationGrade === 'SOURCE_REVIEW_REQUIRED',
+      ).length;
+      report.translationQaSourceReviewCount = importValidation.perTarget.filter(
+        (item) => item.translationGrade === 'SOURCE_REVIEW_REQUIRED',
       ).length;
       report.translationQaFailCount = importValidation.perTarget.filter(
         (item) => item.translationGrade === 'FAIL',
@@ -671,7 +678,7 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
       report.translationQaStatus = 'run';
       console.log('○ import-results / translation-qa');
       console.log(
-        `  integrityOk=${importValidation.ok} pass=${report.translationQaPassCount} review=${report.translationQaReviewCount} fail=${report.translationQaFailCount}`,
+        `  integrityOk=${importValidation.ok} pass=${report.translationQaPassCount} review=${report.translationQaReviewCount} sourceReview=${report.translationQaSourceReviewCount} fail=${report.translationQaFailCount}`,
       );
       if (checkpoint) {
         for (const item of importValidation.perTarget) {
@@ -680,9 +687,11 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
           const status =
             item.translationGrade === 'PASS'
               ? 'translation-qa-passed'
-              : item.translationGrade === 'REVIEW_REQUIRED'
-                ? 'translation-qa-review'
-                : 'translation-qa-failed';
+              : item.translationGrade === 'SOURCE_REVIEW_REQUIRED'
+                ? 'translation-qa-source-review'
+                : item.translationGrade === 'REVIEW_REQUIRED'
+                  ? 'translation-qa-review'
+                  : 'translation-qa-failed';
           upsertCheckpointItem(
             checkpoint,
             {

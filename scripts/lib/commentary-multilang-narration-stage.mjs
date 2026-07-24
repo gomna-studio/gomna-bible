@@ -343,10 +343,15 @@ export function buildAutoApproveCandidateReport({
     ).length,
     translationQaPassCount: translationPass.length,
     translationQaReviewCount: translationResults.filter(
-      (item) => item.translationGrade === 'REVIEW_REQUIRED',
+      (item) =>
+        item.translationGrade === 'REVIEW_REQUIRED' ||
+        item.translationGrade === 'SOURCE_REVIEW_REQUIRED',
     ).length,
     translationQaFailCount: translationResults.filter(
       (item) => item.translationGrade === 'FAIL',
+    ).length,
+    translationQaSourceReviewCount: translationResults.filter(
+      (item) => item.translationGrade === 'SOURCE_REVIEW_REQUIRED',
     ).length,
     translationQaStatus:
       translationResults.length === 0 ? 'not-run' : 'run',
@@ -355,7 +360,9 @@ export function buildAutoApproveCandidateReport({
     reviewRequiredCount:
       lockedConflict.length +
       translationResults.filter(
-        (item) => item.translationGrade === 'REVIEW_REQUIRED',
+        (item) =>
+          item.translationGrade === 'REVIEW_REQUIRED' ||
+          item.translationGrade === 'SOURCE_REVIEW_REQUIRED',
       ).length,
     lockedSkipCount: lockedSkip.length,
     lockedConflictCount: lockedConflict.length,

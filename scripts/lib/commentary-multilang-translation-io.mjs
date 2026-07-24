@@ -21,7 +21,10 @@ import {
 } from './commentary-multilang-translation.mjs';
 import { getCommentaryType } from './commentary-type-registry.mjs';
 import { getLocaleConfig } from './commentary-multilang-registry.mjs';
-import { detectIncompleteTranslationOutput } from './commentary-multilang-translation-completeness.mjs';
+import {
+  detectIncompleteTranslationOutput,
+  repairJapaneseNarrationQuotes,
+} from './commentary-multilang-translation-completeness.mjs';
 
 const HARD_INTEGRITY_CODES = new Set([
   'result_missing',
@@ -40,6 +43,47 @@ const HARD_INTEGRITY_CODES = new Set([
   'narration_structure_failed',
   'missing_original_language_terms',
 ]);
+
+const SOURCE_INCOMPLETE_CODES = new Set([
+  'incomplete_empty_placeholder',
+  'incomplete_empty_list_item',
+  'incomplete_after_introducer',
+  'template_leftover',
+]);
+
+/**
+ * Detect incomplete placeholders already present in the Korean source.
+ * Used to classify SOURCE_REVIEW_REQUIRED instead of inventing content.
+ */
+export function detectSourceIncompletePlaceholders(job) {
+  const findings = detectIncompleteTranslationOutput({
+    narrationText: job?.sourceNarrationText || '',
+    cards: Array.isArray(job?.sourceCards) ? job.sourceCards : [],
+    locale: 'ko-KR',
+  }).findings.filter(
+    (item) =>
+      item.severity === 'FAIL' && SOURCE_INCOMPLETE_CODES.has(item.code),
+  );
+
+  // Korean sermon pattern: "적용 예로는 -"
+  const narr = String(job?.sourceNarrationText || '');
+  if (/적용\s*예(?:로는|는|로)?\s*[-–—]/.test(narr)) {
+    findings.push({
+      severity: 'FAIL',
+      code: 'incomplete_after_introducer',
+      message: 'Korean source has empty application-example placeholder',
+      sample: (narr.match(/적용\s*예(?:로는|는|로)?\s*[-–—][^\n。．.!?]*/) || [
+        '',
+      ])[0],
+      where: 'source.narration',
+    });
+  }
+
+  return {
+    ok: findings.length === 0,
+    findings,
+  };
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -547,7 +591,10 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
     }
   }
 
-  const narrationText = resolveNarrationText(result);
+  const narrationTextRaw = resolveNarrationText(result);
+  const narrationText = String(job.locale || '').startsWith('ja')
+    ? repairJapaneseNarrationQuotes(narrationTextRaw)
+    : narrationTextRaw;
   if (!narrationText.trim()) {
     reasons.push('translated narration missing');
     codes.push('narration_missing');
@@ -627,6 +674,25 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
     }
   }
 
+  const sourceIncomplete = detectSourceIncompletePlaceholders(job);
+  const translationIncompleteFail = incomplete.findings.some(
+    (item) =>
+      item.severity === 'FAIL' && SOURCE_INCOMPLETE_CODES.has(item.code),
+  );
+  const sourceReviewRequired =
+    !sourceIncomplete.ok && translationIncompleteFail;
+
+  if (sourceReviewRequired) {
+    for (const finding of sourceIncomplete.findings) {
+      reasons.push(
+        `source_${finding.code}@${finding.where}: ${finding.message}${
+          finding.sample ? ` [${finding.sample}]` : ''
+        }`,
+      );
+      codes.push('source_incomplete_placeholder');
+    }
+  }
+
   const uniqueCodes = [...new Set(codes)];
   const uniqueReasons = [...new Set(reasons)];
   const integrityOk = !uniqueCodes.some((code) => HARD_INTEGRITY_CODES.has(code));
@@ -634,6 +700,8 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
   let translationGrade = 'PASS';
   if (!integrityOk) {
     translationGrade = 'FAIL';
+  } else if (sourceReviewRequired) {
+    translationGrade = 'SOURCE_REVIEW_REQUIRED';
   } else if (incomplete.grade === 'FAIL') {
     translationGrade = 'FAIL';
   } else if (incomplete.grade === 'REVIEW_REQUIRED') {
@@ -653,12 +721,14 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
     translationQaStatus:
       translationGrade === 'PASS'
         ? 'pass'
-        : translationGrade === 'REVIEW_REQUIRED'
+        : translationGrade === 'REVIEW_REQUIRED' ||
+            translationGrade === 'SOURCE_REVIEW_REQUIRED'
           ? 'review'
           : 'fail',
     reasons: uniqueReasons,
     codes: uniqueCodes,
     incompleteFindings: incomplete.findings,
+    sourceIncompleteFindings: sourceIncomplete.findings,
     narrationText,
     cards,
   };

@@ -32,6 +32,20 @@ export function resolveOpenAiApiKey(options = {}) {
   return fromOptions || fromEnv || null;
 }
 
+function consumeBudgetOrThrow(budget) {
+  if (!budget) return;
+  if (typeof budget.assertAvailable === 'function') {
+    budget.assertAvailable(1);
+    return;
+  }
+  if (typeof budget.tryConsume === 'function' && !budget.tryConsume(1)) {
+    const error = new Error('max-api-calls exceeded');
+    error.code = 'max_api_calls_exceeded';
+    error.retryable = false;
+    throw error;
+  }
+}
+
 export function createOpenAiTranslationProvider(options = {}) {
   const apiKey = resolveOpenAiApiKey(options);
   const model = options.model || DEFAULT_TRANSLATION_MODEL;
@@ -47,6 +61,7 @@ export function createOpenAiTranslationProvider(options = {}) {
     userContent,
     responseFormat,
     counters,
+    budget,
   }) {
     if (!apiKey) {
       throw new Error('OPENAI_API_KEY is missing');
@@ -54,6 +69,9 @@ export function createOpenAiTranslationProvider(options = {}) {
     if (typeof fetchImpl !== 'function') {
       throw new Error('fetch is unavailable. Use Node.js 18 or newer.');
     }
+
+    // Hard ceiling: every HTTP attempt (including fallbacks) consumes budget.
+    consumeBudgetOrThrow(budget);
 
     if (counters) {
       counters.attemptedCalls += 1;
@@ -129,10 +147,13 @@ export function createOpenAiTranslationProvider(options = {}) {
     /**
      * Perform one chat completion. Throws on HTTP / empty content.
      * Rate-limit (429) errors include `statusCode` and `retryable`.
-     * On content_filter, automatically retries fallback models.
+     * On content_filter, automatically retries fallback models when budget remains.
      */
     async complete(request) {
-      const modelsToTry = [model, ...fallbackModels.filter((item) => item !== model)];
+      const modelsToTry = [
+        model,
+        ...fallbackModels.filter((item) => item !== model),
+      ];
       let last = null;
       for (let i = 0; i < modelsToTry.length; i += 1) {
         const candidate = modelsToTry[i];
@@ -142,10 +163,13 @@ export function createOpenAiTranslationProvider(options = {}) {
           userContent: request.userContent,
           responseFormat: request.responseFormat,
           counters: request.counters,
+          budget: request.budget,
         });
         if (last.finishReason !== 'content_filter') {
           return last;
         }
+        if (request.counters) request.counters.fallbackCalls =
+          (request.counters.fallbackCalls || 0) + 1;
       }
       return last;
     },
@@ -154,7 +178,7 @@ export function createOpenAiTranslationProvider(options = {}) {
 
 /**
  * Mock provider for unit tests. `handler({ systemPrompt, userContent })`
- * may return a string, `{ text, model }`, or throw.
+ * may return a string, `{ text, model, finishReason }`, or throw.
  */
 export function createMockTranslationProvider(options = {}) {
   const handler = options.handler;
@@ -168,6 +192,7 @@ export function createMockTranslationProvider(options = {}) {
     model,
     hasApiKey: true,
     async complete(request) {
+      consumeBudgetOrThrow(request.budget);
       if (request.counters) {
         request.counters.attemptedCalls += 1;
         request.counters.totalCalls += 1;
@@ -191,6 +216,10 @@ export function createMockTranslationProvider(options = {}) {
             result && typeof result === 'object' && result.model
               ? result.model
               : model,
+          finishReason:
+            result && typeof result === 'object' && result.finishReason
+              ? result.finishReason
+              : 'stop',
           raw: result,
         };
       } catch (error) {

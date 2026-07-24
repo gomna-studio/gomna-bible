@@ -15,6 +15,11 @@ import {
 } from './commentary-multilang-translation.mjs';
 import { countHangulChars, filterNarrationValidationErrors, containsDangerousHtml, findMissingOriginalLanguageTerms } from './commentary-multilang-translation-io.mjs';
 import { inspectApprovedNarrationLock } from './commentary-multilang-narration-stage.mjs';
+import { createApiCallBudget } from './commentary-multilang-translation-budget.mjs';
+import {
+  detectIncompleteTranslationOutput,
+  repairJapaneseNarrationQuotes,
+} from './commentary-multilang-translation-completeness.mjs';
 
 export const BATCH_SCHEMA_VERSION = 1;
 export const DEFAULT_TRANSLATE_CONCURRENCY = 2;
@@ -163,6 +168,8 @@ function buildBatchSystemPrompt(batch) {
     'Do not add headings, markdown, notes, or wrappers.',
     'Preserve Bible references and doctrinal tone.',
     'For original-language, retain source transliterations; do not invent new ones.',
+    'Keep Japanese quotation marks balanced: every 「 must have a matching 」 and do not add an extra closing 」.',
+    'If the Korean source application-example field is only "-", keep "-" (do not invent an example).',
   ].join('\n');
 }
 
@@ -341,7 +348,7 @@ export function splitBatchTranslationResponse(batch, responseText, options = {})
       });
     }
 
-    const paragraphs = item.paragraphs || item.translatedNarrationParagraphs;
+    let paragraphs = item.paragraphs || item.translatedNarrationParagraphs;
     let narrationText = '';
     if (!Array.isArray(paragraphs)) {
       itemErrors.push('paragraphs missing');
@@ -377,6 +384,13 @@ export function splitBatchTranslationResponse(batch, responseText, options = {})
       }
 
       narrationText = joinNarrationStructure(paragraphs);
+      if (String(job.locale || '').startsWith('ja')) {
+        const repaired = repairJapaneseNarrationQuotes(narrationText);
+        if (repaired !== narrationText) {
+          narrationText = repaired;
+          paragraphs = parseNarrationStructure(narrationText);
+        }
+      }
       const hangul = countHangulChars(narrationText);
       const total = narrationText.replace(/\s+/g, '').length || 1;
       if (hangul / total > hangulThreshold) {
@@ -423,6 +437,28 @@ export function splitBatchTranslationResponse(batch, responseText, options = {})
       }
       if (containsDangerousHtml(values)) {
         itemErrors.push('dangerous HTML in cards');
+      }
+    }
+
+    if (narrationText) {
+      const incomplete = detectIncompleteTranslationOutput({
+        narrationText,
+        cards: Array.isArray(cards) ? cards : [],
+        locale: job.locale,
+      });
+      for (const finding of incomplete.findings.filter(
+        (item) => item.severity === 'FAIL',
+      )) {
+        if (
+          finding.code === 'incomplete_empty_placeholder' ||
+          finding.code === 'incomplete_after_introducer' ||
+          finding.code === 'incomplete_empty_list_item'
+        ) {
+          continue;
+        }
+        itemErrors.push(
+          `${finding.code}@${finding.where}: ${finding.message}`,
+        );
       }
     }
 
@@ -516,6 +552,7 @@ export async function runBatchedTranslation(jobs, options = {}) {
     retriedCalls: 0,
     totalCalls: 0,
     validationFailedCalls: 0,
+    fallbackCalls: 0,
   };
 
   const report = {
@@ -555,7 +592,11 @@ export async function runBatchedTranslation(jobs, options = {}) {
     return { ok: false, preflight: false, ...report };
   }
 
-  let remainingBudget = maxApiCalls;
+  const budget = options.budget || createApiCallBudget(maxApiCalls);
+  report.budget = {
+    max: budget.max,
+    remainingAtStart: budget.remaining,
+  };
   let remainingBatchSlots = runBatches.length;
 
   const batchOutcomes = await mapPool(
@@ -564,7 +605,7 @@ export async function runBatchedTranslation(jobs, options = {}) {
     async (batch) => {
       remainingBatchSlots = Math.max(0, remainingBatchSlots - 1);
       const reservedForLater = remainingBatchSlots;
-      if (remainingBudget <= reservedForLater) {
+      if (budget.remaining <= reservedForLater) {
         return {
           ok: false,
           batchId: batch.batchId,
@@ -577,14 +618,13 @@ export async function runBatchedTranslation(jobs, options = {}) {
       const request = buildBatchTranslationRequest(batch);
       let lastError = null;
       let split = null;
-      // Keep one call reserved for each later batch; retries only use spare budget.
       const attemptsAllowed = Math.max(
         1,
-        Math.min(maxAttempts, remainingBudget - reservedForLater),
+        Math.min(maxAttempts, budget.remaining - reservedForLater),
       );
 
       for (let attempt = 1; attempt <= attemptsAllowed; attempt += 1) {
-        if (remainingBudget <= reservedForLater) {
+        if (budget.remaining <= reservedForLater) {
           return {
             ok: false,
             batchId: batch.batchId,
@@ -594,16 +634,23 @@ export async function runBatchedTranslation(jobs, options = {}) {
           };
         }
         if (attempt > 1) counters.retriedCalls += 1;
-        remainingBudget -= 1;
         try {
+          const retryHint =
+            attempt === 1
+              ? ''
+              : `\n\nRETRY because: ${lastError || 'validation failed'}. Fix the listed issues. Keep balanced Japanese quotes 「」 and do not invent missing Korean source examples.`;
           const completion = await provider.complete({
             systemPrompt: request.systemPrompt,
-            userContent:
-              attempt === 1
-                ? request.userContent
-                : `${request.userContent}\n\nRETRY because: ${lastError || 'validation failed'}`,
+            userContent: `${request.userContent}${retryHint}`,
             counters,
+            budget,
           });
+
+          if (completion.finishReason === 'content_filter') {
+            counters.validationFailedCalls += 1;
+            lastError = 'content_filter';
+            continue;
+          }
 
           split = splitBatchTranslationResponse(batch, completion.text, {
             model: completion.model,
@@ -624,12 +671,21 @@ export async function runBatchedTranslation(jobs, options = {}) {
             .join('; ');
         } catch (error) {
           lastError = error.message;
+          if (error.code === 'max_api_calls_exceeded') {
+            return {
+              ok: false,
+              batchId: batch.batchId,
+              error: lastError,
+              results: split?.results || [],
+              attempts: attempt,
+            };
+          }
           const retryable =
             error.retryable === true || error.statusCode === 429;
           if (
             retryable &&
             attempt < attemptsAllowed &&
-            remainingBudget > reservedForLater
+            budget.remaining > reservedForLater
           ) {
             const delayMs = Math.min(8000, 250 * 2 ** (attempt - 1));
             await sleep(
@@ -679,6 +735,11 @@ export async function runBatchedTranslation(jobs, options = {}) {
   );
   report.skippedApproved = filtered.skippedApproved;
   report.lockedConflict = filtered.lockedConflict;
+  report.budget = {
+    max: budget.max,
+    consumed: budget.consumed,
+    remaining: budget.remaining,
+  };
   report.ok =
     report.failedBatches.length === 0 &&
     report.results.length === filtered.eligible.length;

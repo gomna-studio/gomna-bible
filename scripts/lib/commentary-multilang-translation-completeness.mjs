@@ -8,6 +8,20 @@ export const INCOMPLETE_SEVERITY = Object.freeze({
   REVIEW_REQUIRED: 'REVIEW_REQUIRED',
 });
 
+/**
+ * Repair a frequent JA template slip: ...になった。」です → ...になったのです
+ * Only when there is exactly one extra closing 「」 pair.
+ */
+export function repairJapaneseNarrationQuotes(text) {
+  let out = String(text || '');
+  const open = (out.match(/「/g) || []).length;
+  const close = (out.match(/」/g) || []).length;
+  if (close === open + 1 && /になった。」です/.test(out)) {
+    out = out.replace(/になった。」です/g, 'になったのです');
+  }
+  return out;
+}
+
 const BIBLE_BOOK =
   '(?:Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|Samuel|Kings|Chronicles|Ezra|Nehemiah|Esther|Job|Psalm|Psalms|Proverbs|Ecclesiastes|Song(?:\\s+of\\s+Solomon)?|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|Corinthians|Galatians|Ephesians|Philippians|Colossians|Thessalonians|Timothy|Titus|Philemon|Hebrews|James|Peter|Jude|Revelation|[1-3]\\s?(?:Samuel|Kings|Chronicles|Corinthians|Thessalonians|Timothy|Peter|John)|創世記|出エジプト記|レビ記|民数記|申命記|ヨシュア記|士師記|ルツ記|サムエル記|列王記|歴代誌|エズラ記|ネヘミヤ記|エステル記|ヨブ記|詩篇|箴言|伝道の書|雅歌|イザヤ書|エレミヤ書|哀歌|エゼキエル書|ダニエル書|ホセア書|ヨエル書|アモス書|オバデヤ書|ヨナ書|ミカ書|ナホム書|ハバクク書|ゼパニヤ書|ハガイ書|ゼカリヤ書|マラキ書|マタイによる福音書|マルコによる福音書|ルカによる福音書|ヨハネによる福音書|使徒言行録|ローマの信徒への手紙|コリント|ガラテヤ|エフェソ|フィリピ|コロサイ|テサロニケ|テモテ|テトス|フィレモン|ヘブライ|ヤコブ|ペトロ|ユダ|ヨハネの黙示録)';
 
