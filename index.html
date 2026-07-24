@@ -20,57 +20,131 @@
   try {
     var html = document.documentElement;
     var STORAGE_KEY = 'gomna_ui_language';
+    var RECENT_FOREIGN_KEY = 'gomna_recent_foreign_language';
+    var DEFAULT_QUICK_FOREIGN = 'en';
+    var GT_CLEAR_GUARD_KEY = 'gomna_first_visit_gt_cleared';
 
     function clearIncompleteGoogTrans() {
       try {
         document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
         document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=' + location.hostname;
+        var host = String(location.hostname || '');
+        if (host.indexOf('.') > -1 && !/^[\d.]+$/.test(host)) {
+          var parts = host.split('.');
+          var dom = '.' + parts.slice(-2).join('.');
+          document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=' + dom;
+        }
       } catch (eClear) { /* ignore */ }
     }
 
-    function readGoogTransTarget() {
+    function clearStaleGoogTransOnce() {
       try {
-        var m = (document.cookie || '').match(/(?:^|;\s*)googtrans=([^;]+)/);
-        if (!m) return '';
-        var raw = decodeURIComponent(m[1] || '');
-        var parts = String(raw || '').split('/');
-        var target = parts[2] || '';
-        if (!target || target === 'null' || target === 'undefined') {
-          clearIncompleteGoogTrans();
-          return '';
-        }
-        return target;
-      } catch (eRead) {
-        return '';
+        if (sessionStorage.getItem(GT_CLEAR_GUARD_KEY) === '1') return;
+        sessionStorage.setItem(GT_CLEAR_GUARD_KEY, '1');
+      } catch (eGuard) { /* ignore */ }
+      clearIncompleteGoogTrans();
+    }
+
+    function setGoogTransCookie(targetLang) {
+      if (!targetLang || targetLang === 'ko') {
+        clearIncompleteGoogTrans();
+        return;
       }
+      try {
+        var value = '/ko/' + targetLang;
+        var maxAge = '; max-age=' + (60 * 60 * 24 * 365);
+        document.cookie = 'googtrans=' + value + '; path=/' + maxAge;
+        var host = String(location.hostname || '');
+        if (host.indexOf('.') > -1 && !/^[\d.]+$/.test(host)) {
+          var parts = host.split('.');
+          var dom = '.' + parts.slice(-2).join('.');
+          document.cookie = 'googtrans=' + value + '; path=/; domain=' + dom + maxAge;
+        }
+      } catch (eSet) { /* ignore */ }
+    }
+
+    // Quick pair is always KO·EN — never derived from device/home language.
+    var QUICK_LANGUAGES = ['ko', 'en'];
+    window.__gomnaQuickLanguages = QUICK_LANGUAGES;
+
+    function ensureDefaultQuickForeign() {
+      try {
+        var existing = localStorage.getItem(RECENT_FOREIGN_KEY);
+        // Seed EN only when empty. Never auto-write ja from device/home language.
+        // Quick buttons use KO·EN constants and do not read this value.
+        if (!existing || existing === 'ko') {
+          localStorage.setItem(RECENT_FOREIGN_KEY, DEFAULT_QUICK_FOREIGN);
+        }
+      } catch (eSeed) { /* ignore */ }
+    }
+
+    var GOOGLE_HOME_LANGS = {
+      es: 1, pt: 1, fr: 1, de: 1, vi: 1, hi: 1, id: 1, tl: 1, sw: 1, af: 1,
+      zh: 1, 'zh-cn': 1, 'zh-tw': 1
+    };
+
+    function detectBrowserPreferredLanguage() {
+      var list = [];
+      try {
+        if (navigator.languages && navigator.languages.length) {
+          for (var i = 0; i < navigator.languages.length; i++) list.push(navigator.languages[i]);
+        }
+      } catch (e0) { /* ignore */ }
+      try { list.push(navigator.language || navigator.userLanguage || ''); } catch (e1) { /* ignore */ }
+      for (var j = 0; j < list.length; j++) {
+        var raw = String(list[j] || '').toLowerCase().replace(/_/g, '-');
+        if (!raw) continue;
+        if (raw.indexOf('ko') === 0) return { lang: 'ko', mode: 'native' };
+        if (raw.indexOf('en') === 0) return { lang: 'en', mode: 'native' };
+        if (raw.indexOf('ja') === 0) return { lang: 'ja', mode: 'native' };
+        if (raw.indexOf('zh') === 0) {
+          var zh =
+            raw.indexOf('tw') !== -1 ||
+            raw.indexOf('hk') !== -1 ||
+            raw.indexOf('hant') !== -1
+              ? 'zh-TW'
+              : 'zh-CN';
+          return { lang: zh, mode: 'google' };
+        }
+        var primary = raw.split('-')[0];
+        if (primary && GOOGLE_HOME_LANGS[primary]) {
+          return { lang: primary, mode: 'google' };
+        }
+      }
+      // Unsupported / undetectable → English home (not Korean).
+      return { lang: 'en', mode: 'native' };
     }
 
     // First-paint language gate (mirrors GomnaUII18n.resolveInitialHomeLanguage).
-    // 1) explicit localStorage ko/en/ja
-    // 2) clear googtrans en/ja (or other Google langs)
-    // 3) otherwise default ko and persist
+    // detectedInitialLanguage → first home screen
+    // quickLanguages → always ["ko","en"] (separate)
     var stored = null;
     try {
       var s = localStorage.getItem(STORAGE_KEY);
       if (s === 'ko' || s === 'en' || s === 'ja') stored = s;
     } catch (e0) {}
 
-    var targetLang = readGoogTransTarget();
     var native = stored;
     var googleTarget = null;
 
     if (!native) {
-      if (targetLang === 'en' || targetLang === 'ja') {
-        native = targetLang;
-        try { localStorage.setItem(STORAGE_KEY, native); } catch (e1) { /* ignore */ }
-      } else if (!targetLang || targetLang === 'ko') {
-        native = 'ko';
-        try { localStorage.setItem(STORAGE_KEY, 'ko'); } catch (e2) { /* ignore */ }
-        if (targetLang === 'ko') clearIncompleteGoogTrans();
+      clearStaleGoogTransOnce();
+      var detected = detectBrowserPreferredLanguage();
+      if (detected.mode === 'native' && (detected.lang === 'ko' || detected.lang === 'en' || detected.lang === 'ja')) {
+        // Display-only auto detect — never write gomna_ui_language here.
+        native = detected.lang;
+        if (native === 'ko') clearIncompleteGoogTrans();
+        else setGoogTransCookie(native);
+      } else if (detected.mode === 'google' && detected.lang) {
+        googleTarget = detected.lang;
+        setGoogTransCookie(googleTarget);
       } else {
-        googleTarget = targetLang;
+        native = 'en';
+        setGoogTransCookie('en');
       }
     }
+
+    ensureDefaultQuickForeign();
 
     if (native) {
       window.__gomnaInitialNativeUiLang = native;
@@ -99,7 +173,7 @@
 <style id="gomna-ui-i18n-boot-css">
 html.gomna-ui-i18n-boot [data-i18n-key]:not(img){visibility:hidden}
 </style>
-<script src="js/gomna-ui-i18n.js?v=20260722-home-ko-default-v1"></script>
+<script src="js/gomna-ui-i18n.js?v=20260724-first-visit-detect-v2"></script>
 <style id="gt-translation-pending-css">
 html.gt-translation-pending,
 html.gt-translation-pending body{
@@ -1541,7 +1615,7 @@ function closeSettings(){var p=document.getElementById('settingsPopup');if(p)p.c
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
-<script src="translate_feature.js?v=20260724-reader-trigger-guard-v1" defer></script>
+<script src="translate_feature.js?v=20260724-first-visit-detect-v2" defer></script>
 <script>
 (function(){
   function refreshHomeI18n(){

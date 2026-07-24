@@ -244,13 +244,31 @@
     return SUPPORTED.indexOf(lang) !== -1;
   }
 
+  var RECENT_FOREIGN_KEY = 'gomna_recent_foreign_language';
+  var DEFAULT_QUICK_FOREIGN = 'en';
+  var GT_CLEAR_GUARD_KEY = 'gomna_first_visit_gt_cleared';
+
   function clearIncompleteGoogTrans() {
     try {
       document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
       if (typeof location !== 'undefined' && location.hostname) {
         document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=' + location.hostname;
+        var host = String(location.hostname || '');
+        if (host.indexOf('.') > -1 && !/^[\d.]+$/.test(host)) {
+          var parts = host.split('.');
+          var dom = '.' + parts.slice(-2).join('.');
+          document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=' + dom;
+        }
       }
     } catch (e) { /* ignore */ }
+  }
+
+  function clearStaleGoogTransOnce() {
+    try {
+      if (sessionStorage.getItem(GT_CLEAR_GUARD_KEY) === '1') return;
+      sessionStorage.setItem(GT_CLEAR_GUARD_KEY, '1');
+    } catch (eGuard) { /* ignore */ }
+    clearIncompleteGoogTrans();
   }
 
   function readGoogTransTarget() {
@@ -270,39 +288,132 @@
     }
   }
 
+  function setGoogTransCookie(targetLang) {
+    if (!targetLang || targetLang === 'ko') {
+      clearIncompleteGoogTrans();
+      return;
+    }
+    try {
+      var value = '/ko/' + targetLang;
+      var maxAge = '; max-age=' + (60 * 60 * 24 * 365);
+      document.cookie = 'googtrans=' + value + '; path=/' + maxAge;
+      if (typeof location !== 'undefined' && location.hostname) {
+        var host = String(location.hostname || '');
+        if (host.indexOf('.') > -1 && !/^[\d.]+$/.test(host)) {
+          var parts = host.split('.');
+          var dom = '.' + parts.slice(-2).join('.');
+          document.cookie = 'googtrans=' + value + '; path=/; domain=' + dom + maxAge;
+        }
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  var QUICK_LANGUAGES = ['ko', 'en'];
+  var GOOGLE_HOME_LANGS = {
+    es: 1, pt: 1, fr: 1, de: 1, vi: 1, hi: 1, id: 1, tl: 1, sw: 1, af: 1,
+    zh: 1, 'zh-cn': 1, 'zh-tw': 1
+  };
+
+  /**
+   * Browser / phone preferred language for first-visit home only.
+   * Quick buttons are separate and always KO·EN.
+   */
+  function detectBrowserPreferredLanguage() {
+    var list = [];
+    try {
+      if (typeof navigator !== 'undefined' && navigator.languages && navigator.languages.length) {
+        for (var i = 0; i < navigator.languages.length; i++) list.push(navigator.languages[i]);
+      }
+    } catch (e0) { /* ignore */ }
+    try {
+      if (typeof navigator !== 'undefined') {
+        list.push(navigator.language || navigator.userLanguage || '');
+      }
+    } catch (e1) { /* ignore */ }
+
+    for (var j = 0; j < list.length; j++) {
+      var raw = String(list[j] || '').toLowerCase().replace(/_/g, '-');
+      if (!raw) continue;
+      if (raw.indexOf('ko') === 0) return { lang: 'ko', mode: 'native' };
+      if (raw.indexOf('en') === 0) return { lang: 'en', mode: 'native' };
+      if (raw.indexOf('ja') === 0) return { lang: 'ja', mode: 'native' };
+      if (raw.indexOf('zh') === 0) {
+        var zh =
+          raw.indexOf('tw') !== -1 ||
+          raw.indexOf('hk') !== -1 ||
+          raw.indexOf('hant') !== -1
+            ? 'zh-TW'
+            : 'zh-CN';
+        return { lang: zh, mode: 'google' };
+      }
+      var primary = raw.split('-')[0];
+      if (primary && GOOGLE_HOME_LANGS[primary]) {
+        return { lang: primary, mode: 'google' };
+      }
+    }
+    // Unsupported / undetectable → English home.
+    return { lang: 'en', mode: 'native' };
+  }
+
+  /** Seed EN when empty. Never auto-seed JA from device/home language. */
+  function ensureDefaultQuickForeign() {
+    try {
+      var existing = localStorage.getItem(RECENT_FOREIGN_KEY);
+      if (!existing || existing === 'ko') {
+        localStorage.setItem(RECENT_FOREIGN_KEY, DEFAULT_QUICK_FOREIGN);
+      }
+    } catch (e) { /* ignore */ }
+  }
+
   /**
    * Unified initial home language decision.
-   * 1) explicit localStorage ko/en/ja
-   * 2) clear googtrans en/ja → native; other Google langs → google mode
-   * 3) no selection → persist and use ko
+   * 1) explicit localStorage ko/en/ja (app UI selection) — keep forever
+   * 2) no app selection → browser/phone language (not leftover googtrans alone)
+   * 3) ko/en/ja → native; known other → Google; unknown → en
+   * Quick languages are always ["ko","en"] and are not derived from detection.
    */
   function resolveInitialHomeLanguage() {
     try {
       var stored = localStorage.getItem(STORAGE_KEY);
       if (isSupported(stored)) {
+        ensureDefaultQuickForeign();
         return { lang: stored, mode: 'native', active: true, persisted: true };
       }
     } catch (e) { /* ignore */ }
 
-    var cookieLang = readGoogTransTarget();
-    if (cookieLang === 'en' || cookieLang === 'ja') {
-      try { localStorage.setItem(STORAGE_KEY, cookieLang); } catch (e2) { /* ignore */ }
-      return { lang: cookieLang, mode: 'native', active: true, persisted: true };
+    // First visit / no explicit app selection: ignore leftover googtrans as authority.
+    clearStaleGoogTransOnce();
+    var detected = detectBrowserPreferredLanguage();
+
+    if (detected.mode === 'native' && isSupported(detected.lang)) {
+      // Display-only auto detect — do NOT write gomna_ui_language.
+      if (detected.lang === 'ko') clearIncompleteGoogTrans();
+      else setGoogTransCookie(detected.lang);
+      ensureDefaultQuickForeign();
+      return { lang: detected.lang, mode: 'native', active: true, persisted: false };
     }
-    if (!cookieLang || cookieLang === 'ko') {
-      try { localStorage.setItem(STORAGE_KEY, 'ko'); } catch (e3) { /* ignore */ }
-      if (cookieLang === 'ko') clearIncompleteGoogTrans();
-      return { lang: 'ko', mode: 'native', active: true, persisted: true };
+
+    if (detected.mode === 'google' && detected.lang) {
+      setGoogTransCookie(detected.lang);
+      ensureDefaultQuickForeign();
+      return { lang: detected.lang, mode: 'google', active: false, persisted: false };
     }
-    return { lang: cookieLang, mode: 'google', active: false, persisted: false };
+
+    setGoogTransCookie('en');
+    ensureDefaultQuickForeign();
+    return { lang: 'en', mode: 'native', active: true, persisted: false };
   }
 
   function resolveLanguage() {
     var resolved = resolveInitialHomeLanguage();
     if (resolved.mode === 'native' && resolved.lang) {
-      return { lang: resolved.lang, active: true };
+      return {
+        lang: resolved.lang,
+        active: true,
+        persisted: !!resolved.persisted
+      };
     }
-    return { lang: null, active: false };
+    return { lang: null, active: false, persisted: false };
   }
 
   function t(key, lang) {
@@ -461,11 +572,15 @@
     try { document.documentElement.classList.remove('gomna-ui-i18n-boot'); } catch (e) { /* ignore */ }
   }
 
-  function apply(lang) {
+  function apply(lang, opts) {
     var code = isSupported(lang) ? lang : 'ko';
+    var persist = !(opts && opts.persist === false);
     currentLang = code;
     active = true;
-    try { localStorage.setItem(STORAGE_KEY, code); } catch (e) { /* ignore */ }
+    // Only explicit user choices (persist:true) write gomna_ui_language.
+    if (persist) {
+      try { localStorage.setItem(STORAGE_KEY, code); } catch (e) { /* ignore */ }
+    }
 
     var html = document.documentElement;
     if (html.lang !== (code === 'ja' ? 'ja' : (code === 'en' ? 'en' : 'ko'))) {
@@ -484,12 +599,12 @@
     try {
       global.dispatchEvent(new CustomEvent('gomna:ui-language-changed', {
         bubbles: true,
-        detail: { lang: code, source: 'native' }
+        detail: { lang: code, source: persist ? 'native' : 'auto-detect', persisted: persist }
       }));
     } catch (e2) {
       try {
         var ev = document.createEvent('CustomEvent');
-        ev.initCustomEvent('gomna:ui-language-changed', true, true, { lang: code, source: 'native' });
+        ev.initCustomEvent('gomna:ui-language-changed', true, true, { lang: code, source: persist ? 'native' : 'auto-detect' });
         global.dispatchEvent(ev);
       } catch (e3) { /* ignore */ }
     }
@@ -498,7 +613,7 @@
 
   function setLanguage(lang) {
     if (!isSupported(lang)) return getLanguage();
-    return apply(lang);
+    return apply(lang, { persist: true });
   }
 
   function deactivate() {
@@ -530,14 +645,15 @@
       clearBoot();
       return;
     }
+    var applyOpts = { persist: !!resolved.persisted };
     if (document.body) {
-      apply(resolved.lang);
+      apply(resolved.lang, applyOpts);
     } else {
       currentLang = resolved.lang;
       active = true;
       document.addEventListener('DOMContentLoaded', function onReady() {
         document.removeEventListener('DOMContentLoaded', onReady);
-        apply(resolved.lang);
+        apply(resolved.lang, applyOpts);
       });
     }
     setTimeout(clearBoot, 800);
@@ -545,6 +661,7 @@
 
   global.GomnaUII18n = {
     supportedLanguages: SUPPORTED.slice(),
+    quickLanguages: QUICK_LANGUAGES.slice(),
     getLanguage: getLanguage,
     setLanguage: setLanguage,
     apply: apply,
@@ -565,7 +682,8 @@
       return !!active;
     },
     resolveLanguage: resolveLanguage,
-    resolveInitialHomeLanguage: resolveInitialHomeLanguage
+    resolveInitialHomeLanguage: resolveInitialHomeLanguage,
+    detectBrowserPreferredLanguage: detectBrowserPreferredLanguage
   };
 
   boot();
