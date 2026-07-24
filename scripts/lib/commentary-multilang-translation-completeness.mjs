@@ -86,6 +86,7 @@ function checkUnbalancedDelimiters(text, findings) {
     ['【', '】'],
     ['「', '」'],
     ['『', '』'],
+    ['“', '”'],
   ];
   for (const [open, close] of pairs) {
     let depth = 0;
@@ -113,24 +114,16 @@ function checkUnbalancedDelimiters(text, findings) {
     }
   }
 
-  // Straight / curly quotes: odd count is incomplete when quotes appear.
-  for (const quote of ['"', '“', '”', "'", '‘', '’']) {
-    const count = (text.match(new RegExp(quote, 'g')) || []).length;
-    if (count % 2 === 1) {
-      // Allow apostrophes inside English words: skip single quote check when mostly word-internal.
-      if (quote === "'" || quote === '’') {
-        const stripped = text.replace(/[A-Za-z]'[A-Za-z]/g, 'X').replace(/[A-Za-z]’[A-Za-z]/g, 'X');
-        const remaining = (stripped.match(new RegExp(quote, 'g')) || []).length;
-        if (remaining % 2 === 0) continue;
-      }
-      pushFinding(findings, {
-        severity: INCOMPLETE_SEVERITY.REVIEW_REQUIRED,
-        code: 'unclosed_delimiter',
-        message: `Unclosed quote ${quote}`,
-        sample: text.slice(0, 80),
-      });
-      return;
-    }
+  // Straight double quotes only. Skip ASCII apostrophe/single-quote — too many
+  // false positives with English contractions and 'verse' wrappers.
+  const doubleCount = (text.match(/"/g) || []).length;
+  if (doubleCount % 2 === 1) {
+    pushFinding(findings, {
+      severity: INCOMPLETE_SEVERITY.REVIEW_REQUIRED,
+      code: 'unclosed_delimiter',
+      message: 'Unclosed double quote "',
+      sample: text.slice(0, 80),
+    });
   }
 }
 

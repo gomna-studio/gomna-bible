@@ -6,6 +6,7 @@
 
 import {
   DEFAULT_TRANSLATION_MODEL,
+  CONTENT_FILTER_FALLBACK_MODELS,
   OPENAI_CHAT_COMPLETIONS_URL,
 } from './commentary-multilang-translation.mjs';
 
@@ -34,8 +35,92 @@ export function resolveOpenAiApiKey(options = {}) {
 export function createOpenAiTranslationProvider(options = {}) {
   const apiKey = resolveOpenAiApiKey(options);
   const model = options.model || DEFAULT_TRANSLATION_MODEL;
+  const fallbackModels = Array.isArray(options.fallbackModels)
+    ? options.fallbackModels
+    : CONTENT_FILTER_FALLBACK_MODELS.slice();
   const fetchImpl = options.fetchImpl || globalThis.fetch;
   const url = options.url || OPENAI_CHAT_COMPLETIONS_URL;
+
+  async function completeOnce({
+    model: modelName,
+    systemPrompt,
+    userContent,
+    responseFormat,
+    counters,
+  }) {
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY is missing');
+    }
+    if (typeof fetchImpl !== 'function') {
+      throw new Error('fetch is unavailable. Use Node.js 18 or newer.');
+    }
+
+    if (counters) {
+      counters.attemptedCalls += 1;
+      counters.totalCalls += 1;
+    }
+
+    const body = {
+      model: modelName,
+      temperature: 0.2,
+      max_tokens:
+        options.maxTokens == null ? 16384 : Number(options.maxTokens),
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userContent },
+      ],
+    };
+    if (responseFormat === null) {
+      // omit response_format
+    } else if (responseFormat) {
+      body.response_format = responseFormat;
+    } else {
+      body.response_format = { type: 'json_object' };
+    }
+
+    const response = await fetchImpl(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      let summary = '';
+      try {
+        summary = redactSecrets(
+          String((await response.text()) || '').slice(0, 400),
+        );
+      } catch {
+        summary = '(unable to read error body)';
+      }
+      if (counters) counters.failedCalls += 1;
+      const error = new Error(
+        `OpenAI chat completion failed with HTTP ${response.status}`,
+      );
+      error.statusCode = response.status;
+      error.retryable = response.status === 429 || response.status >= 500;
+      error.details = summary;
+      throw error;
+    }
+
+    const payload = await response.json();
+    const content = payload?.choices?.[0]?.message?.content;
+    if (typeof content !== 'string' || !content.trim()) {
+      if (counters) counters.failedCalls += 1;
+      throw new Error('OpenAI chat completion returned empty content');
+    }
+
+    if (counters) counters.successfulCalls += 1;
+    return {
+      text: content,
+      model: payload?.model || modelName,
+      finishReason: payload?.choices?.[0]?.finish_reason || null,
+      raw: payload,
+    };
+  }
 
   return {
     kind: PROVIDER_KIND_OPENAI,
@@ -44,77 +129,25 @@ export function createOpenAiTranslationProvider(options = {}) {
     /**
      * Perform one chat completion. Throws on HTTP / empty content.
      * Rate-limit (429) errors include `statusCode` and `retryable`.
+     * On content_filter, automatically retries fallback models.
      */
-    async complete({ systemPrompt, userContent, responseFormat, counters }) {
-      if (!apiKey) {
-        throw new Error('OPENAI_API_KEY is missing');
-      }
-      if (typeof fetchImpl !== 'function') {
-        throw new Error('fetch is unavailable. Use Node.js 18 or newer.');
-      }
-
-      if (counters) {
-        counters.attemptedCalls += 1;
-        counters.totalCalls += 1;
-      }
-
-      const body = {
-        model,
-        temperature: 0.2,
-        max_tokens:
-          options.maxTokens == null ? 16384 : Number(options.maxTokens),
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userContent },
-        ],
-      };
-      if (responseFormat) {
-        body.response_format = responseFormat;
-      } else {
-        body.response_format = { type: 'json_object' };
-      }
-
-      const response = await fetchImpl(url, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        let summary = '';
-        try {
-          summary = redactSecrets(
-            String((await response.text()) || '').slice(0, 400),
-          );
-        } catch {
-          summary = '(unable to read error body)';
+    async complete(request) {
+      const modelsToTry = [model, ...fallbackModels.filter((item) => item !== model)];
+      let last = null;
+      for (let i = 0; i < modelsToTry.length; i += 1) {
+        const candidate = modelsToTry[i];
+        last = await completeOnce({
+          model: candidate,
+          systemPrompt: request.systemPrompt,
+          userContent: request.userContent,
+          responseFormat: request.responseFormat,
+          counters: request.counters,
+        });
+        if (last.finishReason !== 'content_filter') {
+          return last;
         }
-        if (counters) counters.failedCalls += 1;
-        const error = new Error(
-          `OpenAI chat completion failed with HTTP ${response.status}`,
-        );
-        error.statusCode = response.status;
-        error.retryable = response.status === 429 || response.status >= 500;
-        error.details = summary;
-        throw error;
       }
-
-      const payload = await response.json();
-      const content = payload?.choices?.[0]?.message?.content;
-      if (typeof content !== 'string' || !content.trim()) {
-        if (counters) counters.failedCalls += 1;
-        throw new Error('OpenAI chat completion returned empty content');
-      }
-
-      if (counters) counters.successfulCalls += 1;
-      return {
-        text: content,
-        model: payload?.model || model,
-        raw: payload,
-      };
+      return last;
     },
   };
 }

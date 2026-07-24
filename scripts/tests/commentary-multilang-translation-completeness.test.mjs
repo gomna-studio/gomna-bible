@@ -74,6 +74,16 @@ test('unclosed delimiter and trailing connective are detected', () => {
     trailing.find((item) => item.code === 'trailing_connective').severity,
     'REVIEW_REQUIRED',
   );
+
+  // English verse wrappers with ASCII single quotes must not false-positive.
+  const verseWrap = detectIncompleteTranslationText(
+    "Genesis 1:12 history. The text is 'The earth brought forth vegetation.'",
+    { locale: 'en-US' },
+  );
+  assert.equal(
+    verseWrap.filter((item) => item.code === 'unclosed_delimiter').length,
+    0,
+  );
 });
 
 test('complete JA title hyphen and verse refs do not false-positive', () => {

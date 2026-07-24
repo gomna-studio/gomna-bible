@@ -23,6 +23,10 @@ const fsUnlinkSync = fs.unlinkSync.bind(fs);
 
 export const TRANSLATION_SOURCE_LOCALE = 'ko-KR';
 export const DEFAULT_TRANSLATION_MODEL = 'gpt-4o';
+export const CONTENT_FILTER_FALLBACK_MODELS = Object.freeze([
+  'gpt-4.1-mini',
+  'gpt-4o-mini',
+]);
 export const OPENAI_CHAT_COMPLETIONS_URL =
   'https://api.openai.com/v1/chat/completions';
 
