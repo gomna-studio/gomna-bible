@@ -144,18 +144,97 @@ export function computeBatchSampleCount(eligibleTargetCount, options = {}) {
 
 function stripInternal(item) {
   const clone = { ...item };
+  if (clone._band) clone.band = clone._band;
   delete clone._index;
   delete clone._locale;
   delete clone._type;
   delete clone._chapter;
   delete clone._verse;
   delete clone._rank;
+  delete clone._band;
   return clone;
 }
 
 /**
+ * Split sorted eligible verses into front / middle / end bands.
+ * Band sizes differ by at most one; no verse numbers are hard-coded.
+ */
+export function splitVerseBands(sortedVerses) {
+  const verses = [...new Set((sortedVerses || []).map(Number))]
+    .filter((verse) => Number.isInteger(verse) && verse > 0)
+    .sort((a, b) => a - b);
+  if (!verses.length) {
+    return {
+      verses: [],
+      front: [],
+      middle: [],
+      end: [],
+      bands: { front: [], middle: [], end: [] },
+    };
+  }
+  const n = verses.length;
+  const frontSize = Math.floor(n / 3);
+  const middleSize = Math.floor(n / 3);
+  const endSize = n - frontSize - middleSize;
+  const front = verses.slice(0, frontSize);
+  const middle = verses.slice(frontSize, frontSize + middleSize);
+  const end = verses.slice(frontSize + middleSize);
+  // When n < 3, keep later bands non-empty by reusing the available span.
+  const bands = {
+    front: front.length ? front : verses.slice(0, Math.max(1, endSize || 1)),
+    middle: middle.length
+      ? middle
+      : verses.slice(
+          Math.floor((n - 1) / 2),
+          Math.floor((n - 1) / 2) + 1,
+        ),
+    end: end.length ? end : verses.slice(-1),
+  };
+  return { verses, front: bands.front, middle: bands.middle, end: bands.end, bands };
+}
+
+function bandCenter(bandVerses) {
+  if (!bandVerses.length) return 0;
+  return bandVerses[Math.floor((bandVerses.length - 1) / 2)];
+}
+
+function pickCandidateForCell(pool, locale, type, preferredBand, seed) {
+  const matching = pool.filter(
+    (item) => item._locale === locale && item._type === type,
+  );
+  if (!matching.length) return null;
+
+  const inBand = matching.filter((item) =>
+    preferredBand.includes(item._verse),
+  );
+  const rankOf = (item) =>
+    stableHash(`${seed}|${item.targetKey || item.audioId || ''}`);
+
+  if (inBand.length) {
+    return [...inBand].sort((a, b) => {
+      const byRank = rankOf(a).localeCompare(rankOf(b));
+      if (byRank !== 0) return byRank;
+      return String(a.targetKey || '').localeCompare(String(b.targetKey || ''));
+    })[0];
+  }
+
+  // Fallback: nearest verse to band center, then deterministic rank.
+  const center = bandCenter(preferredBand);
+  return [...matching].sort((a, b) => {
+    const da = Math.abs(a._verse - center);
+    const db = Math.abs(b._verse - center);
+    if (da !== db) return da - db;
+    const byRank = rankOf(a).localeCompare(rankOf(b));
+    if (byRank !== 0) return byRank;
+    return String(a.targetKey || '').localeCompare(String(b.targetKey || ''));
+  })[0];
+}
+
+/**
  * Deterministic sample selection.
- * Prefer one item per (locale × type) present in the pool, then fill by rank.
+ * Prefer one item per (locale × type) present in the pool, spread across
+ * eligible front / middle / end verse bands when the budget is exactly
+ * localeCount × typeCount (e.g. EN9 + JA9 = 18).
  */
 export function selectBatchReviewSample(candidates, options = {}) {
   const minCount =
@@ -239,46 +318,81 @@ export function selectBatchReviewSample(candidates, options = {}) {
   });
 
   const selected = new Map();
-  const add = (item) => {
+  const add = (item, bandName = null) => {
     if (!item) return false;
     const key = item.targetKey || item.audioId;
     if (!key || selected.has(key)) return false;
+    if (bandName) item._band = bandName;
     selected.set(key, item);
     return true;
   };
 
-  // Required coverage: one per present (locale × type), when that cell exists.
   const coverageErrors = [];
-  for (const locale of presentLocales) {
-    for (const type of presentTypes) {
-      const cell = ranked.find(
-        (item) => item._locale === locale && item._type === type,
-      );
-      if (!cell) continue;
-      if (selected.size >= targetSampleCount) {
-        // Still try to keep coverage; if we cannot fit, record error below.
-        if (!selected.has(cell.targetKey || cell.audioId)) {
-          // Defer: will attempt replace/fill logic after.
-        }
+  const requiredCells = [];
+  for (const type of presentTypes) {
+    for (const locale of presentLocales) {
+      if (typed.some((item) => item._locale === locale && item._type === type)) {
+        requiredCells.push({ locale, type, key: `${locale}|${type}` });
       }
-      add(cell);
     }
   }
 
-  // If coverage exceeded targetSampleCount (e.g. forced tiny maxCount), trim
-  // cannot preserve coverage → coverage errors after trim.
-  if (selected.size > targetSampleCount) {
-    const keep = [...selected.values()]
-      .sort((a, b) => a._rank.localeCompare(b._rank))
-      .slice(0, targetSampleCount);
-    selected.clear();
-    for (const item of keep) add(item);
-  }
+  const useBandSpread =
+    options.bandSpread !== false &&
+    requiredCells.length > 0 &&
+    requiredCells.length === targetSampleCount &&
+    targetSampleCount === presentLocales.length * presentTypes.length;
 
-  // Fill remaining slots deterministically.
-  for (const item of ranked) {
-    if (selected.size >= targetSampleCount) break;
-    add(item);
+  const verseBandInfo = splitVerseBands(typed.map((item) => item._verse));
+  const bandOrder = ['front', 'middle', 'end'];
+
+  if (useBandSpread) {
+    // Assign cells in deterministic type×locale order to front/mid/end
+    // blocks of equal size (6+6+6 for EN9/JA9).
+    const blockSize = Math.floor(requiredCells.length / bandOrder.length);
+    for (let i = 0; i < requiredCells.length; i += 1) {
+      const cell = requiredCells[i];
+      const bandName =
+        bandOrder[Math.min(bandOrder.length - 1, Math.floor(i / blockSize))];
+      const preferredBand = verseBandInfo.bands[bandName] || [];
+      const picked = pickCandidateForCell(
+        typed,
+        cell.locale,
+        cell.type,
+        preferredBand,
+        seed,
+      );
+      if (!picked) {
+        coverageErrors.push(`missing_locale_type_sample:${cell.key}`);
+        continue;
+      }
+      // Record intended band even if fallback verse was used.
+      add(picked, bandName);
+    }
+  } else {
+    // Legacy coverage: one per present (locale × type), then fill by rank.
+    for (const locale of presentLocales) {
+      for (const type of presentTypes) {
+        const cell = ranked.find(
+          (item) => item._locale === locale && item._type === type,
+        );
+        if (!cell) continue;
+        add(cell);
+      }
+    }
+
+    if (selected.size > targetSampleCount) {
+      const keep = [...selected.values()]
+        .sort((a, b) => a._rank.localeCompare(b._rank))
+        .slice(0, targetSampleCount);
+      selected.clear();
+      for (const item of keep) add(item);
+    }
+
+    for (const item of ranked) {
+      if (selected.size >= targetSampleCount) break;
+      add(item);
+    }
   }
 
   let sample = [...selected.values()];
@@ -292,11 +406,24 @@ export function selectBatchReviewSample(candidates, options = {}) {
   const byLocale = {};
   const byType = {};
   const byLocaleType = {};
+  const byBand = { front: 0, middle: 0, end: 0 };
+  const byActualVerseBand = { front: 0, middle: 0, end: 0 };
+  const verseToBand = new Map();
+  for (const bandName of bandOrder) {
+    for (const verse of verseBandInfo.bands[bandName] || []) {
+      verseToBand.set(verse, bandName);
+    }
+  }
   for (const item of sample) {
     byLocale[item._locale] = (byLocale[item._locale] || 0) + 1;
     byType[item._type] = (byType[item._type] || 0) + 1;
     const lt = `${item._locale}|${item._type}`;
     byLocaleType[lt] = (byLocaleType[lt] || 0) + 1;
+    if (item._band && byBand[item._band] != null) {
+      byBand[item._band] += 1;
+    }
+    const actualBand = verseToBand.get(item._verse);
+    if (actualBand) byActualVerseBand[actualBand] += 1;
   }
 
   if (sample.length === 0) coverageErrors.push('sample_count_zero');
@@ -317,19 +444,10 @@ export function selectBatchReviewSample(candidates, options = {}) {
     }
   }
 
-  // Prefer one-per-(locale,type) when the pool and budget allow it.
-  const requiredCells = [];
-  for (const locale of presentLocales) {
-    for (const type of presentTypes) {
-      if (typed.some((item) => item._locale === locale && item._type === type)) {
-        requiredCells.push(`${locale}|${type}`);
-      }
-    }
-  }
   if (requiredCells.length <= targetSampleCount) {
     for (const cell of requiredCells) {
-      if (!byLocaleType[cell]) {
-        coverageErrors.push(`missing_locale_type_sample:${cell}`);
+      if (!byLocaleType[cell.key]) {
+        coverageErrors.push(`missing_locale_type_sample:${cell.key}`);
       }
     }
   }
@@ -349,12 +467,43 @@ export function selectBatchReviewSample(candidates, options = {}) {
     }
   }
 
+  if (useBandSpread) {
+    const expectedBase = Math.floor(requiredCells.length / bandOrder.length);
+    const expectedLast =
+      requiredCells.length - expectedBase * (bandOrder.length - 1);
+    for (const bandName of bandOrder) {
+      const expected = bandName === 'end' ? expectedLast : expectedBase;
+      if (byBand[bandName] !== expected) {
+        coverageErrors.push(
+          `band_balance_${bandName}:got=${byBand[bandName]}:want=${expected}`,
+        );
+      }
+      if (byActualVerseBand[bandName] !== expected) {
+        coverageErrors.push(
+          `verse_band_balance_${bandName}:got=${byActualVerseBand[bandName]}:want=${expected}`,
+        );
+      }
+    }
+  }
+
   return {
     sample: sample.map(stripInternal),
     sampleCount: sample.length,
     targetSampleCount,
     seed,
-    distribution: { byLocale, byType, byLocaleType },
+    verseBands: {
+      verses: verseBandInfo.verses,
+      front: verseBandInfo.front,
+      middle: verseBandInfo.middle,
+      end: verseBandInfo.end,
+    },
+    distribution: {
+      byLocale,
+      byType,
+      byLocaleType,
+      byBand,
+      byActualVerseBand,
+    },
     error: coverageErrors.length ? coverageErrors.join(',') : null,
     coverageErrors,
   };

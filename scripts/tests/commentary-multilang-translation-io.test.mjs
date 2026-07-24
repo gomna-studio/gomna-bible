@@ -11,6 +11,7 @@ import {
   buildTranslationJobs,
   countHangulChars,
   evaluateTranslationResultQa,
+  flattenCardText,
   formatJsonl,
   readJsonlFile,
   validateTranslationResults,
@@ -252,4 +253,72 @@ test('formatJsonl round-trips through readJsonlFile', () => {
   assert.equal(loaded.records.length, 2);
   assert.equal(loaded.parseErrors.length, 0);
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test('hangul residual ignores Korean field keys and checks values only', () => {
+  const plan = buildCommentaryMultilangRangeTargets({
+    bookId: 'genesis',
+    from: '1:11',
+    to: '1:11',
+    locales: 'ja-JP',
+    types: 'counseling',
+  });
+  const job = buildTranslationJobs(plan.targets).jobs[0];
+  const result = synthesizeResult(job);
+  // Ensure field keys remain Korean while values stay Japanese/Latin.
+  for (const card of result.translatedCards) {
+    assert.ok(
+      Object.keys(card.fields || {}).some((key) => countHangulChars(key) > 0),
+      'fixture must keep Korean field keys',
+    );
+    for (const value of Object.values(card.fields || {})) {
+      assert.equal(countHangulChars(String(value)), 0);
+    }
+  }
+  const flat = flattenCardText(result.translatedCards);
+  assert.equal(countHangulChars(flat), 0);
+  const qa = evaluateTranslationResultQa(job, result);
+  assert.equal(qa.ok, true);
+  assert.equal(qa.translationGrade, 'PASS');
+  assert.equal(qa.codes.includes('hangul_residual'), false);
+});
+
+test('evaluateTranslationResultQa quote checks match completeness module', () => {
+  const plan = buildCommentaryMultilangRangeTargets({
+    bookId: 'genesis',
+    from: '1:16',
+    to: '1:16',
+    locales: 'en-US',
+    types: 'counseling',
+  });
+  const job = buildTranslationJobs(plan.targets).jobs[0];
+  const ok = synthesizeResult(job, {
+    paragraphs: parseNarrationStructure(job.sourceNarrationText).map((lines, pIndex) =>
+      lines.map(
+        (_line, lineIndex) =>
+          pIndex === 0 && lineIndex === 0
+            ? "Genesis 1:16 counseling. The text is 'God made two great lights.' A practical application is to practice 'severance prayer'."
+            : `Translated en-US p${pIndex + 1}l${lineIndex + 1}.`,
+      ),
+    ),
+  });
+  const okQa = evaluateTranslationResultQa(job, ok);
+  assert.equal(okQa.codes.includes('unclosed_delimiter'), false);
+
+  const bad = synthesizeResult(job, {
+    paragraphs: parseNarrationStructure(job.sourceNarrationText).map((lines, pIndex) =>
+      lines.map(
+        (_line, lineIndex) =>
+          pIndex === 0 && lineIndex === 0
+            ? 'Broken quote: "unclosed double quote remains'
+            : `Translated en-US p${pIndex + 1}l${lineIndex + 1}.`,
+      ),
+    ),
+  });
+  const badQa = evaluateTranslationResultQa(job, bad);
+  assert.equal(badQa.ok, false);
+  assert.ok(
+    badQa.codes.includes('unclosed_delimiter') ||
+      (badQa.incompleteFindings || []).some((item) => item.code === 'unclosed_delimiter'),
+  );
 });

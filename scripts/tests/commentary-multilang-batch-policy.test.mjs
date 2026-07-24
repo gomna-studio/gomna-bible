@@ -7,6 +7,7 @@ import {
   computeBatchSampleCount,
   evaluateBatchApprovalEligibility,
   selectBatchReviewSample,
+  splitVerseBands,
 } from '../lib/commentary-multilang-batch-policy.mjs';
 import { listCommentaryTypes } from '../lib/commentary-type-registry.mjs';
 
@@ -87,12 +88,62 @@ test('sample is exactly 18 with EN9 JA9 and one of each type per locale', () => 
   );
   assert.equal(first.distribution.byLocale['en-US'], 9);
   assert.equal(first.distribution.byLocale['ja-JP'], 9);
+  assert.equal(first.distribution.byBand.front, 6);
+  assert.equal(first.distribution.byBand.middle, 6);
+  assert.equal(first.distribution.byBand.end, 6);
+  assert.equal(first.distribution.byActualVerseBand.front, 6);
+  assert.equal(first.distribution.byActualVerseBand.middle, 6);
+  assert.equal(first.distribution.byActualVerseBand.end, 6);
+  assert.deepEqual(first.verseBands.front, [11, 12, 13, 14, 15, 16, 17]);
+  assert.deepEqual(first.verseBands.middle, [18, 19, 20, 21, 22, 23, 24]);
+  assert.deepEqual(first.verseBands.end, [25, 26, 27, 28, 29, 30, 31]);
   for (const type of types) {
     assert.equal(first.distribution.byType[type], 2, type);
     assert.equal(first.distribution.byLocaleType[`en-US|${type}`], 1, type);
     assert.equal(first.distribution.byLocaleType[`ja-JP|${type}`], 1, type);
   }
   assert.equal(first.error, null);
+});
+
+test('PASS-368 style pool excludes sermon 1:11-1:15 and still spreads bands', () => {
+  const types = listCommentaryTypes().map((item) => item.type);
+  const candidates = [];
+  for (const verse of Array.from({ length: 21 }, (_, i) => 11 + i)) {
+    for (const type of types) {
+      for (const locale of ['en-US', 'ja-JP']) {
+        if (type === 'sermon' && verse >= 11 && verse <= 15) continue;
+        candidates.push({
+          targetKey: `genesis.1.${verse}.${type}.${locale}`,
+          structuralGrade: 'PASS',
+          status: 'translation-qa-passed',
+          chapter: 1,
+          verse,
+          type,
+          locale,
+        });
+      }
+    }
+  }
+  assert.equal(candidates.length, 368);
+  const selected = selectBatchReviewSample(candidates, {
+    seed: 'gomna-pass368-sample-v1',
+  });
+  assert.equal(selected.sampleCount, 18);
+  assert.equal(selected.error, null);
+  assert.equal(selected.distribution.byBand.front, 6);
+  assert.equal(selected.distribution.byBand.middle, 6);
+  assert.equal(selected.distribution.byBand.end, 6);
+  assert.equal(
+    selected.sample.filter((item) => /^genesis\.1\.(1[1-5])\.sermon\./.test(item.targetKey))
+      .length,
+    0,
+  );
+});
+
+test('splitVerseBands divides eligible verses without hard-coded numbers', () => {
+  const bands = splitVerseBands([31, 11, 21, 11, 25]);
+  assert.deepEqual(bands.verses, [11, 21, 25, 31]);
+  assert.equal(bands.front.length + bands.middle.length + bands.end.length, 4);
 });
 
 test('empty sample pool yields BATCH_BLOCKED', () => {

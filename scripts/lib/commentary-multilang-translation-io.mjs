@@ -374,9 +374,12 @@ export function readJsonlFile(filePath) {
   return { path: absolute, records, parseErrors, rawSha256: sha256Text(raw) };
 }
 
-function flattenCardText(cards) {
-  // Field *keys* may remain Korean (항목/내용/...) by product policy.
-  // Hangul residual checks apply to values and identities only.
+/**
+ * Flatten card identity + field *values* for hangul / HTML residual checks.
+ * Field *keys* may remain Korean (항목/내용/...) by product policy and must
+ * not contribute to hangul_residual.
+ */
+export function flattenCardText(cards) {
   const chunks = [];
   for (const card of cards || []) {
     chunks.push(String(card.identity || ''));
