@@ -537,12 +537,15 @@ export async function runBatchedTranslation(jobs, options = {}) {
   }
 
   let remainingBudget = maxApiCalls;
+  let remainingBatchSlots = runBatches.length;
 
   const batchOutcomes = await mapPool(
     runBatches,
     concurrency,
     async (batch) => {
-      if (remainingBudget <= 0) {
+      remainingBatchSlots = Math.max(0, remainingBatchSlots - 1);
+      const reservedForLater = remainingBatchSlots;
+      if (remainingBudget <= reservedForLater) {
         return {
           ok: false,
           batchId: batch.batchId,
@@ -555,9 +558,14 @@ export async function runBatchedTranslation(jobs, options = {}) {
       const request = buildBatchTranslationRequest(batch);
       let lastError = null;
       let split = null;
+      // Keep one call reserved for each later batch; retries only use spare budget.
+      const attemptsAllowed = Math.max(
+        1,
+        Math.min(maxAttempts, remainingBudget - reservedForLater),
+      );
 
-      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-        if (remainingBudget <= 0) {
+      for (let attempt = 1; attempt <= attemptsAllowed; attempt += 1) {
+        if (remainingBudget <= reservedForLater) {
           return {
             ok: false,
             batchId: batch.batchId,
@@ -599,7 +607,11 @@ export async function runBatchedTranslation(jobs, options = {}) {
           lastError = error.message;
           const retryable =
             error.retryable === true || error.statusCode === 429;
-          if (retryable && attempt < maxAttempts && remainingBudget > 0) {
+          if (
+            retryable &&
+            attempt < attemptsAllowed &&
+            remainingBudget > reservedForLater
+          ) {
             const delayMs = Math.min(8000, 250 * 2 ** (attempt - 1));
             await sleep(
               options.backoffMs != null ? options.backoffMs : delayMs,
@@ -623,7 +635,7 @@ export async function runBatchedTranslation(jobs, options = {}) {
         error: lastError || 'batch validation failed',
         errors: split?.errors || [],
         results: split?.results || [],
-        attempts: maxAttempts,
+        attempts: attemptsAllowed,
       };
     },
   );

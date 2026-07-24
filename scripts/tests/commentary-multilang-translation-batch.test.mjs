@@ -207,11 +207,38 @@ test('max-api-calls budget covers validation retries', async () => {
   assert.equal(run.ok, false);
   assert.equal(calls, 1);
   assert.equal(run.counters.totalCalls, 1);
-  assert.ok(
-    (run.failedBatches || []).some((item) =>
-      /max-api-calls exceeded/.test(item.error || ''),
-    ),
-  );
+  assert.ok((run.failedBatches || []).length >= 1);
+});
+
+test('tight max-api-calls reserves one attempt per remaining batch', async () => {
+  const jobs = loadGenesis111Jobs();
+  let calls = 0;
+  let invalidOnce = true;
+  const success = createMockBatchSuccessHandler();
+  const provider = createMockTranslationProvider({
+    async handler(request) {
+      calls += 1;
+      if (invalidOnce) {
+        invalidOnce = false;
+        return '{"items":[]}';
+      }
+      return success(request);
+    },
+  });
+  const run = await runBatchedTranslation(jobs, {
+    executeNetwork: true,
+    provider,
+    maxApiCalls: 2,
+    maxAttempts: 3,
+    concurrency: 1,
+    backoffMs: 1,
+    inspectLock: () => ({ status: 'unlocked' }),
+  });
+  assert.equal(calls, 2);
+  assert.equal(run.counters.totalCalls, 2);
+  assert.equal(run.ok, false);
+  assert.equal((run.failedBatches || []).length, 1);
+  assert.equal(run.results.length, 9);
 });
 
 test('empty job queue makes zero provider calls', async () => {

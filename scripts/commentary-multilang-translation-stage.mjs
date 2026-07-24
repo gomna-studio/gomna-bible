@@ -521,6 +521,11 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
         batchCount: run.batchCount,
         resultCount: (run.results || []).length,
         failedBatches: (run.failedBatches || []).length,
+        failedBatchDetails: (run.failedBatches || []).map((item) => ({
+          batchId: item.batchId,
+          error: item.error,
+          attempts: item.attempts,
+        })),
         skippedApprovedCount: run.skippedApprovedCount,
         blockedReason: run.blockedReason || null,
         counters: run.counters,
@@ -528,20 +533,21 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
       report.externalApiCalls = run.counters?.totalCalls || 0;
 
       if (args.executeNetwork) {
-        if (!run.ok) {
-          throw new Error(
-            run.blockedReason ||
-              `translate-run failed batches=${(run.failedBatches || []).length}`,
+        // Always persist successful batch results under /tmp before failing the run.
+        if ((run.results || []).length) {
+          const written = writeJsonlFile(args.results, run.results, {
+            requireTmp: true,
+          });
+          console.log(
+            `  wrote results=${run.results.length} apiCalls=${run.counters.totalCalls} failedBatches=${(run.failedBatches || []).length} ${written.path}`,
+          );
+        } else {
+          console.log(
+            `  no successful results; apiCalls=${run.counters?.totalCalls || 0} failedBatches=${(run.failedBatches || []).length}`,
           );
         }
-        const written = writeJsonlFile(args.results, run.results, {
-          requireTmp: true,
-        });
-        console.log(
-          `  wrote results=${run.results.length} apiCalls=${run.counters.totalCalls} ${written.path}`,
-        );
         if (checkpoint) {
-          for (const result of run.results) {
+          for (const result of run.results || []) {
             const job = jobs.find((row) => row.targetId === result.targetId);
             if (!job) continue;
             upsertCheckpointItem(
@@ -585,6 +591,21 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
               );
             }
           }
+          if (args.checkpoint) {
+            saveCheckpoint(args.checkpoint, checkpoint);
+          }
+        }
+        if (!run.ok) {
+          const detail = (run.failedBatches || [])
+            .slice(0, 5)
+            .map((item) => `${item.batchId}:${item.error}`)
+            .join(' | ');
+          throw new Error(
+            run.blockedReason ||
+              `translate-run failed batches=${(run.failedBatches || []).length}${
+                detail ? ` :: ${detail}` : ''
+              }`,
+          );
         }
       } else {
         console.log(
