@@ -2572,6 +2572,40 @@
     });
   }
 
+  function ensureShardForCurrentCommentaryContext() {
+    var config = window.GOMNA_AUDIO_CONFIG;
+    var lang = getSelectedAppLanguageForAudio() || 'ko';
+    var locale;
+    var bookId;
+    var ensure;
+
+    if (lang === 'ko') {
+      return Promise.resolve({ ok: true, skipped: true, reason: 'korean' });
+    }
+
+    locale = lang === 'ja' ? 'ja-JP' : 'en-US';
+    bookId =
+      (currentContext && currentContext.bookId) ||
+      (getCommentaryContext() && getCommentaryContext().bookId) ||
+      null;
+
+    ensure =
+      config && typeof config.ensureBookManifestShard === 'function'
+        ? config.ensureBookManifestShard
+        : window.GOMNA_AUDIO_MANIFEST_SHARDS &&
+          window.GOMNA_AUDIO_MANIFEST_SHARDS.ensureBookManifestShard;
+
+    if (typeof ensure !== 'function' || !bookId) {
+      return Promise.resolve({
+        ok: false,
+        skipped: true,
+        reason: !bookId ? 'bookId_missing' : 'ensure_unavailable'
+      });
+    }
+
+    return ensure(locale, bookId);
+  }
+
   function stopCommentaryIfLanguageMismatch(nextLang) {
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
@@ -2641,34 +2675,46 @@
       previousIds.push(currentCommentaryItems[i].audioId);
     }
 
-    refreshPublishedFlags();
+    ensureShardForCurrentCommentaryContext().then(function() {
+      refreshPublishedFlags();
 
-    for (i = 0; i < currentCommentaryItems.length; i++) {
-      item = currentCommentaryItems[i];
-      previousId = previousIds[i];
-      button =
-        findCommentaryButtonByAudioId(previousId) ||
-        findCommentaryButtonByAudioId(item.audioId);
-      replayButton =
-        findReplayButtonByAudioId(previousId) ||
-        findReplayButtonByAudioId(item.audioId);
+      for (i = 0; i < currentCommentaryItems.length; i++) {
+        item = currentCommentaryItems[i];
+        previousId = previousIds[i];
+        button =
+          findCommentaryButtonByAudioId(previousId) ||
+          findCommentaryButtonByAudioId(item.audioId);
+        replayButton =
+          findReplayButtonByAudioId(previousId) ||
+          findReplayButtonByAudioId(item.audioId);
 
-      if (button) updateSingleCommentaryButton(button, item);
-      if (replayButton) updateReplayButton(replayButton, item);
+        if (button) updateSingleCommentaryButton(button, item);
+        if (replayButton) updateReplayButton(replayButton, item);
 
-      section = document.getElementById(item.tabId);
-      if (section) {
-        section.setAttribute('data-audio-target', item.audioId);
+        section = document.getElementById(item.tabId);
+        if (section) {
+          section.setAttribute('data-audio-target', item.audioId);
+        }
       }
-    }
 
-    content = getContent();
-    updateCommentaryButtonLabels();
-    if (content) {
-      syncInlineControls(content);
-      syncCommentaryFooterControls(content);
-    }
-    clearInactiveCommentaryHighlights();
+      content = getContent();
+      updateCommentaryButtonLabels();
+      if (content) {
+        syncInlineControls(content);
+        syncCommentaryFooterControls(content);
+      }
+      clearInactiveCommentaryHighlights();
+    }).catch(function() {
+      // Soft-fail: keep using base single-manifest entries.
+      refreshPublishedFlags();
+      content = getContent();
+      updateCommentaryButtonLabels();
+      if (content) {
+        syncInlineControls(content);
+        syncCommentaryFooterControls(content);
+      }
+      clearInactiveCommentaryHighlights();
+    });
   }
 
   function addCommentaryButtons() {
@@ -2687,23 +2733,37 @@
     updateCommentaryHeaderCopy();
     getControlsFooter();
     ensureInlineControls();
-    refreshPublishedFlags();
 
-    for (var i = 0; i < currentCommentaryItems.length; i++) {
-      insertButtonForItem(content, currentCommentaryItems[i]);
-    }
+    ensureShardForCurrentCommentaryContext().then(function() {
+      if (!isCommentaryTabsPopup(getPopup())) return;
 
-    enhanceManualCueTargets(content);
-    removeLegacySequenceControls(content);
-    bindAllTabsAudio(content);
-    bindCommentaryButtonReplayHandler();
-    bindCommentaryTabQueueNavigation(content);
-    updateCommentaryButtonLabels();
-    syncCommentaryFooterControls(content);
-    syncInlineControls(content);
-    if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.apply === 'function') {
-      window.GomnaCommentaryI18n.apply(popup);
-    }
+      refreshPublishedFlags();
+
+      for (var i = 0; i < currentCommentaryItems.length; i++) {
+        insertButtonForItem(content, currentCommentaryItems[i]);
+      }
+
+      enhanceManualCueTargets(content);
+      removeLegacySequenceControls(content);
+      bindAllTabsAudio(content);
+      bindCommentaryButtonReplayHandler();
+      bindCommentaryTabQueueNavigation(content);
+      updateCommentaryButtonLabels();
+      syncCommentaryFooterControls(content);
+      syncInlineControls(content);
+      if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.apply === 'function') {
+        window.GomnaCommentaryI18n.apply(popup);
+      }
+    }).catch(function() {
+      // Shard fallback already soft-fails; still render with base manifest.
+      refreshPublishedFlags();
+      for (var j = 0; j < currentCommentaryItems.length; j++) {
+        insertButtonForItem(content, currentCommentaryItems[j]);
+      }
+      updateCommentaryButtonLabels();
+      syncCommentaryFooterControls(content);
+      syncInlineControls(content);
+    });
   }
 
   function scheduleAddCommentaryButtons() {

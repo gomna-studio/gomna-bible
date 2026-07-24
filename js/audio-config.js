@@ -34,6 +34,7 @@
     AUDIO_REMOTE_BASE_URL: '',
     AUDIO_VERSION: 'v1',
     MANIFEST_PATH: '/audio/audio-manifest.json',
+    MANIFEST_SHARD_ROOT: '/audio/manifests',
     buildAudioUrl: buildAudioUrl,
 
     TTS_DEFAULTS: {
