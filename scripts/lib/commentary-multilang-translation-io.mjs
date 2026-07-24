@@ -25,6 +25,10 @@ import {
   detectIncompleteTranslationOutput,
   repairJapaneseNarrationQuotes,
 } from './commentary-multilang-translation-completeness.mjs';
+import {
+  applySampleBlockerFindingsToQa,
+  detectSampleBlockerFindings,
+} from './commentary-multilang-sample-qa.mjs';
 
 const HARD_INTEGRITY_CODES = new Set([
   'result_missing',
@@ -713,9 +717,8 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
     translationGrade = 'FAIL';
   }
 
-  const ok = translationGrade === 'PASS';
-  return {
-    ok,
+  const baseQa = {
+    ok: translationGrade === 'PASS',
     integrityOk,
     targetId: job.targetId,
     locale: job.locale,
@@ -735,6 +738,18 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
     narrationText,
     cards,
   };
+
+  // Strict sample/blocker detectors are opt-in so existing PASS corpora are not
+  // mass-reclassified until those targets are repaired.
+  if (options.strictSampleQa) {
+    const sampleFindings = detectSampleBlockerFindings(
+      job,
+      { ...result, translatedCards: cards, narrationText },
+      options,
+    );
+    return applySampleBlockerFindingsToQa(baseQa, sampleFindings);
+  }
+  return baseQa;
 }
 
 export function summarizeTranslationJobs(jobs) {
