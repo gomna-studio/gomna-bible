@@ -518,8 +518,14 @@ export function validateTranslationResults(jobs, resultRecords, options = {}) {
 export function evaluateTranslationResultQa(job, result, options = {}) {
   const reasons = [];
   const codes = [];
+  // JA pre-approval: zero Hangul residual tolerance (Hebrew/Greek remain allowed).
+  const defaultHangulThreshold = String(job?.locale || '').startsWith('ja')
+    ? 0
+    : 0.08;
   const hangulThreshold =
-    options.hangulRatioThreshold == null ? 0.08 : options.hangulRatioThreshold;
+    options.hangulRatioThreshold == null
+      ? defaultHangulThreshold
+      : options.hangulRatioThreshold;
 
   if (!result || typeof result !== 'object') {
     return {

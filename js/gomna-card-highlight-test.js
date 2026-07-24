@@ -1059,7 +1059,16 @@
       return loadWeightSegments(audioId, config, rows);
     }
 
-    return fetch(cuePath)
+    var cueUrl = cuePath;
+    var assetVersion = '';
+    try {
+      assetVersion = String(window.GOMNA_ASSET_VERSION || '').trim();
+    } catch (e) {}
+    if (assetVersion) {
+      cueUrl += (cueUrl.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(assetVersion);
+    }
+
+    return fetch(cueUrl, { cache: 'no-cache' })
       .then(function (response) {
         if (!response.ok) throw new Error('cue fetch failed');
         return response.json();
