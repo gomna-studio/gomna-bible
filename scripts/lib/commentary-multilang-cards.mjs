@@ -12,6 +12,9 @@ import {
   assertStagingPath,
   evaluateTranslationResultQa,
 } from './commentary-multilang-translation-io.mjs';
+import {
+  normalizeCommentaryTableRows,
+} from './commentary-card-field-schema.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -41,7 +44,9 @@ function resolveTranslatedCards(result) {
   return [];
 }
 
-export function buildCardRowsFromTranslatedCards(translatedCards) {
+export function buildCardRowsFromTranslatedCards(translatedCards, options = {}) {
+  const tableKey = options.tableKey || null;
+  const locale = options.locale || null;
   return (translatedCards || []).map((card, index) => {
     const fields = { ...(card.fields || {}) };
     return {
@@ -54,6 +59,9 @@ export function buildCardRowsFromTranslatedCards(translatedCards) {
     delete clone.__itemIndex;
     delete clone.__identity;
     return clone;
+  }).map((row) => {
+    if (!tableKey || !locale) return row;
+    return normalizeCommentaryTableRows(tableKey, locale, [row])[0];
   });
 }
 
@@ -67,7 +75,10 @@ export function buildStagedVerseEntry({
   const type = job.type;
   const tableKey = job.tableKey || getCommentaryType(type).tableKey;
   const cards = resolveTranslatedCards(result);
-  const rows = buildCardRowsFromTranslatedCards(cards);
+  const rows = buildCardRowsFromTranslatedCards(cards, {
+    tableKey,
+    locale,
+  });
   const verseKey =
     job.verseKey ||
     `${bookDisplayName(job.bookId)}_${job.chapter}_${job.verse}`;
