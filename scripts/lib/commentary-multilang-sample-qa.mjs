@@ -41,6 +41,42 @@ export function textSimilarityRatio(a, b) {
 }
 
 /**
+ * Detect unexpected non-English scripts in EN locale output.
+ * Hebrew and Greek (biblical original-language terms) are allowed.
+ * Hangul / Hiragana / Katakana / Han must not appear in EN narration or values.
+ */
+export function detectEnglishUnexpectedScripts(text) {
+  const value = String(text || '');
+  if (!value.trim()) return [];
+  const findings = [];
+  const patterns = [
+    { code: 'en_hangul_script', re: /\p{Script=Hangul}/u, label: 'Hangul' },
+    {
+      code: 'en_hiragana_script',
+      re: /\p{Script=Hiragana}/u,
+      label: 'Hiragana',
+    },
+    {
+      code: 'en_katakana_script',
+      re: /\p{Script=Katakana}/u,
+      label: 'Katakana',
+    },
+    { code: 'en_han_script', re: /\p{Script=Han}/u, label: 'Han/Kanji' },
+  ];
+  for (const pattern of patterns) {
+    if (pattern.re.test(value)) {
+      findings.push({
+        severity: 'FAIL',
+        code: pattern.code,
+        message: `English output contains unexpected ${pattern.label} characters`,
+        sample: value.slice(0, 80),
+      });
+    }
+  }
+  return findings;
+}
+
+/**
  * Detect Hangul characters mixed into a value that also contains Japanese
  * script (Hiragana / Katakana / Kanji), e.g. 新약.
  * Pure Hangul residuals are handled separately by hangul_residual ratio checks.
@@ -190,6 +226,28 @@ export function detectSampleBlockerFindings(job, result, options = {}) {
       ? result.cards
       : [];
   const findings = [];
+
+  if (String(locale || '').startsWith('en')) {
+    for (const card of cards) {
+      for (const [key, value] of Object.entries(card.fields || {})) {
+        for (const finding of detectEnglishUnexpectedScripts(String(value || ''))) {
+          findings.push({
+            ...finding,
+            where: `card.${key}`,
+          });
+        }
+      }
+    }
+    const narration = String(
+      result?.narrationText ||
+        (Array.isArray(result?.translatedNarrationParagraphs)
+          ? result.translatedNarrationParagraphs.flat().join('\n')
+          : ''),
+    );
+    for (const finding of detectEnglishUnexpectedScripts(narration)) {
+      findings.push({ ...finding, where: 'narration' });
+    }
+  }
 
   if (String(locale || '').startsWith('ja')) {
     for (const card of cards) {

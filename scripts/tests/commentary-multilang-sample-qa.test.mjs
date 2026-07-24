@@ -8,6 +8,7 @@ import {
   TESTAMENT_GLOSSARY,
 } from '../lib/commentary-multilang-glossary.mjs';
 import {
+  detectEnglishUnexpectedScripts,
   detectJapaneseHangulMix,
   detectMatthewHenryExplanationIssues,
   detectUnverifiedHymnTitles,
@@ -88,7 +89,7 @@ test('hymn English titles resolve from verified glossary only', () => {
   );
   assert.equal(
     resolveHymnEnglishTitle({ koreanTitle: '꽃들도' }).title,
-    'Flowers',
+    'Flowers (original title: Hana mo)',
   );
   assert.equal(
     resolveHymnEnglishTitle({ koreanTitle: '존재하지 않는 찬송' }).ok,
@@ -101,6 +102,21 @@ test('hymn English titles resolve from verified glossary only', () => {
     { sourceCards: [{ fields: { 제목: '꽃들도', 새찬송가: '496장' } }] },
   );
   assert.ok(bad.some((item) => item.code === 'hymn_title_mismatch'));
+});
+
+test('English unexpected scripts FAIL except Hebrew and Greek', () => {
+  assert.equal(detectEnglishUnexpectedScripts('Flowers (original title: Hana mo)').length, 0);
+  assert.equal(detectEnglishUnexpectedScripts('וַֽיְהִי־עֶ֥רֶב there was evening').length, 0);
+  assert.ok(
+    detectEnglishUnexpectedScripts('Flowers (原題 花も)').some(
+      (item) => item.code === 'en_han_script',
+    ),
+  );
+  assert.ok(
+    detectEnglishUnexpectedScripts('Praise 찬양').some(
+      (item) => item.code === 'en_hangul_script',
+    ),
+  );
 });
 
 test('evaluateTranslationResultQa flags 新약 and MH duplicates', () => {

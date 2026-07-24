@@ -32,8 +32,8 @@ export const HYMN_TITLE_EN_BY_KO = Object.freeze({
   '기쁘다 구주 오셨네': 'Joy to the World',
   '찬양하라 복되신 구세주 예수': 'Praise Him! Praise Him!',
   '강물같이 흐르는 기쁨': "I've Got Peace Like a River",
-  // Japanese-origin worship song 花も (Hana Mo); bilingual releases use "Flowers".
-  꽃들도: 'Flowers',
+  // Japanese-origin worship song 花も (Hana Mo); EN output uses Latin romanization only.
+  꽃들도: 'Flowers (original title: Hana mo)',
 });
 
 /**
