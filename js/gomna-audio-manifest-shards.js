@@ -276,6 +276,13 @@
 
     try {
       url = buildBookManifestShardPath(locale, bookId);
+      var assetVersion = '';
+      try {
+        assetVersion = String(window.GOMNA_ASSET_VERSION || '').trim();
+      } catch (eVer) { /* ignore */ }
+      if (assetVersion) {
+        url += (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(assetVersion);
+      }
     } catch (pathError) {
       return Promise.resolve({
         ok: false,

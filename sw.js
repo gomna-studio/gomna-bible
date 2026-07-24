@@ -4,7 +4,7 @@
 //   - STATIC: HTML/JS/CSS/매니페스트/기본 아이콘 — 코드 변경 시 버전 bump
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 
-const CACHE_VERSION = '2026-07-23-scroll-ko-parity-v7';
+const CACHE_VERSION = '2026-07-24-commentary-cards-v1';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE   = 'gomna-data-v1';
@@ -81,6 +81,15 @@ function isSameOrigin(url) {
 
 function isFreshAppAsset(req, url) {
   if (!isSameOrigin(url)) return false;
+
+  // Locale commentary cards + book manifest shards change as ranges publish;
+  // never serve them cache-first or readers keep pre-publish 1:1-1:10 JSON.
+  if (
+    /^\/data\/commentary-cards\//i.test(url.pathname) ||
+    /^\/audio\/manifests\//i.test(url.pathname)
+  ) {
+    return true;
+  }
 
   return req.destination === 'script'
     || req.destination === 'style'
