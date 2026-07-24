@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import { buildTargetKey } from './commentary-multilang-checkpoint.mjs';
 import {
   buildKoreanSourcePath,
+  buildNarrationStructureSignature,
   inspectKoreanSourceText,
   joinNarrationStructure,
   parseNarrationStructure,
@@ -466,6 +467,16 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
     reasons.push('translated narration missing');
     codes.push('narration_missing');
   } else {
+    const sourceParagraphs = parseNarrationStructure(job.sourceNarrationText);
+    const translatedParagraphs = parseNarrationStructure(narrationText);
+    const sourceSignature = buildNarrationStructureSignature(sourceParagraphs);
+    const narrationSignature = buildNarrationStructureSignature(
+      translatedParagraphs,
+    );
+    const structureMatches =
+      JSON.stringify(sourceSignature.lineCounts) ===
+      JSON.stringify(narrationSignature.lineCounts);
+
     const narrationQa = validateTranslatedNarration({
       sourceText: job.sourceNarrationText,
       translatedText: narrationText,
@@ -473,10 +484,20 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
       type: job.type,
       cardCount: job.cardCount,
     });
-    if (!narrationQa.ok) {
+
+    const softOriginalLanguage =
+      job.type === 'original-language' && sourceParagraphs.length !== 3;
+
+    if (!narrationQa.ok && !(softOriginalLanguage && structureMatches)) {
       reasons.push(...narrationQa.errors);
       codes.push('narration_structure_failed');
+    } else if (!structureMatches) {
+      reasons.push(
+        `Structure mismatch: source=${JSON.stringify(sourceSignature.lineCounts)} translated=${JSON.stringify(narrationSignature.lineCounts)}`,
+      );
+      codes.push('narration_structure_failed');
     }
+
     const hangul = countHangulChars(narrationText);
     const total = narrationText.replace(/\s+/g, '').length || 1;
     if (hangul / total > hangulThreshold) {

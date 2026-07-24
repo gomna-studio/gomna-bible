@@ -86,7 +86,9 @@ function printUsage() {
     '',
     'Notes:',
     '  Structural QA PASS != translation quality pass.',
-    '  Translation / TTS / upload / manifest / publish are blocked in phase-1.',
+    '  Phase-1 blocks translate/tts/upload/manifest/publish.',
+    '  Batched translate-run lives in scripts/commentary-multilang-translation-stage.mjs',
+    '  (requires --execute-network; default is preflight estimate only).',
   ].join('\n');
 }
 

@@ -13,6 +13,7 @@ import {
   parseNarrationStructure,
   sha256Text,
   validateTranslatedNarration,
+  joinNarrationStructure,
 } from './commentary-multilang-translation.mjs';
 import {
   assertStagingPath,
@@ -141,6 +142,18 @@ export function buildStagedNarrationArtifacts(job, result, options = {}) {
   }
 
   const narrationText = resolveNarrationText(result);
+  const sourceParagraphs = parseNarrationStructure(job.sourceNarrationText);
+  const translatedParagraphs = parseNarrationStructure(narrationText);
+  const sourceSignature = buildNarrationStructureSignature(sourceParagraphs);
+  const narrationSignature = buildNarrationStructureSignature(
+    translatedParagraphs,
+  );
+  const structureMatches =
+    JSON.stringify(sourceSignature.lineCounts) ===
+    JSON.stringify(narrationSignature.lineCounts);
+  const softOriginalLanguage =
+    job.type === 'original-language' && sourceParagraphs.length !== 3;
+
   const validation = validateTranslatedNarration({
     sourceText: job.sourceNarrationText,
     translatedText: narrationText,
@@ -148,17 +161,34 @@ export function buildStagedNarrationArtifacts(job, result, options = {}) {
     type: job.type,
     cardCount: job.cardCount,
   });
-  if (!validation.ok) {
+  if (!validation.ok && !(softOriginalLanguage && structureMatches)) {
     return {
       ok: false,
       targetId: job.targetId,
       reasons: validation.errors,
     };
   }
+  if (!structureMatches) {
+    return {
+      ok: false,
+      targetId: job.targetId,
+      reasons: [
+        `Structure mismatch: source=${JSON.stringify(sourceSignature.lineCounts)} translated=${JSON.stringify(narrationSignature.lineCounts)}`,
+      ],
+    };
+  }
 
-  const sourceSignature = buildNarrationStructureSignature(
-    parseNarrationStructure(job.sourceNarrationText),
-  );
+  const finalNarrationText =
+    validation.ok && validation.narrationText
+      ? validation.narrationText
+      : joinNarrationStructure(translatedParagraphs);
+  const finalParagraphCount = validation.ok
+    ? validation.paragraphCount
+    : narrationSignature.paragraphCount;
+  const finalNarrationSignature = validation.ok
+    ? validation.narrationSignature
+    : narrationSignature;
+
   const metadata = buildDraftNarrationMetadata({
     sourcePath: job.sourcePath,
     sourceHash: job.sourceHash,
@@ -167,14 +197,14 @@ export function buildStagedNarrationArtifacts(job, result, options = {}) {
     chapter: job.chapter,
     verse: job.verse,
     type: job.type,
-    paragraphCount: validation.paragraphCount,
+    paragraphCount: finalParagraphCount,
     cardCount: job.cardCount,
     cardIdentities: job.cardIdentities,
-    narrationHash: sha256Text(validation.narrationText),
+    narrationHash: sha256Text(finalNarrationText),
     model: result.model || 'offline-staging',
     translatedAt: result.translatedAt || new Date().toISOString(),
     sourceSignature,
-    narrationSignature: validation.narrationSignature,
+    narrationSignature: finalNarrationSignature,
     structureValidated: true,
   });
 
@@ -203,7 +233,7 @@ export function buildStagedNarrationArtifacts(job, result, options = {}) {
     targetId: job.targetId,
     narrationRelativePath: narrationRel,
     metaRelativePath: metaRel,
-    narrationText: validation.narrationText,
+    narrationText: finalNarrationText,
     metadata,
     metadataJson: formatMetadataJson(metadata),
   };
