@@ -555,10 +555,19 @@ export async function runBatchedTranslation(jobs, options = {}) {
       const request = buildBatchTranslationRequest(batch);
       let lastError = null;
       let split = null;
-      remainingBudget -= 1;
 
       for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        if (remainingBudget <= 0) {
+          return {
+            ok: false,
+            batchId: batch.batchId,
+            error: `max-api-calls exceeded during retries for ${batch.batchId}`,
+            results: split?.results || [],
+            attempts: attempt - 1,
+          };
+        }
         if (attempt > 1) counters.retriedCalls += 1;
+        remainingBudget -= 1;
         try {
           const completion = await provider.complete({
             systemPrompt: request.systemPrompt,
@@ -590,7 +599,7 @@ export async function runBatchedTranslation(jobs, options = {}) {
           lastError = error.message;
           const retryable =
             error.retryable === true || error.statusCode === 429;
-          if (retryable && attempt < maxAttempts) {
+          if (retryable && attempt < maxAttempts && remainingBudget > 0) {
             const delayMs = Math.min(8000, 250 * 2 ** (attempt - 1));
             await sleep(
               options.backoffMs != null ? options.backoffMs : delayMs,

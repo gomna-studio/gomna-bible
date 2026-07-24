@@ -386,6 +386,18 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
       console.log(`  wrote ${written.path}`);
       if (checkpoint) {
         for (const job of jobs) {
+          const existing =
+            checkpoint.items?.[
+              `${job.bookId}.${job.chapter}.${job.verse}.${job.type}.${job.locale}`
+            ];
+          const keepComplete =
+            args.resume &&
+            existing &&
+            existing.resumeComplete === true &&
+            existing.sourceHash === job.sourceHash &&
+            (existing.status === 'translation-batch-ok' ||
+              existing.status === 'translation-qa-passed');
+          if (keepComplete) continue;
           upsertCheckpointItem(
             checkpoint,
             {
@@ -445,79 +457,90 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
       `  targets=${estimate.targetCount} eligible=${estimate.eligibleTargetCount} estimatedApiCalls=${estimate.estimatedApiCalls}`,
     );
 
-    let provider = runtime.provider || args.provider || null;
-    if (args.executeNetwork && !provider) {
-      const apiKey = resolveOpenAiApiKey();
-      if (!apiKey) {
-        throw new Error(
-          'OPENAI_API_KEY is missing (required for --execute-network)',
-        );
+    // Resume with nothing left to process: reuse prior results, zero network.
+    if (args.executeNetwork && args.resume && jobsForRun.length === 0) {
+      let reused = [];
+      if (fs.existsSync(args.results)) {
+        reused = readJsonlFile(args.results).records.map((item) => item.value);
+      } else {
+        writeJsonlFile(args.results, reused, { requireTmp: true });
       }
-      provider = createOpenAiTranslationProvider({ apiKey });
-    }
-
-    const run = await runBatchedTranslation(jobsForRun, {
-      executeNetwork: args.executeNetwork,
-      provider,
-      concurrency: args.concurrency,
-      maxApiCalls: args.maxApiCalls,
-      maxAttempts: args.maxAttempts,
-      backoffMs: runtime.backoffMs,
-    });
-
-    report.translateRun = {
-      executeNetwork: !!args.executeNetwork,
-      ok: run.ok,
-      preflight: !!run.preflight,
-      estimatedApiCalls: run.estimatedApiCalls,
-      batchCount: run.batchCount,
-      resultCount: (run.results || []).length,
-      failedBatches: (run.failedBatches || []).length,
-      skippedApprovedCount: run.skippedApprovedCount,
-      blockedReason: run.blockedReason || null,
-      counters: run.counters,
-    };
-    report.externalApiCalls = run.counters?.totalCalls || 0;
-
-    if (args.executeNetwork) {
-      if (!run.ok) {
-        throw new Error(
-          run.blockedReason ||
-            `translate-run failed batches=${(run.failedBatches || []).length}`,
-        );
-      }
-      const written = writeJsonlFile(args.results, run.results, {
-        requireTmp: true,
-      });
+      report.translateRun = {
+        executeNetwork: true,
+        ok: true,
+        preflight: false,
+        estimatedApiCalls: 0,
+        batchCount: 0,
+        resultCount: reused.length,
+        failedBatches: 0,
+        skippedApprovedCount: 0,
+        blockedReason: null,
+        counters: {
+          plannedCalls: 0,
+          attemptedCalls: 0,
+          successfulCalls: 0,
+          failedCalls: 0,
+          retriedCalls: 0,
+          totalCalls: 0,
+          validationFailedCalls: 0,
+        },
+        resumedWithoutNetwork: true,
+      };
+      report.externalApiCalls = 0;
       console.log(
-        `  wrote results=${run.results.length} apiCalls=${run.counters.totalCalls} ${written.path}`,
+        `  resumed ${reused.length} results without network (apiCalls=0)`,
       );
-      if (checkpoint) {
-        for (const result of run.results) {
-          const job = jobs.find((row) => row.targetId === result.targetId);
-          if (!job) continue;
-          upsertCheckpointItem(
-            checkpoint,
-            {
-              bookId: job.bookId,
-              chapter: job.chapter,
-              verse: job.verse,
-              type: job.type,
-              locale: job.locale,
-              audioId: job.audioId,
-            },
-            {
-              status: 'translation-batch-ok',
-              sourceHash: job.sourceHash,
-              resumeComplete: true,
-            },
+    } else {
+      let provider = runtime.provider || args.provider || null;
+      if (args.executeNetwork && !provider) {
+        const apiKey = resolveOpenAiApiKey();
+        if (!apiKey) {
+          throw new Error(
+            'OPENAI_API_KEY is missing (required for --execute-network)',
           );
         }
-        for (const failed of run.failedBatches || []) {
-          for (const targetId of jobs
-            .filter((job) => buildBatchId(job) === failed.batchId)
-            .map((job) => job.targetId)) {
-            const job = jobs.find((row) => row.targetId === targetId);
+        provider = createOpenAiTranslationProvider({ apiKey });
+      }
+
+      const run = await runBatchedTranslation(jobsForRun, {
+        executeNetwork: args.executeNetwork,
+        provider,
+        concurrency: args.concurrency,
+        maxApiCalls: args.maxApiCalls,
+        maxAttempts: args.maxAttempts,
+        backoffMs: runtime.backoffMs,
+      });
+
+      report.translateRun = {
+        executeNetwork: !!args.executeNetwork,
+        ok: run.ok,
+        preflight: !!run.preflight,
+        estimatedApiCalls: run.estimatedApiCalls,
+        batchCount: run.batchCount,
+        resultCount: (run.results || []).length,
+        failedBatches: (run.failedBatches || []).length,
+        skippedApprovedCount: run.skippedApprovedCount,
+        blockedReason: run.blockedReason || null,
+        counters: run.counters,
+      };
+      report.externalApiCalls = run.counters?.totalCalls || 0;
+
+      if (args.executeNetwork) {
+        if (!run.ok) {
+          throw new Error(
+            run.blockedReason ||
+              `translate-run failed batches=${(run.failedBatches || []).length}`,
+          );
+        }
+        const written = writeJsonlFile(args.results, run.results, {
+          requireTmp: true,
+        });
+        console.log(
+          `  wrote results=${run.results.length} apiCalls=${run.counters.totalCalls} ${written.path}`,
+        );
+        if (checkpoint) {
+          for (const result of run.results) {
+            const job = jobs.find((row) => row.targetId === result.targetId);
             if (!job) continue;
             upsertCheckpointItem(
               checkpoint,
@@ -527,21 +550,45 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
                 verse: job.verse,
                 type: job.type,
                 locale: job.locale,
+                audioId: job.audioId,
               },
               {
-                status: 'translation-batch-failed',
+                status: 'translation-batch-ok',
                 sourceHash: job.sourceHash,
-                resumeComplete: false,
-                reasons: [failed.error || 'batch_failed'],
+                resumeComplete: true,
               },
             );
           }
+          for (const failed of run.failedBatches || []) {
+            for (const targetId of jobs
+              .filter((job) => buildBatchId(job) === failed.batchId)
+              .map((job) => job.targetId)) {
+              const job = jobs.find((row) => row.targetId === targetId);
+              if (!job) continue;
+              upsertCheckpointItem(
+                checkpoint,
+                {
+                  bookId: job.bookId,
+                  chapter: job.chapter,
+                  verse: job.verse,
+                  type: job.type,
+                  locale: job.locale,
+                },
+                {
+                  status: 'translation-batch-failed',
+                  sourceHash: job.sourceHash,
+                  resumeComplete: false,
+                  reasons: [failed.error || 'batch_failed'],
+                },
+              );
+            }
+          }
         }
+      } else {
+        console.log(
+          `  preflight only; pass --execute-network to run (maxApiCalls=${args.maxApiCalls})`,
+        );
       }
-    } else {
-      console.log(
-        `  preflight only; pass --execute-network to run (maxApiCalls=${args.maxApiCalls})`,
-      );
     }
   }
 

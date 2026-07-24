@@ -184,6 +184,56 @@ test('max-api-calls blocks oversized plans', async () => {
   assert.equal(run.counters.totalCalls, 0);
 });
 
+test('max-api-calls budget covers validation retries', async () => {
+  const jobs = loadGenesis111Jobs().filter((job) => job.locale === 'en-US');
+  let calls = 0;
+  const success = createMockBatchSuccessHandler();
+  const provider = createMockTranslationProvider({
+    async handler(request) {
+      calls += 1;
+      if (calls === 1) return '{"items":[]}';
+      return success(request);
+    },
+  });
+  const run = await runBatchedTranslation(jobs, {
+    executeNetwork: true,
+    provider,
+    maxApiCalls: 1,
+    maxAttempts: 3,
+    concurrency: 1,
+    backoffMs: 1,
+    inspectLock: () => ({ status: 'unlocked' }),
+  });
+  assert.equal(run.ok, false);
+  assert.equal(calls, 1);
+  assert.equal(run.counters.totalCalls, 1);
+  assert.ok(
+    (run.failedBatches || []).some((item) =>
+      /max-api-calls exceeded/.test(item.error || ''),
+    ),
+  );
+});
+
+test('empty job queue makes zero provider calls', async () => {
+  let calls = 0;
+  const provider = createMockTranslationProvider({
+    async handler() {
+      calls += 1;
+      return '{}';
+    },
+  });
+  const run = await runBatchedTranslation([], {
+    executeNetwork: true,
+    provider,
+    maxApiCalls: 2,
+    inspectLock: () => ({ status: 'unlocked' }),
+  });
+  assert.equal(run.ok, true);
+  assert.equal(calls, 0);
+  assert.equal(run.counters.totalCalls, 0);
+  assert.equal(run.estimatedApiCalls, 0);
+});
+
 test('checkpoint resume skips successful batch targets', async () => {
   const jobs = loadGenesis111Jobs();
   const checkpoint = createEmptyCheckpoint({ repositoryHead: 'test' });
