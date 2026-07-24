@@ -1,0 +1,39 @@
+{
+  "sourcePath": "tts-scripts/ko-KR/genesis/001/012/history.txt",
+  "sourceHashAlgorithm": "sha256",
+  "sourceHash": "43f00d31b4bcc495e20fdb00dce0b2e79b463d41353919d6454ec1257a0ef4a3",
+  "sourceLocale": "ko-KR",
+  "targetLocale": "ja-JP",
+  "status": "approved",
+  "translatedAt": "2026-07-24T09:08:14.962Z",
+  "reviewedAt": "2026-07-24T12:52:59.779Z",
+  "approvedAt": "2026-07-24T12:52:59.779Z",
+  "bookId": "genesis",
+  "chapter": 1,
+  "verse": 12,
+  "type": "history",
+  "paragraphCount": 2,
+  "cardCount": 3,
+  "narrationHashAlgorithm": "sha256",
+  "narrationHash": "59b0fb07cb63794c4b3cd8beea13349fcdf30338ba51d10c3015bdabbddf0808",
+  "model": "gpt-4o-2024-08-06",
+  "humanReviewRequired": false,
+  "structureValidated": true,
+  "sourceStructure": {
+    "paragraphCount": 2,
+    "lineCounts": [
+      1,
+      3
+    ],
+    "totalLineCount": 4
+  },
+  "narrationStructure": {
+    "paragraphCount": 2,
+    "lineCounts": [
+      1,
+      3
+    ],
+    "totalLineCount": 4
+  },
+  "approvalPolicy": "sample-approved-batch-pass368"
+}

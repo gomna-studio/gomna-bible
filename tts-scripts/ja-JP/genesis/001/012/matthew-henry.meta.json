@@ -1,0 +1,39 @@
+{
+  "sourcePath": "tts-scripts/ko-KR/genesis/001/012/matthew-henry.txt",
+  "sourceHashAlgorithm": "sha256",
+  "sourceHash": "18f7f81a335d0a32a9da71c2228027b61d7b9fbba53d876e12ec60b2dc039b75",
+  "sourceLocale": "ko-KR",
+  "targetLocale": "ja-JP",
+  "status": "approved",
+  "translatedAt": "2026-07-24T09:08:14.962Z",
+  "reviewedAt": "2026-07-24T12:52:59.779Z",
+  "approvedAt": "2026-07-24T12:52:59.779Z",
+  "bookId": "genesis",
+  "chapter": 1,
+  "verse": 12,
+  "type": "matthew-henry",
+  "paragraphCount": 2,
+  "cardCount": 3,
+  "narrationHashAlgorithm": "sha256",
+  "narrationHash": "6d60df5503db72dc92c6f5d51bb0bc181a08946ab1eb11c4a5658fab30f3a270",
+  "model": "gpt-4o-2024-08-06",
+  "humanReviewRequired": false,
+  "structureValidated": true,
+  "sourceStructure": {
+    "paragraphCount": 2,
+    "lineCounts": [
+      1,
+      9
+    ],
+    "totalLineCount": 10
+  },
+  "narrationStructure": {
+    "paragraphCount": 2,
+    "lineCounts": [
+      1,
+      9
+    ],
+    "totalLineCount": 10
+  },
+  "approvalPolicy": "sample-approved-batch-pass368"
+}

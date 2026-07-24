@@ -275,11 +275,18 @@ export function buildNarrationSpeechUnits(narrationText, cardCount, {
   }
 
   // Closing only when present in the approved narration (and not explicitly disabled).
+  // Explicit includeClosing:false overrides type policy.requireClosing so sources
+  // without a closing paragraph (common for some original-language verses) can
+  // still build intro+card speech units for staging audio/cue.
   if (closingText != null && includeClosing !== false) {
     pushSpeechUnit(units, 'closing', closingText);
   } else if (includeClosing === true) {
     throw new Error('closing speech unit required but missing from narration');
-  } else if (policy?.requireClosing && closingText == null) {
+  } else if (
+    policy?.requireClosing &&
+    closingText == null &&
+    includeClosing !== false
+  ) {
     throw new Error(`type ${type} requires a closing speech unit`);
   }
 
@@ -1808,6 +1815,8 @@ export function atomicCreateCueFile(options = {}) {
       durationSeconds: options.durationSeconds,
       cardCount: options.cardCount,
       type: options.target?.type || options.type,
+      requireClosing: options.requireClosing,
+      allowBridge: options.allowBridge,
     });
     if (!validation.ok) {
       throw new Error(validation.reason);

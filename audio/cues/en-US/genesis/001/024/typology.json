@@ -1,0 +1,33 @@
+{
+  "audioId": "genesis.001.024.typology.en-US",
+  "duration": 33.6,
+  "measuredDuration": 33.6,
+  "testAudioPath": "audio/v1/en-US/genesis/001/024/typology-study.mp3",
+  "finalMp3Duration": 33.6,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 13.292958
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 13.292958,
+      "end": 19.22075
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 19.22075,
+      "end": 26.64025
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 26.64025,
+      "end": 33.6
+    }
+  ]
+}

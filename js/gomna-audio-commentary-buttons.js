@@ -1029,56 +1029,6 @@
     return controls;
   }
 
-  function getCommentaryHeaderBibleText(ctx) {
-    var sources = [];
-
-    if (typeof oldTestamentData !== 'undefined' && oldTestamentData) {
-      sources.push(oldTestamentData);
-    }
-
-    if (typeof newTestamentData !== 'undefined' && newTestamentData) {
-      sources.push(newTestamentData);
-    }
-
-    if (!ctx) return '';
-
-    for (var sourceIndex = 0; sourceIndex < sources.length; sourceIndex++) {
-      var books = sources[sourceIndex].books;
-
-      if (!books) continue;
-
-      for (var bookIndex = 0; bookIndex < books.length; bookIndex++) {
-        var book = books[bookIndex];
-
-        if (!book || book.name !== ctx.bookName || !book.chapters) continue;
-
-        for (var chapterIndex = 0; chapterIndex < book.chapters.length; chapterIndex++) {
-          var chapterData = book.chapters[chapterIndex];
-
-          if (
-            !chapterData ||
-            parseInt(chapterData.chapter, 10) !== ctx.chapter ||
-            !chapterData.verses
-          ) {
-            continue;
-          }
-
-          for (var verseIndex = 0; verseIndex < chapterData.verses.length; verseIndex++) {
-            var verseData = chapterData.verses[verseIndex];
-
-            if (verseData && parseInt(verseData.verse, 10) === ctx.verse) {
-              return String(verseData.text || '')
-                .replace(/\s+/g, ' ')
-                .trim();
-            }
-          }
-        }
-      }
-    }
-
-    return '';
-  }
-
   function removeCommentarySectionTitleIcons() {
     var content = getContent();
     var titles = [
@@ -2572,6 +2522,40 @@
     });
   }
 
+  function ensureShardForCurrentCommentaryContext() {
+    var config = window.GOMNA_AUDIO_CONFIG;
+    var lang = getSelectedAppLanguageForAudio() || 'ko';
+    var locale;
+    var bookId;
+    var ensure;
+
+    if (lang === 'ko') {
+      return Promise.resolve({ ok: true, skipped: true, reason: 'korean' });
+    }
+
+    locale = lang === 'ja' ? 'ja-JP' : 'en-US';
+    bookId =
+      (currentContext && currentContext.bookId) ||
+      (getCommentaryContext() && getCommentaryContext().bookId) ||
+      null;
+
+    ensure =
+      config && typeof config.ensureBookManifestShard === 'function'
+        ? config.ensureBookManifestShard
+        : window.GOMNA_AUDIO_MANIFEST_SHARDS &&
+          window.GOMNA_AUDIO_MANIFEST_SHARDS.ensureBookManifestShard;
+
+    if (typeof ensure !== 'function' || !bookId) {
+      return Promise.resolve({
+        ok: false,
+        skipped: true,
+        reason: !bookId ? 'bookId_missing' : 'ensure_unavailable'
+      });
+    }
+
+    return ensure(locale, bookId);
+  }
+
   function stopCommentaryIfLanguageMismatch(nextLang) {
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
@@ -2635,40 +2619,64 @@
     stopCommentaryIfLanguageMismatch(nextLang || 'ko');
     clearInactiveCommentaryHighlights();
 
+    /* Same header path as play-start / showCommentary — keep scripture language in sync. */
+    if (typeof window.updateCompactCommentaryHeaderForCurrentVerse === 'function') {
+      try { window.updateCompactCommentaryHeaderForCurrentVerse(); } catch (eHdr) { /* ignore */ }
+    } else if (typeof window.updateCompactCommentaryHeader === 'function') {
+      try {
+        var hdrCtx = getCommentaryContext();
+        if (hdrCtx) {
+          window.updateCompactCommentaryHeader(hdrCtx.bookName, hdrCtx.chapter, hdrCtx.verse);
+        }
+      } catch (eHdr2) { /* ignore */ }
+    }
+
     if (!currentCommentaryItems.length) return;
 
     for (i = 0; i < currentCommentaryItems.length; i++) {
       previousIds.push(currentCommentaryItems[i].audioId);
     }
 
-    refreshPublishedFlags();
+    ensureShardForCurrentCommentaryContext().then(function() {
+      refreshPublishedFlags();
 
-    for (i = 0; i < currentCommentaryItems.length; i++) {
-      item = currentCommentaryItems[i];
-      previousId = previousIds[i];
-      button =
-        findCommentaryButtonByAudioId(previousId) ||
-        findCommentaryButtonByAudioId(item.audioId);
-      replayButton =
-        findReplayButtonByAudioId(previousId) ||
-        findReplayButtonByAudioId(item.audioId);
+      for (i = 0; i < currentCommentaryItems.length; i++) {
+        item = currentCommentaryItems[i];
+        previousId = previousIds[i];
+        button =
+          findCommentaryButtonByAudioId(previousId) ||
+          findCommentaryButtonByAudioId(item.audioId);
+        replayButton =
+          findReplayButtonByAudioId(previousId) ||
+          findReplayButtonByAudioId(item.audioId);
 
-      if (button) updateSingleCommentaryButton(button, item);
-      if (replayButton) updateReplayButton(replayButton, item);
+        if (button) updateSingleCommentaryButton(button, item);
+        if (replayButton) updateReplayButton(replayButton, item);
 
-      section = document.getElementById(item.tabId);
-      if (section) {
-        section.setAttribute('data-audio-target', item.audioId);
+        section = document.getElementById(item.tabId);
+        if (section) {
+          section.setAttribute('data-audio-target', item.audioId);
+        }
       }
-    }
 
-    content = getContent();
-    updateCommentaryButtonLabels();
-    if (content) {
-      syncInlineControls(content);
-      syncCommentaryFooterControls(content);
-    }
-    clearInactiveCommentaryHighlights();
+      content = getContent();
+      updateCommentaryButtonLabels();
+      if (content) {
+        syncInlineControls(content);
+        syncCommentaryFooterControls(content);
+      }
+      clearInactiveCommentaryHighlights();
+    }).catch(function() {
+      // Soft-fail: keep using base single-manifest entries.
+      refreshPublishedFlags();
+      content = getContent();
+      updateCommentaryButtonLabels();
+      if (content) {
+        syncInlineControls(content);
+        syncCommentaryFooterControls(content);
+      }
+      clearInactiveCommentaryHighlights();
+    });
   }
 
   function addCommentaryButtons() {
@@ -2687,23 +2695,37 @@
     updateCommentaryHeaderCopy();
     getControlsFooter();
     ensureInlineControls();
-    refreshPublishedFlags();
 
-    for (var i = 0; i < currentCommentaryItems.length; i++) {
-      insertButtonForItem(content, currentCommentaryItems[i]);
-    }
+    ensureShardForCurrentCommentaryContext().then(function() {
+      if (!isCommentaryTabsPopup(getPopup())) return;
 
-    enhanceManualCueTargets(content);
-    removeLegacySequenceControls(content);
-    bindAllTabsAudio(content);
-    bindCommentaryButtonReplayHandler();
-    bindCommentaryTabQueueNavigation(content);
-    updateCommentaryButtonLabels();
-    syncCommentaryFooterControls(content);
-    syncInlineControls(content);
-    if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.apply === 'function') {
-      window.GomnaCommentaryI18n.apply(popup);
-    }
+      refreshPublishedFlags();
+
+      for (var i = 0; i < currentCommentaryItems.length; i++) {
+        insertButtonForItem(content, currentCommentaryItems[i]);
+      }
+
+      enhanceManualCueTargets(content);
+      removeLegacySequenceControls(content);
+      bindAllTabsAudio(content);
+      bindCommentaryButtonReplayHandler();
+      bindCommentaryTabQueueNavigation(content);
+      updateCommentaryButtonLabels();
+      syncCommentaryFooterControls(content);
+      syncInlineControls(content);
+      if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.apply === 'function') {
+        window.GomnaCommentaryI18n.apply(popup);
+      }
+    }).catch(function() {
+      // Shard fallback already soft-fails; still render with base manifest.
+      refreshPublishedFlags();
+      for (var j = 0; j < currentCommentaryItems.length; j++) {
+        insertButtonForItem(content, currentCommentaryItems[j]);
+      }
+      updateCommentaryButtonLabels();
+      syncCommentaryFooterControls(content);
+      syncInlineControls(content);
+    });
   }
 
   function scheduleAddCommentaryButtons() {

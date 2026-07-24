@@ -2280,7 +2280,7 @@ html.reader-hide-chrome .verse-item.verse-item--chapter-selected .verse-num{
 <script src="gomna_category_feature.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
 <script>
-window.GOMNA_ASSET_VERSION = "20260723-scroll-ko-parity-v7";
+window.GOMNA_ASSET_VERSION = "20260724-commentary-header-verse-v1";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -2723,10 +2723,15 @@ function loadLocaleCommentaryCards(locale, bookId) {
     error: null,
     promise: null
   };
-  entry.promise = fetch(
-    'data/commentary-cards/' + encodeURIComponent(locale) + '/' + encodeURIComponent(bookId) + '.json',
-    { credentials: 'same-origin' }
-  ).then(function(res) {
+  var assetVersion = String(window.GOMNA_ASSET_VERSION || '').trim();
+  var cardsUrl =
+    'data/commentary-cards/' +
+    encodeURIComponent(locale) +
+    '/' +
+    encodeURIComponent(bookId) +
+    '.json' +
+    (assetVersion ? ('?v=' + encodeURIComponent(assetVersion)) : '');
+  entry.promise = fetch(cardsUrl, { credentials: 'same-origin', cache: 'no-cache' }).then(function(res) {
     if (res.status === 404) {
       entry.status = 'ready';
       entry.data = { verses: {} };
@@ -3298,20 +3303,29 @@ function initializeApp() {
   var _si=document.getElementById('searchInput');if(_si)_si.addEventListener('keypress', function(e) { if(e.key === 'Enter') doSearch(); });
   initVerseToolbarEvents();
   syncReaderNativeUiLangClass();
-  window.addEventListener('gomna:ui-language-changed', function() {
+  function refreshCommentaryForUiLanguageChange() {
     refreshReaderChapterLabelsAfterTranslation();
     _commentaryRenderKey = null;
     var pop = document.getElementById('commentaryPopup');
     if (pop && pop.classList.contains('show') && currentCommentaryVerseForRelated != null &&
         typeof showCommentary === 'function') {
       showCommentary(currentCommentaryVerseForRelated);
-    } else if (window.GomnaCommentaryI18n) {
-      window.GomnaCommentaryI18n.apply();
+    } else {
+      if (window.GomnaCommentaryI18n) window.GomnaCommentaryI18n.apply();
+      if (typeof updateCompactCommentaryHeaderForCurrentVerse === 'function') {
+        updateCompactCommentaryHeaderForCurrentVerse();
+      }
     }
-  });
+  }
+  window.addEventListener('gomna:ui-language-changed', refreshCommentaryForUiLanguageChange);
+  /* Commentary bridge uses gomna:languagechange (not ui-language-changed). */
+  window.addEventListener('gomna:languagechange', refreshCommentaryForUiLanguageChange);
   window.addEventListener('gomna:reader-translation-settled', function() {
     refreshReaderChapterLabelsAfterTranslation();
     if (window.GomnaCommentaryI18n) window.GomnaCommentaryI18n.apply();
+    if (typeof updateCompactCommentaryHeaderForCurrentVerse === 'function') {
+      updateCompactCommentaryHeaderForCurrentVerse();
+    }
     /* Strip GT inline styles that KO never has, then remasure iPhone pan surface. */
     function restoreKoScrollLayout() {
       try {
@@ -3444,6 +3458,16 @@ function getGoogTeComboLangRaw() {
  * audio locale and on-screen language stay in sync on iPhone.
  */
 function getReaderUiLangCode() {
+  /* Optimistic bridge selection wins during in-flight KO↔EN/JA switches. */
+  try {
+    var displayPending = window.__gomnaBridgeDisplayLang;
+    if (displayPending) {
+      var displayNorm = normalizeReaderLangCode(displayPending);
+      if (displayNorm === 'ko' || displayNorm === 'en' || displayNorm === 'ja') {
+        return displayNorm;
+      }
+    }
+  } catch (eDisp) { /* ignore */ }
   var storedNorm = null;
   try {
     storedNorm = normalizeReaderLangCode(localStorage.getItem('gomna_ui_language'));
@@ -5032,7 +5056,7 @@ function goToChapterCommentary(chapter) {
 var currentCommentaryVerseForRelated = null;
 var relatedCommentaryReturnState = null;
 
-function getCommentaryHeaderVerseText(bookName, chapter, verseNum) {
+function getKoreanBibleVerseText(bookName, chapter, verseNum) {
   var sources = [];
 
   if(typeof oldTestamentData !== 'undefined' && oldTestamentData && oldTestamentData.books) {
@@ -5066,6 +5090,42 @@ function getCommentaryHeaderVerseText(bookName, chapter, verseNum) {
   }
 
   return '';
+}
+
+function getLocaleCardVerseText(bookName, chapter, verseNum) {
+  var locale = getCommentaryCardLocale();
+  var bookId;
+  var entry;
+  var key;
+  var verse;
+  var text;
+
+  if (locale === 'ko-KR') return '';
+  bookId = BOOK_FILE_MAP[bookName];
+  if (!bookId) return '';
+  entry = peekLocaleCommentaryCards(locale, bookId);
+  if (!entry || entry.status !== 'ready' || !entry.data || !entry.data.verses) return '';
+  key = bookName + '_' + chapter + '_' + verseNum;
+  verse = entry.data.verses[key];
+  if (!verse) return '';
+  text = String(verse.verseText || '').trim();
+  return text;
+}
+
+/**
+ * Commentary header scripture body for the active UI language.
+ * EN/JA use locale card verseText when present; otherwise Korean bible fallback.
+ */
+function getCommentaryHeaderVerseText(bookName, chapter, verseNum) {
+  var lang = typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko';
+  var korean = getKoreanBibleVerseText(bookName, chapter, verseNum);
+  var localized;
+
+  if (lang === 'en' || lang === 'ja') {
+    localized = getLocaleCardVerseText(bookName, chapter, verseNum);
+    if (localized) return localized;
+  }
+  return korean;
 }
 
 function ensureCommentaryHeaderTitle() {
@@ -5180,6 +5240,13 @@ function updateCommentaryHeaderVerse(bookName, chapter, verseNum) {
     verseLine = document.createElement('span');
     verseLine.className = 'commentary-compact-verse';
     verseLine.textContent = verseText;
+    /* Lock native scripture so Google Translate cannot rewrite/flicker after play. */
+    if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.lockLeaf === 'function') {
+      window.GomnaCommentaryI18n.lockLeaf(verseLine, null);
+    } else {
+      verseLine.classList.add('notranslate');
+      verseLine.setAttribute('translate', 'no');
+    }
     verseHost.appendChild(verseLine);
   }
 
@@ -5192,6 +5259,19 @@ function updateCommentaryHeaderVerse(bookName, chapter, verseNum) {
 
 function updateCompactCommentaryHeader(bookName, chapter, verseNum) {
   updateCommentaryHeaderVerse(bookName, chapter, verseNum);
+}
+
+function updateCompactCommentaryHeaderForCurrentVerse() {
+  var bookName;
+  var chapter;
+  var verseNum;
+  var pop = document.getElementById('commentaryPopup');
+  if (!pop || !pop.classList.contains('show')) return;
+  bookName = currentBook && currentBook.name;
+  chapter = currentChapter;
+  verseNum = currentCommentaryVerseForRelated;
+  if (!bookName || !chapter || verseNum == null) return;
+  updateCompactCommentaryHeader(bookName, chapter, verseNum);
 }
 
 var _commentaryRenderKey = null;
@@ -5467,18 +5547,45 @@ function showCommentary(verseNum) {
   }
   
   if(hasPastorData && data) {
+    function commentaryTableRows(tableKey) {
+      var rows = data[tableKey];
+      return Array.isArray(rows) ? rows : [];
+    }
+    function hasCommentaryTable(tableKey) {
+      return commentaryTableRows(tableKey).length > 0;
+    }
+    var tableAvailability = {
+      'tab-원어분석': hasCommentaryTable('표1_원어분석'),
+      'tab-역사적배경': hasCommentaryTable('표2_역사적배경'),
+      'tab-신학적의미': hasCommentaryTable('표3_신학적의미'),
+      'tab-예표론': hasCommentaryTable('표4_예표론'),
+      'tab-매튜헨리': hasCommentaryTable('표5_매튜헨리'),
+      'tab-설교자료': hasCommentaryTable('표6_설교자료'),
+      'tab-찬송가': hasCommentaryTable('표7_찬송가'),
+      'tab-상담적용': hasCommentaryTable('표8_상담적용'),
+      'tab-교차참조': hasCommentaryTable('표9_교차참조')
+    };
+    if (!tableAvailability[currentCommentaryTab]) {
+      var fallbackTabs = ['tab-원어분석','tab-역사적배경','tab-신학적의미','tab-예표론','tab-매튜헨리','tab-설교자료','tab-찬송가','tab-상담적용','tab-교차참조'];
+      for (var ft = 0; ft < fallbackTabs.length; ft++) {
+        if (tableAvailability[fallbackTabs[ft]]) {
+          currentCommentaryTab = fallbackTabs[ft];
+          break;
+        }
+      }
+    }
     content += '<div id="commentaryMovableHeader" class="gomna-commentary-movable-header">';
     content += '<div class="gomna-commentary-lang-toolbar notranslate" id="gomnaCommentaryLangToolbar" translate="no" aria-label="Language"></div>';
     content += '<div class="commentary-tabs">';
-    content += buildCommentaryTabButton('tab-원어분석', 'commentary.tab.original', currentCommentaryTab==='tab-원어분석');
-    content += buildCommentaryTabButton('tab-역사적배경', 'commentary.tab.history', currentCommentaryTab==='tab-역사적배경');
-    content += buildCommentaryTabButton('tab-신학적의미', 'commentary.tab.theology', currentCommentaryTab==='tab-신학적의미');
-    content += buildCommentaryTabButton('tab-예표론', 'commentary.tab.typology', currentCommentaryTab==='tab-예표론');
-    content += buildCommentaryTabButton('tab-매튜헨리', 'commentary.tab.matthewHenry', currentCommentaryTab==='tab-매튜헨리');
-    content += buildCommentaryTabButton('tab-설교자료', 'commentary.tab.sermon', currentCommentaryTab==='tab-설교자료');
-    content += buildCommentaryTabButton('tab-찬송가', 'commentary.tab.hymn', currentCommentaryTab==='tab-찬송가');
-    content += buildCommentaryTabButton('tab-상담적용', 'commentary.tab.counseling', currentCommentaryTab==='tab-상담적용');
-    content += buildCommentaryTabButton('tab-교차참조', 'commentary.tab.crossReference', currentCommentaryTab==='tab-교차참조');
+    if (tableAvailability['tab-원어분석']) content += buildCommentaryTabButton('tab-원어분석', 'commentary.tab.original', currentCommentaryTab==='tab-원어분석');
+    if (tableAvailability['tab-역사적배경']) content += buildCommentaryTabButton('tab-역사적배경', 'commentary.tab.history', currentCommentaryTab==='tab-역사적배경');
+    if (tableAvailability['tab-신학적의미']) content += buildCommentaryTabButton('tab-신학적의미', 'commentary.tab.theology', currentCommentaryTab==='tab-신학적의미');
+    if (tableAvailability['tab-예표론']) content += buildCommentaryTabButton('tab-예표론', 'commentary.tab.typology', currentCommentaryTab==='tab-예표론');
+    if (tableAvailability['tab-매튜헨리']) content += buildCommentaryTabButton('tab-매튜헨리', 'commentary.tab.matthewHenry', currentCommentaryTab==='tab-매튜헨리');
+    if (tableAvailability['tab-설교자료']) content += buildCommentaryTabButton('tab-설교자료', 'commentary.tab.sermon', currentCommentaryTab==='tab-설교자료');
+    if (tableAvailability['tab-찬송가']) content += buildCommentaryTabButton('tab-찬송가', 'commentary.tab.hymn', currentCommentaryTab==='tab-찬송가');
+    if (tableAvailability['tab-상담적용']) content += buildCommentaryTabButton('tab-상담적용', 'commentary.tab.counseling', currentCommentaryTab==='tab-상담적용');
+    if (tableAvailability['tab-교차참조']) content += buildCommentaryTabButton('tab-교차참조', 'commentary.tab.crossReference', currentCommentaryTab==='tab-교차참조');
     content += '<button type="button" class="commentary-tab" data-gomna-commentary-sequence-button="true" data-gomna-commentary-i18n="commentary.audio.listenAll"' +
       (window.GomnaCommentaryI18n && window.GomnaCommentaryI18n.isNativeLang()
         ? ' translate="no" lang="' + window.GomnaCommentaryI18n.getLang() + '" data-gomna-commentary-native-lock="1"'
@@ -5487,41 +5594,59 @@ function showCommentary(verseNum) {
     content += '</div>';
     content += '</div>';
     
-    content += '<div class="tab-content active" id="tab-원어분석" data-gomna-commentary-type="original-language" style="display:block">' + buildCommentarySectionHead('📖', 'commentary.section.original') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.originalWord') + buildCommentaryTh('commentary.th.meaningGrammar') + buildCommentaryTh('commentary.th.sermonPoint') + '</tr>';
-    for(var j=0; j<data["표1_원어분석"].length; j++) { var row=data["표1_원어분석"][j]; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+(row["원어"]||'')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+(row["의미_문법"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+(row["설교포인트"]||'')+'</td></tr>'; }
+    if (tableAvailability['tab-원어분석']) {
+    content += '<div class="tab-content' + (currentCommentaryTab==='tab-원어분석' ? ' active' : '') + '" id="tab-원어분석" data-gomna-commentary-type="original-language"' + (currentCommentaryTab==='tab-원어분석' ? ' style="display:block"' : '') + '>' + buildCommentarySectionHead('📖', 'commentary.section.original') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.originalWord') + buildCommentaryTh('commentary.th.meaningGrammar') + buildCommentaryTh('commentary.th.sermonPoint') + '</tr>';
+    for(var j=0; j<commentaryTableRows('표1_원어분석').length; j++) { var row=commentaryTableRows('표1_원어분석')[j]; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+(row["원어"]||'')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+(row["의미_문법"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+(row["설교포인트"]||'')+'</td></tr>'; }
     content += '</table>' + bottomNav + '</div>';
+    }
     
-    content += '<div class="tab-content" id="tab-역사적배경" data-gomna-commentary-type="history">' + buildCommentarySectionHead('📜', 'commentary.section.history') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.item') + buildCommentaryTh('commentary.th.content') + buildCommentaryTh('commentary.th.pastoral') + '</tr>';
-    for(var j=0; j<data["표2_역사적배경"].length; j++) { var row=data["표2_역사적배경"][j]; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+(row["항목"]||'')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(row["내용"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+(row["목회적활용"]||'')+'</td></tr>'; }
+    if (tableAvailability['tab-역사적배경']) {
+    content += '<div class="tab-content' + (currentCommentaryTab==='tab-역사적배경' ? ' active' : '') + '" id="tab-역사적배경" data-gomna-commentary-type="history"' + (currentCommentaryTab==='tab-역사적배경' ? ' style="display:block"' : '') + '>' + buildCommentarySectionHead('📜', 'commentary.section.history') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.item') + buildCommentaryTh('commentary.th.content') + buildCommentaryTh('commentary.th.pastoral') + '</tr>';
+    for(var j=0; j<commentaryTableRows('표2_역사적배경').length; j++) { var row=commentaryTableRows('표2_역사적배경')[j]; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+(row["항목"]||'')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(row["내용"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+(row["목회적활용"]||'')+'</td></tr>'; }
     content += '</table>' + bottomNav + '</div>';
+    }
     
-    content += '<div class="tab-content" id="tab-신학적의미" data-gomna-commentary-type="theology">' + buildCommentarySectionHead('⛪', 'commentary.section.theology') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.doctrine') + buildCommentaryTh('commentary.th.explanation') + buildCommentaryTh('commentary.th.relatedVerse') + '</tr>';
-    for(var j=0; j<data["표3_신학적의미"].length; j++) { var row=data["표3_신학적의미"][j]; var 관련val = row["관련구절"]||''; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+(row["교리"]||'')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+(row["설명"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '><span onclick="showVersePopup(\''+관련val+'\')" style="color:#1565C0; text-decoration:underline; cursor:pointer;">'+관련val+'</span></td></tr>'; }
+    if (tableAvailability['tab-신학적의미']) {
+    content += '<div class="tab-content' + (currentCommentaryTab==='tab-신학적의미' ? ' active' : '') + '" id="tab-신학적의미" data-gomna-commentary-type="theology"' + (currentCommentaryTab==='tab-신학적의미' ? ' style="display:block"' : '') + '>' + buildCommentarySectionHead('⛪', 'commentary.section.theology') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.doctrine') + buildCommentaryTh('commentary.th.explanation') + buildCommentaryTh('commentary.th.relatedVerse') + '</tr>';
+    for(var j=0; j<commentaryTableRows('표3_신학적의미').length; j++) { var row=commentaryTableRows('표3_신학적의미')[j]; var 관련val = row["관련구절"]||''; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+(row["교리"]||'')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+(row["설명"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '><span onclick="showVersePopup(\''+관련val+'\')" style="color:#1565C0; text-decoration:underline; cursor:pointer;">'+관련val+'</span></td></tr>'; }
     content += '</table>' + bottomNav + '</div>';
+    }
     
-    content += '<div class="tab-content" id="tab-예표론" data-gomna-commentary-type="typology">' + buildCommentarySectionHead('✝️', 'commentary.section.typology') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.category') + buildCommentaryTh('commentary.th.content') + buildCommentaryTh('commentary.th.christLink') + '</tr>';
-    for(var j=0; j<data["표4_예표론"].length; j++) { var row=data["표4_예표론"][j]; var 구분val4 = row["구분"]||''; var 내용val4 = row["내용"]||''; var 연결val4 = row["그리스도연결"]||''; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+구분val4+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(내용val4)+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(연결val4)+'</td></tr>'; }
+    if (tableAvailability['tab-예표론']) {
+    content += '<div class="tab-content' + (currentCommentaryTab==='tab-예표론' ? ' active' : '') + '" id="tab-예표론" data-gomna-commentary-type="typology"' + (currentCommentaryTab==='tab-예표론' ? ' style="display:block"' : '') + '>' + buildCommentarySectionHead('✝️', 'commentary.section.typology') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.category') + buildCommentaryTh('commentary.th.content') + buildCommentaryTh('commentary.th.christLink') + '</tr>';
+    for(var j=0; j<commentaryTableRows('표4_예표론').length; j++) { var row=commentaryTableRows('표4_예표론')[j]; var 구분val4 = row["구분"]||''; var 내용val4 = row["내용"]||''; var 연결val4 = row["그리스도연결"]||''; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+구분val4+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(내용val4)+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(연결val4)+'</td></tr>'; }
     content += '</table>' + bottomNav + '</div>';
+    }
     
-    content += '<div class="tab-content" id="tab-매튜헨리" data-gomna-commentary-type="matthew-henry">' + buildCommentarySectionHead('📚', 'commentary.section.matthewHenry') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.englishOriginal') + buildCommentaryTh('commentary.th.koreanTranslation') + buildCommentaryTh('commentary.th.keyInsight') + '</tr>';
-    for(var j=0; j<data["표5_매튜헨리"].length; j++) { var mhCols=readMatthewHenryRow(data["표5_매튜헨리"][j]); content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+mhCols[0]+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+mhCols[1]+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+mhCols[2]+'</td></tr>'; }
+    if (tableAvailability['tab-매튜헨리']) {
+    content += '<div class="tab-content' + (currentCommentaryTab==='tab-매튜헨리' ? ' active' : '') + '" id="tab-매튜헨리" data-gomna-commentary-type="matthew-henry"' + (currentCommentaryTab==='tab-매튜헨리' ? ' style="display:block"' : '') + '>' + buildCommentarySectionHead('📚', 'commentary.section.matthewHenry') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.englishOriginal') + buildCommentaryTh('commentary.th.koreanTranslation') + buildCommentaryTh('commentary.th.keyInsight') + '</tr>';
+    for(var j=0; j<commentaryTableRows('표5_매튜헨리').length; j++) { var mhCols=readMatthewHenryRow(commentaryTableRows('표5_매튜헨리')[j]); content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+mhCols[0]+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+mhCols[1]+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+mhCols[2]+'</td></tr>'; }
     content += '</table>' + bottomNav + '</div>';
+    }
     
-    content += '<div class="tab-content" id="tab-설교자료" data-gomna-commentary-type="sermon">' + buildCommentarySectionHead('🎤', 'commentary.section.sermon') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.point') + buildCommentaryTh('commentary.th.content') + buildCommentaryTh('commentary.th.illustration') + '</tr>';
-    for(var j=0; j<data["표6_설교자료"].length; j++) { var row=data["표6_설교자료"][j]; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+(row["대지"]||'')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(row["내용"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(row["예화_적용"]||'')+'</td></tr>'; }
+    if (tableAvailability['tab-설교자료']) {
+    content += '<div class="tab-content' + (currentCommentaryTab==='tab-설교자료' ? ' active' : '') + '" id="tab-설교자료" data-gomna-commentary-type="sermon"' + (currentCommentaryTab==='tab-설교자료' ? ' style="display:block"' : '') + '>' + buildCommentarySectionHead('🎤', 'commentary.section.sermon') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.point') + buildCommentaryTh('commentary.th.content') + buildCommentaryTh('commentary.th.illustration') + '</tr>';
+    for(var j=0; j<commentaryTableRows('표6_설교자료').length; j++) { var row=commentaryTableRows('표6_설교자료')[j]; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+(row["대지"]||'')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(row["내용"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(row["예화_적용"]||'')+'</td></tr>'; }
     content += '</table>' + bottomNav + '</div>';
+    }
     
-    content += '<div class="tab-content" id="tab-찬송가" data-gomna-commentary-type="hymn">' + buildCommentarySectionHead('🎵', 'commentary.section.hymn') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.hymnNumber') + buildCommentaryTh('commentary.th.title') + buildCommentaryTh('commentary.th.reason') + '</tr>';
-    for(var j=0; j<data["표7_찬송가"].length; j++) { var row=data["표7_찬송가"][j]; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '><span style="color:#2E7D32;font-weight:700;">'+hymnNewLabel+' '+(row["새찬송가"]||'')+'</span><br><span style="color:#1565C0;font-weight:700;">'+hymnUnifiedLabel+' '+(row["통일찬송가"]||'')+'</span></td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+(row["제목"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+(row["선정이유"]||'')+'</td></tr>'; }
+    if (tableAvailability['tab-찬송가']) {
+    content += '<div class="tab-content' + (currentCommentaryTab==='tab-찬송가' ? ' active' : '') + '" id="tab-찬송가" data-gomna-commentary-type="hymn"' + (currentCommentaryTab==='tab-찬송가' ? ' style="display:block"' : '') + '>' + buildCommentarySectionHead('🎵', 'commentary.section.hymn') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.hymnNumber') + buildCommentaryTh('commentary.th.title') + buildCommentaryTh('commentary.th.reason') + '</tr>';
+    for(var j=0; j<commentaryTableRows('표7_찬송가').length; j++) { var row=commentaryTableRows('표7_찬송가')[j]; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '><span style="color:#2E7D32;font-weight:700;">'+hymnNewLabel+' '+(row["새찬송가"]||'')+'</span><br><span style="color:#1565C0;font-weight:700;">'+hymnUnifiedLabel+' '+(row["통일찬송가"]||'')+'</span></td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+(row["제목"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+(row["선정이유"]||'')+'</td></tr>'; }
     content += '</table>' + bottomNav + '</div>';
+    }
     
-    content += '<div class="tab-content" id="tab-상담적용" data-gomna-commentary-type="counseling">' + buildCommentarySectionHead('💬', 'commentary.section.counseling') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.situation') + buildCommentaryTh('commentary.th.principle') + buildCommentaryTh('commentary.th.application') + '</tr>';
-    for(var j=0; j<data["표8_상담적용"].length; j++) { var row=data["표8_상담적용"][j]; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+(row["상황"]||'')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(row["성경원리"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(row["실제적용"]||'')+'</td></tr>'; }
+    if (tableAvailability['tab-상담적용']) {
+    content += '<div class="tab-content' + (currentCommentaryTab==='tab-상담적용' ? ' active' : '') + '" id="tab-상담적용" data-gomna-commentary-type="counseling"' + (currentCommentaryTab==='tab-상담적용' ? ' style="display:block"' : '') + '>' + buildCommentarySectionHead('💬', 'commentary.section.counseling') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.situation') + buildCommentaryTh('commentary.th.principle') + buildCommentaryTh('commentary.th.application') + '</tr>';
+    for(var j=0; j<commentaryTableRows('표8_상담적용').length; j++) { var row=commentaryTableRows('표8_상담적용')[j]; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+(row["상황"]||'')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(row["성경원리"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(row["실제적용"]||'')+'</td></tr>'; }
     content += '</table>' + bottomNav + '</div>';
+    }
     
-    content += '<div class="tab-content" id="tab-교차참조" data-gomna-commentary-type="cross-reference">' + buildCommentarySectionHead('🔗', 'commentary.section.crossReference') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.passage') + buildCommentaryTh('commentary.th.connection') + buildCommentaryTh('commentary.th.category') + '</tr>';
-    for(var j=0; j<data["표9_교차참조"].length; j++) { var row=data["표9_교차참조"][j]; var 구절val = row["구절"]||''; var 연결점val = row["연결점"]||''; var 구분val = row["구분"]||''; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '><span onclick="showVersePopup(\''+구절val+'\')" style="color:#1565C0; text-decoration:underline; cursor:pointer;">'+구절val+'</span></td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(연결점val)+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+구분val+'</td></tr>'; }
+    if (tableAvailability['tab-교차참조']) {
+    content += '<div class="tab-content' + (currentCommentaryTab==='tab-교차참조' ? ' active' : '') + '" id="tab-교차참조" data-gomna-commentary-type="cross-reference"' + (currentCommentaryTab==='tab-교차참조' ? ' style="display:block"' : '') + '>' + buildCommentarySectionHead('🔗', 'commentary.section.crossReference') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.passage') + buildCommentaryTh('commentary.th.connection') + buildCommentaryTh('commentary.th.category') + '</tr>';
+    for(var j=0; j<commentaryTableRows('표9_교차참조').length; j++) { var row=commentaryTableRows('표9_교차참조')[j]; var 구절val = row["구절"]||''; var 연결점val = row["연결점"]||''; var 구분val = row["구분"]||''; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '><span onclick="showVersePopup(\''+구절val+'\')" style="color:#1565C0; text-decoration:underline; cursor:pointer;">'+구절val+'</span></td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(연결점val)+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+구분val+'</td></tr>'; }
     content += '</table>' + bottomNav + '</div>';
+    }
     
   } else if (cardLocale !== 'ko-KR') {
     var localeMsgKey = (resolvedCards && resolvedCards.reason === 'error')
@@ -10586,10 +10711,11 @@ function changeFont(delta) {
   window.MutationObserver = GuardedMutationObserver;
 })();
 </script>
-<script src="/js/audio-config.js?v=20260604-1830" defer></script>
+<script src="/js/audio-config.js?v=20260724-manifest-shard-v1" defer></script>
+<script src="/js/gomna-audio-manifest-shards.js?v=20260724-manifest-shard-v1" defer></script>
 <script src="/js/audio-engine.js?v=20260604-1830" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
-<script src="/js/gomna-audio-commentary-buttons.js?v=20260724-gesture-restore-v1" defer></script>
+<script src="/js/gomna-audio-commentary-buttons.js?v=20260724-manifest-shard-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=20260724-auto-center-v1" defer></script>
 <script src="/js/gomna-audio-ui.js?v=20260724-expand-overlay-fix" defer></script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>

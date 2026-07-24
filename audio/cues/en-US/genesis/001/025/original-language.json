@@ -1,0 +1,45 @@
+{
+  "audioId": "genesis.001.025.original-language.en-US",
+  "duration": 40.224,
+  "measuredDuration": 40.224,
+  "testAudioPath": "audio/v1/en-US/genesis/001/025/original-language-study.mp3",
+  "finalMp3Duration": 40.224,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 15.048
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 15.048,
+      "end": 20.952
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 20.952,
+      "end": 25.56
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 25.56,
+      "end": 31.416
+    },
+    {
+      "type": "item",
+      "itemIndex": 3,
+      "start": 31.416,
+      "end": 36.168
+    },
+    {
+      "type": "item",
+      "itemIndex": 4,
+      "start": 36.168,
+      "end": 40.224
+    }
+  ]
+}
