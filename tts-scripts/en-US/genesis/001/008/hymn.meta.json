@@ -1,0 +1,38 @@
+{
+  "sourcePath": "tts-scripts/ko-KR/genesis/001/008/hymn.txt",
+  "sourceHashAlgorithm": "sha256",
+  "sourceHash": "f6bd7aaad067a4d337c25782fb66a30f6da1ca58dea90ccf156c5b85ccdddc5f",
+  "sourceLocale": "ko-KR",
+  "targetLocale": "en-US",
+  "status": "approved",
+  "translatedAt": "2026-07-23T13:16:08Z",
+  "bookId": "genesis",
+  "chapter": 1,
+  "verse": 8,
+  "type": "hymn",
+  "paragraphCount": 2,
+  "cardCount": 4,
+  "narrationHashAlgorithm": "sha256",
+  "narrationHash": "99c6399824691aacbc965af4a6272187dc64cdc862885e19b97da17ba5c2b5f2",
+  "model": "manual-from-locale-cards",
+  "humanReviewRequired": false,
+  "structureValidated": true,
+  "sourceStructure": {
+    "paragraphCount": 2,
+    "lineCounts": [
+      1,
+      4
+    ],
+    "totalLineCount": 5
+  },
+  "narrationStructure": {
+    "paragraphCount": 2,
+    "lineCounts": [
+      1,
+      4
+    ],
+    "totalLineCount": 5
+  },
+  "reviewedAt": "2026-07-23T13:51:01Z",
+  "approvedAt": "2026-07-23T13:51:01Z"
+}

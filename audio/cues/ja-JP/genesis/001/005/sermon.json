@@ -1,0 +1,51 @@
+{
+  "audioId": "genesis.001.005.sermon.ja-JP",
+  "duration": 68.808,
+  "measuredDuration": 68.808,
+  "testAudioPath": "audio/v1/ja-JP/genesis/001/005/sermon-strong.mp3",
+  "finalMp3Duration": 68.808,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 11.752167
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 11.752167,
+      "end": 19.068
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 19.068,
+      "end": 27.274208
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 27.274208,
+      "end": 39.243208
+    },
+    {
+      "type": "item",
+      "itemIndex": 3,
+      "start": 39.243208,
+      "end": 50.211917
+    },
+    {
+      "type": "item",
+      "itemIndex": 4,
+      "start": 50.211917,
+      "end": 60.446042
+    },
+    {
+      "type": "item",
+      "itemIndex": 5,
+      "start": 60.446042,
+      "end": 68.808
+    }
+  ]
+}

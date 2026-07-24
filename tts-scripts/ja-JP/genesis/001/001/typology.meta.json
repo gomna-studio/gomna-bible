@@ -1,0 +1,44 @@
+{
+  "sourcePath": "tts-scripts/ko-KR/genesis/001/001/typology.txt",
+  "sourceHashAlgorithm": "sha256",
+  "sourceHash": "2f9602e47df07af1ecefff7a50eddb8fd13b2672e60e3b6b7dac9c9693527b9a",
+  "sourceLocale": "ko-KR",
+  "targetLocale": "ja-JP",
+  "status": "approved",
+  "translatedAt": "2026-07-23T03:20:37Z",
+  "bookId": "genesis",
+  "chapter": 1,
+  "verse": 1,
+  "type": "typology",
+  "paragraphCount": 5,
+  "cardCount": 3,
+  "narrationHashAlgorithm": "sha256",
+  "narrationHash": "c616b29310eb655dbc3297d1521410074f8bb35325738b82a63a79f3c5d77747",
+  "model": "gpt-4o-2024-08-06",
+  "humanReviewRequired": false,
+  "structureValidated": true,
+  "sourceStructure": {
+    "paragraphCount": 5,
+    "lineCounts": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "totalLineCount": 5
+  },
+  "narrationStructure": {
+    "paragraphCount": 5,
+    "lineCounts": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "totalLineCount": 5
+  },
+  "reviewedAt": "2026-07-23T03:48:44Z",
+  "approvedAt": "2026-07-23T03:48:44Z"
+}

@@ -1,0 +1,51 @@
+{
+  "audioId": "genesis.001.001.hymn.ja-JP",
+  "duration": 86.16,
+  "measuredDuration": 86.16,
+  "testAudioPath": "audio/v1/ja-JP/genesis/001/001/hymn-soft.mp3",
+  "finalMp3Duration": 86.16,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 8.664458
+    },
+    {
+      "type": "bridge",
+      "itemIndex": -1,
+      "start": 8.664458,
+      "end": 15.56425
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 15.56425,
+      "end": 30.709708
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 30.709708,
+      "end": 45.6995
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 45.6995,
+      "end": 61.837458
+    },
+    {
+      "type": "item",
+      "itemIndex": 3,
+      "start": 61.837458,
+      "end": 73.646083
+    },
+    {
+      "type": "closing",
+      "itemIndex": -1,
+      "start": 73.646083,
+      "end": 86.16
+    }
+  ]
+}

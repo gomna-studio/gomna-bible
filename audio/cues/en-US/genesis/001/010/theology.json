@@ -1,0 +1,33 @@
+{
+  "audioId": "genesis.001.010.theology.en-US",
+  "duration": 35.664,
+  "measuredDuration": 35.664,
+  "testAudioPath": "audio/v1/en-US/genesis/001/010/theology-warm.mp3",
+  "finalMp3Duration": 35.664,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 13.03725
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 13.03725,
+      "end": 20.595708
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 20.595708,
+      "end": 28.223125
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 28.223125,
+      "end": 35.664
+    }
+  ]
+}

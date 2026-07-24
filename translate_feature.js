@@ -1398,6 +1398,7 @@
   function endTranslationPending(opts) {
     try {
       document.documentElement.classList.remove('gt-translation-pending');
+      clearApplyInFlight(null);
       if (window.__gomnaTranslationPendingFailsafe) {
         clearTimeout(window.__gomnaTranslationPendingFailsafe);
         window.__gomnaTranslationPendingFailsafe = null;
@@ -1425,11 +1426,14 @@
       _gtPendingLastChangedCount = 0;
       /* Spinner/banner often become visible the moment pending lifts — reinforce hide once. */
       try { injectWidgetHideStyles(); } catch (e2) { /* ignore */ }
+      try { unlockReaderScrollLocks(); } catch (eUnlock) { /* ignore */ }
       /* Reader boot skeleton: fade out after paint (immediate for ko / no-cookie). */
       if (isReaderPage()) {
         var immediate = !!(opts && opts.immediate);
         var tlNow = getCurrentTargetLang();
         if (!hasGoogTransCookie() || !tlNow || tlNow === 'ko') immediate = true;
+        /* Already-translated cookie boot: never keep the blocking overlay. */
+        if (isGoogleTranslatedDom()) immediate = true;
         releaseReaderBootOverlay({ immediate: immediate });
         try {
           window.dispatchEvent(new CustomEvent('gomna:reader-translation-settled', {
@@ -1649,7 +1653,15 @@
       scheduleTranslationPendingRecheck(getPendingStableMs());
       return;
     }
-    if (!_gtPendingFirstChangeMs) return;
+    /*
+     * Cookie-boot / already-translated pages never emit a post-baseline mutation,
+     * so firstChangeMs stays 0. Without this, reader boot overlay
+     * (pointer-events:auto) can leave the page unscrollable until failsafe.
+     */
+    if (!_gtPendingFirstChangeMs) {
+      _gtPendingFirstChangeMs = Date.now();
+      _gtPendingLastRelevantChangeMs = _gtPendingFirstChangeMs;
+    }
 
     var now = Date.now();
     var sinceFirst = now - _gtPendingFirstChangeMs;
@@ -1778,9 +1790,14 @@
 
   function injectWidgetHideStyles() {
     var css =
-      /* Keep page from being pushed down by Google banner. */
+      /* Keep page from being pushed down by Google banner.
+       * Also neutralize GT inline height/min-height so EN/JA match KO scroll layout. */
+      'html.translated-ltr,html.translated-rtl{' +
+        'height:auto!important' +
+      '}' +
       'html body,html.translated-ltr body,html.translated-rtl body{' +
-        'top:0!important;margin-top:0!important;position:static!important' +
+        'top:0!important;margin-top:0!important;position:static!important;' +
+        'min-height:0!important' +
       '}' +
       /* Classic banner / tooltip chrome. */
       '.goog-te-banner-frame,.goog-te-banner-frame.skiptranslate,' +
@@ -1826,9 +1843,68 @@
     if (s.parentNode) s.parentNode.appendChild(s);
   }
 
+  /**
+   * Strip Google Translate inline styles that Korean mode never has, so EN/JA
+   * keep the same document scroll / plain-verse gesture layout as KO.
+   */
+  function normalizeReaderScrollStylesToKoreanBaseline() {
+    if (!isReaderPage()) return;
+    try {
+      var html = document.documentElement;
+      var body = document.body;
+      if (!html || !body) return;
+
+      /* GT sets: position:relative; min-height:100%; top:40px */
+      body.style.removeProperty('position');
+      body.style.removeProperty('top');
+      body.style.removeProperty('min-height');
+      body.style.removeProperty('margin-top');
+      if (body.style.overflow === 'hidden') body.style.removeProperty('overflow');
+      if (body.style.overflowX === 'hidden') body.style.removeProperty('overflowX');
+      if (body.style.overflowY === 'hidden') body.style.removeProperty('overflowY');
+      if (body.style.touchAction === 'none') body.style.removeProperty('touch-action');
+      if (!(body.getAttribute('style') || '').trim()) body.removeAttribute('style');
+
+      /* GT sets html style height:100% which KO never has. */
+      if (html.style.height === '100%') html.style.removeProperty('height');
+    } catch (e) { /* ignore */ }
+  }
+
+  var _gtTriggerSeq = 0;
+  var _gtApplyInFlightLang = null;
+  var _gtApplyInFlightUntil = 0;
+  var _gtReloadArmedForToken = 0;
+  var _gtPrevBodyOverflow = null;
+  var GT_TRIGGER_MAX_ATTEMPTS = 40; /* ~6s — align with pending failsafe */
+
+  function cancelWidgetLanguageTrigger() {
+    _gtTriggerSeq += 1;
+  }
+
+  function clearApplyInFlight(lang) {
+    if (lang == null || _gtApplyInFlightLang === lang) {
+      _gtApplyInFlightLang = null;
+      _gtApplyInFlightUntil = 0;
+    }
+  }
+
+  function markApplyInFlight(lang) {
+    _gtApplyInFlightLang = lang || null;
+    _gtApplyInFlightUntil = Date.now() + 8000;
+  }
+
+  function isApplyInFlight(lang) {
+    return !!(
+      lang &&
+      _gtApplyInFlightLang === lang &&
+      Date.now() < _gtApplyInFlightUntil
+    );
+  }
+
   function ensureTranslateWidget() {
-    if (window.__gtWidgetLoaded || window.__gtWidgetLoading) return;
-    window.__gtWidgetLoading = true;
+    if (window.__gtWidgetLoaded) return;
+    if (window.__gtWidgetLoading) return;
+
     injectWidgetHideStyles();
 
     if (!document.getElementById('google_translate_element')) {
@@ -1839,29 +1915,90 @@
 
     window.googleTranslateElementInit = function () {
       try {
-        new google.translate.TranslateElement({
-          pageLanguage: 'ko',
-          autoDisplay: false,
-          layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-        }, 'google_translate_element');
-        window.__gtWidgetLoaded = true;
-      } catch (e) { /* swallow — retry logic below will keep polling */ }
+        if (!window.__gtWidgetLoaded && window.google && google.translate && google.translate.TranslateElement) {
+          new google.translate.TranslateElement({
+            pageLanguage: 'ko',
+            autoDisplay: false,
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+          }, 'google_translate_element');
+          window.__gtWidgetLoaded = true;
+        }
+      } catch (e) { /* swallow — trigger / reload paths recover */ }
+      window.__gtWidgetLoading = false;
       /* Widget init injects banner/spinner nodes + sheets; reinforce hide CSS once. */
       try { injectWidgetHideStyles(); } catch (e2) { /* ignore */ }
     };
 
+    var existingScript = document.querySelector('script[src*="translate_a/element.js"]');
+    if (existingScript) {
+      window.__gtWidgetLoading = true;
+      /* Script already present; callback may have run or will run. */
+      if (window.google && google.translate && google.translate.TranslateElement) {
+        try { window.googleTranslateElementInit(); } catch (eInit) { /* ignore */ }
+      }
+      return;
+    }
+
+    window.__gtWidgetLoading = true;
     const script = document.createElement('script');
     script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
     script.async = true;
+    script.setAttribute('data-gomna-gt-element', '1');
     script.onerror = function () {
+      window.__gtWidgetLoading = false;
+      window.__gtWidgetLoaded = false;
       showToast('번역 서비스 로드 실패 · Translation service failed to load');
-      endTranslationPending();
+      endTranslationPending({ immediate: true });
+      clearApplyInFlight(null);
+      try { unlockReaderScrollLocks(); } catch (eUnlockErr) { /* ignore */ }
     };
     document.head.appendChild(script);
   }
 
-  function triggerWidgetLanguage(targetLang, attempts) {
+  function unlockReaderScrollLocks() {
+    try {
+      if (document.body) {
+        if (document.body.style.overflow === 'hidden') document.body.style.overflow = '';
+        if (document.body.style.overflowX === 'hidden') document.body.style.overflowX = '';
+        if (document.body.style.overflowY === 'hidden') document.body.style.overflowY = '';
+        if (document.body.style.touchAction === 'none') document.body.style.touchAction = '';
+      }
+    } catch (e0) { /* ignore */ }
+    try { injectWidgetHideStyles(); } catch (e1) { /* ignore */ }
+    try { normalizeReaderScrollStylesToKoreanBaseline(); } catch (eNorm) { /* ignore */ }
+    try {
+      var html = document.documentElement;
+      if (
+        html &&
+        (html.classList.contains('gomna-reader-boot-pending') ||
+          html.classList.contains('gomna-reader-boot-leaving') ||
+          html.classList.contains('gt-reader-prepaint-pending')) &&
+        (isGoogleTranslatedDom() || !hasGoogTransCookie() || getCurrentTargetLang() === 'ko')
+      ) {
+        releaseReaderBootOverlay({ immediate: true });
+      }
+    } catch (e2) { /* ignore */ }
+  }
+
+  function beginWidgetLanguageTrigger(targetLang) {
+    var token = ++_gtTriggerSeq;
+    triggerWidgetLanguage(targetLang, 0, token);
+    return token;
+  }
+
+  function triggerWidgetLanguage(targetLang, attempts, token) {
+    if (token == null) token = ++_gtTriggerSeq;
+    if (token !== _gtTriggerSeq) return false; /* superseded by a newer request */
     attempts = attempts || 0;
+
+    /* Target no longer desired (user switched / cookie cleared) — exit quietly. */
+    var cookieLang = getCurrentTargetLang();
+    if (targetLang && targetLang !== 'ko') {
+      if (!hasGoogTransCookie() || cookieLang !== targetLang) {
+        return false;
+      }
+    }
+
     const select = document.querySelector('select.goog-te-combo');
     if (select) {
       select.value = targetLang;
@@ -1870,12 +2007,68 @@
         const e = document.createEvent('HTMLEvents'); e.initEvent('change', true, true); return e;
       })();
       select.dispatchEvent(evt);
+      clearApplyInFlight(targetLang);
       return true;
     }
-    if (attempts < 50) { // up to ~7.5s
-      setTimeout(function () { triggerWidgetLanguage(targetLang, attempts + 1); }, 150);
+    /*
+     * InlineLayout.SIMPLE no longer exposes select.goog-te-combo.
+     * Cookie + widget init often still applies translation (translated-ltr).
+     * Treat matching applied DOM as success so we do not false-fail.
+     */
+    if (targetLang && targetLang !== 'ko' && isGoogleTranslatedDom()) {
+      var applied = getCurrentTargetLang();
+      if (applied === targetLang) {
+        try {
+          endTranslationPending({ immediate: true });
+          unlockReaderScrollLocks();
+        } catch (eOk) { /* ignore */ }
+        clearApplyInFlight(targetLang);
+        return true;
+      }
+    }
+    if (attempts < GT_TRIGGER_MAX_ATTEMPTS) {
+      setTimeout(function () { triggerWidgetLanguage(targetLang, attempts + 1, token); }, 150);
       return false;
     }
+    if (token !== _gtTriggerSeq) return false;
+
+    /*
+     * iPhone / no-combo path: cookie is already set; reload lets Google apply
+     * on boot when the in-place combo trigger cannot run.
+     * At most one reload per trigger token (no infinite reload loop).
+     */
+    if (
+      isReaderPage() &&
+      targetLang &&
+      targetLang !== 'ko' &&
+      hasGoogTransCookie() &&
+      getCurrentTargetLang() === targetLang &&
+      _gtReloadArmedForToken !== token
+    ) {
+      _gtReloadArmedForToken = token;
+      try {
+        endTranslationPending({ immediate: true });
+        unlockReaderScrollLocks();
+      } catch (eReload) { /* ignore */ }
+      showToast('🌐 번역 적용 중... · Applying translation...');
+      setTimeout(function () {
+        if (token !== _gtTriggerSeq) return;
+        location.reload();
+      }, 200);
+      return false;
+    }
+
+    /* Only surface a hard failure when this request is still current and unmet. */
+    if (token !== _gtTriggerSeq) return false;
+    if (targetLang && targetLang !== 'ko' && isGoogleTranslatedDom() && getCurrentTargetLang() === targetLang) {
+      clearApplyInFlight(targetLang);
+      return true;
+    }
+    try {
+      endTranslationPending({ immediate: true });
+      unlockReaderScrollLocks();
+    } catch (eFail) { /* ignore */ }
+    clearApplyInFlight(targetLang);
     showToast('번역 적용 실패 · Could not apply translation');
     return false;
   }
@@ -1906,12 +2099,12 @@
             try {
               select.dispatchEvent(new Event('change', { bubbles: true }));
             } catch (e0) { /* ignore */ }
-            setTimeout(function () { triggerWidgetLanguage(still, 0); }, 30);
+            setTimeout(function () { beginWidgetLanguageTrigger(still); }, 30);
           } else {
-            triggerWidgetLanguage(still, 0);
+            beginWidgetLanguageTrigger(still);
           }
         } else {
-          triggerWidgetLanguage(still, 0);
+          beginWidgetLanguageTrigger(still);
         }
         if (BOOK_LANG_IDX[still]) {
           setTimeout(function () { applyBookNameI18n(still); }, 800);
@@ -1922,6 +2115,7 @@
     return true;
   }
   window.GomnaReaderRetranslateBody = retranslateReaderBody;
+  window.GomnaNormalizeReaderScrollStyles = normalizeReaderScrollStylesToKoreanBaseline;
 
   function showToast(msg) {
     let t = document.getElementById('gt-feature-toast');
@@ -1999,13 +2193,31 @@
 
     // No-op: same language already active (unless cleaning a Google-translated DOM).
     // Capture current BEFORE any optimistic display flag so EN/JA taps are not no-ops.
-    if (currentLang === nextLang && !(homeNative && isGoogleTranslatedDom()) &&
-        !(readerNativePair && nextLang === 'ko' && isGoogleTranslatedDom())) {
+    // Reader en/ja can report "active" via gomna_ui_language while the verse body is
+    // still Korean (Google not applied) — do not no-op in that stuck state.
+    var readerBodyNeedsGoogle =
+      readerNativePair &&
+      nextLang !== 'ko' &&
+      !isGoogleTranslatedDom();
+    if (
+      currentLang === nextLang &&
+      !readerBodyNeedsGoogle &&
+      !(homeNative && isGoogleTranslatedDom()) &&
+      !(readerNativePair && nextLang === 'ko' && isGoogleTranslatedDom())
+    ) {
       closeModal();
       try { window.__gomnaBridgeDisplayLang = null; } catch (ePend2) { /* ignore */ }
       dispatchReaderLanguageChange(nextLang, applySource + '-noop');
       return;
     }
+
+    /* Drop duplicate in-flight applies for the same target (rapid globe / bridge taps). */
+    if (isApplyInFlight(nextLang) && !readerBodyNeedsGoogle) {
+      closeModal();
+      return;
+    }
+    cancelWidgetLanguageTrigger();
+    markApplyInFlight(nextLang);
 
     try { window.__gomnaBridgeDisplayLang = nextLang; } catch (ePend) { /* ignore */ }
 
@@ -2093,7 +2305,7 @@
 
       startTranslationPending();
       ensureTranslateWidget();
-      triggerWidgetLanguage(nextLang);
+      beginWidgetLanguageTrigger(nextLang);
       watchTranslationPendingComplete();
       if (BOOK_LANG_IDX[nextLang]) {
         setTimeout(function () { applyBookNameI18n(nextLang); }, 900);
@@ -2575,6 +2787,15 @@
     }
   }
 
+  function isCommentaryPopupOpen() {
+    try {
+      var pop = document.getElementById('commentaryPopup');
+      return !!(pop && pop.classList.contains('show'));
+    } catch (e) {
+      return false;
+    }
+  }
+
   function openModal() {
     const modal = document.getElementById('gtModal');
     if (!modal) return;
@@ -2595,6 +2816,8 @@
     _gtModalOpener = document.activeElement;
     modal.classList.add('show');
     modal.setAttribute('aria-hidden', 'false');
+    /* Keep commentary open under the language modal; restore overflow on close. */
+    _gtPrevBodyOverflow = document.body.style.overflow || '';
     document.body.style.overflow = 'hidden';
     setTimeout(function () { if (input && window.matchMedia('(min-width:481px)').matches) input.focus(); }, 250);
   }
@@ -2606,7 +2829,12 @@
     _gtModalView = 'popular';
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    if (isCommentaryPopupOpen()) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = _gtPrevBodyOverflow || '';
+    }
+    _gtPrevBodyOverflow = null;
     var opener = _gtModalOpener;
     _gtModalOpener = null;
     if (opener && typeof opener.focus === 'function' && document.contains(opener)) {

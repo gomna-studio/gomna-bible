@@ -28,11 +28,13 @@
   var currentCueKey = null;
   var touchStartY = 0;
   var modalTouchListenersBound = false;
+  var languageChangeListenerBound = false;
 
   var currentContext = null;
   var currentCommentaryItems = [];
   var currentCommentaryAudioIds = [];
   var currentSequenceSource = '';
+  var currentSelectedType = 'original-language';
 
   // Future Matthew Henry audio option:
   // English originals can later be generated with a separate en-US voice,
@@ -649,6 +651,123 @@
     return bookId + '.' + pad3(chapter) + '.' + pad3(verse) + '.' + type;
   }
 
+  /**
+   * App language for commentary audio — only the user's selected app language.
+   * Never use navigator.language, translated button labels, or previous audio locale.
+   * Mapping: ko → base ID, en → .en-US, ja/jp → .ja-JP
+   */
+  function normalizeAppLangCode(raw) {
+    var primary;
+
+    if (raw == null || !String(raw).trim()) return null;
+
+    primary = String(raw)
+      .trim()
+      .toLowerCase()
+      .replace(/_/g, '-')
+      .split('-')[0];
+
+    if (primary === 'jp') primary = 'ja';
+    if (primary === 'ko' || primary === 'en' || primary === 'ja') return primary;
+    return null;
+  }
+
+  function getSelectedAppLanguageForAudio() {
+    var raw = null;
+
+    // 1) Language-change event latch (set before button refresh).
+    raw = normalizeAppLangCode(window.__gomnaCommentaryAudioLang);
+    if (raw) return raw;
+
+    // 2) Pending bridge display lang during applyLanguage.
+    try {
+      raw = normalizeAppLangCode(window.__gomnaBridgeDisplayLang);
+      if (raw) return raw;
+    } catch (e0) { /* ignore */ }
+
+    // 3) Explicit app selection storage (ko/en/ja).
+    try {
+      raw = normalizeAppLangCode(localStorage.getItem('gomna_ui_language'));
+      if (raw) return raw;
+    } catch (e1) { /* ignore */ }
+
+    // 4) Reader UI resolver (cookie / combo / storage).
+    try {
+      if (typeof window.getReaderUiLangCode === 'function') {
+        raw = normalizeAppLangCode(window.getReaderUiLangCode());
+        if (raw) return raw;
+      }
+    } catch (e2) { /* ignore */ }
+
+    // 5) Reader lang bridge.
+    try {
+      if (
+        window.GomnaReaderLangBridge &&
+        typeof window.GomnaReaderLangBridge.getActiveLanguage === 'function'
+      ) {
+        raw = normalizeAppLangCode(window.GomnaReaderLangBridge.getActiveLanguage());
+        if (raw) return raw;
+      }
+    } catch (e3) { /* ignore */ }
+
+    // 6) Shared active-lang helper last.
+    try {
+      if (typeof window.GomnaGetActiveLangCode === 'function') {
+        raw = normalizeAppLangCode(window.GomnaGetActiveLangCode());
+        if (raw) return raw;
+      }
+    } catch (e4) { /* ignore */ }
+
+    return 'ko';
+  }
+
+  function resolveCommentaryAudioTarget(baseAudioId) {
+    var normalized = getSelectedAppLanguageForAudio() || 'ko';
+
+    if (normalized === 'en') {
+      return {
+        baseAudioId: baseAudioId,
+        audioId: baseAudioId + '.en-US',
+        locale: 'en-US',
+        language: 'en'
+      };
+    }
+
+    if (normalized === 'ja') {
+      return {
+        baseAudioId: baseAudioId,
+        audioId: baseAudioId + '.ja-JP',
+        locale: 'ja-JP',
+        language: 'ja'
+      };
+    }
+
+    return {
+      baseAudioId: baseAudioId,
+      audioId: baseAudioId,
+      locale: 'ko-KR',
+      language: 'ko'
+    };
+  }
+
+  function showCommentaryLanguageUnavailableMessage(language) {
+    var message;
+
+    if (language === 'en') {
+      message = 'Audio commentary in English is being prepared.';
+    } else if (language === 'ja') {
+      message = '日本語の音声解説は準備中です。';
+    } else {
+      return;
+    }
+
+    if (typeof window.GOMNA_AUDIO_TOAST === 'function') {
+      window.GOMNA_AUDIO_TOAST(message);
+    } else {
+      console.warn('[GOMNA_AUDIO]', message);
+    }
+  }
+
   function getPopup() {
     return document.getElementById('commentaryPopup');
   }
@@ -878,6 +997,9 @@
       controls.appendChild(replayBtn);
       controls.appendChild(closeBtn);
       box.insertBefore(controls, content.nextSibling);
+      if (typeof window.ensureCommentaryScrollShell === 'function') {
+        try { window.ensureCommentaryScrollShell(); } catch (eShell) { /* ignore */ }
+      }
 
     } else {
       listenBtn = document.getElementById(LISTEN_BTN_ID);
@@ -1092,7 +1214,10 @@
   function getCommentaryContext() {
     var content = getContent();
     var pick = content && content.querySelector('.commentary-nav-pick-txt');
-    var text = pick ? pick.textContent.replace(/\s+/g, ' ').trim() : '';
+    var sourceRef = pick && pick.getAttribute('data-commentary-source-ref');
+    var text = String(sourceRef || (pick && pick.textContent) || '')
+      .replace(/\s+/g, ' ')
+      .trim();
     var match = text.match(/^(.+?)\s+(\d+):(\d+)$/);
 
     if (match) {
@@ -1119,6 +1244,19 @@
           chapter: window.currentChapter,
           verse: parseInt(match[3], 10)
         };
+      }
+
+      // Fallback: keep current book/chapter, take verse from source ref digits if present.
+      if (bookIdFromCurrent && sourceRef) {
+        var verseOnly = sourceRef.match(/(\d+)\s*:\s*(\d+)\s*$/);
+        if (verseOnly) {
+          return {
+            bookName: window.currentBook.name,
+            bookId: bookIdFromCurrent,
+            chapter: parseInt(verseOnly[1], 10) || window.currentChapter,
+            verse: parseInt(verseOnly[2], 10)
+          };
+        }
       }
     }
 
@@ -1183,14 +1321,23 @@
     resetCommentaryPlaybackState();
     currentContext = ctx;
     currentCommentaryItems = COMMENTARY_TYPE_TEMPLATES.map(function(template) {
-      var audioId = buildCommentaryAudioId(ctx.bookId, ctx.chapter, ctx.verse, template.type);
+      var baseAudioId = buildCommentaryAudioId(
+        ctx.bookId,
+        ctx.chapter,
+        ctx.verse,
+        template.type
+      );
+      var target = resolveCommentaryAudioTarget(baseAudioId);
 
       return {
         title: template.title,
         tabId: template.tabId,
         type: template.type,
-        audioId: audioId,
-        published: isPublishedAudioId(audioId)
+        baseAudioId: baseAudioId,
+        audioId: target.audioId,
+        locale: target.locale,
+        language: target.language,
+        published: isPublishedAudioId(target.audioId)
       };
     });
     currentCommentaryAudioIds = currentCommentaryItems.map(function(item) {
@@ -1510,7 +1657,9 @@
     if (!item || !listenBtn || !replayBtn || !seqBtn) return;
 
     listenBtn.setAttribute('data-audio-id', item.audioId);
+    listenBtn.setAttribute('data-gomna-commentary-type', item.type);
     replayBtn.setAttribute('data-audio-replay-id', item.audioId);
+    replayBtn.setAttribute('data-gomna-commentary-type', item.type);
 
     if (!item.published) {
       listenBtn.disabled = true;
@@ -1585,19 +1734,46 @@
     }
   }
 
+  function getItemByType(type) {
+    var normalized = String(type || '').trim();
+    var i;
+
+    if (!normalized) return null;
+
+    for (i = 0; i < currentCommentaryItems.length; i++) {
+      if (currentCommentaryItems[i].type === normalized) {
+        return currentCommentaryItems[i];
+      }
+    }
+
+    return null;
+  }
+
   function getActiveCommentaryItem(content) {
     var activeTab;
     var item;
+    var typeFromWindow;
 
-    if (!content) return currentCommentaryItems[0] || null;
+    if (!content) {
+      return getItemByType(currentSelectedType) || currentCommentaryItems[0] || null;
+    }
 
     activeTab = content.querySelector('.commentary-tab.active:not(' + ALL_TABS_BUTTON_SELECTOR + ')') ||
       content.querySelector('.commentary-tab.' + ACTIVE_TAB_CLASS + ':not(' + ALL_TABS_BUTTON_SELECTOR + ')');
 
     if (activeTab) {
       item = getItemByTabButton(content, activeTab);
-      if (item) return item;
+      if (item) {
+        currentSelectedType = item.type;
+        return item;
+      }
     }
+
+    typeFromWindow =
+      (typeof window.currentCommentaryType === 'string' && window.currentCommentaryType) ||
+      currentSelectedType;
+    item = getItemByType(typeFromWindow);
+    if (item) return item;
 
     return currentCommentaryItems[0] || null;
   }
@@ -1737,7 +1913,8 @@
 
       audioId = cueEl.getAttribute('data-audio-id');
       item = getItemByAudioId(audioId);
-      if (!item || !item.published) return;
+      // Matthew Henry cues keep the locale-free base ID for lookup and playback.
+      if (!item || !isPublishedAudioId(audioId)) return;
 
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -1789,31 +1966,80 @@
       if (tabs[i].matches(ALL_TABS_BUTTON_SELECTOR)) continue;
       if (tabs[i].getAttribute(TAB_AUDIO_ATTR) === 'true') continue;
 
-      tabs[i].setAttribute(TAB_AUDIO_ATTR, 'true');
-      tabs[i].addEventListener('click', function() {
-        var item = getItemByTabButton(content, this);
+      // Ensure stable internal type IDs even on older rendered markup.
+      if (!tabs[i].getAttribute('data-gomna-commentary-type')) {
+        for (var j = 0; j < COMMENTARY_TYPE_TEMPLATES.length; j++) {
+          if (COMMENTARY_TYPE_TEMPLATES[j].tabId === tabs[i].getAttribute('data-gomna-commentary-tab-id')) {
+            tabs[i].setAttribute(
+              'data-gomna-commentary-type',
+              COMMENTARY_TYPE_TEMPLATES[j].type
+            );
+            break;
+          }
+        }
+      }
 
-        if (!item) return;
-        jumpSequenceToItemIfActive(item);
+      tabs[i].setAttribute(TAB_AUDIO_ATTR, 'true');
+      // Tabs must remain clickable regardless of manifest/audio readiness.
+      tabs[i].disabled = false;
+      tabs[i].removeAttribute('aria-disabled');
+      tabs[i].style.pointerEvents = '';
+      tabs[i].addEventListener('click', function(event) {
+        var tab = this;
+        var type = String(tab.getAttribute('data-gomna-commentary-type') || '').trim();
+        var tabId = String(tab.getAttribute('data-gomna-commentary-tab-id') || '').trim();
+        var item = getItemByTabButton(content, tab);
+
+        // Panel switch first (independent of published audio). Prefer type IDs.
+        if (typeof window.switchCommentaryTab === 'function') {
+          window.switchCommentaryTab(tab, tabId || (item && item.tabId) || '');
+        } else if (type) {
+          currentSelectedType = type;
+        }
+
+        if (item) {
+          currentSelectedType = item.type;
+          // Sequence seek is optional; never early-return before panel switch.
+          jumpSequenceToItemIfActive(item);
+        } else if (type) {
+          currentSelectedType = type;
+        }
+
+        // Audio/cue sync after panel is open. Preparing audio only affects listen UI.
         setTimeout(function() {
           syncCommentaryFooterControls(content);
           syncInlineControls(content);
           updateCommentaryButtonLabels();
+          clearInactiveCommentaryHighlights();
         }, 0);
       });
     }
   }
 
   function getItemByTabButton(content, tab) {
+    var type;
+    var tabId;
+    var i;
+    var item;
+
     if (!tab) return null;
 
-    for (var i = 0; i < currentCommentaryItems.length; i++) {
-      var item = currentCommentaryItems[i];
-      if (getTabButtonForItem(content, item) === tab) {
-        return item;
+    type = String(tab.getAttribute('data-gomna-commentary-type') || '').trim();
+    if (type) {
+      item = getItemByType(type);
+      if (item) return item;
+    }
+
+    tabId = String(tab.getAttribute('data-gomna-commentary-tab-id') || '').trim();
+    if (tabId) {
+      for (i = 0; i < currentCommentaryItems.length; i++) {
+        if (currentCommentaryItems[i].tabId === tabId) {
+          return currentCommentaryItems[i];
+        }
       }
     }
 
+    // Never resolve commentary type from visible ko/en/ja label text.
     return null;
   }
 
@@ -1827,12 +2053,32 @@
 
   function getItemByAudioId(audioId) {
     for (var i = 0; i < currentCommentaryItems.length; i++) {
-      if (currentCommentaryItems[i].audioId === audioId) {
+      if (
+        currentCommentaryItems[i].audioId === audioId ||
+        currentCommentaryItems[i].baseAudioId === audioId
+      ) {
         return currentCommentaryItems[i];
       }
     }
 
     return null;
+  }
+
+  function applyResolvedCommentaryTarget(item) {
+    var baseId;
+    var target;
+
+    if (!item) return null;
+
+    baseId = item.baseAudioId || item.audioId;
+    target = resolveCommentaryAudioTarget(baseId);
+    item.baseAudioId = baseId;
+    item.audioId = target.audioId;
+    item.locale = target.locale;
+    item.language = target.language;
+    item.published = isPublishedAudioId(target.audioId);
+
+    return target;
   }
 
   var CommentaryAudioController = {
@@ -1865,10 +2111,21 @@
     playSingle: function(audioId) {
       var engine = this.getEngine();
       var state = this.getState();
+      var item = getItemByAudioId(audioId);
+      var target;
+      var resolvedAudioId;
 
-      if (!engine || !engine.playAudioById || !getItemByAudioId(audioId)) return false;
+      if (!engine || !engine.playAudioById || !item) return false;
 
-      if (state && state.currentAudioId === audioId) {
+      target = applyResolvedCommentaryTarget(item);
+      resolvedAudioId = target.audioId;
+
+      if ((target.language === 'en' || target.language === 'ja') && !item.published) {
+        showCommentaryLanguageUnavailableMessage(target.language);
+        return false;
+      }
+
+      if (state && state.currentAudioId === resolvedAudioId) {
         if (state.isPlaying && engine.pauseAudio) {
           engine.pauseAudio();
           updateCommentaryButtonLabels();
@@ -1882,25 +2139,38 @@
         }
       }
 
-      this.startSingleFromBeginning(audioId);
-      return true;
+      return this.startSingleFromBeginning(item.baseAudioId || audioId);
     },
 
     replaySingle: function(audioId) {
-      return this.startSingleFromBeginning(audioId);
+      var item = getItemByAudioId(audioId);
+      if (!item) return false;
+      // Same resolution path as playSingle: locale comes from active language.
+      return this.startSingleFromBeginning(item.baseAudioId || audioId);
     },
 
     startSingleFromBeginning: function(audioId) {
       var engine = this.getEngine();
       var state = this.getState();
+      var item = getItemByAudioId(audioId);
+      var target;
+      var resolvedAudioId;
 
-      if (!engine || !engine.playAudioById || !getItemByAudioId(audioId)) return false;
+      if (!engine || !engine.playAudioById || !item) return false;
 
-      clearCommentaryCompleted(audioId);
+      target = applyResolvedCommentaryTarget(item);
+      resolvedAudioId = target.audioId;
+
+      if ((target.language === 'en' || target.language === 'ja') && !item.published) {
+        showCommentaryLanguageUnavailableMessage(target.language);
+        return false;
+      }
+
+      clearCommentaryCompleted(resolvedAudioId);
       currentCueKey = null;
       lastSequenceQueueIndex = -1;
       this.stopForTransition(engine, state);
-      engine.playAudioById(audioId, { startTime: 0 });
+      engine.playAudioById(resolvedAudioId, { startTime: 0 });
       updateCommentaryButtonLabels();
       return true;
     },
@@ -2103,8 +2373,8 @@
       if (activeAudioId === item.audioId) {
         button.classList.add(ACTIVE_BUTTON_CLASS);
         button.setAttribute('aria-pressed', 'true');
-        markActiveCommentaryTab(content, item);
-        markActiveCommentarySection(content, item);
+        // Audio playback must never steal the selected commentary tab/panel.
+        // Panel visibility and .active selection belong to user tab clicks.
       } else {
         button.classList.remove(ACTIVE_BUTTON_CLASS);
         button.setAttribute('aria-pressed', 'false');
@@ -2172,23 +2442,74 @@
   function getTabButtonForItem(content, item) {
     if (!content || !item) return null;
 
+    var byType = content.querySelector(
+      '.commentary-tab[data-gomna-commentary-type="' + item.type + '"]'
+    );
+    if (byType) return byType;
+
     var byId = content.querySelector(
       '.commentary-tab[data-gomna-commentary-tab-id="' + item.tabId + '"]'
     );
     if (byId) return byId;
 
-    var tabs = content.querySelectorAll('.commentary-tab');
-    var localized = commentaryItemLabel(item);
+    // Do not fall back to visible label text (ko/en/ja). Type IDs are authoritative.
+    return null;
+  }
 
-    for (var i = 0; i < tabs.length; i++) {
-      if (tabs[i].matches(ALL_TABS_BUTTON_SELECTOR)) continue;
-      var text = (tabs[i].textContent || '').replace(/\s+/g, ' ').trim();
-      if (text === item.title || text === localized) {
-        return tabs[i];
+  function clearInactiveCommentaryHighlights() {
+    try {
+      if (
+        window.GOMNA_CARD_HIGHLIGHT &&
+        typeof window.GOMNA_CARD_HIGHLIGHT.clearHighlight === 'function'
+      ) {
+        window.GOMNA_CARD_HIGHLIGHT.clearHighlight();
+        return;
       }
+    } catch (e0) {
+      /* ignore */
     }
 
-    return null;
+    // Must match gomna-card-highlight-test.js ACTIVE_CLASS.
+    Array.prototype.forEach.call(
+      document.querySelectorAll(
+        '.gomna-commentary-card-active, .gomna-card-highlight-active, .gomna-commentary-card-highlight'
+      ),
+      function(node) {
+        node.classList.remove('gomna-commentary-card-active');
+        node.classList.remove('gomna-card-highlight-active');
+        node.classList.remove('gomna-commentary-card-highlight');
+      }
+    );
+  }
+
+  function onCommentaryTypeSelected(type) {
+    var content = getContent();
+    var item = getItemByType(type);
+    var tab;
+
+    if (item) {
+      currentSelectedType = item.type;
+    } else if (type) {
+      currentSelectedType = String(type);
+    }
+
+    if (!content) return;
+
+    // Panel visibility is already handled by switchCommentaryTab.
+    // Only sync audio selection / cue targets / highlight cleanup here.
+    clearActiveCommentaryDisplay(content);
+    if (item) {
+      tab = getTabButtonForItem(content, item);
+      if (tab) {
+        tab.classList.add(ACTIVE_TAB_CLASS);
+        tab.setAttribute('aria-current', 'true');
+      }
+      markActiveCommentarySection(content, item);
+    }
+    syncCommentaryFooterControls(content);
+    syncInlineControls(content);
+    updateCommentaryButtonLabels();
+    clearInactiveCommentaryHighlights();
   }
 
   function getReplayButtonForItem(content, item) {
@@ -2202,10 +2523,8 @@
 
     if (!tab) return;
 
-    if (!tab.classList.contains('active') && typeof window.switchCommentaryTab === 'function') {
-      window.switchCommentaryTab(tab, item.tabId);
-    }
-
+    // Visual audio-active marker only. Never call switchCommentaryTab here —
+    // unpublished/preparing audio and active playback must not change panels.
     tab.classList.add(ACTIVE_TAB_CLASS);
     tab.setAttribute('aria-current', 'true');
   }
@@ -2238,11 +2557,118 @@
   }
 
   function refreshPublishedFlags() {
+    var item;
+    var i;
+
     if (!currentCommentaryItems.length) return;
 
-    for (var i = 0; i < currentCommentaryItems.length; i++) {
-      currentCommentaryItems[i].published = isPublishedAudioId(currentCommentaryItems[i].audioId);
+    for (i = 0; i < currentCommentaryItems.length; i++) {
+      item = currentCommentaryItems[i];
+      applyResolvedCommentaryTarget(item);
     }
+
+    currentCommentaryAudioIds = currentCommentaryItems.map(function(entry) {
+      return entry.audioId;
+    });
+  }
+
+  function stopCommentaryIfLanguageMismatch(nextLang) {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var currentId;
+    var expected;
+
+    if (!engine || !state || !state.currentAudioId || !isCommentaryAudioId(state.currentAudioId)) {
+      return;
+    }
+
+    currentId = String(state.currentAudioId);
+    if (nextLang === 'ja') {
+      expected = /\.ja-JP$/;
+    } else if (nextLang === 'en') {
+      expected = /\.en-US$/;
+    } else {
+      expected = null;
+    }
+
+    if (nextLang === 'ja' || nextLang === 'en') {
+      if (!expected.test(currentId)) {
+        try { engine.stopAudio(); } catch (e0) { /* ignore */ }
+      }
+      return;
+    }
+
+    // ko: stop localized EN/JA tracks so Korean base IDs take over cleanly.
+    if (/\.(en-US|ja-JP)$/.test(currentId)) {
+      try { engine.stopAudio(); } catch (e1) { /* ignore */ }
+    }
+  }
+
+  function handleCommentaryLanguageChange(event) {
+    var previousIds = [];
+    var i;
+    var item;
+    var previousId;
+    var button;
+    var replayButton;
+    var section;
+    var content;
+    var nextLang = null;
+    var detail = event && event.detail;
+
+    // Order: latch selected app language FIRST, then recompute audio IDs / cues / buttons.
+    if (detail && detail.activeLanguage) {
+      nextLang = normalizeAppLangCode(detail.activeLanguage);
+    }
+    if (!nextLang) {
+      nextLang = getSelectedAppLanguageForAudio();
+    }
+    if (nextLang) {
+      window.__gomnaCommentaryAudioLang = nextLang;
+      try {
+        if (nextLang === 'ko' || nextLang === 'en' || nextLang === 'ja') {
+          localStorage.setItem('gomna_ui_language', nextLang);
+        }
+      } catch (eStore) { /* ignore */ }
+    }
+
+    stopCommentaryIfLanguageMismatch(nextLang || 'ko');
+    clearInactiveCommentaryHighlights();
+
+    if (!currentCommentaryItems.length) return;
+
+    for (i = 0; i < currentCommentaryItems.length; i++) {
+      previousIds.push(currentCommentaryItems[i].audioId);
+    }
+
+    refreshPublishedFlags();
+
+    for (i = 0; i < currentCommentaryItems.length; i++) {
+      item = currentCommentaryItems[i];
+      previousId = previousIds[i];
+      button =
+        findCommentaryButtonByAudioId(previousId) ||
+        findCommentaryButtonByAudioId(item.audioId);
+      replayButton =
+        findReplayButtonByAudioId(previousId) ||
+        findReplayButtonByAudioId(item.audioId);
+
+      if (button) updateSingleCommentaryButton(button, item);
+      if (replayButton) updateReplayButton(replayButton, item);
+
+      section = document.getElementById(item.tabId);
+      if (section) {
+        section.setAttribute('data-audio-target', item.audioId);
+      }
+    }
+
+    content = getContent();
+    updateCommentaryButtonLabels();
+    if (content) {
+      syncInlineControls(content);
+      syncCommentaryFooterControls(content);
+    }
+    clearInactiveCommentaryHighlights();
   }
 
   function addCommentaryButtons() {
@@ -2289,21 +2715,37 @@
     }, 50);
   }
 
+  function getCommentaryScrollContainer() {
+    return document.getElementById('commentaryScrollArea') || getContent();
+  }
+
+  function usesUnifiedCommentaryScroll() {
+    return !!document.getElementById('commentaryScrollArea');
+  }
+
   function stopCommentaryHeaderDrag(event) {
     var header;
     var target = event.target;
+    var isTouch = !!(event.type && event.type.indexOf('touch') === 0);
 
     if (!document.body.classList.contains(MODAL_OPEN_CLASS)) return;
     if (event.touches && event.touches.length >= 2) return;
 
     header = document.getElementById('popupDragHeader');
     if (!header || !target || !header.contains(target)) return;
-    if (target.tagName === 'BUTTON' || target.closest('button')) return;
+    if (target.tagName === 'BUTTON' || (target.closest && target.closest('button'))) return;
+
+    /*
+     * Unified #commentaryScrollArea: header is inside the native scroller.
+     * Never preventDefault on touch — that blocks vertical pan-y scroll.
+     * Desktop mouse can still stop legacy popup-drag bubbling.
+     */
+    if (usesUnifiedCommentaryScroll() && isTouch) return;
 
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    if (event.cancelable) {
+    if (!isTouch && event.cancelable) {
       event.preventDefault();
     }
   }
@@ -2315,11 +2757,14 @@
     if (event.touches && event.touches.length >= 2) return;
     if (touch) touchStartY = touch.clientY;
 
+    /* Unified scroll: do not capture/cancel header touches. */
+    if (usesUnifiedCommentaryScroll()) return;
+
     stopCommentaryHeaderDrag(event);
   }
 
   function handleCommentaryTouchMove(event) {
-    var content;
+    var scrollEl;
     var touch;
     var deltaY;
     var atTop;
@@ -2328,14 +2773,22 @@
     if (!document.body.classList.contains(MODAL_OPEN_CLASS)) return;
     if (event.touches && event.touches.length >= 2) return;
 
-    content = getContent();
+    /*
+     * With unified scroll shell, #commentaryContent is overflow:visible and
+     * not a scroller. The old content.scrollTop edge check always looked
+     * "stuck" (atTop && atBottom) and preventDefault'd every touchmove,
+     * freezing iPhone scroll during / after audio open. Leave native pan-y.
+     */
+    if (usesUnifiedCommentaryScroll()) return;
+
+    scrollEl = getCommentaryScrollContainer();
     touch = event.touches && event.touches[0];
 
-    if (content && content.contains(event.target) && touch) {
+    if (scrollEl && scrollEl.contains(event.target) && touch) {
       deltaY = touch.clientY - touchStartY;
       touchStartY = touch.clientY;
-      atTop = content.scrollTop <= 0;
-      atBottom = content.scrollTop + content.clientHeight >= content.scrollHeight - 1;
+      atTop = scrollEl.scrollTop <= 0;
+      atBottom = scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1;
 
       if (!((deltaY > 0 && atTop) || (deltaY < 0 && atBottom))) {
         return;
@@ -2354,8 +2807,8 @@
 
     modalTouchListenersBound = true;
     document.addEventListener('mousedown', stopCommentaryHeaderDrag, true);
-    document.addEventListener('touchstart', stopCommentaryHeaderDrag, { capture: true, passive: false });
-    document.addEventListener('touchstart', handleCommentaryTouchStart, { capture: true, passive: false });
+    /* touchstart guard is passive — never cancel; header drag stop is mouse-only for unified scroll */
+    document.addEventListener('touchstart', handleCommentaryTouchStart, { capture: true, passive: true });
     document.addEventListener('touchmove', handleCommentaryTouchMove, { capture: true, passive: false });
   }
 
@@ -2455,6 +2908,11 @@
 
   window.addEventListener('audio:error', updateCommentaryButtonLabels);
 
+  if (!languageChangeListenerBound) {
+    languageChangeListenerBound = true;
+    window.addEventListener('gomna:languagechange', handleCommentaryLanguageChange);
+  }
+
   window.GOMNA_AUDIO_COMMENTARY_BUTTONS = {
     isCommentaryAudioId: isCommentaryAudioId,
     isCommentarySequenceSource: function(source) {
@@ -2465,8 +2923,25 @@
     },
     getSequenceAudioIds: function() {
       return getPublishedSequenceAudioIds().slice();
-    }
+    },
+    getActiveItem: function() {
+      return getActiveCommentaryItem(getContent());
+    },
+    getSelectedType: function() {
+      return currentSelectedType;
+    },
+    getAppLanguage: getSelectedAppLanguageForAudio,
+    resolveAudioTarget: resolveCommentaryAudioTarget
   };
+
+  // Latch current app language on boot so first play never falls back via stale defaults.
+  try {
+    window.__gomnaCommentaryAudioLang = getSelectedAppLanguageForAudio();
+  } catch (eBootLang) {
+    window.__gomnaCommentaryAudioLang = 'ko';
+  }
+
+  window.__gomnaCommentaryOnTypeSelected = onCommentaryTypeSelected;
 
   console.log('[GOMNA_AUDIO] gomna-audio-commentary-buttons.js loaded');
 })();

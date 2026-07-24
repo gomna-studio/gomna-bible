@@ -97,8 +97,33 @@
   }
 
   var ACTIVE_CLASS = 'gomna-commentary-card-active';
+  /* Near-center band ~±15% of visible height (mobile commentary auto-follow). */
   var CENTER_TOP_RATIO = 0.35;
   var CENTER_BOTTOM_RATIO = 0.65;
+  var USER_IDLE_RESUME_MS = 1400;
+  /*
+   * Cue timing correction (seconds). Default 0 — only change after measured
+   * same-direction lag across multiple KO/EN/JA samples. Cap ±0.12s.
+   */
+  var CUE_TIME_OFFSET_BY_LOCALE = {
+    'ko-KR': 0,
+    'en-US': 0,
+    'ja-JP': 0
+  };
+  var CUE_TIME_OFFSET_DEFAULT = 0;
+
+  var isUserInteracting = false;
+  var isAutoCentering = false;
+  var isHeaderPullDragging = false;
+  var isSeekUiActive = false;
+  var autoCenterGeneration = 0;
+  var autoCenterToken = 0;
+  var resumeFollowTimerId = null;
+  var lastUserInputAt = 0;
+  var lastFollowedKey = '';
+  var lastFollowedAudioId = '';
+  var autoCenterListenersBound = false;
+  var ignoreProgrammaticScrollUntil = 0;
 
   function normalizeCompact(text) {
     return String(text || '').replace(/\s+/g, '');
@@ -247,6 +272,7 @@
   };
 
   var boundAudio = null;
+  var boundAudioId = null;
   var lastRowIndex = -1;
   var lastRowIndicesKey = '';
   var activeAudioId = null;
@@ -259,17 +285,92 @@
     return getTypeFromAudioId(audioId) === 'cross-reference';
   }
 
-  function getPlaybackCurrentTime(state, audio) {
-    var element = audio || boundAudio;
-    if (element && Number.isFinite(element.currentTime)) {
-      return element.currentTime;
+  function getLivePlaybackAudio(state) {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var live = engine && engine._state ? engine._state.currentAudio : null;
+    var liveId = engine && engine._state ? engine._state.currentAudioId : null;
+
+    if (
+      live &&
+      state &&
+      state.currentAudioId &&
+      liveId === state.currentAudioId
+    ) {
+      return live;
     }
-    return state ? (Number(state.currentTime) || 0) : 0;
+
+    if (boundAudio && boundAudioId && state && boundAudioId === state.currentAudioId) {
+      return boundAudio;
+    }
+
+    return live || boundAudio || null;
+  }
+
+  function getCueTimeOffsetSeconds(audioId) {
+    var parsed = parseCommentaryHighlightAudioId(audioId);
+    var locale = parsed && parsed.locale ? parsed.locale : '';
+    var offset = Object.prototype.hasOwnProperty.call(CUE_TIME_OFFSET_BY_LOCALE, locale)
+      ? CUE_TIME_OFFSET_BY_LOCALE[locale]
+      : CUE_TIME_OFFSET_DEFAULT;
+    if (!Number.isFinite(offset)) return 0;
+    if (offset > 0.12) return 0.12;
+    if (offset < -0.12) return -0.12;
+    return offset;
+  }
+
+  function getPlaybackCurrentTime(state, audio) {
+    var element = audio || getLivePlaybackAudio(state);
+    var t = 0;
+    var offset = 0;
+    if (element && Number.isFinite(element.currentTime)) {
+      t = element.currentTime;
+    } else {
+      t = state ? (Number(state.currentTime) || 0) : 0;
+    }
+    offset = getCueTimeOffsetSeconds(state && state.currentAudioId);
+    return Math.max(0, t + offset);
+  }
+
+  function parseCommentaryHighlightAudioId(audioId) {
+    var raw;
+    var match;
+    var bookId;
+    var chapter;
+    var verse;
+    var type;
+    var locale;
+    var baseAudioId;
+
+    if (typeof audioId !== 'string' || !audioId) return null;
+
+    raw = audioId;
+    match = raw.match(
+      /^([a-z0-9]+)\.(\d+)\.(\d+)\.([a-z0-9-]+)(?:\.(en-US|ja-JP))?$/
+    );
+    if (!match) return null;
+
+    bookId = match[1];
+    chapter = match[2];
+    verse = match[3];
+    type = match[4];
+    locale = match[5] || 'ko-KR';
+    baseAudioId = bookId + '.' + chapter + '.' + verse + '.' + type;
+
+    return {
+      audioId: raw,
+      baseAudioId: baseAudioId,
+      bookId: bookId,
+      chapter: chapter,
+      verse: verse,
+      verseNum: parseInt(verse, 10),
+      type: type,
+      locale: locale
+    };
   }
 
   function getTypeFromAudioId(audioId) {
-    var parts = String(audioId || '').split('.');
-    return parts.length >= 4 ? parts[parts.length - 1] : null;
+    var parsed = parseCommentaryHighlightAudioId(audioId);
+    return parsed ? parsed.type : null;
   }
 
   function getConfigForAudioId(audioId) {
@@ -281,6 +382,36 @@
     return config ? document.getElementById(config.tabId) : null;
   }
 
+  function extractVerseNumFromRef(ref) {
+    var text = String(ref || '').replace(/\s+/g, ' ').trim();
+    var match;
+
+    if (!text) return null;
+
+    match = text.match(/(\d+)\s*:\s*(\d+)\s*$/);
+    if (match) return parseInt(match[2], 10);
+
+    match = text.match(/(?:^|\s)(\d+)\s*(?:절|節)(?:\s|$)/);
+    if (match) return parseInt(match[1], 10);
+
+    return null;
+  }
+
+  function rowMatchesAudioVerse(row, parsed) {
+    var sourceVerse;
+    var displayVerse;
+
+    if (!row || !parsed || !parsed.verseNum) return true;
+
+    sourceVerse = extractVerseNumFromRef(row.getAttribute('data-commentary-source-ref'));
+    if (sourceVerse != null) return sourceVerse === parsed.verseNum;
+
+    displayVerse = extractVerseNumFromRef(row.getAttribute('data-verse-ref'));
+    if (displayVerse != null) return displayVerse === parsed.verseNum;
+
+    return true;
+  }
+
   function getRows(section, config) {
     if (!section || !config) return [];
     return Array.prototype.filter.call(
@@ -289,6 +420,30 @@
         return item.querySelectorAll(config.cellSelector).length >= config.minCells;
       }
     );
+  }
+
+  function getRowsForAudioId(audioId, section, config) {
+    var parsed = parseCommentaryHighlightAudioId(audioId);
+    var rows = getRows(section, config);
+    var matched;
+
+    if (!parsed || !rows.length) return rows;
+
+    matched = rows.filter(function (row) {
+      return rowMatchesAudioVerse(row, parsed);
+    });
+
+    // If the panel was rebuilt for the playing verse, matched === rows.
+    // If stale rows from another verse linger, keep only the playing verse.
+    return matched.length ? matched : rows;
+  }
+
+  function resetHighlightForAudioId(audioId) {
+    if (activeAudioId === audioId) return;
+    clearHighlight();
+    activeAudioId = audioId || null;
+    lastRowIndex = -1;
+    lastRowIndicesKey = '';
   }
 
   function getScrollBehavior() {
@@ -307,12 +462,46 @@
     );
   }
 
+  function isCommentaryPopupContext() {
+    var pop = document.getElementById('commentaryPopup');
+    if (document.body.classList.contains('gomna-commentary-popup-open')) return true;
+    if (pop && pop.classList.contains('show')) return true;
+    return !!document.getElementById('commentaryScrollArea');
+  }
+
+  function isMobileAutoCenterEnvironment() {
+    try {
+      if (typeof window.matchMedia === 'function') {
+        if (window.matchMedia('(max-width: 900px)').matches) return true;
+        if (window.matchMedia('(pointer: coarse)').matches) return true;
+      }
+    } catch (eMatch) { /* ignore */ }
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  }
+
+  function isLanguageModalOpen() {
+    var modal =
+      document.getElementById('gomnaLangSheet') ||
+      document.querySelector('.gomna-lang-sheet.is-open, .gomna-lang-modal.show, [data-gomna-lang-modal].show');
+    if (!modal) return false;
+    var style = window.getComputedStyle(modal);
+    return style.display !== 'none' && style.visibility !== 'hidden';
+  }
+
+  function getCommentaryScrollHost() {
+    return document.getElementById('commentaryScrollArea');
+  }
+
   function getScrollableParent(element) {
+    var host;
     var parent;
     var style;
     var overflowY;
 
     if (!element) return null;
+
+    host = getCommentaryScrollHost();
+    if (host && host.contains(element)) return host;
 
     parent = element.parentElement;
     while (parent) {
@@ -330,11 +519,29 @@
     return document.scrollingElement || document.documentElement;
   }
 
+  function getVisibleCenterY(scrollContainer) {
+    var containerRect = scrollContainer.getBoundingClientRect();
+    var footer =
+      document.getElementById('gomnaCommentaryInlineControls') ||
+      document.querySelector('#commentaryPopupBox > .gomna-audio-commentary-controls-footer');
+    var visibleBottom = containerRect.bottom;
+    var footerTop;
+    if (footer && isCommentaryPopupContext()) {
+      footerTop = footer.getBoundingClientRect().top;
+      if (footerTop > containerRect.top && footerTop < visibleBottom) {
+        visibleBottom = footerTop;
+      }
+    }
+    return (containerRect.top + visibleBottom) / 2;
+  }
+
   function isCardNearCenter(element, scrollContainer) {
     var containerHeight;
     var relativeCenter;
     var elementRect;
     var containerRect;
+    var visibleCenter;
+    var band;
 
     if (!element) return false;
 
@@ -346,27 +553,113 @@
     if (isDocumentScrollContainer(scrollContainer)) {
       containerHeight = window.innerHeight;
       relativeCenter = elementRect.top + (elementRect.height / 2);
-    } else {
-      containerRect = scrollContainer.getBoundingClientRect();
-      containerHeight = scrollContainer.clientHeight;
-      relativeCenter =
-        (elementRect.top + (elementRect.height / 2)) - containerRect.top;
+      return (
+        relativeCenter >= containerHeight * CENTER_TOP_RATIO &&
+        relativeCenter <= containerHeight * CENTER_BOTTOM_RATIO
+      );
     }
 
-    return (
-      relativeCenter >= containerHeight * CENTER_TOP_RATIO &&
-      relativeCenter <= containerHeight * CENTER_BOTTOM_RATIO
-    );
+    containerRect = scrollContainer.getBoundingClientRect();
+    containerHeight = scrollContainer.clientHeight;
+    visibleCenter = getVisibleCenterY(scrollContainer) - containerRect.top;
+    relativeCenter =
+      (elementRect.top + (elementRect.height / 2)) - containerRect.top;
+    band = Math.max(50, Math.min(90, containerHeight * 0.15));
+    return Math.abs(relativeCenter - visibleCenter) <= band;
   }
+
+  function cancelResumeFollowTimer() {
+    if (resumeFollowTimerId != null) {
+      clearTimeout(resumeFollowTimerId);
+      resumeFollowTimerId = null;
+    }
+  }
+
+  function cancelAutoCentering() {
+    var host;
+    autoCenterToken += 1;
+    if (isAutoCentering) {
+      host = getCommentaryScrollHost();
+      if (host) {
+        try {
+          host.scrollTo({ top: host.scrollTop, behavior: 'auto' });
+        } catch (eStop) {
+          host.scrollTop = host.scrollTop;
+        }
+      }
+    }
+    isAutoCentering = false;
+  }
+
+  function noteUserInteraction(reason) {
+    lastUserInputAt = Date.now();
+    isUserInteracting = true;
+    autoCenterGeneration += 1;
+    cancelAutoCentering();
+    cancelResumeFollowTimer();
+    scheduleResumeFollowAfterIdle();
+    return reason || '';
+  }
+
+  function scheduleResumeFollowAfterIdle() {
+    var gen = autoCenterGeneration;
+    cancelResumeFollowTimer();
+    resumeFollowTimerId = window.setTimeout(function () {
+      var active;
+      resumeFollowTimerId = null;
+      if (gen !== autoCenterGeneration) return;
+      isUserInteracting = false;
+      isHeaderPullDragging = false;
+      lastUserInputAt = 0;
+      if (!shouldAutoCenterActiveCommentaryCard()) return;
+      active = document.querySelector('#commentaryContent .' + ACTIVE_CLASS);
+      if (!active) return;
+      followActiveCard(active, { force: true, fromIdleResume: true });
+    }, USER_IDLE_RESUME_MS);
+  }
+
+  function onHeaderPullStart() {
+    isHeaderPullDragging = true;
+    noteUserInteraction('header-pull-start');
+  }
+
+  function onHeaderPullEnd() {
+    isHeaderPullDragging = false;
+    noteUserInteraction('header-pull-end');
+  }
+
+  function shouldAutoCenterActiveCommentaryCard() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+
+    if (!state || !state.currentAudioId || !activeConfig) return false;
+    if (!getConfigForAudioId(state.currentAudioId)) return false;
+    if (!state.isPlaying) return false;
+    if (lastRowIndex < 0) return false;
+    if (!isCommentaryPopupContext()) return false;
+    if (!isMobileAutoCenterEnvironment()) return false;
+    if (isLanguageModalOpen()) return false;
+    if (isSeekUiActive) return false;
+    if (isHeaderPullDragging) return false;
+    if (isUserInteracting) return false;
+    if (Date.now() - lastUserInputAt < USER_IDLE_RESUME_MS && lastUserInputAt > 0) {
+      return false;
+    }
+    return true;
+  }
+
+  window.shouldAutoCenterActiveCommentaryCard = shouldAutoCenterActiveCommentaryCard;
 
   function centerActiveCard(element, scrollContainer) {
     var behavior;
     var containerRect;
     var elementRect;
     var cardCenterY;
-    var containerCenterY;
+    var visibleCenterY;
     var nextTop;
     var maxTop;
+    var token;
+    var alignTop;
 
     if (!element) return;
 
@@ -376,6 +669,8 @@
     behavior = getScrollBehavior();
 
     if (isDocumentScrollContainer(scrollContainer)) {
+      /* Commentary must never scroll the page/document. */
+      if (isCommentaryPopupContext()) return;
       element.scrollIntoView({
         behavior: behavior,
         block: 'center',
@@ -386,15 +681,32 @@
 
     containerRect = scrollContainer.getBoundingClientRect();
     elementRect = element.getBoundingClientRect();
-    cardCenterY = elementRect.top + (elementRect.height / 2);
-    containerCenterY = containerRect.top + (scrollContainer.clientHeight / 2);
-    nextTop = scrollContainer.scrollTop + (cardCenterY - containerCenterY);
-    maxTop = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+    alignTop = elementRect.height > scrollContainer.clientHeight * 0.9;
+    if (alignTop) {
+      nextTop = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - 12;
+    } else {
+      cardCenterY = elementRect.top + (elementRect.height / 2);
+      visibleCenterY = getVisibleCenterY(scrollContainer);
+      nextTop = scrollContainer.scrollTop + (cardCenterY - visibleCenterY);
+    }
+    maxTop = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
+    nextTop = Math.max(0, Math.min(nextTop, maxTop));
 
+    if (Math.abs(nextTop - scrollContainer.scrollTop) < 2) return;
+
+    token = ++autoCenterToken;
+    isAutoCentering = true;
+    ignoreProgrammaticScrollUntil = Date.now() + (behavior === 'smooth' ? 520 : 80);
     scrollContainer.scrollTo({
-      top: Math.max(0, Math.min(nextTop, maxTop)),
+      top: nextTop,
       behavior: behavior
     });
+
+    window.setTimeout(function () {
+      if (token !== autoCenterToken) return;
+      isAutoCentering = false;
+      ignoreProgrammaticScrollUntil = Date.now() + 80;
+    }, behavior === 'smooth' ? 480 : 64);
   }
 
   function canAutoScroll() {
@@ -406,20 +718,130 @@
     if (!state.isPlaying) return false;
     if (lastRowIndex < 0) return false;
 
+    if (isCommentaryPopupContext()) {
+      return shouldAutoCenterActiveCommentaryCard();
+    }
+
     return true;
   }
 
-  function followActiveCard(element) {
+  function followActiveCard(element, options) {
     var scrollContainer;
+    var opts = options || {};
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var audioId = state && state.currentAudioId;
+    var followKey = lastRowIndicesKey || String(lastRowIndex);
 
     if (!element || !canAutoScroll()) return;
 
     scrollContainer = getScrollableParent(element);
     if (!scrollContainer) return;
-    if (isCardNearCenter(element, scrollContainer)) return;
+    if (isCardNearCenter(element, scrollContainer)) {
+      lastFollowedKey = followKey;
+      lastFollowedAudioId = audioId || '';
+      return;
+    }
 
+    if (
+      !opts.force &&
+      audioId &&
+      lastFollowedAudioId === audioId &&
+      lastFollowedKey === followKey
+    ) {
+      return;
+    }
+
+    lastFollowedKey = followKey;
+    lastFollowedAudioId = audioId || '';
     centerActiveCard(element, scrollContainer);
   }
+
+  function isCommentaryControlInteractionTarget(target) {
+    if (!target || !target.closest) return false;
+    return !!target.closest(
+      '#gomnaCommentaryInlineControls, ' +
+      '.gomna-audio-commentary-controls-footer, ' +
+      '.gomna-commentary-legacy-close-wrap, ' +
+      '.gomna-audio-player, ' +
+      '[data-audio-progress], ' +
+      '[data-audio-action], ' +
+      'button.gomna-commentary-header-close'
+    );
+  }
+
+  function bindCommentaryAutoCenterListeners() {
+    var host;
+    if (autoCenterListenersBound) return;
+    autoCenterListenersBound = true;
+
+    function onUserPointer(e) {
+      if (!isCommentaryPopupContext()) return;
+      if (!e.target || !e.target.closest) return;
+      if (!e.target.closest('#commentaryPopup, #commentaryScrollArea, #commentaryContent, #popupDragHeader')) {
+        return;
+      }
+      /* Listen/close/seek controls must not suspend auto-center for 1400ms. */
+      if (isCommentaryControlInteractionTarget(e.target)) return;
+      if (e.type === 'touchstart' && e.touches && e.touches.length >= 2) {
+        noteUserInteraction('pinch');
+        return;
+      }
+      if (isAutoCentering) cancelAutoCentering();
+      noteUserInteraction(e.type);
+    }
+
+    function onWheel(e) {
+      if (!isCommentaryPopupContext()) return;
+      if (!e.target || !e.target.closest) return;
+      if (!e.target.closest('#commentaryPopup')) return;
+      if (isCommentaryControlInteractionTarget(e.target)) return;
+      noteUserInteraction('wheel');
+    }
+
+    document.addEventListener('touchstart', onUserPointer, { passive: true, capture: true });
+    document.addEventListener('pointerdown', onUserPointer, { passive: true, capture: true });
+    document.addEventListener('wheel', onWheel, { passive: true, capture: true });
+
+    function onCommentaryScroll(e) {
+      var t = e && e.target;
+      if (!isCommentaryPopupContext()) return;
+      if (isAutoCentering) return;
+      if (Date.now() < ignoreProgrammaticScrollUntil) return;
+      if (t && t.id && t.id !== 'commentaryScrollArea') return;
+      noteUserInteraction('scroll');
+    }
+
+    host = getCommentaryScrollHost();
+    if (host) {
+      host.addEventListener('scroll', onCommentaryScroll, { passive: true });
+    }
+    document.addEventListener('scroll', function (e) {
+      var t = e.target;
+      if (!t || t.id !== 'commentaryScrollArea') return;
+      onCommentaryScroll(e);
+    }, { passive: true, capture: true });
+  }
+
+  window.GOMNA_COMMENTARY_AUTO_CENTER = {
+    noteUserInteraction: noteUserInteraction,
+    onHeaderPullStart: onHeaderPullStart,
+    onHeaderPullEnd: onHeaderPullEnd,
+    shouldAutoCenter: shouldAutoCenterActiveCommentaryCard,
+    setSeekUiActive: function (active) {
+      isSeekUiActive = !!active;
+      if (active) noteUserInteraction('seek-ui');
+    },
+    cancelAll: function () {
+      autoCenterGeneration += 1;
+      cancelResumeFollowTimer();
+      cancelAutoCentering();
+      isUserInteracting = false;
+      isHeaderPullDragging = false;
+      isSeekUiActive = false;
+      lastUserInputAt = 0;
+    }
+  };
 
   function speechWeight(text) {
     return Math.max(1, String(text || '').replace(/\s+/g, '').length);
@@ -435,15 +857,38 @@
   }
 
   function audioIdToTtsPath(audioId, config) {
-    var match = String(audioId || '').match(/^([a-z]+)\.(\d+)\.(\d+)\.[^.]+$/);
-    if (!match || !config || !config.textFile) return null;
-    return '/tts-scripts/ko-KR/' + match[1] + '/' + match[2] + '/' + match[3] + '/' + config.textFile;
+    var parsed = parseCommentaryHighlightAudioId(audioId);
+    if (!parsed || !config || !config.textFile) return null;
+    return (
+      '/tts-scripts/' +
+      parsed.locale +
+      '/' +
+      parsed.bookId +
+      '/' +
+      parsed.chapter +
+      '/' +
+      parsed.verse +
+      '/' +
+      config.textFile
+    );
   }
 
   function audioIdToCuePath(audioId) {
-    var match = String(audioId || '').match(/^([a-z]+)\.(\d+)\.(\d+)\.([^.]+)$/);
-    if (!match) return null;
-    return '/audio/cues/ko-KR/' + match[1] + '/' + match[2] + '/' + match[3] + '/' + match[4] + '.json';
+    var parsed = parseCommentaryHighlightAudioId(audioId);
+    if (!parsed) return null;
+    return (
+      '/audio/cues/' +
+      parsed.locale +
+      '/' +
+      parsed.bookId +
+      '/' +
+      parsed.chapter +
+      '/' +
+      parsed.verse +
+      '/' +
+      parsed.type +
+      '.json'
+    );
   }
 
   function rowIndicesKey(indices) {
@@ -607,7 +1052,7 @@
     }
 
     var section = getSection(config);
-    var rows = getRows(section, config);
+    var rows = getRowsForAudioId(audioId, section, config);
     var cuePath = audioIdToCuePath(audioId);
 
     if (!cuePath) {
@@ -627,7 +1072,8 @@
           mode: 'cue',
           duration: cue.duration,
           segments: cue.segments,
-          words: Array.isArray(cue.words) ? cue.words : null
+          words: Array.isArray(cue.words) ? cue.words : null,
+          parsed: parseCommentaryHighlightAudioId(audioId)
         };
         return segmentsByAudioId[audioId];
       })
@@ -704,6 +1150,8 @@
     }
     lastRowIndex = -1;
     lastRowIndicesKey = '';
+    lastFollowedKey = '';
+    lastFollowedAudioId = '';
   }
 
   function applyRowIndex(rows, rowIndex, shouldFollow, rowIndices) {
@@ -735,7 +1183,8 @@
     var allowWhenPaused = !!opts.allowWhenPaused;
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
-    var config = state ? getConfigForAudioId(state.currentAudioId) : null;
+    var audioId = state && state.currentAudioId;
+    var config = audioId ? getConfigForAudioId(audioId) : null;
     var section;
     var rows;
     var segmentBundle;
@@ -743,10 +1192,17 @@
     var timing;
     var indicesKey;
     var currentTime;
+    var liveAudio;
 
-    if (!state || !state.currentAudioId || !config) {
+    if (!state || !audioId || !config) {
       clearHighlight();
       return;
+    }
+
+    // Playing audio ID is the only source of truth for verse/type/locale.
+    if (activeAudioId !== audioId) {
+      resetHighlightForAudioId(audioId);
+      activeConfig = config;
     }
 
     if (!allowWhenPaused && !state.isPlaying) {
@@ -754,19 +1210,18 @@
     }
 
     section = getSection(config);
-    rows = getRows(section, config);
+    rows = getRowsForAudioId(audioId, section, config);
     if (!rows.length) {
       clearHighlight();
       return;
     }
 
-    segmentBundle = segmentsByAudioId[state.currentAudioId];
+    segmentBundle = segmentsByAudioId[audioId];
     if (!segmentBundle || !segmentBundle.segments) return;
 
     segments = segmentBundle.segments;
-    currentTime = isCrossReferenceAudioId(state.currentAudioId)
-      ? getPlaybackCurrentTime(state, boundAudio)
-      : (Number(state.currentTime) || 0);
+    liveAudio = getLivePlaybackAudio(state);
+    currentTime = getPlaybackCurrentTime(state, liveAudio);
 
     if (segmentBundle.mode === 'cue') {
       timing = rowIndexAtTimeFromCue(segments, currentTime);
@@ -833,6 +1288,7 @@
       return;
     }
 
+    lastFollowedKey = '';
     if (isHighlightableActive(state)) {
       refreshCardHighlight({
         shouldFollow: !!state.isPlaying,
@@ -845,20 +1301,35 @@
     }
   }
 
+  function handlePlaybackRateChange() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    if (!state || !isHighlightableActive(state)) return;
+    lastFollowedKey = '';
+    refreshCardHighlight({
+      shouldFollow: !!state.isPlaying,
+      allowWhenPaused: true
+    });
+  }
+
   function unbindAudio() {
     stopPlaybackVisualTick();
     if (boundAudio) {
       boundAudio.removeEventListener('seeked', handlePlaybackSeeked);
+      boundAudio.removeEventListener('ratechange', handlePlaybackRateChange);
     }
     boundAudio = null;
+    boundAudioId = null;
   }
 
   function bindAudio(audio, audioId) {
-    if (boundAudio === audio) return;
+    if (boundAudio === audio && boundAudioId === audioId) return;
     unbindAudio();
     if (!audio) return;
     boundAudio = audio;
+    boundAudioId = audioId || null;
     boundAudio.addEventListener('seeked', handlePlaybackSeeked);
+    boundAudio.addEventListener('ratechange', handlePlaybackRateChange);
   }
 
   function isHighlightableActive(state) {
@@ -869,7 +1340,8 @@
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
     var audio = engine && engine._state ? engine._state.currentAudio : null;
-    var config = state ? getConfigForAudioId(state.currentAudioId) : null;
+    var audioId = state && state.currentAudioId;
+    var config = audioId ? getConfigForAudioId(audioId) : null;
 
     if (!isHighlightableActive(state)) {
       activeAudioId = null;
@@ -879,17 +1351,20 @@
       return;
     }
 
+    if (activeAudioId !== audioId) {
+      resetHighlightForAudioId(audioId);
+    }
     activeConfig = config;
 
     if (state.isPlaying) {
-      bindAudio(audio, state.currentAudioId);
+      bindAudio(audio, audioId);
       startPlaybackVisualTick();
       refreshCardHighlight({ shouldFollow: true, allowWhenPaused: false });
       return;
     }
 
     if (state.isPaused) {
-      bindAudio(audio, state.currentAudioId);
+      bindAudio(audio, audioId);
       return;
     }
 
@@ -902,8 +1377,12 @@
     var config = getConfigForAudioId(audioId);
     if (!audioId || !config) return;
 
+    // New play target: drop previous verse highlight/cue binding immediately.
+    resetHighlightForAudioId(audioId);
     activeAudioId = audioId;
     activeConfig = config;
+    lastFollowedKey = '';
+    lastFollowedAudioId = '';
     loadSegments(audioId, config).then(function () {
       if (activeAudioId !== audioId) return;
       refreshCardHighlight({ shouldFollow: true, allowWhenPaused: true });
@@ -1394,11 +1873,16 @@
 
   window.addEventListener('audio:pause', function () {
     stopCrossRefHighlightTick();
+    cancelResumeFollowTimer();
+    cancelAutoCentering();
     // Keep current row highlight while paused; do not auto-scroll.
   });
 
   window.addEventListener('audio:end', function () {
     stopCrossRefHighlightTick();
+    if (window.GOMNA_COMMENTARY_AUTO_CENTER) {
+      window.GOMNA_COMMENTARY_AUTO_CENTER.cancelAll();
+    }
     activeAudioId = null;
     activeConfig = null;
     unbindAudio();
@@ -1407,6 +1891,9 @@
 
   window.addEventListener('audio:error', function () {
     stopCrossRefHighlightTick();
+    if (window.GOMNA_COMMENTARY_AUTO_CENTER) {
+      window.GOMNA_COMMENTARY_AUTO_CENTER.cancelAll();
+    }
     activeAudioId = null;
     activeConfig = null;
     unbindAudio();
@@ -1417,6 +1904,12 @@
   var cssRules = [];
   var type;
 
+  cssRules.push(
+    '#commentaryContent .commentary-table td{' +
+      'transition:background-color 100ms ease;' +
+    '}'
+  );
+
   for (type in COMMENTARY_TYPE_CONFIG) {
     if (!Object.prototype.hasOwnProperty.call(COMMENTARY_TYPE_CONFIG, type)) continue;
     cssRules.push(
@@ -1424,6 +1917,7 @@
       ' .commentary-table ' +
       COMMENTARY_TYPE_CONFIG[type].itemSelector.split('[')[0] + '.' + ACTIVE_CLASS + ' td{' +
         'background-color:#D8C18A !important;' +
+        'transition:background-color 100ms ease;' +
       '}'
     );
   }
@@ -1432,9 +1926,15 @@
   document.head.appendChild(style);
 
   initExactCueTestManifestOverrides();
+  bindCommentaryAutoCenterListeners();
 
   window.GOMNA_CARD_HIGHLIGHT = {
     startPlaybackVisualTick: startPlaybackVisualTick,
-    stopPlaybackVisualTick: stopPlaybackVisualTick
+    stopPlaybackVisualTick: stopPlaybackVisualTick,
+    clearHighlight: clearHighlight,
+    shouldAutoCenterActiveCommentaryCard: shouldAutoCenterActiveCommentaryCard
   };
+
+  // Compatibility alias used by commentary tab selection cleanup.
+  window.GomnaCardHighlightTest = window.GOMNA_CARD_HIGHLIGHT;
 })();

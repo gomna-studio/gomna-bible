@@ -1,0 +1,40 @@
+{
+  "sourcePath": "tts-scripts/ko-KR/genesis/001/004/counseling.txt",
+  "sourceHashAlgorithm": "sha256",
+  "sourceHash": "0111f17eb48ac281a65569059c7605016df6359a6026f0ff7f410650f283a31a",
+  "sourceLocale": "ko-KR",
+  "targetLocale": "ja-JP",
+  "status": "approved",
+  "translatedAt": "2026-07-23T13:30:48Z",
+  "bookId": "genesis",
+  "chapter": 1,
+  "verse": 4,
+  "type": "counseling",
+  "paragraphCount": 2,
+  "cardCount": 3,
+  "narrationHashAlgorithm": "sha256",
+  "narrationHash": "880c7acc7b85c47c40a26bd4ca88fb8dc1ffa47a3f7ce2bafa72df3e33d982b3",
+  "model": "manual-from-locale-cards",
+  "humanReviewRequired": false,
+  "structureValidated": true,
+  "sourceStructure": {
+    "paragraphCount": 4,
+    "lineCounts": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "totalLineCount": 4
+  },
+  "narrationStructure": {
+    "paragraphCount": 2,
+    "lineCounts": [
+      1,
+      3
+    ],
+    "totalLineCount": 4
+  },
+  "reviewedAt": "2026-07-23T13:51:01Z",
+  "approvedAt": "2026-07-23T13:51:01Z"
+}

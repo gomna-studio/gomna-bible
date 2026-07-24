@@ -492,6 +492,7 @@
   }
 
   function openLanguageModal() {
+    /* Same modal path as home / reader globe — never invent a second translator. */
     if (typeof window.GomnaOpenLanguageModal === 'function') {
       window.GomnaOpenLanguageModal();
       return;
@@ -521,17 +522,27 @@
     var foreignActive = !koActive;
     var cls = 'gomna-lang-bridge' + (compact ? ' gomna-lang-bridge--compact' : '');
     return (
-      '<div class="' + cls + '" role="group" aria-label="Reading language">' +
-        '<button type="button" class="gomna-lang-bridge-btn gomna-lang-bridge-ko' + (koActive ? ' is-active' : '') + '" data-bridge-action="ko" aria-label="Switch to Korean" aria-pressed="' + (koActive ? 'true' : 'false') + '">KO</button>' +
-        '<button type="button" class="gomna-lang-bridge-btn gomna-lang-bridge-swap" data-bridge-action="swap" aria-label="Toggle between Korean and ' + foreign + '">⇄</button>' +
-        '<button type="button" class="gomna-lang-bridge-btn gomna-lang-bridge-foreign' + (foreignActive ? ' is-active' : '') + '" data-bridge-action="foreign" aria-label="Switch to ' + foreign + '" aria-pressed="' + (foreignActive ? 'true' : 'false') + '">' + foreign + '</button>' +
-        '<button type="button" class="gomna-lang-bridge-btn gomna-lang-bridge-globe" data-bridge-action="globe" aria-label="Open language selector">🌐</button>' +
+      '<div class="' + cls + ' notranslate" role="group" aria-label="Reading language" translate="no">' +
+        '<button type="button" class="gomna-lang-bridge-btn gomna-lang-bridge-ko notranslate' + (koActive ? ' is-active' : '') + '" data-bridge-action="ko" translate="no" aria-label="Switch to Korean" aria-pressed="' + (koActive ? 'true' : 'false') + '">KO</button>' +
+        '<button type="button" class="gomna-lang-bridge-btn gomna-lang-bridge-swap notranslate" data-bridge-action="swap" translate="no" aria-label="Toggle between Korean and ' + foreign + '">⇄</button>' +
+        '<button type="button" class="gomna-lang-bridge-btn gomna-lang-bridge-foreign notranslate' + (foreignActive ? ' is-active' : '') + '" data-bridge-action="foreign" translate="no" aria-label="Switch to ' + foreign + '" aria-pressed="' + (foreignActive ? 'true' : 'false') + '">' + foreign + '</button>' +
+        '<button type="button" class="gomna-lang-bridge-btn gomna-lang-bridge-globe notranslate" data-bridge-action="globe" translate="no" aria-label="Open language selector">🌐</button>' +
       '</div>'
     );
   }
 
   function bindBridgeRoot(root) {
-    if (!root || root.getAttribute('data-bridge-bound') === '1') return;
+    if (!root) return;
+    /* Keep pointer/touch/mouse from reaching commentary backdrop / header drag. */
+    if (root.getAttribute('data-bridge-gesture-bound') !== '1') {
+      root.setAttribute('data-bridge-gesture-bound', '1');
+      ['pointerdown', 'mousedown', 'touchstart', 'click'].forEach(function (type) {
+        root.addEventListener(type, function (e) {
+          e.stopPropagation();
+        });
+      });
+    }
+    if (root.getAttribute('data-bridge-bound') === '1') return;
     root.setAttribute('data-bridge-bound', '1');
     root.addEventListener('click', function (e) {
       var btn = e.target && e.target.closest ? e.target.closest('[data-bridge-action]') : null;
@@ -554,6 +565,32 @@
         openLanguageModal();
       }
     });
+  }
+
+  function ensureCommentaryToolbar() {
+    var content = document.getElementById('commentaryContent');
+    if (!content) return null;
+    var toolbar = document.getElementById('gomnaCommentaryLangToolbar');
+    if (toolbar && content.contains(toolbar)) return toolbar;
+
+    toolbar = document.createElement('div');
+    toolbar.id = 'gomnaCommentaryLangToolbar';
+    toolbar.className = 'gomna-commentary-lang-toolbar notranslate';
+    toolbar.setAttribute('translate', 'no');
+    toolbar.setAttribute('aria-label', 'Language');
+
+    var tabs = content.querySelector('.commentary-tabs, .commentary-pilot-tabs');
+    if (tabs && tabs.parentNode) {
+      tabs.parentNode.insertBefore(toolbar, tabs);
+      return toolbar;
+    }
+    var firstNav = content.querySelector('.commentary-verse-ref');
+    if (firstNav && firstNav.parentNode) {
+      firstNav.parentNode.insertBefore(toolbar, firstNav);
+      return toolbar;
+    }
+    content.insertBefore(toolbar, content.firstChild);
+    return toolbar;
   }
 
   function ensureHeaderBridge() {
@@ -583,32 +620,27 @@
   }
 
   function ensureCommentaryBridge() {
-    var header = document.getElementById('popupDragHeader');
-    if (!header) return null;
+    if (!isCommentaryOpen()) return null;
+    var toolbar = ensureCommentaryToolbar();
+    if (!toolbar) return null;
+
+    var staleSlot = document.getElementById('gomnaCommentaryLangBridgeSlot');
+    if (staleSlot) staleSlot.innerHTML = '';
+
     var el = document.getElementById(COMMENTARY_ID);
     if (!el) {
       el = document.createElement('div');
       el.id = COMMENTARY_ID;
-      el.className = 'gomna-reader-lang-bridge-host gomna-reader-lang-bridge-host--commentary notranslate';
-      el.setAttribute('translate', 'no');
-      var slot = header.querySelector('.gomna-commentary-lang-bridge-slot');
-      if (slot) {
-        slot.innerHTML = '';
-        slot.appendChild(el);
-      } else {
-        var spacer = header.firstElementChild;
-        if (spacer && spacer.tagName === 'DIV' && !spacer.id) {
-          spacer.style.width = 'auto';
-          spacer.style.minWidth = '0';
-          spacer.style.flex = '0 0 auto';
-          spacer.innerHTML = '';
-          spacer.appendChild(el);
-        } else {
-          header.insertBefore(el, header.firstChild);
-        }
-      }
     }
-    el.innerHTML = bridgeHtml(true);
+    el.className = 'gomna-reader-lang-bridge-host gomna-reader-lang-bridge-host--commentary notranslate';
+    el.setAttribute('translate', 'no');
+    el.removeAttribute('hidden');
+    if (el.parentNode !== toolbar) {
+      toolbar.innerHTML = '';
+      toolbar.appendChild(el);
+    }
+    /* Same visual language as the reader header bridge (not header-overlay compact). */
+    el.innerHTML = bridgeHtml(false);
     bindBridgeRoot(el);
     return el;
   }
@@ -641,7 +673,7 @@
       var cEl = document.getElementById(COMMENTARY_ID);
       if (cEl) {
         cEl.removeAttribute('hidden');
-        cEl.innerHTML = bridgeHtml(true);
+        cEl.innerHTML = bridgeHtml(false);
         bindBridgeRoot(cEl);
       }
     }

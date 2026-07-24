@@ -1,0 +1,33 @@
+{
+  "audioId": "genesis.001.003.history",
+  "duration": 58.2,
+  "measuredDuration": 58.2,
+  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/003/history-warm.mp3",
+  "finalMp3Duration": 58.2,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 8.392458
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 8.392458,
+      "end": 27.979458
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 27.979458,
+      "end": 42.670083
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 42.670083,
+      "end": 58.2
+    }
+  ]
+}

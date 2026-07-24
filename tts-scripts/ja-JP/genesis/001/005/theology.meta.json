@@ -1,0 +1,40 @@
+{
+  "sourcePath": "tts-scripts/ko-KR/genesis/001/005/theology.txt",
+  "sourceHashAlgorithm": "sha256",
+  "sourceHash": "686ce2a702d98974b9d7e1bd75bbec3e800bc19325526ad981248e7bdeb4a780",
+  "sourceLocale": "ko-KR",
+  "targetLocale": "ja-JP",
+  "status": "approved",
+  "translatedAt": "2026-07-23T13:30:48Z",
+  "bookId": "genesis",
+  "chapter": 1,
+  "verse": 5,
+  "type": "theology",
+  "paragraphCount": 2,
+  "cardCount": 3,
+  "narrationHashAlgorithm": "sha256",
+  "narrationHash": "65c4a25350b261bd7ca9f729607a01539a03957141b8e6c009a8c9d52fd45d3c",
+  "model": "manual-from-locale-cards",
+  "humanReviewRequired": false,
+  "structureValidated": true,
+  "sourceStructure": {
+    "paragraphCount": 4,
+    "lineCounts": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "totalLineCount": 4
+  },
+  "narrationStructure": {
+    "paragraphCount": 2,
+    "lineCounts": [
+      1,
+      3
+    ],
+    "totalLineCount": 4
+  },
+  "reviewedAt": "2026-07-23T13:51:01Z",
+  "approvedAt": "2026-07-23T13:51:01Z"
+}

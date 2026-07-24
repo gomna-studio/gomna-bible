@@ -1,0 +1,33 @@
+{
+  "audioId": "genesis.001.004.matthew-henry.en-US",
+  "duration": 49.464,
+  "measuredDuration": 49.464,
+  "testAudioPath": "audio/v1/en-US/genesis/001/004/matthew-henry-calm.mp3",
+  "finalMp3Duration": 49.464,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 7.790625
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 7.790625,
+      "end": 21.470458
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 21.470458,
+      "end": 36.214208
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 36.214208,
+      "end": 49.464
+    }
+  ]
+}

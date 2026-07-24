@@ -228,11 +228,43 @@
     verseList.style.removeProperty('overflow');
   }
 
+  function isCommentaryPopupOpen() {
+    var pop = document.getElementById('commentaryPopup');
+    if (document.body.classList.contains('gomna-commentary-popup-open')) return true;
+    return !!(pop && pop.classList.contains('show'));
+  }
+
+  function shouldUseFixedExpandedOverlay() {
+    var mini = getMiniPlayer();
+    if (isCommentaryPopupOpen()) return true;
+    if (mini && !mini.hidden && mini.classList.contains('gomna-audio-visible')) return true;
+    return false;
+  }
+
+  function mountExpandedPlayerOverlay(player) {
+    if (!player) return;
+    /* Body-level fixed overlay — never trap under #commentaryPopup / #verseView. */
+    if (player.parentElement !== document.body) {
+      document.body.appendChild(player);
+    }
+    applyExpandedPlayerInlineStyles(player);
+  }
+
   function positionExpandedPlayerInline() {
     var rangeBox = getVerseRangeBox();
     var player = getExpandedPlayer();
 
-    if (rangeBox && player) {
+    if (!player) {
+      console.warn('[GOMNA_AUDIO] expanded player not found');
+      return;
+    }
+
+    if (shouldUseFixedExpandedOverlay()) {
+      mountExpandedPlayerOverlay(player);
+      return;
+    }
+
+    if (rangeBox) {
       rangeBox.insertAdjacentElement('afterend', player);
 
       if (!rangeBox.dataset.gomnaAudioPrevMarginBottom) {
@@ -244,12 +276,8 @@
       return;
     }
 
-    if (!rangeBox) {
-      console.warn('[GOMNA_AUDIO] verse range box not found; keeping existing expanded player position');
-    }
-    if (!player) {
-      console.warn('[GOMNA_AUDIO] expanded player not found');
-    }
+    mountExpandedPlayerOverlay(player);
+    console.warn('[GOMNA_AUDIO] verse range box not found; using body overlay for expanded player');
   }
 
   function teardownExpandedPlayerLayout() {
@@ -270,6 +298,7 @@
     showElement(getMiniPlayer());
     document.body.classList.add('gomna-audio-visible');
     document.body.classList.add('gomna-audio-body-padding');
+    bindExpandCollapseButtons();
   }
 
   function hideMiniPlayer() {
@@ -279,24 +308,79 @@
     document.body.classList.remove('gomna-audio-body-padding');
   }
 
+  function setCommentaryAudioExpanded(expanded) {
+    if (expanded) showExpandedPlayer();
+    else hideExpandedPlayer();
+  }
+
   function showExpandedPlayer() {
+    var player = getExpandedPlayer();
+    if (!player) return;
+
     positionExpandedPlayerInline();
-    hideVerseListForExpandedPlayer();
-    showElement(getExpandedPlayer());
+    if (!shouldUseFixedExpandedOverlay()) {
+      hideVerseListForExpandedPlayer();
+    } else {
+      document.body.classList.add('gomna-audio-expanded-open');
+    }
+
+    /* Show immediately — do not wait a frame (iOS can miss the delayed class). */
+    player.hidden = false;
+    player.classList.add('gomna-audio-visible');
+    applyExpandedPlayerInlineStyles(player);
+
     ensureExpandedProgress();
     bindMiniProgressAudio();
     updateMiniProgressFromState();
     updateExpandedSettingsSummary();
     updateChapterAutoToggle();
     startHeroCaptionSync();
+    bindExpandCollapseButtons();
 
     requestAnimationFrame(function() {
       positionExpandedPlayerInline();
+      player.hidden = false;
+      player.classList.add('gomna-audio-visible');
+      applyExpandedPlayerInlineStyles(player);
       updateMiniProgressFromState();
       updateExpandedSettingsSummary();
       updateChapterAutoToggle();
       updateHeroCaptionFromState();
     });
+  }
+
+  function bindExpandCollapseButtons() {
+    var expandBtn = document.querySelector(
+      '#gomna-audio-mini-player .gomna-audio-btn-expand[data-audio-action="expand"]'
+    );
+    var collapseBtns;
+    var i;
+
+    if (expandBtn && expandBtn.getAttribute('data-gomna-expand-bound') !== '1') {
+      expandBtn.setAttribute('data-gomna-expand-bound', '1');
+      expandBtn.setAttribute('type', 'button');
+      expandBtn.addEventListener('click', function(event) {
+        if (event && typeof event.stopPropagation === 'function') {
+          event.stopPropagation();
+        }
+        setCommentaryAudioExpanded(true);
+      });
+    }
+
+    collapseBtns = document.querySelectorAll(
+      '#gomna-audio-expanded-player [data-audio-action="collapse"]'
+    );
+    for (i = 0; i < collapseBtns.length; i++) {
+      if (collapseBtns[i].getAttribute('data-gomna-collapse-bound') === '1') continue;
+      collapseBtns[i].setAttribute('data-gomna-collapse-bound', '1');
+      collapseBtns[i].setAttribute('type', 'button');
+      collapseBtns[i].addEventListener('click', function(event) {
+        if (event && typeof event.stopPropagation === 'function') {
+          event.stopPropagation();
+        }
+        setCommentaryAudioExpanded(false);
+      });
+    }
   }
 
   function isExpandedPlayerVisible() {
@@ -698,12 +782,20 @@
     seekAudioToRatio(Math.min(1, Math.max(0, ratio)));
   }
 
+  function setCommentarySeekUiActive(active) {
+    var api = window.GOMNA_COMMENTARY_AUTO_CENTER;
+    if (api && typeof api.setSeekUiActive === 'function') {
+      try { api.setSeekUiActive(!!active); } catch (eSeekUi) { /* ignore */ }
+    }
+  }
+
   function handleProgressPointerDown(event) {
     var track = event.currentTarget;
 
     if (!track) return;
 
     track.setAttribute('data-audio-progress-seeking', 'true');
+    setCommentarySeekUiActive(true);
     if (track.setPointerCapture && event.pointerId != null) {
       track.setPointerCapture(event.pointerId);
     }
@@ -732,6 +824,7 @@
       seekAudioFromProgressEvent(event);
     }
     track.removeAttribute('data-audio-progress-seeking');
+    setCommentarySeekUiActive(false);
     if (track.releasePointerCapture && event.pointerId != null) {
       try {
         track.releasePointerCapture(event.pointerId);
@@ -1646,12 +1739,18 @@
         break;
 
       case 'expand':
-        if (!allowVerseScreenAudioPlayback()) break;
-        showExpandedPlayer();
+        /*
+         * Mini player expand must work during commentary playback too.
+         * Verse-view gate alone blocked the sheet when the gate flickered false.
+         */
+        if (!allowVerseScreenAudioPlayback()) {
+          if (!(state && (state.isPlaying || state.isPaused || state.currentAudioId))) break;
+        }
+        setCommentaryAudioExpanded(true);
         break;
 
       case 'collapse':
-        hideExpandedPlayer();
+        setCommentaryAudioExpanded(false);
         break;
 
       case 'toggle-chapter-auto':
@@ -1820,9 +1919,16 @@
     setTimeout(validateStoredBibleResumeSession, 0);
   }
 
+  bindExpandCollapseButtons();
+
   console.log('[GOMNA_AUDIO_UI] loaded');
 
+  window.setCommentaryAudioExpanded = setCommentaryAudioExpanded;
   window.GOMNA_AUDIO_UI = {
-    updateHeroCaptionFromState: updateHeroCaptionFromState
+    updateHeroCaptionFromState: updateHeroCaptionFromState,
+    setCommentaryAudioExpanded: setCommentaryAudioExpanded,
+    showExpandedPlayer: showExpandedPlayer,
+    hideExpandedPlayer: hideExpandedPlayer,
+    bindExpandCollapseButtons: bindExpandCollapseButtons
   };
 })();
