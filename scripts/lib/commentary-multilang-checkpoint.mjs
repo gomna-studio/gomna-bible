@@ -19,6 +19,8 @@ const TERMINAL_RESUME_STATUSES = new Set([
   'qa-passed',
   'jobs-exported',
   'translation-qa-passed',
+  'translation-qa-review',
+  'translation-qa-failed',
   'translation-batch-ok',
   'cards-staged',
   'narration-staged',

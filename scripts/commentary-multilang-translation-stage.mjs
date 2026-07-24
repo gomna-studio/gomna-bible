@@ -396,7 +396,9 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
             existing.resumeComplete === true &&
             existing.sourceHash === job.sourceHash &&
             (existing.status === 'translation-batch-ok' ||
-              existing.status === 'translation-qa-passed');
+              existing.status === 'translation-qa-passed' ||
+              existing.status === 'translation-qa-review' ||
+              existing.status === 'translation-qa-failed');
           if (keepComplete) continue;
           upsertCheckpointItem(
             checkpoint,
@@ -635,20 +637,29 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
         errorCount: importValidation.errors.length,
       };
       report.translationQaPassCount = importValidation.perTarget.filter(
-        (item) => item.ok,
+        (item) => item.translationGrade === 'PASS',
+      ).length;
+      report.translationQaReviewCount = importValidation.perTarget.filter(
+        (item) => item.translationGrade === 'REVIEW_REQUIRED',
       ).length;
       report.translationQaFailCount = importValidation.perTarget.filter(
-        (item) => !item.ok,
+        (item) => item.translationGrade === 'FAIL',
       ).length;
       report.translationQaStatus = 'run';
       console.log('○ import-results / translation-qa');
       console.log(
-        `  ok=${importValidation.ok} pass=${report.translationQaPassCount} fail=${report.translationQaFailCount}`,
+        `  integrityOk=${importValidation.ok} pass=${report.translationQaPassCount} review=${report.translationQaReviewCount} fail=${report.translationQaFailCount}`,
       );
       if (checkpoint) {
         for (const item of importValidation.perTarget) {
           const job = jobs.find((row) => row.targetId === item.targetId);
           if (!job) continue;
+          const status =
+            item.translationGrade === 'PASS'
+              ? 'translation-qa-passed'
+              : item.translationGrade === 'REVIEW_REQUIRED'
+                ? 'translation-qa-review'
+                : 'translation-qa-failed';
           upsertCheckpointItem(
             checkpoint,
             {
@@ -660,12 +671,12 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
               audioId: job.audioId,
             },
             {
-              status: item.ok
-                ? 'translation-qa-passed'
-                : 'translation-qa-failed',
+              status,
               sourceHash: job.sourceHash,
               translationQaStatus: item.translationQaStatus,
-              resumeComplete: item.ok,
+              translationGrade: item.translationGrade,
+              // Keep resume skip for integrity-ok translations (including incomplete FAIL/REVIEW).
+              resumeComplete: item.integrityOk === true,
               reasons: item.reasons,
             },
           );

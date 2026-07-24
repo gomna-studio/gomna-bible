@@ -146,7 +146,7 @@ export function stageCardsFromTranslationResults(jobs, results, options = {}) {
     }
 
     const qa = evaluateTranslationResultQa(job, result, options);
-    if (!qa.ok) {
+    if (!qa.integrityOk) {
       failed.push({
         targetId: job.targetId,
         reason: 'translation_qa_failed',

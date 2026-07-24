@@ -21,6 +21,25 @@ import {
 } from './commentary-multilang-translation.mjs';
 import { getCommentaryType } from './commentary-type-registry.mjs';
 import { getLocaleConfig } from './commentary-multilang-registry.mjs';
+import { detectIncompleteTranslationOutput } from './commentary-multilang-translation-completeness.mjs';
+
+const HARD_INTEGRITY_CODES = new Set([
+  'result_missing',
+  'target_id_mismatch',
+  'source_hash_missing',
+  'source_hash_mismatch',
+  'cards_missing',
+  'card_count_mismatch',
+  'invalid_card',
+  'card_order_error',
+  'card_fields_missing',
+  'empty_card',
+  'hangul_residual',
+  'dangerous_html',
+  'narration_missing',
+  'narration_structure_failed',
+  'missing_original_language_terms',
+]);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -414,7 +433,8 @@ export function validateTranslationResults(jobs, resultRecords, options = {}) {
     if (qa.codes.includes('hangul_residual')) {
       hangulErrors.push(targetId);
     }
-    if (!qa.ok) {
+    // Import integrity failures block staging; incomplete REVIEW/FAIL still stage under /tmp.
+    if (!qa.integrityOk) {
       errors.push({
         code: 'translation_qa_failed',
         targetId,
@@ -453,11 +473,13 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
   if (!result || typeof result !== 'object') {
     return {
       ok: false,
+      integrityOk: false,
       targetId: job?.targetId || null,
       translationGrade: 'FAIL',
       translationQaStatus: 'fail',
       reasons: ['result_missing'],
       codes: ['result_missing'],
+      incompleteFindings: [],
     };
   }
 
@@ -589,16 +611,54 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
     codes.push('missing_original_language_terms');
   }
 
-  const ok = reasons.length === 0;
+  const incomplete = detectIncompleteTranslationOutput({
+    narrationText,
+    cards: Array.isArray(cards) ? cards : [],
+    locale: job.locale,
+  });
+  if (!incomplete.ok) {
+    for (const finding of incomplete.findings) {
+      reasons.push(
+        `${finding.code}@${finding.where}: ${finding.message}${
+          finding.sample ? ` [${finding.sample}]` : ''
+        }`,
+      );
+      codes.push(finding.code);
+    }
+  }
+
+  const uniqueCodes = [...new Set(codes)];
+  const uniqueReasons = [...new Set(reasons)];
+  const integrityOk = !uniqueCodes.some((code) => HARD_INTEGRITY_CODES.has(code));
+
+  let translationGrade = 'PASS';
+  if (!integrityOk) {
+    translationGrade = 'FAIL';
+  } else if (incomplete.grade === 'FAIL') {
+    translationGrade = 'FAIL';
+  } else if (incomplete.grade === 'REVIEW_REQUIRED') {
+    translationGrade = 'REVIEW_REQUIRED';
+  } else if (uniqueCodes.length) {
+    translationGrade = 'FAIL';
+  }
+
+  const ok = translationGrade === 'PASS';
   return {
     ok,
+    integrityOk,
     targetId: job.targetId,
     locale: job.locale,
     type: job.type,
-    translationGrade: ok ? 'PASS' : 'FAIL',
-    translationQaStatus: ok ? 'pass' : 'fail',
-    reasons: [...new Set(reasons)],
-    codes: [...new Set(codes)],
+    translationGrade,
+    translationQaStatus:
+      translationGrade === 'PASS'
+        ? 'pass'
+        : translationGrade === 'REVIEW_REQUIRED'
+          ? 'review'
+          : 'fail',
+    reasons: uniqueReasons,
+    codes: uniqueCodes,
+    incompleteFindings: incomplete.findings,
     narrationText,
     cards,
   };

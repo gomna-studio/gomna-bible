@@ -326,7 +326,7 @@ export function buildAutoApproveCandidateReport({
   lockedConflict = [],
 } = {}) {
   const translationPass = translationResults.filter(
-    (item) => item.translationGrade === 'PASS' || item.ok === true,
+    (item) => item.translationGrade === 'PASS',
   );
   const lockedIds = new Set([
     ...lockedSkip.map((item) => item.targetId),
@@ -342,15 +342,25 @@ export function buildAutoApproveCandidateReport({
       (item) => (item.structuralGrade || item.grade) === 'PASS',
     ).length,
     translationQaPassCount: translationPass.length,
+    translationQaReviewCount: translationResults.filter(
+      (item) => item.translationGrade === 'REVIEW_REQUIRED',
+    ).length,
+    translationQaFailCount: translationResults.filter(
+      (item) => item.translationGrade === 'FAIL',
+    ).length,
     translationQaStatus:
       translationResults.length === 0 ? 'not-run' : 'run',
     autoApproveCandidateCount: candidates.length,
     autoApproveCandidates: candidates.map((item) => item.targetId),
-    reviewRequiredCount: lockedConflict.length,
+    reviewRequiredCount:
+      lockedConflict.length +
+      translationResults.filter(
+        (item) => item.translationGrade === 'REVIEW_REQUIRED',
+      ).length,
     lockedSkipCount: lockedSkip.length,
     lockedConflictCount: lockedConflict.length,
     writesDisabled: true,
     note:
-      'Staging candidates only. Approved repository artifacts are never overwritten; approval writes remain blocked.',
+      'Staging candidates only. Approved repository artifacts are never overwritten; approval writes remain blocked. Auto-approve requires translationGrade=PASS only.',
   };
 }
