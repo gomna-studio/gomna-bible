@@ -32,6 +32,16 @@ const TERMINAL_RESUME_STATUSES = new Set([
   'audio-cue-fallback-accepted',
   'audio-cue-manual-review',
   'audio-verify-passed',
+  'publish-excluded-non-pass',
+  'publish-excluded-source-review',
+  'upload-planned',
+  'upload-skipped-existing',
+  'upload-conflict',
+  'upload-blocked-phase5',
+  'url-verified',
+  'url-verify-failed',
+  'manifest-shard-staged',
+  'publish-complete',
 ]);
 
 export function buildTargetKey(target) {

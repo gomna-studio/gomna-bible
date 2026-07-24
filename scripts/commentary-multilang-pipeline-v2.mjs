@@ -91,6 +91,8 @@ function printUsage() {
     '  (requires --execute-network; default is preflight estimate only).',
     '  Audio/cue staging lives in scripts/commentary-multilang-audio-stage.mjs',
     '  (PASS-only; /tmp staging; requires --execute-network for TTS).',
+    '  Publish staging lives in scripts/commentary-multilang-publish-stage.mjs',
+    '  (upload-plan / manifest shards under /tmp; real R2 put blocked).',
   ].join('\n');
 }
 
