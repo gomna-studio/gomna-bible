@@ -27,10 +27,12 @@ function synthesizeResult(job) {
       itemIndex: card.itemIndex,
       identity: `translated-identity-${card.itemIndex}`,
       fields: Object.fromEntries(
-        Object.keys(card.fields || {}).map((key, fieldIndex) => [
-          key,
-          `Translated value ${cardIndex}-${fieldIndex}`,
-        ]),
+        Object.keys(card.fields || {}).map((key, fieldIndex) => {
+          const sourceValue = String(card.fields[key] ?? '');
+          const hebrew = (sourceValue.match(/\p{Script=Hebrew}+/gu) || []).join(' ');
+          const base = `Translated value ${cardIndex}-${fieldIndex}`;
+          return [key, hebrew ? `${hebrew} ${base}` : base];
+        }),
       ),
     })),
     translatedNarrationParagraphs: sourceParagraphs.map((lines, pIndex) =>

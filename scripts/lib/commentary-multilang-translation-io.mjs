@@ -35,6 +35,57 @@ export function countHangulChars(text) {
   return matches ? matches.length : 0;
 }
 
+const SOFT_ALLOWABLE_OL_STRUCTURE_ERROR =
+  /(requires exactly 3 paragraphs|Introduction paragraph must contain exactly 1 line|Closing paragraph must contain exactly 1 line|Middle paragraph line count must equal cardCount)/i;
+
+/**
+ * Soft-allow only original-language paragraph-count policy mismatches when the
+ * Korean source itself is not a 3-paragraph form. Never soft-allows Hangul
+ * residual, empty content, identical copy, or markup issues.
+ */
+export function isSoftAllowableOriginalLanguageStructureError(message) {
+  return SOFT_ALLOWABLE_OL_STRUCTURE_ERROR.test(String(message || ''));
+}
+
+export function filterNarrationValidationErrors(errors, options = {}) {
+  const list = Array.isArray(errors) ? errors : [];
+  if (!options.softOriginalLanguage) return [...list];
+  return list.filter(
+    (message) => !isSoftAllowableOriginalLanguageStructureError(message),
+  );
+}
+
+export function containsDangerousHtml(text) {
+  return /<\/?[a-zA-Z][^>]*>/.test(String(text || ''));
+}
+
+/**
+ * For original-language targets, require Hebrew script from source cards to be
+ * retained in translated cards/narration when present in the Korean source.
+ */
+export function findMissingOriginalLanguageTerms(job, narrationText, cards) {
+  if (!job || job.type !== 'original-language') return [];
+  const haystack = [
+    String(narrationText || ''),
+    ...(cards || []).flatMap((card) => [
+      String(card.identity || ''),
+      ...Object.values(card.fields || {}).map((value) => String(value ?? '')),
+    ]),
+  ].join('\n');
+
+  const missing = [];
+  for (const card of job.sourceCards || []) {
+    const sourceTerm = String(card.fields?.원어 || card.identity || '');
+    const hebrew = sourceTerm.match(/\p{Script=Hebrew}+/gu) || [];
+    for (const token of hebrew) {
+      if (token && !haystack.includes(token)) {
+        missing.push(token);
+      }
+    }
+  }
+  return [...new Set(missing)];
+}
+
 export function assertStagingPath(filePath, label = 'path') {
   const absolute = path.resolve(String(filePath || ''));
   let resolvedAbsolute = absolute;
@@ -426,7 +477,7 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
   }
 
   const cards = resolveTranslatedCards(result);
-  if (!Array.isArray(cards)) {
+    if (!Array.isArray(cards)) {
     reasons.push('translated cards missing');
     codes.push('cards_missing');
   } else {
@@ -450,6 +501,14 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
       if (!card.fields || typeof card.fields !== 'object') {
         reasons.push(`card fields missing at ${i}`);
         codes.push('card_fields_missing');
+      } else {
+        const values = Object.values(card.fields).map((value) =>
+          String(value ?? '').trim(),
+        );
+        if (!values.length || values.every((value) => !value)) {
+          reasons.push(`empty card fields at ${i}`);
+          codes.push('empty_card');
+        }
       }
     }
 
@@ -459,6 +518,10 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
     if (hangul / total > hangulThreshold) {
       reasons.push(`Hangul residual in cards (${hangul} chars)`);
       codes.push('hangul_residual');
+    }
+    if (containsDangerousHtml(cardText)) {
+      reasons.push('dangerous HTML in cards');
+      codes.push('dangerous_html');
     }
   }
 
@@ -488,8 +551,12 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
     const softOriginalLanguage =
       job.type === 'original-language' && sourceParagraphs.length !== 3;
 
-    if (!narrationQa.ok && !(softOriginalLanguage && structureMatches)) {
-      reasons.push(...narrationQa.errors);
+    const remainingErrors = filterNarrationValidationErrors(
+      narrationQa.errors || [],
+      { softOriginalLanguage },
+    );
+    if (remainingErrors.length) {
+      reasons.push(...remainingErrors);
       codes.push('narration_structure_failed');
     } else if (!structureMatches) {
       reasons.push(
@@ -504,6 +571,22 @@ export function evaluateTranslationResultQa(job, result, options = {}) {
       reasons.push(`Hangul residual in narration (${hangul} chars)`);
       codes.push('hangul_residual');
     }
+    if (containsDangerousHtml(narrationText)) {
+      reasons.push('dangerous HTML in narration');
+      codes.push('dangerous_html');
+    }
+  }
+
+  const missingTerms = findMissingOriginalLanguageTerms(
+    job,
+    narrationText,
+    cards,
+  );
+  if (missingTerms.length) {
+    reasons.push(
+      `missing original-language terms: ${missingTerms.slice(0, 5).join(', ')}`,
+    );
+    codes.push('missing_original_language_terms');
   }
 
   const ok = reasons.length === 0;

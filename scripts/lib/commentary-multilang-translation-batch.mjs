@@ -13,7 +13,7 @@ import {
   parseNarrationStructure,
   validateTranslatedNarrationStructure,
 } from './commentary-multilang-translation.mjs';
-import { countHangulChars } from './commentary-multilang-translation-io.mjs';
+import { countHangulChars, filterNarrationValidationErrors, containsDangerousHtml, findMissingOriginalLanguageTerms } from './commentary-multilang-translation-io.mjs';
 import { inspectApprovedNarrationLock } from './commentary-multilang-narration-stage.mjs';
 
 export const BATCH_SCHEMA_VERSION = 1;
@@ -344,9 +344,13 @@ export function splitBatchTranslationResponse(batch, responseText, options = {})
 
       const softOriginalLanguage =
         job.type === 'original-language' && sourceParagraphs.length !== 3;
+      const remainingErrors = filterNarrationValidationErrors(
+        validation.errors || [],
+        { softOriginalLanguage },
+      );
 
-      if (!validation.ok && !(softOriginalLanguage && structureMatches)) {
-        itemErrors.push(...validation.errors);
+      if (remainingErrors.length) {
+        itemErrors.push(...remainingErrors);
       } else if (!structureMatches) {
         itemErrors.push(
           `Structure mismatch: source=${JSON.stringify(sourceSignature.lineCounts)} translated=${JSON.stringify(narrationSignature.lineCounts)}`,
@@ -358,6 +362,9 @@ export function splitBatchTranslationResponse(batch, responseText, options = {})
       const total = narrationText.replace(/\s+/g, '').length || 1;
       if (hangul / total > hangulThreshold) {
         itemErrors.push(`Hangul residual in narration (${hangul} chars)`);
+      }
+      if (containsDangerousHtml(narrationText)) {
+        itemErrors.push('dangerous HTML in narration');
       }
     }
 
@@ -375,6 +382,13 @@ export function splitBatchTranslationResponse(batch, responseText, options = {})
         }
         if (!cards[i]?.fields || typeof cards[i].fields !== 'object') {
           itemErrors.push(`card fields missing at ${i}`);
+        } else {
+          const values = Object.values(cards[i].fields).map((value) =>
+            String(value ?? '').trim(),
+          );
+          if (!values.length || values.every((value) => !value)) {
+            itemErrors.push(`empty card fields at ${i}`);
+          }
         }
       }
       const values = cards
@@ -388,6 +402,20 @@ export function splitBatchTranslationResponse(batch, responseText, options = {})
       if (hangul / total > hangulThreshold) {
         itemErrors.push(`Hangul residual in cards (${hangul} chars)`);
       }
+      if (containsDangerousHtml(values)) {
+        itemErrors.push('dangerous HTML in cards');
+      }
+    }
+
+    const missingTerms = findMissingOriginalLanguageTerms(
+      job,
+      narrationText,
+      cards,
+    );
+    if (missingTerms.length) {
+      itemErrors.push(
+        `missing original-language terms: ${missingTerms.slice(0, 5).join(', ')}`,
+      );
     }
 
     if (itemErrors.length) {
@@ -632,10 +660,14 @@ export function createMockBatchSuccessHandler() {
         itemIndex: card.itemIndex,
         identity: `translated-identity-${card.itemIndex}`,
         fields: Object.fromEntries(
-          Object.keys(card.fields || {}).map((key, fieldIndex) => [
-            key,
-            `Translated value ${cardIndex}-${fieldIndex}`,
-          ]),
+          Object.keys(card.fields || {}).map((key, fieldIndex) => {
+            const sourceValue = String(card.fields[key] ?? '');
+            const hebrew = (sourceValue.match(/\p{Script=Hebrew}+/gu) || []).join(
+              ' ',
+            );
+            const base = `Translated value ${cardIndex}-${fieldIndex}`;
+            return [key, hebrew ? `${hebrew} ${base}` : base];
+          }),
         ),
       }));
       return {

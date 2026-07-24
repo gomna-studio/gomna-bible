@@ -18,6 +18,7 @@ import {
 import {
   assertStagingPath,
   evaluateTranslationResultQa,
+  filterNarrationValidationErrors,
 } from './commentary-multilang-translation-io.mjs';
 import {
   buildNarrationMetaPath,
@@ -161,11 +162,15 @@ export function buildStagedNarrationArtifacts(job, result, options = {}) {
     type: job.type,
     cardCount: job.cardCount,
   });
-  if (!validation.ok && !(softOriginalLanguage && structureMatches)) {
+  const remainingErrors = filterNarrationValidationErrors(
+    validation.errors || [],
+    { softOriginalLanguage },
+  );
+  if (remainingErrors.length) {
     return {
       ok: false,
       targetId: job.targetId,
-      reasons: validation.errors,
+      reasons: remainingErrors,
     };
   }
   if (!structureMatches) {

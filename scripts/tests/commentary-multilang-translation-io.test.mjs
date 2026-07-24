@@ -37,10 +37,14 @@ function synthesizeResult(job, overrides = {}) {
       itemIndex: card.itemIndex,
       identity: `translated-identity-${card.itemIndex}`,
       fields: Object.fromEntries(
-        Object.keys(card.fields || {}).map((key, fieldIndex) => [
-          key,
-          `Translated value ${cardIndex}-${fieldIndex}`,
-        ]),
+        Object.keys(card.fields || {}).map((key, fieldIndex) => {
+          const sourceValue = String(card.fields[key] ?? '');
+          const hebrew = (sourceValue.match(/\p{Script=Hebrew}+/gu) || []).join(
+            ' ',
+          );
+          const base = `Translated value ${cardIndex}-${fieldIndex}`;
+          return [key, hebrew ? `${hebrew} ${base}` : base];
+        }),
       ),
     }));
 
@@ -150,6 +154,77 @@ test('validateTranslationResults catches missing duplicate order hangul and hash
   );
   assert.equal(hash.ok, false);
   assert.ok(hash.codes.includes('source_hash_mismatch'));
+});
+
+test('soft-allow does not bypass hangul empty html or missing hebrew terms', () => {
+  const plan = buildCommentaryMultilangRangeTargets({
+    bookId: 'genesis',
+    from: '1:11',
+    to: '1:11',
+    locales: 'en-US',
+    types: 'original-language',
+  });
+  const { jobs } = buildTranslationJobs(plan.targets);
+  const job = jobs[0];
+  assert.equal(job.type, 'original-language');
+
+  const hangulOl = evaluateTranslationResultQa(
+    job,
+    synthesizeResult(job, {
+      paragraphs: parseNarrationStructure(job.sourceNarrationText).map((lines) =>
+        lines.map(() => '한글이 많이 남은 원어 번역 실패 문장입니다. 검사.'),
+      ),
+    }),
+  );
+  assert.equal(hangulOl.ok, false);
+  assert.ok(hangulOl.codes.includes('hangul_residual'));
+
+  const emptyCard = evaluateTranslationResultQa(
+    job,
+    synthesizeResult(job, {
+      cards: job.sourceCards.map((card, index) => ({
+        itemIndex: index,
+        identity: `id-${index}`,
+        fields: Object.fromEntries(
+          Object.keys(card.fields || {}).map((key) => [key, '']),
+        ),
+      })),
+    }),
+  );
+  assert.equal(emptyCard.ok, false);
+  assert.ok(emptyCard.codes.includes('empty_card'));
+
+  const html = evaluateTranslationResultQa(
+    job,
+    synthesizeResult(job, {
+      paragraphs: parseNarrationStructure(job.sourceNarrationText).map((lines) =>
+        lines.map(() => '<script>alert(1)</script> translated line'),
+      ),
+    }),
+  );
+  assert.equal(html.ok, false);
+  assert.ok(html.codes.includes('dangerous_html'));
+
+  const missingHebrew = evaluateTranslationResultQa(
+    job,
+    synthesizeResult(job, {
+      cards: job.sourceCards.map((card, cardIndex) => ({
+        itemIndex: card.itemIndex,
+        identity: `translated-identity-${card.itemIndex}`,
+        fields: Object.fromEntries(
+          Object.keys(card.fields || {}).map((key, fieldIndex) => [
+            key,
+            `Translated value ${cardIndex}-${fieldIndex}`,
+          ]),
+        ),
+      })),
+    }),
+  );
+  assert.equal(missingHebrew.ok, false);
+  assert.ok(missingHebrew.codes.includes('missing_original_language_terms'));
+
+  const okOl = evaluateTranslationResultQa(job, synthesizeResult(job));
+  assert.equal(okOl.ok, true, okOl.reasons.join('; '));
 });
 
 test('buildTranslationJob requires existing Korean source', () => {
