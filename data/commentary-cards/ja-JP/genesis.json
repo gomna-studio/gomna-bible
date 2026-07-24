@@ -66,17 +66,94 @@
         {
           "교리": "創造論",
           "설명": "無からの創造（creatio ex nihilo）。世界は神の御心の結果である。",
-          "관련구절": "詩33:6、ヘブ11:3、ロマ4:17"
+          "관련구절": "詩33:6、ヘブ11:3、ロマ4:17",
+          "displayReference": "詩33:6",
+          "bookId": "psalms",
+          "chapter": 33,
+          "verseStart": 6,
+          "verseEnd": 6,
+          "relatedReferences": [
+            {
+              "displayReference": "詩33:6",
+              "bookId": "psalms",
+              "chapter": 33,
+              "verseStart": 6,
+              "verseEnd": 6
+            },
+            {
+              "displayReference": "ヘブ11:3",
+              "bookId": "hebrews",
+              "chapter": 11,
+              "verseStart": 3,
+              "verseEnd": 3
+            },
+            {
+              "displayReference": "ロマ4:17",
+              "bookId": "romans",
+              "chapter": 4,
+              "verseStart": 17,
+              "verseEnd": 17
+            }
+          ]
         },
         {
           "교리": "神の主権",
           "설명": "創造主として、被造物に対する絶対的権威を持つ。",
-          "관련구절": "イザ45:12、エレ27:5、黙4:11"
+          "관련구절": "イザ45:12、エレ27:5、黙4:11",
+          "displayReference": "イザ45:12",
+          "bookId": "isaiah",
+          "chapter": 45,
+          "verseStart": 12,
+          "verseEnd": 12,
+          "relatedReferences": [
+            {
+              "displayReference": "イザ45:12",
+              "bookId": "isaiah",
+              "chapter": 45,
+              "verseStart": 12,
+              "verseEnd": 12
+            },
+            {
+              "displayReference": "エレ27:5",
+              "bookId": "jeremiah",
+              "chapter": 27,
+              "verseStart": 5,
+              "verseEnd": 5
+            },
+            {
+              "displayReference": "黙4:11",
+              "bookId": "revelation",
+              "chapter": 4,
+              "verseStart": 11,
+              "verseEnd": 11
+            }
+          ]
         },
         {
           "교리": "三位一体",
           "설명": "エロヒム（複数）＋単数動詞、御霊の運行（2節）、御言葉による創造（3節）。",
-          "관련구절": "ヨハ1:1-3、コロ1:16"
+          "관련구절": "ヨハ1:1-3、コロ1:16",
+          "displayReference": "ヨハ1:1-3",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 3,
+          "relatedReferences": [
+            {
+              "displayReference": "ヨハ1:1-3",
+              "bookId": "john",
+              "chapter": 1,
+              "verseStart": 1,
+              "verseEnd": 3
+            },
+            {
+              "displayReference": "コロ1:16",
+              "bookId": "colossians",
+              "chapter": 1,
+              "verseStart": 16,
+              "verseEnd": 16
+            }
+          ]
         }
       ],
       "표4_예표론": [
@@ -192,42 +269,82 @@
         {
           "구절": "詩 33:6",
           "연결점": "主の言葉によって天は造られた。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩 33:6",
+          "bookId": "psalms",
+          "chapter": 33,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "イザ 45:12",
           "연결점": "わたしは地を造り、その上に人を創造した。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ 45:12",
+          "bookId": "isaiah",
+          "chapter": 45,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "詩 104:24",
           "연결점": "主よ、あなたのみわざはなんと多いことでしょう。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩 104:24",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 24,
+          "verseEnd": 24
         },
         {
           "구절": "エレ 10:12",
           "연결점": "主はその力によって地を造られた。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "エレ 10:12",
+          "bookId": "jeremiah",
+          "chapter": 10,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "ヨハ 1:1-3",
           "연결점": "初めに御言葉があった。万物は御言葉によって造られた。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハ 1:1-3",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 3
         },
         {
           "구절": "コロ 1:16",
           "연결점": "万物は御子にあって造られた。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コロ 1:16",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 16,
+          "verseEnd": 16
         },
         {
           "구절": "ヘブ 11:3",
           "연결점": "信仰によって、世界が神の言葉で造られたことを理解する。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヘブ 11:3",
+          "bookId": "hebrews",
+          "chapter": 11,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "구절": "黙 4:11",
           "연결점": "主が万物を造られたからです。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙 4:11",
+          "bookId": "revelation",
+          "chapter": 4,
+          "verseStart": 11,
+          "verseEnd": 11
         }
       ]
     },
@@ -283,17 +400,32 @@
         {
           "교리": "創造論",
           "설명": "神は無から秩序を造られる（creatio ex nihilo）。",
-          "관련구절": "ヘブライ人への手紙 11:3"
+          "관련구절": "ヘブライ人への手紙 11:3",
+          "displayReference": "ヘブライ人への手紙 11:3",
+          "bookId": "hebrews",
+          "chapter": 11,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "교리": "聖霊論",
           "설명": "聖霊は創造のわざに能動的に参与される。",
-          "관련구절": "ヨブ記 33:4"
+          "관련구절": "ヨブ記 33:4",
+          "displayReference": "ヨブ記 33:4",
+          "bookId": "job",
+          "chapter": 33,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "교리": "神の主権",
           "설명": "混沌と空虚も神の支配の下にある。",
-          "관련구절": "イザヤ書 45:18"
+          "관련구절": "イザヤ書 45:18",
+          "displayReference": "イザヤ書 45:18",
+          "bookId": "isaiah",
+          "chapter": 45,
+          "verseStart": 18,
+          "verseEnd": 18
         }
       ],
       "표4_예표론": [
@@ -409,42 +541,82 @@
         {
           "구절": "詩 104:30",
           "연결점": "御霊が地を新たにされる。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩 104:30",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 30,
+          "verseEnd": 30
         },
         {
           "구절": "エレ 4:23",
           "연결점": "混沌と空虚の表現の再使用。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "エレ 4:23",
+          "bookId": "jeremiah",
+          "chapter": 4,
+          "verseStart": 23,
+          "verseEnd": 23
         },
         {
           "구절": "ヨブ 26:13",
           "연결점": "御霊による飾り。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ 26:13",
+          "bookId": "job",
+          "chapter": 26,
+          "verseStart": 13,
+          "verseEnd": 13
         },
         {
           "구절": "イザ 45:18",
           "연결점": "地をむなしく創造されなかった。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ 45:18",
+          "bookId": "isaiah",
+          "chapter": 45,
+          "verseStart": 18,
+          "verseEnd": 18
         },
         {
           "구절": "ヨハ 1:1-3",
           "연결점": "御言葉（ロゴス）と創造。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハ 1:1-3",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 3
         },
         {
           "구절": "IIコリント 4:6",
           "연결점": "闇から光を照らされる。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "IIコリント 4:6",
+          "bookId": "2corinthians",
+          "chapter": 4,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "コロ 1:16-17",
           "연결점": "万物はキリストによって創造された。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コロ 1:16-17",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 16,
+          "verseEnd": 17
         },
         {
           "구절": "黙 21:5",
           "연결점": "万物を新しくされる。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙 21:5",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ]
     },
@@ -500,17 +672,32 @@
         {
           "교리": "啓示論",
           "설명": "光は神の自己啓示である。",
-          "관련구절": "ヨハ 1:4-5"
+          "관련구절": "ヨハ 1:4-5",
+          "displayReference": "ヨハ 1:4-5",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 4,
+          "verseEnd": 5
         },
         {
           "교리": "創造論",
           "설명": "無からの創造の宣言。",
-          "관련구절": "ヘブ 11:3"
+          "관련구절": "ヘブ 11:3",
+          "displayReference": "ヘブ 11:3",
+          "bookId": "hebrews",
+          "chapter": 11,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "교리": "御言葉キリスト論",
           "설명": "御言葉によって存在が生じる。",
-          "관련구절": "コロ 1:16"
+          "관련구절": "コロ 1:16",
+          "displayReference": "コロ 1:16",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 16,
+          "verseEnd": 16
         }
       ],
       "표4_예표론": [
@@ -626,42 +813,82 @@
         {
           "구절": "詩 119:105",
           "연결점": "御言葉はともしび。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩 119:105",
+          "bookId": "psalms",
+          "chapter": 119,
+          "verseStart": 105,
+          "verseEnd": 105
         },
         {
           "구절": "イザ 60:1",
           "연결점": "立て、光を放て。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ 60:1",
+          "bookId": "isaiah",
+          "chapter": 60,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "ヨブ 38:19",
           "연결점": "光の住む所。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ 38:19",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "マラ 4:2",
           "연결점": "義の太陽。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "マラ 4:2",
+          "bookId": "malachi",
+          "chapter": 4,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "ヨハ 8:12",
           "연결점": "世の光。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハ 8:12",
+          "bookId": "john",
+          "chapter": 8,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "IIコリント 4:6",
           "연결점": "闇に光を照らす。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "IIコリント 4:6",
+          "bookId": "2corinthians",
+          "chapter": 4,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "エペ 5:8-9",
           "연결점": "光の子ども。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "エペ 5:8-9",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 8,
+          "verseEnd": 9
         },
         {
           "구절": "黙 22:5",
           "연결점": "永遠の光。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙 22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ]
     },
@@ -717,17 +944,32 @@
         {
           "교리": "神の善さ",
           "설명": "トーブの宣言が繰り返される。",
-          "관련구절": "詩34:8"
+          "관련구절": "詩34:8",
+          "displayReference": "詩34:8",
+          "bookId": "psalms",
+          "chapter": 34,
+          "verseStart": 8,
+          "verseEnd": 8
         },
         {
           "교리": "聖さ",
           "설명": "区別の行為。",
-          "관련구절": "Ⅰペテ1:16"
+          "관련구절": "Ⅰペテ1:16",
+          "displayReference": "Ⅰペテ1:16",
+          "bookId": "1peter",
+          "chapter": 1,
+          "verseStart": 16,
+          "verseEnd": 16
         },
         {
           "교리": "倫理の根源",
           "설명": "道徳の基準は創造主である。",
-          "관련구절": "ミカ6:8"
+          "관련구절": "ミカ6:8",
+          "displayReference": "ミカ6:8",
+          "bookId": "micah",
+          "chapter": 6,
+          "verseStart": 8,
+          "verseEnd": 8
         }
       ],
       "표4_예표론": [
@@ -843,42 +1085,82 @@
         {
           "구절": "創1:31",
           "연결점": "極めて良かった。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創1:31",
+          "bookId": "genesis",
+          "chapter": 1,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "구절": "イザ5:20",
           "연결점": "悪を良いと言う者への災い。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ5:20",
+          "bookId": "isaiah",
+          "chapter": 5,
+          "verseStart": 20,
+          "verseEnd": 20
         },
         {
           "구절": "詩97:11",
           "연결점": "正しい者のための光。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩97:11",
+          "bookId": "psalms",
+          "chapter": 97,
+          "verseStart": 11,
+          "verseEnd": 11
         },
         {
           "구절": "箴4:18-19",
           "연결점": "正しい者の光と悪しき者の闇。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "箴4:18-19",
+          "bookId": "proverbs",
+          "chapter": 4,
+          "verseStart": 18,
+          "verseEnd": 19
         },
         {
           "구절": "ヨハ3:19-21",
           "연결점": "光を憎む者。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハ3:19-21",
+          "bookId": "john",
+          "chapter": 3,
+          "verseStart": 19,
+          "verseEnd": 21
         },
         {
           "구절": "エペ5:8-10",
           "연결점": "光の実。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "エペ5:8-10",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 8,
+          "verseEnd": 10
         },
         {
           "구절": "ピリ2:15",
           "연결점": "世にあって光となる。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ピリ2:15",
+          "bookId": "philippians",
+          "chapter": 2,
+          "verseStart": 15,
+          "verseEnd": 15
         },
         {
           "구절": "Ⅰヨハ1:5-6",
           "연결점": "神には闇がない。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "Ⅰヨハ1:5-6",
+          "bookId": "1john",
+          "chapter": 1,
+          "verseStart": 5,
+          "verseEnd": 6
         }
       ]
     },
@@ -934,17 +1216,32 @@
         {
           "교리": "時間論",
           "설명": "時間そのものが創造の一部である。",
-          "관련구절": "伝3:1"
+          "관련구절": "伝3:1",
+          "displayReference": "伝3:1",
+          "bookId": "ecclesiastes",
+          "chapter": 3,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "교리": "安息の教理",
           "설명": "夕が先に来る順序。",
-          "관련구절": "レビ23:32"
+          "관련구절": "レビ23:32",
+          "displayReference": "レビ23:32",
+          "bookId": "leviticus",
+          "chapter": 23,
+          "verseStart": 32,
+          "verseEnd": 32
         },
         {
           "교리": "摂理論",
           "설명": "夜も昼も主権の下にある。",
-          "관련구절": "詩139:11-12"
+          "관련구절": "詩139:11-12",
+          "displayReference": "詩139:11-12",
+          "bookId": "psalms",
+          "chapter": 139,
+          "verseStart": 11,
+          "verseEnd": 12
         }
       ],
       "표4_예표론": [
@@ -1060,42 +1357,82 @@
         {
           "구절": "詩90:12",
           "연결점": "私たちの日を数える。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩90:12",
+          "bookId": "psalms",
+          "chapter": 90,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "伝3:1-8",
           "연결점": "すべてのことに季節がある。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "伝3:1-8",
+          "bookId": "ecclesiastes",
+          "chapter": 3,
+          "verseStart": 1,
+          "verseEnd": 8
         },
         {
           "구절": "詩127:2",
           "연결점": "愛する者に眠りを与えられる。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩127:2",
+          "bookId": "psalms",
+          "chapter": 127,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "ダニ2:21",
           "연결점": "時と季節を変えられる。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ダニ2:21",
+          "bookId": "daniel",
+          "chapter": 2,
+          "verseStart": 21,
+          "verseEnd": 21
         },
         {
           "구절": "マコ1:35",
           "연결점": "夜明けの祈り。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マコ1:35",
+          "bookId": "mark",
+          "chapter": 1,
+          "verseStart": 35,
+          "verseEnd": 35
         },
         {
           "구절": "エペ5:16",
           "연결점": "時を贖いなさい。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "エペ5:16",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 16,
+          "verseEnd": 16
         },
         {
           "구절": "ヘブ4:9-11",
           "연결점": "安息が残されている。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヘブ4:9-11",
+          "bookId": "hebrews",
+          "chapter": 4,
+          "verseStart": 9,
+          "verseEnd": 11
         },
         {
           "구절": "黙22:5",
           "연결점": "もはや夜がない。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ]
     },
@@ -1151,17 +1488,32 @@
         {
           "교리": "秩序の神学",
           "설명": "創造は分離と区別の行為である。",
-          "관련구절": "Ⅰコリ14:33"
+          "관련구절": "Ⅰコリ14:33",
+          "displayReference": "Ⅰコリ14:33",
+          "bookId": "1corinthians",
+          "chapter": 14,
+          "verseStart": 33,
+          "verseEnd": 33
         },
         {
           "교리": "摂理論",
           "설명": "混沌の上に治められる。",
-          "관련구절": "詩29:10"
+          "관련구절": "詩29:10",
+          "displayReference": "詩29:10",
+          "bookId": "psalms",
+          "chapter": 29,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "교리": "天論",
           "설명": "天を創造された意味。",
-          "관련구절": "イザ66:1"
+          "관련구절": "イザ66:1",
+          "displayReference": "イザ66:1",
+          "bookId": "isaiah",
+          "chapter": 66,
+          "verseStart": 1,
+          "verseEnd": 1
         }
       ],
       "표4_예표론": [
@@ -1277,42 +1629,82 @@
         {
           "구절": "出14:21",
           "연결점": "水が分かれる。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "出14:21",
+          "bookId": "exodus",
+          "chapter": 14,
+          "verseStart": 21,
+          "verseEnd": 21
         },
         {
           "구절": "詩104:2-3",
           "연결점": "天の幕。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩104:2-3",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 2,
+          "verseEnd": 3
         },
         {
           "구절": "箴8:27-29",
           "연결점": "天と海の境界。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "箴8:27-29",
+          "bookId": "proverbs",
+          "chapter": 8,
+          "verseStart": 27,
+          "verseEnd": 29
         },
         {
           "구절": "ヨブ37:18",
           "연결점": "鋳物の鏡のような大空。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ37:18",
+          "bookId": "job",
+          "chapter": 37,
+          "verseStart": 18,
+          "verseEnd": 18
         },
         {
           "구절": "マタ3:16",
           "연결점": "天が開く。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マタ3:16",
+          "bookId": "matthew",
+          "chapter": 3,
+          "verseStart": 16,
+          "verseEnd": 16
         },
         {
           "구절": "Ⅰコリ10:1-2",
           "연결점": "海の洗礼。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "Ⅰコリ10:1-2",
+          "bookId": "1corinthians",
+          "chapter": 10,
+          "verseStart": 1,
+          "verseEnd": 2
         },
         {
           "구절": "Ⅱペテ3:5",
           "연결점": "水から成った天。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "Ⅱペテ3:5",
+          "bookId": "2peter",
+          "chapter": 3,
+          "verseStart": 5,
+          "verseEnd": 5
         },
         {
           "구절": "黙21:1",
           "연결점": "もはや海がない。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙21:1",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 1,
+          "verseEnd": 1
         }
       ]
     },
@@ -1368,17 +1760,32 @@
         {
           "교리": "供給の神",
           "설명": "上の水は雨の源である。",
-          "관련구절": "申11:13-15"
+          "관련구절": "申11:13-15",
+          "displayReference": "申11:13-15",
+          "bookId": "deuteronomy",
+          "chapter": 11,
+          "verseStart": 13,
+          "verseEnd": 15
         },
         {
           "교리": "区別と秩序",
           "설명": "分離の行為が繰り返される。",
-          "관련구절": "イザ45:12"
+          "관련구절": "イザ45:12",
+          "displayReference": "イザ45:12",
+          "bookId": "isaiah",
+          "chapter": 45,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "교리": "創造の保持",
           "설명": "継続的な保持（摂理）。",
-          "관련구절": "コロ1:17"
+          "관련구절": "コロ1:17",
+          "displayReference": "コロ1:17",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 17,
+          "verseEnd": 17
         }
       ],
       "표4_예표론": [
@@ -1494,42 +1901,82 @@
         {
           "구절": "申28:12",
           "연결점": "天の倉が開く。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "申28:12",
+          "bookId": "deuteronomy",
+          "chapter": 28,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "ヨブ38:37",
           "연결점": "天の水がめを傾ける者。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ38:37",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 37,
+          "verseEnd": 37
         },
         {
           "구절": "イザ55:10-11",
           "연결점": "雨と雪のたとえ。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ55:10-11",
+          "bookId": "isaiah",
+          "chapter": 55,
+          "verseStart": 10,
+          "verseEnd": 11
         },
         {
           "구절": "ゼカ10:1",
           "연결점": "春の雨を求めよ。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ゼカ10:1",
+          "bookId": "zechariah",
+          "chapter": 10,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "ヤコ5:18",
           "연결점": "エリヤと雨。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヤコ5:18",
+          "bookId": "james",
+          "chapter": 5,
+          "verseStart": 18,
+          "verseEnd": 18
         },
         {
           "구절": "使14:17",
           "연결점": "雨によって良いことをされた。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "使14:17",
+          "bookId": "acts",
+          "chapter": 14,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "구절": "黙11:6",
           "연결점": "天を閉じる権威。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙11:6",
+          "bookId": "revelation",
+          "chapter": 11,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "ヨハ7:38",
           "연결점": "生ける水の川。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハ7:38",
+          "bookId": "john",
+          "chapter": 7,
+          "verseStart": 38,
+          "verseEnd": 38
         }
       ]
     },
@@ -1585,17 +2032,32 @@
         {
           "교리": "王権神学",
           "설명": "名づけることによる統治。",
-          "관련구절": "イザ40:26"
+          "관련구절": "イザ40:26",
+          "displayReference": "イザ40:26",
+          "bookId": "isaiah",
+          "chapter": 40,
+          "verseStart": 26,
+          "verseEnd": 26
         },
         {
           "교리": "過程の神学",
           "설명": "第二日に「良し」がない——未完了への忍耐。",
-          "관련구절": "ピリ1:6"
+          "관련구절": "ピリ1:6",
+          "displayReference": "ピリ1:6",
+          "bookId": "philippians",
+          "chapter": 1,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "교리": "天の市民権",
           "설명": "シャマイムの望み。",
-          "관련구절": "ピリ3:20"
+          "관련구절": "ピリ3:20",
+          "displayReference": "ピリ3:20",
+          "bookId": "philippians",
+          "chapter": 3,
+          "verseStart": 20,
+          "verseEnd": 20
         }
       ],
       "표4_예표론": [
@@ -1711,42 +2173,82 @@
         {
           "구절": "イザ55:9",
           "연결점": "天の高さ。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ55:9",
+          "bookId": "isaiah",
+          "chapter": 55,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "詩19:1",
           "연결점": "大空の宣言。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩19:1",
+          "bookId": "psalms",
+          "chapter": 19,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "創28:12",
           "연결점": "梯子の夢。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創28:12",
+          "bookId": "genesis",
+          "chapter": 28,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "ダニ7:13-14",
           "연결점": "人の子と天の権威。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ダニ7:13-14",
+          "bookId": "daniel",
+          "chapter": 7,
+          "verseStart": 13,
+          "verseEnd": 14
         },
         {
           "구절": "使1:11",
           "연결점": "再び来られる。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "使1:11",
+          "bookId": "acts",
+          "chapter": 1,
+          "verseStart": 11,
+          "verseEnd": 11
         },
         {
           "구절": "Ⅰコリ15:49",
           "연결점": "天に属する形。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "Ⅰコリ15:49",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 49,
+          "verseEnd": 49
         },
         {
           "구절": "ヘブ12:22",
           "연결점": "天のエルサレム。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヘブ12:22",
+          "bookId": "hebrews",
+          "chapter": 12,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "黙21:1-2",
           "연결점": "新しい天。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙21:1-2",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 1,
+          "verseEnd": 2
         }
       ]
     },
@@ -1802,17 +2304,32 @@
         {
           "교리": "創造の秩序",
           "설명": "境界が定められる。",
-          "관련구절": "ヨブ38:8-11"
+          "관련구절": "ヨブ38:8-11",
+          "displayReference": "ヨブ38:8-11",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 8,
+          "verseEnd": 11
         },
         {
           "교리": "恵みの先行",
           "설명": "陸地の現れが生の舞台となる。",
-          "관련구절": "イザ45:12"
+          "관련구절": "イザ45:12",
+          "displayReference": "イザ45:12",
+          "bookId": "isaiah",
+          "chapter": 45,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "교리": "贖いと再創造",
           "설명": "ノアと出エジプトの並行。",
-          "관련구절": "Ⅰペテ3:20-21"
+          "관련구절": "Ⅰペテ3:20-21",
+          "displayReference": "Ⅰペテ3:20-21",
+          "bookId": "1peter",
+          "chapter": 3,
+          "verseStart": 20,
+          "verseEnd": 21
         }
       ],
       "표4_예표론": [
@@ -1928,42 +2445,82 @@
         {
           "구절": "詩104:9",
           "연결점": "境界を置かれた。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩104:9",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "箴8:29",
           "연결점": "海の限界。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "箴8:29",
+          "bookId": "proverbs",
+          "chapter": 8,
+          "verseStart": 29,
+          "verseEnd": 29
         },
         {
           "구절": "ナホ1:4",
           "연결점": "海を干上がらせる。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ナホ1:4",
+          "bookId": "nahum",
+          "chapter": 1,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "구절": "イザ43:2",
           "연결점": "水の中を通っても沈まない。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ43:2",
+          "bookId": "isaiah",
+          "chapter": 43,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "マコ4:39",
           "연결점": "嵐が静まる。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マコ4:39",
+          "bookId": "mark",
+          "chapter": 4,
+          "verseStart": 39,
+          "verseEnd": 39
         },
         {
           "구절": "黙21:1",
           "연결점": "もはや海がない。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙21:1",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "Ⅰペテ3:20-21",
           "연결점": "水による救い。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "Ⅰペテ3:20-21",
+          "bookId": "1peter",
+          "chapter": 3,
+          "verseStart": 20,
+          "verseEnd": 21
         },
         {
           "구절": "ヘブ11:29",
           "연결점": "紅海を乾いた地で渡る。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヘブ11:29",
+          "bookId": "hebrews",
+          "chapter": 11,
+          "verseStart": 29,
+          "verseEnd": 29
         }
       ]
     },
@@ -2019,17 +2576,32 @@
         {
           "교리": "創造の善さ",
           "설명": "トーブ宣言の反復。",
-          "관련구절": "詩33:5"
+          "관련구절": "詩33:5",
+          "displayReference": "詩33:5",
+          "bookId": "psalms",
+          "chapter": 33,
+          "verseStart": 5,
+          "verseEnd": 5
         },
         {
           "교리": "命名による統治",
           "설명": "エレツとヤムに名が与えられる。",
-          "관련구절": "詩29:10"
+          "관련구절": "詩29:10",
+          "displayReference": "詩29:10",
+          "bookId": "psalms",
+          "chapter": 29,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "교리": "管理者論",
           "설명": "地を託された管理者。",
-          "관련구절": "創2:15"
+          "관련구절": "創2:15",
+          "displayReference": "創2:15",
+          "bookId": "genesis",
+          "chapter": 2,
+          "verseStart": 15,
+          "verseEnd": 15
         }
       ],
       "표4_예표론": [
@@ -2145,42 +2717,82 @@
         {
           "구절": "詩95:5",
           "연결점": "海と陸地の所有。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩95:5",
+          "bookId": "psalms",
+          "chapter": 95,
+          "verseStart": 5,
+          "verseEnd": 5
         },
         {
           "구절": "ヨブ38:10-11",
           "연결점": "海の敷居。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ38:10-11",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 10,
+          "verseEnd": 11
         },
         {
           "구절": "イザ40:22",
           "연결점": "地の円い所。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ40:22",
+          "bookId": "isaiah",
+          "chapter": 40,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "創13:17",
           "연결점": "地を行き巡れ。",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創13:17",
+          "bookId": "genesis",
+          "chapter": 13,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "구절": "マコ4:39",
           "연결점": "海が静まる。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マコ4:39",
+          "bookId": "mark",
+          "chapter": 4,
+          "verseStart": 39,
+          "verseEnd": 39
         },
         {
           "구절": "ロマ8:19-22",
           "연결점": "被造物のうめき。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ロマ8:19-22",
+          "bookId": "romans",
+          "chapter": 8,
+          "verseStart": 19,
+          "verseEnd": 22
         },
         {
           "구절": "Ⅱペテ3:13",
           "연결점": "新しい地の約束。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "Ⅱペテ3:13",
+          "bookId": "2peter",
+          "chapter": 3,
+          "verseStart": 13,
+          "verseEnd": 13
         },
         {
           "구절": "黙22:3",
           "연결점": "もはや呪いがない。",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙22:3",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 3,
+          "verseEnd": 3
         }
       ]
     },
@@ -2209,42 +2821,82 @@
         {
           "구절": "創世記8:22",
           "연결점": "種を蒔き刈り取る時",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創世記8:22",
+          "bookId": "genesis",
+          "chapter": 8,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "詩篇104:14",
           "연결점": "草で家畜を養う",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩篇104:14",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "イザヤ書55:10",
           "연결점": "種を蒔く者に種",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザヤ書55:10",
+          "bookId": "isaiah",
+          "chapter": 55,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "구절": "ホセア書10:12",
           "연결점": "義を蒔き慈しみを刈り取る",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ホセア書10:12",
+          "bookId": "hosea",
+          "chapter": 10,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "マタイ13:23",
           "연결점": "良い地に蒔かれた種",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マタイ13:23",
+          "bookId": "matthew",
+          "chapter": 13,
+          "verseStart": 23,
+          "verseEnd": 23
         },
         {
           "구절": "コリント前書15:36-38",
           "연결점": "蒔くものは死ななければ生きない",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリント前書15:36-38",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 36,
+          "verseEnd": 38
         },
         {
           "구절": "ガラテヤ6:7",
           "연결점": "蒔いた通りに刈り取る",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ガラテヤ6:7",
+          "bookId": "galatians",
+          "chapter": 6,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "구절": "ヨハネの黙示録22:2",
           "연결점": "命の木の実を結ぶ",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハネの黙示録22:2",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 2,
+          "verseEnd": 2
         }
       ],
       "표2_역사적배경": [
@@ -2338,17 +2990,32 @@
         {
           "교리": "創造の多様性",
           "설명": "種類に従っては多様・豊富な共同体モデル",
-          "관련구절": "黙7:9"
+          "관련구절": "黙7:9",
+          "displayReference": "黙7:9",
+          "bookId": "revelation",
+          "chapter": 7,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "교리": "種・実の原理",
           "설명": "蒔いた通りに刈り取る霊的法則",
-          "관련구절": "ガラ6:7"
+          "관련구절": "ガラ6:7",
+          "displayReference": "ガラ6:7",
+          "bookId": "galatians",
+          "chapter": 6,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "교리": "摂理的供給",
           "설명": "食物・治癒主権的配慮",
-          "관련구절": "マタ6:30-32"
+          "관련구절": "マタ6:30-32",
+          "displayReference": "マタ6:30-32",
+          "bookId": "matthew",
+          "chapter": 6,
+          "verseStart": 30,
+          "verseEnd": 32
         }
       ],
       "표4_예표론": [
@@ -2394,42 +3061,82 @@
         {
           "구절": "詩 1:3",
           "연결점": "時に応じて実を結ぶ",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩 1:3",
+          "bookId": "psalms",
+          "chapter": 1,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "구절": "箴 11:30",
           "연결점": "義人の実は生命の木",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "箴 11:30",
+          "bookId": "proverbs",
+          "chapter": 11,
+          "verseStart": 30,
+          "verseEnd": 30
         },
         {
           "구절": "イザ 61:11",
           "연결점": "種が芽生えるように義が賛美",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ 61:11",
+          "bookId": "isaiah",
+          "chapter": 61,
+          "verseStart": 11,
+          "verseEnd": 11
         },
         {
           "구절": "ハバ 3:17-18",
           "연결점": "実がなくても喜ぶ",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ハバ 3:17-18",
+          "bookId": "habakkuk",
+          "chapter": 3,
+          "verseStart": 17,
+          "verseEnd": 18
         },
         {
           "구절": "ヨハ 15:5",
           "연결점": "多くの実を結ぶ",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハ 15:5",
+          "bookId": "john",
+          "chapter": 15,
+          "verseStart": 5,
+          "verseEnd": 5
         },
         {
           "구절": "ガラ 5:22-23",
           "연결점": "聖霊の実",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ガラ 5:22-23",
+          "bookId": "galatians",
+          "chapter": 5,
+          "verseStart": 22,
+          "verseEnd": 23
         },
         {
           "구절": "コロ 1:6",
           "연결점": "福音の実が成長",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コロ 1:6",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "黙 22:2",
           "연결점": "生命の木の実",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙 22:2",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 2,
+          "verseEnd": 2
         }
       ],
       "표2_역사적배경": [
@@ -2523,17 +3230,32 @@
         {
           "교리": "善い創造の完成",
           "설명": "繰り返される「良しとされた」で前提結論",
-          "관련구절": "テモテ前書4:4"
+          "관련구절": "テモテ前書4:4",
+          "displayReference": "テモテ前書4:4",
+          "bookId": "1timothy",
+          "chapter": 4,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "교리": "自己複製の秩序",
           "설명": "種自体に繁殖能力を与える",
-          "관련구절": "創9:7"
+          "관련구절": "創9:7",
+          "displayReference": "創9:7",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "교리": "実を結ぶ人生",
           "설명": "聖徒の召しの目的",
-          "관련구절": "ヨハネ15:8"
+          "관련구절": "ヨハネ15:8",
+          "displayReference": "ヨハネ15:8",
+          "bookId": "john",
+          "chapter": 15,
+          "verseStart": 8,
+          "verseEnd": 8
         }
       ],
       "표4_예표론": [
@@ -2579,42 +3301,82 @@
         {
           "구절": "詩 55:17",
           "연결점": "夕べ・朝・正午の祈り",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩 55:17",
+          "bookId": "psalms",
+          "chapter": 55,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "구절": "哀 3:23",
           "연결점": "朝ごとに新しい",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "哀 3:23",
+          "bookId": "lamentations",
+          "chapter": 3,
+          "verseStart": 23,
+          "verseEnd": 23
         },
         {
           "구절": "創 8:22",
           "연결점": "昼と夜が休まない",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創 8:22",
+          "bookId": "genesis",
+          "chapter": 8,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "詩 90:12",
           "연결점": "我らの日を数える",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩 90:12",
+          "bookId": "psalms",
+          "chapter": 90,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "マルコ 16:2",
           "연결점": "朝早く復活を確認",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マルコ 16:2",
+          "bookId": "mark",
+          "chapter": 16,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "コリント前書 15:4",
           "연결점": "第三日に生き返る",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリント前書 15:4",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "구절": "エペソ 5:14",
           "연결점": "眠る者よ起きよ",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "エペソ 5:14",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "黙 22:5",
           "연결점": "夜がない",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙 22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -2708,17 +3470,32 @@
         {
           "교리": "時間の執事",
           "설명": "夕べ-朝の循環は生活・安息のバランス",
-          "관련구절": "詩90:12"
+          "관련구절": "詩90:12",
+          "displayReference": "詩90:12",
+          "bookId": "psalms",
+          "chapter": 90,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "교리": "過程神学",
           "설명": "第三日まで進行した創造は「まだ」の信仰教育",
-          "관련구절": "ピリ1:6"
+          "관련구절": "ピリ1:6",
+          "displayReference": "ピリ1:6",
+          "bookId": "philippians",
+          "chapter": 1,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "교리": "神の満足",
           "설명": "「良い」との宣言は創造主の喜びを反映",
-          "관련구절": "黙4:11"
+          "관련구절": "黙4:11",
+          "displayReference": "黙4:11",
+          "bookId": "revelation",
+          "chapter": 4,
+          "verseStart": 11,
+          "verseEnd": 11
         }
       ],
       "표4_예표론": [
@@ -2764,42 +3541,82 @@
         {
           "구절": "詩篇136:7-9",
           "연결점": "大きな光と小さな光の創造",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩篇136:7-9",
+          "bookId": "psalms",
+          "chapter": 136,
+          "verseStart": 7,
+          "verseEnd": 9
         },
         {
           "구절": "エレミヤ31:35",
           "연결점": "昼に太陽・夜に月・星",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "エレミヤ31:35",
+          "bookId": "jeremiah",
+          "chapter": 31,
+          "verseStart": 35,
+          "verseEnd": 35
         },
         {
           "구절": "ネヘミヤ9:19",
           "연결점": "昼には雲の柱",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ネヘミヤ9:19",
+          "bookId": "nehemiah",
+          "chapter": 9,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "ダニエル12:3",
           "연결점": "星のように輝く者",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ダニエル12:3",
+          "bookId": "daniel",
+          "chapter": 12,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "구절": "マタイ2:2",
           "연결점": "東方の博士の星",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マタイ2:2",
+          "bookId": "matthew",
+          "chapter": 2,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "ルカ21:25",
           "연결점": "太陽・月・星にしるし",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ルカ21:25",
+          "bookId": "luke",
+          "chapter": 21,
+          "verseStart": 25,
+          "verseEnd": 25
         },
         {
           "구절": "コリント前書15:41",
           "연결점": "星と星の栄光の違い",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリント前書15:41",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 41,
+          "verseEnd": 41
         },
         {
           "구절": "ヨハネの黙示録21:23",
           "연결점": "太陽・月が必要ない都",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハネの黙示録21:23",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 23,
+          "verseEnd": 23
         }
       ],
       "표2_역사적배경": [
@@ -2893,17 +3710,32 @@
         {
           "교리": "スケジュールの摂理",
           "설명": "時間の基準を定めた神",
-          "관련구절": "ダニエル2:21"
+          "관련구절": "ダニエル2:21",
+          "displayReference": "ダニエル2:21",
+          "bookId": "daniel",
+          "chapter": 2,
+          "verseStart": 21,
+          "verseEnd": 21
         },
         {
           "교리": "啓示的な標識",
           "설명": "しるしは救済史のアラーム",
-          "관련구절": "ルカ21:25"
+          "관련구절": "ルカ21:25",
+          "displayReference": "ルカ21:25",
+          "bookId": "luke",
+          "chapter": 21,
+          "verseStart": 25,
+          "verseEnd": 25
         },
         {
           "교리": "礼拝のリズム",
           "설명": "祭りは聖なる時間の区別",
-          "관련구절": "レビ記23:2"
+          "관련구절": "レビ記23:2",
+          "displayReference": "レビ記23:2",
+          "bookId": "leviticus",
+          "chapter": 23,
+          "verseStart": 2,
+          "verseEnd": 2
         }
       ],
       "표4_예표론": [
@@ -2949,42 +3781,82 @@
         {
           "구절": "詩篇119:105",
           "연결점": "言葉は私の足の灯",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩篇119:105",
+          "bookId": "psalms",
+          "chapter": 119,
+          "verseStart": 105,
+          "verseEnd": 105
         },
         {
           "구절": "イザヤ60:1-3",
           "연결점": "起きよ、光を放て",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザヤ60:1-3",
+          "bookId": "isaiah",
+          "chapter": 60,
+          "verseStart": 1,
+          "verseEnd": 3
         },
         {
           "구절": "民数記6:25",
           "연결점": "その顔で照らす",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "民数記6:25",
+          "bookId": "numbers",
+          "chapter": 6,
+          "verseStart": 25,
+          "verseEnd": 25
         },
         {
           "구절": "ダニエル12:3",
           "연결점": "星のように永遠に輝く",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ダニエル12:3",
+          "bookId": "daniel",
+          "chapter": 12,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "구절": "マタイ5:14-16",
           "연결점": "世の光 – 燈台の上",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マタイ5:14-16",
+          "bookId": "matthew",
+          "chapter": 5,
+          "verseStart": 14,
+          "verseEnd": 16
         },
         {
           "구절": "ヨハネ8:12",
           "연결점": "私は世の光",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハネ8:12",
+          "bookId": "john",
+          "chapter": 8,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "コリント後書4:6",
           "연결점": "暗闇に光を照らせ",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリント後書4:6",
+          "bookId": "2corinthians",
+          "chapter": 4,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "ヨハネの黙示録22:5",
           "연결점": "燈火・日光が必要ない",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハネの黙示録22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -3078,17 +3950,32 @@
         {
           "교리": "啓示の伝達",
           "설명": "光は真理・恵みの運搬媒体",
-          "관련구절": "ヨハネ1:9"
+          "관련구절": "ヨハネ1:9",
+          "displayReference": "ヨハネ1:9",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "교리": "使命論",
           "설명": "光を受けた聖徒 – 照らす使命",
-          "관련구절": "マタイ5:14-16"
+          "관련구절": "マタイ5:14-16",
+          "displayReference": "マタイ5:14-16",
+          "bookId": "matthew",
+          "chapter": 5,
+          "verseStart": 14,
+          "verseEnd": 16
         },
         {
           "교리": "誠実性",
           "설명": "「そのようになった」言葉の成就",
-          "관련구절": "イザヤ55:11"
+          "관련구절": "イザヤ55:11",
+          "displayReference": "イザヤ55:11",
+          "bookId": "isaiah",
+          "chapter": 55,
+          "verseStart": 11,
+          "verseEnd": 11
         }
       ],
       "표4_예표론": [
@@ -3134,42 +4021,82 @@
         {
           "구절": "詩 136:7-9",
           "연결점": "太陽・月の大きな光への感謝",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩 136:7-9",
+          "bookId": "psalms",
+          "chapter": 136,
+          "verseStart": 7,
+          "verseEnd": 9
         },
         {
           "구절": "ヨブ 38:31-33",
           "연결점": "星座の描写",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ 38:31-33",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 31,
+          "verseEnd": 33
         },
         {
           "구절": "申 4:19",
           "연결점": "天の軍勢崇拝の警告",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "申 4:19",
+          "bookId": "deuteronomy",
+          "chapter": 4,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "イザヤ 40:26",
           "연결점": "星を呼ばれる神",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザヤ 40:26",
+          "bookId": "isaiah",
+          "chapter": 40,
+          "verseStart": 26,
+          "verseEnd": 26
         },
         {
           "구절": "コリント前 15:41",
           "연결점": "星と星の栄光の違い",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリント前 15:41",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 41,
+          "verseEnd": 41
         },
         {
           "구절": "ピリピ 2:15",
           "연결점": "世の中で星のように輝く",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ピリピ 2:15",
+          "bookId": "philippians",
+          "chapter": 2,
+          "verseStart": 15,
+          "verseEnd": 15
         },
         {
           "구절": "黙示録 22:16",
           "연결점": "明けの明星イエス",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙示録 22:16",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 16,
+          "verseEnd": 16
         },
         {
           "구절": "マタイ 24:29",
           "연결점": "太陽が暗くなり星が落ちる",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マタイ 24:29",
+          "bookId": "matthew",
+          "chapter": 24,
+          "verseStart": 29,
+          "verseEnd": 29
         }
       ],
       "표2_역사적배경": [
@@ -3295,17 +4222,32 @@
         {
           "교리": "創造秩序の委任",
           "설명": "光に昼・夜の統治を委任—神が主権者",
-          "관련구절": "詩136:7-9"
+          "관련구절": "詩136:7-9",
+          "displayReference": "詩136:7-9",
+          "bookId": "psalms",
+          "chapter": 136,
+          "verseStart": 7,
+          "verseEnd": 9
         },
         {
           "교리": "階層的役割",
           "설명": "大きな光と小さな光は上下ではなく相互補完",
-          "관련구절": "ローマ12:4-5"
+          "관련구절": "ローマ12:4-5",
+          "displayReference": "ローマ12:4-5",
+          "bookId": "romans",
+          "chapter": 12,
+          "verseStart": 4,
+          "verseEnd": 5
         },
         {
           "교리": "宇宙的啓示",
           "설명": "星は大小の証言者",
-          "관련구절": "詩19:1"
+          "관련구절": "詩19:1",
+          "displayReference": "詩19:1",
+          "bookId": "psalms",
+          "chapter": 19,
+          "verseStart": 1,
+          "verseEnd": 1
         }
       ],
       "표4_예표론": [
@@ -3351,42 +4293,82 @@
         {
           "구절": "詩 8:3",
           "연결점": "指で作られた星",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩 8:3",
+          "bookId": "psalms",
+          "chapter": 8,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "구절": "創 15:5",
           "연결점": "天の星を数えられない",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創 15:5",
+          "bookId": "genesis",
+          "chapter": 15,
+          "verseStart": 5,
+          "verseEnd": 5
         },
         {
           "구절": "ダニエル書 12:3",
           "연결점": "星のように輝く",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ダニエル書 12:3",
+          "bookId": "daniel",
+          "chapter": 12,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "구절": "ヨブ 38:33",
           "연결점": "天の法則を知る",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ 38:33",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 33,
+          "verseEnd": 33
         },
         {
           "구절": "マタイ 5:14",
           "연결점": "世の光",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マタイ 5:14",
+          "bookId": "matthew",
+          "chapter": 5,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "コリント前書 15:41",
           "연결점": "星の栄光の違い",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリント前書 15:41",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 41,
+          "verseEnd": 41
         },
         {
           "구절": "黙示録 1:20",
           "연결점": "七つの星・燈台",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙示録 1:20",
+          "bookId": "revelation",
+          "chapter": 1,
+          "verseStart": 20,
+          "verseEnd": 20
         },
         {
           "구절": "黙示録 21:23",
           "연결점": "燈火が不要",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙示録 21:23",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 23,
+          "verseEnd": 23
         }
       ],
       "표2_역사적배경": [
@@ -3512,17 +4494,32 @@
         {
           "교리": "摂理配置",
           "설명": "創造物の位置・軌道設定は摂理の表現",
-          "관련구절": "詩8:3"
+          "관련구절": "詩8:3",
+          "displayReference": "詩8:3",
+          "bookId": "psalms",
+          "chapter": 8,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "교리": "使命広域性",
           "설명": "地全域を照らす—福音の普遍性",
-          "관련구절": "使1:8"
+          "관련구절": "使1:8",
+          "displayReference": "使1:8",
+          "bookId": "acts",
+          "chapter": 1,
+          "verseStart": 8,
+          "verseEnd": 8
         },
         {
           "교리": "依存的存在",
           "설명": "光体の存在理由は照らす—目的論",
-          "관련구절": "エペ2:10"
+          "관련구절": "エペ2:10",
+          "displayReference": "エペ2:10",
+          "bookId": "ephesians",
+          "chapter": 2,
+          "verseStart": 10,
+          "verseEnd": 10
         }
       ],
       "표4_예표론": [
@@ -3568,42 +4565,82 @@
         {
           "구절": "詩 139:12",
           "연결점": "闇も光のよう",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩 139:12",
+          "bookId": "psalms",
+          "chapter": 139,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "イザ 60:2",
           "연결점": "闇が覆うとき主の光",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ 60:2",
+          "bookId": "isaiah",
+          "chapter": 60,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "ヨブ 38:19",
           "연결점": "光の住む場所",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ 38:19",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "マラ 4:2",
           "연결점": "義の太陽が昇る",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "マラ 4:2",
+          "bookId": "malachi",
+          "chapter": 4,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "ヨハ 3:19",
           "연결점": "光が来たが人々は闇を愛した",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハ 3:19",
+          "bookId": "john",
+          "chapter": 3,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "エフェ 5:8",
           "연결점": "以前は闇、今は光",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "エフェ 5:8",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 8,
+          "verseEnd": 8
         },
         {
           "구절": "テサ 5:5",
           "연결점": "光の子供たち",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "テサ 5:5",
+          "bookId": "1thessalonians",
+          "chapter": 5,
+          "verseStart": 5,
+          "verseEnd": 5
         },
         {
           "구절": "ヨハネの黙示録 22:5",
           "연결점": "夜がない",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハネの黙示録 22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -3729,17 +4766,32 @@
         {
           "교리": "倫理的区別",
           "설명": "光・闇の区分は善・悪の図式の根拠",
-          "관련구절": "エフェソス5:8-11"
+          "관련구절": "エフェソス5:8-11",
+          "displayReference": "エフェソス5:8-11",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 8,
+          "verseEnd": 11
         },
         {
           "교리": "バランスの取れた霊性",
           "설명": "昼・夜の司りは仕事・休息のバランス",
-          "관련구절": "マルコ6:31"
+          "관련구절": "マルコ6:31",
+          "displayReference": "マルコ6:31",
+          "bookId": "mark",
+          "chapter": 6,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "교리": "創造の善さ",
           "설명": "神の評価基準—客観的な善",
-          "관련구절": "ヤコブ1:17"
+          "관련구절": "ヤコブ1:17",
+          "displayReference": "ヤコブ1:17",
+          "bookId": "james",
+          "chapter": 1,
+          "verseStart": 17,
+          "verseEnd": 17
         }
       ],
       "표4_예표론": [
@@ -3785,42 +4837,82 @@
         {
           "구절": "詩104:19",
           "연결점": "月で季節を定める",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩104:19",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "イザ40:26",
           "연결점": "星を呼び出す",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ40:26",
+          "bookId": "isaiah",
+          "chapter": 40,
+          "verseStart": 26,
+          "verseEnd": 26
         },
         {
           "구절": "創8:22",
           "연결점": "昼と夜が止まらない",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創8:22",
+          "bookId": "genesis",
+          "chapter": 8,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "哀3:23",
           "연결점": "朝ごとに新しい",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "哀3:23",
+          "bookId": "lamentations",
+          "chapter": 3,
+          "verseStart": 23,
+          "verseEnd": 23
         },
         {
           "구절": "マル16:2",
           "연결점": "朝早く復活を確認",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マル16:2",
+          "bookId": "mark",
+          "chapter": 16,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "コリ15:4",
           "연결점": "三日目に生き返る",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリ15:4",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "구절": "エフェ5:14",
           "연결점": "眠っている者よ、起きよ",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "エフェ5:14",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "ヨハ22:5",
           "연결점": "夜がない",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハ22:5",
+          "bookId": "john",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -3946,17 +5038,32 @@
         {
           "교리": "時間主権",
           "설명": "一日の構造の主観者。",
-          "관련구절": "ダニエル書2:21"
+          "관련구절": "ダニエル書2:21",
+          "displayReference": "ダニエル書2:21",
+          "bookId": "daniel",
+          "chapter": 2,
+          "verseStart": 21,
+          "verseEnd": 21
         },
         {
           "교리": "過程的聖化",
           "설명": "第四日までの反復パターン—「すでに・まだ」。",
-          "관련구절": "コリント人への第二の手紙3:18"
+          "관련구절": "コリント人への第二の手紙3:18",
+          "displayReference": "コリント人への第二の手紙3:18",
+          "bookId": "2corinthians",
+          "chapter": 3,
+          "verseStart": 18,
+          "verseEnd": 18
         },
         {
           "교리": "創造の善さ",
           "설명": "毎日の宣言は創造の肯定。",
-          "관련구절": "創世記1:31"
+          "관련구절": "創世記1:31",
+          "displayReference": "創世記1:31",
+          "bookId": "genesis",
+          "chapter": 1,
+          "verseStart": 31,
+          "verseEnd": 31
         }
       ],
       "표4_예표론": [
@@ -4002,42 +5109,82 @@
         {
           "구절": "詩104:25-26",
           "연결점": "大小の生物で満ちている",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩104:25-26",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 25,
+          "verseEnd": 26
         },
         {
           "구절": "ヨブ12:7-10",
           "연결점": "獣・空の鳥の教え",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ12:7-10",
+          "bookId": "job",
+          "chapter": 12,
+          "verseStart": 7,
+          "verseEnd": 10
         },
         {
           "구절": "創9:1",
           "연결점": "繁栄せよ",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創9:1",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "イザ40:31",
           "연결점": "鷲の翼の新しい力",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ40:31",
+          "bookId": "isaiah",
+          "chapter": 40,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "구절": "マ3:16",
           "연결점": "鳩のような聖霊",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マ3:16",
+          "bookId": "matthew",
+          "chapter": 3,
+          "verseStart": 16,
+          "verseEnd": 16
         },
         {
           "구절": "ルカ5:6",
           "연결점": "網が破れるほどの魚",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ルカ5:6",
+          "bookId": "luke",
+          "chapter": 5,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "ヨ6:11",
           "연결점": "魚二匹",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨ6:11",
+          "bookId": "john",
+          "chapter": 6,
+          "verseStart": 11,
+          "verseEnd": 11
         },
         {
           "구절": "黙19:17",
           "연결점": "空の鳥への呼びかけ",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙19:17",
+          "bookId": "revelation",
+          "chapter": 19,
+          "verseStart": 17,
+          "verseEnd": 17
         }
       ],
       "표2_역사적배경": [
@@ -4163,17 +5310,32 @@
         {
           "교리": "生命論",
           "설명": "海・空の生物も神の息吹",
-          "관련구절": "詩104:25-30"
+          "관련구절": "詩104:25-30",
+          "displayReference": "詩104:25-30",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 25,
+          "verseEnd": 30
         },
         {
           "교리": "繁栄命令",
           "설명": "生育・繁栄は創造の祝福",
-          "관련구절": "創9:1"
+          "관련구절": "創9:1",
+          "displayReference": "創9:1",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "교리": "空間神学",
           "설명": "地・海・空の各領域の使命",
-          "관련구절": "エフェ4:10"
+          "관련구절": "エフェ4:10",
+          "displayReference": "エフェ4:10",
+          "bookId": "ephesians",
+          "chapter": 4,
+          "verseStart": 10,
+          "verseEnd": 10
         }
       ],
       "표4_예표론": [
@@ -4219,42 +5381,82 @@
         {
           "구절": "詩104:25-30",
           "연결점": "海の獣鯨",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩104:25-30",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 25,
+          "verseEnd": 30
         },
         {
           "구절": "ヨブ41:1",
           "연결점": "レヴィヤタンの描写",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ41:1",
+          "bookId": "job",
+          "chapter": 41,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "創9:2",
           "연결점": "海の魚を恐れること",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創9:2",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "詩148:7-10",
           "연결점": "竜と深い所の獣の賛美",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩148:7-10",
+          "bookId": "psalms",
+          "chapter": 148,
+          "verseStart": 7,
+          "verseEnd": 10
         },
         {
           "구절": "マタイ12:40",
           "연결점": "大きな魚の中のヨナ",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マタイ12:40",
+          "bookId": "matthew",
+          "chapter": 12,
+          "verseStart": 40,
+          "verseEnd": 40
         },
         {
           "구절": "ルカ12:24",
           "연결점": "カラスの養い",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ルカ12:24",
+          "bookId": "luke",
+          "chapter": 12,
+          "verseStart": 24,
+          "verseEnd": 24
         },
         {
           "구절": "ヨハネ21:11",
           "연결점": "153匹の大きな魚",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハネ21:11",
+          "bookId": "john",
+          "chapter": 21,
+          "verseStart": 11,
+          "verseEnd": 11
         },
         {
           "구절": "ヨハネの黙示録13:1",
           "연결점": "海からの獣",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハネの黙示録13:1",
+          "bookId": "revelation",
+          "chapter": 13,
+          "verseStart": 1,
+          "verseEnd": 1
         }
       ],
       "표2_역사적배경": [
@@ -4380,17 +5582,32 @@
         {
           "교리": "主権的創造",
           "설명": "bará動詞再登場—独特な創造",
-          "관련구절": "イザヤ40:26"
+          "관련구절": "イザヤ40:26",
+          "displayReference": "イザヤ40:26",
+          "bookId": "isaiah",
+          "chapter": 40,
+          "verseStart": 26,
+          "verseEnd": 26
         },
         {
           "교리": "多様性の祝福",
           "설명": "「種類に従って」繰り返しは違いの善",
-          "관련구절": "コリント前書12:4-6"
+          "관련구절": "コリント前書12:4-6",
+          "displayReference": "コリント前書12:4-6",
+          "bookId": "1corinthians",
+          "chapter": 12,
+          "verseStart": 4,
+          "verseEnd": 6
         },
         {
           "교리": "生態学的管理者",
           "설명": "被造物管理の責任",
-          "관련구절": "創世記2:15"
+          "관련구절": "創世記2:15",
+          "displayReference": "創世記2:15",
+          "bookId": "genesis",
+          "chapter": 2,
+          "verseStart": 15,
+          "verseEnd": 15
         }
       ],
       "표4_예표론": [
@@ -4436,42 +5653,82 @@
         {
           "구절": "創世記9:7",
           "연결점": "生育・繁栄の再命令",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創世記9:7",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "구절": "詩篇104:24",
           "연결점": "行われたことの多さ",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩篇104:24",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 24,
+          "verseEnd": 24
         },
         {
           "구절": "イザヤ書11:9",
           "연결점": "主の知識の充満",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザヤ書11:9",
+          "bookId": "isaiah",
+          "chapter": 11,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "イザヤ書54:2",
           "연결점": "幕屋の場所を広げよ",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザヤ書54:2",
+          "bookId": "isaiah",
+          "chapter": 54,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "使徒1:8",
           "연결점": "地の果ての証人",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "使徒1:8",
+          "bookId": "acts",
+          "chapter": 1,
+          "verseStart": 8,
+          "verseEnd": 8
         },
         {
           "구절": "使徒2:41",
           "연결점": "一日三千人",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "使徒2:41",
+          "bookId": "acts",
+          "chapter": 2,
+          "verseStart": 41,
+          "verseEnd": 41
         },
         {
           "구절": "コロサイ1:6",
           "연결점": "福音の実",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コロサイ1:6",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "ヨハネの黙示録7:9",
           "연결점": "数え切れない群衆",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハネの黙示録7:9",
+          "bookId": "revelation",
+          "chapter": 7,
+          "verseStart": 9,
+          "verseEnd": 9
         }
       ],
       "표2_역사적배경": [
@@ -4597,17 +5854,32 @@
         {
           "교리": "祝福神学",
           "설명": "祝福は創造の秩序",
-          "관련구절": "ヤコブ1:17"
+          "관련구절": "ヤコブ1:17",
+          "displayReference": "ヤコブ1:17",
+          "bookId": "james",
+          "chapter": 1,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "교리": "生命拡張",
           "설명": "生育・繁栄は創造の目的",
-          "관련구절": "創世記9:7"
+          "관련구절": "創世記9:7",
+          "displayReference": "創世記9:7",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "교리": "充満の神学",
           "설명": "宣教的使命",
-          "관련구절": "エペソ1:23"
+          "관련구절": "エペソ1:23",
+          "displayReference": "エペソ1:23",
+          "bookId": "ephesians",
+          "chapter": 1,
+          "verseStart": 23,
+          "verseEnd": 23
         }
       ],
       "표4_예표론": [
@@ -4653,42 +5925,82 @@
         {
           "구절": "詩55:17",
           "연결점": "夕べ・朝・正午",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩55:17",
+          "bookId": "psalms",
+          "chapter": 55,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "구절": "哀3:23",
           "연결점": "朝ごとに新しさ",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "哀3:23",
+          "bookId": "lamentations",
+          "chapter": 3,
+          "verseStart": 23,
+          "verseEnd": 23
         },
         {
           "구절": "詩92:2",
           "연결점": "朝の慈しみ・夜の真実",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩92:2",
+          "bookId": "psalms",
+          "chapter": 92,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "創8:22",
           "연결점": "夜と昼が絶えない",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創8:22",
+          "bookId": "genesis",
+          "chapter": 8,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "使2:1",
           "연결점": "五旬節",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "使2:1",
+          "bookId": "acts",
+          "chapter": 2,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "マル6:38",
           "연결점": "五つのパン",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マル6:38",
+          "bookId": "mark",
+          "chapter": 6,
+          "verseStart": 38,
+          "verseEnd": 38
         },
         {
           "구절": "マタ25:15",
           "연결점": "五つのタラント",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マタ25:15",
+          "bookId": "matthew",
+          "chapter": 25,
+          "verseStart": 15,
+          "verseEnd": 15
         },
         {
           "구절": "ヘブ4:9",
           "연결점": "安息が残っている",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヘブ4:9",
+          "bookId": "hebrews",
+          "chapter": 4,
+          "verseStart": 9,
+          "verseEnd": 9
         }
       ],
       "표2_역사적배경": [
@@ -4814,17 +6126,32 @@
         {
           "교리": "恵みの時間",
           "설명": "第五は恵みのつながり",
-          "관련구절": "エフェソ2:8"
+          "관련구절": "エフェソ2:8",
+          "displayReference": "エフェソ2:8",
+          "bookId": "ephesians",
+          "chapter": 2,
+          "verseStart": 8,
+          "verseEnd": 8
         },
         {
           "교리": "周期性",
           "설명": "繰り返しは誠実さ",
-          "관련구절": "哀歌3:23"
+          "관련구절": "哀歌3:23",
+          "displayReference": "哀歌3:23",
+          "bookId": "lamentations",
+          "chapter": 3,
+          "verseStart": 23,
+          "verseEnd": 23
         },
         {
           "교리": "期待感",
           "설명": "第六日・安息の準備",
-          "관련구절": "ヘブライ4:9"
+          "관련구절": "ヘブライ4:9",
+          "displayReference": "ヘブライ4:9",
+          "bookId": "hebrews",
+          "chapter": 4,
+          "verseStart": 9,
+          "verseEnd": 9
         }
       ],
       "표4_예표론": [
@@ -4870,42 +6197,82 @@
         {
           "구절": "ヨブ12:10",
           "연결점": "生物の生命が主の手",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ12:10",
+          "bookId": "job",
+          "chapter": 12,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "구절": "レビ11:1-3",
           "연결점": "清潔と不潔の動物",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "レビ11:1-3",
+          "bookId": "leviticus",
+          "chapter": 11,
+          "verseStart": 1,
+          "verseEnd": 3
         },
         {
           "구절": "箴14:4",
           "연결점": "牛がいなければ牛舎がきれい",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "箴14:4",
+          "bookId": "proverbs",
+          "chapter": 14,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "구절": "詩148:10",
           "연결점": "獣と家畜の賛美",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩148:10",
+          "bookId": "psalms",
+          "chapter": 148,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "구절": "ヨハネ1:29",
           "연결점": "世の罪を負う子羊",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハネ1:29",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 29,
+          "verseEnd": 29
         },
         {
           "구절": "ローマ8:22",
           "연결점": "被造物が嘆く",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ローマ8:22",
+          "bookId": "romans",
+          "chapter": 8,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "コリント前書15:39",
           "연결점": "異なる肉体",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリント前書15:39",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 39,
+          "verseEnd": 39
         },
         {
           "구절": "黙5:5",
           "연결점": "ユダの部族のライオン",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙5:5",
+          "bookId": "revelation",
+          "chapter": 5,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -5031,17 +6398,32 @@
         {
           "교리": "多様性管理",
           "설명": "種類ごとに—生態系のバランス",
-          "관련구절": "ヨブ12:10"
+          "관련구절": "ヨブ12:10",
+          "displayReference": "ヨブ12:10",
+          "bookId": "job",
+          "chapter": 12,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "교리": "使命協力",
           "설명": "家畜は人間と共に",
-          "관련구절": "箴14:4"
+          "관련구절": "箴14:4",
+          "displayReference": "箴14:4",
+          "bookId": "proverbs",
+          "chapter": 14,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "교리": "権威委任",
           "설명": "地に命令—協力",
-          "관련구절": "詩115:16"
+          "관련구절": "詩115:16",
+          "displayReference": "詩115:16",
+          "bookId": "psalms",
+          "chapter": 115,
+          "verseStart": 16,
+          "verseEnd": 16
         }
       ],
       "표4_예표론": [
@@ -5087,42 +6469,82 @@
         {
           "구절": "詩104:24",
           "연결점": "造られたものの多さ",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩104:24",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 24,
+          "verseEnd": 24
         },
         {
           "구절": "箴12:10",
           "연결점": "義人は家畜を世話する",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "箴12:10",
+          "bookId": "proverbs",
+          "chapter": 12,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "구절": "ヨブ40:15",
           "연결점": "ベヘモットの描写",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ40:15",
+          "bookId": "job",
+          "chapter": 40,
+          "verseStart": 15,
+          "verseEnd": 15
         },
         {
           "구절": "イザ11:6",
           "연결점": "ライオンと羊が共にいる",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ11:6",
+          "bookId": "isaiah",
+          "chapter": 11,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "テモ前4:4",
           "연결점": "造られたものの善さ",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "テモ前4:4",
+          "bookId": "1timothy",
+          "chapter": 4,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "구절": "ロマ8:19",
           "연결점": "被造物の待望",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ロマ8:19",
+          "bookId": "romans",
+          "chapter": 8,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "マタ6:26",
           "연결점": "鳥の養い",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マタ6:26",
+          "bookId": "matthew",
+          "chapter": 6,
+          "verseStart": 26,
+          "verseEnd": 26
         },
         {
           "구절": "黙5:13",
           "연결점": "すべての被造物の賛美",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙5:13",
+          "bookId": "revelation",
+          "chapter": 5,
+          "verseStart": 13,
+          "verseEnd": 13
         }
       ],
       "표2_역사적배경": [
@@ -5248,17 +6670,32 @@
         {
           "교리": "多様性の善さ",
           "설명": "種類ごとの繰り返しは違いの祝福",
-          "관련구절": "詩104:24"
+          "관련구절": "詩104:24",
+          "displayReference": "詩104:24",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 24,
+          "verseEnd": 24
         },
         {
           "교리": "執事の使命",
           "설명": "動物管理の責任",
-          "관련구절": "箴12:10"
+          "관련구절": "箴12:10",
+          "displayReference": "箴12:10",
+          "bookId": "proverbs",
+          "chapter": 12,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "교리": "創造肯定",
           "설명": "良しとされたという生態価値",
-          "관련구절": "テモ前4:4"
+          "관련구절": "テモ前4:4",
+          "displayReference": "テモ前4:4",
+          "bookId": "1timothy",
+          "chapter": 4,
+          "verseStart": 4,
+          "verseEnd": 4
         }
       ],
       "표4_예표론": [
@@ -5304,42 +6741,82 @@
         {
           "구절": "創9:6",
           "연결점": "形の毀損禁止",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創9:6",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "詩8:5-6",
           "연결점": "栄光・権威",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩8:5-6",
+          "bookId": "psalms",
+          "chapter": 8,
+          "verseStart": 5,
+          "verseEnd": 6
         },
         {
           "구절": "伝7:29",
           "연결점": "正直に創造",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "伝7:29",
+          "bookId": "ecclesiastes",
+          "chapter": 7,
+          "verseStart": 29,
+          "verseEnd": 29
         },
         {
           "구절": "イザ43:7",
           "연결점": "私の栄光のために創造",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ43:7",
+          "bookId": "isaiah",
+          "chapter": 43,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "구절": "コロ1:15",
           "연결점": "見えない形",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コロ1:15",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 15,
+          "verseEnd": 15
         },
         {
           "구절": "エフェ4:24",
           "연결점": "新しい人",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "エフェ4:24",
+          "bookId": "ephesians",
+          "chapter": 4,
+          "verseStart": 24,
+          "verseEnd": 24
         },
         {
           "구절": "ヤコ3:9",
           "연결점": "形に従って造られた",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヤコ3:9",
+          "bookId": "james",
+          "chapter": 3,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "コリ後4:4",
           "연결점": "キリストの栄光の福音",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリ後4:4",
+          "bookId": "2corinthians",
+          "chapter": 4,
+          "verseStart": 4,
+          "verseEnd": 4
         }
       ],
       "표2_역사적배경": [
@@ -5465,17 +6942,32 @@
         {
           "교리": "神の形",
           "설명": "知性・道徳・関係性の反映",
-          "관련구절": "コロ3:10"
+          "관련구절": "コロ3:10",
+          "displayReference": "コロ3:10",
+          "bookId": "colossians",
+          "chapter": 3,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "교리": "三位一体の暗示",
           "설명": "複数代名詞の使用",
-          "관련구절": "ヨハ1:2"
+          "관련구절": "ヨハ1:2",
+          "displayReference": "ヨハ1:2",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "교리": "文化命令",
           "설명": "治める委任",
-          "관련구절": "詩8:6"
+          "관련구절": "詩8:6",
+          "displayReference": "詩8:6",
+          "bookId": "psalms",
+          "chapter": 8,
+          "verseStart": 6,
+          "verseEnd": 6
         }
       ],
       "표4_예표론": [
@@ -5521,42 +7013,82 @@
         {
           "구절": "創世記2:7",
           "연결점": "生命の息を吹き込む",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創世記2:7",
+          "bookId": "genesis",
+          "chapter": 2,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "구절": "マラキ2:10",
           "연결점": "一つの父が創造",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "マラキ2:10",
+          "bookId": "malachi",
+          "chapter": 2,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "구절": "詩篇139:14",
           "연결점": "畏れ多く造られた",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩篇139:14",
+          "bookId": "psalms",
+          "chapter": 139,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "箴言14:31",
           "연결점": "貧しい者を虐げることは創造主を侮辱",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "箴言14:31",
+          "bookId": "proverbs",
+          "chapter": 14,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "구절": "マタイ19:4",
           "연결점": "初めに男と女を創られた",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マタイ19:4",
+          "bookId": "matthew",
+          "chapter": 19,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "구절": "コリント人への第一の手紙11:7",
           "연결점": "男は神のかたち",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリント人への第一の手紙11:7",
+          "bookId": "1corinthians",
+          "chapter": 11,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "구절": "ガラテヤ3:28",
           "연결점": "男も女も一つ",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ガラテヤ3:28",
+          "bookId": "galatians",
+          "chapter": 3,
+          "verseStart": 28,
+          "verseEnd": 28
         },
         {
           "구절": "コロサイ3:10",
           "연결점": "新しい人のかたち",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コロサイ3:10",
+          "bookId": "colossians",
+          "chapter": 3,
+          "verseStart": 10,
+          "verseEnd": 10
         }
       ],
       "표2_역사적배경": [
@@ -5682,17 +7214,32 @@
         {
           "교리": "性平等",
           "설명": "男女ともに形—等しい尊厳",
-          "관련구절": "ガラテヤ3:28"
+          "관련구절": "ガラテヤ3:28",
+          "displayReference": "ガラテヤ3:28",
+          "bookId": "galatians",
+          "chapter": 3,
+          "verseStart": 28,
+          "verseEnd": 28
         },
         {
           "교리": "関係性",
           "설명": "複数の性別は社会性を内包",
-          "관련구절": "創世記2:18"
+          "관련구절": "創世記2:18",
+          "displayReference": "創世記2:18",
+          "bookId": "genesis",
+          "chapter": 2,
+          "verseStart": 18,
+          "verseEnd": 18
         },
         {
           "교리": "創造的性別",
           "설명": "性別は創造の秩序",
-          "관련구절": "マタイ19:4"
+          "관련구절": "マタイ19:4",
+          "displayReference": "マタイ19:4",
+          "bookId": "matthew",
+          "chapter": 19,
+          "verseStart": 4,
+          "verseEnd": 4
         }
       ],
       "표4_예표론": [
@@ -5738,42 +7285,82 @@
         {
           "구절": "創世記9:1",
           "연결점": "洪水後の同じ命令",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創世記9:1",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "詩篇8:6",
           "연결점": "万物の治めること",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩篇8:6",
+          "bookId": "psalms",
+          "chapter": 8,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "イザヤ書11:9",
           "연결점": "地に主の知識が満ちる",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザヤ書11:9",
+          "bookId": "isaiah",
+          "chapter": 11,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "ダニエル書7:27",
           "연결점": "聖徒に国を与える",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ダニエル書7:27",
+          "bookId": "daniel",
+          "chapter": 7,
+          "verseStart": 27,
+          "verseEnd": 27
         },
         {
           "구절": "マタイ28:18-19",
           "연결점": "天と地の権威と使命",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マタイ28:18-19",
+          "bookId": "matthew",
+          "chapter": 28,
+          "verseStart": 18,
+          "verseEnd": 19
         },
         {
           "구절": "ローマ8:19",
           "연결점": "被造物の期待",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ローマ8:19",
+          "bookId": "romans",
+          "chapter": 8,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "コリント前書15:25",
           "연결점": "すべての敵を足の下に置く",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリント前書15:25",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 25,
+          "verseEnd": 25
         },
         {
           "구절": "ヨハネの黙示録22:5",
           "연결점": "永遠の統治",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハネの黙示録22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -5899,17 +7486,32 @@
         {
           "교리": "総体的宣教",
           "설명": "生育・征服・治めることは霊的・文化的使命",
-          "관련구절": "マタイ28:19"
+          "관련구절": "マタイ28:19",
+          "displayReference": "マタイ28:19",
+          "bookId": "matthew",
+          "chapter": 28,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "교리": "王的執事",
           "설명": "王・祭司の二重職",
-          "관련구절": "ペテロ第一2:9"
+          "관련구절": "ペテロ第一2:9",
+          "displayReference": "ペテロ第一2:9",
+          "bookId": "1peter",
+          "chapter": 2,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "교리": "祝福・使命統合",
           "설명": "祝福のない使命はなく、使命のない祝福もない",
-          "관련구절": "創世記12:2"
+          "관련구절": "創世記12:2",
+          "displayReference": "創世記12:2",
+          "bookId": "genesis",
+          "chapter": 12,
+          "verseStart": 2,
+          "verseEnd": 2
         }
       ],
       "표4_예표론": [
@@ -5955,42 +7557,82 @@
         {
           "구절": "詩104:14",
           "연결점": "草・食物の準備",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩104:14",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "箴27:27",
           "연결점": "ヤギの乳の食物",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "箴27:27",
+          "bookId": "proverbs",
+          "chapter": 27,
+          "verseStart": 27,
+          "verseEnd": 27
         },
         {
           "구절": "申8:10",
           "연결점": "食後の感謝",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "申8:10",
+          "bookId": "deuteronomy",
+          "chapter": 8,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "구절": "イザ55:1",
           "연결점": "値なしで食べよ",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ55:1",
+          "bookId": "isaiah",
+          "chapter": 55,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "マ6:31",
           "연결점": "何を食べるか心配するな",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マ6:31",
+          "bookId": "matthew",
+          "chapter": 6,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "구절": "ヨ6:35",
           "연결점": "生命のパン",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨ6:35",
+          "bookId": "john",
+          "chapter": 6,
+          "verseStart": 35,
+          "verseEnd": 35
         },
         {
           "구절": "コリント前書10:31",
           "연결점": "食べるにも飲むにも",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリント前書10:31",
+          "bookId": "1corinthians",
+          "chapter": 10,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "구절": "黙示録22:2",
           "연결점": "生命の木の実",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙示録22:2",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 2,
+          "verseEnd": 2
         }
       ],
       "표2_역사적배경": [
@@ -6116,17 +7758,32 @@
         {
           "교리": "摂理的供給",
           "설명": "食物も神の恵み",
-          "관련구절": "マタイ6:31"
+          "관련구절": "マタイ6:31",
+          "displayReference": "マタイ6:31",
+          "bookId": "matthew",
+          "chapter": 6,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "교리": "執事の食卓",
           "설명": "食物の選択は信仰行為",
-          "관련구절": "コリント前書10:31"
+          "관련구절": "コリント前書10:31",
+          "displayReference": "コリント前書10:31",
+          "bookId": "1corinthians",
+          "chapter": 10,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "교리": "創造秩序の食物",
           "설명": "堕落前の平和・非暴力",
-          "관련구절": "イザヤ11:7"
+          "관련구절": "イザヤ11:7",
+          "displayReference": "イザヤ11:7",
+          "bookId": "isaiah",
+          "chapter": 11,
+          "verseStart": 7,
+          "verseEnd": 7
         }
       ],
       "표4_예표론": [
@@ -6172,42 +7829,82 @@
         {
           "구절": "詩篇104:27",
           "연결점": "時に応じて養う",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩篇104:27",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 27,
+          "verseEnd": 27
         },
         {
           "구절": "詩篇23:2",
           "연결점": "青い牧場に横たわらせる",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩篇23:2",
+          "bookId": "psalms",
+          "chapter": 23,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "ヨブ記38:41",
           "연결점": "カラスの雛を養う",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "ヨブ記38:41",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 41,
+          "verseEnd": 41
         },
         {
           "구절": "イザヤ書11:7",
           "연결점": "ライオンが草を食べる",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザヤ書11:7",
+          "bookId": "isaiah",
+          "chapter": 11,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "구절": "マルコ6:39",
           "연결점": "青い草に座らせる",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "マルコ6:39",
+          "bookId": "mark",
+          "chapter": 6,
+          "verseStart": 39,
+          "verseEnd": 39
         },
         {
           "구절": "ヨハネ10:9",
           "연결점": "牧草を得て食べる",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハネ10:9",
+          "bookId": "john",
+          "chapter": 10,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "フィリピ4:19",
           "연결점": "必要を満たす",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "フィリピ4:19",
+          "bookId": "philippians",
+          "chapter": 4,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "黙示録21:4",
           "연결점": "涙がなく平和",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙示録21:4",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 4,
+          "verseEnd": 4
         }
       ],
       "표2_역사적배경": [
@@ -6333,17 +8030,32 @@
         {
           "교리": "生態平和",
           "설명": "血を流さない食卓",
-          "관련구절": "イザヤ11:6-7"
+          "관련구절": "イザヤ11:6-7",
+          "displayReference": "イザヤ11:6-7",
+          "bookId": "isaiah",
+          "chapter": 11,
+          "verseStart": 6,
+          "verseEnd": 7
         },
         {
           "교리": "公平供給",
           "설명": "すべての被造物に",
-          "관련구절": "詩篇104:27-28"
+          "관련구절": "詩篇104:27-28",
+          "displayReference": "詩篇104:27-28",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 27,
+          "verseEnd": 28
         },
         {
           "교리": "言葉の成就",
           "설명": "「その通りになった」の繰り返し",
-          "관련구절": "イザヤ55:11"
+          "관련구절": "イザヤ55:11",
+          "displayReference": "イザヤ55:11",
+          "bookId": "isaiah",
+          "chapter": 55,
+          "verseStart": 11,
+          "verseEnd": 11
         }
       ],
       "표4_예표론": [
@@ -6389,42 +8101,82 @@
         {
           "구절": "創2:2",
           "연결점": "第七日安息",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "創2:2",
+          "bookId": "genesis",
+          "chapter": 2,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "詩104:31",
           "연결점": "主が行われたことの喜び",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "詩104:31",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "구절": "伝3:14",
           "연결점": "神が行うことは永遠",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "伝3:14",
+          "bookId": "ecclesiastes",
+          "chapter": 3,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "イザ65:17",
           "연결점": "新しい天と新しい地",
-          "구분": "旧約"
+          "구분": "旧約",
+          "displayReference": "イザ65:17",
+          "bookId": "isaiah",
+          "chapter": 65,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "구절": "ヨハネ19:30",
           "연결점": "すべてが成し遂げられた",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヨハネ19:30",
+          "bookId": "john",
+          "chapter": 19,
+          "verseStart": 30,
+          "verseEnd": 30
         },
         {
           "구절": "コリ後5:17",
           "연결점": "新しい被造物",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "コリ後5:17",
+          "bookId": "2corinthians",
+          "chapter": 5,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "구절": "ヘブル4:9",
           "연결점": "安息が残っている",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "ヘブル4:9",
+          "bookId": "hebrews",
+          "chapter": 4,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "黙示録21:5",
           "연결점": "すべてを新しくする",
-          "구분": "新約"
+          "구분": "新約",
+          "displayReference": "黙示録21:5",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -6550,17 +8302,32 @@
         {
           "교리": "創造完成",
           "설명": "「非常に」は完全性の宣言",
-          "관련구절": "ヘブル4:3"
+          "관련구절": "ヘブル4:3",
+          "displayReference": "ヘブル4:3",
+          "bookId": "hebrews",
+          "chapter": 4,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "교리": "安息準備",
           "설명": "夕べ-朝の後の7日安息",
-          "관련구절": "創2:2"
+          "관련구절": "創2:2",
+          "displayReference": "創2:2",
+          "bookId": "genesis",
+          "chapter": 2,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "교리": "善悪倫理",
           "설명": "神の評価が道徳基準",
-          "관련구절": "ミカ6:8"
+          "관련구절": "ミカ6:8",
+          "displayReference": "ミカ6:8",
+          "bookId": "micah",
+          "chapter": 6,
+          "verseStart": 8,
+          "verseEnd": 8
         }
       ],
       "표4_예표론": [

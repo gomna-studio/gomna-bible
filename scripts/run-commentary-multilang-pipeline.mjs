@@ -1934,6 +1934,8 @@ async function runAudioStage(args, plan) {
       ttsConfig: item.validated.ttsConfig,
       maxAttempts: 2,
       counters,
+      translationApproved:
+        process.env.GOMNA_COMMENTARY_TRANSLATION_APPROVED === '1',
     });
 
     if (!speech.ok) {
@@ -2561,6 +2563,7 @@ async function runUploadStage(args, plan) {
         remoteInspector: adapters.remoteInspector,
         wranglerRunner: adapters.wranglerRunner,
         sleep: adapters.sleep,
+        audioApproved: process.env.GOMNA_COMMENTARY_AUDIO_APPROVED === '1',
       });
       results.push(uploaded);
 

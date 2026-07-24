@@ -406,6 +406,7 @@ const BOOK_ALIASES = Object.freeze({
   マタイによる福音書: 'matthew',
   マタイ: 'matthew',
   マタ: 'matthew',
+  マ: 'matthew',
   マルコによる福音書: 'mark',
   マルコ: 'mark',
   マコ: 'mark',
@@ -415,6 +416,12 @@ const BOOK_ALIASES = Object.freeze({
   ヨハネによる福音書: 'john',
   ヨハネ: 'john',
   ヨハ: 'john',
+  ヨ: 'john',
+  ヘブライ人への手紙: 'hebrews',
+  ヘブライ: 'hebrews',
+  ペテロの第一の手紙: '1peter',
+  ペテロ第一: '1peter',
+  ペテロ第一の手紙: '1peter',
   使徒行伝: 'acts',
   使徒の働き: 'acts',
   使徒: 'acts',
@@ -607,6 +614,14 @@ function parseBibleReferenceList(input) {
     .filter((item) => item && item.display);
 }
 
+const GOMNA_BIBLE_REF = Object.freeze({
+  KO_BOOK_BY_ID,
+  resolveBookToken,
+  parseBibleReference,
+  parseBibleReferenceList,
+  getKoreanBookName,
+  normalizeBookToken,
+});
 
 root.GomnaBibleRef = Object.freeze({
   KO_BOOK_BY_ID,

@@ -110,7 +110,7 @@ export function isVerifiedMultilangVerse({ bookId, chapter, verse, locale } = {}
   );
 }
 
-/** Gate for pipeline stages (documentation + future enforcement). */
+/** Gate for pipeline stages (wired into TTS / R2 entry points). */
 export function assertMultilangStageAllowed(stage, context = {}) {
   const name = String(stage || '').trim();
   if (name === 'tts' && context.translationApproved !== true) {
@@ -128,4 +128,27 @@ export function assertMultilangStageAllowed(stage, context = {}) {
     };
   }
   return { ok: true };
+}
+
+export function resolveTranslationApproved(options = {}, env = process.env) {
+  if (options && options.translationApproved === true) return true;
+  if (env && env.GOMNA_COMMENTARY_TRANSLATION_APPROVED === '1') return true;
+  return false;
+}
+
+export function resolveAudioApproved(options = {}, env = process.env) {
+  if (options && options.audioApproved === true) return true;
+  if (env && env.GOMNA_COMMENTARY_AUDIO_APPROVED === '1') return true;
+  return false;
+}
+
+export function requireMultilangStageApproval(stage, context = {}) {
+  const result = assertMultilangStageAllowed(stage, context);
+  if (!result.ok) {
+    const error = new Error(result.message);
+    error.code = result.code;
+    error.stage = String(stage || '').trim();
+    throw error;
+  }
+  return result;
 }

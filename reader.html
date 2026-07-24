@@ -2279,10 +2279,10 @@ html.reader-hide-chrome .verse-item.verse-item--chapter-selected .verse-num{
 </style>
 <script src="gomna_category_feature.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
-<script src="/js/gomna-bible-ref.js?v=20260725-multilang-containment-v1"></script>
-<script src="/js/gomna-commentary-multilang-policy.js?v=20260725-multilang-containment-v1"></script>
+<script src="/js/gomna-bible-ref.js?v=20260725-multilang-structured-refs-v1"></script>
+<script src="/js/gomna-commentary-multilang-policy.js?v=20260725-multilang-structured-refs-v1"></script>
 <script>
-window.GOMNA_ASSET_VERSION = "20260725-multilang-containment-v1";
+window.GOMNA_ASSET_VERSION = "20260725-multilang-structured-refs-v1";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -5634,7 +5634,7 @@ function showCommentary(verseNum) {
     
     if (tableAvailability['tab-신학적의미']) {
     content += '<div class="tab-content' + (currentCommentaryTab==='tab-신학적의미' ? ' active' : '') + '" id="tab-신학적의미" data-gomna-commentary-type="theology"' + (currentCommentaryTab==='tab-신학적의미' ? ' style="display:block"' : '') + '>' + buildCommentarySectionHead('⛪', 'commentary.section.theology') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.doctrine') + buildCommentaryTh('commentary.th.explanation') + buildCommentaryTh('commentary.th.relatedVerse') + '</tr>';
-    for(var j=0; j<commentaryTableRows('표3_신학적의미').length; j++) { var row=commentaryTableRows('표3_신학적의미')[j]; var 관련val = row["관련구절"]||''; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+(row["교리"]||'')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+(row["설명"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+buildStructuredVerseLink(관련val)+'</td></tr>'; }
+    for(var j=0; j<commentaryTableRows('표3_신학적의미').length; j++) { var row=commentaryTableRows('표3_신학적의미')[j]; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+(row["교리"]||'')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+(row["설명"]||'')+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+buildVerseLinksFromCardRow(row, '관련구절')+'</td></tr>'; }
     content += '</table>' + bottomNav + '</div>';
     }
     
@@ -5670,7 +5670,7 @@ function showCommentary(verseNum) {
     
     if (tableAvailability['tab-교차참조']) {
     content += '<div class="tab-content' + (currentCommentaryTab==='tab-교차참조' ? ' active' : '') + '" id="tab-교차참조" data-gomna-commentary-type="cross-reference"' + (currentCommentaryTab==='tab-교차참조' ? ' style="display:block"' : '') + '>' + buildCommentarySectionHead('🔗', 'commentary.section.crossReference') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.passage') + buildCommentaryTh('commentary.th.connection') + buildCommentaryTh('commentary.th.category') + '</tr>';
-    for(var j=0; j<commentaryTableRows('표9_교차참조').length; j++) { var row=commentaryTableRows('표9_교차참조')[j]; var 구절val = row["구절"]||''; var 연결점val = row["연결점"]||''; var 구분val = row["구분"]||''; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+buildStructuredVerseLink(구절val)+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(연결점val)+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+구분val+'</td></tr>'; }
+    for(var j=0; j<commentaryTableRows('표9_교차참조').length; j++) { var row=commentaryTableRows('표9_교차참조')[j]; var 연결점val = row["연결점"]||''; var 구분val = row["구분"]||''; content += '<tr><td class="col1' + bodyCls + '"' + bodyAttr + '>'+buildVerseLinksFromCardRow(row, '구절')+'</td><td class="col2' + bodyCls + '"' + bodyAttr + '>'+parseBibleRefs(연결점val)+'</td><td class="col3' + bodyCls + '"' + bodyAttr + '>'+구분val+'</td></tr>'; }
     content += '</table>' + bottomNav + '</div>';
     }
     
@@ -5910,6 +5910,108 @@ function escapeHtmlText(value) {
     .replace(/'/g, '&#39;');
 }
 
+function isStructuredBibleRefObject(ref) {
+  if (!ref || typeof ref !== 'object') return false;
+  var chapter = parseInt(ref.chapter, 10);
+  var verseStart = parseInt(ref.verseStart, 10);
+  var verseEnd = parseInt(
+    ref.verseEnd == null || ref.verseEnd === '' ? ref.verseStart : ref.verseEnd,
+    10,
+  );
+  return (
+    typeof ref.bookId === 'string' &&
+    ref.bookId.trim() !== '' &&
+    Number.isInteger(chapter) &&
+    chapter >= 1 &&
+    Number.isInteger(verseStart) &&
+    verseStart >= 1 &&
+    Number.isInteger(verseEnd) &&
+    verseEnd >= verseStart
+  );
+}
+
+function buildStructuredVerseLinkFromRef(ref) {
+  if (!isStructuredBibleRefObject(ref)) return '';
+  var display = String(
+    ref.displayReference != null && String(ref.displayReference).trim()
+      ? ref.displayReference
+      : ref.display || '',
+  ).trim();
+  if (!display) {
+    display =
+      String(ref.bookId) +
+      ' ' +
+      ref.chapter +
+      ':' +
+      ref.verseStart +
+      (Number(ref.verseEnd) > Number(ref.verseStart)
+        ? '-' + ref.verseEnd
+        : '');
+  }
+  var verseStart = parseInt(ref.verseStart, 10);
+  var verseEnd = parseInt(
+    ref.verseEnd == null || ref.verseEnd === '' ? ref.verseStart : ref.verseEnd,
+    10,
+  );
+  var rangeText =
+    verseEnd > verseStart ? verseStart + '-' + verseEnd : String(verseStart);
+  var safeDisplay = escapeHtmlText(display);
+  return (
+    '<span class="gomna-bible-ref-link" role="link" tabindex="0"' +
+    ' data-book-id="' +
+    escapeHtmlText(ref.bookId) +
+    '"' +
+    ' data-chapter="' +
+    escapeHtmlText(String(ref.chapter)) +
+    '"' +
+    ' data-verse-start="' +
+    escapeHtmlText(String(verseStart)) +
+    '"' +
+    ' data-verse-end="' +
+    escapeHtmlText(String(verseEnd)) +
+    '"' +
+    ' data-range-text="' +
+    escapeHtmlText(rangeText) +
+    '"' +
+    ' data-display="' +
+    escapeHtmlText(display) +
+    '"' +
+    ' data-structured="1"' +
+    ' onclick="showVersePopupFromElement(this)"' +
+    ' style="color:#1565C0; text-decoration:underline; cursor:pointer;">' +
+    safeDisplay +
+    '</span>'
+  );
+}
+
+/**
+ * Prefer card-stored bookId/chapter/verse*; parse display only for legacy rows.
+ */
+function buildVerseLinksFromCardRow(row, displayField) {
+  if (!row) return '';
+  if (Array.isArray(row.relatedReferences) && row.relatedReferences.length) {
+    var parts = [];
+    for (var i = 0; i < row.relatedReferences.length; i += 1) {
+      var html = buildStructuredVerseLinkFromRef(row.relatedReferences[i]);
+      if (html) parts.push(html);
+    }
+    if (parts.length) return parts.join('; ');
+  }
+  if (isStructuredBibleRefObject(row)) {
+    return buildStructuredVerseLinkFromRef({
+      displayReference:
+        row.displayReference ||
+        (displayField ? row[displayField] : '') ||
+        '',
+      bookId: row.bookId,
+      chapter: row.chapter,
+      verseStart: row.verseStart,
+      verseEnd: row.verseEnd,
+    });
+  }
+  return buildStructuredVerseLink(displayField ? row[displayField] : '');
+}
+
 function findBookDataByBookId(bookId) {
   var koName =
     window.GomnaBibleRef && typeof window.GomnaBibleRef.getKoreanBookName === 'function'
@@ -5931,44 +6033,27 @@ function findBookDataByBookId(bookId) {
 }
 
 function buildStructuredVerseLink(displayText) {
+  // Legacy fallback: parse display string only when card rows lack structured ids.
   var display = String(displayText == null ? '' : displayText).trim();
   if (!display) return '';
   var parsed =
     window.GomnaBibleRef && typeof window.GomnaBibleRef.parseBibleReference === 'function'
       ? window.GomnaBibleRef.parseBibleReference(display)
       : null;
-  var safeDisplay = escapeHtmlText(display);
-  if (!parsed || !parsed.ok) {
-    return (
-      '<span onclick="showVersePopup(' +
-      JSON.stringify(display) +
-      ')" style="color:#1565C0; text-decoration:underline; cursor:pointer;">' +
-      safeDisplay +
-      '</span>'
-    );
+  if (parsed && parsed.ok) {
+    return buildStructuredVerseLinkFromRef({
+      displayReference: parsed.display || display,
+      bookId: parsed.bookId,
+      chapter: parsed.chapter,
+      verseStart: parsed.verseStart,
+      verseEnd: parsed.verseEnd == null ? parsed.verseStart : parsed.verseEnd,
+    });
   }
+  var safeDisplay = escapeHtmlText(display);
   return (
-    '<span class="gomna-bible-ref-link" role="link" tabindex="0"' +
-    ' data-book-id="' +
-    escapeHtmlText(parsed.bookId) +
-    '"' +
-    ' data-chapter="' +
-    escapeHtmlText(String(parsed.chapter)) +
-    '"' +
-    ' data-verse-start="' +
-    escapeHtmlText(String(parsed.verseStart)) +
-    '"' +
-    ' data-verse-end="' +
-    escapeHtmlText(String(parsed.verseEnd == null ? parsed.verseStart : parsed.verseEnd)) +
-    '"' +
-    ' data-range-text="' +
-    escapeHtmlText(parsed.rangeText == null ? '' : String(parsed.rangeText)) +
-    '"' +
-    ' data-display="' +
-    escapeHtmlText(parsed.display) +
-    '"' +
-    ' onclick="showVersePopupFromElement(this)"' +
-    ' style="color:#1565C0; text-decoration:underline; cursor:pointer;">' +
+    '<span onclick="showVersePopup(' +
+    JSON.stringify(display) +
+    ')" style="color:#1565C0; text-decoration:underline; cursor:pointer;">' +
     safeDisplay +
     '</span>'
   );

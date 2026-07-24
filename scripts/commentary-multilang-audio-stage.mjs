@@ -39,6 +39,10 @@ import {
 } from './lib/commentary-multilang-audio-cue-stage.mjs';
 import { createApiCallBudget } from './lib/commentary-multilang-translation-budget.mjs';
 import { resolveOpenAiApiKey } from './lib/commentary-multilang-translation-provider.mjs';
+import {
+  requireMultilangStageApproval,
+  resolveTranslationApproved,
+} from './lib/commentary-multilang-quality-policy.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -74,6 +78,7 @@ function parseArgs(argv) {
     resume: false,
     report: null,
     executeNetwork: false,
+    translationApproved: false,
     concurrency: 1,
     maxApiCalls: 30,
     limit: null,
@@ -147,6 +152,13 @@ function parseArgs(argv) {
     }
     if (token === '--execute-network') {
       args.executeNetwork = true;
+      continue;
+    }
+    if (
+      token === '--translation-approved' ||
+      token === '--translationApproved'
+    ) {
+      args.translationApproved = true;
       continue;
     }
     if (token === '--concurrency') {
@@ -415,6 +427,11 @@ export async function runAudioCueStaging(argv = [], runtime = {}) {
         report.results.push(outcome);
       }
     } else {
+      const approved = resolveTranslationApproved({
+        translationApproved: args.translationApproved,
+      });
+      requireMultilangStageApproval('tts', { translationApproved: approved });
+
       const apiKey =
         runtime.apiKey ||
         resolveOpenAiApiKey({
@@ -433,6 +450,7 @@ export async function runAudioCueStaging(argv = [], runtime = {}) {
         requestFn: runtime.requestFn,
         runStrategyA: runtime.runStrategyA,
         runStrategyB: runtime.runStrategyB,
+        translationApproved: true,
         onTargetComplete: (outcome) => {
           console.log(
             `  ${outcome.targetId} => ${outcome.decision || outcome.status} api=${outcome.apiCalls || 0}`,

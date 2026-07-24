@@ -21,6 +21,10 @@ import {
   validateMp3File,
 } from './commentary-multilang-audio.mjs';
 import {
+  requireMultilangStageApproval,
+  resolveTranslationApproved,
+} from './commentary-multilang-quality-policy.mjs';
+import {
   atomicCreateCueFile,
   buildCommentaryCueDocument,
   buildNarrationSpeechUnits,
@@ -391,7 +395,12 @@ export async function requestTtsWithBudget({
   fetchImpl,
   counters,
   requestFn = requestCommentaryMp3,
+  translationApproved,
 } = {}) {
+  requireMultilangStageApproval('tts', {
+    translationApproved: resolveTranslationApproved({ translationApproved }),
+  });
+
   if (!budget || typeof budget.tryConsume !== 'function') {
     throw new Error('budget is required for TTS');
   }
@@ -411,6 +420,7 @@ export async function requestTtsWithBudget({
     fetchImpl,
     maxAttempts: 1,
     counters,
+    translationApproved: true,
   });
   return speech;
 }
@@ -428,6 +438,7 @@ export async function synthesizeFullNarrationMp3(options = {}) {
     existsSync = fsExistsSync,
     createMp3 = atomicCreateMp3,
     validateMp3 = validateMp3File,
+    translationApproved,
   } = options;
 
   if (existsSync(target.audioAbs)) {
@@ -450,6 +461,9 @@ export async function synthesizeFullNarrationMp3(options = {}) {
     };
   }
 
+  const approved = resolveTranslationApproved({ translationApproved });
+  requireMultilangStageApproval('tts', { translationApproved: approved });
+
   const attempts = Number(maxAttempts) > 0 ? Number(maxAttempts) : 2;
   let lastError = null;
   let apiCalls = 0;
@@ -463,6 +477,7 @@ export async function synthesizeFullNarrationMp3(options = {}) {
       fetchImpl,
       counters,
       requestFn,
+      translationApproved: true,
     });
     apiCalls += 1;
     if (!speech.ok) {
@@ -749,7 +764,11 @@ export async function generateCueStrategyB(options = {}) {
     concatParts = concatMp3Parts,
     createMp3 = atomicCreateMp3,
     workDir = null,
+    translationApproved,
   } = options;
+
+  const approved = resolveTranslationApproved({ translationApproved });
+  requireMultilangStageApproval('tts', { translationApproved: approved });
 
   const dir =
     workDir ||
@@ -772,6 +791,7 @@ export async function generateCueStrategyB(options = {}) {
         fetchImpl,
         counters,
         requestFn,
+        translationApproved: true,
       });
       apiCalls += 1;
       if (!speech.ok) {
@@ -958,6 +978,7 @@ export async function processAudioCueTarget(options = {}) {
     allowFallbackB = true,
     runStrategyA = generateCueStrategyA,
     runStrategyB = generateCueStrategyB,
+    translationApproved,
   } = options;
 
   const target = buildAudioCueStagingTarget(job, { stagingRoot });
@@ -1000,6 +1021,9 @@ export async function processAudioCueTarget(options = {}) {
     };
   }
 
+  const approved = resolveTranslationApproved({ translationApproved });
+  requireMultilangStageApproval('tts', { translationApproved: approved });
+
   let apiCalls = 0;
   const tts = await synthesizeFullNarrationMp3({
     target,
@@ -1009,6 +1033,7 @@ export async function processAudioCueTarget(options = {}) {
     fetchImpl,
     counters,
     requestFn,
+    translationApproved: true,
   });
   apiCalls += tts.apiCalls || 0;
   if (!tts.ok) {
@@ -1102,6 +1127,7 @@ export async function processAudioCueTarget(options = {}) {
     fetchImpl,
     counters,
     requestFn,
+    translationApproved: true,
   });
   apiCalls += strategyB.apiCalls || 0;
 
@@ -1267,9 +1293,15 @@ export async function runAudioCueStagingBatch(options = {}) {
     onTargetComplete = null,
     runStrategyA,
     runStrategyB,
+    translationApproved,
   } = options;
 
   assertStagingPath(stagingRoot, 'stagingRoot');
+  if (executeNetwork) {
+    requireMultilangStageApproval('tts', {
+      translationApproved: resolveTranslationApproved({ translationApproved }),
+    });
+  }
   const budget = createApiCallBudget(maxApiCalls);
   const counters = createEmptyAudioCounters();
   counters.plannedTargets = eligible.length;
@@ -1295,6 +1327,7 @@ export async function runAudioCueStagingBatch(options = {}) {
         requestFn,
         runStrategyA: options.runStrategyA,
         runStrategyB: options.runStrategyB,
+        translationApproved: executeNetwork ? true : translationApproved,
       });
       results.push(outcome);
       if (typeof onTargetComplete === 'function') {

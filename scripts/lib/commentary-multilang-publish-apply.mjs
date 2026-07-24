@@ -27,6 +27,10 @@ import {
 import { sha256Bytes } from './commentary-multilang-audio.mjs';
 import { ROOT } from './commentary-multilang-targets.mjs';
 import { buildAudioCueStagingTarget } from './commentary-multilang-audio-cue-stage.mjs';
+import {
+  requireMultilangStageApproval,
+  resolveAudioApproved,
+} from './commentary-multilang-quality-policy.mjs';
 
 const OPS_META_KEYS = Object.freeze([
   'sourcePath',
@@ -578,6 +582,13 @@ export function collectExistingBookManifestEntries(options = {}) {
  * Writes under outputRoot (ops or /tmp). Never touches audio/audio-manifest.json.
  */
 export function writeMergedBookManifestShards(options = {}) {
+  if (options.requireAudioApproval) {
+    requireMultilangStageApproval('r2', {
+      audioApproved: resolveAudioApproved({
+        audioApproved: options.audioApproved,
+      }),
+    });
+  }
   const repoRoot = options.repoRoot || ROOT;
   const outputRoot = options.outputRoot || repoRoot;
   const bookId = options.bookId || 'genesis';
@@ -685,7 +696,12 @@ export async function executeRealR2Uploads(candidates, options = {}) {
     concurrency = 3,
     sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
     onItem,
+    audioApproved,
   } = options;
+
+  requireMultilangStageApproval('r2', {
+    audioApproved: resolveAudioApproved({ audioApproved }),
+  });
 
   if (typeof remoteInspector !== 'function') {
     throw new Error('remoteInspector is required');

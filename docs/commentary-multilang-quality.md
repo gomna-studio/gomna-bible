@@ -31,3 +31,19 @@ UI copy key: `commentary.multilang.preparing`
 ## Related-verse navigation
 
 Display labels (e.g. `詩 1:3`, `Psalm 1:3`, `ガラ 5:22-23`) are resolved through `scripts/lib/gomna-bible-ref.mjs` / `js/gomna-bible-ref.js` into internal `bookId` + chapter + verse. Ranges navigate to the **first** verse while keeping the range label.
+
+EN/JA Genesis chapter 1 card rows now also store structured fields on each cross-ref row:
+
+- `displayReference`, `bookId`, `chapter`, `verseStart`, `verseEnd`
+- multi-ref cells also store `relatedReferences[]`
+
+Reader click path prefers stored ids (`buildVerseLinksFromCardRow`); display-string parsing is legacy fallback only.
+
+## Approval gates (wired)
+
+| Stage | Entry | Requires |
+|-------|--------|----------|
+| TTS / OpenAI speech | `requestCommentaryMp3`, `requestTtsWithBudget`, `scripts/commentary-multilang-audio-stage.mjs --execute-network` | `translationApproved` / `--translation-approved` / `GOMNA_COMMENTARY_TRANSLATION_APPROVED=1` |
+| R2 / shards | `uploadOneTarget`, `executeRealR2Uploads`, `scripts/commentary-multilang-publish-apply.mjs --execute` | `audioApproved` / `--audio-approved` / `GOMNA_COMMENTARY_AUDIO_APPROVED=1` |
+
+Missing or false approval aborts **before** network calls.

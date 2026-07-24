@@ -143,6 +143,7 @@ test('A success yields PRIMARY_ACCEPTED without calling B', async () => {
     budget: createApiCallBudget(5),
     apiKey: 'test-key',
     executeNetwork: true,
+    translationApproved: true,
     requestFn: mock.request.bind(mock),
     runStrategyA: ({ target, durationSeconds, speechUnits }) => ({
       ok: true,
@@ -177,6 +178,7 @@ test('A failure triggers B and yields FALLBACK_ACCEPTED', async () => {
     budget: createApiCallBudget(20),
     apiKey: 'test-key',
     executeNetwork: true,
+    translationApproved: true,
     requestFn: mock.request.bind(mock),
     runStrategyA: () => {
       aCalls += 1;
@@ -235,6 +237,7 @@ test('A and B failure yields MANUAL_REVIEW_REQUIRED', async () => {
     budget: createApiCallBudget(10),
     apiKey: 'test-key',
     executeNetwork: true,
+    translationApproved: true,
     requestFn: mock.request.bind(mock),
     runStrategyA: () => ({
       ok: false,
@@ -263,6 +266,7 @@ test('TTS budget counts each attempt and stops when exhausted', async () => {
     narrationText: 'one',
     ttsConfig: { endpoint: 'x', model: 'm', voice: 'v', instructions: 'i', responseFormat: 'mp3' },
     requestFn: mock.request.bind(mock),
+    translationApproved: true,
   });
   const second = await requestTtsWithBudget({
     budget,
@@ -270,6 +274,7 @@ test('TTS budget counts each attempt and stops when exhausted', async () => {
     narrationText: 'two',
     ttsConfig: { endpoint: 'x', model: 'm', voice: 'v', instructions: 'i', responseFormat: 'mp3' },
     requestFn: mock.request.bind(mock),
+    translationApproved: true,
   });
   const third = await requestTtsWithBudget({
     budget,
@@ -277,6 +282,7 @@ test('TTS budget counts each attempt and stops when exhausted', async () => {
     narrationText: 'three',
     ttsConfig: { endpoint: 'x', model: 'm', voice: 'v', instructions: 'i', responseFormat: 'mp3' },
     requestFn: mock.request.bind(mock),
+    translationApproved: true,
   });
   assert.equal(first.ok, true);
   assert.equal(second.ok, true);
@@ -302,6 +308,7 @@ test('resume skips completed targets with zero extra TTS calls', async () => {
     budget: createApiCallBudget(5),
     apiKey: 'k',
     executeNetwork: true,
+    translationApproved: true,
     requestFn: mock.request.bind(mock),
     runStrategyA: ({ target, durationSeconds, speechUnits }) => ({
       ok: true,
@@ -327,6 +334,7 @@ test('resume skips completed targets with zero extra TTS calls', async () => {
     stagingRoot,
     maxApiCalls: 5,
     executeNetwork: true,
+    translationApproved: true,
     apiKey: 'k',
     requestFn: mock.request.bind(mock),
   });

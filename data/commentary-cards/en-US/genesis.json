@@ -66,17 +66,94 @@
         {
           "교리": "Doctrine of creation",
           "설명": "Creation from nothing (creatio ex nihilo); the world exists by God’s will.",
-          "관련구절": "Ps 33:6; Heb 11:3; Rom 4:17"
+          "관련구절": "Ps 33:6; Heb 11:3; Rom 4:17",
+          "displayReference": "Ps 33:6",
+          "bookId": "psalms",
+          "chapter": 33,
+          "verseStart": 6,
+          "verseEnd": 6,
+          "relatedReferences": [
+            {
+              "displayReference": "Ps 33:6",
+              "bookId": "psalms",
+              "chapter": 33,
+              "verseStart": 6,
+              "verseEnd": 6
+            },
+            {
+              "displayReference": "Heb 11:3",
+              "bookId": "hebrews",
+              "chapter": 11,
+              "verseStart": 3,
+              "verseEnd": 3
+            },
+            {
+              "displayReference": "Rom 4:17",
+              "bookId": "romans",
+              "chapter": 4,
+              "verseStart": 17,
+              "verseEnd": 17
+            }
+          ]
         },
         {
           "교리": "Sovereignty of God",
           "설명": "As Creator, God holds absolute authority over all creation.",
-          "관련구절": "Isa 45:12; Jer 27:5; Rev 4:11"
+          "관련구절": "Isa 45:12; Jer 27:5; Rev 4:11",
+          "displayReference": "Isa 45:12",
+          "bookId": "isaiah",
+          "chapter": 45,
+          "verseStart": 12,
+          "verseEnd": 12,
+          "relatedReferences": [
+            {
+              "displayReference": "Isa 45:12",
+              "bookId": "isaiah",
+              "chapter": 45,
+              "verseStart": 12,
+              "verseEnd": 12
+            },
+            {
+              "displayReference": "Jer 27:5",
+              "bookId": "jeremiah",
+              "chapter": 27,
+              "verseStart": 5,
+              "verseEnd": 5
+            },
+            {
+              "displayReference": "Rev 4:11",
+              "bookId": "revelation",
+              "chapter": 4,
+              "verseStart": 11,
+              "verseEnd": 11
+            }
+          ]
         },
         {
           "교리": "Trinity",
           "설명": "Elohim (plural) with a singular verb; the Spirit moves (v. 2); creation by the Word (v. 3).",
-          "관련구절": "John 1:1-3; Col 1:16"
+          "관련구절": "John 1:1-3; Col 1:16",
+          "displayReference": "John 1:1-3",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 3,
+          "relatedReferences": [
+            {
+              "displayReference": "John 1:1-3",
+              "bookId": "john",
+              "chapter": 1,
+              "verseStart": 1,
+              "verseEnd": 3
+            },
+            {
+              "displayReference": "Col 1:16",
+              "bookId": "colossians",
+              "chapter": 1,
+              "verseStart": 16,
+              "verseEnd": 16
+            }
+          ]
         }
       ],
       "표4_예표론": [
@@ -192,42 +269,82 @@
         {
           "구절": "Ps 33:6",
           "연결점": "By the word of the Lord the heavens were made.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Ps 33:6",
+          "bookId": "psalms",
+          "chapter": 33,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "Isa 45:12",
           "연결점": "I made the earth and created humankind upon it.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Isa 45:12",
+          "bookId": "isaiah",
+          "chapter": 45,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "Ps 104:24",
           "연결점": "O Lord, how manifold are Your works!",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Ps 104:24",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 24,
+          "verseEnd": 24
         },
         {
           "구절": "Jer 10:12",
           "연결점": "The Lord made the earth by His power.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Jer 10:12",
+          "bookId": "jeremiah",
+          "chapter": 10,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "John 1:1-3",
           "연결점": "In the beginning was the Word; all things were made through Him.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "John 1:1-3",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 3
         },
         {
           "구절": "Col 1:16",
           "연결점": "All things were created in Him.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Col 1:16",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 16,
+          "verseEnd": 16
         },
         {
           "구절": "Heb 11:3",
           "연결점": "By faith we understand that the universe was formed by God’s word.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Heb 11:3",
+          "bookId": "hebrews",
+          "chapter": 11,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "구절": "Rev 4:11",
           "연결점": "You created all things.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Rev 4:11",
+          "bookId": "revelation",
+          "chapter": 4,
+          "verseStart": 11,
+          "verseEnd": 11
         }
       ]
     },
@@ -283,17 +400,32 @@
         {
           "교리": "Doctrine of creation",
           "설명": "God brings order from nothing (creatio ex nihilo).",
-          "관련구절": "Heb 11:3"
+          "관련구절": "Heb 11:3",
+          "displayReference": "Heb 11:3",
+          "bookId": "hebrews",
+          "chapter": 11,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "교리": "Pneumatology",
           "설명": "The Holy Spirit actively participates in the work of creation.",
-          "관련구절": "Job 33:4"
+          "관련구절": "Job 33:4",
+          "displayReference": "Job 33:4",
+          "bookId": "job",
+          "chapter": 33,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "교리": "Sovereignty of God",
           "설명": "Even chaos and emptiness remain under God’s rule.",
-          "관련구절": "Isa 45:18"
+          "관련구절": "Isa 45:18",
+          "displayReference": "Isa 45:18",
+          "bookId": "isaiah",
+          "chapter": 45,
+          "verseStart": 18,
+          "verseEnd": 18
         }
       ],
       "표4_예표론": [
@@ -409,42 +541,82 @@
         {
           "구절": "Ps 104:30",
           "연결점": "The Spirit renews the face of the earth.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Ps 104:30",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 30,
+          "verseEnd": 30
         },
         {
           "구절": "Jer 4:23",
           "연결점": "Reuse of the language of formless and void.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Jer 4:23",
+          "bookId": "jeremiah",
+          "chapter": 4,
+          "verseStart": 23,
+          "verseEnd": 23
         },
         {
           "구절": "Job 26:13",
           "연결점": "By His Spirit the heavens are garnished.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Job 26:13",
+          "bookId": "job",
+          "chapter": 26,
+          "verseStart": 13,
+          "verseEnd": 13
         },
         {
           "구절": "Isa 45:18",
           "연결점": "He did not create the earth a waste.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Isa 45:18",
+          "bookId": "isaiah",
+          "chapter": 45,
+          "verseStart": 18,
+          "verseEnd": 18
         },
         {
           "구절": "John 1:1-3",
           "연결점": "The Word (Logos) and creation.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "John 1:1-3",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 1,
+          "verseEnd": 3
         },
         {
           "구절": "2 Cor 4:6",
           "연결점": "God shines light out of darkness.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "2 Cor 4:6",
+          "bookId": "2corinthians",
+          "chapter": 4,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "Col 1:16-17",
           "연결점": "All things created through Christ.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Col 1:16-17",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 16,
+          "verseEnd": 17
         },
         {
           "구절": "Rev 21:5",
           "연결점": "Behold, I make all things new.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Rev 21:5",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ]
     },
@@ -500,17 +672,32 @@
         {
           "교리": "Revelation",
           "설명": "Light is God’s self-disclosure.",
-          "관련구절": "John 1:4-5"
+          "관련구절": "John 1:4-5",
+          "displayReference": "John 1:4-5",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 4,
+          "verseEnd": 5
         },
         {
           "교리": "Doctrine of creation",
           "설명": "Declaration of creation from nothing.",
-          "관련구절": "Heb 11:3"
+          "관련구절": "Heb 11:3",
+          "displayReference": "Heb 11:3",
+          "bookId": "hebrews",
+          "chapter": 11,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "교리": "Word Christology",
           "설명": "Existence comes into being by the Word.",
-          "관련구절": "Col 1:16"
+          "관련구절": "Col 1:16",
+          "displayReference": "Col 1:16",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 16,
+          "verseEnd": 16
         }
       ],
       "표4_예표론": [
@@ -626,42 +813,82 @@
         {
           "구절": "Ps 119:105",
           "연결점": "Your word is a lamp.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Ps 119:105",
+          "bookId": "psalms",
+          "chapter": 119,
+          "verseStart": 105,
+          "verseEnd": 105
         },
         {
           "구절": "Isa 60:1",
           "연결점": "Arise, shine.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Isa 60:1",
+          "bookId": "isaiah",
+          "chapter": 60,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "Job 38:19",
           "연결점": "The dwelling of light.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Job 38:19",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "Mal 4:2",
           "연결점": "The sun of righteousness.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Mal 4:2",
+          "bookId": "malachi",
+          "chapter": 4,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "John 8:12",
           "연결점": "The light of the world.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "John 8:12",
+          "bookId": "john",
+          "chapter": 8,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "2 Cor 4:6",
           "연결점": "Light shining in darkness.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "2 Cor 4:6",
+          "bookId": "2corinthians",
+          "chapter": 4,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "Eph 5:8-9",
           "연결점": "Children of light.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Eph 5:8-9",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 8,
+          "verseEnd": 9
         },
         {
           "구절": "Rev 22:5",
           "연결점": "Eternal light.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Rev 22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ]
     },
@@ -717,17 +944,32 @@
         {
           "교리": "The goodness of God",
           "설명": "The declaration of Tov is repeated.",
-          "관련구절": "Ps 34:8"
+          "관련구절": "Ps 34:8",
+          "displayReference": "Ps 34:8",
+          "bookId": "psalms",
+          "chapter": 34,
+          "verseStart": 8,
+          "verseEnd": 8
         },
         {
           "교리": "Holiness",
           "설명": "An act of separation.",
-          "관련구절": "1 Pet 1:16"
+          "관련구절": "1 Pet 1:16",
+          "displayReference": "1 Pet 1:16",
+          "bookId": "1peter",
+          "chapter": 1,
+          "verseStart": 16,
+          "verseEnd": 16
         },
         {
           "교리": "The foundation of ethics",
           "설명": "The moral standard is the Creator.",
-          "관련구절": "Mic 6:8"
+          "관련구절": "Mic 6:8",
+          "displayReference": "Mic 6:8",
+          "bookId": "micah",
+          "chapter": 6,
+          "verseStart": 8,
+          "verseEnd": 8
         }
       ],
       "표4_예표론": [
@@ -843,42 +1085,82 @@
         {
           "구절": "Gen 1:31",
           "연결점": "It was very good.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Gen 1:31",
+          "bookId": "genesis",
+          "chapter": 1,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "구절": "Isa 5:20",
           "연결점": "Woe to those who call evil good.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Isa 5:20",
+          "bookId": "isaiah",
+          "chapter": 5,
+          "verseStart": 20,
+          "verseEnd": 20
         },
         {
           "구절": "Ps 97:11",
           "연결점": "Light for the righteous.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Ps 97:11",
+          "bookId": "psalms",
+          "chapter": 97,
+          "verseStart": 11,
+          "verseEnd": 11
         },
         {
           "구절": "Prov 4:18-19",
           "연결점": "The light of the righteous vs. the darkness of the wicked.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Prov 4:18-19",
+          "bookId": "proverbs",
+          "chapter": 4,
+          "verseStart": 18,
+          "verseEnd": 19
         },
         {
           "구절": "John 3:19-21",
           "연결점": "Those who hate the light.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "John 3:19-21",
+          "bookId": "john",
+          "chapter": 3,
+          "verseStart": 19,
+          "verseEnd": 21
         },
         {
           "구절": "Eph 5:8-10",
           "연결점": "The fruit of light.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Eph 5:8-10",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 8,
+          "verseEnd": 10
         },
         {
           "구절": "Phil 2:15",
           "연결점": "Lights in the world.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Phil 2:15",
+          "bookId": "philippians",
+          "chapter": 2,
+          "verseStart": 15,
+          "verseEnd": 15
         },
         {
           "구절": "1 John 1:5-6",
           "연결점": "In God there is no darkness.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "1 John 1:5-6",
+          "bookId": "1john",
+          "chapter": 1,
+          "verseStart": 5,
+          "verseEnd": 6
         }
       ]
     },
@@ -934,17 +1216,32 @@
         {
           "교리": "Doctrine of time",
           "설명": "Time itself is part of creation.",
-          "관련구절": "Eccl 3:1"
+          "관련구절": "Eccl 3:1",
+          "displayReference": "Eccl 3:1",
+          "bookId": "ecclesiastes",
+          "chapter": 3,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "교리": "Doctrine of Sabbath",
           "설명": "Evening comes first in the order.",
-          "관련구절": "Lev 23:32"
+          "관련구절": "Lev 23:32",
+          "displayReference": "Lev 23:32",
+          "bookId": "leviticus",
+          "chapter": 23,
+          "verseStart": 32,
+          "verseEnd": 32
         },
         {
           "교리": "Doctrine of providence",
           "설명": "Night and day alike are under His rule.",
-          "관련구절": "Ps 139:11-12"
+          "관련구절": "Ps 139:11-12",
+          "displayReference": "Ps 139:11-12",
+          "bookId": "psalms",
+          "chapter": 139,
+          "verseStart": 11,
+          "verseEnd": 12
         }
       ],
       "표4_예표론": [
@@ -1060,42 +1357,82 @@
         {
           "구절": "Ps 90:12",
           "연결점": "Teach us to number our days.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Ps 90:12",
+          "bookId": "psalms",
+          "chapter": 90,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "Eccl 3:1-8",
           "연결점": "A time for every matter.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Eccl 3:1-8",
+          "bookId": "ecclesiastes",
+          "chapter": 3,
+          "verseStart": 1,
+          "verseEnd": 8
         },
         {
           "구절": "Ps 127:2",
           "연결점": "He gives sleep to His beloved.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Ps 127:2",
+          "bookId": "psalms",
+          "chapter": 127,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "Dan 2:21",
           "연결점": "He changes times and seasons.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Dan 2:21",
+          "bookId": "daniel",
+          "chapter": 2,
+          "verseStart": 21,
+          "verseEnd": 21
         },
         {
           "구절": "Mark 1:35",
           "연결점": "Early morning prayer.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Mark 1:35",
+          "bookId": "mark",
+          "chapter": 1,
+          "verseStart": 35,
+          "verseEnd": 35
         },
         {
           "구절": "Eph 5:16",
           "연결점": "Redeem the time.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Eph 5:16",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 16,
+          "verseEnd": 16
         },
         {
           "구절": "Heb 4:9-11",
           "연결점": "A Sabbath rest remains.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Heb 4:9-11",
+          "bookId": "hebrews",
+          "chapter": 4,
+          "verseStart": 9,
+          "verseEnd": 11
         },
         {
           "구절": "Rev 22:5",
           "연결점": "There will be no night there.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Rev 22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ]
     },
@@ -1151,17 +1488,32 @@
         {
           "교리": "Theology of order",
           "설명": "Creation is an act of separation and distinction.",
-          "관련구절": "1 Cor 14:33"
+          "관련구절": "1 Cor 14:33",
+          "displayReference": "1 Cor 14:33",
+          "bookId": "1corinthians",
+          "chapter": 14,
+          "verseStart": 33,
+          "verseEnd": 33
         },
         {
           "교리": "Doctrine of providence",
           "설명": "Rule over the chaos.",
-          "관련구절": "Ps 29:10"
+          "관련구절": "Ps 29:10",
+          "displayReference": "Ps 29:10",
+          "bookId": "psalms",
+          "chapter": 29,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "교리": "Doctrine of heaven",
           "설명": "The meaning of creating the heavens.",
-          "관련구절": "Isa 66:1"
+          "관련구절": "Isa 66:1",
+          "displayReference": "Isa 66:1",
+          "bookId": "isaiah",
+          "chapter": 66,
+          "verseStart": 1,
+          "verseEnd": 1
         }
       ],
       "표4_예표론": [
@@ -1277,42 +1629,82 @@
         {
           "구절": "Exod 14:21",
           "연결점": "Waters divided.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Exod 14:21",
+          "bookId": "exodus",
+          "chapter": 14,
+          "verseStart": 21,
+          "verseEnd": 21
         },
         {
           "구절": "Ps 104:2-3",
           "연결점": "Heaven stretched like a tent.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Ps 104:2-3",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 2,
+          "verseEnd": 3
         },
         {
           "구절": "Prov 8:27-29",
           "연결점": "Boundaries of sky and sea.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Prov 8:27-29",
+          "bookId": "proverbs",
+          "chapter": 8,
+          "verseStart": 27,
+          "verseEnd": 29
         },
         {
           "구절": "Job 37:18",
           "연결점": "The firmament like a cast mirror.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Job 37:18",
+          "bookId": "job",
+          "chapter": 37,
+          "verseStart": 18,
+          "verseEnd": 18
         },
         {
           "구절": "Matt 3:16",
           "연결점": "The heavens opened.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Matt 3:16",
+          "bookId": "matthew",
+          "chapter": 3,
+          "verseStart": 16,
+          "verseEnd": 16
         },
         {
           "구절": "1 Cor 10:1-2",
           "연결점": "Baptized in the sea.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "1 Cor 10:1-2",
+          "bookId": "1corinthians",
+          "chapter": 10,
+          "verseStart": 1,
+          "verseEnd": 2
         },
         {
           "구절": "2 Pet 3:5",
           "연결점": "The heavens formed out of water.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "2 Pet 3:5",
+          "bookId": "2peter",
+          "chapter": 3,
+          "verseStart": 5,
+          "verseEnd": 5
         },
         {
           "구절": "Rev 21:1",
           "연결점": "No more sea.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Rev 21:1",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 1,
+          "verseEnd": 1
         }
       ]
     },
@@ -1368,17 +1760,32 @@
         {
           "교리": "God the Provider",
           "설명": "The waters above as the source of rain.",
-          "관련구절": "Deut 11:13-15"
+          "관련구절": "Deut 11:13-15",
+          "displayReference": "Deut 11:13-15",
+          "bookId": "deuteronomy",
+          "chapter": 11,
+          "verseStart": 13,
+          "verseEnd": 15
         },
         {
           "교리": "Distinction and order",
           "설명": "The act of separation is repeated.",
-          "관련구절": "Isa 45:12"
+          "관련구절": "Isa 45:12",
+          "displayReference": "Isa 45:12",
+          "bookId": "isaiah",
+          "chapter": 45,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "교리": "Preservation of creation",
           "설명": "Ongoing preservation (providence).",
-          "관련구절": "Col 1:17"
+          "관련구절": "Col 1:17",
+          "displayReference": "Col 1:17",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 17,
+          "verseEnd": 17
         }
       ],
       "표4_예표론": [
@@ -1494,42 +1901,82 @@
         {
           "구절": "Deut 28:12",
           "연결점": "The storehouse of heaven opened.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Deut 28:12",
+          "bookId": "deuteronomy",
+          "chapter": 28,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "Job 38:37",
           "연결점": "Who can tip the water jars of heaven?",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Job 38:37",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 37,
+          "verseEnd": 37
         },
         {
           "구절": "Isa 55:10-11",
           "연결점": "Rain and snow as a figure.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Isa 55:10-11",
+          "bookId": "isaiah",
+          "chapter": 55,
+          "verseStart": 10,
+          "verseEnd": 11
         },
         {
           "구절": "Zech 10:1",
           "연결점": "Ask for the spring rain.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Zech 10:1",
+          "bookId": "zechariah",
+          "chapter": 10,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "Jas 5:18",
           "연결점": "Elijah and the rain.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Jas 5:18",
+          "bookId": "james",
+          "chapter": 5,
+          "verseStart": 18,
+          "verseEnd": 18
         },
         {
           "구절": "Acts 14:17",
           "연결점": "He did good by giving rain.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Acts 14:17",
+          "bookId": "acts",
+          "chapter": 14,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "구절": "Rev 11:6",
           "연결점": "Authority to shut the sky.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Rev 11:6",
+          "bookId": "revelation",
+          "chapter": 11,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "John 7:38",
           "연결점": "Rivers of living water.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "John 7:38",
+          "bookId": "john",
+          "chapter": 7,
+          "verseStart": 38,
+          "verseEnd": 38
         }
       ]
     },
@@ -1585,17 +2032,32 @@
         {
           "교리": "Theology of kingship",
           "설명": "Rule expressed by naming.",
-          "관련구절": "Isa 40:26"
+          "관련구절": "Isa 40:26",
+          "displayReference": "Isa 40:26",
+          "bookId": "isaiah",
+          "chapter": 40,
+          "verseStart": 26,
+          "verseEnd": 26
         },
         {
           "교리": "Theology of process",
           "설명": "No “good” on day two—patience with the unfinished.",
-          "관련구절": "Phil 1:6"
+          "관련구절": "Phil 1:6",
+          "displayReference": "Phil 1:6",
+          "bookId": "philippians",
+          "chapter": 1,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "교리": "Heavenly citizenship",
           "설명": "Hope of the shamayim.",
-          "관련구절": "Phil 3:20"
+          "관련구절": "Phil 3:20",
+          "displayReference": "Phil 3:20",
+          "bookId": "philippians",
+          "chapter": 3,
+          "verseStart": 20,
+          "verseEnd": 20
         }
       ],
       "표4_예표론": [
@@ -1711,42 +2173,82 @@
         {
           "구절": "Isa 55:9",
           "연결점": "As the heavens are higher.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Isa 55:9",
+          "bookId": "isaiah",
+          "chapter": 55,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "Ps 19:1",
           "연결점": "The firmament proclaims.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Ps 19:1",
+          "bookId": "psalms",
+          "chapter": 19,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "Gen 28:12",
           "연결점": "The ladder dream.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Gen 28:12",
+          "bookId": "genesis",
+          "chapter": 28,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "Dan 7:13-14",
           "연결점": "The Son of Man and heavenly authority.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Dan 7:13-14",
+          "bookId": "daniel",
+          "chapter": 7,
+          "verseStart": 13,
+          "verseEnd": 14
         },
         {
           "구절": "Acts 1:11",
           "연결점": "He will come again.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Acts 1:11",
+          "bookId": "acts",
+          "chapter": 1,
+          "verseStart": 11,
+          "verseEnd": 11
         },
         {
           "구절": "1 Cor 15:49",
           "연결점": "The image of the heavenly.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "1 Cor 15:49",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 49,
+          "verseEnd": 49
         },
         {
           "구절": "Heb 12:22",
           "연결점": "The heavenly Jerusalem.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Heb 12:22",
+          "bookId": "hebrews",
+          "chapter": 12,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "Rev 21:1-2",
           "연결점": "A new heaven.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Rev 21:1-2",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 1,
+          "verseEnd": 2
         }
       ]
     },
@@ -1802,17 +2304,32 @@
         {
           "교리": "Order of creation",
           "설명": "Boundaries are set.",
-          "관련구절": "Job 38:8-11"
+          "관련구절": "Job 38:8-11",
+          "displayReference": "Job 38:8-11",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 8,
+          "verseEnd": 11
         },
         {
           "교리": "Priority of grace",
           "설명": "Dry land appears as the stage for life.",
-          "관련구절": "Isa 45:12"
+          "관련구절": "Isa 45:12",
+          "displayReference": "Isa 45:12",
+          "bookId": "isaiah",
+          "chapter": 45,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "교리": "Redemption and re-creation",
           "설명": "Parallel with Noah and the Exodus.",
-          "관련구절": "1 Pet 3:20-21"
+          "관련구절": "1 Pet 3:20-21",
+          "displayReference": "1 Pet 3:20-21",
+          "bookId": "1peter",
+          "chapter": 3,
+          "verseStart": 20,
+          "verseEnd": 21
         }
       ],
       "표4_예표론": [
@@ -1928,42 +2445,82 @@
         {
           "구절": "Ps 104:9",
           "연결점": "He set a boundary.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Ps 104:9",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "Prov 8:29",
           "연결점": "Limits of the sea.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Prov 8:29",
+          "bookId": "proverbs",
+          "chapter": 8,
+          "verseStart": 29,
+          "verseEnd": 29
         },
         {
           "구절": "Nah 1:4",
           "연결점": "He dries up the sea.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Nah 1:4",
+          "bookId": "nahum",
+          "chapter": 1,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "구절": "Isa 43:2",
           "연결점": "When you pass through the waters.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Isa 43:2",
+          "bookId": "isaiah",
+          "chapter": 43,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "Mark 4:39",
           "연결점": "The storm is stilled.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Mark 4:39",
+          "bookId": "mark",
+          "chapter": 4,
+          "verseStart": 39,
+          "verseEnd": 39
         },
         {
           "구절": "Rev 21:1",
           "연결점": "No more sea.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Rev 21:1",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "1 Pet 3:20-21",
           "연결점": "Saved through water.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "1 Pet 3:20-21",
+          "bookId": "1peter",
+          "chapter": 3,
+          "verseStart": 20,
+          "verseEnd": 21
         },
         {
           "구절": "Heb 11:29",
           "연결점": "Crossing the Red Sea on dry land.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Heb 11:29",
+          "bookId": "hebrews",
+          "chapter": 11,
+          "verseStart": 29,
+          "verseEnd": 29
         }
       ]
     },
@@ -2019,17 +2576,32 @@
         {
           "교리": "Goodness of creation",
           "설명": "The Tov declaration is repeated.",
-          "관련구절": "Ps 33:5"
+          "관련구절": "Ps 33:5",
+          "displayReference": "Ps 33:5",
+          "bookId": "psalms",
+          "chapter": 33,
+          "verseStart": 5,
+          "verseEnd": 5
         },
         {
           "교리": "Rule by naming",
           "설명": "Names given to erets and yam.",
-          "관련구절": "Ps 29:10"
+          "관련구절": "Ps 29:10",
+          "displayReference": "Ps 29:10",
+          "bookId": "psalms",
+          "chapter": 29,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "교리": "Stewardship",
           "설명": "Managers entrusted with the land.",
-          "관련구절": "Gen 2:15"
+          "관련구절": "Gen 2:15",
+          "displayReference": "Gen 2:15",
+          "bookId": "genesis",
+          "chapter": 2,
+          "verseStart": 15,
+          "verseEnd": 15
         }
       ],
       "표4_예표론": [
@@ -2145,42 +2717,82 @@
         {
           "구절": "Ps 95:5",
           "연결점": "The sea and dry land are His.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Ps 95:5",
+          "bookId": "psalms",
+          "chapter": 95,
+          "verseStart": 5,
+          "verseEnd": 5
         },
         {
           "구절": "Job 38:10-11",
           "연결점": "The sea’s threshold.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Job 38:10-11",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 10,
+          "verseEnd": 11
         },
         {
           "구절": "Isa 40:22",
           "연결점": "The circle of the earth.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Isa 40:22",
+          "bookId": "isaiah",
+          "chapter": 40,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "Gen 13:17",
           "연결점": "Walk through the land.",
-          "구분": "OT"
+          "구분": "OT",
+          "displayReference": "Gen 13:17",
+          "bookId": "genesis",
+          "chapter": 13,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "구절": "Mark 4:39",
           "연결점": "The sea is stilled.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Mark 4:39",
+          "bookId": "mark",
+          "chapter": 4,
+          "verseStart": 39,
+          "verseEnd": 39
         },
         {
           "구절": "Rom 8:19-22",
           "연결점": "Creation groans.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Rom 8:19-22",
+          "bookId": "romans",
+          "chapter": 8,
+          "verseStart": 19,
+          "verseEnd": 22
         },
         {
           "구절": "2 Pet 3:13",
           "연결점": "Promise of a new earth.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "2 Pet 3:13",
+          "bookId": "2peter",
+          "chapter": 3,
+          "verseStart": 13,
+          "verseEnd": 13
         },
         {
           "구절": "Rev 22:3",
           "연결점": "No more curse.",
-          "구분": "NT"
+          "구분": "NT",
+          "displayReference": "Rev 22:3",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 3,
+          "verseEnd": 3
         }
       ]
     },
@@ -2209,42 +2821,82 @@
         {
           "구절": "Gen 8:22",
           "연결점": "Time for sowing and reaping",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Gen 8:22",
+          "bookId": "genesis",
+          "chapter": 8,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "Ps 104:14",
           "연결점": "Feeding livestock with grass",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 104:14",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "Isa 55:10",
           "연결점": "Seed to the sower",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isa 55:10",
+          "bookId": "isaiah",
+          "chapter": 55,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "구절": "Hos 10:12",
           "연결점": "Sowing righteousness and reaping steadfast love",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Hos 10:12",
+          "bookId": "hosea",
+          "chapter": 10,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "Matt 13:23",
           "연결점": "Seed sown on good soil",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Matt 13:23",
+          "bookId": "matthew",
+          "chapter": 13,
+          "verseStart": 23,
+          "verseEnd": 23
         },
         {
           "구절": "1 Cor 15:36-38",
           "연결점": "What is sown must die to live",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "1 Cor 15:36-38",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 36,
+          "verseEnd": 38
         },
         {
           "구절": "Gal 6:7",
           "연결점": "Reaping what is sown",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Gal 6:7",
+          "bookId": "galatians",
+          "chapter": 6,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "구절": "Rev 22:2",
           "연결점": "Fruit of the tree of life",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Rev 22:2",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 2,
+          "verseEnd": 2
         }
       ],
       "표2_역사적배경": [
@@ -2338,17 +2990,32 @@
         {
           "교리": "Diversity of Creation",
           "설명": "'After their kind' shows a model of a diverse and abundant community",
-          "관련구절": "Rev 7:9"
+          "관련구절": "Rev 7:9",
+          "displayReference": "Rev 7:9",
+          "bookId": "revelation",
+          "chapter": 7,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "교리": "Seed and Fruit Principle",
           "설명": "Shows the spiritual law of reaping what is sown",
-          "관련구절": "Gal 6:7"
+          "관련구절": "Gal 6:7",
+          "displayReference": "Gal 6:7",
+          "bookId": "galatians",
+          "chapter": 6,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "교리": "Providential Supply",
           "설명": "Shows sovereign care in food and healing",
-          "관련구절": "Matt 6:30-32"
+          "관련구절": "Matt 6:30-32",
+          "displayReference": "Matt 6:30-32",
+          "bookId": "matthew",
+          "chapter": 6,
+          "verseStart": 30,
+          "verseEnd": 32
         }
       ],
       "표4_예표론": [
@@ -2394,42 +3061,82 @@
         {
           "구절": "Psalm 1:3",
           "연결점": "Bearing fruit in season",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Psalm 1:3",
+          "bookId": "psalms",
+          "chapter": 1,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "구절": "Proverbs 11:30",
           "연결점": "The fruit of the righteous is a tree of life",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Proverbs 11:30",
+          "bookId": "proverbs",
+          "chapter": 11,
+          "verseStart": 30,
+          "verseEnd": 30
         },
         {
           "구절": "Isaiah 61:11",
           "연결점": "Righteousness springing up like a seed",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isaiah 61:11",
+          "bookId": "isaiah",
+          "chapter": 61,
+          "verseStart": 11,
+          "verseEnd": 11
         },
         {
           "구절": "Habakkuk 3:17-18",
           "연결점": "Rejoicing even without fruit",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Habakkuk 3:17-18",
+          "bookId": "habakkuk",
+          "chapter": 3,
+          "verseStart": 17,
+          "verseEnd": 18
         },
         {
           "구절": "John 15:5",
           "연결점": "Bearing much fruit",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "John 15:5",
+          "bookId": "john",
+          "chapter": 15,
+          "verseStart": 5,
+          "verseEnd": 5
         },
         {
           "구절": "Galatians 5:22-23",
           "연결점": "The fruit of the Spirit",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Galatians 5:22-23",
+          "bookId": "galatians",
+          "chapter": 5,
+          "verseStart": 22,
+          "verseEnd": 23
         },
         {
           "구절": "Colossians 1:6",
           "연결점": "Growth of the gospel fruit",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Colossians 1:6",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "Revelation 22:2",
           "연결점": "The fruit of the tree of life",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Revelation 22:2",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 2,
+          "verseEnd": 2
         }
       ],
       "표2_역사적배경": [
@@ -2523,17 +3230,32 @@
         {
           "교리": "Completion of good creation",
           "설명": "Pre-conclusion with repeated 'it was good'",
-          "관련구절": "1 Timothy 4:4"
+          "관련구절": "1 Timothy 4:4",
+          "displayReference": "1 Timothy 4:4",
+          "bookId": "1timothy",
+          "chapter": 4,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "교리": "Order of self-replication",
           "설명": "Endowment of reproductive ability in the seed itself",
-          "관련구절": "Genesis 9:7"
+          "관련구절": "Genesis 9:7",
+          "displayReference": "Genesis 9:7",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "교리": "Fruitful life",
           "설명": "Purpose of the calling of the saints",
-          "관련구절": "John 15:8"
+          "관련구절": "John 15:8",
+          "displayReference": "John 15:8",
+          "bookId": "john",
+          "chapter": 15,
+          "verseStart": 8,
+          "verseEnd": 8
         }
       ],
       "표4_예표론": [
@@ -2579,42 +3301,82 @@
         {
           "구절": "Ps 55:17",
           "연결점": "Evening, morning, and noon prayer",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 55:17",
+          "bookId": "psalms",
+          "chapter": 55,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "구절": "Lam 3:23",
           "연결점": "New every morning",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Lam 3:23",
+          "bookId": "lamentations",
+          "chapter": 3,
+          "verseStart": 23,
+          "verseEnd": 23
         },
         {
           "구절": "Gen 8:22",
           "연결점": "Day and night do not cease",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Gen 8:22",
+          "bookId": "genesis",
+          "chapter": 8,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "Ps 90:12",
           "연결점": "Numbering our days",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 90:12",
+          "bookId": "psalms",
+          "chapter": 90,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "Mark 16:2",
           "연결점": "Early morning resurrection confirmation",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Mark 16:2",
+          "bookId": "mark",
+          "chapter": 16,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "1 Cor 15:4",
           "연결점": "Rising on the third day",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "1 Cor 15:4",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "구절": "Eph 5:14",
           "연결점": "Wake up, sleeper",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Eph 5:14",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "Rev 22:5",
           "연결점": "There will be no night",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Rev 22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -2708,17 +3470,32 @@
         {
           "교리": "Stewardship of Time",
           "설명": "The evening-morning cycle shows the balance of life and rest",
-          "관련구절": "Ps 90:12"
+          "관련구절": "Ps 90:12",
+          "displayReference": "Ps 90:12",
+          "bookId": "psalms",
+          "chapter": 90,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "교리": "Process Theology",
           "설명": "The creation progressing until the third day shows the faith education of 'not yet'",
-          "관련구절": "Phil 1:6"
+          "관련구절": "Phil 1:6",
+          "displayReference": "Phil 1:6",
+          "bookId": "philippians",
+          "chapter": 1,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "교리": "God's Satisfaction",
           "설명": "The declaration of 'good' reflects the joy of the Creator",
-          "관련구절": "Rev 4:11"
+          "관련구절": "Rev 4:11",
+          "displayReference": "Rev 4:11",
+          "bookId": "revelation",
+          "chapter": 4,
+          "verseStart": 11,
+          "verseEnd": 11
         }
       ],
       "표4_예표론": [
@@ -2764,42 +3541,82 @@
         {
           "구절": "Ps 136:7-9",
           "연결점": "Creation of the great and small lights",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 136:7-9",
+          "bookId": "psalms",
+          "chapter": 136,
+          "verseStart": 7,
+          "verseEnd": 9
         },
         {
           "구절": "Jer 31:35",
           "연결점": "Sun by day, moon and stars by night",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Jer 31:35",
+          "bookId": "jeremiah",
+          "chapter": 31,
+          "verseStart": 35,
+          "verseEnd": 35
         },
         {
           "구절": "Neh 9:19",
           "연결점": "Pillar of cloud by day",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Neh 9:19",
+          "bookId": "nehemiah",
+          "chapter": 9,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "Dan 12:3",
           "연결점": "Those who shine like stars",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Dan 12:3",
+          "bookId": "daniel",
+          "chapter": 12,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "구절": "Matt 2:2",
           "연결점": "Star of the Magi",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Matt 2:2",
+          "bookId": "matthew",
+          "chapter": 2,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "Luke 21:25",
           "연결점": "Signs in the sun, moon, and stars",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Luke 21:25",
+          "bookId": "luke",
+          "chapter": 21,
+          "verseStart": 25,
+          "verseEnd": 25
         },
         {
           "구절": "1 Cor 15:41",
           "연결점": "Differing glory of stars",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "1 Cor 15:41",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 41,
+          "verseEnd": 41
         },
         {
           "구절": "Rev 21:23",
           "연결점": "City that does not need the sun or moon",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Rev 21:23",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 23,
+          "verseEnd": 23
         }
       ],
       "표2_역사적배경": [
@@ -2893,17 +3710,32 @@
         {
           "교리": "Providence of schedules",
           "설명": "God who sets the standard of time",
-          "관련구절": "Dan 2:21"
+          "관련구절": "Dan 2:21",
+          "displayReference": "Dan 2:21",
+          "bookId": "daniel",
+          "chapter": 2,
+          "verseStart": 21,
+          "verseEnd": 21
         },
         {
           "교리": "Revelatory signs",
           "설명": "Signs are the alarm of redemptive history",
-          "관련구절": "Luke 21:25"
+          "관련구절": "Luke 21:25",
+          "displayReference": "Luke 21:25",
+          "bookId": "luke",
+          "chapter": 21,
+          "verseStart": 25,
+          "verseEnd": 25
         },
         {
           "교리": "Worship rhythm",
           "설명": "Festivals show the distinction of holy time",
-          "관련구절": "Lev 23:2"
+          "관련구절": "Lev 23:2",
+          "displayReference": "Lev 23:2",
+          "bookId": "leviticus",
+          "chapter": 23,
+          "verseStart": 2,
+          "verseEnd": 2
         }
       ],
       "표4_예표론": [
@@ -2949,42 +3781,82 @@
         {
           "구절": "Psalm 119:105",
           "연결점": "The word as a lamp to my feet",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Psalm 119:105",
+          "bookId": "psalms",
+          "chapter": 119,
+          "verseStart": 105,
+          "verseEnd": 105
         },
         {
           "구절": "Isaiah 60:1-3",
           "연결점": "Arise, shine",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isaiah 60:1-3",
+          "bookId": "isaiah",
+          "chapter": 60,
+          "verseStart": 1,
+          "verseEnd": 3
         },
         {
           "구절": "Numbers 6:25",
           "연결점": "The Lord make His face shine upon you",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Numbers 6:25",
+          "bookId": "numbers",
+          "chapter": 6,
+          "verseStart": 25,
+          "verseEnd": 25
         },
         {
           "구절": "Daniel 12:3",
           "연결점": "Shine like the stars forever",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Daniel 12:3",
+          "bookId": "daniel",
+          "chapter": 12,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "구절": "Matthew 5:14-16",
           "연결점": "The light of the world – on a lampstand",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Matthew 5:14-16",
+          "bookId": "matthew",
+          "chapter": 5,
+          "verseStart": 14,
+          "verseEnd": 16
         },
         {
           "구절": "John 8:12",
           "연결점": "I am the light of the world",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "John 8:12",
+          "bookId": "john",
+          "chapter": 8,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "2 Corinthians 4:6",
           "연결점": "Light shine out of darkness",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "2 Corinthians 4:6",
+          "bookId": "2corinthians",
+          "chapter": 4,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "Revelation 22:5",
           "연결점": "No need for lamp or sun",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Revelation 22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -3078,17 +3950,32 @@
         {
           "교리": "Transmission of Revelation",
           "설명": "Light as the medium of truth and grace",
-          "관련구절": "John 1:9"
+          "관련구절": "John 1:9",
+          "displayReference": "John 1:9",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "교리": "Mission",
           "설명": "Light-receiving saints – mission to illuminate",
-          "관련구절": "Matthew 5:14-16"
+          "관련구절": "Matthew 5:14-16",
+          "displayReference": "Matthew 5:14-16",
+          "bookId": "matthew",
+          "chapter": 5,
+          "verseStart": 14,
+          "verseEnd": 16
         },
         {
           "교리": "Faithfulness",
           "설명": "'And it was so' shows the fulfillment of the word",
-          "관련구절": "Isaiah 55:11"
+          "관련구절": "Isaiah 55:11",
+          "displayReference": "Isaiah 55:11",
+          "bookId": "isaiah",
+          "chapter": 55,
+          "verseStart": 11,
+          "verseEnd": 11
         }
       ],
       "표4_예표론": [
@@ -3134,42 +4021,82 @@
         {
           "구절": "Ps 136:7-9",
           "연결점": "Thanksgiving for the great lights of sun and moon",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 136:7-9",
+          "bookId": "psalms",
+          "chapter": 136,
+          "verseStart": 7,
+          "verseEnd": 9
         },
         {
           "구절": "Job 38:31-33",
           "연결점": "Description of constellations",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Job 38:31-33",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 31,
+          "verseEnd": 33
         },
         {
           "구절": "Deut 4:19",
           "연결점": "Warning against worshiping the host of heaven",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Deut 4:19",
+          "bookId": "deuteronomy",
+          "chapter": 4,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "Isa 40:26",
           "연결점": "God who calls the stars by name",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isa 40:26",
+          "bookId": "isaiah",
+          "chapter": 40,
+          "verseStart": 26,
+          "verseEnd": 26
         },
         {
           "구절": "1 Cor 15:41",
           "연결점": "Differences in glory among stars",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "1 Cor 15:41",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 41,
+          "verseEnd": 41
         },
         {
           "구절": "Phil 2:15",
           "연결점": "Shining like stars in the world",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Phil 2:15",
+          "bookId": "philippians",
+          "chapter": 2,
+          "verseStart": 15,
+          "verseEnd": 15
         },
         {
           "구절": "Rev 22:16",
           "연결점": "Jesus as the morning star",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Rev 22:16",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 16,
+          "verseEnd": 16
         },
         {
           "구절": "Matt 24:29",
           "연결점": "Sun darkening and stars falling",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Matt 24:29",
+          "bookId": "matthew",
+          "chapter": 24,
+          "verseStart": 29,
+          "verseEnd": 29
         }
       ],
       "표2_역사적배경": [
@@ -3295,17 +4222,32 @@
         {
           "교리": "Delegated Order of Creation",
           "설명": "Delegation of day and night governance to the lights—God as sovereign",
-          "관련구절": "Psalm 136:7-9"
+          "관련구절": "Psalm 136:7-9",
+          "displayReference": "Psalm 136:7-9",
+          "bookId": "psalms",
+          "chapter": 136,
+          "verseStart": 7,
+          "verseEnd": 9
         },
         {
           "교리": "Hierarchical Roles",
           "설명": "Greater and lesser lights show mutual complementarity, not superiority or inferiority",
-          "관련구절": "Romans 12:4-5"
+          "관련구절": "Romans 12:4-5",
+          "displayReference": "Romans 12:4-5",
+          "bookId": "romans",
+          "chapter": 12,
+          "verseStart": 4,
+          "verseEnd": 5
         },
         {
           "교리": "Cosmic Revelation",
           "설명": "Stars testify as greater and lesser witnesses",
-          "관련구절": "Psalm 19:1"
+          "관련구절": "Psalm 19:1",
+          "displayReference": "Psalm 19:1",
+          "bookId": "psalms",
+          "chapter": 19,
+          "verseStart": 1,
+          "verseEnd": 1
         }
       ],
       "표4_예표론": [
@@ -3351,42 +4293,82 @@
         {
           "구절": "Ps 8:3",
           "연결점": "Stars made by His fingers",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 8:3",
+          "bookId": "psalms",
+          "chapter": 8,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "구절": "Gen 15:5",
           "연결점": "Innumerable stars of the heavens",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Gen 15:5",
+          "bookId": "genesis",
+          "chapter": 15,
+          "verseStart": 5,
+          "verseEnd": 5
         },
         {
           "구절": "Dan 12:3",
           "연결점": "Shining like stars",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Dan 12:3",
+          "bookId": "daniel",
+          "chapter": 12,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "구절": "Job 38:33",
           "연결점": "Knowing the laws of the heavens",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Job 38:33",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 33,
+          "verseEnd": 33
         },
         {
           "구절": "Matt 5:14",
           "연결점": "Light of the world",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Matt 5:14",
+          "bookId": "matthew",
+          "chapter": 5,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "1 Cor 15:41",
           "연결점": "Differing glory of the stars",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "1 Cor 15:41",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 41,
+          "verseEnd": 41
         },
         {
           "구절": "Rev 1:20",
           "연결점": "Seven stars and lampstands",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Rev 1:20",
+          "bookId": "revelation",
+          "chapter": 1,
+          "verseStart": 20,
+          "verseEnd": 20
         },
         {
           "구절": "Rev 21:23",
           "연결점": "No need for a lamp",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Rev 21:23",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 23,
+          "verseEnd": 23
         }
       ],
       "표2_역사적배경": [
@@ -3512,17 +4494,32 @@
         {
           "교리": "Providential Arrangement",
           "설명": "Setting of creation's position and orbit shows providence",
-          "관련구절": "Ps 8:3"
+          "관련구절": "Ps 8:3",
+          "displayReference": "Ps 8:3",
+          "bookId": "psalms",
+          "chapter": 8,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "교리": "Mission's Universality",
           "설명": "Illumination of the whole earth shows gospel universality",
-          "관련구절": "Acts 1:8"
+          "관련구절": "Acts 1:8",
+          "displayReference": "Acts 1:8",
+          "bookId": "acts",
+          "chapter": 1,
+          "verseStart": 8,
+          "verseEnd": 8
         },
         {
           "교리": "Dependent Existence",
           "설명": "Reason for luminaries' existence is illumination, showing teleology",
-          "관련구절": "Eph 2:10"
+          "관련구절": "Eph 2:10",
+          "displayReference": "Eph 2:10",
+          "bookId": "ephesians",
+          "chapter": 2,
+          "verseStart": 10,
+          "verseEnd": 10
         }
       ],
       "표4_예표론": [
@@ -3568,42 +4565,82 @@
         {
           "구절": "Ps 139:12",
           "연결점": "Darkness is as light",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 139:12",
+          "bookId": "psalms",
+          "chapter": 139,
+          "verseStart": 12,
+          "verseEnd": 12
         },
         {
           "구절": "Isa 60:2",
           "연결점": "The Lord's light when darkness covers",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isa 60:2",
+          "bookId": "isaiah",
+          "chapter": 60,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "Job 38:19",
           "연결점": "Where light dwells",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Job 38:19",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "Mal 4:2",
           "연결점": "Sun of righteousness rising",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Mal 4:2",
+          "bookId": "malachi",
+          "chapter": 4,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "John 3:19",
           "연결점": "Light has come, but people loved darkness",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "John 3:19",
+          "bookId": "john",
+          "chapter": 3,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "Eph 5:8",
           "연결점": "Formerly darkness, now light",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Eph 5:8",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 8,
+          "verseEnd": 8
         },
         {
           "구절": "1 Thess 5:5",
           "연결점": "Children of light",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "1 Thess 5:5",
+          "bookId": "1thessalonians",
+          "chapter": 5,
+          "verseStart": 5,
+          "verseEnd": 5
         },
         {
           "구절": "Rev 22:5",
           "연결점": "There will be no night",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Rev 22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -3729,17 +4766,32 @@
         {
           "교리": "Ethical Distinction",
           "설명": "The division of light and darkness shows the basis for the good and evil schema",
-          "관련구절": "Eph 5:8-11"
+          "관련구절": "Eph 5:8-11",
+          "displayReference": "Eph 5:8-11",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 8,
+          "verseEnd": 11
         },
         {
           "교리": "Balanced Spirituality",
           "설명": "The governance of day and night shows the balance of work and rest",
-          "관련구절": "Mark 6:31"
+          "관련구절": "Mark 6:31",
+          "displayReference": "Mark 6:31",
+          "bookId": "mark",
+          "chapter": 6,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "교리": "Creation's Goodness",
           "설명": "God's evaluation standard—objective goodness",
-          "관련구절": "James 1:17"
+          "관련구절": "James 1:17",
+          "displayReference": "James 1:17",
+          "bookId": "james",
+          "chapter": 1,
+          "verseStart": 17,
+          "verseEnd": 17
         }
       ],
       "표4_예표론": [
@@ -3785,42 +4837,82 @@
         {
           "구절": "Ps 104:19",
           "연결점": "Setting of seasons by the moon",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 104:19",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "Isa 40:26",
           "연결점": "Calling out the stars",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isa 40:26",
+          "bookId": "isaiah",
+          "chapter": 40,
+          "verseStart": 26,
+          "verseEnd": 26
         },
         {
           "구절": "Gen 8:22",
           "연결점": "Unceasing nature of day and night",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Gen 8:22",
+          "bookId": "genesis",
+          "chapter": 8,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "Lam 3:23",
           "연결점": "Newness every morning",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Lam 3:23",
+          "bookId": "lamentations",
+          "chapter": 3,
+          "verseStart": 23,
+          "verseEnd": 23
         },
         {
           "구절": "Mark 16:2",
           "연결점": "Confirmation of resurrection early in the morning",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Mark 16:2",
+          "bookId": "mark",
+          "chapter": 16,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "1 Cor 15:4",
           "연결점": "Being raised on the third day",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "1 Cor 15:4",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "구절": "Eph 5:14",
           "연결점": "Call to rise from sleep",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Eph 5:14",
+          "bookId": "ephesians",
+          "chapter": 5,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "Rev 22:5",
           "연결점": "There will be no night",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Rev 22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -3946,17 +5038,32 @@
         {
           "교리": "Sovereignty over time",
           "설명": "The ruler of the structure of the day.",
-          "관련구절": "Dan 2:21"
+          "관련구절": "Dan 2:21",
+          "displayReference": "Dan 2:21",
+          "bookId": "daniel",
+          "chapter": 2,
+          "verseStart": 21,
+          "verseEnd": 21
         },
         {
           "교리": "Progressive sanctification",
           "설명": "Repeated pattern until the fourth day—'already, not yet.'",
-          "관련구절": "2 Cor 3:18"
+          "관련구절": "2 Cor 3:18",
+          "displayReference": "2 Cor 3:18",
+          "bookId": "2corinthians",
+          "chapter": 3,
+          "verseStart": 18,
+          "verseEnd": 18
         },
         {
           "교리": "Goodness of creation",
           "설명": "Daily proclamation affirms creation.",
-          "관련구절": "Gen 1:31"
+          "관련구절": "Gen 1:31",
+          "displayReference": "Gen 1:31",
+          "bookId": "genesis",
+          "chapter": 1,
+          "verseStart": 31,
+          "verseEnd": 31
         }
       ],
       "표4_예표론": [
@@ -4002,42 +5109,82 @@
         {
           "구절": "Ps 104:25-26",
           "연결점": "Fullness with great and small creatures",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 104:25-26",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 25,
+          "verseEnd": 26
         },
         {
           "구절": "Job 12:7-10",
           "연결점": "Teaching of beasts and birds of the air",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Job 12:7-10",
+          "bookId": "job",
+          "chapter": 12,
+          "verseStart": 7,
+          "verseEnd": 10
         },
         {
           "구절": "Gen 9:1",
           "연결점": "Command to multiply",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Gen 9:1",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "Isa 40:31",
           "연결점": "New strength like eagles' wings",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isa 40:31",
+          "bookId": "isaiah",
+          "chapter": 40,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "구절": "Matt 3:16",
           "연결점": "Holy Spirit like a dove",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Matt 3:16",
+          "bookId": "matthew",
+          "chapter": 3,
+          "verseStart": 16,
+          "verseEnd": 16
         },
         {
           "구절": "Luke 5:6",
           "연결점": "Fish so abundant that the nets were breaking",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Luke 5:6",
+          "bookId": "luke",
+          "chapter": 5,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "John 6:11",
           "연결점": "Two fish",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "John 6:11",
+          "bookId": "john",
+          "chapter": 6,
+          "verseStart": 11,
+          "verseEnd": 11
         },
         {
           "구절": "Rev 19:17",
           "연결점": "Call to the birds of the air",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Rev 19:17",
+          "bookId": "revelation",
+          "chapter": 19,
+          "verseStart": 17,
+          "verseEnd": 17
         }
       ],
       "표2_역사적배경": [
@@ -4163,17 +5310,32 @@
         {
           "교리": "Doctrine of life",
           "설명": "Sea and air creatures also show God's breath",
-          "관련구절": "Ps 104:25-30"
+          "관련구절": "Ps 104:25-30",
+          "displayReference": "Ps 104:25-30",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 25,
+          "verseEnd": 30
         },
         {
           "교리": "Command to multiply",
           "설명": "Be fruitful and multiply shows the blessing of creation",
-          "관련구절": "Gen 9:1"
+          "관련구절": "Gen 9:1",
+          "displayReference": "Gen 9:1",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "교리": "Spatial theology",
           "설명": "Mission of each domain of land, sea, and air",
-          "관련구절": "Eph 4:10"
+          "관련구절": "Eph 4:10",
+          "displayReference": "Eph 4:10",
+          "bookId": "ephesians",
+          "chapter": 4,
+          "verseStart": 10,
+          "verseEnd": 10
         }
       ],
       "표4_예표론": [
@@ -4219,42 +5381,82 @@
         {
           "구절": "Psalm 104:25-30",
           "연결점": "Sea creatures like whales",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Psalm 104:25-30",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 25,
+          "verseEnd": 30
         },
         {
           "구절": "Job 41:1",
           "연결점": "Description of Leviathan",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Job 41:1",
+          "bookId": "job",
+          "chapter": 41,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "Genesis 9:2",
           "연결점": "Fear of sea fish",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Genesis 9:2",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "Psalm 148:7-10",
           "연결점": "Praise of dragons and deep sea creatures",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Psalm 148:7-10",
+          "bookId": "psalms",
+          "chapter": 148,
+          "verseStart": 7,
+          "verseEnd": 10
         },
         {
           "구절": "Matthew 12:40",
           "연결점": "Jonah in the belly of the great fish",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Matthew 12:40",
+          "bookId": "matthew",
+          "chapter": 12,
+          "verseStart": 40,
+          "verseEnd": 40
         },
         {
           "구절": "Luke 12:24",
           "연결점": "God's provision for ravens",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Luke 12:24",
+          "bookId": "luke",
+          "chapter": 12,
+          "verseStart": 24,
+          "verseEnd": 24
         },
         {
           "구절": "John 21:11",
           "연결점": "153 large fish",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "John 21:11",
+          "bookId": "john",
+          "chapter": 21,
+          "verseStart": 11,
+          "verseEnd": 11
         },
         {
           "구절": "Revelation 13:1",
           "연결점": "Beast from the sea",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Revelation 13:1",
+          "bookId": "revelation",
+          "chapter": 13,
+          "verseStart": 1,
+          "verseEnd": 1
         }
       ],
       "표2_역사적배경": [
@@ -4380,17 +5582,32 @@
         {
           "교리": "Sovereign Creation",
           "설명": "Reappearance of bará verb—unique creation",
-          "관련구절": "Isaiah 40:26"
+          "관련구절": "Isaiah 40:26",
+          "displayReference": "Isaiah 40:26",
+          "bookId": "isaiah",
+          "chapter": 40,
+          "verseStart": 26,
+          "verseEnd": 26
         },
         {
           "교리": "Blessing of Diversity",
           "설명": "Repetition of 'according to their kinds' relates to the goodness of differences",
-          "관련구절": "1 Corinthians 12:4-6"
+          "관련구절": "1 Corinthians 12:4-6",
+          "displayReference": "1 Corinthians 12:4-6",
+          "bookId": "1corinthians",
+          "chapter": 12,
+          "verseStart": 4,
+          "verseEnd": 6
         },
         {
           "교리": "Ecological Stewardship",
           "설명": "Responsibility of managing creation",
-          "관련구절": "Genesis 2:15"
+          "관련구절": "Genesis 2:15",
+          "displayReference": "Genesis 2:15",
+          "bookId": "genesis",
+          "chapter": 2,
+          "verseStart": 15,
+          "verseEnd": 15
         }
       ],
       "표4_예표론": [
@@ -4436,42 +5653,82 @@
         {
           "구절": "Genesis 9:7",
           "연결점": "Re-command to be fruitful and multiply",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Genesis 9:7",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "구절": "Psalm 104:24",
           "연결점": "Many works of God",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Psalm 104:24",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 24,
+          "verseEnd": 24
         },
         {
           "구절": "Isaiah 11:9",
           "연결점": "Fullness of the knowledge of the Lord",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isaiah 11:9",
+          "bookId": "isaiah",
+          "chapter": 11,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "Isaiah 54:2",
           "연결점": "Expansion of the tent",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isaiah 54:2",
+          "bookId": "isaiah",
+          "chapter": 54,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "Acts 1:8",
           "연결점": "Witnesses to the ends of the earth",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Acts 1:8",
+          "bookId": "acts",
+          "chapter": 1,
+          "verseStart": 8,
+          "verseEnd": 8
         },
         {
           "구절": "Acts 2:41",
           "연결점": "Three thousand in one day",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Acts 2:41",
+          "bookId": "acts",
+          "chapter": 2,
+          "verseStart": 41,
+          "verseEnd": 41
         },
         {
           "구절": "Colossians 1:6",
           "연결점": "Fruit of the gospel",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Colossians 1:6",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "Revelation 7:9",
           "연결점": "A multitude that cannot be counted",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Revelation 7:9",
+          "bookId": "revelation",
+          "chapter": 7,
+          "verseStart": 9,
+          "verseEnd": 9
         }
       ],
       "표2_역사적배경": [
@@ -4597,17 +5854,32 @@
         {
           "교리": "Theology of Blessing",
           "설명": "Blessing shows the order of creation",
-          "관련구절": "James 1:17"
+          "관련구절": "James 1:17",
+          "displayReference": "James 1:17",
+          "bookId": "james",
+          "chapter": 1,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "교리": "Life Expansion",
           "설명": "Being fruitful and multiplying shows the purpose of creation",
-          "관련구절": "Genesis 9:7"
+          "관련구절": "Genesis 9:7",
+          "displayReference": "Genesis 9:7",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "교리": "Theology of Fullness",
           "설명": "Missionary mandate",
-          "관련구절": "Ephesians 1:23"
+          "관련구절": "Ephesians 1:23",
+          "displayReference": "Ephesians 1:23",
+          "bookId": "ephesians",
+          "chapter": 1,
+          "verseStart": 23,
+          "verseEnd": 23
         }
       ],
       "표4_예표론": [
@@ -4653,42 +5925,82 @@
         {
           "구절": "Ps 55:17",
           "연결점": "Evening, morning, noon",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 55:17",
+          "bookId": "psalms",
+          "chapter": 55,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "구절": "Lam 3:23",
           "연결점": "Newness every morning",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Lam 3:23",
+          "bookId": "lamentations",
+          "chapter": 3,
+          "verseStart": 23,
+          "verseEnd": 23
         },
         {
           "구절": "Ps 92:2",
           "연결점": "Morning loving-kindness, night faithfulness",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 92:2",
+          "bookId": "psalms",
+          "chapter": 92,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "Gen 8:22",
           "연결점": "Unceasing day and night",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Gen 8:22",
+          "bookId": "genesis",
+          "chapter": 8,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "Acts 2:1",
           "연결점": "Pentecost",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Acts 2:1",
+          "bookId": "acts",
+          "chapter": 2,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "Mark 6:38",
           "연결점": "Five loaves",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Mark 6:38",
+          "bookId": "mark",
+          "chapter": 6,
+          "verseStart": 38,
+          "verseEnd": 38
         },
         {
           "구절": "Matt 25:15",
           "연결점": "Five talents",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Matt 25:15",
+          "bookId": "matthew",
+          "chapter": 25,
+          "verseStart": 15,
+          "verseEnd": 15
         },
         {
           "구절": "Heb 4:9",
           "연결점": "Rest that remains",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Heb 4:9",
+          "bookId": "hebrews",
+          "chapter": 4,
+          "verseStart": 9,
+          "verseEnd": 9
         }
       ],
       "표2_역사적배경": [
@@ -4814,17 +6126,32 @@
         {
           "교리": "Grace time",
           "설명": "The fifth shows the connection of grace",
-          "관련구절": "Eph 2:8"
+          "관련구절": "Eph 2:8",
+          "displayReference": "Eph 2:8",
+          "bookId": "ephesians",
+          "chapter": 2,
+          "verseStart": 8,
+          "verseEnd": 8
         },
         {
           "교리": "Periodicity",
           "설명": "Repetition shows faithfulness",
-          "관련구절": "Lam 3:23"
+          "관련구절": "Lam 3:23",
+          "displayReference": "Lam 3:23",
+          "bookId": "lamentations",
+          "chapter": 3,
+          "verseStart": 23,
+          "verseEnd": 23
         },
         {
           "교리": "Expectation",
           "설명": "Preparation for the sixth and rest",
-          "관련구절": "Heb 4:9"
+          "관련구절": "Heb 4:9",
+          "displayReference": "Heb 4:9",
+          "bookId": "hebrews",
+          "chapter": 4,
+          "verseStart": 9,
+          "verseEnd": 9
         }
       ],
       "표4_예표론": [
@@ -4870,42 +6197,82 @@
         {
           "구절": "Job 12:10",
           "연결점": "The hand of the Lord in the life of every creature",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Job 12:10",
+          "bookId": "job",
+          "chapter": 12,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "구절": "Leviticus 11:1-3",
           "연결점": "Clean and unclean animals",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Leviticus 11:1-3",
+          "bookId": "leviticus",
+          "chapter": 11,
+          "verseStart": 1,
+          "verseEnd": 3
         },
         {
           "구절": "Proverbs 14:4",
           "연결점": "Where there are no oxen, the manger is clean",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Proverbs 14:4",
+          "bookId": "proverbs",
+          "chapter": 14,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "구절": "Psalm 148:10",
           "연결점": "Praise of beasts and cattle",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Psalm 148:10",
+          "bookId": "psalms",
+          "chapter": 148,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "구절": "John 1:29",
           "연결점": "The Lamb of God who takes away the sin of the world",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "John 1:29",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 29,
+          "verseEnd": 29
         },
         {
           "구절": "Romans 8:22",
           "연결점": "Groaning of creation",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Romans 8:22",
+          "bookId": "romans",
+          "chapter": 8,
+          "verseStart": 22,
+          "verseEnd": 22
         },
         {
           "구절": "1 Corinthians 15:39",
           "연결점": "Different kinds of flesh",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "1 Corinthians 15:39",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 39,
+          "verseEnd": 39
         },
         {
           "구절": "Revelation 5:5",
           "연결점": "Lion of the tribe of Judah",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Revelation 5:5",
+          "bookId": "revelation",
+          "chapter": 5,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -5031,17 +6398,32 @@
         {
           "교리": "Diversity Management",
           "설명": "After their kind—ecological balance",
-          "관련구절": "Job 12:10"
+          "관련구절": "Job 12:10",
+          "displayReference": "Job 12:10",
+          "bookId": "job",
+          "chapter": 12,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "교리": "Ministry Partnership",
           "설명": "Cattle show togetherness with humans",
-          "관련구절": "Proverbs 14:4"
+          "관련구절": "Proverbs 14:4",
+          "displayReference": "Proverbs 14:4",
+          "bookId": "proverbs",
+          "chapter": 14,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "교리": "Delegated Authority",
           "설명": "Command to the earth—cooperation",
-          "관련구절": "Psalm 115:16"
+          "관련구절": "Psalm 115:16",
+          "displayReference": "Psalm 115:16",
+          "bookId": "psalms",
+          "chapter": 115,
+          "verseStart": 16,
+          "verseEnd": 16
         }
       ],
       "표4_예표론": [
@@ -5087,42 +6469,82 @@
         {
           "구절": "Ps 104:24",
           "연결점": "Abundance of what is made",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 104:24",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 24,
+          "verseEnd": 24
         },
         {
           "구절": "Prov 12:10",
           "연결점": "Righteous care for livestock",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Prov 12:10",
+          "bookId": "proverbs",
+          "chapter": 12,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "구절": "Job 40:15",
           "연결점": "Description of Behemoth",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Job 40:15",
+          "bookId": "job",
+          "chapter": 40,
+          "verseStart": 15,
+          "verseEnd": 15
         },
         {
           "구절": "Isa 11:6",
           "연결점": "Lion and lamb together",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isa 11:6",
+          "bookId": "isaiah",
+          "chapter": 11,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "1 Tim 4:4",
           "연결점": "Goodness of what is made",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "1 Tim 4:4",
+          "bookId": "1timothy",
+          "chapter": 4,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "구절": "Rom 8:19",
           "연결점": "Eager expectation of creation",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Rom 8:19",
+          "bookId": "romans",
+          "chapter": 8,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "Matt 6:26",
           "연결점": "Feeding of the birds",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Matt 6:26",
+          "bookId": "matthew",
+          "chapter": 6,
+          "verseStart": 26,
+          "verseEnd": 26
         },
         {
           "구절": "Rev 5:13",
           "연결점": "Praise of all creatures",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Rev 5:13",
+          "bookId": "revelation",
+          "chapter": 5,
+          "verseStart": 13,
+          "verseEnd": 13
         }
       ],
       "표2_역사적배경": [
@@ -5248,17 +6670,32 @@
         {
           "교리": "Goodness of Diversity",
           "설명": "Repetition of 'according to their kinds' shows the blessing of differences",
-          "관련구절": "Ps 104:24"
+          "관련구절": "Ps 104:24",
+          "displayReference": "Ps 104:24",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 24,
+          "verseEnd": 24
         },
         {
           "교리": "Stewardship Mission",
           "설명": "Responsibility of animal care",
-          "관련구절": "Prov 12:10"
+          "관련구절": "Prov 12:10",
+          "displayReference": "Prov 12:10",
+          "bookId": "proverbs",
+          "chapter": 12,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "교리": "Creation Affirmation",
           "설명": "'It was good' shows ecological value",
-          "관련구절": "1 Tim 4:4"
+          "관련구절": "1 Tim 4:4",
+          "displayReference": "1 Tim 4:4",
+          "bookId": "1timothy",
+          "chapter": 4,
+          "verseStart": 4,
+          "verseEnd": 4
         }
       ],
       "표4_예표론": [
@@ -5304,42 +6741,82 @@
         {
           "구절": "Gen 9:6",
           "연결점": "Prohibition of image desecration",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Gen 9:6",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "Ps 8:5-6",
           "연결점": "Glory and authority",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 8:5-6",
+          "bookId": "psalms",
+          "chapter": 8,
+          "verseStart": 5,
+          "verseEnd": 6
         },
         {
           "구절": "Eccl 7:29",
           "연결점": "Creation in uprightness",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Eccl 7:29",
+          "bookId": "ecclesiastes",
+          "chapter": 7,
+          "verseStart": 29,
+          "verseEnd": 29
         },
         {
           "구절": "Isa 43:7",
           "연결점": "Creation for my glory",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isa 43:7",
+          "bookId": "isaiah",
+          "chapter": 43,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "구절": "Col 1:15",
           "연결점": "Invisible image",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Col 1:15",
+          "bookId": "colossians",
+          "chapter": 1,
+          "verseStart": 15,
+          "verseEnd": 15
         },
         {
           "구절": "Eph 4:24",
           "연결점": "New man",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Eph 4:24",
+          "bookId": "ephesians",
+          "chapter": 4,
+          "verseStart": 24,
+          "verseEnd": 24
         },
         {
           "구절": "James 3:9",
           "연결점": "Creation according to the image",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "James 3:9",
+          "bookId": "james",
+          "chapter": 3,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "2 Cor 4:4",
           "연결점": "Gospel of the glory of Christ",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "2 Cor 4:4",
+          "bookId": "2corinthians",
+          "chapter": 4,
+          "verseStart": 4,
+          "verseEnd": 4
         }
       ],
       "표2_역사적배경": [
@@ -5465,17 +6942,32 @@
         {
           "교리": "Image of God",
           "설명": "Reflection of intellect, morality, and relationality",
-          "관련구절": "Col 3:10"
+          "관련구절": "Col 3:10",
+          "displayReference": "Col 3:10",
+          "bookId": "colossians",
+          "chapter": 3,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "교리": "Hint of the Trinity",
           "설명": "Use of plural pronouns",
-          "관련구절": "John 1:2"
+          "관련구절": "John 1:2",
+          "displayReference": "John 1:2",
+          "bookId": "john",
+          "chapter": 1,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "교리": "Cultural Mandate",
           "설명": "Delegated dominion",
-          "관련구절": "Ps 8:6"
+          "관련구절": "Ps 8:6",
+          "displayReference": "Ps 8:6",
+          "bookId": "psalms",
+          "chapter": 8,
+          "verseStart": 6,
+          "verseEnd": 6
         }
       ],
       "표4_예표론": [
@@ -5521,42 +7013,82 @@
         {
           "구절": "Gen 2:7",
           "연결점": "Breath of life",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Gen 2:7",
+          "bookId": "genesis",
+          "chapter": 2,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "구절": "Mal 2:10",
           "연결점": "One Father creating",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Mal 2:10",
+          "bookId": "malachi",
+          "chapter": 2,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "구절": "Ps 139:14",
           "연결점": "Fearfully made",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ps 139:14",
+          "bookId": "psalms",
+          "chapter": 139,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "Prov 14:31",
           "연결점": "Oppressing the poor insults the Creator",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Prov 14:31",
+          "bookId": "proverbs",
+          "chapter": 14,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "구절": "Matt 19:4",
           "연결점": "Creation of male and female at the beginning",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Matt 19:4",
+          "bookId": "matthew",
+          "chapter": 19,
+          "verseStart": 4,
+          "verseEnd": 4
         },
         {
           "구절": "1 Cor 11:7",
           "연결점": "Man as the image of God",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "1 Cor 11:7",
+          "bookId": "1corinthians",
+          "chapter": 11,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "구절": "Gal 3:28",
           "연결점": "Neither male nor female, but one",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Gal 3:28",
+          "bookId": "galatians",
+          "chapter": 3,
+          "verseStart": 28,
+          "verseEnd": 28
         },
         {
           "구절": "Col 3:10",
           "연결점": "Image of the new self",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Col 3:10",
+          "bookId": "colossians",
+          "chapter": 3,
+          "verseStart": 10,
+          "verseEnd": 10
         }
       ],
       "표2_역사적배경": [
@@ -5682,17 +7214,32 @@
         {
           "교리": "Gender Equality",
           "설명": "Both male and female in the image—equal dignity",
-          "관련구절": "Gal 3:28"
+          "관련구절": "Gal 3:28",
+          "displayReference": "Gal 3:28",
+          "bookId": "galatians",
+          "chapter": 3,
+          "verseStart": 28,
+          "verseEnd": 28
         },
         {
           "교리": "Relationality",
           "설명": "Multiple genders imply sociality",
-          "관련구절": "Gen 2:18"
+          "관련구절": "Gen 2:18",
+          "displayReference": "Gen 2:18",
+          "bookId": "genesis",
+          "chapter": 2,
+          "verseStart": 18,
+          "verseEnd": 18
         },
         {
           "교리": "Creative Gender",
           "설명": "Gender shows the order of creation",
-          "관련구절": "Matt 19:4"
+          "관련구절": "Matt 19:4",
+          "displayReference": "Matt 19:4",
+          "bookId": "matthew",
+          "chapter": 19,
+          "verseStart": 4,
+          "verseEnd": 4
         }
       ],
       "표4_예표론": [
@@ -5738,42 +7285,82 @@
         {
           "구절": "Genesis 9:1",
           "연결점": "Same command after the flood",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Genesis 9:1",
+          "bookId": "genesis",
+          "chapter": 9,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "Psalm 8:6",
           "연결점": "Dominion over all things",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Psalm 8:6",
+          "bookId": "psalms",
+          "chapter": 8,
+          "verseStart": 6,
+          "verseEnd": 6
         },
         {
           "구절": "Isaiah 11:9",
           "연결점": "Earth filled with the knowledge of the Lord",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isaiah 11:9",
+          "bookId": "isaiah",
+          "chapter": 11,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "Daniel 7:27",
           "연결점": "Kingdom given to the saints",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Daniel 7:27",
+          "bookId": "daniel",
+          "chapter": 7,
+          "verseStart": 27,
+          "verseEnd": 27
         },
         {
           "구절": "Matthew 28:18-19",
           "연결점": "Authority and mission over heaven and earth",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Matthew 28:18-19",
+          "bookId": "matthew",
+          "chapter": 28,
+          "verseStart": 18,
+          "verseEnd": 19
         },
         {
           "구절": "Romans 8:19",
           "연결점": "Eager expectation of creation",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Romans 8:19",
+          "bookId": "romans",
+          "chapter": 8,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "1 Corinthians 15:25",
           "연결점": "All enemies underfoot",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "1 Corinthians 15:25",
+          "bookId": "1corinthians",
+          "chapter": 15,
+          "verseStart": 25,
+          "verseEnd": 25
         },
         {
           "구절": "Revelation 22:5",
           "연결점": "Eternal reign",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Revelation 22:5",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -5899,17 +7486,32 @@
         {
           "교리": "Holistic Mission",
           "설명": "Being fruitful, subduing, and ruling show spiritual and cultural missions",
-          "관련구절": "Matthew 28:19"
+          "관련구절": "Matthew 28:19",
+          "displayReference": "Matthew 28:19",
+          "bookId": "matthew",
+          "chapter": 28,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "교리": "Royal Stewardship",
           "설명": "Dual role of king and priest",
-          "관련구절": "1 Peter 2:9"
+          "관련구절": "1 Peter 2:9",
+          "displayReference": "1 Peter 2:9",
+          "bookId": "1peter",
+          "chapter": 2,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "교리": "Blessing and Mission Integration",
           "설명": "No mission without blessing, no blessing without mission",
-          "관련구절": "Genesis 12:2"
+          "관련구절": "Genesis 12:2",
+          "displayReference": "Genesis 12:2",
+          "bookId": "genesis",
+          "chapter": 12,
+          "verseStart": 2,
+          "verseEnd": 2
         }
       ],
       "표4_예표론": [
@@ -5955,42 +7557,82 @@
         {
           "구절": "Psalm 104:14",
           "연결점": "Provision of grass and food",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Psalm 104:14",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "Proverbs 27:27",
           "연결점": "Goat's milk as food",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Proverbs 27:27",
+          "bookId": "proverbs",
+          "chapter": 27,
+          "verseStart": 27,
+          "verseEnd": 27
         },
         {
           "구절": "Deuteronomy 8:10",
           "연결점": "Thanksgiving after eating",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Deuteronomy 8:10",
+          "bookId": "deuteronomy",
+          "chapter": 8,
+          "verseStart": 10,
+          "verseEnd": 10
         },
         {
           "구절": "Isaiah 55:1",
           "연결점": "Eating without cost",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isaiah 55:1",
+          "bookId": "isaiah",
+          "chapter": 55,
+          "verseStart": 1,
+          "verseEnd": 1
         },
         {
           "구절": "Matthew 6:31",
           "연결점": "Do not worry about what to eat",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Matthew 6:31",
+          "bookId": "matthew",
+          "chapter": 6,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "구절": "John 6:35",
           "연결점": "Bread of life",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "John 6:35",
+          "bookId": "john",
+          "chapter": 6,
+          "verseStart": 35,
+          "verseEnd": 35
         },
         {
           "구절": "1 Corinthians 10:31",
           "연결점": "Whether you eat or drink",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "1 Corinthians 10:31",
+          "bookId": "1corinthians",
+          "chapter": 10,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "구절": "Revelation 22:2",
           "연결점": "Fruit of the tree of life",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Revelation 22:2",
+          "bookId": "revelation",
+          "chapter": 22,
+          "verseStart": 2,
+          "verseEnd": 2
         }
       ],
       "표2_역사적배경": [
@@ -6116,17 +7758,32 @@
         {
           "교리": "Providential Supply",
           "설명": "Food also shows God's grace",
-          "관련구절": "Matthew 6:31"
+          "관련구절": "Matthew 6:31",
+          "displayReference": "Matthew 6:31",
+          "bookId": "matthew",
+          "chapter": 6,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "교리": "Steward's Table",
           "설명": "Food choice is an act of faith",
-          "관련구절": "1 Corinthians 10:31"
+          "관련구절": "1 Corinthians 10:31",
+          "displayReference": "1 Corinthians 10:31",
+          "bookId": "1corinthians",
+          "chapter": 10,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "교리": "Food in Creation Order",
           "설명": "Peace and non-violence before the fall",
-          "관련구절": "Isaiah 11:7"
+          "관련구절": "Isaiah 11:7",
+          "displayReference": "Isaiah 11:7",
+          "bookId": "isaiah",
+          "chapter": 11,
+          "verseStart": 7,
+          "verseEnd": 7
         }
       ],
       "표4_예표론": [
@@ -6172,42 +7829,82 @@
         {
           "구절": "Psalm 104:27",
           "연결점": "Provision in due season",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Psalm 104:27",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 27,
+          "verseEnd": 27
         },
         {
           "구절": "Psalm 23:2",
           "연결점": "Lying down in green pastures",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Psalm 23:2",
+          "bookId": "psalms",
+          "chapter": 23,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "Job 38:41",
           "연결점": "Feeding the young ravens",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Job 38:41",
+          "bookId": "job",
+          "chapter": 38,
+          "verseStart": 41,
+          "verseEnd": 41
         },
         {
           "구절": "Isaiah 11:7",
           "연결점": "Lions eating straw",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isaiah 11:7",
+          "bookId": "isaiah",
+          "chapter": 11,
+          "verseStart": 7,
+          "verseEnd": 7
         },
         {
           "구절": "Mark 6:39",
           "연결점": "Seating on green grass",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Mark 6:39",
+          "bookId": "mark",
+          "chapter": 6,
+          "verseStart": 39,
+          "verseEnd": 39
         },
         {
           "구절": "John 10:9",
           "연결점": "Finding pasture",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "John 10:9",
+          "bookId": "john",
+          "chapter": 10,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "Philippians 4:19",
           "연결점": "Supplying every need",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Philippians 4:19",
+          "bookId": "philippians",
+          "chapter": 4,
+          "verseStart": 19,
+          "verseEnd": 19
         },
         {
           "구절": "Revelation 21:4",
           "연결점": "No more tears and peace",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Revelation 21:4",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 4,
+          "verseEnd": 4
         }
       ],
       "표2_역사적배경": [
@@ -6333,17 +8030,32 @@
         {
           "교리": "Ecological Peace",
           "설명": "Table without bloodshed",
-          "관련구절": "Isaiah 11:6-7"
+          "관련구절": "Isaiah 11:6-7",
+          "displayReference": "Isaiah 11:6-7",
+          "bookId": "isaiah",
+          "chapter": 11,
+          "verseStart": 6,
+          "verseEnd": 7
         },
         {
           "교리": "Equitable Provision",
           "설명": "To all creatures",
-          "관련구절": "Psalm 104:27-28"
+          "관련구절": "Psalm 104:27-28",
+          "displayReference": "Psalm 104:27-28",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 27,
+          "verseEnd": 28
         },
         {
           "교리": "Fulfillment of the Word",
           "설명": "Repetition of 'and it was so'",
-          "관련구절": "Isaiah 55:11"
+          "관련구절": "Isaiah 55:11",
+          "displayReference": "Isaiah 55:11",
+          "bookId": "isaiah",
+          "chapter": 55,
+          "verseStart": 11,
+          "verseEnd": 11
         }
       ],
       "표4_예표론": [
@@ -6389,42 +8101,82 @@
         {
           "구절": "Genesis 2:2",
           "연결점": "Seventh day rest",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Genesis 2:2",
+          "bookId": "genesis",
+          "chapter": 2,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "구절": "Psalm 104:31",
           "연결점": "Joy of the Lord's works",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Psalm 104:31",
+          "bookId": "psalms",
+          "chapter": 104,
+          "verseStart": 31,
+          "verseEnd": 31
         },
         {
           "구절": "Ecclesiastes 3:14",
           "연결점": "What God does is eternal",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Ecclesiastes 3:14",
+          "bookId": "ecclesiastes",
+          "chapter": 3,
+          "verseStart": 14,
+          "verseEnd": 14
         },
         {
           "구절": "Isaiah 65:17",
           "연결점": "New heavens and new earth",
-          "구분": "Old Testament"
+          "구분": "Old Testament",
+          "displayReference": "Isaiah 65:17",
+          "bookId": "isaiah",
+          "chapter": 65,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "구절": "John 19:30",
           "연결점": "It is finished",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "John 19:30",
+          "bookId": "john",
+          "chapter": 19,
+          "verseStart": 30,
+          "verseEnd": 30
         },
         {
           "구절": "2 Corinthians 5:17",
           "연결점": "New creation",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "2 Corinthians 5:17",
+          "bookId": "2corinthians",
+          "chapter": 5,
+          "verseStart": 17,
+          "verseEnd": 17
         },
         {
           "구절": "Hebrews 4:9",
           "연결점": "Rest that remains",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Hebrews 4:9",
+          "bookId": "hebrews",
+          "chapter": 4,
+          "verseStart": 9,
+          "verseEnd": 9
         },
         {
           "구절": "Revelation 21:5",
           "연결점": "Making all things new",
-          "구분": "New Testament"
+          "구분": "New Testament",
+          "displayReference": "Revelation 21:5",
+          "bookId": "revelation",
+          "chapter": 21,
+          "verseStart": 5,
+          "verseEnd": 5
         }
       ],
       "표2_역사적배경": [
@@ -6550,17 +8302,32 @@
         {
           "교리": "Creation Completion",
           "설명": "'Very' shows a declaration of perfection",
-          "관련구절": "Hebrews 4:3"
+          "관련구절": "Hebrews 4:3",
+          "displayReference": "Hebrews 4:3",
+          "bookId": "hebrews",
+          "chapter": 4,
+          "verseStart": 3,
+          "verseEnd": 3
         },
         {
           "교리": "Rest Preparation",
           "설명": "7-day rest after evening-morning",
-          "관련구절": "Genesis 2:2"
+          "관련구절": "Genesis 2:2",
+          "displayReference": "Genesis 2:2",
+          "bookId": "genesis",
+          "chapter": 2,
+          "verseStart": 2,
+          "verseEnd": 2
         },
         {
           "교리": "Moral Ethics",
           "설명": "God's evaluation shows the moral standard",
-          "관련구절": "Micah 6:8"
+          "관련구절": "Micah 6:8",
+          "displayReference": "Micah 6:8",
+          "bookId": "micah",
+          "chapter": 6,
+          "verseStart": 8,
+          "verseEnd": 8
         }
       ],
       "표4_예표론": [

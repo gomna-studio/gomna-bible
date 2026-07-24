@@ -1,4 +1,4 @@
-/* Auto-wrapped from scripts/lib/commentary-multilang-quality-policy.mjs */
+/* Auto-wrapped from scripts/lib/commentary-multilang-quality-policy.mjs — keep in sync. */
 (function (root) {
 'use strict';
 /**
@@ -113,7 +113,7 @@ function isVerifiedMultilangVerse({ bookId, chapter, verse, locale } = {}) {
   );
 }
 
-/** Gate for pipeline stages (documentation + future enforcement). */
+/** Gate for pipeline stages (wired into TTS / R2 entry points). */
 function assertMultilangStageAllowed(stage, context = {}) {
   const name = String(stage || '').trim();
   if (name === 'tts' && context.translationApproved !== true) {
@@ -133,6 +133,30 @@ function assertMultilangStageAllowed(stage, context = {}) {
   return { ok: true };
 }
 
+function resolveTranslationApproved(options = {}, env = process.env) {
+  if (options && options.translationApproved === true) return true;
+  if (env && env.GOMNA_COMMENTARY_TRANSLATION_APPROVED === '1') return true;
+  return false;
+}
+
+function resolveAudioApproved(options = {}, env = process.env) {
+  if (options && options.audioApproved === true) return true;
+  if (env && env.GOMNA_COMMENTARY_AUDIO_APPROVED === '1') return true;
+  return false;
+}
+
+function requireMultilangStageApproval(stage, context = {}) {
+  const result = assertMultilangStageAllowed(stage, context);
+  if (!result.ok) {
+    const error = new Error(result.message);
+    error.code = result.code;
+    error.stage = String(stage || '').trim();
+    throw error;
+  }
+  return result;
+}
+
+
 root.GomnaCommentaryMultilangPolicy = Object.freeze({
   VERIFIED_MULTILANG_SCOPE,
   CONTAINED_MULTILANG_SCOPE,
@@ -142,5 +166,8 @@ root.GomnaCommentaryMultilangPolicy = Object.freeze({
   isContainedUnverifiedMultilangVerse,
   isVerifiedMultilangVerse,
   assertMultilangStageAllowed,
+  resolveTranslationApproved,
+  resolveAudioApproved,
+  requireMultilangStageApproval,
 });
 })(typeof window !== 'undefined' ? window : globalThis);
