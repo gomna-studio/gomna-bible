@@ -1,0 +1,33 @@
+{
+  "audioId": "genesis.001.024.counseling.ja-JP",
+  "duration": 57.12,
+  "measuredDuration": 57.12,
+  "testAudioPath": "audio/v1/ja-JP/genesis/001/024/counseling-warm.mp3",
+  "finalMp3Duration": 57.12,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 18.084917
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 18.084917,
+      "end": 29.013458
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 29.013458,
+      "end": 44.854125
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 44.854125,
+      "end": 57.12
+    }
+  ]
+}

@@ -372,10 +372,16 @@ test('single-manifest path helpers reject Korean shard paths', () => {
   );
 });
 
-test('ops audio/manifests directory must not exist in this phase', () => {
-  assert.equal(fs.existsSync(path.join(ROOT, 'audio/manifests')), false);
+test('ops audio/manifests may exist for book-level EN/JA shards', () => {
   assert.equal(
     fs.existsSync(path.join(ROOT, 'audio/audio-manifest.json')),
     true,
   );
+  // Book shards are optional until a publish range is applied; when present
+  // they must only contain en-US / ja-JP paths under /audio/manifests.
+  const manifestsRoot = path.join(ROOT, 'audio/manifests');
+  if (!fs.existsSync(manifestsRoot)) return;
+  for (const locale of fs.readdirSync(manifestsRoot)) {
+    assert.ok(['en-US', 'ja-JP'].includes(locale), `unexpected locale ${locale}`);
+  }
 });

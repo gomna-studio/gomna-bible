@@ -75,10 +75,11 @@ test('approved genesis 1:1 narration is locked-skip and never overwritten', () =
 });
 
 test('missing range stages draft txt/meta under /tmp only', () => {
+  // Use a verse outside the published Genesis 1:1-1:31 EN/JA ops range.
   const plan = buildCommentaryMultilangRangeTargets({
     bookId: 'genesis',
-    from: '1:11',
-    to: '1:11',
+    from: '2:1',
+    to: '2:1',
     locales: 'en-US',
     types: 'history',
   });

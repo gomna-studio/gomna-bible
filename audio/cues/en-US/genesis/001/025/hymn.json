@@ -1,0 +1,39 @@
+{
+  "audioId": "genesis.001.025.hymn.en-US",
+  "duration": 51.408,
+  "measuredDuration": 51.408,
+  "testAudioPath": "audio/v1/en-US/genesis/001/025/hymn-soft.mp3",
+  "finalMp3Duration": 51.408,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 14.570958
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 14.570958,
+      "end": 24.121167
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 24.121167,
+      "end": 32.945375
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 32.945375,
+      "end": 41.87325
+    },
+    {
+      "type": "item",
+      "itemIndex": 3,
+      "start": 41.87325,
+      "end": 51.408
+    }
+  ]
+}
