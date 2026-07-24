@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { validateCommentaryCueDocument } from '../lib/commentary-multilang-cue.mjs';
+import {
+  CUE_DECISION,
+  CUE_STRATEGY_A,
+  CUE_STRATEGY_B,
+  evaluateCueDocumentPolicy,
+  selectCueStrategy,
+} from '../lib/commentary-multilang-cue-policy.mjs';
 
 function makeTarget({
   type = 'history',
@@ -277,4 +284,128 @@ test('matthew-henry may omit closing when policy allows', () => {
     type: 'matthew-henry',
   });
   assert.equal(result.ok, true, result.reason);
+});
+
+test('cue strategy defaults to A and does not execute in phase-1', () => {
+  const selected = selectCueStrategy({});
+  assert.equal(selected.strategy, CUE_STRATEGY_A);
+  assert.equal(selected.decision, CUE_DECISION.PRIMARY_ACCEPTED);
+  assert.equal(selected.executeInPhase1, false);
+});
+
+test('cue strategy falls back to B after retryable A failure', () => {
+  const selected = selectCueStrategy({
+    strategyAFailure: { code: 'silence_boundary_not_found' },
+  });
+  assert.equal(selected.strategy, CUE_STRATEGY_B);
+  assert.equal(selected.fallbackUsed, true);
+  assert.equal(selected.decision, CUE_DECISION.FALLBACK_REQUIRED);
+  assert.equal(selected.executeInPhase1, false);
+});
+
+test('normal cue document is PRIMARY_ACCEPTED', () => {
+  const decision = evaluateCueDocumentPolicy(
+    {
+      segments: [
+        { type: 'intro', start: 0, end: 2 },
+        { type: 'item', start: 2, end: 8 },
+        { type: 'item', start: 8, end: 14 },
+        { type: 'item', start: 14, end: 20 },
+        { type: 'closing', start: 20, end: 24 },
+      ],
+    },
+    { cardCount: 3, durationSeconds: 24 },
+  );
+  assert.equal(decision.decision, CUE_DECISION.PRIMARY_ACCEPTED);
+});
+
+test('segment shortage or excess requires fallback', () => {
+  assert.equal(
+    evaluateCueDocumentPolicy(
+      {
+        segments: [
+          { type: 'item', start: 0, end: 4 },
+          { type: 'item', start: 4, end: 8 },
+        ],
+      },
+      { cardCount: 3, durationSeconds: 8 },
+    ).decision,
+    CUE_DECISION.FALLBACK_REQUIRED,
+  );
+  assert.equal(
+    evaluateCueDocumentPolicy(
+      {
+        segments: [
+          { type: 'item', start: 0, end: 2 },
+          { type: 'item', start: 2, end: 4 },
+          { type: 'item', start: 4, end: 6 },
+          { type: 'item', start: 6, end: 8 },
+        ],
+      },
+      { cardCount: 3, durationSeconds: 8 },
+    ).decision,
+    CUE_DECISION.FALLBACK_REQUIRED,
+  );
+});
+
+test('start reverse order and end<=start require fallback', () => {
+  assert.equal(
+    evaluateCueDocumentPolicy(
+      {
+        segments: [
+          { type: 'item', start: 5, end: 8 },
+          { type: 'item', start: 2, end: 4 },
+        ],
+      },
+      { cardCount: 2, durationSeconds: 8 },
+    ).decision,
+    CUE_DECISION.FALLBACK_REQUIRED,
+  );
+  assert.equal(
+    evaluateCueDocumentPolicy(
+      {
+        segments: [{ type: 'item', start: 3, end: 3 }],
+      },
+      { cardCount: 1, durationSeconds: 5 },
+    ).decision,
+    CUE_DECISION.FALLBACK_REQUIRED,
+  );
+});
+
+test('end beyond duration and short segments require fallback', () => {
+  assert.equal(
+    evaluateCueDocumentPolicy(
+      {
+        segments: [{ type: 'item', start: 0, end: 12 }],
+      },
+      { cardCount: 1, durationSeconds: 10 },
+    ).decision,
+    CUE_DECISION.FALLBACK_REQUIRED,
+  );
+  assert.equal(
+    evaluateCueDocumentPolicy(
+      {
+        segments: [{ type: 'item', start: 0, end: 0.2 }],
+      },
+      { cardCount: 1, durationSeconds: 1 },
+    ).decision,
+    CUE_DECISION.FALLBACK_REQUIRED,
+  );
+});
+
+test('A fail then B success is FALLBACK_ACCEPTED', () => {
+  const selected = selectCueStrategy({
+    strategyAFailure: { code: 'segment_count_too_low' },
+    strategyBResult: { ok: true },
+  });
+  assert.equal(selected.decision, CUE_DECISION.FALLBACK_ACCEPTED);
+  assert.equal(selected.strategy, CUE_STRATEGY_B);
+});
+
+test('A fail then B fail is MANUAL_REVIEW_REQUIRED', () => {
+  const selected = selectCueStrategy({
+    strategyAFailure: { code: 'cue_validation_failed' },
+    strategyBResult: { ok: false, reason: 'concat_failed' },
+  });
+  assert.equal(selected.decision, CUE_DECISION.MANUAL_REVIEW_REQUIRED);
 });

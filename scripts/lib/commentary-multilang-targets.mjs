@@ -234,70 +234,230 @@ function inspectLocalState(target) {
 }
 
 /**
- * Build ordered multilingual targets for a chapter verse range.
+ * Parse "chapter:verse" refs used by pipeline v2.
  */
-export function buildCommentaryMultilangTargets(options = {}) {
-  const locales = Array.isArray(options.locales)
-    ? options.locales.map((item) => getLocaleConfig(item).locale)
-    : normalizeLocales(options.locales);
+export function parseChapterVerseRef(value, label = 'verseRef') {
+  const raw = String(value == null ? '' : value).trim();
+  const match = raw.match(/^(\d+)\s*:\s*(\d+)$/);
+  if (!match) {
+    throw new Error(`Invalid ${label}: ${value} (expected chapter:verse)`);
+  }
+  const chapter = Number(match[1]);
+  const verse = Number(match[2]);
+  if (!Number.isInteger(chapter) || chapter < 1) {
+    throw new Error(`Invalid ${label} chapter: ${value}`);
+  }
+  if (!Number.isInteger(verse) || verse < 1) {
+    throw new Error(`Invalid ${label} verse: ${value}`);
+  }
+  return { chapter, verse };
+}
 
-  const bookId = String(options.bookId || '').trim();
+function compareChapterVerse(a, b) {
+  if (a.chapter !== b.chapter) return a.chapter - b.chapter;
+  return a.verse - b.verse;
+}
+
+/**
+ * List Korean commentary verse keys for a book from gomna_data_*.js.
+ * Sorted by chapter, verse.
+ */
+export function listKoreanCommentaryVerses(bookId) {
+  const normalizedBookId = String(bookId || '').trim();
+  if (!normalizedBookId) {
+    throw new Error('bookId is required');
+  }
+  const bookName = BOOK_ID_TO_NAME[normalizedBookId];
+  if (!bookName) {
+    throw new Error(`Unsupported bookId: ${normalizedBookId}`);
+  }
+
+  const dataResult = loadCommentaryData(normalizedBookId);
+  if (!dataResult.ok) {
+    throw new Error(
+      `Unable to load commentary data for ${normalizedBookId}: ${dataResult.error}`,
+    );
+  }
+
+  const prefix = `${bookName}_`;
+  const verses = [];
+  for (const key of Object.keys(dataResult.data)) {
+    if (!key.startsWith(prefix)) continue;
+    const match = key.match(/^(.+)_(\d+)_(\d+)$/);
+    if (!match || match[1] !== bookName) continue;
+    const chapter = Number(match[2]);
+    const verse = Number(match[3]);
+    if (!Number.isInteger(chapter) || !Number.isInteger(verse)) continue;
+    verses.push({
+      bookId: normalizedBookId,
+      bookName,
+      chapter,
+      verse,
+      verseKey: key,
+    });
+  }
+
+  verses.sort(compareChapterVerse);
+  return verses;
+}
+
+/**
+ * Resolve inclusive verse refs from Korean commentary source data.
+ * Missing KO sources in the requested span are excluded with reasons.
+ */
+export function resolveCommentaryVerseRange(options = {}) {
+  const bookId = String(options.bookId || options.book || '').trim();
   if (!bookId) {
     throw new Error('bookId is required');
   }
 
-  const bookName = BOOK_ID_TO_NAME[bookId];
-  if (!bookName) {
-    throw new Error(`Unsupported bookId: ${bookId}`);
+  const available = listKoreanCommentaryVerses(bookId);
+  if (!available.length) {
+    throw new Error(`No Korean commentary verses found for ${bookId}`);
   }
 
-  if (options.chapter == null || options.chapter === '') {
-    throw new Error('chapter is required');
+  let fromRef;
+  let toRef;
+  const hasFromTo = options.from != null || options.to != null;
+  const hasChapterVerses =
+    options.chapter != null ||
+    options.fromVerse != null ||
+    options.toVerse != null;
+
+  if (hasFromTo) {
+    if (options.from == null || options.to == null) {
+      throw new Error('Both --from and --to are required when either is set');
+    }
+    fromRef = parseChapterVerseRef(options.from, 'from');
+    toRef = parseChapterVerseRef(options.to, 'to');
+  } else if (hasChapterVerses) {
+    if (options.chapter == null || options.chapter === '') {
+      throw new Error('chapter is required when using fromVerse/toVerse');
+    }
+    if (options.fromVerse == null || options.toVerse == null) {
+      throw new Error('fromVerse and toVerse are required with chapter');
+    }
+    const chapter = Number(options.chapter);
+    const fromVerse = Number(options.fromVerse);
+    const toVerse = Number(options.toVerse);
+    if (!Number.isInteger(chapter) || chapter < 1) {
+      throw new Error(`Invalid chapter: ${options.chapter}`);
+    }
+    if (!Number.isInteger(fromVerse) || fromVerse < 1) {
+      throw new Error(`Invalid fromVerse: ${options.fromVerse}`);
+    }
+    if (!Number.isInteger(toVerse) || toVerse < 1) {
+      throw new Error(`Invalid toVerse: ${options.toVerse}`);
+    }
+    if (fromVerse > toVerse) {
+      throw new Error(
+        `Invalid range: fromVerse (${fromVerse}) must be <= toVerse (${toVerse})`,
+      );
+    }
+    fromRef = { chapter, verse: fromVerse };
+    toRef = { chapter, verse: toVerse };
+  } else {
+    fromRef = {
+      chapter: available[0].chapter,
+      verse: available[0].verse,
+    };
+    toRef = {
+      chapter: available[available.length - 1].chapter,
+      verse: available[available.length - 1].verse,
+    };
   }
 
-  const chapter = Number(options.chapter);
-  if (!Number.isInteger(chapter) || chapter < 1) {
-    throw new Error(`Invalid chapter: ${options.chapter}`);
-  }
-
-  if (options.fromVerse == null || options.toVerse == null) {
-    throw new Error('fromVerse and toVerse are required');
-  }
-
-  const fromVerse = Number(options.fromVerse);
-  const toVerse = Number(options.toVerse);
-
-  if (!Number.isInteger(fromVerse) || fromVerse < 1) {
-    throw new Error(`Invalid fromVerse: ${options.fromVerse}`);
-  }
-  if (!Number.isInteger(toVerse) || toVerse < 1) {
-    throw new Error(`Invalid toVerse: ${options.toVerse}`);
-  }
-  if (fromVerse > toVerse) {
+  if (compareChapterVerse(fromRef, toRef) > 0) {
     throw new Error(
-      `Invalid range: fromVerse (${fromVerse}) must be <= toVerse (${toVerse})`,
+      `Invalid range: ${fromRef.chapter}:${fromRef.verse} is after ${toRef.chapter}:${toRef.verse}`,
     );
   }
 
-  const typeConfigs = resolveTypeConfigs(options);
-  const dataResult = loadCommentaryData(bookId);
-  if (!dataResult.ok) {
-    throw new Error(
-      `Unable to load commentary data for ${bookId}: ${dataResult.error}`,
-    );
+  const availableSet = new Set(
+    available.map((item) => `${item.chapter}:${item.verse}`),
+  );
+  const selected = available.filter(
+    (item) =>
+      compareChapterVerse(item, fromRef) >= 0 &&
+      compareChapterVerse(item, toRef) <= 0,
+  );
+
+  const excluded = [];
+  // Report requested numeric holes only for same-chapter simple spans.
+  if (fromRef.chapter === toRef.chapter) {
+    for (let verse = fromRef.verse; verse <= toRef.verse; verse += 1) {
+      const key = `${fromRef.chapter}:${verse}`;
+      if (!availableSet.has(key)) {
+        excluded.push({
+          bookId,
+          chapter: fromRef.chapter,
+          verse,
+          reason: 'missing_korean_commentary_source',
+        });
+      }
+    }
+  } else {
+    // Cross-chapter: only note selected gaps that callers care about via selected list.
+    // Explicit chapter:verse pairs outside KO source are still recorded when they match
+    // chapter endpoints that were requested but absent.
+    for (const edge of [fromRef, toRef]) {
+      const key = `${edge.chapter}:${edge.verse}`;
+      if (!availableSet.has(key)) {
+        excluded.push({
+          bookId,
+          chapter: edge.chapter,
+          verse: edge.verse,
+          reason: 'missing_korean_commentary_source',
+        });
+      }
+    }
   }
 
+  return {
+    bookId,
+    bookName: BOOK_ID_TO_NAME[bookId],
+    from: fromRef,
+    to: toRef,
+    verseCount: selected.length,
+    verses: selected,
+    excluded,
+  };
+}
+
+function buildTargetsForVerseList({
+  bookId,
+  bookName,
+  locales,
+  typeConfigs,
+  dataResult,
+  verseList,
+  strictMissingSource = true,
+}) {
   const blockers = [];
+  const softExclusions = [];
   const sourceKeys = [];
   const targets = [];
   const seenAudioIds = new Set();
 
-  for (let verse = fromVerse; verse <= toVerse; verse += 1) {
+  for (const verseRef of verseList) {
+    const chapter = verseRef.chapter;
+    const verse = verseRef.verse;
     const verseKey = buildVerseKey(bookName, chapter, verse);
     const entry = dataResult.data[verseKey];
 
     if (!entry || typeof entry !== 'object') {
-      blockers.push(`Missing commentary source for ${verseKey}`);
+      const message = `Missing commentary source for ${verseKey}`;
+      if (strictMissingSource) {
+        blockers.push(message);
+      } else {
+        softExclusions.push({
+          bookId,
+          chapter,
+          verse,
+          verseKey,
+          reason: 'missing_korean_commentary_source',
+        });
+      }
       continue;
     }
 
@@ -307,9 +467,7 @@ export function buildCommentaryMultilangTargets(options = {}) {
         cards = extractSourceCards(entry, typeConfig.type);
         assertTypeCardHighlightEligible(typeConfig.type);
       } catch (error) {
-        blockers.push(
-          `${verseKey}.${typeConfig.type}: ${error.message}`,
-        );
+        blockers.push(`${verseKey}.${typeConfig.type}: ${error.message}`);
         continue;
       }
 
@@ -348,6 +506,7 @@ export function buildCommentaryMultilangTargets(options = {}) {
           chapter,
           verse,
           type: typeConfig.type,
+          commentaryType: typeConfig.type,
           cardCount,
           cardIdentities,
           cards,
@@ -420,6 +579,15 @@ export function buildCommentaryMultilangTargets(options = {}) {
     }
   }
 
+  return {
+    blockers,
+    softExclusions,
+    sourceKeys,
+    targets,
+  };
+}
+
+function assertPlanningBlockers(blockers) {
   if (blockers.some((item) => item.startsWith('Missing commentary source'))) {
     throw new Error(blockers.join('\n'));
   }
@@ -428,13 +596,92 @@ export function buildCommentaryMultilangTargets(options = {}) {
     throw new Error(blockers.join('\n'));
   }
 
-  if (blockers.some((item) => item.includes('Missing source table') || item.includes('Empty source table'))) {
+  if (
+    blockers.some(
+      (item) =>
+        item.includes('Missing source table') ||
+        item.includes('Empty source table'),
+    )
+  ) {
     throw new Error(blockers.join('\n'));
   }
 
   if (blockers.some((item) => item.startsWith('manifest:'))) {
     throw new Error(blockers.join('\n'));
   }
+}
+
+/**
+ * Build ordered multilingual targets for a chapter verse range.
+ * Legacy single-chapter planner (strict missing-source errors).
+ */
+export function buildCommentaryMultilangTargets(options = {}) {
+  const locales = Array.isArray(options.locales)
+    ? options.locales.map((item) => getLocaleConfig(item).locale)
+    : normalizeLocales(options.locales);
+
+  const bookId = String(options.bookId || '').trim();
+  if (!bookId) {
+    throw new Error('bookId is required');
+  }
+
+  const bookName = BOOK_ID_TO_NAME[bookId];
+  if (!bookName) {
+    throw new Error(`Unsupported bookId: ${bookId}`);
+  }
+
+  if (options.chapter == null || options.chapter === '') {
+    throw new Error('chapter is required');
+  }
+
+  const chapter = Number(options.chapter);
+  if (!Number.isInteger(chapter) || chapter < 1) {
+    throw new Error(`Invalid chapter: ${options.chapter}`);
+  }
+
+  if (options.fromVerse == null || options.toVerse == null) {
+    throw new Error('fromVerse and toVerse are required');
+  }
+
+  const fromVerse = Number(options.fromVerse);
+  const toVerse = Number(options.toVerse);
+
+  if (!Number.isInteger(fromVerse) || fromVerse < 1) {
+    throw new Error(`Invalid fromVerse: ${options.fromVerse}`);
+  }
+  if (!Number.isInteger(toVerse) || toVerse < 1) {
+    throw new Error(`Invalid toVerse: ${options.toVerse}`);
+  }
+  if (fromVerse > toVerse) {
+    throw new Error(
+      `Invalid range: fromVerse (${fromVerse}) must be <= toVerse (${toVerse})`,
+    );
+  }
+
+  const typeConfigs = resolveTypeConfigs(options);
+  const dataResult = loadCommentaryData(bookId);
+  if (!dataResult.ok) {
+    throw new Error(
+      `Unable to load commentary data for ${bookId}: ${dataResult.error}`,
+    );
+  }
+
+  const verseList = [];
+  for (let verse = fromVerse; verse <= toVerse; verse += 1) {
+    verseList.push({ chapter, verse });
+  }
+
+  const built = buildTargetsForVerseList({
+    bookId,
+    bookName,
+    locales,
+    typeConfigs,
+    dataResult,
+    verseList,
+    strictMissingSource: true,
+  });
+
+  assertPlanningBlockers(built.blockers);
 
   return {
     bookId,
@@ -444,10 +691,84 @@ export function buildCommentaryMultilangTargets(options = {}) {
     toVerse,
     locales,
     types: typeConfigs.map((item) => item.type),
-    sourceCount: sourceKeys.length,
-    targetCount: targets.length,
-    sourceKeys,
-    targets,
+    sourceCount: built.sourceKeys.length,
+    targetCount: built.targets.length,
+    sourceKeys: built.sourceKeys,
+    targets: built.targets,
+    blockers: [],
+  };
+}
+
+/**
+ * Multi-chapter / book-wide target planner for pipeline v2.
+ * Missing Korean sources are excluded with reasons instead of hard-failing.
+ */
+export function buildCommentaryMultilangRangeTargets(options = {}) {
+  const locales = Array.isArray(options.locales)
+    ? options.locales.map((item) => getLocaleConfig(item).locale)
+    : normalizeLocales(options.locales);
+
+  const bookId = String(options.bookId || options.book || '').trim();
+  if (!bookId) {
+    throw new Error('bookId is required');
+  }
+
+  const bookName = BOOK_ID_TO_NAME[bookId];
+  if (!bookName) {
+    throw new Error(`Unsupported bookId: ${bookId}`);
+  }
+
+  const range = resolveCommentaryVerseRange({
+    bookId,
+    from: options.from,
+    to: options.to,
+    chapter: options.chapter,
+    fromVerse: options.fromVerse,
+    toVerse: options.toVerse,
+  });
+
+  const typeConfigs = resolveTypeConfigs(options);
+  const dataResult = loadCommentaryData(bookId);
+  if (!dataResult.ok) {
+    throw new Error(
+      `Unable to load commentary data for ${bookId}: ${dataResult.error}`,
+    );
+  }
+
+  const built = buildTargetsForVerseList({
+    bookId,
+    bookName,
+    locales,
+    typeConfigs,
+    dataResult,
+    verseList: range.verses,
+    strictMissingSource: false,
+  });
+
+  // Type-table / metadata / manifest problems still hard-fail.
+  const hardBlockers = built.blockers.filter(
+    (item) => !item.startsWith('Missing commentary source'),
+  );
+  assertPlanningBlockers(hardBlockers);
+
+  const excluded = [...range.excluded, ...built.softExclusions];
+
+  return {
+    bookId,
+    bookName,
+    from: range.from,
+    to: range.to,
+    chapter: range.from.chapter === range.to.chapter ? range.from.chapter : null,
+    fromVerse: range.from.verse,
+    toVerse: range.to.verse,
+    locales,
+    types: typeConfigs.map((item) => item.type),
+    verseCount: range.verseCount,
+    sourceCount: built.sourceKeys.length,
+    targetCount: built.targets.length,
+    sourceKeys: built.sourceKeys,
+    targets: built.targets,
+    excluded,
     blockers: [],
   };
 }
