@@ -1,63 +1,63 @@
 {
   "audioId": "genesis.001.014.cross-reference.ja-JP",
-  "duration": 99,
-  "measuredDuration": 99,
+  "duration": 99.864,
+  "measuredDuration": 99.864,
   "testAudioPath": "audio/v1/ja-JP/genesis/001/014/cross-reference-calm.mp3",
-  "finalMp3Duration": 99,
+  "finalMp3Duration": 99.864,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 16.368958
+      "end": 15.0385
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 16.368958,
-      "end": 28.179208
+      "start": 15.0385,
+      "end": 28.332667
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 28.179208,
-      "end": 37.542167
+      "start": 28.332667,
+      "end": 37.746
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 37.542167,
-      "end": 45.031833
+      "start": 37.746,
+      "end": 47.611458
     },
     {
       "type": "item",
       "itemIndex": 3,
-      "start": 45.031833,
-      "end": 58.661208
+      "start": 47.611458,
+      "end": 57.37
     },
     {
       "type": "item",
       "itemIndex": 4,
-      "start": 58.661208,
-      "end": 67.695
+      "start": 57.37,
+      "end": 68.149458
     },
     {
       "type": "item",
       "itemIndex": 5,
-      "start": 67.695,
-      "end": 77.516125
+      "start": 68.149458,
+      "end": 78.439458
     },
     {
       "type": "item",
       "itemIndex": 6,
-      "start": 77.516125,
-      "end": 88.277625
+      "start": 78.439458,
+      "end": 88.95625
     },
     {
       "type": "item",
       "itemIndex": 7,
-      "start": 88.277625,
-      "end": 99
+      "start": 88.95625,
+      "end": 99.864
     }
   ]
 }

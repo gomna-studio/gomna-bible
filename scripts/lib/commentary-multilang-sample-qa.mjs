@@ -79,7 +79,6 @@ export function detectEnglishUnexpectedScripts(text) {
 /**
  * Detect Hangul characters mixed into a value that also contains Japanese
  * script (Hiragana / Katakana / Kanji), e.g. 新약.
- * Pure Hangul residuals are handled separately by hangul_residual ratio checks.
  */
 export function detectJapaneseHangulMix(text) {
   const value = String(text || '');
@@ -94,6 +93,26 @@ export function detectJapaneseHangulMix(text) {
       severity: 'FAIL',
       code: 'ja_hangul_script_mix',
       message: 'Japanese value contains Hangul characters',
+      sample: value.slice(0, 80),
+    },
+  ];
+}
+
+/**
+ * Pre-approval JA gate: any Hangul residual is FAIL.
+ * Hebrew / Greek original-language glyphs are allowed (not Hangul).
+ * Latin digits/punctuation and Japanese scripts are allowed.
+ */
+export function detectJapaneseHangulResidual(text) {
+  const value = String(text || '');
+  if (!value.trim()) return [];
+  const hangul = value.match(/\p{Script=Hangul}/gu) || [];
+  if (!hangul.length) return [];
+  return [
+    {
+      severity: 'FAIL',
+      code: 'ja_hangul_residual',
+      message: 'Japanese value contains Hangul residual characters',
       sample: value.slice(0, 80),
     },
   ];
@@ -252,7 +271,14 @@ export function detectSampleBlockerFindings(job, result, options = {}) {
   if (String(locale || '').startsWith('ja')) {
     for (const card of cards) {
       for (const [key, value] of Object.entries(card.fields || {})) {
-        for (const finding of detectJapaneseHangulMix(String(value || ''))) {
+        const text = String(value || '');
+        for (const finding of detectJapaneseHangulMix(text)) {
+          findings.push({
+            ...finding,
+            where: `card.${key}`,
+          });
+        }
+        for (const finding of detectJapaneseHangulResidual(text)) {
           findings.push({
             ...finding,
             where: `card.${key}`,
@@ -283,6 +309,9 @@ export function detectSampleBlockerFindings(job, result, options = {}) {
           : ''),
     );
     for (const finding of detectJapaneseHangulMix(narration)) {
+      findings.push({ ...finding, where: 'narration' });
+    }
+    for (const finding of detectJapaneseHangulResidual(narration)) {
       findings.push({ ...finding, where: 'narration' });
     }
   }

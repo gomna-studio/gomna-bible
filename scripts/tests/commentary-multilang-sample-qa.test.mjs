@@ -10,6 +10,7 @@ import {
 import {
   detectEnglishUnexpectedScripts,
   detectJapaneseHangulMix,
+  detectJapaneseHangulResidual,
   detectMatthewHenryExplanationIssues,
   detectUnverifiedHymnTitles,
   normalizeComparableText,
@@ -33,8 +34,16 @@ test('Japanese Hangul mix is FAIL for mixed script values', () => {
   assert.equal(findings[0].code, 'ja_hangul_script_mix');
   assert.equal(findings[0].severity, 'FAIL');
   assert.equal(detectJapaneseHangulMix('新約').length, 0);
-  // Pure Hangul verse refs are not script-mix (handled by hangul_residual).
+  // Pure Hangul verse refs are not script-mix (handled by hangul residual gate).
   assert.equal(detectJapaneseHangulMix('시104:24').length, 0);
+});
+
+test('Japanese Hangul residual gate fails pure Hangul and mixed forms', () => {
+  assert.equal(detectJapaneseHangulResidual('新약')[0].code, 'ja_hangul_residual');
+  assert.equal(detectJapaneseHangulResidual('시104:24')[0].code, 'ja_hangul_residual');
+  assert.equal(detectJapaneseHangulResidual('教会の停滞').length, 0);
+  assert.equal(detectJapaneseHangulResidual('בְּרֵאשִׁית').length, 0);
+  assert.equal(detectJapaneseHangulResidual('ἀρχή').length, 0);
 });
 
 test('Matthew Henry duplicate explanation is FAIL; near-copy is REVIEW', () => {
