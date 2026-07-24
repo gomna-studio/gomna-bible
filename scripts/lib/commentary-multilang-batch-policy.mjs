@@ -23,6 +23,7 @@ export const BATCH_STATUS = Object.freeze({
 
 export const DEFAULT_SAMPLE_MIN = 18;
 export const DEFAULT_SAMPLE_MAX = 300;
+export const DEFAULT_SAMPLE_RATIO = 0.01;
 
 /**
  * Decide whether a QA-evaluated target may enter an approval candidate batch.
@@ -120,11 +121,47 @@ function parseTargetParts(targetKey) {
 }
 
 /**
- * Deterministic sample selection across EN/JA, all 9 types, front/mid/end.
+ * sampleCount = min(eligible, maxCap, max(minFloor, ceil(eligible * ratio)))
+ */
+export function computeBatchSampleCount(eligibleTargetCount, options = {}) {
+  const eligible = Number(eligibleTargetCount) || 0;
+  if (eligible <= 0) return 0;
+  const minFloor =
+    options.minCount == null ? DEFAULT_SAMPLE_MIN : options.minCount;
+  const maxCap =
+    options.maxCount == null ? DEFAULT_SAMPLE_MAX : options.maxCount;
+  const ratio =
+    options.ratio == null ? DEFAULT_SAMPLE_RATIO : options.ratio;
+  if (!Number.isInteger(minFloor) || minFloor < 1) {
+    throw new Error('sample minCount must be >= 1');
+  }
+  if (!Number.isInteger(maxCap) || maxCap < 1) {
+    throw new Error('sample maxCount must be >= 1');
+  }
+  const percentTarget = Math.ceil(eligible * ratio);
+  return Math.min(eligible, maxCap, Math.max(minFloor, percentTarget));
+}
+
+function stripInternal(item) {
+  const clone = { ...item };
+  delete clone._index;
+  delete clone._locale;
+  delete clone._type;
+  delete clone._chapter;
+  delete clone._verse;
+  delete clone._rank;
+  return clone;
+}
+
+/**
+ * Deterministic sample selection.
+ * Prefer one item per (locale × type) present in the pool, then fill by rank.
  */
 export function selectBatchReviewSample(candidates, options = {}) {
-  const minCount = options.minCount == null ? DEFAULT_SAMPLE_MIN : options.minCount;
-  const maxCount = options.maxCount == null ? DEFAULT_SAMPLE_MAX : options.maxCount;
+  const minCount =
+    options.minCount == null ? DEFAULT_SAMPLE_MIN : options.minCount;
+  const maxCount =
+    options.maxCount == null ? DEFAULT_SAMPLE_MAX : options.maxCount;
   const seed =
     options.seed ||
     options.sourceHashSeed ||
@@ -136,19 +173,27 @@ export function selectBatchReviewSample(candidates, options = {}) {
   if (!Number.isInteger(minCount) || minCount < 1) {
     throw new Error('sample minCount must be >= 1');
   }
-  if (!Number.isInteger(maxCount) || maxCount < minCount) {
-    throw new Error('sample maxCount must be >= minCount');
+  if (!Number.isInteger(maxCount) || maxCount < 1) {
+    throw new Error('sample maxCount must be >= 1');
   }
 
   if (!candidates.length) {
     return {
       sample: [],
       sampleCount: 0,
+      targetSampleCount: 0,
       seed,
-      distribution: { byLocale: {}, byType: {} },
+      distribution: { byLocale: {}, byType: {}, byLocaleType: {} },
       error: 'sample_pool_empty',
+      coverageErrors: ['sample_pool_empty'],
     };
   }
+
+  const targetSampleCount = computeBatchSampleCount(candidates.length, {
+    minCount,
+    maxCount,
+    ratio: options.ratio,
+  });
 
   const typed = candidates.map((item, index) => {
     const parts = parseTargetParts(item.targetKey) || {};
@@ -163,66 +208,80 @@ export function selectBatchReviewSample(candidates, options = {}) {
     };
   });
 
-  typed.sort((a, b) => {
-    if (a._chapter !== b._chapter) return a._chapter - b._chapter;
-    if (a._verse !== b._verse) return a._verse - b._verse;
-    if (a._type !== b._type) return a._type.localeCompare(b._type);
-    return String(a._locale).localeCompare(String(b._locale));
+  const presentLocales = [];
+  for (const locale of ['en-US', 'ja-JP']) {
+    if (typed.some((item) => item._locale === locale)) {
+      presentLocales.push(locale);
+    }
+  }
+  for (const locale of [...new Set(typed.map((item) => item._locale))].sort()) {
+    if (!presentLocales.includes(locale) && locale !== 'unknown') {
+      presentLocales.push(locale);
+    }
+  }
+
+  const presentTypes = [];
+  for (const definition of listCommentaryTypes()) {
+    if (typed.some((item) => item._type === definition.type)) {
+      presentTypes.push(definition.type);
+    }
+  }
+  for (const type of [...new Set(typed.map((item) => item._type))].sort()) {
+    if (!presentTypes.includes(type) && type !== 'unknown') {
+      presentTypes.push(type);
+    }
+  }
+
+  const ranked = [...typed].sort((a, b) => {
+    const byRank = a._rank.localeCompare(b._rank);
+    if (byRank !== 0) return byRank;
+    return String(a.targetKey || '').localeCompare(String(b.targetKey || ''));
   });
 
   const selected = new Map();
   const add = (item) => {
-    if (!item) return;
-    selected.set(item.targetKey || item.audioId, item);
+    if (!item) return false;
+    const key = item.targetKey || item.audioId;
+    if (!key || selected.has(key)) return false;
+    selected.set(key, item);
+    return true;
   };
 
-  // Front / middle / end anchors.
-  add(typed[0]);
-  add(typed[Math.floor((typed.length - 1) / 2)]);
-  add(typed[typed.length - 1]);
-
-  // Ensure both locales when present.
-  for (const locale of ['en-US', 'ja-JP']) {
-    const hit = typed.find((item) => item._locale === locale);
-    add(hit);
-  }
-
-  // Ensure all registry types when present.
-  for (const definition of listCommentaryTypes()) {
-    const hit = typed.find((item) => item._type === definition.type);
-    add(hit);
-  }
-
-  // Fill remaining slots with deterministic rank order.
-  const ranked = [...typed].sort((a, b) => a._rank.localeCompare(b._rank));
-  for (const item of ranked) {
-    if (selected.size >= maxCount) break;
-    if (selected.size >= minCount && selected.size >= Math.min(maxCount, typed.length)) {
-      // keep filling until min satisfied and coverage done; break when >= min
-    }
-    add(item);
-    if (selected.size >= Math.min(maxCount, Math.max(minCount, typed.length))) {
-      // continue until minCount reached at least
-    }
-    if (selected.size >= minCount && selected.size >= Math.min(maxCount, typed.length)) {
-      break;
+  // Required coverage: one per present (locale × type), when that cell exists.
+  const coverageErrors = [];
+  for (const locale of presentLocales) {
+    for (const type of presentTypes) {
+      const cell = ranked.find(
+        (item) => item._locale === locale && item._type === type,
+      );
+      if (!cell) continue;
+      if (selected.size >= targetSampleCount) {
+        // Still try to keep coverage; if we cannot fit, record error below.
+        if (!selected.has(cell.targetKey || cell.audioId)) {
+          // Defer: will attempt replace/fill logic after.
+        }
+      }
+      add(cell);
     }
   }
 
-  // Guarantee minCount when pool allows.
-  for (const item of ranked) {
-    if (selected.size >= minCount) break;
-    add(item);
-  }
-
-  // Cap at maxCount using rank.
-  let sample = [...selected.values()];
-  if (sample.length > maxCount) {
-    sample = sample
+  // If coverage exceeded targetSampleCount (e.g. forced tiny maxCount), trim
+  // cannot preserve coverage → coverage errors after trim.
+  if (selected.size > targetSampleCount) {
+    const keep = [...selected.values()]
       .sort((a, b) => a._rank.localeCompare(b._rank))
-      .slice(0, maxCount);
+      .slice(0, targetSampleCount);
+    selected.clear();
+    for (const item of keep) add(item);
   }
 
+  // Fill remaining slots deterministically.
+  for (const item of ranked) {
+    if (selected.size >= targetSampleCount) break;
+    add(item);
+  }
+
+  let sample = [...selected.values()];
   sample.sort((a, b) => {
     if (a._chapter !== b._chapter) return a._chapter - b._chapter;
     if (a._verse !== b._verse) return a._verse - b._verse;
@@ -232,42 +291,70 @@ export function selectBatchReviewSample(candidates, options = {}) {
 
   const byLocale = {};
   const byType = {};
+  const byLocaleType = {};
   for (const item of sample) {
     byLocale[item._locale] = (byLocale[item._locale] || 0) + 1;
     byType[item._type] = (byType[item._type] || 0) + 1;
+    const lt = `${item._locale}|${item._type}`;
+    byLocaleType[lt] = (byLocaleType[lt] || 0) + 1;
   }
 
-  const coverageErrors = [];
   if (sample.length === 0) coverageErrors.push('sample_count_zero');
-  if (typed.some((item) => item._locale === 'en-US') && !byLocale['en-US']) {
-    coverageErrors.push('missing_en-US_sample');
+  if (sample.length !== targetSampleCount) {
+    coverageErrors.push(
+      `sample_count_mismatch:got=${sample.length}:want=${targetSampleCount}`,
+    );
   }
-  if (typed.some((item) => item._locale === 'ja-JP') && !byLocale['ja-JP']) {
-    coverageErrors.push('missing_ja-JP_sample');
+
+  for (const locale of presentLocales) {
+    if (!byLocale[locale]) {
+      coverageErrors.push(`missing_${locale}_sample`);
+    }
   }
-  for (const definition of listCommentaryTypes()) {
-    if (
-      typed.some((item) => item._type === definition.type) &&
-      !byType[definition.type]
-    ) {
-      coverageErrors.push(`missing_type_sample:${definition.type}`);
+  for (const type of presentTypes) {
+    if (!byType[type]) {
+      coverageErrors.push(`missing_type_sample:${type}`);
+    }
+  }
+
+  // Prefer one-per-(locale,type) when the pool and budget allow it.
+  const requiredCells = [];
+  for (const locale of presentLocales) {
+    for (const type of presentTypes) {
+      if (typed.some((item) => item._locale === locale && item._type === type)) {
+        requiredCells.push(`${locale}|${type}`);
+      }
+    }
+  }
+  if (requiredCells.length <= targetSampleCount) {
+    for (const cell of requiredCells) {
+      if (!byLocaleType[cell]) {
+        coverageErrors.push(`missing_locale_type_sample:${cell}`);
+      }
+    }
+  }
+
+  // Balanced EN/JA when both present and sample budget is exactly 2 × typeCount.
+  if (
+    presentLocales.includes('en-US') &&
+    presentLocales.includes('ja-JP') &&
+    presentTypes.length > 0 &&
+    targetSampleCount === presentLocales.length * presentTypes.length
+  ) {
+    if (byLocale['en-US'] !== presentTypes.length) {
+      coverageErrors.push('en-US_type_balance');
+    }
+    if (byLocale['ja-JP'] !== presentTypes.length) {
+      coverageErrors.push('ja-JP_type_balance');
     }
   }
 
   return {
-    sample: sample.map((item) => {
-      const clone = { ...item };
-      delete clone._index;
-      delete clone._locale;
-      delete clone._type;
-      delete clone._chapter;
-      delete clone._verse;
-      delete clone._rank;
-      return clone;
-    }),
+    sample: sample.map(stripInternal),
     sampleCount: sample.length,
+    targetSampleCount,
     seed,
-    distribution: { byLocale, byType },
+    distribution: { byLocale, byType, byLocaleType },
     error: coverageErrors.length ? coverageErrors.join(',') : null,
     coverageErrors,
   };
@@ -296,10 +383,12 @@ export function buildApprovalCandidateReport(qaResults, options = {}) {
     minCount: options.sampleMin,
     maxCount: options.sampleMax,
     seed: sampleSeed,
+    ratio: options.sampleRatio,
   });
 
   const reviewRequiredCount = qaResults.filter(
-    (item) => (item.structuralGrade || item.grade) === QA_GRADES.REVIEW_REQUIRED,
+    (item) =>
+      (item.structuralGrade || item.grade) === QA_GRADES.REVIEW_REQUIRED,
   ).length;
   const failCount = qaResults.filter(
     (item) => (item.structuralGrade || item.grade) === QA_GRADES.FAIL,
@@ -310,21 +399,16 @@ export function buildApprovalCandidateReport(qaResults, options = {}) {
     batchStatus = BATCH_STATUS.DISABLED;
   } else if (
     failCount > 0 ||
-    reviewRequiredCount > 0 ||
     sampleResult.error ||
     sampleResult.sampleCount === 0
   ) {
-    // REVIEW_REQUIRED excludes auto-approval; any sample/coverage error blocks.
-    if (failCount > 0 || sampleResult.error || sampleResult.sampleCount === 0) {
-      batchStatus = BATCH_STATUS.BATCH_BLOCKED;
-    } else {
-      batchStatus = BATCH_STATUS.CANDIDATES_ONLY;
-    }
+    batchStatus = BATCH_STATUS.BATCH_BLOCKED;
+  } else if (reviewRequiredCount > 0) {
+    batchStatus = BATCH_STATUS.CANDIDATES_ONLY;
   } else if (candidates.length) {
     batchStatus = BATCH_STATUS.READY;
   }
 
-  // Explicit rule: one or more sample coverage errors => BATCH_BLOCKED
   if (sampleResult.coverageErrors?.length) {
     batchStatus = BATCH_STATUS.BATCH_BLOCKED;
   }
