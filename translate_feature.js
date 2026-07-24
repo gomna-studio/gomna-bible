@@ -1029,34 +1029,98 @@
    * Resolve home display language as one coherent state.
    * Delegates to GomnaUII18n.resolveInitialHomeLanguage when available.
    */
+  // Quick pair is always KO·EN — never seeded from device/home language.
+  var QUICK_LANGUAGES = ['ko', 'en'];
+  var GOOGLE_HOME_LANGS = {
+    es: 1, pt: 1, fr: 1, de: 1, vi: 1, hi: 1, id: 1, tl: 1, sw: 1, af: 1,
+    zh: 1, 'zh-cn': 1, 'zh-tw': 1
+  };
+
+  function ensureDefaultQuickForeignLanguage() {
+    try {
+      var existing = localStorage.getItem('gomna_recent_foreign_language');
+      // Seed EN when empty. Never auto-write ja from device/home language.
+      // Quick buttons are KO·EN constants and do not depend on this value.
+      if (!existing || existing === 'ko') {
+        localStorage.setItem('gomna_recent_foreign_language', 'en');
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function detectBrowserPreferredHomeLanguage() {
+    var list = [];
+    try {
+      if (navigator.languages && navigator.languages.length) {
+        for (var i = 0; i < navigator.languages.length; i++) list.push(navigator.languages[i]);
+      }
+    } catch (e0) { /* ignore */ }
+    try { list.push(navigator.language || navigator.userLanguage || ''); } catch (e1) { /* ignore */ }
+    for (var j = 0; j < list.length; j++) {
+      var raw = String(list[j] || '').toLowerCase().replace(/_/g, '-');
+      if (!raw) continue;
+      if (raw.indexOf('ko') === 0) return { lang: 'ko', mode: 'native' };
+      if (raw.indexOf('en') === 0) return { lang: 'en', mode: 'native' };
+      if (raw.indexOf('ja') === 0) return { lang: 'ja', mode: 'native' };
+      if (raw.indexOf('zh') === 0) {
+        var zh =
+          raw.indexOf('tw') !== -1 ||
+          raw.indexOf('hk') !== -1 ||
+          raw.indexOf('hant') !== -1
+            ? 'zh-TW'
+            : 'zh-CN';
+        return { lang: zh, mode: 'google' };
+      }
+      var primary = raw.split('-')[0];
+      var matched = primary ? findAnchorForLang(primary) : null;
+      if (matched && matched[3] && matched[3] !== 'ko' && matched[3] !== 'en' && matched[3] !== 'ja') {
+        return { lang: matched[3], mode: 'google' };
+      }
+      if (primary && GOOGLE_HOME_LANGS[primary]) {
+        return { lang: primary, mode: 'google' };
+      }
+    }
+    // Unsupported / undetectable → English home.
+    return { lang: 'en', mode: 'native' };
+  }
+
   function resolveHomeDisplayLanguage() {
     if (window.GomnaUII18n && typeof window.GomnaUII18n.resolveInitialHomeLanguage === 'function') {
       var shared = window.GomnaUII18n.resolveInitialHomeLanguage();
       if (shared && shared.mode === 'native' && isNativeHomeLanguage(shared.lang)) {
-        return { lang: shared.lang, mode: 'native' };
+        ensureDefaultQuickForeignLanguage();
+        return { lang: shared.lang, mode: 'native', persisted: !!shared.persisted };
       }
       if (shared && shared.mode === 'google' && shared.lang) {
-        return { lang: shared.lang, mode: 'google' };
+        ensureDefaultQuickForeignLanguage();
+        return { lang: shared.lang, mode: 'google', persisted: false };
       }
     }
 
     try {
       var stored = localStorage.getItem('gomna_ui_language');
       if (isNativeHomeLanguage(stored)) {
-        return { lang: stored, mode: 'native' };
+        ensureDefaultQuickForeignLanguage();
+        return { lang: stored, mode: 'native', persisted: true };
       }
     } catch (e) { /* ignore */ }
 
-    var cookieLang = getCurrentTargetLang();
-    if (cookieLang === 'en' || cookieLang === 'ja') {
-      try { localStorage.setItem('gomna_ui_language', cookieLang); } catch (e2) { /* ignore */ }
-      return { lang: cookieLang, mode: 'native' };
+    // No explicit app selection: browser/phone language wins over leftover googtrans.
+    // Display-only — never write gomna_ui_language from auto-detect.
+    var detected = detectBrowserPreferredHomeLanguage();
+    if (detected.mode === 'native' && isNativeHomeLanguage(detected.lang)) {
+      if (detected.lang === 'ko') clearGoogTransCookie();
+      else setGoogTransCookie(detected.lang);
+      ensureDefaultQuickForeignLanguage();
+      return { lang: detected.lang, mode: 'native', persisted: false };
     }
-    if (!cookieLang || cookieLang === 'ko') {
-      try { localStorage.setItem('gomna_ui_language', 'ko'); } catch (e3) { /* ignore */ }
-      return { lang: 'ko', mode: 'native' };
+    if (detected.mode === 'google' && detected.lang) {
+      setGoogTransCookie(detected.lang);
+      ensureDefaultQuickForeignLanguage();
+      return { lang: detected.lang, mode: 'google', persisted: false };
     }
-    return { lang: cookieLang, mode: 'google' };
+    setGoogTransCookie('en');
+    ensureDefaultQuickForeignLanguage();
+    return { lang: 'en', mode: 'native', persisted: false };
   }
 
   var _homeLangRestoreRaf1 = 0;
@@ -1086,7 +1150,7 @@
         else setGoogTransCookie(resolved.lang);
 
         if (window.GomnaUII18n && typeof window.GomnaUII18n.apply === 'function') {
-          window.GomnaUII18n.apply(resolved.lang);
+          window.GomnaUII18n.apply(resolved.lang, { persist: !!resolved.persisted });
         } else {
           html.classList.add('gomna-native-i18n-active');
           html.setAttribute('data-gomna-ui-lang', resolved.lang);
@@ -2142,13 +2206,14 @@
   function dispatchReaderLanguageChange(activeLanguage, source) {
     var recent = null;
     try { recent = localStorage.getItem('gomna_recent_foreign_language'); } catch (e) { /* ignore */ }
-    if ((!recent || recent === 'ko') && activeLanguage && activeLanguage !== 'ko') recent = activeLanguage;
+    // Do not promote active JA (or other UI langs) into the quick-foreign slot.
     if (!recent || recent === 'ko') recent = 'en';
     try {
       window.dispatchEvent(new CustomEvent('gomna:languagechange', {
         detail: {
           activeLanguage: activeLanguage || 'ko',
           recentForeignLanguage: recent,
+          quickForeignLanguage: 'en',
           source: source || 'translate_feature'
         }
       }));
@@ -2902,10 +2967,16 @@
     // Home native ko/en/ja: apply local bundle only — no Google widget / pending.
     if (isHomePage()) {
       var homeResolved = resolveHomeDisplayLanguage();
+      ensureDefaultQuickForeignLanguage();
       if (homeResolved.mode === 'native' && isNativeHomeLanguage(homeResolved.lang)) {
         restoreHomeLanguageState('init');
         return;
       }
+      // Google home languages: re-normalize quick foreign after widget boot can briefly
+      // disrupt storage during first paint. Quick pair stays KO·EN.
+      setTimeout(function () {
+        try { ensureDefaultQuickForeignLanguage(); } catch (eSeed) { /* ignore */ }
+      }, 1200);
     }
 
     // Apply curated UI text (categories, welcome message) for the current

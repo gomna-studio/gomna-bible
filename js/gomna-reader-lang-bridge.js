@@ -21,6 +21,8 @@
   var SNAPSHOT_VERSION = 1;
   var SNAPSHOT_TTL_MS = 180000;
   var DEFAULT_FOREIGN = 'en';
+  // Quick toggle pair is always KO·EN — independent of device language / active UI lang.
+  var QUICK_FOREIGN = 'en';
   var FIXED_ID = 'gomnaReaderLangBridge';
   var COMMENTARY_ID = 'gomnaReaderLangBridgeCommentary';
   var ROOT_COMMENTARY_CLASS = 'gomna-lang-bridge-in-commentary';
@@ -104,11 +106,12 @@
 
   function getState() {
     var active = getActiveLanguage() || 'ko';
+    // Keep recent-foreign storage for modal/history, but quick buttons stay KO·EN.
     var recent = readRecentForeign();
-    if (active && active !== 'ko') recent = active;
     return {
       activeLanguage: active,
-      recentForeignLanguage: recent || DEFAULT_FOREIGN
+      recentForeignLanguage: recent || DEFAULT_FOREIGN,
+      quickForeignLanguage: QUICK_FOREIGN
     };
   }
 
@@ -516,10 +519,10 @@
 
   function bridgeHtml(compact) {
     var state = getState();
-    var foreign = displayCode(state.recentForeignLanguage);
+    var foreign = displayCode(QUICK_FOREIGN);
     var active = state.activeLanguage || 'ko';
     var koActive = active === 'ko';
-    var foreignActive = !koActive;
+    var foreignActive = active === QUICK_FOREIGN;
     var cls = 'gomna-lang-bridge' + (compact ? ' gomna-lang-bridge--compact' : '');
     return (
       '<div class="' + cls + ' notranslate" role="group" aria-label="Reading language" translate="no">' +
@@ -554,10 +557,10 @@
       if (action === 'ko') {
         applyLanguageCode('ko', 'bridge-ko');
       } else if (action === 'foreign') {
-        applyLanguageCode(state.recentForeignLanguage || DEFAULT_FOREIGN, 'bridge-foreign');
+        applyLanguageCode(QUICK_FOREIGN, 'bridge-foreign');
       } else if (action === 'swap') {
         if ((state.activeLanguage || 'ko') === 'ko') {
-          applyLanguageCode(state.recentForeignLanguage || DEFAULT_FOREIGN, 'bridge-swap');
+          applyLanguageCode(QUICK_FOREIGN, 'bridge-swap');
         } else {
           applyLanguageCode('ko', 'bridge-swap');
         }
