@@ -19,7 +19,7 @@ test('service worker marks commentary-cards and audio/manifests as fresh assets'
 
 test('reader loads locale cards with asset-version cache bust', () => {
   const reader = fs.readFileSync(path.join(ROOT, 'reader.html'), 'utf8');
-  assert.match(reader, /GOMNA_ASSET_VERSION = "20260725-ja-hangul-repair-v1"/);
+  assert.match(reader, /GOMNA_ASSET_VERSION = "20260725-multilang-containment-v1"/);
   assert.match(
     reader,
     /data\/commentary-cards\/' \+\s*\n?\s*encodeURIComponent\(locale\)/,

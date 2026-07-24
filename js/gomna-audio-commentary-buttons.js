@@ -768,6 +768,38 @@
     }
   }
 
+  function isContainedUnverifiedMultilangAudio(target) {
+    var policy = window.GomnaCommentaryMultilangPolicy;
+    var bookName =
+      (window.currentBook && window.currentBook.name) ||
+      (typeof currentBook !== 'undefined' && currentBook && currentBook.name) ||
+      '';
+    var bookId =
+      (window.BOOK_FILE_MAP && bookName && window.BOOK_FILE_MAP[bookName]) ||
+      null;
+    var chapter =
+      typeof window.currentChapter === 'number'
+        ? window.currentChapter
+        : typeof currentChapter !== 'undefined'
+          ? currentChapter
+          : null;
+    var verse =
+      typeof window.currentCommentaryVerseForRelated === 'number'
+        ? window.currentCommentaryVerseForRelated
+        : typeof currentCommentaryVerseForRelated !== 'undefined'
+          ? currentCommentaryVerseForRelated
+          : null;
+    if (!policy || typeof policy.isContainedUnverifiedMultilangVerse !== 'function') {
+      return false;
+    }
+    return !!policy.isContainedUnverifiedMultilangVerse({
+      bookId: bookId,
+      chapter: chapter,
+      verse: verse,
+      locale: target && target.locale,
+    });
+  }
+
   function getPopup() {
     return document.getElementById('commentaryPopup');
   }
@@ -2070,7 +2102,10 @@
       target = applyResolvedCommentaryTarget(item);
       resolvedAudioId = target.audioId;
 
-      if ((target.language === 'en' || target.language === 'ja') && !item.published) {
+      if (
+        (target.language === 'en' || target.language === 'ja') &&
+        (!item.published || isContainedUnverifiedMultilangAudio(target))
+      ) {
         showCommentaryLanguageUnavailableMessage(target.language);
         return false;
       }
@@ -2111,7 +2146,10 @@
       target = applyResolvedCommentaryTarget(item);
       resolvedAudioId = target.audioId;
 
-      if ((target.language === 'en' || target.language === 'ja') && !item.published) {
+      if (
+        (target.language === 'en' || target.language === 'ja') &&
+        (!item.published || isContainedUnverifiedMultilangAudio(target))
+      ) {
         showCommentaryLanguageUnavailableMessage(target.language);
         return false;
       }
