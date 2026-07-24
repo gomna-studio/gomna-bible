@@ -17,6 +17,10 @@ const TERMINAL_RESUME_STATUSES = new Set([
   'url-verified',
   'structural-qa-passed',
   'qa-passed',
+  'jobs-exported',
+  'translation-qa-passed',
+  'cards-staged',
+  'narration-staged',
 ]);
 
 export function buildTargetKey(target) {
