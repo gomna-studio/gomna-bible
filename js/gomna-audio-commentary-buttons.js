@@ -1029,56 +1029,6 @@
     return controls;
   }
 
-  function getCommentaryHeaderBibleText(ctx) {
-    var sources = [];
-
-    if (typeof oldTestamentData !== 'undefined' && oldTestamentData) {
-      sources.push(oldTestamentData);
-    }
-
-    if (typeof newTestamentData !== 'undefined' && newTestamentData) {
-      sources.push(newTestamentData);
-    }
-
-    if (!ctx) return '';
-
-    for (var sourceIndex = 0; sourceIndex < sources.length; sourceIndex++) {
-      var books = sources[sourceIndex].books;
-
-      if (!books) continue;
-
-      for (var bookIndex = 0; bookIndex < books.length; bookIndex++) {
-        var book = books[bookIndex];
-
-        if (!book || book.name !== ctx.bookName || !book.chapters) continue;
-
-        for (var chapterIndex = 0; chapterIndex < book.chapters.length; chapterIndex++) {
-          var chapterData = book.chapters[chapterIndex];
-
-          if (
-            !chapterData ||
-            parseInt(chapterData.chapter, 10) !== ctx.chapter ||
-            !chapterData.verses
-          ) {
-            continue;
-          }
-
-          for (var verseIndex = 0; verseIndex < chapterData.verses.length; verseIndex++) {
-            var verseData = chapterData.verses[verseIndex];
-
-            if (verseData && parseInt(verseData.verse, 10) === ctx.verse) {
-              return String(verseData.text || '')
-                .replace(/\s+/g, ' ')
-                .trim();
-            }
-          }
-        }
-      }
-    }
-
-    return '';
-  }
-
   function removeCommentarySectionTitleIcons() {
     var content = getContent();
     var titles = [
@@ -2668,6 +2618,18 @@
 
     stopCommentaryIfLanguageMismatch(nextLang || 'ko');
     clearInactiveCommentaryHighlights();
+
+    /* Same header path as play-start / showCommentary — keep scripture language in sync. */
+    if (typeof window.updateCompactCommentaryHeaderForCurrentVerse === 'function') {
+      try { window.updateCompactCommentaryHeaderForCurrentVerse(); } catch (eHdr) { /* ignore */ }
+    } else if (typeof window.updateCompactCommentaryHeader === 'function') {
+      try {
+        var hdrCtx = getCommentaryContext();
+        if (hdrCtx) {
+          window.updateCompactCommentaryHeader(hdrCtx.bookName, hdrCtx.chapter, hdrCtx.verse);
+        }
+      } catch (eHdr2) { /* ignore */ }
+    }
 
     if (!currentCommentaryItems.length) return;
 

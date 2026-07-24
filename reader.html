@@ -2280,7 +2280,7 @@ html.reader-hide-chrome .verse-item.verse-item--chapter-selected .verse-num{
 <script src="gomna_category_feature.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
 <script>
-window.GOMNA_ASSET_VERSION = "20260724-commentary-cards-v1";
+window.GOMNA_ASSET_VERSION = "20260724-commentary-header-verse-v1";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -3303,20 +3303,29 @@ function initializeApp() {
   var _si=document.getElementById('searchInput');if(_si)_si.addEventListener('keypress', function(e) { if(e.key === 'Enter') doSearch(); });
   initVerseToolbarEvents();
   syncReaderNativeUiLangClass();
-  window.addEventListener('gomna:ui-language-changed', function() {
+  function refreshCommentaryForUiLanguageChange() {
     refreshReaderChapterLabelsAfterTranslation();
     _commentaryRenderKey = null;
     var pop = document.getElementById('commentaryPopup');
     if (pop && pop.classList.contains('show') && currentCommentaryVerseForRelated != null &&
         typeof showCommentary === 'function') {
       showCommentary(currentCommentaryVerseForRelated);
-    } else if (window.GomnaCommentaryI18n) {
-      window.GomnaCommentaryI18n.apply();
+    } else {
+      if (window.GomnaCommentaryI18n) window.GomnaCommentaryI18n.apply();
+      if (typeof updateCompactCommentaryHeaderForCurrentVerse === 'function') {
+        updateCompactCommentaryHeaderForCurrentVerse();
+      }
     }
-  });
+  }
+  window.addEventListener('gomna:ui-language-changed', refreshCommentaryForUiLanguageChange);
+  /* Commentary bridge uses gomna:languagechange (not ui-language-changed). */
+  window.addEventListener('gomna:languagechange', refreshCommentaryForUiLanguageChange);
   window.addEventListener('gomna:reader-translation-settled', function() {
     refreshReaderChapterLabelsAfterTranslation();
     if (window.GomnaCommentaryI18n) window.GomnaCommentaryI18n.apply();
+    if (typeof updateCompactCommentaryHeaderForCurrentVerse === 'function') {
+      updateCompactCommentaryHeaderForCurrentVerse();
+    }
     /* Strip GT inline styles that KO never has, then remasure iPhone pan surface. */
     function restoreKoScrollLayout() {
       try {
@@ -3449,6 +3458,16 @@ function getGoogTeComboLangRaw() {
  * audio locale and on-screen language stay in sync on iPhone.
  */
 function getReaderUiLangCode() {
+  /* Optimistic bridge selection wins during in-flight KO↔EN/JA switches. */
+  try {
+    var displayPending = window.__gomnaBridgeDisplayLang;
+    if (displayPending) {
+      var displayNorm = normalizeReaderLangCode(displayPending);
+      if (displayNorm === 'ko' || displayNorm === 'en' || displayNorm === 'ja') {
+        return displayNorm;
+      }
+    }
+  } catch (eDisp) { /* ignore */ }
   var storedNorm = null;
   try {
     storedNorm = normalizeReaderLangCode(localStorage.getItem('gomna_ui_language'));
@@ -5037,7 +5056,7 @@ function goToChapterCommentary(chapter) {
 var currentCommentaryVerseForRelated = null;
 var relatedCommentaryReturnState = null;
 
-function getCommentaryHeaderVerseText(bookName, chapter, verseNum) {
+function getKoreanBibleVerseText(bookName, chapter, verseNum) {
   var sources = [];
 
   if(typeof oldTestamentData !== 'undefined' && oldTestamentData && oldTestamentData.books) {
@@ -5071,6 +5090,42 @@ function getCommentaryHeaderVerseText(bookName, chapter, verseNum) {
   }
 
   return '';
+}
+
+function getLocaleCardVerseText(bookName, chapter, verseNum) {
+  var locale = getCommentaryCardLocale();
+  var bookId;
+  var entry;
+  var key;
+  var verse;
+  var text;
+
+  if (locale === 'ko-KR') return '';
+  bookId = BOOK_FILE_MAP[bookName];
+  if (!bookId) return '';
+  entry = peekLocaleCommentaryCards(locale, bookId);
+  if (!entry || entry.status !== 'ready' || !entry.data || !entry.data.verses) return '';
+  key = bookName + '_' + chapter + '_' + verseNum;
+  verse = entry.data.verses[key];
+  if (!verse) return '';
+  text = String(verse.verseText || '').trim();
+  return text;
+}
+
+/**
+ * Commentary header scripture body for the active UI language.
+ * EN/JA use locale card verseText when present; otherwise Korean bible fallback.
+ */
+function getCommentaryHeaderVerseText(bookName, chapter, verseNum) {
+  var lang = typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko';
+  var korean = getKoreanBibleVerseText(bookName, chapter, verseNum);
+  var localized;
+
+  if (lang === 'en' || lang === 'ja') {
+    localized = getLocaleCardVerseText(bookName, chapter, verseNum);
+    if (localized) return localized;
+  }
+  return korean;
 }
 
 function ensureCommentaryHeaderTitle() {
@@ -5185,6 +5240,13 @@ function updateCommentaryHeaderVerse(bookName, chapter, verseNum) {
     verseLine = document.createElement('span');
     verseLine.className = 'commentary-compact-verse';
     verseLine.textContent = verseText;
+    /* Lock native scripture so Google Translate cannot rewrite/flicker after play. */
+    if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.lockLeaf === 'function') {
+      window.GomnaCommentaryI18n.lockLeaf(verseLine, null);
+    } else {
+      verseLine.classList.add('notranslate');
+      verseLine.setAttribute('translate', 'no');
+    }
     verseHost.appendChild(verseLine);
   }
 
@@ -5197,6 +5259,19 @@ function updateCommentaryHeaderVerse(bookName, chapter, verseNum) {
 
 function updateCompactCommentaryHeader(bookName, chapter, verseNum) {
   updateCommentaryHeaderVerse(bookName, chapter, verseNum);
+}
+
+function updateCompactCommentaryHeaderForCurrentVerse() {
+  var bookName;
+  var chapter;
+  var verseNum;
+  var pop = document.getElementById('commentaryPopup');
+  if (!pop || !pop.classList.contains('show')) return;
+  bookName = currentBook && currentBook.name;
+  chapter = currentChapter;
+  verseNum = currentCommentaryVerseForRelated;
+  if (!bookName || !chapter || verseNum == null) return;
+  updateCompactCommentaryHeader(bookName, chapter, verseNum);
 }
 
 var _commentaryRenderKey = null;
