@@ -241,6 +241,35 @@ test('tight max-api-calls reserves one attempt per remaining batch', async () =>
   assert.equal(run.results.length, 9);
 });
 
+test('failed batch still contributes valid sibling results', async () => {
+  const jobs = loadGenesis111Jobs().filter((job) => job.locale === 'en-US');
+  const success = createMockBatchSuccessHandler();
+  const provider = createMockTranslationProvider({
+    async handler(request) {
+      const text = await success(request);
+      const parsed = JSON.parse(text);
+      // Corrupt one type so the batch fails validation overall.
+      const history = parsed.items.find((item) => item.type === 'history');
+      if (history) {
+        history.cards = [{ itemIndex: 0, identity: '한글잔존', fields: { 내용: '한글만' } }];
+      }
+      return JSON.stringify(parsed);
+    },
+  });
+  const run = await runBatchedTranslation(jobs, {
+    executeNetwork: true,
+    provider,
+    maxApiCalls: 1,
+    maxAttempts: 1,
+    concurrency: 1,
+    backoffMs: 1,
+    inspectLock: () => ({ status: 'unlocked' }),
+  });
+  assert.equal(run.ok, false);
+  assert.ok(run.results.length >= 7);
+  assert.ok(!run.results.some((item) => item.type === 'history'));
+});
+
 test('empty job queue makes zero provider calls', async () => {
   let calls = 0;
   const provider = createMockTranslationProvider({

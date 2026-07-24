@@ -61,6 +61,8 @@ export function createOpenAiTranslationProvider(options = {}) {
       const body = {
         model,
         temperature: 0.2,
+        max_tokens:
+          options.maxTokens == null ? 16384 : Number(options.maxTokens),
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userContent },

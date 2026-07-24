@@ -547,6 +547,9 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
           );
         }
         if (checkpoint) {
+          const successIds = new Set(
+            (run.results || []).map((result) => result.targetId),
+          );
           for (const result of run.results || []) {
             const job = jobs.find((row) => row.targetId === result.targetId);
             if (!job) continue;
@@ -568,11 +571,10 @@ export async function runTranslationStaging(argv = [], runtime = {}) {
             );
           }
           for (const failed of run.failedBatches || []) {
-            for (const targetId of jobs
-              .filter((job) => buildBatchId(job) === failed.batchId)
-              .map((job) => job.targetId)) {
-              const job = jobs.find((row) => row.targetId === targetId);
-              if (!job) continue;
+            for (const job of jobs.filter(
+              (row) => buildBatchId(row) === failed.batchId,
+            )) {
+              if (successIds.has(job.targetId)) continue;
               upsertCheckpointItem(
                 checkpoint,
                 {

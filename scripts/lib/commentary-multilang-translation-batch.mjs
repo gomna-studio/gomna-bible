@@ -158,7 +158,7 @@ function buildBatchSystemPrompt(batch) {
     'For each type, paragraphs must mirror the source paragraph/lineCounts exactly.',
     'One source line => one translated line. Do not merge or split lines.',
     'cards must keep the same itemIndex order and field keys; translate field values.',
-    'identity may be localized but itemIndex must remain contiguous from 0.',
+    'Translate identity labels into the target locale as well — no Hangul may remain in identity or field values.',
     'sourceHash on each item must equal the provided sourceHash for that type.',
     'Do not add headings, markdown, notes, or wrappers.',
     'Preserve Bible references and doctrinal tone.',
@@ -206,15 +206,34 @@ export function buildBatchTranslationRequest(batch) {
 }
 
 function extractJsonObject(text) {
-  const trimmed = String(text || '').trim();
+  let trimmed = String(text || '').trim();
   if (!trimmed) throw new Error('Empty model response');
+
+  // Strip common markdown fences before parsing.
+  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  if (fenced) trimmed = fenced[1].trim();
+
+  const tryParse = (value) => {
+    try {
+      return JSON.parse(value);
+    } catch {
+      // Trailing commas are a frequent model slip.
+      const relaxed = value.replace(/,\s*([}\]])/g, '$1');
+      return JSON.parse(relaxed);
+    }
+  };
+
   try {
-    return JSON.parse(trimmed);
+    return tryParse(trimmed);
   } catch {
     const start = trimmed.indexOf('{');
     const end = trimmed.lastIndexOf('}');
     if (start >= 0 && end > start) {
-      return JSON.parse(trimmed.slice(start, end + 1));
+      try {
+        return tryParse(trimmed.slice(start, end + 1));
+      } catch {
+        // fall through
+      }
     }
     throw new Error('Model response is not valid JSON');
   }
@@ -642,14 +661,22 @@ export async function runBatchedTranslation(jobs, options = {}) {
 
   for (const outcome of batchOutcomes) {
     report.batchResults.push(outcome);
-    if (outcome.ok) {
+    if (outcome.results?.length) {
       report.results.push(...outcome.results);
-    } else {
+    }
+    if (!outcome.ok) {
       report.failedBatches.push(outcome);
     }
   }
 
-  report.results.sort((a, b) => a.targetId.localeCompare(b.targetId));
+  // Deduplicate by targetId (prefer first/successful copy).
+  const byId = new Map();
+  for (const result of report.results) {
+    if (!byId.has(result.targetId)) byId.set(result.targetId, result);
+  }
+  report.results = [...byId.values()].sort((a, b) =>
+    a.targetId.localeCompare(b.targetId),
+  );
   report.skippedApproved = filtered.skippedApproved;
   report.lockedConflict = filtered.lockedConflict;
   report.ok =
