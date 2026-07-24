@@ -89,6 +89,8 @@ function printUsage() {
     '  Phase-1 blocks translate/tts/upload/manifest/publish.',
     '  Batched translate-run lives in scripts/commentary-multilang-translation-stage.mjs',
     '  (requires --execute-network; default is preflight estimate only).',
+    '  Audio/cue staging lives in scripts/commentary-multilang-audio-stage.mjs',
+    '  (PASS-only; /tmp staging; requires --execute-network for TTS).',
   ].join('\n');
 }
 

@@ -25,6 +25,13 @@ const TERMINAL_RESUME_STATUSES = new Set([
   'translation-batch-ok',
   'cards-staged',
   'narration-staged',
+  'audio-excluded-non-pass',
+  'audio-excluded-source-review',
+  'audio-tts-complete',
+  'audio-cue-primary-accepted',
+  'audio-cue-fallback-accepted',
+  'audio-cue-manual-review',
+  'audio-verify-passed',
 ]);
 
 export function buildTargetKey(target) {

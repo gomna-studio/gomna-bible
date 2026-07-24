@@ -241,6 +241,25 @@ function getCardLines(paragraphs, cardCount) {
     return lines;
   }
 
+  // Intro + packed card lines without closing: [1, cardCount]
+  if (
+    signature.paragraphCount === 2 &&
+    signature.lineCounts[0] === 1 &&
+    signature.lineCounts[1] > 0
+  ) {
+    const lines = paragraphs[1];
+    if (
+      Number.isFinite(expectedCards) &&
+      expectedCards > 0 &&
+      lines.length !== expectedCards
+    ) {
+      throw new Error(
+        `packed card line count ${lines.length} != cardCount ${expectedCards}`,
+      );
+    }
+    return lines;
+  }
+
   if (
     signature.paragraphCount >= 3 &&
     signature.lineCounts.every((count) => count === 1)
