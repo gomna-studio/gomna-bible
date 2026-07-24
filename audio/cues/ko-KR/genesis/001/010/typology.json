@@ -1,0 +1,33 @@
+{
+  "audioId": "genesis.001.010.typology",
+  "duration": 38.304,
+  "measuredDuration": 38.304,
+  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/010/typology-study.mp3",
+  "finalMp3Duration": 38.304,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 12.229167
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 12.229167,
+      "end": 21.203
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 21.203,
+      "end": 30.244958
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 30.244958,
+      "end": 38.304
+    }
+  ]
+}

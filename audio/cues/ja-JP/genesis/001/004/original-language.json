@@ -1,0 +1,51 @@
+{
+  "audioId": "genesis.001.004.original-language.ja-JP",
+  "duration": 66.96,
+  "measuredDuration": 66.96,
+  "testAudioPath": "audio/v1/ja-JP/genesis/001/004/original-language-study.mp3",
+  "finalMp3Duration": 66.96,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 9.4325
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 9.4325,
+      "end": 20.149292
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 20.149292,
+      "end": 31.848833
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 31.848833,
+      "end": 39.972167
+    },
+    {
+      "type": "item",
+      "itemIndex": 3,
+      "start": 39.972167,
+      "end": 47.647292
+    },
+    {
+      "type": "item",
+      "itemIndex": 4,
+      "start": 47.647292,
+      "end": 57.204667
+    },
+    {
+      "type": "closing",
+      "itemIndex": -1,
+      "start": 57.204667,
+      "end": 66.96
+    }
+  ]
+}

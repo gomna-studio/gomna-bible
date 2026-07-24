@@ -1,0 +1,33 @@
+{
+  "audioId": "genesis.001.005.counseling",
+  "duration": 56.808,
+  "measuredDuration": 56.808,
+  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/005/counseling-warm.mp3",
+  "finalMp3Duration": 56.808,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 12.653917
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 12.653917,
+      "end": 26.166875
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 26.166875,
+      "end": 42.334583
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 42.334583,
+      "end": 56.808
+    }
+  ]
+}

@@ -3408,8 +3408,10 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   }
 }
 
-body.gomna-audio-expanded-open .gomna-audio-expanded-player,
-body.gomna-audio-expanded-open .gomna-audio-expanded-player.gomna-audio-visible {
+/* Inline document-flow expand only when commentary popup is NOT open.
+ * With commentary open, relative positioning traps the sheet under the overlay. */
+body.gomna-audio-expanded-open:not(.gomna-commentary-popup-open) .gomna-audio-expanded-player,
+body.gomna-audio-expanded-open:not(.gomna-commentary-popup-open) .gomna-audio-expanded-player.gomna-audio-visible {
   position: relative !important;
   top: auto !important;
   bottom: auto !important;
@@ -3425,6 +3427,19 @@ body.gomna-audio-expanded-open .gomna-audio-expanded-player.gomna-audio-visible 
   margin-top: 8px !important;
   margin-bottom: 16px !important;
   opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+body.gomna-commentary-popup-open.gomna-audio-expanded-open #gomna-audio-expanded-player {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 10100 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
   pointer-events: auto !important;
 }
 

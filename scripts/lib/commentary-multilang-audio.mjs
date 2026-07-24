@@ -21,6 +21,7 @@ import {
   sha256Bytes,
   sha256Text,
 } from './commentary-multilang-translation.mjs';
+import { buildNarrationSpeechUnits } from './commentary-multilang-cue.mjs';
 
 export const OPENAI_SPEECH_URL = 'https://api.openai.com/v1/audio/speech';
 export const DEFAULT_AUDIO_MODEL = 'gpt-4o-mini-tts';
@@ -102,13 +103,100 @@ const fsLinkSync = fs.linkSync.bind(fs);
 const fsUnlinkSync = fs.unlinkSync.bind(fs);
 const fsStatSync = fs.statSync.bind(fs);
 
-function signaturesEqual(a, b) {
-  return (
-    a.paragraphCount === b.paragraphCount &&
-    a.totalLineCount === b.totalLineCount &&
-    a.lineCounts.length === b.lineCounts.length &&
-    a.lineCounts.every((count, index) => count === b.lineCounts[index])
+/**
+ * Detect whether the Korean source narration includes a closing speech unit.
+ * Uses buildNarrationSpeechUnits when possible; falls back to structural forms
+ * for types (e.g. original-language) that require closing in cue policy even
+ * when the approved source itself has no closing paragraph.
+ */
+function detectSourceHasClosing(sourceText, cardCount, type) {
+  try {
+    const units = buildNarrationSpeechUnits(sourceText, cardCount, { type });
+    return units.some((unit) => unit.kind === 'closing');
+  } catch {
+    // Continue with structural / relaxed parsing.
+  }
+
+  const signature = buildNarrationStructureSignature(
+    parseNarrationStructure(sourceText),
   );
+  const expectedCards = Number(cardCount);
+  if (
+    Number.isFinite(expectedCards) &&
+    expectedCards > 0 &&
+    signature.paragraphCount === 3 &&
+    signature.lineCounts[0] === 1 &&
+    signature.lineCounts[2] === 1 &&
+    signature.lineCounts[1] === expectedCards
+  ) {
+    return true;
+  }
+  if (
+    Number.isFinite(expectedCards) &&
+    expectedCards > 0 &&
+    signature.lineCounts.every((count) => count === 1) &&
+    signature.paragraphCount === expectedCards + 2
+  ) {
+    return true;
+  }
+
+  try {
+    const units = buildNarrationSpeechUnits(sourceText, cardCount, {});
+    return units.some((unit) => unit.kind === 'closing');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Build speech units for structure comparison.
+ * When requireClosing is false, optional target closing is omitted from units
+ * (includeClosing: false) so KO-without-closing and EN/JA-with-closing can match.
+ */
+function buildComparableSpeechUnits(text, cardCount, type, requireClosing) {
+  const opts = {
+    type,
+    includeClosing: requireClosing ? true : false,
+  };
+  try {
+    return buildNarrationSpeechUnits(text, cardCount, opts);
+  } catch (error) {
+    if (!requireClosing) {
+      return buildNarrationSpeechUnits(text, cardCount, {
+        includeClosing: false,
+      });
+    }
+    throw error;
+  }
+}
+
+function speechUnitStructureKey(units) {
+  return units.map((unit) => {
+    if (unit.kind === 'item') {
+      return `item:${unit.itemIndex}`;
+    }
+    return unit.kind;
+  });
+}
+
+function validateSpeechUnitCardItems(units, cardCount) {
+  const expectedCards = Number(cardCount);
+  const items = units.filter((unit) => unit.kind === 'item');
+  if (items.length !== expectedCards) {
+    return {
+      ok: false,
+      reason: `card item count ${items.length} != cardCount ${expectedCards}`,
+    };
+  }
+  for (let index = 0; index < items.length; index += 1) {
+    if (items[index].itemIndex !== index) {
+      return {
+        ok: false,
+        reason: `card item order broken at index ${index} (itemIndex=${items[index].itemIndex})`,
+      };
+    }
+  }
+  return { ok: true, items };
 }
 
 function countHangulChars(text) {
@@ -201,7 +289,14 @@ function extractEnglishTermFromCardLine(line) {
 
 function isJapanesePronunciationToken(term) {
   // Card-leading transliterations are katakana or Latin; reject Japanese glosses.
-  return /^[A-Za-z'’\-ァ-ヶー]+$/u.test(String(term || ''));
+  // Allow a single katakana middle dot (・ U+30FB) only between two non-empty
+  // kana/prolonged-sound segments (e.g. ヨーム・シェニー). Latin may not use ・.
+  const value = String(term || '');
+  if (!value) return false;
+  if (value.includes('・')) {
+    return /^[ァ-ヶー]+・[ァ-ヶー]+$/u.test(value);
+  }
+  return /^[A-Za-z'’\-ァ-ヶー]+$/u.test(value);
 }
 
 function extractJapaneseTermFromCardLine(line) {
@@ -819,21 +914,6 @@ export function validateApprovedNarrationTarget({
     };
   }
 
-  // original-language keeps the intro/card-lines/closing minimum.
-  // Other registered types mirror the Korean source paragraph count as-is.
-  if (structurePolicy.requireExactThreeParagraphs === true) {
-    if (
-      sourceSignature.paragraphCount < 3 ||
-      narrationSignature.paragraphCount < 3
-    ) {
-      return {
-        ok: false,
-        action: 'block_structure_mismatch',
-        reason: 'narration must include intro, card lines, and closing',
-      };
-    }
-  }
-
   for (let i = 0; i < narrationStructure.length; i += 1) {
     if (!narrationStructure[i].length) {
       return {
@@ -853,11 +933,109 @@ export function validateApprovedNarrationTarget({
     }
   }
 
-  if (!signaturesEqual(sourceSignature, narrationSignature)) {
+  const expectedCardCount = Number(target.cardCount);
+  if (!Number.isFinite(expectedCardCount) || expectedCardCount < 1) {
     return {
       ok: false,
       action: 'block_structure_mismatch',
-      reason: `structure source=${JSON.stringify(sourceSignature.lineCounts)} narration=${JSON.stringify(narrationSignature.lineCounts)}`,
+      reason: `invalid cardCount ${target.cardCount}`,
+    };
+  }
+
+  // Closing is required on the target only when the Korean source has one and
+  // the type policy asks for closingRequiredWhenPresentInSource. Optional
+  // target closing is omitted from comparable units when not required.
+  const sourceHasClosing = detectSourceHasClosing(
+    sourceText,
+    expectedCardCount,
+    target.type,
+  );
+  const requireClosingOnTarget =
+    sourceHasClosing &&
+    structurePolicy.closingRequiredWhenPresentInSource !== false;
+
+  let sourceSpeechUnits;
+  let narrationSpeechUnits;
+  try {
+    sourceSpeechUnits = buildComparableSpeechUnits(
+      sourceText,
+      expectedCardCount,
+      target.type,
+      requireClosingOnTarget,
+    );
+    narrationSpeechUnits = buildComparableSpeechUnits(
+      narrationText,
+      expectedCardCount,
+      target.type,
+      requireClosingOnTarget,
+    );
+  } catch (error) {
+    return {
+      ok: false,
+      action: 'block_structure_mismatch',
+      reason: error.message,
+    };
+  }
+
+  const sourceItemsCheck = validateSpeechUnitCardItems(
+    sourceSpeechUnits,
+    expectedCardCount,
+  );
+  if (!sourceItemsCheck.ok) {
+    return {
+      ok: false,
+      action: 'block_structure_mismatch',
+      reason: `Korean source ${sourceItemsCheck.reason}`,
+    };
+  }
+
+  const narrationItemsCheck = validateSpeechUnitCardItems(
+    narrationSpeechUnits,
+    expectedCardCount,
+  );
+  if (!narrationItemsCheck.ok) {
+    return {
+      ok: false,
+      action: 'block_structure_mismatch',
+      reason: narrationItemsCheck.reason,
+    };
+  }
+
+  const sourceHasIntro = sourceSpeechUnits.some((unit) => unit.kind === 'intro');
+  const narrationHasIntro = narrationSpeechUnits.some(
+    (unit) => unit.kind === 'intro',
+  );
+  if (sourceHasIntro !== narrationHasIntro) {
+    return {
+      ok: false,
+      action: 'block_structure_mismatch',
+      reason: sourceHasIntro
+        ? 'narration is missing intro speech unit present in Korean source'
+        : 'narration has intro speech unit absent from Korean source',
+    };
+  }
+
+  if (requireClosingOnTarget) {
+    const narrationHasClosing = narrationSpeechUnits.some(
+      (unit) => unit.kind === 'closing',
+    );
+    if (!narrationHasClosing) {
+      return {
+        ok: false,
+        action: 'block_structure_mismatch',
+        reason:
+          'narration must include closing because Korean source has closing',
+      };
+    }
+  }
+
+  const sourceKey = speechUnitStructureKey(sourceSpeechUnits);
+  const narrationKey = speechUnitStructureKey(narrationSpeechUnits);
+  if (JSON.stringify(sourceKey) !== JSON.stringify(narrationKey)) {
+    return {
+      ok: false,
+      action: 'block_structure_mismatch',
+      reason: `speech units source=${JSON.stringify(sourceKey)} narration=${JSON.stringify(narrationKey)}`,
     };
   }
 
@@ -930,16 +1108,9 @@ export function validateApprovedNarrationTarget({
       };
     }
 
-    if (
-      JSON.stringify(data.sourceStructure.lineCounts) !==
-      JSON.stringify(data.narrationStructure.lineCounts)
-    ) {
-      return {
-        ok: false,
-        action: 'block_structure_mismatch',
-        reason: 'metadata sourceStructure and narrationStructure do not match',
-      };
-    }
+    // sourceStructure and narrationStructure may differ in paragraph packaging
+    // (expanded vs packed) or optional closing; speech-unit comparison above
+    // is the cross-locale structure guard.
   } else {
     if (data.sourceStructure) {
       const expected = data.sourceStructure;

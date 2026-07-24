@@ -15,6 +15,14 @@
     }
   }
 
+  function isCommentaryTarget(target) {
+    return !!(
+      target &&
+      target.closest &&
+      target.closest('#commentaryPopup, #commentaryScrollArea, #commentaryContent')
+    );
+  }
+
   function highlightAudio(audioId) {
     if (!audioId) return;
 
@@ -29,9 +37,22 @@
 
     target.classList.add('gomna-audio-reading');
 
-    var timeSinceScroll = Date.now() - lastUserScrollTime;
+    /*
+     * Commentary card rows are centered by gomna-card-highlight-test.js
+     * (shared shouldAutoCenterActiveCommentaryCard). Do not scrollIntoView
+     * the page/document from this helper for commentary targets.
+     */
+    if (isCommentaryTarget(target)) {
+      return;
+    }
 
-    if (timeSinceScroll > 1500) {
+    var timeSinceScroll = Date.now() - lastUserScrollTime;
+    var canCenter =
+      typeof window.shouldAutoCenterActiveCommentaryCard === 'function'
+        ? window.shouldAutoCenterActiveCommentaryCard()
+        : timeSinceScroll > 1500;
+
+    if (canCenter && timeSinceScroll > 1500) {
       target.scrollIntoView({
         behavior: 'smooth',
         block: 'center'

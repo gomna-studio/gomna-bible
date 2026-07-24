@@ -1,0 +1,33 @@
+{
+  "audioId": "genesis.001.005.theology",
+  "duration": 68.952,
+  "measuredDuration": 68.952,
+  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/005/theology-warm.mp3",
+  "finalMp3Duration": 68.952,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 13.405292
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 13.405292,
+      "end": 29.413875
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 29.413875,
+      "end": 48.354917
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 48.354917,
+      "end": 68.952
+    }
+  ]
+}

@@ -997,6 +997,9 @@
       controls.appendChild(replayBtn);
       controls.appendChild(closeBtn);
       box.insertBefore(controls, content.nextSibling);
+      if (typeof window.ensureCommentaryScrollShell === 'function') {
+        try { window.ensureCommentaryScrollShell(); } catch (eShell) { /* ignore */ }
+      }
 
     } else {
       listenBtn = document.getElementById(LISTEN_BTN_ID);
@@ -2712,21 +2715,37 @@
     }, 50);
   }
 
+  function getCommentaryScrollContainer() {
+    return document.getElementById('commentaryScrollArea') || getContent();
+  }
+
+  function usesUnifiedCommentaryScroll() {
+    return !!document.getElementById('commentaryScrollArea');
+  }
+
   function stopCommentaryHeaderDrag(event) {
     var header;
     var target = event.target;
+    var isTouch = !!(event.type && event.type.indexOf('touch') === 0);
 
     if (!document.body.classList.contains(MODAL_OPEN_CLASS)) return;
     if (event.touches && event.touches.length >= 2) return;
 
     header = document.getElementById('popupDragHeader');
     if (!header || !target || !header.contains(target)) return;
-    if (target.tagName === 'BUTTON' || target.closest('button')) return;
+    if (target.tagName === 'BUTTON' || (target.closest && target.closest('button'))) return;
+
+    /*
+     * Unified #commentaryScrollArea: header is inside the native scroller.
+     * Never preventDefault on touch — that blocks vertical pan-y scroll.
+     * Desktop mouse can still stop legacy popup-drag bubbling.
+     */
+    if (usesUnifiedCommentaryScroll() && isTouch) return;
 
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    if (event.cancelable) {
+    if (!isTouch && event.cancelable) {
       event.preventDefault();
     }
   }
@@ -2738,11 +2757,14 @@
     if (event.touches && event.touches.length >= 2) return;
     if (touch) touchStartY = touch.clientY;
 
+    /* Unified scroll: do not capture/cancel header touches. */
+    if (usesUnifiedCommentaryScroll()) return;
+
     stopCommentaryHeaderDrag(event);
   }
 
   function handleCommentaryTouchMove(event) {
-    var content;
+    var scrollEl;
     var touch;
     var deltaY;
     var atTop;
@@ -2751,14 +2773,22 @@
     if (!document.body.classList.contains(MODAL_OPEN_CLASS)) return;
     if (event.touches && event.touches.length >= 2) return;
 
-    content = getContent();
+    /*
+     * With unified scroll shell, #commentaryContent is overflow:visible and
+     * not a scroller. The old content.scrollTop edge check always looked
+     * "stuck" (atTop && atBottom) and preventDefault'd every touchmove,
+     * freezing iPhone scroll during / after audio open. Leave native pan-y.
+     */
+    if (usesUnifiedCommentaryScroll()) return;
+
+    scrollEl = getCommentaryScrollContainer();
     touch = event.touches && event.touches[0];
 
-    if (content && content.contains(event.target) && touch) {
+    if (scrollEl && scrollEl.contains(event.target) && touch) {
       deltaY = touch.clientY - touchStartY;
       touchStartY = touch.clientY;
-      atTop = content.scrollTop <= 0;
-      atBottom = content.scrollTop + content.clientHeight >= content.scrollHeight - 1;
+      atTop = scrollEl.scrollTop <= 0;
+      atBottom = scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1;
 
       if (!((deltaY > 0 && atTop) || (deltaY < 0 && atBottom))) {
         return;
@@ -2777,8 +2807,8 @@
 
     modalTouchListenersBound = true;
     document.addEventListener('mousedown', stopCommentaryHeaderDrag, true);
-    document.addEventListener('touchstart', stopCommentaryHeaderDrag, { capture: true, passive: false });
-    document.addEventListener('touchstart', handleCommentaryTouchStart, { capture: true, passive: false });
+    /* touchstart guard is passive — never cancel; header drag stop is mouse-only for unified scroll */
+    document.addEventListener('touchstart', handleCommentaryTouchStart, { capture: true, passive: true });
     document.addEventListener('touchmove', handleCommentaryTouchMove, { capture: true, passive: false });
   }
 

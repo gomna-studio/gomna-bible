@@ -1398,6 +1398,7 @@
   function endTranslationPending(opts) {
     try {
       document.documentElement.classList.remove('gt-translation-pending');
+      clearApplyInFlight(null);
       if (window.__gomnaTranslationPendingFailsafe) {
         clearTimeout(window.__gomnaTranslationPendingFailsafe);
         window.__gomnaTranslationPendingFailsafe = null;
@@ -1869,9 +1870,41 @@
     } catch (e) { /* ignore */ }
   }
 
+  var _gtTriggerSeq = 0;
+  var _gtApplyInFlightLang = null;
+  var _gtApplyInFlightUntil = 0;
+  var _gtReloadArmedForToken = 0;
+  var _gtPrevBodyOverflow = null;
+  var GT_TRIGGER_MAX_ATTEMPTS = 40; /* ~6s — align with pending failsafe */
+
+  function cancelWidgetLanguageTrigger() {
+    _gtTriggerSeq += 1;
+  }
+
+  function clearApplyInFlight(lang) {
+    if (lang == null || _gtApplyInFlightLang === lang) {
+      _gtApplyInFlightLang = null;
+      _gtApplyInFlightUntil = 0;
+    }
+  }
+
+  function markApplyInFlight(lang) {
+    _gtApplyInFlightLang = lang || null;
+    _gtApplyInFlightUntil = Date.now() + 8000;
+  }
+
+  function isApplyInFlight(lang) {
+    return !!(
+      lang &&
+      _gtApplyInFlightLang === lang &&
+      Date.now() < _gtApplyInFlightUntil
+    );
+  }
+
   function ensureTranslateWidget() {
-    if (window.__gtWidgetLoaded || window.__gtWidgetLoading) return;
-    window.__gtWidgetLoading = true;
+    if (window.__gtWidgetLoaded) return;
+    if (window.__gtWidgetLoading) return;
+
     injectWidgetHideStyles();
 
     if (!document.getElementById('google_translate_element')) {
@@ -1882,23 +1915,41 @@
 
     window.googleTranslateElementInit = function () {
       try {
-        new google.translate.TranslateElement({
-          pageLanguage: 'ko',
-          autoDisplay: false,
-          layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-        }, 'google_translate_element');
-        window.__gtWidgetLoaded = true;
-      } catch (e) { /* swallow — retry logic below will keep polling */ }
+        if (!window.__gtWidgetLoaded && window.google && google.translate && google.translate.TranslateElement) {
+          new google.translate.TranslateElement({
+            pageLanguage: 'ko',
+            autoDisplay: false,
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+          }, 'google_translate_element');
+          window.__gtWidgetLoaded = true;
+        }
+      } catch (e) { /* swallow — trigger / reload paths recover */ }
+      window.__gtWidgetLoading = false;
       /* Widget init injects banner/spinner nodes + sheets; reinforce hide CSS once. */
       try { injectWidgetHideStyles(); } catch (e2) { /* ignore */ }
     };
 
+    var existingScript = document.querySelector('script[src*="translate_a/element.js"]');
+    if (existingScript) {
+      window.__gtWidgetLoading = true;
+      /* Script already present; callback may have run or will run. */
+      if (window.google && google.translate && google.translate.TranslateElement) {
+        try { window.googleTranslateElementInit(); } catch (eInit) { /* ignore */ }
+      }
+      return;
+    }
+
+    window.__gtWidgetLoading = true;
     const script = document.createElement('script');
     script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
     script.async = true;
+    script.setAttribute('data-gomna-gt-element', '1');
     script.onerror = function () {
+      window.__gtWidgetLoading = false;
+      window.__gtWidgetLoaded = false;
       showToast('번역 서비스 로드 실패 · Translation service failed to load');
       endTranslationPending({ immediate: true });
+      clearApplyInFlight(null);
       try { unlockReaderScrollLocks(); } catch (eUnlockErr) { /* ignore */ }
     };
     document.head.appendChild(script);
@@ -1929,8 +1980,25 @@
     } catch (e2) { /* ignore */ }
   }
 
-  function triggerWidgetLanguage(targetLang, attempts) {
+  function beginWidgetLanguageTrigger(targetLang) {
+    var token = ++_gtTriggerSeq;
+    triggerWidgetLanguage(targetLang, 0, token);
+    return token;
+  }
+
+  function triggerWidgetLanguage(targetLang, attempts, token) {
+    if (token == null) token = ++_gtTriggerSeq;
+    if (token !== _gtTriggerSeq) return false; /* superseded by a newer request */
     attempts = attempts || 0;
+
+    /* Target no longer desired (user switched / cookie cleared) — exit quietly. */
+    var cookieLang = getCurrentTargetLang();
+    if (targetLang && targetLang !== 'ko') {
+      if (!hasGoogTransCookie() || cookieLang !== targetLang) {
+        return false;
+      }
+    }
+
     const select = document.querySelector('select.goog-te-combo');
     if (select) {
       select.value = targetLang;
@@ -1939,6 +2007,7 @@
         const e = document.createEvent('HTMLEvents'); e.initEvent('change', true, true); return e;
       })();
       select.dispatchEvent(evt);
+      clearApplyInFlight(targetLang);
       return true;
     }
     /*
@@ -1953,16 +2022,20 @@
           endTranslationPending({ immediate: true });
           unlockReaderScrollLocks();
         } catch (eOk) { /* ignore */ }
+        clearApplyInFlight(targetLang);
         return true;
       }
     }
-    if (attempts < 50) { // up to ~7.5s
-      setTimeout(function () { triggerWidgetLanguage(targetLang, attempts + 1); }, 150);
+    if (attempts < GT_TRIGGER_MAX_ATTEMPTS) {
+      setTimeout(function () { triggerWidgetLanguage(targetLang, attempts + 1, token); }, 150);
       return false;
     }
+    if (token !== _gtTriggerSeq) return false;
+
     /*
      * iPhone / no-combo path: cookie is already set; reload lets Google apply
      * on boot when the in-place combo trigger cannot run.
+     * At most one reload per trigger token (no infinite reload loop).
      */
     if (
       isReaderPage() &&
@@ -1970,20 +2043,32 @@
       targetLang !== 'ko' &&
       hasGoogTransCookie() &&
       getCurrentTargetLang() === targetLang &&
-      !isGoogleTranslatedDom()
+      _gtReloadArmedForToken !== token
     ) {
+      _gtReloadArmedForToken = token;
       try {
         endTranslationPending({ immediate: true });
         unlockReaderScrollLocks();
       } catch (eReload) { /* ignore */ }
       showToast('🌐 번역 적용 중... · Applying translation...');
-      setTimeout(function () { location.reload(); }, 200);
+      setTimeout(function () {
+        if (token !== _gtTriggerSeq) return;
+        location.reload();
+      }, 200);
       return false;
+    }
+
+    /* Only surface a hard failure when this request is still current and unmet. */
+    if (token !== _gtTriggerSeq) return false;
+    if (targetLang && targetLang !== 'ko' && isGoogleTranslatedDom() && getCurrentTargetLang() === targetLang) {
+      clearApplyInFlight(targetLang);
+      return true;
     }
     try {
       endTranslationPending({ immediate: true });
       unlockReaderScrollLocks();
     } catch (eFail) { /* ignore */ }
+    clearApplyInFlight(targetLang);
     showToast('번역 적용 실패 · Could not apply translation');
     return false;
   }
@@ -2014,12 +2099,12 @@
             try {
               select.dispatchEvent(new Event('change', { bubbles: true }));
             } catch (e0) { /* ignore */ }
-            setTimeout(function () { triggerWidgetLanguage(still, 0); }, 30);
+            setTimeout(function () { beginWidgetLanguageTrigger(still); }, 30);
           } else {
-            triggerWidgetLanguage(still, 0);
+            beginWidgetLanguageTrigger(still);
           }
         } else {
-          triggerWidgetLanguage(still, 0);
+          beginWidgetLanguageTrigger(still);
         }
         if (BOOK_LANG_IDX[still]) {
           setTimeout(function () { applyBookNameI18n(still); }, 800);
@@ -2126,6 +2211,14 @@
       return;
     }
 
+    /* Drop duplicate in-flight applies for the same target (rapid globe / bridge taps). */
+    if (isApplyInFlight(nextLang) && !readerBodyNeedsGoogle) {
+      closeModal();
+      return;
+    }
+    cancelWidgetLanguageTrigger();
+    markApplyInFlight(nextLang);
+
     try { window.__gomnaBridgeDisplayLang = nextLang; } catch (ePend) { /* ignore */ }
 
     if (window.GomnaAnalytics) {
@@ -2212,7 +2305,7 @@
 
       startTranslationPending();
       ensureTranslateWidget();
-      triggerWidgetLanguage(nextLang);
+      beginWidgetLanguageTrigger(nextLang);
       watchTranslationPendingComplete();
       if (BOOK_LANG_IDX[nextLang]) {
         setTimeout(function () { applyBookNameI18n(nextLang); }, 900);
@@ -2694,6 +2787,15 @@
     }
   }
 
+  function isCommentaryPopupOpen() {
+    try {
+      var pop = document.getElementById('commentaryPopup');
+      return !!(pop && pop.classList.contains('show'));
+    } catch (e) {
+      return false;
+    }
+  }
+
   function openModal() {
     const modal = document.getElementById('gtModal');
     if (!modal) return;
@@ -2714,6 +2816,8 @@
     _gtModalOpener = document.activeElement;
     modal.classList.add('show');
     modal.setAttribute('aria-hidden', 'false');
+    /* Keep commentary open under the language modal; restore overflow on close. */
+    _gtPrevBodyOverflow = document.body.style.overflow || '';
     document.body.style.overflow = 'hidden';
     setTimeout(function () { if (input && window.matchMedia('(min-width:481px)').matches) input.focus(); }, 250);
   }
@@ -2725,7 +2829,12 @@
     _gtModalView = 'popular';
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    if (isCommentaryPopupOpen()) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = _gtPrevBodyOverflow || '';
+    }
+    _gtPrevBodyOverflow = null;
     var opener = _gtModalOpener;
     _gtModalOpener = null;
     if (opener && typeof opener.focus === 'function' && document.contains(opener)) {

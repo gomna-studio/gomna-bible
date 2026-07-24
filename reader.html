@@ -601,9 +601,147 @@ html.gomna-home-commentary-loading body{overflow:hidden}
 .commentary-section strong{color:#B8751F;display:block;margin-bottom:8px}
 .commentary-section .content-box{background:#fff;padding:10px;border-radius:6px;font-size:14px;line-height:1.7}
 .hebrew-text{font-family:serif;font-size:16px;direction:rtl;margin-bottom:8px;color:#333}
-#commentaryPopup .popup-drag-header > div:first-child{
-  flex:1;
+/*
+ * Commentary lang toolbar: document flow between verse line and tabs.
+ * Do not use absolute positioning for the translation controls.
+ */
+#commentaryPopup .gomna-commentary-header-title{
+  text-align:center;
   min-width:0;
+  padding-right:8px;
+}
+#commentaryPopup .gomna-commentary-header-actions{
+  display:none!important;
+}
+/*
+ * Unified commentary scroll: header → verse → lang → tabs → cards → verse nav.
+ * Strong overrides live in #gomna-commentary-unified-scroll-css (after audio CSS).
+ */
+#commentaryPopupBox{
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+#commentaryScrollSpacer{
+  flex:0 0 auto!important;
+  width:100%!important;
+  height:calc(var(--gomna-commentary-footer-clearance, 88px) + env(safe-area-inset-bottom, 0px))!important;
+  pointer-events:none!important;
+}
+/* Keep bottom action bars as non-scrolling flex siblings */
+#commentaryPopupBox > #gomnaCommentaryInlineControls,
+#commentaryPopupBox > .gomna-audio-commentary-controls-footer,
+#commentaryPopupBox > .gomna-commentary-legacy-close-wrap,
+#commentaryPopupBox > .gomna-commentary-inline-controls{
+  flex:0 0 auto!important;
+  flex-shrink:0!important;
+  position:relative!important;
+  z-index:6!important;
+}
+#commentaryContent .gomna-commentary-lang-toolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
+  margin:3px 0 6px;
+  padding:0;
+  background:transparent;
+  position:static;
+  overflow:visible;
+}
+#commentaryContent .gomna-reader-lang-bridge-host--commentary{
+  display:flex!important;
+  align-items:center;
+  justify-content:flex-end;
+  visibility:visible!important;
+  opacity:1!important;
+  filter:none!important;
+  flex:0 0 auto;
+  max-width:100%;
+  min-width:0;
+  /* Outer hit target stays ~40px; visual chip below is thinner */
+  min-height:40px;
+  pointer-events:auto;
+}
+/*
+ * Commentary lang chip: cream panel + dark brown labels.
+ * Keep position/width/colors; only reduce visual vertical height (~30–32px).
+ */
+#commentaryContent .gomna-reader-lang-bridge-host--commentary .gomna-lang-bridge{
+  display:inline-flex!important;
+  align-items:center!important;
+  visibility:visible!important;
+  opacity:1!important;
+  filter:none!important;
+  min-height:32px!important;
+  height:32px!important;
+  padding:0 1px!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+  background:rgba(255,250,241,.96)!important;
+  border:1px solid #D9B77D!important;
+  border-radius:8px;
+  box-shadow:none;
+  line-height:1!important;
+}
+#commentaryContent .gomna-reader-lang-bridge-host--commentary .gomna-lang-bridge-btn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  visibility:visible!important;
+  opacity:1!important;
+  filter:none!important;
+  min-width:40px;
+  width:auto;
+  min-height:30px!important;
+  height:30px!important;
+  margin:0!important;
+  padding:3px 6px!important;
+  box-sizing:border-box!important;
+  line-height:1.1!important;
+  color:#6F4A24!important;
+  -webkit-text-fill-color:#6F4A24!important;
+  background:transparent!important;
+  font-size:12px!important;
+  font-weight:600!important;
+  text-indent:0!important;
+  letter-spacing:.02em;
+}
+#commentaryContent .gomna-reader-lang-bridge-host--commentary .gomna-lang-bridge-btn.is-active{
+  background:rgba(200,152,73,.22)!important;
+  color:#6F4A24!important;
+  -webkit-text-fill-color:#6F4A24!important;
+}
+#commentaryContent .gomna-reader-lang-bridge-host--commentary .gomna-lang-bridge-swap{
+  color:#8A6234!important;
+  -webkit-text-fill-color:#8A6234!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  line-height:1!important;
+}
+#commentaryContent .gomna-reader-lang-bridge-host--commentary .gomna-lang-bridge-globe{
+  opacity:1!important;
+  font-size:14px!important;
+  line-height:1!important;
+  /* Keep emoji’s native teal; do not force brown fill on the glyph */
+  color:unset!important;
+  -webkit-text-fill-color:unset!important;
+}
+#commentaryContent .gomna-reader-lang-bridge-host--commentary font,
+#commentaryContent .gomna-reader-lang-bridge-host--commentary .gomna-lang-bridge-btn font{
+  color:inherit!important;
+  -webkit-text-fill-color:inherit!important;
+  background:transparent!important;
+  font-size:inherit!important;
+  line-height:inherit!important;
+  margin:0!important;
+  vertical-align:middle!important;
+}
+@media (max-width:360px){
+  #commentaryContent .gomna-reader-lang-bridge-host--commentary .gomna-lang-bridge-btn{min-width:36px;padding:3px 3px!important;font-size:12px!important}
+  #commentaryContent .gomna-reader-lang-bridge-host--commentary .gomna-lang-bridge-globe{min-width:34px}
 }
 
 #commentaryTitle.commentary-compact-title{
@@ -779,10 +917,42 @@ html.gomna-home-commentary-loading body{overflow:hidden}
 .commentary-verse-ref{background:#c89849;padding:10px 16px;border-radius:12px;margin-bottom:10px;color:#fff;display:flex;align-items:center;gap:8px;box-sizing:border-box}
 .commentary-verse-ref.commentary-verse-ref-bottom{margin-top:18px;margin-bottom:0}
 .commentary-multi-status{text-align:center;font-size:12px;font-weight:600;color:#9c6b12;margin:-4px 0 10px}
-.commentary-nav-arrow{width:44px;height:44px;padding:0;border:none;background:transparent;color:#fff;font-size:27px;font-weight:700;cursor:pointer;border-radius:8px;font-family:inherit;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;transition:background 0.15s;-webkit-tap-highlight-color:transparent}
+.commentary-nav-arrow{width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:none;background:transparent;color:#fff;font-size:22px;font-weight:700;cursor:pointer;border-radius:8px;font-family:inherit;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;transition:background 0.15s,color 0.15s,opacity 0.15s;-webkit-tap-highlight-color:transparent}
 .commentary-nav-arrow:hover:not(:disabled){background:rgba(255,255,255,0.12)}
 .commentary-nav-arrow:active:not(:disabled){background:rgba(255,255,255,0.2)}
-.commentary-nav-arrow:disabled{opacity:0.4;pointer-events:none;cursor:not-allowed}
+.commentary-nav-arrow:disabled{opacity:0.45;pointer-events:none;cursor:not-allowed}
+/* Override audio-player.css 16px/42px arrow shrink — keep center pick size unchanged */
+#commentaryPopup #commentaryContent .commentary-nav-arrow{
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  min-height:44px!important;
+  font-size:22px!important;
+  font-weight:700!important;
+  color:#6F4A24!important;
+  -webkit-text-fill-color:#6F4A24!important;
+  line-height:1!important;
+  flex:0 0 44px!important;
+  opacity:1!important;
+}
+#commentaryPopup #commentaryContent .commentary-nav-arrow:hover:not(:disabled),
+#commentaryPopup #commentaryContent .commentary-nav-arrow:focus:not(:disabled){
+  color:#3d2818!important;
+  -webkit-text-fill-color:#3d2818!important;
+  background:rgba(239,225,202,0.56)!important;
+}
+#commentaryPopup #commentaryContent .commentary-nav-arrow:active:not(:disabled){
+  color:#2a1a12!important;
+  -webkit-text-fill-color:#2a1a12!important;
+  background:rgba(239,225,202,0.78)!important;
+}
+#commentaryPopup #commentaryContent .commentary-nav-arrow:disabled{
+  color:rgba(111,74,36,0.42)!important;
+  -webkit-text-fill-color:rgba(111,74,36,0.42)!important;
+  opacity:1!important;
+  pointer-events:none!important;
+  cursor:not-allowed!important;
+}
 .commentary-nav-pick{flex:1;min-width:0;border:none;background:transparent;color:#fff;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;border-radius:8px;padding:8px 10px;display:flex;align-items:center;justify-content:center;transition:background 0.15s;-webkit-tap-highlight-color:transparent}
 .commentary-nav-pick:hover{background:rgba(255,255,255,0.15)}
 .commentary-nav-pick:active{background:rgba(255,255,255,0.25)}
@@ -1981,7 +2151,106 @@ html.reader-hide-chrome #favView.active #favResultsArea{
 </script>
 <link rel="manifest" href="manifest.json?v=20260704-pwa-cache-fix">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
-<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260714-word-caption-contrast">
+<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260724-expand-overlay-fix">
+<style id="gomna-commentary-unified-scroll-css">
+/* After audio CSS: one native scroll for header→verse-nav; footer stays fixed.
+ * pinch-zoom + pan-x restore browser zoom/pan; do not use pan-y alone.
+ * Header pull uses real spacer height in document flow — no transform drag. */
+body.gomna-commentary-popup-open #commentaryPopup #commentaryScrollArea.gomna-commentary-scroll-area{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow-x:hidden!important; /* layout only — page zoom pan is viewport-level */
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  overscroll-behavior-y:contain!important;
+  touch-action:pan-x pan-y pinch-zoom!important;
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  box-sizing:border-box!important;
+  overflow-anchor:none;
+}
+body.gomna-commentary-popup-open #commentaryPopup #commentaryHeaderPullSpacer{
+  display:block!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  height:0;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  pointer-events:none!important;
+  overflow-anchor:none!important;
+  transition:none!important;
+}
+body.gomna-commentary-popup-open #commentaryPopup #commentaryScrollArea > #popupDragHeader,
+body.gomna-commentary-popup-open #commentaryPopup #commentaryScrollArea > .popup-drag-header,
+body.gomna-commentary-popup-open #commentaryPopup #commentaryScrollArea .popup-drag-header,
+body.gomna-commentary-popup-open #commentaryPopup #popupDragHeader{
+  flex:0 0 auto!important;
+  position:relative!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  touch-action:pan-x pan-y pinch-zoom!important;
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  cursor:grab!important;
+  transform:none!important;
+}
+body.gomna-commentary-popup-open #commentaryPopup #commentaryMovableHeader{
+  position:relative!important;
+  transform:none!important;
+  background:inherit;
+  touch-action:pan-x pan-y pinch-zoom!important;
+}
+body.gomna-commentary-popup-open #commentaryPopup #commentaryScrollArea > #commentaryContent{
+  flex:0 0 auto!important;
+  min-height:auto!important;
+  max-height:none!important;
+  height:auto!important;
+  /* Both axes must be visible: mixed hidden+visible computes to overflow-y:auto (nested scroll). */
+  overflow:visible!important;
+  overflow-x:visible!important;
+  overflow-y:visible!important;
+  -webkit-overflow-scrolling:auto!important;
+  overscroll-behavior:auto!important;
+  touch-action:pan-x pan-y pinch-zoom!important;
+}
+body.gomna-commentary-popup-open #commentaryPopup #commentaryScrollArea .commentary-tabs,
+body.gomna-commentary-popup-open #commentaryPopup #commentaryScrollArea .commentary-pilot-tabs,
+body.gomna-commentary-popup-open #commentaryPopup #commentaryScrollArea .gomna-commentary-lang-toolbar{
+  position:relative!important;
+  top:auto!important;
+  touch-action:pan-x pan-y pinch-zoom!important;
+}
+body.gomna-commentary-popup-open #commentaryPopup #commentaryScrollArea .tab-content,
+body.gomna-commentary-popup-open #commentaryPopup #commentaryScrollArea .commentary-table,
+body.gomna-commentary-popup-open #commentaryPopup #commentaryScrollArea .commentary-table tbody,
+body.gomna-commentary-popup-open #commentaryPopup #commentaryScrollArea .content-box{
+  max-height:none!important;
+  overflow:visible!important;
+  overflow-y:visible!important;
+}
+body.gomna-commentary-popup-open #commentaryPopupBox > #gomnaCommentaryInlineControls,
+body.gomna-commentary-popup-open #commentaryPopupBox > .gomna-audio-commentary-controls-footer,
+body.gomna-commentary-popup-open #commentaryPopupBox > .gomna-commentary-legacy-close-wrap,
+body.gomna-commentary-popup-open #commentaryPopupBox > .gomna-commentary-inline-controls{
+  flex:0 0 auto!important;
+  flex-shrink:0!important;
+  position:relative!important;
+  z-index:6!important;
+  touch-action:manipulation!important;
+}
+</style>
 <style id="verse-ui-arrow-num-v1">
 /* 오디오 CSS보다 나중에 적용: 원형 제거·48px 2열 정렬·본문 첫 줄 기준선 맞춤 */
 .verse-top{
@@ -2328,16 +2597,23 @@ if ("serviceWorker" in navigator) {
 </div>
 <div class="popup-overlay" id="commentaryPopup">
   <div class="popup-box" id="commentaryPopupBox" style="text-align:left; position:relative; padding:0;">
+    <!--
+      Scroll shell is assembled at runtime (ensureCommentaryScrollShell):
+      #commentaryHeaderPullSpacer + header + #commentaryContent + footer-spacer
+      share one overflow-y container. Bottom audio/close stay after the scroll area.
+    -->
     <div class="popup-drag-header" id="popupDragHeader" style="cursor:move; padding:18px 20px; background:#8b5e2c; border-radius:20px 20px 0 0; display:flex; justify-content:space-between; align-items:center;">
-      <div class="gomna-commentary-lang-bridge-slot" style="width:auto;min-width:32px;flex:0 0 auto;"></div>
-      <div style="text-align:center; flex:1;">
+      <div class="gomna-commentary-header-side gomna-commentary-header-side--left" aria-hidden="true"></div>
+      <div class="gomna-commentary-header-title">
         <div class="popup-title" id="commentaryTitle" style="margin:0; color:#fff; font-size:18px; font-weight:bold;">📖 말씀풀이</div>
         <div style="color:rgba(255,255,255,.85); font-size:11px; margin-top:4px;">매튜헨리 및 심층 연구 포함</div>
       </div>
-      <button onclick="closeCommentary()" style="background:rgba(255,255,255,0.2); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:18px; flex-shrink:0;">✕</button>
+      <div class="gomna-commentary-header-actions notranslate" translate="no" aria-hidden="true">
+        <button type="button" class="gomna-commentary-header-close notranslate" translate="no" onclick="closeCommentary()" aria-label="닫기">✕</button>
+      </div>
     </div>
     <div id="commentaryContent" style="padding:20px;"></div>
-    <div style="padding:0 20px 20px;"><button class="popup-close" onclick="closeCommentary()" style="width:100%;">닫기</button></div>
+    <div class="gomna-commentary-legacy-close-wrap" style="padding:0 20px 20px;"><button class="popup-close" onclick="closeCommentary()" style="width:100%;">닫기</button></div>
   </div>
 </div>
 <script>
@@ -4919,6 +5195,154 @@ function updateCompactCommentaryHeader(bookName, chapter, verseNum) {
 }
 
 var _commentaryRenderKey = null;
+var _commentaryScrollShellObserver = null;
+var _commentaryScrollShellBusy = false;
+var _commentarySavedScrollTop = null;
+
+function shouldUseUnifiedCommentaryScroll() {
+  try {
+    if (typeof window.matchMedia === 'function') {
+      if (window.matchMedia('(max-width: 900px)').matches) return true;
+      if (window.matchMedia('(pointer: coarse)').matches) return true;
+    }
+  } catch (eMatch) { /* ignore */ }
+  /* Touch / iPhone fallback when matchMedia is unavailable. */
+  if (typeof gomnaShouldUseTouchGestureEngine === 'function') {
+    try { if (gomnaShouldUseTouchGestureEngine()) return true; } catch (eTouch) { /* ignore */ }
+  }
+  return false;
+}
+
+function updateCommentaryScrollSpacer() {
+  var box = document.getElementById('commentaryPopupBox');
+  var spacer = document.getElementById('commentaryScrollSpacer');
+  var clearance = 88;
+  var footers;
+  var i;
+  var h;
+  var cs;
+  if (!box || !spacer) return;
+  footers = box.querySelectorAll(
+    ':scope > #gomnaCommentaryInlineControls, :scope > .gomna-commentary-inline-controls, :scope > .gomna-audio-commentary-controls-footer, :scope > .gomna-commentary-legacy-close-wrap'
+  );
+  h = 0;
+  for (i = 0; i < footers.length; i++) {
+    cs = getComputedStyle(footers[i]);
+    if (cs.display === 'none' || cs.visibility === 'hidden' || footers[i].getAttribute('aria-hidden') === 'true') continue;
+    h += footers[i].offsetHeight || 0;
+  }
+  if (h < 56) h = 88;
+  clearance = h + 12;
+  box.style.setProperty('--gomna-commentary-footer-clearance', clearance + 'px');
+  spacer.style.height = 'calc(' + clearance + 'px + env(safe-area-inset-bottom, 0px))';
+}
+
+function ensureCommentaryScrollShell() {
+  var box = document.getElementById('commentaryPopupBox');
+  var header = document.getElementById('popupDragHeader');
+  var content = document.getElementById('commentaryContent');
+  var scroll;
+  var spacer;
+  var pullSpacer;
+  var child;
+  var next;
+  var footerLike;
+  var insertBeforeNode;
+  if (!box || !header || !content) return null;
+  if (!shouldUseUnifiedCommentaryScroll()) return document.getElementById('commentaryScrollArea');
+  if (_commentaryScrollShellBusy) return document.getElementById('commentaryScrollArea');
+
+  _commentaryScrollShellBusy = true;
+  try {
+    /* Prefer native overflow scroll over transform-based gesture pan. */
+    if (typeof window.__gomnaCommentaryGestureTeardown === 'function') {
+      try { window.__gomnaCommentaryGestureTeardown(); } catch (eTear) { /* ignore */ }
+    }
+
+    scroll = document.getElementById('commentaryScrollArea');
+    if (!scroll) {
+      scroll = document.createElement('div');
+      scroll.id = 'commentaryScrollArea';
+      scroll.className = 'gomna-commentary-scroll-area';
+      insertBeforeNode =
+        (header.parentNode === box && header) ||
+        (content.parentNode === box && content) ||
+        box.firstChild;
+      box.insertBefore(scroll, insertBeforeNode);
+    }
+
+    if (header.parentNode !== scroll) scroll.appendChild(header);
+    if (content.parentNode !== scroll) scroll.appendChild(content);
+
+    /* Real empty space above header — pull-down grows this height (no transform). */
+    pullSpacer = document.getElementById('commentaryHeaderPullSpacer');
+    if (!pullSpacer) {
+      pullSpacer = document.createElement('div');
+      pullSpacer.id = 'commentaryHeaderPullSpacer';
+      pullSpacer.className = 'gomna-commentary-header-pull-spacer';
+      pullSpacer.setAttribute('aria-hidden', 'true');
+    }
+    if (pullSpacer.parentNode !== scroll || header.previousElementSibling !== pullSpacer) {
+      scroll.insertBefore(pullSpacer, header);
+    }
+    if (!pullSpacer.style.height) pullSpacer.style.height = '0px';
+
+    spacer = document.getElementById('commentaryScrollSpacer');
+    if (!spacer) {
+      spacer = document.createElement('div');
+      spacer.id = 'commentaryScrollSpacer';
+      spacer.className = 'gomna-commentary-scroll-spacer';
+      spacer.setAttribute('aria-hidden', 'true');
+    }
+    if (spacer.parentNode !== scroll) scroll.appendChild(spacer);
+    else if (spacer.previousElementSibling !== content) scroll.appendChild(spacer);
+
+    /* Relocate any action footers that landed inside the scroll area. */
+    child = scroll.firstElementChild;
+    while (child) {
+      next = child.nextElementSibling;
+      footerLike =
+        child.id === 'gomnaCommentaryInlineControls' ||
+        (child.classList && (
+          child.classList.contains('gomna-audio-commentary-controls-footer') ||
+          child.classList.contains('gomna-commentary-inline-controls') ||
+          child.classList.contains('gomna-commentary-legacy-close-wrap')
+        ));
+      if (footerLike) box.insertBefore(child, scroll.nextSibling);
+      child = next;
+    }
+
+    /* Keep box-level footers after the scroll area (only move when needed). */
+    Array.prototype.slice.call(box.querySelectorAll(
+      ':scope > #gomnaCommentaryInlineControls, :scope > .gomna-commentary-inline-controls, :scope > .gomna-audio-commentary-controls-footer, :scope > .gomna-commentary-legacy-close-wrap'
+    )).forEach(function(el) {
+      var n = scroll.nextElementSibling;
+      var afterScroll = false;
+      while (n) {
+        if (n === el) { afterScroll = true; break; }
+        n = n.nextElementSibling;
+      }
+      if (!afterScroll) box.appendChild(el);
+    });
+
+    updateCommentaryScrollSpacer();
+    /*
+     * No MutationObserver re-assembly during playback — that reparented nodes
+     * and fought native scroll. Shell is built from showCommentary / footer insert.
+     */
+    if (_commentaryScrollShellObserver) {
+      try { _commentaryScrollShellObserver.disconnect(); } catch (eObs) { /* ignore */ }
+      _commentaryScrollShellObserver = null;
+    }
+  } finally {
+    _commentaryScrollShellBusy = false;
+  }
+
+  return scroll;
+}
+
+window.ensureCommentaryScrollShell = ensureCommentaryScrollShell;
+window.shouldUseUnifiedCommentaryScroll = shouldUseUnifiedCommentaryScroll;
 
 function getCommentaryRenderKey(verseNum) {
   var bookName = currentBook && currentBook.name ? currentBook.name : '';
@@ -5043,7 +5467,8 @@ function showCommentary(verseNum) {
   }
   
   if(hasPastorData && data) {
-    
+    content += '<div id="commentaryMovableHeader" class="gomna-commentary-movable-header">';
+    content += '<div class="gomna-commentary-lang-toolbar notranslate" id="gomnaCommentaryLangToolbar" translate="no" aria-label="Language"></div>';
     content += '<div class="commentary-tabs">';
     content += buildCommentaryTabButton('tab-원어분석', 'commentary.tab.original', currentCommentaryTab==='tab-원어분석');
     content += buildCommentaryTabButton('tab-역사적배경', 'commentary.tab.history', currentCommentaryTab==='tab-역사적배경');
@@ -5059,6 +5484,7 @@ function showCommentary(verseNum) {
         ? ' translate="no" lang="' + window.GomnaCommentaryI18n.getLang() + '" data-gomna-commentary-native-lock="1"'
         : '') +
       '>▶ ' + commentaryI18nT('commentary.audio.listenAll') + '</button>';
+    content += '</div>';
     content += '</div>';
     
     content += '<div class="tab-content active" id="tab-원어분석" data-gomna-commentary-type="original-language" style="display:block">' + buildCommentarySectionHead('📖', 'commentary.section.original') + '<table class="commentary-table" style="border-radius:0 0 8px 8px;"><tr>' + buildCommentaryTh('commentary.th.originalWord') + buildCommentaryTh('commentary.th.meaningGrammar') + buildCommentaryTh('commentary.th.sermonPoint') + '</tr>';
@@ -5101,6 +5527,9 @@ function showCommentary(verseNum) {
     var localeMsgKey = (resolvedCards && resolvedCards.reason === 'error')
       ? 'commentary.localeLoadError'
       : 'commentary.localeUnavailable';
+    content += '<div id="commentaryMovableHeader" class="gomna-commentary-movable-header">';
+    content += '<div class="gomna-commentary-lang-toolbar notranslate" id="gomnaCommentaryLangToolbar" translate="no" aria-label="Language"></div>';
+    content += '</div>';
     content += '<div class="empty-state"><div class="icon">📖</div><div class="msg"' +
       commentaryI18nLeafAttrs(localeMsgKey) + '>' + commentaryI18nT(localeMsgKey) + '</div></div>';
     content += bottomNav;
@@ -5131,6 +5560,23 @@ function showCommentary(verseNum) {
   }
   
   updateCompactCommentaryHeader(bookName, chapter, verseNum);
+  var prevRenderKey = _commentaryRenderKey;
+  var scrollAreaBefore = document.getElementById('commentaryScrollArea');
+  var restoreScroll = false;
+  var savedScrollTop = 0;
+  if (scrollAreaBefore && prevRenderKey) {
+    var prevParts = String(prevRenderKey).split('|');
+    var nextParts = String(renderKey).split('|');
+    /* Same verse+tab, language-only change → keep scroll position. */
+    if (
+      prevParts[2] === nextParts[2] &&
+      prevParts[3] === nextParts[3] &&
+      prevParts[5] !== nextParts[5]
+    ) {
+      restoreScroll = true;
+      savedScrollTop = scrollAreaBefore.scrollTop || 0;
+    }
+  }
   document.getElementById('commentaryContent').innerHTML = content;
   var commentaryCardRows = document.querySelectorAll('#commentaryContent .commentary-table tr:not(:first-child)');
   for(var cardRowIndex=0; cardRowIndex<commentaryCardRows.length; cardRowIndex++) {
@@ -5141,8 +5587,15 @@ function showCommentary(verseNum) {
   var commentaryPop = document.getElementById('commentaryPopup');
   var commentaryWasOpen = !!(commentaryPop && commentaryPop.classList.contains('show'));
   commentaryPop.classList.add('show');
+  /* Fresh open only — do not reset pull spacer on tab/verse/lang re-render. */
+  if (!commentaryWasOpen && typeof window.__gomnaResetCommentaryHeaderPullSpace === 'function') {
+    try { window.__gomnaResetCommentaryHeaderPullSpace(); } catch (eHeaderOpen) { /* ignore */ }
+  }
   if (window.GomnaCommentaryI18n) {
     window.GomnaCommentaryI18n.apply(commentaryPop);
+  }
+  if (window.GomnaReaderLangBridge && typeof window.GomnaReaderLangBridge.syncAllBridges === 'function') {
+    try { window.GomnaReaderLangBridge.syncAllBridges(); } catch (eBridgeSync) { /* ignore */ }
   }
   /* Class-only audio observer: re-sync buttons once when content replaced while already open */
   if (commentaryWasOpen) {
@@ -5158,6 +5611,7 @@ function showCommentary(verseNum) {
   // 현재 선택된 탭 유지
   setTimeout(function() {
     var targetTab = document.getElementById(currentCommentaryTab);
+    var scrollArea;
     if(targetTab) {
       var allContents = document.querySelectorAll('.tab-content');
       for(var i=0; i<allContents.length; i++) {
@@ -5167,10 +5621,25 @@ function showCommentary(verseNum) {
       targetTab.classList.add('active');
       targetTab.style.display = 'block';
     }
+    /* Build unified scroll after audio footers mount; prefer native scroll over transform pan. */
+    scrollArea = ensureCommentaryScrollShell();
     if (typeof window.__gomnaCommentaryGestureSync === 'function') {
       window.__gomnaCommentaryGestureSync();
     }
+    scrollArea = ensureCommentaryScrollShell() || scrollArea;
+    if (scrollArea) {
+      if (restoreScroll) scrollArea.scrollTop = savedScrollTop;
+      else scrollArea.scrollTop = 0;
+      updateCommentaryScrollSpacer();
+    }
+    if (typeof window.__gomnaRefreshCommentaryHeaderPullMetrics === 'function') {
+      try { window.__gomnaRefreshCommentaryHeaderPullMetrics(); } catch (ePullMetrics) { /* ignore */ }
+    }
   }, 10);
+  setTimeout(function() {
+    ensureCommentaryScrollShell();
+    updateCommentaryScrollSpacer();
+  }, 120);
 }
 
 var currentCommentaryTab = 'tab-원어분석';
@@ -5485,6 +5954,13 @@ function closeCommentary() {
     box.style.transform = '';
     box.style.left = '';
     box.style.top = '';
+    box.style.removeProperty('--commentary-popup-translate-y');
+  }
+  if (typeof window.__gomnaResetCommentaryHeaderPullSpace === 'function') {
+    try { window.__gomnaResetCommentaryHeaderPullSpace(); } catch (eResetPull) { /* ignore */ }
+  }
+  if (window.GOMNA_COMMENTARY_AUTO_CENTER && typeof window.GOMNA_COMMENTARY_AUTO_CENTER.cancelAll === 'function') {
+    try { window.GOMNA_COMMENTARY_AUTO_CENTER.cancelAll(); } catch (eAutoCancel) { /* ignore */ }
   }
 }
 
@@ -5504,9 +5980,18 @@ function showAllTabs() {
   if(allBtn) allBtn.classList.add('active');
 }
 
-// 드래그 기능 (말씀풀이 + 절 범위 모달, 최소 50px 화면 내 유지)
+// 드래그 기능 (말씀풀이 + 절 범위 모달)
+// - 데스크톱/레거시: left/top 드래그
+// - 아이폰: spacer 높이 1:1 당김 (rAF 1회/프레임, touchmove 중 layout 재측정 없음)
 (function() {
   var dragState = null;
+  var headerDrag = null;
+  var pullRafId = 0;
+  var pullDragGen = 0;
+  var HEADER_THRESHOLD_PX = 4;
+  var FOOTER_GAP_PX = 16;
+  var suppressHeaderClickOnce = false;
+  var pullMetrics = { maxSpace: 0, safeBottom: 0, ready: false };
 
   function clampBox(box, left, top) {
     var w = box.offsetWidth;
@@ -5519,6 +6004,174 @@ function showAllTabs() {
     top = Math.max(minT, Math.min(maxT, top));
     return { left: left, top: top };
   }
+
+  function usesMobileCommentaryHeaderDrag() {
+    if (!document.getElementById('commentaryScrollArea')) return false;
+    if (!document.body.classList.contains('gomna-commentary-popup-open')) return false;
+    if (typeof shouldUseUnifiedCommentaryScroll === 'function') {
+      try { if (!shouldUseUnifiedCommentaryScroll()) return false; } catch (eUse) { return false; }
+    }
+    return true;
+  }
+
+  function getScrollHost() {
+    return document.getElementById('commentaryScrollArea');
+  }
+
+  function getPullSpacer() {
+    return document.getElementById('commentaryHeaderPullSpacer');
+  }
+
+  function isCommentaryHeaderDragTarget(target) {
+    var titleHeader = document.getElementById('popupDragHeader');
+    var movable = document.getElementById('commentaryMovableHeader');
+    if (!target) return false;
+    if (titleHeader && titleHeader.contains(target)) return true;
+    if (movable && movable.contains(target)) return true;
+    return false;
+  }
+
+  function getHeaderPullSpace() {
+    var spacer = getPullSpacer();
+    var n = 0;
+    if (!spacer) return 0;
+    n = parseFloat(spacer.style.height);
+    if (isNaN(n)) n = 0;
+    return n < 0 ? 0 : n;
+  }
+
+  function readSafeAreaBottom() {
+    var probe = document.createElement('div');
+    var h = 0;
+    probe.setAttribute('aria-hidden', 'true');
+    probe.style.cssText = 'position:fixed;left:0;bottom:0;width:0;height:env(safe-area-inset-bottom,0px);pointer-events:none;visibility:hidden;';
+    document.body.appendChild(probe);
+    h = probe.offsetHeight || 0;
+    document.body.removeChild(probe);
+    return h;
+  }
+
+  /* Layout reads only here — open / touchstart / resize. Never during touchmove. */
+  function refreshPullMetrics() {
+    var host = getScrollHost();
+    var footer =
+      document.getElementById('gomnaCommentaryInlineControls') ||
+      document.querySelector('#commentaryPopupBox > .gomna-audio-commentary-controls-footer') ||
+      document.querySelector('#commentaryPopupBox > .gomna-commentary-legacy-close-wrap');
+    var tip =
+      document.getElementById('commentaryMovableHeader') ||
+      document.getElementById('popupDragHeader');
+    var current;
+    var footerTop;
+    var tipBottom;
+    var gap;
+    var room;
+    var byHost;
+    if (!host || !tip) {
+      pullMetrics.maxSpace = 0;
+      pullMetrics.ready = false;
+      return pullMetrics;
+    }
+    current = getHeaderPullSpace();
+    pullMetrics.safeBottom = readSafeAreaBottom();
+    footerTop = footer ? footer.getBoundingClientRect().top : (window.innerHeight - 72);
+    tipBottom = tip.getBoundingClientRect().bottom + (host.scrollTop || 0);
+    gap = FOOTER_GAP_PX + pullMetrics.safeBottom;
+    room = Math.floor(footerTop - gap - tipBottom + current);
+    byHost = Math.floor((host.clientHeight || window.innerHeight) * 0.92);
+    pullMetrics.maxSpace = Math.max(0, Math.min(room, byHost));
+    pullMetrics.ready = true;
+    return pullMetrics;
+  }
+
+  function formatPullHeight(px) {
+    var n = Math.max(0, px || 0);
+    /* Keep subpixels; trim float noise without 1px snapping. */
+    return Math.round(n * 100) / 100;
+  }
+
+  /* Very light resistance only in the last ~20–28px — stay near 1:1, no heavy drag. */
+  function softClampPullSpace(raw, maxSpace) {
+    var edge;
+    var softStart;
+    var over;
+    var gained;
+    var ease;
+    if (!isFinite(raw) || raw <= 0) return 0;
+    if (!isFinite(maxSpace) || maxSpace <= 0) return 0;
+    if (raw >= maxSpace) return maxSpace;
+    edge = Math.min(28, Math.max(20, maxSpace * 0.08));
+    softStart = maxSpace - edge;
+    if (raw <= softStart) return raw;
+    over = raw - softStart;
+    ease = Math.max(0, 1 - over / edge);
+    gained = over * (0.9 + 0.1 * ease);
+    return Math.min(maxSpace, softStart + gained);
+  }
+
+  function writePullSpacerHeight(px) {
+    var spacer = getPullSpacer();
+    var next;
+    var prev;
+    if (!spacer) return 0;
+    next = formatPullHeight(px);
+    prev = parseFloat(spacer.style.height);
+    if (!isNaN(prev) && Math.abs(prev - next) < 0.1) return prev;
+    spacer.style.transition = 'none';
+    spacer.style.height = next + 'px';
+    return next;
+  }
+
+  function notifyHeaderPullInteraction(phase) {
+    var api = window.GOMNA_COMMENTARY_AUTO_CENTER;
+    if (!api) return;
+    try {
+      if (phase === 'start' && typeof api.onHeaderPullStart === 'function') api.onHeaderPullStart();
+      else if (phase === 'end' && typeof api.onHeaderPullEnd === 'function') api.onHeaderPullEnd();
+      else if (typeof api.noteUserInteraction === 'function') api.noteUserInteraction('header-pull');
+    } catch (ePullNote) { /* ignore */ }
+  }
+
+  function cancelPullRaf() {
+    if (pullRafId) {
+      cancelAnimationFrame(pullRafId);
+      pullRafId = 0;
+    }
+  }
+
+  function schedulePullFrame() {
+    var gen;
+    if (!headerDrag || !headerDrag.active) return;
+    if (pullRafId) return;
+    gen = headerDrag.gen;
+    pullRafId = requestAnimationFrame(function() {
+      var dy;
+      var next;
+      var maxSpace;
+      pullRafId = 0;
+      if (!headerDrag || !headerDrag.active || headerDrag.gen !== gen) return;
+      dy = headerDrag.lastY - headerDrag.startY;
+      maxSpace = headerDrag.maxSpace;
+      next = softClampPullSpace(headerDrag.originSpace + dy, maxSpace);
+      if (Math.abs(next - headerDrag.appliedSpace) < 0.1) return;
+      headerDrag.appliedSpace = next;
+      writePullSpacerHeight(next);
+    });
+  }
+
+  function resetHeaderPullSpace() {
+    cancelPullRaf();
+    pullDragGen += 1;
+    headerDrag = null;
+    suppressHeaderClickOnce = false;
+    writePullSpacerHeight(0);
+  }
+
+  window.__gomnaResetCommentaryHeaderPullSpace = resetHeaderPullSpace;
+  window.__gomnaRefreshCommentaryHeaderPullMetrics = refreshPullMetrics;
+  /* Back-compat aliases from prior transform experiments */
+  window.__gomnaResetCommentaryHeaderTranslateY = resetHeaderPullSpace;
+  window.__gomnaResetCommentaryPopupSheetY = resetHeaderPullSpace;
 
   function startDrag(boxId, clientX, clientY, ev) {
     var box = document.getElementById(boxId);
@@ -5551,11 +6204,108 @@ function showAllTabs() {
     if (ev) ev.preventDefault();
   }
 
+  function beginHeaderDragCandidate(clientX, clientY) {
+    var host = getScrollHost();
+    var spacer = getPullSpacer();
+    var metrics;
+    if (!host || !spacer) return;
+    cancelPullRaf();
+    metrics = refreshPullMetrics();
+    spacer.style.transition = 'none';
+    pullDragGen += 1;
+    headerDrag = {
+      gen: pullDragGen,
+      startX: clientX,
+      startY: clientY,
+      lastY: clientY,
+      originSpace: getHeaderPullSpace(),
+      appliedSpace: getHeaderPullSpace(),
+      maxSpace: metrics.maxSpace || 0,
+      startScrollTop: host.scrollTop || 0,
+      decided: false,
+      active: false
+    };
+  }
+
+  function moveHeaderDragCandidate(clientX, clientY, ev) {
+    var dx;
+    var dy;
+    if (!headerDrag) return;
+    if (!getPullSpacer()) {
+      cancelPullRaf();
+      headerDrag = null;
+      return;
+    }
+    headerDrag.lastY = clientY;
+    dx = clientX - headerDrag.startX;
+    dy = clientY - headerDrag.startY;
+
+    if (!headerDrag.decided) {
+      if (Math.abs(dx) < HEADER_THRESHOLD_PX && Math.abs(dy) < HEADER_THRESHOLD_PX) return;
+      headerDrag.decided = true;
+      if (Math.abs(dy) <= Math.abs(dx)) {
+        cancelPullRaf();
+        headerDrag = null;
+        return;
+      }
+      /* At rest: only pull down when already at top of scroll. */
+      if (headerDrag.originSpace <= 0) {
+        if ((headerDrag.startScrollTop || 0) > 1 || dy <= 0) {
+          cancelPullRaf();
+          headerDrag = null;
+          return;
+        }
+      }
+      headerDrag.active = true;
+      suppressHeaderClickOnce = true;
+      notifyHeaderPullInteraction('start');
+    }
+
+    if (!headerDrag.active) return;
+    if (ev && ev.cancelable) ev.preventDefault();
+    schedulePullFrame();
+  }
+
+  function endHeaderDragCandidate() {
+    var wasActive = !!(headerDrag && headerDrag.active);
+    cancelPullRaf();
+    if (headerDrag && headerDrag.active) {
+      /* Flush final finger position once — no layout remeasure. */
+      var dy = headerDrag.lastY - headerDrag.startY;
+      var next = softClampPullSpace(headerDrag.originSpace + dy, headerDrag.maxSpace);
+      writePullSpacerHeight(next);
+    }
+    pullDragGen += 1;
+    headerDrag = null;
+    if (wasActive) notifyHeaderPullInteraction('end');
+  }
+
+  function abortHeaderDragForPinch() {
+    var wasActive = !!(headerDrag && headerDrag.active);
+    cancelPullRaf();
+    pullDragGen += 1;
+    headerDrag = null;
+    if (wasActive) notifyHeaderPullInteraction('end');
+    notifyHeaderPullInteraction('pinch');
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!suppressHeaderClickOnce) return;
+    if (!isCommentaryHeaderDragTarget(e.target)) {
+      suppressHeaderClickOnce = false;
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    suppressHeaderClickOnce = false;
+  }, true);
+
   document.addEventListener('mousedown', function(e) {
     var hComment = document.getElementById('popupDragHeader');
     var hRange = document.getElementById('verseRangeDragHeader');
     if (hComment && hComment.contains(e.target) && e.target.tagName !== 'BUTTON') {
       if (window.__gomnaCommentaryGestureIsActive && window.__gomnaCommentaryGestureIsActive()) return;
+      if (usesMobileCommentaryHeaderDrag()) return;
       startDrag('commentaryPopupBox', e.clientX, e.clientY, e);
     } else if (hRange && hRange.contains(e.target) && e.target.tagName !== 'BUTTON') {
       startDrag('verseRangeModalBox', e.clientX, e.clientY, e);
@@ -5571,33 +6321,69 @@ function showAllTabs() {
   });
 
   document.addEventListener('touchstart', function(e) {
-    if (e.touches.length >= 2) return;
-    var hComment = document.getElementById('popupDragHeader');
     var hRange = document.getElementById('verseRangeDragHeader');
     var t = e.touches[0];
     if (!t) return;
-    if (hComment && hComment.contains(e.target) && e.target.tagName !== 'BUTTON') {
+
+    if (e.touches.length >= 2) {
+      abortHeaderDragForPinch();
+      dragState = null;
+      return;
+    }
+
+    if (usesMobileCommentaryHeaderDrag() && isCommentaryHeaderDragTarget(e.target)) {
+      if (window.__gomnaCommentaryGestureIsActive && window.__gomnaCommentaryGestureIsActive()) return;
+      beginHeaderDragCandidate(t.clientX, t.clientY);
+      return;
+    }
+
+    if (
+      document.getElementById('popupDragHeader') &&
+      document.getElementById('popupDragHeader').contains(e.target) &&
+      e.target.tagName !== 'BUTTON'
+    ) {
       if (window.__gomnaCommentaryGestureIsActive && window.__gomnaCommentaryGestureIsActive()) return;
       startDrag('commentaryPopupBox', t.clientX, t.clientY);
     } else if (hRange && hRange.contains(e.target) && e.target.tagName !== 'BUTTON') {
       startDrag('verseRangeModalBox', t.clientX, t.clientY);
     }
-  });
+  }, { passive: true });
 
   document.addEventListener('touchmove', function(e) {
-    if (!dragState) return;
+    var t;
     if (e.touches.length >= 2) {
+      abortHeaderDragForPinch();
       dragState = null;
       return;
     }
-    var t = e.touches[0];
+    t = e.touches[0];
     if (!t) return;
+
+    if (headerDrag) {
+      moveHeaderDragCandidate(t.clientX, t.clientY, e);
+      return;
+    }
+    if (!dragState) return;
     moveDrag(t.clientX, t.clientY, e);
   }, { passive: false });
 
   document.addEventListener('touchend', function() {
     dragState = null;
+    endHeaderDragCandidate();
   });
+  document.addEventListener('touchcancel', function() {
+    dragState = null;
+    endHeaderDragCandidate();
+  });
+
+  window.addEventListener('resize', function() {
+    if (!document.getElementById('commentaryScrollArea')) return;
+    refreshPullMetrics();
+  }, { passive: true });
+  window.addEventListener('orientationchange', function() {
+    if (!document.getElementById('commentaryScrollArea')) return;
+    refreshPullMetrics();
+  }, { passive: true });
 })();
 
 
@@ -7977,6 +8763,11 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     document.body.classList.remove('commentary-gesture-engine-active');
   }
   function cgSync() {
+    /* Unified #commentaryScrollArea uses native overflow scroll (header→verse nav). */
+    if (document.getElementById('commentaryScrollArea')) {
+      cgTeardown();
+      return;
+    }
     if (typeof gomnaShouldUseTouchGestureEngine === 'function' && !gomnaShouldUseTouchGestureEngine()) {
       cgTeardown();
       return;
@@ -7992,6 +8783,18 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     }, 40);
   }
   function cgOnTabChange() {
+    var scrollArea = document.getElementById('commentaryScrollArea');
+    var tabs;
+    if (scrollArea) {
+      cgTeardown();
+      tabs = scrollArea.querySelector('.commentary-tabs');
+      if (tabs && typeof tabs.scrollIntoView === 'function') {
+        try { tabs.scrollIntoView({ block: 'start', behavior: 'auto' }); } catch (eTabScroll) {
+          scrollArea.scrollTop = Math.max(0, tabs.offsetTop - 8);
+        }
+      }
+      return;
+    }
     if (!commentaryGestureActive) {
       cgSync();
       return;
@@ -9786,9 +10589,9 @@ function changeFont(delta) {
 <script src="/js/audio-config.js?v=20260604-1830" defer></script>
 <script src="/js/audio-engine.js?v=20260604-1830" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
-<script src="/js/gomna-audio-commentary-buttons.js?v=20260723-verse-bind-v4" defer></script>
-<script src="/js/gomna-audio-highlight.js?v=20260604-1830" defer></script>
-<script src="/js/gomna-audio-ui.js?v=20260714-word-caption-contrast" defer></script>
+<script src="/js/gomna-audio-commentary-buttons.js?v=20260724-gesture-restore-v1" defer></script>
+<script src="/js/gomna-audio-highlight.js?v=20260724-auto-center-v1" defer></script>
+<script src="/js/gomna-audio-ui.js?v=20260724-expand-overlay-fix" defer></script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)
@@ -9953,8 +10756,8 @@ function loadAds() {
   // 7월 AdSense 승인 후 광고 스크립트는 여기에만 삽입
 }
 </script>
-<script src="/js/gomna-reader-lang-bridge.js?v=20260722-lang-bridge-inline-v3" defer></script>
-<script src="translate_feature.js?v=20260723-scroll-ko-parity-v7" defer></script>
+<script src="/js/gomna-reader-lang-bridge.js?v=20260724-commentary-lang-thin-v4" defer></script>
+<script src="translate_feature.js?v=20260724-reader-trigger-guard-v1" defer></script>
 <!-- 은혜의말씀 오디오 미니 플레이어 (평소 hidden, 듣기 클릭 시 등장) -->
 <div id="gomna-audio-mini-player" class="gomna-audio-mini-player" hidden>
   <div class="gomna-audio-mini-info">
@@ -9994,7 +10797,8 @@ function loadAds() {
       1.0x
     </button>
 
-    <button class="gomna-audio-btn-expand"
+    <button type="button"
+            class="gomna-audio-btn-expand"
             data-audio-action="expand"
             aria-label="확장 플레이어 열기">
       ⇱
@@ -10610,6 +11414,6 @@ function loadAds() {
   saveVisitDay();
 })();
 </script>
-<script src="/js/gomna-card-highlight-test.js?v=20260723-verse-bind-v4"></script>
+<script src="/js/gomna-card-highlight-test.js?v=20260724-auto-center-v1"></script>
 </body>
 </html>

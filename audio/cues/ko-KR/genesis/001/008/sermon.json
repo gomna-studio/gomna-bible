@@ -1,0 +1,51 @@
+{
+  "audioId": "genesis.001.008.sermon",
+  "duration": 65.568,
+  "measuredDuration": 65.568,
+  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/008/sermon-strong.mp3",
+  "finalMp3Duration": 65.568,
+  "segments": [
+    {
+      "type": "intro",
+      "itemIndex": -1,
+      "start": 0,
+      "end": 12.600583
+    },
+    {
+      "type": "item",
+      "itemIndex": 0,
+      "start": 12.600583,
+      "end": 20.41225
+    },
+    {
+      "type": "item",
+      "itemIndex": 1,
+      "start": 20.41225,
+      "end": 28.090875
+    },
+    {
+      "type": "item",
+      "itemIndex": 2,
+      "start": 28.090875,
+      "end": 35.673792
+    },
+    {
+      "type": "item",
+      "itemIndex": 3,
+      "start": 35.673792,
+      "end": 47.296333
+    },
+    {
+      "type": "item",
+      "itemIndex": 4,
+      "start": 47.296333,
+      "end": 58.156708
+    },
+    {
+      "type": "item",
+      "itemIndex": 5,
+      "start": 58.156708,
+      "end": 65.568
+    }
+  ]
+}

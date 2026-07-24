@@ -3,8 +3,8 @@
   "locale": "en-US",
   "bookId": "genesis",
   "sourceStore": "pastorCommentaryData",
-  "scope": "genesis-1-1-to-1-3",
-  "note": "Screen-ready structured commentary card bodies. Not wired to reader.html yet.",
+  "scope": "genesis-1-1-to-1-10",
+  "note": "Screen-ready structured commentary card bodies for Genesis 1:1-1:10.",
   "fieldPolicy": {
     "nonMatthewHenry": "Same Korean field keys as pastorCommentaryData; values localized.",
     "matthewHenry": [
@@ -661,6 +661,1525 @@
         {
           "구절": "Rev 22:5",
           "연결점": "Eternal light.",
+          "구분": "NT"
+        }
+      ]
+    },
+    "창세기_1_4": {
+      "reference": "Genesis 1:4",
+      "sourceReference": "창세기 1:4",
+      "verseText": "And God saw the light, that it was good: and God divided the light from the darkness.",
+      "표1_원어분석": [
+        {
+          "원어": "טוֹב (tov)",
+          "의미_문법": "good / adjective",
+          "설교포인트": "In this verse, it shows that God is the one who determines what is good."
+        },
+        {
+          "원어": "בָּדַל (badal)",
+          "의미_문법": "to divide, to separate / verb",
+          "설교포인트": "Here, it describes God's separation of light from darkness."
+        },
+        {
+          "원어": "אוֹר (or)",
+          "의미_문법": "light / noun",
+          "설교포인트": "In Scripture, light can symbolize revelation and life."
+        },
+        {
+          "원어": "חֹשֶׁךְ (choshek)",
+          "의미_문법": "darkness / noun",
+          "설교포인트": "Depending on the context, darkness can symbolize sin or disorder."
+        },
+        {
+          "원어": "אֱלֹהִים (elohim)",
+          "의미_문법": "God / noun",
+          "설교포인트": "Here, it refers to the Creator who judges what is good and establishes order."
+        }
+      ],
+      "표2_역사적배경": [
+        {
+          "항목": "Light–dark dualism",
+          "내용": "Distinguished from Zoroastrian and similar dualisms.",
+          "목회적활용": "Good and evil are not equal powers."
+        },
+        {
+          "항목": "Levitical holiness law",
+          "내용": "Clean and unclean distinctions.",
+          "목회적활용": "Emphasize a set-apart life."
+        },
+        {
+          "항목": "Structure of the creation account",
+          "내용": "The verb badal (to separate) is repeated.",
+          "목회적활용": "Teach ordered living."
+        }
+      ],
+      "표3_신학적의미": [
+        {
+          "교리": "The goodness of God",
+          "설명": "The declaration of Tov is repeated.",
+          "관련구절": "Ps 34:8"
+        },
+        {
+          "교리": "Holiness",
+          "설명": "An act of separation.",
+          "관련구절": "1 Pet 1:16"
+        },
+        {
+          "교리": "The foundation of ethics",
+          "설명": "The moral standard is the Creator.",
+          "관련구절": "Mic 6:8"
+        }
+      ],
+      "표4_예표론": [
+        {
+          "구분": "OT type",
+          "내용": "Light in the land of Goshen at the Exodus.",
+          "그리스도연결": "The redeemed community."
+        },
+        {
+          "구분": "NT fulfillment",
+          "내용": "The light of the fruit of the Spirit.",
+          "그리스도연결": "Eph 5:9"
+        },
+        {
+          "구분": "Christology",
+          "내용": "Christ separates light from darkness.",
+          "그리스도연결": "John 3:19-21"
+        }
+      ],
+      "표5_매튜헨리": [
+        {
+          "English Original": "God approves what He produces.",
+          "English Explanation": "God approves what He Himself has made.",
+          "Key Insight": "Creation inspected and affirmed."
+        },
+        {
+          "English Original": "Distinction is the first act of providence.",
+          "English Explanation": "Separation is providence’s first action.",
+          "Key Insight": "Order."
+        },
+        {
+          "English Original": "Light and darkness cannot mingle.",
+          "English Explanation": "Light and darkness cannot be mixed.",
+          "Key Insight": "The identity of the saints."
+        }
+      ],
+      "표6_설교자료": [
+        {
+          "대지": "Title",
+          "내용": "“It was good!” — A life evaluated by God",
+          "예화_적용": "A quality-inspection PASS sticker"
+        },
+        {
+          "대지": "Introduction",
+          "내용": "Society’s appraisal versus God’s appraisal",
+          "예화_적용": "Social-media likes"
+        },
+        {
+          "대지": "Point 1: The meaning of the Tov declaration",
+          "내용": "God’s evaluation—He saw what He had made and called it good.",
+          "예화_적용": "A graduation acceptance notice"
+        },
+        {
+          "대지": "Point 2: The God who divides light from darkness",
+          "내용": "The grace of distinction—holy separation of light and darkness.",
+          "예화_적용": "A chef preparing ingredients"
+        },
+        {
+          "대지": "Point 3: The set-apart life of the saints",
+          "내용": "Holy living—walking as children of light, distinct from the world.",
+          "예화_적용": "Salt and light metaphor"
+        },
+        {
+          "대지": "Conclusion",
+          "내용": "“And God saw that it was good” as life’s goal",
+          "예화_적용": "Receiving a top award"
+        }
+      ],
+      "표7_찬송가": [
+        {
+          "새찬송가": "288",
+          "통일찬송가": "204",
+          "제목": "Blessed Assurance",
+          "선정이유": "Thanksgiving for His goodness"
+        },
+        {
+          "새찬송가": "410",
+          "통일찬송가": "468",
+          "제목": "Onward, Christian Soldiers",
+          "선정이유": "A set-apart life"
+        },
+        {
+          "새찬송가": "171",
+          "통일찬송가": "New",
+          "제목": "God’s Only Begotten Son",
+          "선정이유": "The Tov declaration"
+        },
+        {
+          "새찬송가": "49",
+          "통일찬송가": "70",
+          "제목": "Heralds of Light",
+          "선정이유": "Mission of light"
+        }
+      ],
+      "표8_상담적용": [
+        {
+          "상황": "Ethical dilemma",
+          "성경원리": "God is the standard of good and evil.",
+          "실제적용": "Discern by Scripture and prayer."
+        },
+        {
+          "상황": "Identity confusion",
+          "성경원리": "Light and darkness are distinguished.",
+          "실제적용": "Counseling for self-identity."
+        },
+        {
+          "상황": "Perfectionism stress",
+          "성경원리": "God’s evaluation comes first.",
+          "실제적용": "Recover identity in grace."
+        }
+      ],
+      "표9_교차참조": [
+        {
+          "구절": "Gen 1:31",
+          "연결점": "It was very good.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Isa 5:20",
+          "연결점": "Woe to those who call evil good.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Ps 97:11",
+          "연결점": "Light for the righteous.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Prov 4:18-19",
+          "연결점": "The light of the righteous vs. the darkness of the wicked.",
+          "구분": "OT"
+        },
+        {
+          "구절": "John 3:19-21",
+          "연결점": "Those who hate the light.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Eph 5:8-10",
+          "연결점": "The fruit of light.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Phil 2:15",
+          "연결점": "Lights in the world.",
+          "구분": "NT"
+        },
+        {
+          "구절": "1 John 1:5-6",
+          "연결점": "In God there is no darkness.",
+          "구분": "NT"
+        }
+      ]
+    },
+    "창세기_1_5": {
+      "reference": "Genesis 1:5",
+      "sourceReference": "창세기 1:5",
+      "verseText": "And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day.",
+      "표1_원어분석": [
+        {
+          "원어": "קָרָא (qara)",
+          "의미_문법": "to call, name / verb",
+          "설교포인트": "Authority to name."
+        },
+        {
+          "원어": "יוֹם (yom)",
+          "의미_문법": "day / noun",
+          "설교포인트": "Time for activity and life."
+        },
+        {
+          "원어": "לַיְלָה (laylah)",
+          "의미_문법": "night / noun",
+          "설교포인트": "Rest and trust."
+        },
+        {
+          "원어": "עֶרֶב (erev)",
+          "의미_문법": "evening / noun",
+          "설교포인트": "The Jewish day begins here."
+        },
+        {
+          "원어": "בֹּקֶר (boqer)",
+          "의미_문법": "morning / noun",
+          "설교포인트": "A hopeful new beginning."
+        }
+      ],
+      "표2_역사적배경": [
+        {
+          "항목": "Hebrew calendar",
+          "내용": "The day begins at sunset.",
+          "목회적활용": "Explain the concept of Sabbath rest."
+        },
+        {
+          "항목": "Naming customs",
+          "내용": "A name expresses essence and authority.",
+          "목회적활용": "Calling and identity."
+        },
+        {
+          "항목": "Structure of the first day",
+          "내용": "The evening–morning rhythm is repeated.",
+          "목회적활용": "Rhythmic spirituality."
+        }
+      ],
+      "표3_신학적의미": [
+        {
+          "교리": "Doctrine of time",
+          "설명": "Time itself is part of creation.",
+          "관련구절": "Eccl 3:1"
+        },
+        {
+          "교리": "Doctrine of Sabbath",
+          "설명": "Evening comes first in the order.",
+          "관련구절": "Lev 23:32"
+        },
+        {
+          "교리": "Doctrine of providence",
+          "설명": "Night and day alike are under His rule.",
+          "관련구절": "Ps 139:11-12"
+        }
+      ],
+      "표4_예표론": [
+        {
+          "구분": "OT type",
+          "내용": "From Passover night to daylight Exodus.",
+          "그리스도연결": "A pattern of salvation."
+        },
+        {
+          "구분": "NT fulfillment",
+          "내용": "From the night of the cross to the dawn of resurrection.",
+          "그리스도연결": "Light beyond death."
+        },
+        {
+          "구분": "Christology",
+          "내용": "Christ the Lord of days.",
+          "그리스도연결": "Rev 1:8"
+        }
+      ],
+      "표5_매튜헨리": [
+        {
+          "English Original": "He that formed time governs it.",
+          "English Explanation": "The One who made time governs time.",
+          "Key Insight": "Sovereignty over time."
+        },
+        {
+          "English Original": "Evening first reminds us of rest before labor.",
+          "English Explanation": "That evening comes first reminds us of rest before labor.",
+          "Key Insight": "Sabbath rest."
+        },
+        {
+          "English Original": "Names fix the order God intends.",
+          "English Explanation": "Names fix the order God has intended.",
+          "Key Insight": "Authority to name."
+        }
+      ],
+      "표6_설교자료": [
+        {
+          "대지": "Title",
+          "내용": "A day that begins at evening",
+          "예화_적용": "Setting a clock at sunset"
+        },
+        {
+          "대지": "Introduction",
+          "내용": "The busy-morning syndrome",
+          "예화_적용": "The morning commute rush"
+        },
+        {
+          "대지": "Point 1: Rest comes first",
+          "내용": "Ministry follows after rest.",
+          "예화_적용": "Charge, then go"
+        },
+        {
+          "대지": "Point 2: Naming day and night",
+          "내용": "An expression of authority—naming is a declaration of sovereignty.",
+          "예화_적용": "Choosing a child’s name"
+        },
+        {
+          "대지": "Point 3: Set time apart as holy",
+          "내용": "Stewardship of time—set each day apart for holy use.",
+          "예화_적용": "A Sabbath planner"
+        },
+        {
+          "대지": "Conclusion",
+          "내용": "Twenty-four hours walked with the Lord",
+          "예화_적용": "24-hour GPS tracking"
+        }
+      ],
+      "표7_찬송가": [
+        {
+          "새찬송가": "460",
+          "통일찬송가": "515",
+          "제목": "Through It All",
+          "선정이유": "Companionship through every hour"
+        },
+        {
+          "새찬송가": "325",
+          "통일찬송가": "359",
+          "제목": "Jesus Is with Me",
+          "선정이유": "Protection by night and day"
+        },
+        {
+          "새찬송가": "430",
+          "통일찬송가": "456",
+          "제목": "Away in a Manger",
+          "선정이유": "Rhythm of sanctification"
+        },
+        {
+          "새찬송가": "492",
+          "통일찬송가": "544",
+          "제목": "In the Garden",
+          "선정이유": "Dawn fellowship"
+        }
+      ],
+      "표8_상담적용": [
+        {
+          "상황": "Burned-out believers",
+          "성경원리": "Rest comes first.",
+          "실제적용": "Establish Sabbath rhythms."
+        },
+        {
+          "상황": "Failed time management",
+          "성경원리": "God is Lord of time.",
+          "실제적용": "Design a daily routine."
+        },
+        {
+          "상황": "Suffering from insomnia",
+          "성경원리": "The night also belongs to the Lord.",
+          "실제적용": "Evening prayer and calm breathing."
+        }
+      ],
+      "표9_교차참조": [
+        {
+          "구절": "Ps 90:12",
+          "연결점": "Teach us to number our days.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Eccl 3:1-8",
+          "연결점": "A time for every matter.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Ps 127:2",
+          "연결점": "He gives sleep to His beloved.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Dan 2:21",
+          "연결점": "He changes times and seasons.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Mark 1:35",
+          "연결점": "Early morning prayer.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Eph 5:16",
+          "연결점": "Redeem the time.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Heb 4:9-11",
+          "연결점": "A Sabbath rest remains.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Rev 22:5",
+          "연결점": "There will be no night there.",
+          "구분": "NT"
+        }
+      ]
+    },
+    "창세기_1_6": {
+      "reference": "Genesis 1:6",
+      "sourceReference": "창세기 1:6",
+      "verseText": "And God said, Let there be a firmament in the midst of the waters, and let it divide the waters from the waters.",
+      "표1_원어분석": [
+        {
+          "원어": "רָקִיעַ (raqia)",
+          "의미_문법": "firmament, expanse / noun",
+          "설교포인트": "A space of order."
+        },
+        {
+          "원어": "בְּתוֹךְ (betokh)",
+          "의미_문법": "in the midst / preposition",
+          "설교포인트": "Mediation and center."
+        },
+        {
+          "원어": "מַיִם (mayim)",
+          "의미_문법": "waters / noun",
+          "설교포인트": "An element of chaos."
+        },
+        {
+          "원어": "הִבָּדֵל (hibadel)",
+          "의미_문법": "be divided / piel imperative",
+          "설교포인트": "A command to separate."
+        },
+        {
+          "원어": "יְהִי (yehi)",
+          "의미_문법": "let there be / jussive",
+          "설교포인트": "A creative declaration."
+        }
+      ],
+      "표2_역사적배경": [
+        {
+          "항목": "Ancient dome cosmology",
+          "내용": "The firmament as a sky-dome.",
+          "목회적활용": "Understand the culture, then emphasize the truth."
+        },
+        {
+          "항목": "Contrast with Babylonian myth",
+          "내용": "The firmament formed from Tiamat’s corpse.",
+          "목회적활용": "Order by the Word, not by violence."
+        },
+        {
+          "항목": "Waters as chaos",
+          "내용": "The deep (tehom).",
+          "목회적활용": "Preach overcoming fear."
+        }
+      ],
+      "표3_신학적의미": [
+        {
+          "교리": "Theology of order",
+          "설명": "Creation is an act of separation and distinction.",
+          "관련구절": "1 Cor 14:33"
+        },
+        {
+          "교리": "Doctrine of providence",
+          "설명": "Rule over the chaos.",
+          "관련구절": "Ps 29:10"
+        },
+        {
+          "교리": "Doctrine of heaven",
+          "설명": "The meaning of creating the heavens.",
+          "관련구절": "Isa 66:1"
+        }
+      ],
+      "표4_예표론": [
+        {
+          "구분": "OT type",
+          "내용": "The parting of the Red Sea.",
+          "그리스도연결": "A type of baptism."
+        },
+        {
+          "구분": "NT fulfillment",
+          "내용": "The heavens opened at Jesus’ baptism.",
+          "그리스도연결": "Matt 3:16"
+        },
+        {
+          "구분": "Christology",
+          "내용": "The Mediator connecting heaven and earth.",
+          "그리스도연결": "John 1:51"
+        }
+      ],
+      "표5_매튜헨리": [
+        {
+          "English Original": "From chaos He raises a canopy of order.",
+          "English Explanation": "Out of chaos He raised a canopy of order.",
+          "Key Insight": "Creation of order."
+        },
+        {
+          "English Original": "He divides that He might unite rightly.",
+          "English Explanation": "He divides first so that He may unite rightly.",
+          "Key Insight": "The purpose of separation."
+        },
+        {
+          "English Original": "The firmament preaches His majesty.",
+          "English Explanation": "The firmament proclaims His majesty.",
+          "Key Insight": "Natural revelation."
+        }
+      ],
+      "표6_설교자료": [
+        {
+          "대지": "Title",
+          "내용": "The firmament: a promise between heaven and earth",
+          "예화_적용": "Building a bridge"
+        },
+        {
+          "대지": "Introduction",
+          "내용": "Cases of worldly confusion",
+          "예화_적용": "A news clip"
+        },
+        {
+          "대지": "Point 1: God",
+          "내용": "He draws the boundary lines.",
+          "예화_적용": "A safety fence"
+        },
+        {
+          "대지": "Point 2: The firmament",
+          "내용": "A dome of protection.",
+          "예화_적용": "A greenhouse canopy"
+        },
+        {
+          "대지": "Point 3: Separation, then connection",
+          "내용": "The principle of mediation.",
+          "예화_적용": "Insulate wires, then connect them"
+        },
+        {
+          "대지": "Conclusion",
+          "내용": "True safety in Christ",
+          "예화_적용": "Rescue from a shipwreck"
+        }
+      ],
+      "표7_찬송가": [
+        {
+          "새찬송가": "40",
+          "통일찬송가": "43",
+          "제목": "How Great Thou Art",
+          "선정이유": "The order of nature"
+        },
+        {
+          "새찬송가": "79",
+          "통일찬송가": "40",
+          "제목": "How Great Thou Art",
+          "선정이유": "Praise of the firmament"
+        },
+        {
+          "새찬송가": "363",
+          "통일찬송가": "479",
+          "제목": "It Is Well with My Soul",
+          "선정이유": "Peace in the storm"
+        },
+        {
+          "새찬송가": "438",
+          "통일찬송가": "495",
+          "제목": "O God, Our Help in Ages Past",
+          "선정이유": "Safety through mediation"
+        }
+      ],
+      "표8_상담적용": [
+        {
+          "상황": "A chaotic household",
+          "성경원리": "Set boundaries.",
+          "실제적용": "Write household rules."
+        },
+        {
+          "상황": "Anxiety disorder",
+          "성경원리": "Recognize the firmament as protection.",
+          "실제적용": "Meditate on the Psalms."
+        },
+        {
+          "상황": "Vague identity",
+          "성경원리": "Separate, then integrate.",
+          "실제적용": "Identity coaching."
+        }
+      ],
+      "표9_교차참조": [
+        {
+          "구절": "Exod 14:21",
+          "연결점": "Waters divided.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Ps 104:2-3",
+          "연결점": "Heaven stretched like a tent.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Prov 8:27-29",
+          "연결점": "Boundaries of sky and sea.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Job 37:18",
+          "연결점": "The firmament like a cast mirror.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Matt 3:16",
+          "연결점": "The heavens opened.",
+          "구분": "NT"
+        },
+        {
+          "구절": "1 Cor 10:1-2",
+          "연결점": "Baptized in the sea.",
+          "구분": "NT"
+        },
+        {
+          "구절": "2 Pet 3:5",
+          "연결점": "The heavens formed out of water.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Rev 21:1",
+          "연결점": "No more sea.",
+          "구분": "NT"
+        }
+      ]
+    },
+    "창세기_1_7": {
+      "reference": "Genesis 1:7",
+      "sourceReference": "창세기 1:7",
+      "verseText": "And God made the firmament, and divided the waters which were under the firmament from the waters which were above the firmament: and it was so.",
+      "표1_원어분석": [
+        {
+          "원어": "עָשָׂה (asah)",
+          "의미_문법": "to make / verb",
+          "설교포인트": "Detailed craftsmanship."
+        },
+        {
+          "원어": "רָקִיעַ (raqia)",
+          "의미_문법": "firmament / noun",
+          "설교포인트": "The dome of order continues."
+        },
+        {
+          "원어": "תַּחַת (tahat)",
+          "의미_문법": "under / preposition",
+          "설교포인트": "A structure of authority."
+        },
+        {
+          "원어": "מַיִם (mayim)",
+          "의미_문법": "waters / noun",
+          "설교포인트": "Waters above and below are divided."
+        },
+        {
+          "원어": "מַעַל (ma‘al)",
+          "의미_문법": "above / preposition",
+          "설교포인트": "Theology of the heights."
+        }
+      ],
+      "표2_역사적배경": [
+        {
+          "항목": "Understanding of climate",
+          "내용": "The idea of heavenly water-channels.",
+          "목회적활용": "Rain as blessing."
+        },
+        {
+          "항목": "Agrarian society",
+          "내용": "Dependence on rainy and dry seasons.",
+          "목회적활용": "Pray for the opening of the heavens."
+        },
+        {
+          "항목": "Background mythology",
+          "내용": "Baal as a rain-god.",
+          "목회적활용": "Contrast with Yahweh, the true Provider."
+        }
+      ],
+      "표3_신학적의미": [
+        {
+          "교리": "God the Provider",
+          "설명": "The waters above as the source of rain.",
+          "관련구절": "Deut 11:13-15"
+        },
+        {
+          "교리": "Distinction and order",
+          "설명": "The act of separation is repeated.",
+          "관련구절": "Isa 45:12"
+        },
+        {
+          "교리": "Preservation of creation",
+          "설명": "Ongoing preservation (providence).",
+          "관련구절": "Col 1:17"
+        }
+      ],
+      "표4_예표론": [
+        {
+          "구분": "OT type",
+          "내용": "Closing the windows in Noah’s flood.",
+          "그리스도연결": "Final judgment."
+        },
+        {
+          "구분": "NT fulfillment",
+          "내용": "Heaven opened at the Spirit’s coming.",
+          "그리스도연결": "Acts 2:2"
+        },
+        {
+          "구분": "Christology",
+          "내용": "Christ who gives living water.",
+          "그리스도연결": "John 7:37-39"
+        }
+      ],
+      "표5_매튜헨리": [
+        {
+          "English Original": "The same hand that lifts waters holds them.",
+          "English Explanation": "The hand that lifted the waters also holds them.",
+          "Key Insight": "Preservation."
+        },
+        {
+          "English Original": "Every drop waits His nod.",
+          "English Explanation": "Every drop waits for His nod.",
+          "Key Insight": "Providence."
+        },
+        {
+          "English Original": "Separation serves preservation.",
+          "English Explanation": "Separation serves preservation.",
+          "Key Insight": "The purpose of order."
+        }
+      ],
+      "표6_설교자료": [
+        {
+          "대지": "Title",
+          "내용": "Waters above and below: the mystery of provision",
+          "예화_적용": "A sprinkler system"
+        },
+        {
+          "대지": "Introduction",
+          "내용": "A farmer’s prayer",
+          "예화_적용": "Drought news"
+        },
+        {
+          "대지": "Point 1: Divided waters",
+          "내용": "Grace prepared in advance.",
+          "예화_적용": "A reservoir"
+        },
+        {
+          "대지": "Point 2: The God who sustains the firmament",
+          "내용": "The God who upholds—not only creates but preserves by providence.",
+          "예화_적용": "Managing a city dam"
+        },
+        {
+          "대지": "Point 3: Christ who fills with living water",
+          "내용": "The water of life—Christ gives water so that we never thirst again.",
+          "예화_적용": "A water filter"
+        },
+        {
+          "대지": "Conclusion",
+          "내용": "A life that is no longer thirsty",
+          "예화_적용": "An oasis"
+        }
+      ],
+      "표7_찬송가": [
+        {
+          "새찬송가": "305",
+          "통일찬송가": "405",
+          "제목": "Amazing Grace",
+          "선정이유": "Rain of grace"
+        },
+        {
+          "새찬송가": "183",
+          "통일찬송가": "172",
+          "제목": "Like a Dry Grass in Empty Fields",
+          "선정이유": "Gentle rain of the Spirit"
+        },
+        {
+          "새찬송가": "316",
+          "통일찬송가": "New",
+          "제목": "Lord, My Life",
+          "선정이유": "Preserving love"
+        },
+        {
+          "새찬송가": "170",
+          "통일찬송가": "16",
+          "제목": "Holy Bible, Book Divine",
+          "선정이유": "Thanksgiving for provision"
+        }
+      ],
+      "표8_상담적용": [
+        {
+          "상황": "Economic anxiety",
+          "성경원리": "Trust the supply from heaven.",
+          "실제적용": "Practice tithing."
+        },
+        {
+          "상황": "Environmental worry",
+          "성경원리": "Preserving providence.",
+          "실제적용": "Practice care for creation."
+        },
+        {
+          "상황": "No relational boundaries",
+          "성경원리": "Healthy separation.",
+          "실제적용": "A boundaries workshop."
+        }
+      ],
+      "표9_교차참조": [
+        {
+          "구절": "Deut 28:12",
+          "연결점": "The storehouse of heaven opened.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Job 38:37",
+          "연결점": "Who can tip the water jars of heaven?",
+          "구분": "OT"
+        },
+        {
+          "구절": "Isa 55:10-11",
+          "연결점": "Rain and snow as a figure.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Zech 10:1",
+          "연결점": "Ask for the spring rain.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Jas 5:18",
+          "연결점": "Elijah and the rain.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Acts 14:17",
+          "연결점": "He did good by giving rain.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Rev 11:6",
+          "연결점": "Authority to shut the sky.",
+          "구분": "NT"
+        },
+        {
+          "구절": "John 7:38",
+          "연결점": "Rivers of living water.",
+          "구분": "NT"
+        }
+      ]
+    },
+    "창세기_1_8": {
+      "reference": "Genesis 1:8",
+      "sourceReference": "창세기 1:8",
+      "verseText": "And God called the firmament Heaven. And the evening and the morning were the second day.",
+      "표1_원어분석": [
+        {
+          "원어": "קָרָא (qara)",
+          "의미_문법": "to call, name / verb",
+          "설교포인트": "Sovereignty in naming."
+        },
+        {
+          "원어": "שָׁמַיִם (shamayim)",
+          "의미_문법": "heaven / plural noun",
+          "설교포인트": "Height and transcendence."
+        },
+        {
+          "원어": "עֶרֶב (erev)",
+          "의미_문법": "evening / noun",
+          "설교포인트": "The beginning of rest."
+        },
+        {
+          "원어": "בֹּקֶר (boqer)",
+          "의미_문법": "morning / noun",
+          "설교포인트": "A new opportunity."
+        },
+        {
+          "원어": "יוֹם שֵׁנִי (yom sheni)",
+          "의미_문법": "the second day / compound",
+          "설교포인트": "Process matters."
+        }
+      ],
+      "표2_역사적배경": [
+        {
+          "항목": "Ancient royal naming",
+          "내용": "A name marks dominion.",
+          "목회적활용": "The kingship of God."
+        },
+        {
+          "항목": "Concept of heaven",
+          "내용": "Spiritual space and climate.",
+          "목회적활용": "Transcendence and presence."
+        },
+        {
+          "항목": "Creation cycle",
+          "내용": "The 6+1 pattern.",
+          "목회적활용": "Rhythmic spirituality."
+        }
+      ],
+      "표3_신학적의미": [
+        {
+          "교리": "Theology of kingship",
+          "설명": "Rule expressed by naming.",
+          "관련구절": "Isa 40:26"
+        },
+        {
+          "교리": "Theology of process",
+          "설명": "No “good” on day two—patience with the unfinished.",
+          "관련구절": "Phil 1:6"
+        },
+        {
+          "교리": "Heavenly citizenship",
+          "설명": "Hope of the shamayim.",
+          "관련구절": "Phil 3:20"
+        }
+      ],
+      "표4_예표론": [
+        {
+          "구분": "OT type",
+          "내용": "Jacob’s ladder connecting to heaven.",
+          "그리스도연결": "An image of mediation."
+        },
+        {
+          "구분": "NT fulfillment",
+          "내용": "Ascension and seating in heaven.",
+          "그리스도연결": "Acts 1:9"
+        },
+        {
+          "구분": "Christology",
+          "내용": "He holds the true keys of heaven.",
+          "그리스도연결": "Matt 16:19"
+        }
+      ],
+      "표5_매튜헨리": [
+        {
+          "English Original": "He names the vault above to elevate our thoughts.",
+          "English Explanation": "He names the vault overhead to lift our thoughts upward.",
+          "Key Insight": "Focus for worship."
+        },
+        {
+          "English Original": "No day is wasted in God's calendar.",
+          "English Explanation": "No day is wasted in God’s calendar.",
+          "Key Insight": "The value of process."
+        },
+        {
+          "English Original": "Even in silence He works.",
+          "English Explanation": "Even in silence He is at work.",
+          "Key Insight": "Hidden history."
+        }
+      ],
+      "표6_설교자료": [
+        {
+          "대지": "Title",
+          "내용": "He called it Heaven: a declaration of transcendence",
+          "예화_적용": "A space telescope"
+        },
+        {
+          "대지": "Introduction",
+          "내용": "Lift your eyes and look to the sky.",
+          "예화_적용": "City skyscrapers"
+        },
+        {
+          "대지": "Point 1: Heaven",
+          "내용": "Hope given by a name.",
+          "예화_적용": "A new nationality on a passport"
+        },
+        {
+          "대지": "Point 2: Silence and waiting on day two",
+          "내용": "Meaning of process—God’s work continues even without a “good” declaration.",
+          "예화_적용": "A construction site"
+        },
+        {
+          "대지": "Point 3: Life as citizens of heaven",
+          "내용": "Heavenly citizenship—living on earth yet belonging to heaven.",
+          "예화_적용": "Embassy protection"
+        },
+        {
+          "대지": "Conclusion",
+          "내용": "Live from heaven’s viewpoint.",
+          "예화_적용": "A drone’s-eye view"
+        }
+      ],
+      "표7_찬송가": [
+        {
+          "새찬송가": "492",
+          "통일찬송가": "544",
+          "제목": "In the Garden",
+          "선정이유": "Dawn fellowship"
+        },
+        {
+          "새찬송가": "173",
+          "통일찬송가": "New",
+          "제목": "Called and Sent",
+          "선정이유": "Heavenly calling"
+        },
+        {
+          "새찬송가": "410",
+          "통일찬송가": "468",
+          "제목": "Onward, Christian Soldiers",
+          "선정이유": "March toward heaven"
+        },
+        {
+          "새찬송가": "200",
+          "통일찬송가": "235",
+          "제목": "How Sweet the Name of Jesus Sounds",
+          "선정이유": "Encouragement of hope"
+        }
+      ],
+      "표8_상담적용": [
+        {
+          "상황": "Anxiety over the unfinished",
+          "성경원리": "Trust day two.",
+          "실제적용": "Pray thanksgiving for the process."
+        },
+        {
+          "상황": "Loss of hope",
+          "성경원리": "Heavenly citizenship.",
+          "실제적용": "Coach an eternal horizon."
+        },
+        {
+          "상황": "Conflict over authority",
+          "성경원리": "The naming King.",
+          "실제적용": "Submit to God’s sovereignty."
+        }
+      ],
+      "표9_교차참조": [
+        {
+          "구절": "Isa 55:9",
+          "연결점": "As the heavens are higher.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Ps 19:1",
+          "연결점": "The firmament proclaims.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Gen 28:12",
+          "연결점": "The ladder dream.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Dan 7:13-14",
+          "연결점": "The Son of Man and heavenly authority.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Acts 1:11",
+          "연결점": "He will come again.",
+          "구분": "NT"
+        },
+        {
+          "구절": "1 Cor 15:49",
+          "연결점": "The image of the heavenly.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Heb 12:22",
+          "연결점": "The heavenly Jerusalem.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Rev 21:1-2",
+          "연결점": "A new heaven.",
+          "구분": "NT"
+        }
+      ]
+    },
+    "창세기_1_9": {
+      "reference": "Genesis 1:9",
+      "sourceReference": "창세기 1:9",
+      "verseText": "And God said, Let the waters under the heaven be gathered together unto one place, and let the dry land appear: and it was so.",
+      "표1_원어분석": [
+        {
+          "원어": "יִקָּווּ (yiqqavu)",
+          "의미_문법": "be gathered / niphal imperative",
+          "설교포인트": "Providence that gathers."
+        },
+        {
+          "원어": "מַיִם (mayim)",
+          "의미_문법": "waters / noun",
+          "설교포인트": "From chaos to order."
+        },
+        {
+          "원어": "נִרְאֶה (nir’eh)",
+          "의미_문법": "appear / niphal jussive",
+          "설교포인트": "Hidden potential revealed."
+        },
+        {
+          "원어": "יַבָּשָׁה (yabbashah)",
+          "의미_문법": "dry land / noun",
+          "설교포인트": "A stable foundation."
+        },
+        {
+          "원어": "מָקוֹם אֶחָד (maqom ehad)",
+          "의미_문법": "one place / phrase",
+          "설교포인트": "The principle of concentration."
+        }
+      ],
+      "표2_역사적배경": [
+        {
+          "항목": "Ancient fear of the sea",
+          "내용": "The sea as a chaos power.",
+          "목회적활용": "Overcome fear."
+        },
+        {
+          "항목": "Settled agriculture",
+          "내용": "The need for dry land.",
+          "목회적활용": "Blessing of stability."
+        },
+        {
+          "항목": "Contrast with Noah",
+          "내용": "Waters gathered after the flood.",
+          "목회적활용": "A pattern of re-creation."
+        }
+      ],
+      "표3_신학적의미": [
+        {
+          "교리": "Order of creation",
+          "설명": "Boundaries are set.",
+          "관련구절": "Job 38:8-11"
+        },
+        {
+          "교리": "Priority of grace",
+          "설명": "Dry land appears as the stage for life.",
+          "관련구절": "Isa 45:12"
+        },
+        {
+          "교리": "Redemption and re-creation",
+          "설명": "Parallel with Noah and the Exodus.",
+          "관련구절": "1 Pet 3:20-21"
+        }
+      ],
+      "표4_예표론": [
+        {
+          "구분": "OT type",
+          "내용": "Crossing dry land through the parted Red Sea.",
+          "그리스도연결": "Baptism and salvation."
+        },
+        {
+          "구분": "NT fulfillment",
+          "내용": "Promise of a new earth.",
+          "그리스도연결": "Rev 21:1"
+        },
+        {
+          "구분": "Christology",
+          "내용": "A house built on the rock.",
+          "그리스도연결": "Matt 7:24-25"
+        }
+      ],
+      "표5_매튜헨리": [
+        {
+          "English Original": "He sets bounds to waves and gives room for man.",
+          "English Explanation": "He sets bounds to the waves and gives room for humankind.",
+          "Key Insight": "Protecting grace."
+        },
+        {
+          "English Original": "Dry land is mercy solidified.",
+          "English Explanation": "Dry land is mercy made solid.",
+          "Key Insight": "Grace given form."
+        },
+        {
+          "English Original": "The sea obeys its Maker.",
+          "English Explanation": "The sea obeys its Maker.",
+          "Key Insight": "Sovereignty."
+        }
+      ],
+      "표6_설교자료": [
+        {
+          "대지": "Title",
+          "내용": "Hidden land, revealed grace",
+          "예화_적용": "A pearl inside a shell"
+        },
+        {
+          "대지": "Introduction",
+          "내용": "Waves of problems rolling in",
+          "예화_적용": "Wave footage"
+        },
+        {
+          "대지": "Point 1: Be gathered",
+          "내용": "The God who controls.",
+          "예화_적용": "Clearing a drainage line"
+        },
+        {
+          "대지": "Point 2: Appear",
+          "내용": "Opening possibility.",
+          "예화_적용": "Marble for a sculpture"
+        },
+        {
+          "대지": "Point 3: Dry land",
+          "내용": "Stand as a field of calling.",
+          "예화_적용": "Settling after migration"
+        },
+        {
+          "대지": "Conclusion",
+          "내용": "Trust His rule; discover a new ground",
+          "예화_적용": "Launching a startup"
+        }
+      ],
+      "표7_찬송가": [
+        {
+          "새찬송가": "331",
+          "통일찬송가": "375",
+          "제목": "Crown Him with Many Crowns",
+          "선정이유": "Praise of sovereignty"
+        },
+        {
+          "새찬송가": "412",
+          "통일찬송가": "469",
+          "제목": "Be Still, My Soul",
+          "선정이유": "Peace like dry land"
+        },
+        {
+          "새찬송가": "382",
+          "통일찬송가": "432",
+          "제목": "It Is Well with My Soul",
+          "선정이유": "Calming the waves"
+        },
+        {
+          "새찬송가": "543",
+          "통일찬송가": "342",
+          "제목": "By Faith",
+          "선정이유": "Trust the hidden land"
+        }
+      ],
+      "표8_상담적용": [
+        {
+          "상황": "Fear of an uncertain future",
+          "성경원리": "Confidence that dry land will appear.",
+          "실제적용": "Map future prayers."
+        },
+        {
+          "상황": "Household financial risk",
+          "성경원리": "Concentration and boundaries.",
+          "실제적용": "Restructure the budget."
+        },
+        {
+          "상황": "Career decision",
+          "성경원리": "Guidance to a new ground.",
+          "실제적용": "Aptitude testing and mentors."
+        }
+      ],
+      "표9_교차참조": [
+        {
+          "구절": "Ps 104:9",
+          "연결점": "He set a boundary.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Prov 8:29",
+          "연결점": "Limits of the sea.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Nah 1:4",
+          "연결점": "He dries up the sea.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Isa 43:2",
+          "연결점": "When you pass through the waters.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Mark 4:39",
+          "연결점": "The storm is stilled.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Rev 21:1",
+          "연결점": "No more sea.",
+          "구분": "NT"
+        },
+        {
+          "구절": "1 Pet 3:20-21",
+          "연결점": "Saved through water.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Heb 11:29",
+          "연결점": "Crossing the Red Sea on dry land.",
+          "구분": "NT"
+        }
+      ]
+    },
+    "창세기_1_10": {
+      "reference": "Genesis 1:10",
+      "sourceReference": "창세기 1:10",
+      "verseText": "And God called the dry land Earth; and the gathering together of the waters called he Seas: and God saw that it was good.",
+      "표1_원어분석": [
+        {
+          "원어": "אֶרֶץ (erets)",
+          "의미_문법": "earth, land / noun",
+          "설교포인트": "The stage of life."
+        },
+        {
+          "원어": "יָם (yam)",
+          "의미_문법": "sea / noun",
+          "설교포인트": "Not an object of ultimate fear."
+        },
+        {
+          "원어": "קָרָא (qara)",
+          "의미_문법": "to call, name / verb",
+          "설교포인트": "Authority to name."
+        },
+        {
+          "원어": "טוֹב (tov)",
+          "의미_문법": "good / adjective",
+          "설교포인트": "Goodness confirmed."
+        },
+        {
+          "원어": "מִקְוֵה (miqweh)",
+          "의미_문법": "gathering / noun",
+          "설교포인트": "A concept of community."
+        }
+      ],
+      "표2_역사적배경": [
+        {
+          "항목": "Land–sea concepts",
+          "내용": "Agrarian versus maritime cultures.",
+          "목회적활용": "Diversity of callings."
+        },
+        {
+          "항목": "Baal–Yam mythology",
+          "내용": "Stories of Yam (sea-god) defeated.",
+          "목회적활용": "Contrast with Yahweh’s rule."
+        },
+        {
+          "항목": "Land inheritance",
+          "내용": "Promise of the land of Canaan.",
+          "목회적활용": "Trust the fulfillment of promise."
+        }
+      ],
+      "표3_신학적의미": [
+        {
+          "교리": "Goodness of creation",
+          "설명": "The Tov declaration is repeated.",
+          "관련구절": "Ps 33:5"
+        },
+        {
+          "교리": "Rule by naming",
+          "설명": "Names given to erets and yam.",
+          "관련구절": "Ps 29:10"
+        },
+        {
+          "교리": "Stewardship",
+          "설명": "Managers entrusted with the land.",
+          "관련구절": "Gen 2:15"
+        }
+      ],
+      "표4_예표론": [
+        {
+          "구분": "OT type",
+          "내용": "Inheritance of the promised land.",
+          "그리스도연결": "Heb 4:8-9"
+        },
+        {
+          "구분": "NT fulfillment",
+          "내용": "New heaven and new earth.",
+          "그리스도연결": "Rev 21:1"
+        },
+        {
+          "구분": "Christology",
+          "내용": "The Lord who stills the sea.",
+          "그리스도연결": "Mark 4:39"
+        }
+      ],
+      "표5_매튜헨리": [
+        {
+          "English Original": "Naming fixes usefulness.",
+          "English Explanation": "Naming fixes usefulness.",
+          "Key Insight": "Identity and role."
+        },
+        {
+          "English Original": "Sea's roar bows to His word.",
+          "English Explanation": "Even the sea’s roar bows to His word.",
+          "Key Insight": "Authority."
+        },
+        {
+          "English Original": "Goodness crowns the boundaries.",
+          "English Explanation": "Goodness crowns the boundaries.",
+          "Key Insight": "Blessing in boundaries."
+        }
+      ],
+      "표6_설교자료": [
+        {
+          "대지": "Title",
+          "내용": "Land and sea: goodness at the boundary",
+          "예화_적용": "Drawing a map"
+        },
+        {
+          "대지": "Introduction",
+          "내용": "An age of collapsed boundaries",
+          "예화_적용": "Social-media dopamine"
+        },
+        {
+          "대지": "Point 1: Land given a name",
+          "내용": "Receive a calling.",
+          "예화_적용": "Announcing a company vision"
+        },
+        {
+          "대지": "Point 2: The sea’s place",
+          "내용": "Not an object of terror.",
+          "예화_적용": "Taking up surfing"
+        },
+        {
+          "대지": "Point 3: The God who declares goodness",
+          "내용": "The Tov declaration—He calls it good by His own standard.",
+          "예화_적용": "A quality certificate"
+        },
+        {
+          "대지": "Conclusion",
+          "내용": "How to live as stewards",
+          "예화_적용": "An eco-friendly lifestyle"
+        }
+      ],
+      "표7_찬송가": [
+        {
+          "새찬송가": "579",
+          "통일찬송가": "304",
+          "제목": "Jesus Calls Us",
+          "선정이유": "Calling by the sea"
+        },
+        {
+          "새찬송가": "43",
+          "통일찬송가": "47",
+          "제목": "Thank You, Lord",
+          "선정이유": "Thanksgiving for goodness"
+        },
+        {
+          "새찬송가": "304",
+          "통일찬송가": "404",
+          "제목": "The Love of God",
+          "선정이유": "Sea as a figure"
+        },
+        {
+          "새찬송가": "455",
+          "통일찬송가": "507",
+          "제목": "Stand Up for Jesus",
+          "선정이유": "Steward’s mission"
+        }
+      ],
+      "표8_상담적용": [
+        {
+          "상황": "Low self-worth",
+          "성경원리": "Value given by naming.",
+          "실제적용": "Practice positive declaration."
+        },
+        {
+          "상황": "Boundary addiction (workaholism)",
+          "성경원리": "Boundaries are good.",
+          "실제적용": "Plan Sabbath rest."
+        },
+        {
+          "상황": "Environmental responsibility",
+          "성경원리": "Stewardship.",
+          "실제적용": "A carbon-reduction challenge."
+        }
+      ],
+      "표9_교차참조": [
+        {
+          "구절": "Ps 95:5",
+          "연결점": "The sea and dry land are His.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Job 38:10-11",
+          "연결점": "The sea’s threshold.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Isa 40:22",
+          "연결점": "The circle of the earth.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Gen 13:17",
+          "연결점": "Walk through the land.",
+          "구분": "OT"
+        },
+        {
+          "구절": "Mark 4:39",
+          "연결점": "The sea is stilled.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Rom 8:19-22",
+          "연결점": "Creation groans.",
+          "구분": "NT"
+        },
+        {
+          "구절": "2 Pet 3:13",
+          "연결점": "Promise of a new earth.",
+          "구분": "NT"
+        },
+        {
+          "구절": "Rev 22:3",
+          "연결점": "No more curse.",
           "구분": "NT"
         }
       ]
