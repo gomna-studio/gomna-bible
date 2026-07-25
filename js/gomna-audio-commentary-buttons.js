@@ -2661,9 +2661,12 @@
     }
 
     // Must match gomna-card-highlight-test.js ACTIVE_CLASS.
+    // Scope to commentary content so bible verse cards reusing the class are kept.
     Array.prototype.forEach.call(
       document.querySelectorAll(
-        '.gomna-commentary-card-active, .gomna-card-highlight-active, .gomna-commentary-card-highlight'
+        '#commentaryContent .gomna-commentary-card-active, ' +
+        '#commentaryContent .gomna-card-highlight-active, ' +
+        '#commentaryContent .gomna-commentary-card-highlight'
       ),
       function(node) {
         node.classList.remove('gomna-commentary-card-active');

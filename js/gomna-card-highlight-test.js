@@ -1153,7 +1153,8 @@
   }
 
   function clearHighlight() {
-    var items = document.querySelectorAll('.' + ACTIVE_CLASS);
+    /* Scope to commentary content so bible verse cards can reuse ACTIVE_CLASS. */
+    var items = document.querySelectorAll('#commentaryContent .' + ACTIVE_CLASS);
     for (var i = 0; i < items.length; i++) {
       items[i].classList.remove(ACTIVE_CLASS);
     }
@@ -1931,6 +1932,14 @@
     );
   }
 
+  /* Same active color as commentary cards, reused for bible verse items. */
+  cssRules.push(
+    '#verseList .verse-item.' + ACTIVE_CLASS + '{' +
+      'background-color:#D8C18A !important;' +
+      'transition:background-color 100ms ease;' +
+    '}'
+  );
+
   style.textContent = cssRules.join('');
   document.head.appendChild(style);
 
@@ -1941,6 +1950,8 @@
     startPlaybackVisualTick: startPlaybackVisualTick,
     stopPlaybackVisualTick: stopPlaybackVisualTick,
     clearHighlight: clearHighlight,
+    centerActiveCard: centerActiveCard,
+    ACTIVE_CLASS: ACTIVE_CLASS,
     shouldAutoCenterActiveCommentaryCard: shouldAutoCenterActiveCommentaryCard
   };
 
