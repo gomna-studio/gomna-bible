@@ -1,6 +1,15 @@
 // 구약 39권 book registry.
 // 한국어 책 이름은 old_testament.js의 oldTestamentData.books[].name 원본 기준.
 // bookId와 bookSlug는 동일하게 유지한다.
+export const TESTAMENT_SOURCES = {
+  oldTestamentData: {
+    fileName: 'old_testament.js',
+  },
+  newTestamentData: {
+    fileName: 'new_testament.js',
+  },
+};
+
 export const BOOKS = {
   genesis: {
     book: '창세기',
@@ -196,5 +205,10 @@ export const BOOKS = {
     book: '말라기',
     testamentVariable: 'oldTestamentData',
     bookSlug: 'malachi',
+  },
+  matthew: {
+    book: '마태복음',
+    testamentVariable: 'newTestamentData',
+    bookSlug: 'matthew',
   },
 };
