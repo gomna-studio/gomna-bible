@@ -199,6 +199,21 @@ function pad3(value) {
   return String(value).padStart(3, '0');
 }
 
+function normalizeOccurrence(occurrence) {
+  const value = Number(occurrence);
+  if (!Number.isInteger(value) || value < 1) {
+    return 1;
+  }
+  return value;
+}
+
+/** First occurrence keeps bare pad3(verse); 2nd+ uses e.g. 026o2. */
+function formatVersePathSegment(verse, occurrence = 1) {
+  const base = pad3(verse);
+  const occ = normalizeOccurrence(occurrence);
+  return occ > 1 ? `${base}o${occ}` : base;
+}
+
 function toRelativePath(absolutePath) {
   return path.relative(ROOT, absolutePath).split(path.sep).join('/');
 }
@@ -915,6 +930,7 @@ function resolveVerseRange(args, chapterData) {
     throw new Error(`절 범위가 ${BOOKS[args.bookId].book} ${args.chapter}장 유효 범위(${minVerse}~${maxVerse})를 벗어났습니다.`);
   }
 
+  const occurrenceCounts = new Map();
   const verses = chapterData.verses
     .filter((verse) => verse.verse >= fromVerse && verse.verse <= toVerse)
     .map((verse) => {
@@ -924,9 +940,14 @@ function resolveVerseRange(args, chapterData) {
         throw new Error(`${BOOKS[args.bookId].book} ${args.chapter}장 ${verse.verse}절 본문이 비어 있습니다.`);
       }
 
+      const occurrenceKey = `${args.chapter}:${verse.verse}`;
+      const occurrence = (occurrenceCounts.get(occurrenceKey) || 0) + 1;
+      occurrenceCounts.set(occurrenceKey, occurrence);
+
       return {
         chapter: args.chapter,
         verse: verse.verse,
+        occurrence,
         preview: text,
       };
     });
@@ -963,28 +984,28 @@ function buildLocalFileName(voicePreset) {
   return `bible-${voicePreset}.mp3`;
 }
 
-function buildAudioId(bookId, chapter, verse) {
-  return `${bookId}.${pad3(chapter)}.${pad3(verse)}.${AUDIO_TYPE}`;
+function buildAudioId(bookId, chapter, verse, occurrence = 1) {
+  return `${bookId}.${pad3(chapter)}.${formatVersePathSegment(verse, occurrence)}.${AUDIO_TYPE}`;
 }
 
-function buildLocalRelativePath({ language, bookId, chapter, verse, voicePreset }) {
+function buildLocalRelativePath({ language, bookId, chapter, verse, voicePreset, occurrence = 1 }) {
   return path.posix.join(
     'audio',
     'v1',
     language,
     bookId,
     pad3(chapter),
-    pad3(verse),
+    formatVersePathSegment(verse, occurrence),
     buildLocalFileName(voicePreset),
   );
 }
 
-function buildR2Key(bookId, chapter, verse) {
-  return `${r2KeyBaseFor(bookId)}/${pad3(chapter)}/${pad3(verse)}.mp3`;
+function buildR2Key(bookId, chapter, verse, occurrence = 1) {
+  return `${r2KeyBaseFor(bookId)}/${pad3(chapter)}/${formatVersePathSegment(verse, occurrence)}.mp3`;
 }
 
-function buildPublicUrl(bookId, chapter, verse) {
-  return `${STORAGE.publicBaseUrl}/${buildR2Key(bookId, chapter, verse)}`;
+function buildPublicUrl(bookId, chapter, verse, occurrence = 1) {
+  return `${STORAGE.publicBaseUrl}/${buildR2Key(bookId, chapter, verse, occurrence)}`;
 }
 
 function inspectLocalFile(relativePath) {
@@ -1011,15 +1032,17 @@ function inspectLocalFile(relativePath) {
 }
 
 function buildPipelineItem({ args, verseData }) {
+  const occurrence = normalizeOccurrence(verseData.occurrence);
   const localRelativePath = buildLocalRelativePath({
     language: args.language,
     bookId: args.bookId,
     chapter: verseData.chapter,
     verse: verseData.verse,
     voicePreset: args.voicePreset,
+    occurrence,
   });
   const localInfo = inspectLocalFile(localRelativePath);
-  const r2Key = buildR2Key(args.bookId, verseData.chapter, verseData.verse);
+  const r2Key = buildR2Key(args.bookId, verseData.chapter, verseData.verse, occurrence);
   const exists = localInfo.localExists;
   const zeroByte = localInfo.localZeroByte;
   const validLocal = exists && !zeroByte;
@@ -1032,16 +1055,17 @@ function buildPipelineItem({ args, verseData }) {
   }
 
   return {
-    id: buildAudioId(args.bookId, verseData.chapter, verseData.verse),
+    id: buildAudioId(args.bookId, verseData.chapter, verseData.verse, occurrence),
     chapter: verseData.chapter,
     verse: verseData.verse,
+    occurrence,
     preview: verseData.preview,
     localRelativePath: localInfo.localRelativePath,
     localExists: localInfo.localExists,
     localFileSize: localInfo.localFileSize,
     localZeroByte: localInfo.localZeroByte,
     r2Key,
-    publicUrl: buildPublicUrl(args.bookId, verseData.chapter, verseData.verse),
+    publicUrl: buildPublicUrl(args.bookId, verseData.chapter, verseData.verse, occurrence),
     actions: {
       audio: audioAction,
       upload: validLocal ? 'upload-planned' : 'pending-local',
@@ -1359,7 +1383,8 @@ function readVerifiedAudioIds() {
 }
 
 function buildManifestEntry(item, args) {
-  return {
+  const occurrence = normalizeOccurrence(item.occurrence);
+  const entry = {
     id: item.id,
     book: BOOKS[args.bookId].book,
     bookId: args.bookId,
@@ -1375,6 +1400,12 @@ function buildManifestEntry(item, args) {
     status: 'published',
     preview: item.preview,
   };
+
+  if (occurrence > 1) {
+    entry.occurrence = occurrence;
+  }
+
+  return entry;
 }
 
 function appendVerifiedAudioIds(targetIds) {
