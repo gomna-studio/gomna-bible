@@ -22,6 +22,10 @@ import {
   sha256Text,
 } from './commentary-multilang-translation.mjs';
 import { buildNarrationSpeechUnits } from './commentary-multilang-cue.mjs';
+import {
+  requireMultilangStageApproval,
+  resolveTranslationApproved,
+} from './commentary-multilang-quality-policy.mjs';
 
 export const OPENAI_SPEECH_URL = 'https://api.openai.com/v1/audio/speech';
 export const DEFAULT_AUDIO_MODEL = 'gpt-4o-mini-tts';
@@ -1302,7 +1306,12 @@ export async function requestCommentaryMp3({
   fetchImpl,
   maxAttempts = 2,
   counters,
+  translationApproved,
 } = {}) {
+  requireMultilangStageApproval('tts', {
+    translationApproved: resolveTranslationApproved({ translationApproved }),
+  });
+
   if (!apiKey) {
     throw new Error('OPENAI_API_KEY is missing');
   }

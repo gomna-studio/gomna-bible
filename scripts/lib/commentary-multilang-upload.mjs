@@ -19,6 +19,10 @@ import {
   getCommentaryVoicePreset,
   isRegisteredCommentaryType,
 } from './commentary-type-registry.mjs';
+import {
+  requireMultilangStageApproval,
+  resolveAudioApproved,
+} from './commentary-multilang-quality-policy.mjs';
 
 export const R2_BUCKET = 'gomna-bible-audio-prod';
 export const PUBLIC_BASE_URL =
@@ -1069,7 +1073,12 @@ export async function uploadOneTarget({
   verifyRemote = verifyUploadedWithPolling,
   sleep = defaultSleep,
   counters = null,
+  audioApproved,
 } = {}) {
+  requireMultilangStageApproval('r2', {
+    audioApproved: resolveAudioApproved({ audioApproved }),
+  });
+
   const inspect = requireDependency(
     'remoteInspector',
     remoteInspector || inspectRemote,

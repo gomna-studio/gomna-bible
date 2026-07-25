@@ -43,6 +43,10 @@ import {
   createProductionUploadAdapters,
 } from './lib/commentary-multilang-upload.mjs';
 import { verifyUploadUrls as verifyPublishUrls } from './lib/commentary-multilang-publish-stage.mjs';
+import {
+  requireMultilangStageApproval,
+  resolveAudioApproved,
+} from './lib/commentary-multilang-quality-policy.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -67,6 +71,7 @@ function parseArgs(argv) {
     skipUpload: false,
     skipShards: false,
     resume: false,
+    audioApproved: false,
     help: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
@@ -86,6 +91,9 @@ function parseArgs(argv) {
     else if (token === '--skip-ops-apply') args.skipOpsApply = true;
     else if (token === '--skip-upload') args.skipUpload = true;
     else if (token === '--skip-shards') args.skipShards = true;
+    else if (token === '--audio-approved' || token === '--audioApproved') {
+      args.audioApproved = true;
+    }
     else if (token === '--results') args.results = take();
     else if (token === '--narration-staging') args.narrationStaging = take();
     else if (token === '--audio-staging') args.audioStaging = take();
@@ -244,6 +252,11 @@ async function main(argv = process.argv.slice(2)) {
     );
   }
 
+  const audioApproved = resolveAudioApproved({
+    audioApproved: args.audioApproved,
+  });
+  requireMultilangStageApproval('r2', { audioApproved });
+
   const approvedAt = new Date().toISOString();
   const eligibleJobs = classified.eligible.map((item) => item.job);
 
@@ -312,6 +325,7 @@ async function main(argv = process.argv.slice(2)) {
       wranglerRunner: adapters.wranglerRunner,
       concurrency: args.concurrency,
       sleep: adapters.sleep,
+      audioApproved: true,
       onItem: (item) => {
         console.log(
           `  ${item.targetId} => ${item.uploadAction}${item.ok ? '' : ` ! ${item.reason}`}`,
@@ -368,11 +382,15 @@ async function main(argv = process.argv.slice(2)) {
       candidates: uploadPlan.candidates,
       outputRoot: process.cwd(),
       generatedAt: '1970-01-01T00:00:00.000Z',
+      requireAudioApproval: true,
+      audioApproved: true,
     });
     const shardsB = writeMergedBookManifestShards({
       candidates: uploadPlan.candidates,
       outputRoot: path.join(reportRoot, 'shard-hash-check'),
       generatedAt: '1970-01-01T00:00:00.000Z',
+      requireAudioApproval: true,
+      audioApproved: true,
     });
     const deterministic =
       shardsA.shards.every(

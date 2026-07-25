@@ -18,6 +18,8 @@
   var SEQUENCE_BTN_ID = 'gomnaCommentarySequenceBtn';
   var INLINE_CLOSE_BTN_ID = 'gomnaCommentaryInlineCloseBtn';
   var INLINE_BOUND_ATTR = 'data-gomna-inline-controls-bound';
+  var CONTAINED_AUDIO_HIDDEN_ATTR = 'data-gomna-contained-audio-hidden';
+  var CONTAINED_AUDIO_HIDDEN_CLASS = 'gomna-contained-audio-control-hidden';
   var HEADER_NOTE_CLASS = 'gomna-audio-commentary-header-note';
   var MODAL_OPEN_CLASS = 'gomna-commentary-popup-open';
   var pendingTimer = null;
@@ -768,6 +770,224 @@
     }
   }
 
+  function isContainedUnverifiedMultilangAudio(target) {
+    var policy = window.GomnaCommentaryMultilangPolicy;
+    var bookName =
+      (window.currentBook && window.currentBook.name) ||
+      (typeof currentBook !== 'undefined' && currentBook && currentBook.name) ||
+      '';
+    var bookId =
+      (window.BOOK_FILE_MAP && bookName && window.BOOK_FILE_MAP[bookName]) ||
+      null;
+    var chapter =
+      typeof window.currentChapter === 'number'
+        ? window.currentChapter
+        : typeof currentChapter !== 'undefined'
+          ? currentChapter
+          : null;
+    var verse =
+      typeof window.currentCommentaryVerseForRelated === 'number'
+        ? window.currentCommentaryVerseForRelated
+        : typeof currentCommentaryVerseForRelated !== 'undefined'
+          ? currentCommentaryVerseForRelated
+          : null;
+    if (!policy || typeof policy.isContainedUnverifiedMultilangVerse !== 'function') {
+      return false;
+    }
+    return !!policy.isContainedUnverifiedMultilangVerse({
+      bookId: bookId,
+      chapter: chapter,
+      verse: verse,
+      locale: target && target.locale,
+    });
+  }
+
+  function getCommentaryLocaleForContainment() {
+    // Align with card containment (getCommentaryCardLocale / reader UI),
+    // not only the audio-lang latch which can lag during bridge switches.
+    try {
+      if (typeof window.getCommentaryCardLocale === 'function') {
+        var cardLocale = window.getCommentaryCardLocale();
+        if (cardLocale === 'en-US' || cardLocale === 'ja-JP' || cardLocale === 'ko-KR') {
+          return cardLocale;
+        }
+      }
+    } catch (eCard) { /* ignore */ }
+
+    try {
+      if (typeof window.getReaderUiLangCode === 'function') {
+        var ui = normalizeAppLangCode(window.getReaderUiLangCode());
+        if (ui === 'en') return 'en-US';
+        if (ui === 'ja') return 'ja-JP';
+        if (ui === 'ko') return 'ko-KR';
+      }
+    } catch (eUi) { /* ignore */ }
+
+    var lang = getSelectedAppLanguageForAudio() || 'ko';
+    if (lang === 'en') return 'en-US';
+    if (lang === 'ja') return 'ja-JP';
+    return 'ko-KR';
+  }
+
+  function resolveContainmentContext() {
+    var ctx = null;
+    try {
+      ctx = getCommentaryContext();
+    } catch (eCtx) {
+      ctx = null;
+    }
+    var bookName =
+      (window.currentBook && window.currentBook.name) ||
+      (ctx && ctx.bookName) ||
+      '';
+    var bookId =
+      (window.BOOK_FILE_MAP && bookName && window.BOOK_FILE_MAP[bookName]) ||
+      (ctx && ctx.bookId) ||
+      null;
+    var chapter =
+      typeof window.currentChapter === 'number'
+        ? window.currentChapter
+        : typeof currentChapter !== 'undefined' && typeof currentChapter === 'number'
+          ? currentChapter
+          : ctx && ctx.chapter;
+    var verse =
+      typeof window.currentCommentaryVerseForRelated === 'number'
+        ? window.currentCommentaryVerseForRelated
+        : typeof currentCommentaryVerseForRelated !== 'undefined' &&
+            typeof currentCommentaryVerseForRelated === 'number'
+          ? currentCommentaryVerseForRelated
+          : ctx && ctx.verse;
+    return {
+      bookId: bookId,
+      chapter: chapter,
+      verse: verse,
+      locale: getCommentaryLocaleForContainment(),
+    };
+  }
+
+  function isCurrentCommentaryContainedUnverified() {
+    var policy = window.GomnaCommentaryMultilangPolicy;
+    if (!policy || typeof policy.isContainedUnverifiedMultilangVerse !== 'function') {
+      return false;
+    }
+    return !!policy.isContainedUnverifiedMultilangVerse(resolveContainmentContext());
+  }
+
+  function setAudioControlContainedHidden(el, hide) {
+    if (!el || !el.setAttribute) return;
+    if (hide) {
+      el.hidden = true;
+      el.setAttribute('aria-hidden', 'true');
+      el.setAttribute('tabindex', '-1');
+      el.classList.add(CONTAINED_AUDIO_HIDDEN_CLASS);
+      el.setAttribute(CONTAINED_AUDIO_HIDDEN_ATTR, '1');
+      return;
+    }
+    if (el.getAttribute(CONTAINED_AUDIO_HIDDEN_ATTR) !== '1') return;
+    el.hidden = false;
+    el.removeAttribute('aria-hidden');
+    el.removeAttribute('tabindex');
+    el.classList.remove(CONTAINED_AUDIO_HIDDEN_CLASS);
+    el.removeAttribute(CONTAINED_AUDIO_HIDDEN_ATTR);
+  }
+
+  function collectContainedAudioControlElements() {
+    var popup = getPopup();
+    var content = getContent();
+    var nodes = [];
+    var seen = typeof WeakSet === 'function' ? new WeakSet() : null;
+
+    function pushNode(el) {
+      if (!el) return;
+      if (seen) {
+        if (seen.has(el)) return;
+        seen.add(el);
+      } else if (nodes.indexOf(el) >= 0) {
+        return;
+      }
+      nodes.push(el);
+    }
+
+    function pushAll(list) {
+      var i;
+      if (!list) return;
+      for (i = 0; i < list.length; i += 1) pushNode(list[i]);
+    }
+
+    if (popup) {
+      pushAll(
+        popup.querySelectorAll(
+          '#' +
+            INLINE_CONTROLS_ID +
+            ' .gomna-commentary-inline-listen, #' +
+            INLINE_CONTROLS_ID +
+            ' .gomna-commentary-inline-replay, #' +
+            INLINE_CONTROLS_ID +
+            ' .gomna-commentary-inline-sequence'
+        )
+      );
+      pushAll(
+        popup.querySelectorAll(
+          '.' +
+            CONTROLS_FOOTER_CLASS +
+            ' .gomna-audio-commentary-button, .' +
+            CONTROLS_FOOTER_CLASS +
+            ' .' +
+            REPLAY_BUTTON_CLASS +
+            ', .' +
+            CONTROLS_FOOTER_CLASS +
+            ' ' +
+            ALL_TABS_BUTTON_SELECTOR
+        )
+      );
+      pushAll(
+        popup.querySelectorAll(
+          '.gomna-commentary-legacy-close-wrap .gomna-audio-commentary-button, .gomna-commentary-legacy-close-wrap .' +
+            REPLAY_BUTTON_CLASS +
+            ', .gomna-commentary-legacy-close-wrap ' +
+            ALL_TABS_BUTTON_SELECTOR
+        )
+      );
+    }
+
+    if (content) {
+      pushAll(
+        content.querySelectorAll(
+          '.gomna-audio-commentary-button, .' +
+            REPLAY_BUTTON_CLASS +
+            ', ' +
+            ALL_TABS_BUTTON_SELECTOR
+        )
+      );
+    }
+
+    return nodes;
+  }
+
+  /**
+   * Single gate for EN/JA Genesis 1:11–1:31 audio chrome.
+   * Uses GomnaCommentaryMultilangPolicy.isContainedUnverifiedMultilangVerse only.
+   */
+  function syncContainedMultilangAudioControlsVisibility() {
+    var hide = isCurrentCommentaryContainedUnverified();
+    var controls = collectContainedAudioControlElements();
+    var i;
+
+    for (i = 0; i < controls.length; i += 1) {
+      setAudioControlContainedHidden(controls[i], hide);
+    }
+
+    if (hide && typeof CommentaryAudioController.stopIfCurrentCommentary === 'function') {
+      try {
+        CommentaryAudioController.stopIfCurrentCommentary();
+      } catch (eStop) {
+        /* ignore */
+      }
+    }
+
+    return hide;
+  }
+
   function getPopup() {
     return document.getElementById('commentaryPopup');
   }
@@ -807,6 +1027,7 @@
     if (open) {
       resetCommentaryPopupBoxDragStyles();
       ensureInlineControls();
+      syncContainedMultilangAudioControlsVisibility();
     }
   }
 
@@ -1026,6 +1247,7 @@
     }
 
     bindInlineControlsDirect(listenBtn, replayBtn, seqBtn, closeBtn);
+    syncContainedMultilangAudioControlsVisibility();
     return controls;
   }
 
@@ -1604,7 +1826,10 @@
 
     ensureInlineControls();
 
-    if (!item || !listenBtn || !replayBtn || !seqBtn) return;
+    if (!item || !listenBtn || !replayBtn || !seqBtn) {
+      syncContainedMultilangAudioControlsVisibility();
+      return;
+    }
 
     listenBtn.setAttribute('data-audio-id', item.audioId);
     listenBtn.setAttribute('data-gomna-commentary-type', item.type);
@@ -1656,6 +1881,7 @@
       seqBtn.classList.add('gomna-commentary-inline-button--pending');
       setCommentaryUiText(seqBtn, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
       seqBtn.setAttribute('aria-label', commentaryUiT('commentary.audio.preparing', '준비 중'));
+      syncContainedMultilangAudioControlsVisibility();
       return;
     }
 
@@ -1682,6 +1908,7 @@
       seqBtn.classList.remove(ACTIVE_TAB_CLASS);
       seqBtn.setAttribute('aria-pressed', 'false');
     }
+    syncContainedMultilangAudioControlsVisibility();
   }
 
   function getItemByType(type) {
@@ -1738,7 +1965,10 @@
     var footerButtons;
     var sequenceButtons;
 
-    if (!item || !controlsFooter) return;
+    if (!item || !controlsFooter) {
+      syncContainedMultilangAudioControlsVisibility();
+      return;
+    }
 
     footerButtons = controlsFooter.querySelectorAll(
       '.gomna-audio-commentary-button[data-audio-id], .' + REPLAY_BUTTON_CLASS + '[data-audio-replay-id]'
@@ -1801,6 +2031,7 @@
     }
 
     dedupeFooterControls(controlsFooter);
+    syncContainedMultilangAudioControlsVisibility();
   }
 
   function dedupeFooterControls(footer) {
@@ -2070,7 +2301,10 @@
       target = applyResolvedCommentaryTarget(item);
       resolvedAudioId = target.audioId;
 
-      if ((target.language === 'en' || target.language === 'ja') && !item.published) {
+      if (
+        (target.language === 'en' || target.language === 'ja') &&
+        (!item.published || isContainedUnverifiedMultilangAudio(target))
+      ) {
         showCommentaryLanguageUnavailableMessage(target.language);
         return false;
       }
@@ -2111,7 +2345,10 @@
       target = applyResolvedCommentaryTarget(item);
       resolvedAudioId = target.audioId;
 
-      if ((target.language === 'en' || target.language === 'ja') && !item.published) {
+      if (
+        (target.language === 'en' || target.language === 'ja') &&
+        (!item.published || isContainedUnverifiedMultilangAudio(target))
+      ) {
         showCommentaryLanguageUnavailableMessage(target.language);
         return false;
       }
@@ -2335,11 +2572,15 @@
 
     var scope = getPopupScope();
     var allTabsButton = scope && scope.querySelector(ALL_TABS_BUTTON_SELECTOR);
-    if (!allTabsButton) return;
+    if (!allTabsButton) {
+      syncContainedMultilangAudioControlsVisibility();
+      return;
+    }
 
     var publishedIds = getPublishedSequenceAudioIds();
     if (!publishedIds.length) {
       setCommentaryUiText(allTabsButton, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
+      syncContainedMultilangAudioControlsVisibility();
       return;
     }
 
@@ -2631,7 +2872,13 @@
       } catch (eHdr2) { /* ignore */ }
     }
 
-    if (!currentCommentaryItems.length) return;
+    if (!currentCommentaryItems.length) {
+      if (isCommentaryPopupOpen()) {
+        ensureInlineControls();
+      }
+      syncContainedMultilangAudioControlsVisibility();
+      return;
+    }
 
     for (i = 0; i < currentCommentaryItems.length; i++) {
       previousIds.push(currentCommentaryItems[i].audioId);
@@ -2665,6 +2912,7 @@
         syncInlineControls(content);
         syncCommentaryFooterControls(content);
       }
+      syncContainedMultilangAudioControlsVisibility();
       clearInactiveCommentaryHighlights();
     }).catch(function() {
       // Soft-fail: keep using base single-manifest entries.
@@ -2675,6 +2923,7 @@
         syncInlineControls(content);
         syncCommentaryFooterControls(content);
       }
+      syncContainedMultilangAudioControlsVisibility();
       clearInactiveCommentaryHighlights();
     });
   }
@@ -2684,7 +2933,14 @@
     var content = getContent();
 
     if (!popup || !content) return;
-    if (!isCommentaryTabsPopup(popup)) return;
+
+    if (!isCommentaryTabsPopup(popup)) {
+      if (isCommentaryPopupOpen()) {
+        ensureInlineControls();
+        syncContainedMultilangAudioControlsVisibility();
+      }
+      return;
+    }
 
     restoreMiniPlayerExpandButtonLabel();
 
@@ -2697,7 +2953,10 @@
     ensureInlineControls();
 
     ensureShardForCurrentCommentaryContext().then(function() {
-      if (!isCommentaryTabsPopup(getPopup())) return;
+      if (!isCommentaryTabsPopup(getPopup())) {
+        syncContainedMultilangAudioControlsVisibility();
+        return;
+      }
 
       refreshPublishedFlags();
 
@@ -2713,6 +2972,7 @@
       updateCommentaryButtonLabels();
       syncCommentaryFooterControls(content);
       syncInlineControls(content);
+      syncContainedMultilangAudioControlsVisibility();
       if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.apply === 'function') {
         window.GomnaCommentaryI18n.apply(popup);
       }
@@ -2725,6 +2985,7 @@
       updateCommentaryButtonLabels();
       syncCommentaryFooterControls(content);
       syncInlineControls(content);
+      syncContainedMultilangAudioControlsVisibility();
     });
   }
 
@@ -2841,6 +3102,7 @@
     observer = new MutationObserver(function() {
       syncCommentaryPopupLock();
       scheduleAddCommentaryButtons();
+      syncContainedMultilangAudioControlsVisibility();
     });
 
     observer.observe(popup, {
@@ -2943,6 +3205,8 @@
     stopIfCommentaryAudio: function() {
       return CommentaryAudioController.stopIfCurrentCommentary();
     },
+    syncContainedAudioControlsVisibility: syncContainedMultilangAudioControlsVisibility,
+    isCurrentContainedUnverified: isCurrentCommentaryContainedUnverified,
     getSequenceAudioIds: function() {
       return getPublishedSequenceAudioIds().slice();
     },
