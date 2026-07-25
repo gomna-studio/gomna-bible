@@ -13,7 +13,8 @@ Until re-approval, **English / Japanese Genesis 1:11–1:31** commentary is **no
 
 Code: `scripts/lib/commentary-multilang-quality-policy.mjs`, `js/gomna-commentary-multilang-policy.js`.
 
-UI copy key: `commentary.multilang.preparing`  
+UI copy key: `commentary.multilang.preparing`
+
 (“말씀풀이 번역을 준비하고 있습니다.” / EN / JA equivalents)
 
 ## Quality criteria before expanding again
