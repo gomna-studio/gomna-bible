@@ -40,7 +40,7 @@ const VOICE_PRESET_TTS = {
     instructions: [
       'Korean Bible narration voice.',
       'Warm, reverent, mature, calm, pastoral tone.',
-      'Prefer a clearly masculine adult narrator impression.',
+      'Use a consistently and unmistakably feminine adult voice from the very first syllable to the end. Do not begin with a neutral, androgynous, or masculine tone.',
       'Natural Korean pronunciation.',
       'Slow and steady pace suitable for Scripture reading.',
       'Avoid robotic, neutral, flat, and androgynous delivery.',
@@ -54,7 +54,7 @@ const VOICE_PRESET_TTS = {
     instructions: [
       'Korean Bible narration voice.',
       'Warm, gentle, reverent, mature, pastoral tone.',
-      'Prefer a clearly masculine adult narrator impression.',
+      'Use a consistently and unmistakably feminine adult voice from the very first syllable to the end. Do not begin with a neutral, androgynous, or masculine tone.',
       'Natural Korean pronunciation.',
       'Measured pace suitable for Scripture reading.',
       'Avoid robotic, neutral, flat, and androgynous delivery.',
@@ -68,7 +68,7 @@ const VOICE_PRESET_TTS = {
     instructions: [
       'Korean Bible narration voice.',
       'Clear, reverent, mature, calm, teaching tone.',
-      'Prefer a clearly masculine adult narrator impression.',
+      'Use a consistently and unmistakably feminine adult voice from the very first syllable to the end. Do not begin with a neutral, androgynous, or masculine tone.',
       'Natural Korean pronunciation.',
       'Steady, attentive pace suitable for careful Scripture reading.',
       'Avoid robotic, neutral, flat, and androgynous delivery.',
@@ -82,7 +82,7 @@ const VOICE_PRESET_TTS = {
     instructions: [
       'Korean Bible narration voice.',
       'Firm, reverent, mature, confident, pastoral tone.',
-      'Prefer a clearly masculine adult narrator impression.',
+      'Use a consistently and unmistakably feminine adult voice from the very first syllable to the end. Do not begin with a neutral, androgynous, or masculine tone.',
       'Natural Korean pronunciation.',
       'Steady, authoritative pace suitable for Scripture reading.',
       'Avoid robotic, neutral, flat, and androgynous delivery.',
@@ -96,7 +96,7 @@ const VOICE_PRESET_TTS = {
     instructions: [
       'Korean Bible narration voice.',
       'Soft, gentle, reverent, mature, pastoral tone.',
-      'Prefer a clearly masculine adult narrator impression.',
+      'Use a consistently and unmistakably feminine adult voice from the very first syllable to the end. Do not begin with a neutral, androgynous, or masculine tone.',
       'Natural Korean pronunciation.',
       'Slow, tender pace suitable for Scripture reading.',
       'Avoid robotic, neutral, flat, and androgynous delivery.',
