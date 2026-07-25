@@ -1153,27 +1153,86 @@
 
     var firstVerseAudioButton = document.querySelector('#verseList [data-audio-id$=".bible"]');
     var firstAudioId = firstVerseAudioButton && firstVerseAudioButton.getAttribute('data-audio-id');
-    var match = firstAudioId && firstAudioId.match(/^[^.]+\.(\d{3})\.\d{3}\.bible$/);
+    var match = firstAudioId && firstAudioId.match(/^[^.]+\.(\d{3})\.\d{3}(?:o\d+)?\.bible$/);
 
     return match ? parseInt(match[1], 10) : 0;
   }
 
   function parseAudioIdParts(audioId) {
-    var match = audioId && audioId.match(/^([^.]+)\.(\d{3})\.(\d{3})\.bible$/);
+    var match = audioId && audioId.match(/^([^.]+)\.(\d{3})\.(\d{3})(?:o(\d+))?\.bible$/);
 
     if (!match) {
+      return null;
+    }
+
+    var occurrence = match[4] ? parseInt(match[4], 10) : 1;
+    if (!occurrence || occurrence < 1) {
       return null;
     }
 
     return {
       bookId: match[1],
       chapter: parseInt(match[2], 10),
-      verse: parseInt(match[3], 10)
+      verse: parseInt(match[3], 10),
+      occurrence: occurrence
     };
   }
 
   function pad3(value) {
     return String(value).padStart(3, '0');
+  }
+
+  function formatVerseSegment(verse, occurrence) {
+    var base = pad3(verse);
+    var occ = parseInt(occurrence, 10);
+    return !isNaN(occ) && occ > 1 ? base + 'o' + occ : base;
+  }
+
+  function buildBibleAudioId(bookId, chapter, verse, occurrence) {
+    return bookId + '.' + pad3(chapter) + '.' + formatVerseSegment(verse, occurrence) + '.bible';
+  }
+
+  function collectRenderedBibleAudioIds(options) {
+    options = options || {};
+    var items = document.querySelectorAll('#verseList .verse-item[data-verse]');
+    var ids = [];
+    var startVerse = options.startVerse;
+    var endVerse = options.endVerse;
+    var startFromAudioId = options.startFromAudioId || null;
+    var started = !startFromAudioId;
+    var i;
+    var item;
+    var verse;
+    var occurrence;
+    var id;
+
+    for (i = 0; i < items.length; i++) {
+      item = items[i];
+      if (options.skipHidden && item.style.display === 'none') continue;
+
+      verse = parseInt(item.getAttribute('data-verse'), 10);
+      if (isNaN(verse)) continue;
+
+      occurrence = parseInt(item.getAttribute('data-audio-occurrence') || '1', 10) || 1;
+      if (!options.bookId || !options.chapter) continue;
+
+      id = buildBibleAudioId(options.bookId, options.chapter, verse, occurrence);
+
+      if (!started) {
+        if (id === startFromAudioId) {
+          started = true;
+        } else {
+          continue;
+        }
+      }
+
+      if (startVerse != null && verse < startVerse) continue;
+      if (endVerse != null && verse > endVerse) continue;
+
+      ids.push(id);
+    }
+
+    return ids;
   }
 
   function dispatchBibleResumeSessionChanged() {
@@ -1534,9 +1593,14 @@
   function playVisibleVerseRange(toChapterEnd) {
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
+    var audioIds;
+    var bookId;
+    var chapter;
+    var range;
+    var startFromAudioId;
 
     if (!allowVerseScreenAudioPlayback()) return;
-    if (!engine || !engine.playAudioRange) return;
+    if (!engine || (!engine.playAudioQueue && !engine.playAudioRange)) return;
 
     if (state && state.queueActive) {
       if (state.isPlaying) {
@@ -1547,9 +1611,9 @@
       return;
     }
 
-    var bookId = getCurrentBookAudioId();
-    var chapter = getCurrentChapterNumber();
-    var range = getVisibleVerseRange();
+    bookId = getCurrentBookAudioId();
+    chapter = getCurrentChapterNumber();
+    range = getVisibleVerseRange();
 
     if (!bookId || !chapter || !range) {
       showToast('오디오 준비 중입니다.');
@@ -1559,9 +1623,28 @@
     if (toChapterEnd) {
       range.start = getCurrentAudioVerse() || range.start;
       range.end = getCurrentVerseCountValue() || range.end;
+      startFromAudioId = state && state.currentAudioId ? state.currentAudioId : null;
     }
 
-    engine.playAudioRange(bookId, chapter, range.start, range.end);
+    audioIds = collectRenderedBibleAudioIds({
+      bookId: bookId,
+      chapter: chapter,
+      startVerse: range.start,
+      endVerse: range.end,
+      startFromAudioId: startFromAudioId,
+      skipHidden: !toChapterEnd
+    });
+
+    if (audioIds.length && engine.playAudioQueue) {
+      engine.playAudioQueue(audioIds, {
+        source: 'bible-range:' + bookId + '.' + pad3(chapter) + '.' + pad3(range.start) + '-' + pad3(range.end)
+      });
+      return;
+    }
+
+    if (engine.playAudioRange) {
+      engine.playAudioRange(bookId, chapter, range.start, range.end);
+    }
   }
 
   function playVerseToChapterEnd(audioId) {
@@ -1599,11 +1682,24 @@
       return;
     }
 
-    for (verse = parts.verse; verse <= endVerse; verse++) {
-      audioIds.push(parts.bookId + '.' + pad3(parts.chapter) + '.' + pad3(verse) + '.bible');
+    audioIds = collectRenderedBibleAudioIds({
+      bookId: parts.bookId,
+      chapter: parts.chapter,
+      startFromAudioId: audioId
+    });
+
+    if (!audioIds.length) {
+      for (verse = parts.verse; verse <= endVerse; verse++) {
+        audioIds.push(buildBibleAudioId(parts.bookId, parts.chapter, verse, 1));
+      }
     }
 
-    queueSource = 'bible-to-end:' + parts.bookId + '.' + pad3(parts.chapter) + '.from-' + pad3(parts.verse);
+    if (!audioIds.length) {
+      showToast('오디오 준비 중입니다.');
+      return;
+    }
+
+    queueSource = 'bible-to-end:' + parts.bookId + '.' + pad3(parts.chapter) + '.from-' + formatVerseSegment(parts.verse, parts.occurrence);
     engine.playAudioQueue(audioIds, { source: queueSource });
   }
 

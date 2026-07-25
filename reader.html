@@ -2846,6 +2846,7 @@ var currentVerseCount = 0;
 var opt4RangeStart = 1;
 var selectedVerseNum = null;
 var selectedVerseNums = [];
+var selectedVerseOccurrence = 1;
 var verseListenMode = 'selected';
 /* 드롭다운 체크·장 전체 행 강조용. 기능용 verseListenMode와 분리.
    null | 'chapter' | 'range' — 사용자가 해당 메뉴를 직접 눌렀을 때만 설정 */
@@ -4919,6 +4920,7 @@ function renderVerses(highlightVerse) {
   currentVerseCount = verses.length;
   selectedVerseNum = null;
   selectedVerseNums = [];
+  selectedVerseOccurrence = 1;
   verseListenMode = 'chapter';
   userVerseTargetChoice = null;
   multiCommentaryList = null;
@@ -4930,8 +4932,12 @@ function renderVerses(highlightVerse) {
   var html = '<div class="verse-range-box" id="verseRangeBoxBtn"><span class="verse-range-box-inner"><span class="verse-range-label">절 범위</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-actions"><button type="button" class="verse-range-action" onclick="openVerseRangeModal()">범위 선택 ▼</button><button type="button" class="verse-range-action verse-range-action-primary" data-audio-action="play-range">▶ 선택 범위 듣기</button></span></div>';
   html += '<div class="verse-list" id="verseList">';
 
+  var verseOccurrenceCounts = {};
   verses.forEach(function(v) {
-    html += '<div class="verse-item" role="button" tabindex="0" aria-selected="false" data-verse="' + v.verse + '"><div class="verse-top"><span class="verse-num">' + v.verse + '절</span><span class="verse-text">' + v.text + '</span></div></div>';
+    var occurrence = (verseOccurrenceCounts[v.verse] || 0) + 1;
+    verseOccurrenceCounts[v.verse] = occurrence;
+    var occurrenceAttr = occurrence > 1 ? ' data-audio-occurrence="' + occurrence + '"' : '';
+    html += '<div class="verse-item" role="button" tabindex="0" aria-selected="false" data-verse="' + v.verse + '"' + occurrenceAttr + '><div class="verse-top"><span class="verse-num">' + v.verse + '절</span><span class="verse-text">' + v.text + '</span></div></div>';
   });
   html += '</div>';
   document.getElementById('verseView').innerHTML = html;
@@ -7322,15 +7328,34 @@ function getVersePlainText(verseNum) {
   return textEl ? textEl.textContent.trim() : '';
 }
 
-function getVerseAudioId(verseNum) {
+function formatBibleVerseSegment(verseNum, occurrence) {
+  var base = String(verseNum).padStart(3, '0');
+  var occ = parseInt(occurrence, 10);
+  return !isNaN(occ) && occ > 1 ? base + 'o' + occ : base;
+}
+
+function getVerseOccurrenceFromItem(item) {
+  if (!item) return 1;
+  var occ = parseInt(item.getAttribute('data-audio-occurrence') || '1', 10);
+  return !isNaN(occ) && occ > 1 ? occ : 1;
+}
+
+function getVerseAudioId(verseNum, occurrence) {
   if (!window.GOMNA_AUDIO_BOOK || !window.GOMNA_AUDIO_BOOK.getBookAudioId || !currentBook || !verseNum) return null;
   var bookId = GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name);
   if (!bookId) return null;
-  return bookId + '.' + String(currentChapter).padStart(3, '0') + '.' + String(verseNum).padStart(3, '0') + '.bible';
+  return bookId + '.' + String(currentChapter).padStart(3, '0') + '.' + formatBibleVerseSegment(verseNum, occurrence) + '.bible';
 }
 
-function isVerseAudioAvailable(verseNum) {
-  var audioId = getVerseAudioId(verseNum);
+function getVerseAudioIdFromItem(item) {
+  if (!item) return null;
+  var verseNum = parseInt(item.getAttribute('data-verse'), 10);
+  if (!verseNum) return null;
+  return getVerseAudioId(verseNum, getVerseOccurrenceFromItem(item));
+}
+
+function isVerseAudioAvailable(verseNum, occurrence) {
+  var audioId = getVerseAudioId(verseNum, occurrence);
   if (!audioId) return false;
   var audios = window.GOMNA_AUDIO_CONFIG && window.GOMNA_AUDIO_CONFIG.manifestData && window.GOMNA_AUDIO_CONFIG.manifestData.audios;
   var entry = audios && audios[audioId];
@@ -7370,18 +7395,32 @@ function selectVerse(verseNum, itemEl) {
   if (!verseNum || !document.getElementById('verseList')) return;
   var idx = selectedVerseNums.indexOf(verseNum);
   var nowSelected;
+  var clickedOccurrence = getVerseOccurrenceFromItem(itemEl);
   if (idx === -1) {
     selectedVerseNums.push(verseNum);
     nowSelected = true;
+    selectedVerseOccurrence = clickedOccurrence;
+  } else if (
+    selectedVerseNums.length === 1 &&
+    selectedVerseNum === verseNum &&
+    selectedVerseOccurrence !== clickedOccurrence
+  ) {
+    // Same verse number, different rendered occurrence: switch audio target.
+    nowSelected = true;
+    selectedVerseOccurrence = clickedOccurrence;
   } else {
     selectedVerseNums.splice(idx, 1);
     nowSelected = false;
+    selectedVerseOccurrence = 1;
   }
   var isEmpty = selectedVerseNums.length === 0;
   verseListenMode = isEmpty ? 'chapter' : 'selected';
   // 본문 탭 선택은 메뉴 체크와 무관. 장 전체 선택 UI 강조도 해제
   userVerseTargetChoice = null;
   selectedVerseNum = isEmpty ? null : selectedVerseNums[selectedVerseNums.length - 1];
+  if (!isEmpty && selectedVerseNum === verseNum) {
+    selectedVerseOccurrence = nowSelected ? clickedOccurrence : selectedVerseOccurrence;
+  }
   var item = itemEl || document.querySelector('#verseList .verse-item[data-verse="' + verseNum + '"]');
   if (item) {
     item.classList.toggle('verse-item--selected', nowSelected);
@@ -7398,6 +7437,7 @@ function selectVerse(verseNum, itemEl) {
 function restoreVerseSelection(verseNums) {
   selectedVerseNums = (verseNums || []).slice();
   selectedVerseNum = selectedVerseNums.length ? selectedVerseNums[selectedVerseNums.length - 1] : null;
+  selectedVerseOccurrence = 1;
   verseListenMode = selectedVerseNums.length ? 'selected' : 'chapter';
   userVerseTargetChoice = null;
   applyVerseSelectionHighlight();
@@ -7422,6 +7462,7 @@ function scrollVerseIntoView(verseNum) {
 function clearVerseSelection() {
   selectedVerseNum = null;
   selectedVerseNums = [];
+  selectedVerseOccurrence = 1;
   verseListenMode = 'chapter';
   closeVerseToolbarMoreMenu();
   document.querySelectorAll('#verseList .verse-item').forEach(function(item) {
@@ -7437,12 +7478,20 @@ function getSelectedVersesAudioQueueSource() {
 }
 
 function getChapterAudioIds() {
-  if (!currentBook || !currentChapter || !currentVerseCount) return [];
+  if (!currentBook || !currentChapter) return [];
   var bookAudioId = window.GOMNA_AUDIO_BOOK && window.GOMNA_AUDIO_BOOK.getBookAudioId ? window.GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name) : null;
   if (!bookAudioId) return [];
   var ids = [];
+  var items = document.querySelectorAll('#verseList .verse-item[data-verse]');
+  if (items.length) {
+    items.forEach(function(item) {
+      var id = getVerseAudioIdFromItem(item);
+      if (id) ids.push(id);
+    });
+    return ids;
+  }
   for (var v = 1; v <= currentVerseCount; v++) {
-    ids.push(bookAudioId + '.' + String(currentChapter).padStart(3, '0') + '.' + String(v).padStart(3, '0') + '.bible');
+    ids.push(getVerseAudioId(v));
   }
   return ids;
 }
@@ -7453,8 +7502,18 @@ function getRangeAudioIds() {
   var bookAudioId = window.GOMNA_AUDIO_BOOK && window.GOMNA_AUDIO_BOOK.getBookAudioId ? window.GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name) : null;
   if (!bookAudioId) return [];
   var ids = [];
+  var items = document.querySelectorAll('#verseList .verse-item[data-verse]');
+  if (items.length) {
+    items.forEach(function(item) {
+      var verse = parseInt(item.getAttribute('data-verse'), 10);
+      if (isNaN(verse) || verse < opt4RangeStart || verse > opt4RangeEnd) return;
+      var id = getVerseAudioIdFromItem(item);
+      if (id) ids.push(id);
+    });
+    return ids;
+  }
   for (var v = opt4RangeStart; v <= opt4RangeEnd; v++) {
-    ids.push(bookAudioId + '.' + String(currentChapter).padStart(3, '0') + '.' + String(v).padStart(3, '0') + '.bible');
+    ids.push(getVerseAudioId(v));
   }
   return ids;
 }
@@ -7515,8 +7574,9 @@ function syncVerseToolbarListenButton() {
   }
 
   var actionVerse = getToolbarActionVerse();
-  var audioId = getVerseAudioId(actionVerse);
-  if (audioId && isVerseAudioAvailable(actionVerse)) {
+  var actionOccurrence = selectedVerseNum ? selectedVerseOccurrence : 1;
+  var audioId = getVerseAudioId(actionVerse, actionOccurrence);
+  if (audioId && isVerseAudioAvailable(actionVerse, actionOccurrence)) {
     btn.setAttribute('data-audio-id', audioId);
   } else {
     btn.removeAttribute('data-audio-id');
@@ -10025,7 +10085,16 @@ function initVerseToolbarEvents() {
 
 function playChapterAudio() {
   var engine = window.GOMNA_AUDIO_ENGINE;
-  if (!engine || !engine.playAudioRange || !currentBook || !currentChapter || !currentVerseCount) return;
+  if (!engine || !currentBook || !currentChapter) return;
+  var audioIds = getChapterAudioIds();
+  if (!audioIds.length) return;
+  if (engine.playAudioQueue) {
+    engine.playAudioQueue(audioIds, {
+      source: 'bible-chapter:' + audioIds[0].replace(/\.bible$/, '')
+    });
+    return;
+  }
+  if (!engine.playAudioRange || !currentVerseCount) return;
   var bookAudioId = window.GOMNA_AUDIO_BOOK && window.GOMNA_AUDIO_BOOK.getBookAudioId ? window.GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name) : null;
   if (!bookAudioId) return;
   engine.playAudioRange(bookAudioId, currentChapter, 1, currentVerseCount);
@@ -10039,9 +10108,10 @@ function playRangeAudio() {
 function playSingleSelectedVerse() {
   var engine = window.GOMNA_AUDIO_ENGINE;
   var verse = selectedVerseNum || getToolbarActionVerse();
+  var occurrence = selectedVerseNum ? selectedVerseOccurrence : 1;
   if (!engine || !engine.playAudioById || !verse) return;
-  if (!isVerseAudioAvailable(verse)) return;
-  var audioId = getVerseAudioId(verse);
+  if (!isVerseAudioAvailable(verse, occurrence)) return;
+  var audioId = getVerseAudioId(verse, occurrence);
   if (!audioId) return;
   engine.playAudioById(audioId, { startTime: 0 });
 }
@@ -10050,7 +10120,7 @@ function playSelectedVersesQueue() {
   var engine = window.GOMNA_AUDIO_ENGINE;
   if (!engine || !engine.playAudioQueue || !selectedVerseNums.length) return;
   var audioIds = selectedVerseNums
-    .filter(isVerseAudioAvailable)
+    .filter(function(v) { return isVerseAudioAvailable(v); })
     .map(function(v) { return getVerseAudioId(v); })
     .filter(function(id) { return !!id; });
   if (!audioIds.length) return;

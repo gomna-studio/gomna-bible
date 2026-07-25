@@ -71,6 +71,22 @@
     return String(value).padStart(3, '0');
   }
 
+  function normalizeOccurrence(occurrence) {
+    var value = parseInt(occurrence, 10);
+    return !isNaN(value) && value > 1 ? value : 1;
+  }
+
+  function formatVerseSegment(verse, occurrence) {
+    var base = pad3(verse);
+    var occ = normalizeOccurrence(occurrence);
+    return occ > 1 ? base + 'o' + occ : base;
+  }
+
+  function getVerseOccurrence(verseItem) {
+    if (!verseItem || !verseItem.getAttribute) return 1;
+    return normalizeOccurrence(verseItem.getAttribute('data-audio-occurrence'));
+  }
+
   function getBookAudioId(bookName) {
     var map = window.BOOK_FILE_MAP;
 
@@ -85,11 +101,11 @@
     return null;
   }
 
-  function buildAudioId(verse, context) {
+  function buildAudioId(verse, context, occurrence) {
     context = context || getCurrentContext();
     if (!context) return null;
 
-    return context.bookId + '.' + pad3(context.chapter) + '.' + pad3(verse) + '.' + AUDIO_TYPE;
+    return context.bookId + '.' + pad3(context.chapter) + '.' + formatVerseSegment(verse, occurrence) + '.' + AUDIO_TYPE;
   }
 
   function isDevTestAudioId(audioId) {
@@ -328,7 +344,8 @@
     context = context || getCurrentContext();
     if (!context) return false;
 
-    var audioId = buildAudioId(verse, context);
+    var occurrence = getVerseOccurrence(verseItem);
+    var audioId = buildAudioId(verse, context, occurrence);
     if (!audioId) return false;
 
     var entry = getPublishedBibleEntry(audioId, verse, context);

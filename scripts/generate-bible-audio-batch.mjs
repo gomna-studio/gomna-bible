@@ -245,6 +245,21 @@ function pad3(value) {
   return String(value).padStart(3, '0');
 }
 
+function normalizeOccurrence(occurrence) {
+  const value = Number(occurrence);
+  if (!Number.isInteger(value) || value < 1) {
+    return 1;
+  }
+  return value;
+}
+
+/** First occurrence keeps bare pad3(verse); 2nd+ uses e.g. 026o2. */
+function formatVersePathSegment(verse, occurrence = 1) {
+  const base = pad3(verse);
+  const occ = normalizeOccurrence(occurrence);
+  return occ > 1 ? `${base}o${occ}` : base;
+}
+
 function trimTrailingSlash(value) {
   return String(value || '').replace(/\/+$/, '');
 }
@@ -381,6 +396,8 @@ function readChapterVerses({ bookId, chapter, language, fromVerse, toVerse }) {
     throw new Error(`${bookConfig.book} ${chapter}장을 찾지 못했습니다.`);
   }
 
+  const occurrenceCounts = new Map();
+
   return chapterData.verses
     .filter((verse) => fromVerse === null || verse.verse >= fromVerse)
     .filter((verse) => toVerse === null || verse.verse <= toVerse)
@@ -391,12 +408,17 @@ function readChapterVerses({ bookId, chapter, language, fromVerse, toVerse }) {
         throw new Error(`${bookConfig.book} ${chapter}장 ${verse.verse}절 본문이 비어 있습니다.`);
       }
 
+      const occurrenceKey = `${chapter}:${verse.verse}`;
+      const occurrence = (occurrenceCounts.get(occurrenceKey) || 0) + 1;
+      occurrenceCounts.set(occurrenceKey, occurrence);
+
       return {
         language,
         book: bookConfig.book,
         bookId,
         chapter,
         verse: verse.verse,
+        occurrence,
         text,
       };
     });
@@ -404,10 +426,11 @@ function readChapterVerses({ bookId, chapter, language, fromVerse, toVerse }) {
 
 function buildPlannedAudio(verse, voicePreset, overwrite) {
   const chapter3 = pad3(verse.chapter);
-  const verse3 = pad3(verse.verse);
-  const audioId = `${verse.bookId}.${chapter3}.${verse3}.${AUDIO_TYPE.type}`;
+  const occurrence = normalizeOccurrence(verse.occurrence);
+  const verseSegment = formatVersePathSegment(verse.verse, occurrence);
+  const audioId = `${verse.bookId}.${chapter3}.${verseSegment}.${AUDIO_TYPE.type}`;
   const fileName = `${AUDIO_TYPE.fileNamePrefix}-${voicePreset}.mp3`;
-  const storageRelativePath = path.posix.join(verse.language, verse.bookId, chapter3, verse3, fileName);
+  const storageRelativePath = path.posix.join(verse.language, verse.bookId, chapter3, verseSegment, fileName);
   const filePath = joinUrl(AUDIO_STORAGE.publicBaseUrl, storageRelativePath);
   const remoteFilePath = joinUrl(AUDIO_STORAGE.remoteBaseUrl, storageRelativePath);
   const ttsConfig = {
@@ -419,7 +442,7 @@ function buildPlannedAudio(verse, voicePreset, overwrite) {
     verse.language,
     verse.bookId,
     chapter3,
-    verse3,
+    verseSegment,
     fileName,
   );
   const tmpLocalFilePath = `${localFilePath}.tmp`;
@@ -433,6 +456,7 @@ function buildPlannedAudio(verse, voicePreset, overwrite) {
     bookId: verse.bookId,
     chapter: verse.chapter,
     verse: verse.verse,
+    occurrence,
     voicePreset,
     ttsProvider: ttsConfig.provider,
     ttsModel: ttsConfig.model,

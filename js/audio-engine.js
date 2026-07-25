@@ -491,14 +491,32 @@
       var chapter3 = String(chapter).padStart(3, '0');
       var start = Number(startVerse);
       var end = Number(endVerse);
+      var items;
+      var i;
+      var verse;
+      var occurrence;
+      var verseSegment;
 
       if (!bookId || !chapter || isNaN(start) || isNaN(end) || start > end) {
         showOrLog('오디오 준비 중입니다.');
         return false;
       }
 
-      for (var verse = start; verse <= end; verse++) {
-        audioIds.push(bookId + '.' + chapter3 + '.' + String(verse).padStart(3, '0') + '.bible');
+      items = document.querySelectorAll('#verseList .verse-item[data-verse]');
+      if (items && items.length) {
+        for (i = 0; i < items.length; i++) {
+          verse = parseInt(items[i].getAttribute('data-verse'), 10);
+          if (isNaN(verse) || verse < start || verse > end) continue;
+          occurrence = parseInt(items[i].getAttribute('data-audio-occurrence') || '1', 10) || 1;
+          verseSegment = String(verse).padStart(3, '0') + (occurrence > 1 ? 'o' + occurrence : '');
+          audioIds.push(bookId + '.' + chapter3 + '.' + verseSegment + '.bible');
+        }
+      }
+
+      if (!audioIds.length) {
+        for (verse = start; verse <= end; verse++) {
+          audioIds.push(bookId + '.' + chapter3 + '.' + String(verse).padStart(3, '0') + '.bible');
+        }
       }
 
       return window.GOMNA_AUDIO_ENGINE.playAudioQueue(audioIds);
