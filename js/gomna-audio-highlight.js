@@ -2,16 +2,35 @@
   'use strict';
 
   var lastUserScrollTime = 0;
+  var ACTIVE_CLASS = 'gomna-commentary-card-active';
 
   window.addEventListener('scroll', function() {
     lastUserScrollTime = Date.now();
   }, { passive: true });
 
-  function removeAllHighlights() {
-    var elements = document.querySelectorAll('.gomna-audio-reading');
+  function getActiveClass() {
+    if (
+      window.GOMNA_CARD_HIGHLIGHT &&
+      typeof window.GOMNA_CARD_HIGHLIGHT.ACTIVE_CLASS === 'string' &&
+      window.GOMNA_CARD_HIGHLIGHT.ACTIVE_CLASS
+    ) {
+      return window.GOMNA_CARD_HIGHLIGHT.ACTIVE_CLASS;
+    }
+    return ACTIVE_CLASS;
+  }
 
-    for (var i = 0; i < elements.length; i++) {
-      elements[i].classList.remove('gomna-audio-reading');
+  function removeAllHighlights() {
+    var activeClass = getActiveClass();
+    var readingElements = document.querySelectorAll('.gomna-audio-reading');
+    var verseCards = document.querySelectorAll('#verseList .verse-item.' + activeClass);
+    var i;
+
+    for (i = 0; i < readingElements.length; i++) {
+      readingElements[i].classList.remove('gomna-audio-reading');
+    }
+
+    for (i = 0; i < verseCards.length; i++) {
+      verseCards[i].classList.remove(activeClass);
     }
   }
 
@@ -23,19 +42,54 @@
     );
   }
 
+  function getVerseCardForTarget(target) {
+    if (!target || !target.closest) return null;
+    return target.closest('#verseList .verse-item');
+  }
+
+  function canAutoCenterBibleCard() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var timeSinceScroll = Date.now() - lastUserScrollTime;
+
+    if (!state || !state.currentAudioId || !state.isPlaying) return false;
+    if (timeSinceScroll <= 1500) return false;
+
+    return true;
+  }
+
+  function centerBibleVerseCard(verseItem) {
+    if (!verseItem) return;
+
+    if (
+      window.GOMNA_CARD_HIGHLIGHT &&
+      typeof window.GOMNA_CARD_HIGHLIGHT.centerActiveCard === 'function'
+    ) {
+      window.GOMNA_CARD_HIGHLIGHT.centerActiveCard(verseItem);
+      return;
+    }
+
+    verseItem.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+  }
+
   function highlightAudio(audioId) {
+    var target;
+    var verseItem;
+    var activeClass;
+
     if (!audioId) return;
 
     removeAllHighlights();
 
-    var target = document.querySelector('[data-audio-target="' + audioId + '"]');
+    target = document.querySelector('[data-audio-target="' + audioId + '"]');
 
     if (!target) {
       console.warn('[GOMNA_AUDIO_HIGHLIGHT] target not found:', audioId);
       return;
     }
-
-    target.classList.add('gomna-audio-reading');
 
     /*
      * Commentary card rows are centered by gomna-card-highlight-test.js
@@ -43,16 +97,32 @@
      * the page/document from this helper for commentary targets.
      */
     if (isCommentaryTarget(target)) {
+      target.classList.add('gomna-audio-reading');
       return;
     }
 
-    var timeSinceScroll = Date.now() - lastUserScrollTime;
-    var canCenter =
-      typeof window.shouldAutoCenterActiveCommentaryCard === 'function'
-        ? window.shouldAutoCenterActiveCommentaryCard()
-        : timeSinceScroll > 1500;
+    verseItem = getVerseCardForTarget(target);
+    activeClass = getActiveClass();
 
-    if (canCenter && timeSinceScroll > 1500) {
+    if (verseItem) {
+      /* Drop any leftover commentary row highlight; class is shared. */
+      if (
+        window.GOMNA_CARD_HIGHLIGHT &&
+        typeof window.GOMNA_CARD_HIGHLIGHT.clearHighlight === 'function'
+      ) {
+        window.GOMNA_CARD_HIGHLIGHT.clearHighlight();
+      }
+      /* Reuse commentary active class + color on the verse card. */
+      verseItem.classList.add(activeClass);
+      if (canAutoCenterBibleCard()) {
+        centerBibleVerseCard(verseItem);
+      }
+      return;
+    }
+
+    target.classList.add('gomna-audio-reading');
+
+    if (canAutoCenterBibleCard()) {
       target.scrollIntoView({
         behavior: 'smooth',
         block: 'center'
