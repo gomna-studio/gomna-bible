@@ -2,11 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
-import { BOOKS } from './bible-book-registry.mjs';
+import { BOOKS, TESTAMENT_SOURCES } from './bible-book-registry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
-const OLD_TESTAMENT_JS_PATH = path.join(ROOT, 'old_testament.js');
 const REPORT_DIR = path.join(ROOT, 'reports', 'bible-audio-pipeline');
 const GENERATE_SCRIPT = path.join(ROOT, 'scripts', 'generate-bible-audio-batch.mjs');
 const MANIFEST_PATH = path.join(ROOT, 'audio', 'audio-manifest.json');
@@ -264,14 +263,30 @@ function extractJsonObject(source, variableName) {
   return JSON.parse(objectLiteral);
 }
 
+function getBibleSource(bookId) {
+  const bookConfig = BOOKS[bookId];
+  const sourceConfig = TESTAMENT_SOURCES[bookConfig.testamentVariable];
+
+  if (!sourceConfig) {
+    throw new Error(`${bookId}의 본문 소스 등록을 찾지 못했습니다.`);
+  }
+
+  return {
+    fileName: sourceConfig.fileName,
+    filePath: path.join(ROOT, sourceConfig.fileName),
+    testamentVariable: bookConfig.testamentVariable,
+  };
+}
+
 function readBookData(bookId) {
   const bookConfig = BOOKS[bookId];
-  const oldTestamentJs = fs.readFileSync(OLD_TESTAMENT_JS_PATH, 'utf8');
-  const testamentData = extractJsonObject(oldTestamentJs, bookConfig.testamentVariable);
+  const bibleSource = getBibleSource(bookId);
+  const bibleSourceJs = fs.readFileSync(bibleSource.filePath, 'utf8');
+  const testamentData = extractJsonObject(bibleSourceJs, bibleSource.testamentVariable);
   const bookData = testamentData.books.find((book) => book.name === bookConfig.book);
 
   if (!bookData) {
-    throw new Error(`old_testament.js ${bookConfig.testamentVariable}에서 ${bookConfig.book}를 찾지 못했습니다.`);
+    throw new Error(`${bibleSource.fileName} ${bibleSource.testamentVariable}에서 ${bookConfig.book}를 찾지 못했습니다.`);
   }
 
   return bookData;
@@ -279,11 +294,12 @@ function readBookData(bookId) {
 
 function readBibleChapter({ bookId, chapter, bookData = null }) {
   const bookConfig = BOOKS[bookId];
+  const bibleSource = getBibleSource(bookId);
   const resolvedBookData = bookData || readBookData(bookId);
   const chapterData = resolvedBookData.chapters.find((item) => item.chapter === chapter);
 
   if (!chapterData) {
-    throw new Error(`old_testament.js ${bookConfig.testamentVariable}에서 ${bookConfig.book} ${chapter}장을 찾지 못했습니다.`);
+    throw new Error(`${bibleSource.fileName} ${bibleSource.testamentVariable}에서 ${bookConfig.book} ${chapter}장을 찾지 못했습니다.`);
   }
 
   return chapterData;
@@ -386,7 +402,7 @@ function buildRangeDryRunReport({ args, startedAt, chapterPlans }) {
       rangeMode: true,
     },
     source: {
-      textSource: toRelativePath(OLD_TESTAMENT_JS_PATH),
+      textSource: toRelativePath(getBibleSource(args.bookId).filePath),
       textVariable: BOOKS[args.bookId].testamentVariable,
     },
     storage: {
@@ -552,7 +568,7 @@ function runRangeAudioWrite(args, startedAt) {
       rangeMode: true,
     },
     source: {
-      textSource: toRelativePath(OLD_TESTAMENT_JS_PATH),
+      textSource: toRelativePath(getBibleSource(args.bookId).filePath),
       textVariable: BOOKS[args.bookId].testamentVariable,
     },
     storage: {
@@ -645,7 +661,7 @@ function buildRangeReportShell({ args, mode, startedAt }) {
       rangeMode: true,
     },
     source: {
-      textSource: toRelativePath(OLD_TESTAMENT_JS_PATH),
+      textSource: toRelativePath(getBibleSource(args.bookId).filePath),
       textVariable: BOOKS[args.bookId].testamentVariable,
     },
     storage: {
@@ -887,7 +903,7 @@ function resolveVerseRange(args, chapterData) {
     .sort((a, b) => a - b);
 
   if (!verseNumbers.length) {
-    throw new Error(`창세기 ${args.chapter}장에 유효한 절이 없습니다.`);
+    throw new Error(`${BOOKS[args.bookId].book} ${args.chapter}장에 유효한 절이 없습니다.`);
   }
 
   const minVerse = verseNumbers[0];
@@ -896,7 +912,7 @@ function resolveVerseRange(args, chapterData) {
   const toVerse = args.toVerse == null ? maxVerse : args.toVerse;
 
   if (fromVerse < minVerse || toVerse > maxVerse) {
-    throw new Error(`절 범위가 창세기 ${args.chapter}장 유효 범위(${minVerse}~${maxVerse})를 벗어났습니다.`);
+    throw new Error(`절 범위가 ${BOOKS[args.bookId].book} ${args.chapter}장 유효 범위(${minVerse}~${maxVerse})를 벗어났습니다.`);
   }
 
   const verses = chapterData.verses
@@ -905,7 +921,7 @@ function resolveVerseRange(args, chapterData) {
       const text = String(verse.text || '').trim();
 
       if (!text) {
-        throw new Error(`창세기 ${args.chapter}장 ${verse.verse}절 본문이 비어 있습니다.`);
+        throw new Error(`${BOOKS[args.bookId].book} ${args.chapter}장 ${verse.verse}절 본문이 비어 있습니다.`);
       }
 
       return {
@@ -916,7 +932,7 @@ function resolveVerseRange(args, chapterData) {
     });
 
   if (!verses.length) {
-    throw new Error(`창세기 ${args.chapter}장 ${fromVerse}~${toVerse}절 대상이 없습니다.`);
+    throw new Error(`${BOOKS[args.bookId].book} ${args.chapter}장 ${fromVerse}~${toVerse}절 대상이 없습니다.`);
   }
 
   return {
@@ -1966,7 +1982,7 @@ async function main() {
       overwrite: args.overwrite,
     },
     source: {
-      textSource: toRelativePath(OLD_TESTAMENT_JS_PATH),
+      textSource: toRelativePath(getBibleSource(args.bookId).filePath),
       textVariable: BOOKS[args.bookId].testamentVariable,
     },
     storage: {

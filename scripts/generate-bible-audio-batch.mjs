@@ -1,11 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { BOOKS } from './bible-book-registry.mjs';
+import { BOOKS, TESTAMENT_SOURCES } from './bible-book-registry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
-const OLD_TESTAMENT_JS_PATH = path.join(ROOT, 'old_testament.js');
 const REPORTS_DIR = path.join(ROOT, 'reports');
 
 const AUDIO_TYPE = {
@@ -238,7 +237,7 @@ function assertSafeWriteScope(args, verseBounds) {
   }
 
   if (!isLegacyDirectWriteAllowed(args, fromVerse, toVerse)) {
-    throw new Error('--write는 현재 안전 점검을 위해 창세기 2장 1절~25절, 창세기 3장 1절~24절, 창세기 3장 1절 단독 범위에서만 직접 허용됩니다. 그 외 범위는 run-bible-audio-pipeline.mjs --stage audio --write를 사용하세요.');
+    throw new Error(`--write는 현재 안전 점검을 위해 ${BOOKS[args.bookId].book} 직접 실행을 허용하지 않습니다. run-bible-audio-pipeline.mjs --stage audio --write를 사용하세요.`);
   }
 }
 
@@ -350,10 +349,26 @@ function extractJsonObject(source, variableName) {
   return JSON.parse(objectLiteral);
 }
 
+function getBibleSource(bookId) {
+  const bookConfig = BOOKS[bookId];
+  const sourceConfig = TESTAMENT_SOURCES[bookConfig.testamentVariable];
+
+  if (!sourceConfig) {
+    throw new Error(`${bookId}의 본문 소스 등록을 찾지 못했습니다.`);
+  }
+
+  return {
+    fileName: sourceConfig.fileName,
+    filePath: path.join(ROOT, sourceConfig.fileName),
+    testamentVariable: bookConfig.testamentVariable,
+  };
+}
+
 function readChapterVerses({ bookId, chapter, language, fromVerse, toVerse }) {
   const bookConfig = BOOKS[bookId];
-  const oldTestamentJs = fs.readFileSync(OLD_TESTAMENT_JS_PATH, 'utf8');
-  const testamentData = extractJsonObject(oldTestamentJs, bookConfig.testamentVariable);
+  const bibleSource = getBibleSource(bookId);
+  const bibleSourceJs = fs.readFileSync(bibleSource.filePath, 'utf8');
+  const testamentData = extractJsonObject(bibleSourceJs, bibleSource.testamentVariable);
   const bookData = testamentData.books.find((book) => book.name === bookConfig.book);
 
   if (!bookData) {
@@ -467,7 +482,7 @@ function writeGenerationReport({ args, plannedAudios, results, startedAt, finish
     mode: args.write ? 'write' : 'dry-run',
     startedAt,
     finishedAt,
-    source: path.relative(ROOT, OLD_TESTAMENT_JS_PATH),
+    source: path.relative(ROOT, getBibleSource(args.bookId).filePath),
     book: BOOKS[args.bookId].book,
     bookId: args.bookId,
     chapter: args.chapter,
@@ -719,7 +734,7 @@ async function writeAudios({ args, plannedAudios }) {
 
   console.log(JSON.stringify({
     mode: 'write',
-    source: path.relative(ROOT, OLD_TESTAMENT_JS_PATH),
+    source: path.relative(ROOT, getBibleSource(args.bookId).filePath),
     fileModified: generatedCount > 0 || failedCount > 0 || skippedExistingCount > 0,
     mp3Generated: generatedCount > 0,
     ttsApiCalled: generatedCount + failedCount > 0,
@@ -770,7 +785,7 @@ async function main() {
     fileModified: false,
     mp3Generated: false,
     ttsApiCalled: false,
-    source: path.relative(ROOT, OLD_TESTAMENT_JS_PATH),
+    source: path.relative(ROOT, getBibleSource(args.bookId).filePath),
     book: BOOKS[args.bookId].book,
     bookId: args.bookId,
     chapter: args.chapter,
