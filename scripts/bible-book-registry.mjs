@@ -211,4 +211,9 @@ export const BOOKS = {
     testamentVariable: 'newTestamentData',
     bookSlug: 'matthew',
   },
+  mark: {
+    book: '마가복음',
+    testamentVariable: 'newTestamentData',
+    bookSlug: 'mark',
+  },
 };
