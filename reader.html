@@ -3133,26 +3133,51 @@ function handleScriptureDock(action) {
       return;
     }
     if (action === 'listen') {
-      syncScriptureDockActive('listen');
-      // 절 본문 화면이 아니면 재생·재개·미니 플레이어 없이 안내만 표시
-      if (!isReaderVerseViewActive()) {
+      // 책·장·절 화면이 없으면 임의로 열지 않고 안내만 표시한 뒤 dock 상태 복구
+      if (!isReaderVerseViewActive() || !currentBook || !currentChapter) {
         showVerseListenOutsideHint();
+        syncReaderNavActive();
         return;
       }
-      var miniPlayer = document.getElementById('gomna-audio-mini-player');
-      var expandBtn = document.querySelector('[data-audio-action="expand"]');
-      if (miniPlayer && !miniPlayer.hidden && miniPlayer.classList.contains('gomna-audio-visible') && expandBtn) {
-        expandBtn.click();
+      // publish되지 않은 장은 준비 중 안내만
+      if (!isCurrentChapterBibleAudioPublished()) {
+        if (window.GOMNA_AUDIO_TOAST) {
+          GOMNA_AUDIO_TOAST('오디오 준비 중입니다.');
+        }
+        syncReaderNavActive();
         return;
       }
-      var playRangeBtn = document.querySelector('#verseView.active [data-audio-action="play-range"]');
-      if (playRangeBtn) {
-        try { playRangeBtn.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
-        setTimeout(function() { try { playRangeBtn.click(); } catch (e2) {} }, 350);
+      syncScriptureDockActive('listen');
+      updateOpt4BottomBar();
+      if (typeof syncVerseToolbarListenButton === 'function') {
+        syncVerseToolbarListenButton();
+      }
+      // 홈 헤드폰과 같이 현재 장 전체 듣기를 즉시 시작 — opt4 playChapterAudio와 동일 queue/engine
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine && engine.getState ? engine.getState() : null;
+      var chapterIds = getChapterAudioIds();
+      var sameChapterQueue = !!(
+        state &&
+        state.queueActive &&
+        chapterIds.length &&
+        isSameAudioIdArray(state.queueAudioIds, chapterIds)
+      );
+      if (sameChapterQueue && state.isPlaying) {
+        // 이미 같은 장 재생 중이면 재시작하지 않고 미니플레이어만 펼침
+        var miniPlayer = document.getElementById('gomna-audio-mini-player');
+        var expandBtn = document.querySelector('[data-audio-action="expand"]');
+        if (miniPlayer && !miniPlayer.hidden && miniPlayer.classList.contains('gomna-audio-visible') && expandBtn) {
+          expandBtn.click();
+        }
+        if (typeof syncVerseToolbarListenButton === 'function') {
+          syncVerseToolbarListenButton();
+        }
         return;
       }
-      var rangeBox = document.getElementById('verseRangeBoxBtn');
-      if (rangeBox) rangeBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      playChapterAudio();
+      if (typeof syncVerseToolbarListenButton === 'function') {
+        syncVerseToolbarListenButton();
+      }
       return;
     }
   } catch (e) {}
@@ -7590,6 +7615,22 @@ function getChapterAudioIds() {
   return ids;
 }
 
+/** 현재 절 목록의 모든 bible audio가 manifest published인지 — 책 이름 하드코딩 없음 */
+function isCurrentChapterBibleAudioPublished() {
+  if (!currentBook || !currentChapter) return false;
+  if (!window.GOMNA_AUDIO_BOOK || !window.GOMNA_AUDIO_BOOK.getBookAudioId) return false;
+  if (!GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name)) return false;
+  var items = document.querySelectorAll('#verseList .verse-item[data-verse]');
+  if (!items.length) return false;
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var verse = parseInt(item.getAttribute('data-verse'), 10);
+    if (isNaN(verse) || verse < 1) return false;
+    if (!isVerseAudioAvailable(verse, getVerseOccurrenceFromItem(item))) return false;
+  }
+  return getChapterAudioIds().length > 0;
+}
+
 function getRangeAudioIds() {
   if (!currentBook || !currentChapter) return [];
   if (opt4RangeStart <= 0 || opt4RangeEnd <= 0 || opt4RangeStart > opt4RangeEnd) return [];
@@ -11221,7 +11262,7 @@ function changeFont(delta) {
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260725-contained-audio-hide-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=20260726-bible-active-card-v1" defer></script>
-<script src="/js/gomna-audio-ui.js?v=20260724-expand-overlay-fix" defer></script>
+<script src="/js/gomna-audio-ui.js?v=20260727-listen-supported-books-v1" defer></script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)

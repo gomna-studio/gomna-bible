@@ -1129,19 +1129,32 @@
 
   function getCurrentBookAudioId() {
     var currentBookValue = window.currentBook;
-    var firstVerseAudioButton;
+    var bookName = currentBookValue && currentBookValue.name;
+    var bookId = null;
+    var firstAudioEl;
     var firstAudioId;
     var match;
 
-    if (!currentBookValue || currentBookValue.name !== '창세기') {
-      firstVerseAudioButton = document.querySelector('#verseList [data-audio-id$=".bible"]');
-      firstAudioId = firstVerseAudioButton && firstVerseAudioButton.getAttribute('data-audio-id');
-      match = firstAudioId && firstAudioId.match(/^([^.]+)\.\d{3}\.\d{3}\.bible$/);
-
-      return match ? match[1] : null;
+    if (
+      bookName &&
+      window.GOMNA_AUDIO_BOOK &&
+      typeof window.GOMNA_AUDIO_BOOK.getBookAudioId === 'function'
+    ) {
+      bookId = window.GOMNA_AUDIO_BOOK.getBookAudioId(bookName);
+      if (bookId) return bookId;
     }
 
-    return 'genesis';
+    /* toolbar mode에서는 data-audio-id 버튼이 없고 data-audio-target만 있을 수 있음 */
+    firstAudioEl = document.querySelector(
+      '#verseList [data-audio-id$=".bible"], #verseList [data-audio-target$=".bible"]'
+    );
+    firstAudioId = firstAudioEl && (
+      firstAudioEl.getAttribute('data-audio-id') ||
+      firstAudioEl.getAttribute('data-audio-target')
+    );
+    match = firstAudioId && firstAudioId.match(/^([^.]+)\.\d{3}\.\d{3}(?:o\d+)?\.bible$/);
+
+    return match ? match[1] : null;
   }
 
   function getCurrentChapterNumber() {
