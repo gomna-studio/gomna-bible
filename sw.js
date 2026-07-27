@@ -4,7 +4,7 @@
 //   - STATIC: HTML/JS/CSS/매니페스트/기본 아이콘 — 코드 변경 시 버전 bump
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 
-const CACHE_VERSION = '2026-07-24-commentary-header-verse-v1';
+const CACHE_VERSION = '2026-07-27-listen-supported-books-v1';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE   = 'gomna-data-v1';
@@ -23,7 +23,7 @@ const STATIC_URLS = [
   '/js/gomna-audio-listen-button.js?v=1',
   '/js/gomna-audio-commentary-buttons.js?v=20260723-verse-bind-v4',
   '/js/gomna-audio-highlight.js?v=1',
-  '/js/gomna-audio-ui.js?v=2',
+  '/js/gomna-audio-ui.js?v=20260727-listen-supported-books-v1',
   '/manifest.json',
   '/favicon.png',
   '/logo-home.png',
