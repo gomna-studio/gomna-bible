@@ -231,4 +231,9 @@ export const BOOKS = {
     testamentVariable: 'newTestamentData',
     bookSlug: 'acts',
   },
+  romans: {
+    book: '로마서',
+    testamentVariable: 'newTestamentData',
+    bookSlug: 'romans',
+  },
 };
