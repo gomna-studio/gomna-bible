@@ -236,4 +236,9 @@ export const BOOKS = {
     testamentVariable: 'newTestamentData',
     bookSlug: 'romans',
   },
+  '1corinthians': {
+    book: '고린도전서',
+    testamentVariable: 'newTestamentData',
+    bookSlug: '1corinthians',
+  },
 };
