@@ -337,7 +337,7 @@ body.gomna-audio-body-padding {
   min-height: 32px;
   padding: 0;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 14px;
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(250, 246, 237, 0.28);
   color: var(--cream, #faf6ed);
@@ -346,6 +346,13 @@ body.gomna-audio-body-padding {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+.gomna-audio-btn-seek-back:disabled,
+.gomna-audio-btn-seek-forward:disabled,
+.gomna-audio-btn-seek-circle:disabled {
+  opacity: .38;
+  cursor: default;
+  pointer-events: none;
 }
 
 .gomna-audio-btn-play-pause {

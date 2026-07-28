@@ -523,18 +523,48 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .gm-badge-9{display:inline-flex;align-items:center;font-size:8.5px;font-weight:700;line-height:1;color:#8c4a3a;background:linear-gradient(135deg,#f6ddd2,#eec4b4);border:.5px solid rgba(150,80,55,.35);border-radius:8px;padding:3px 5px;letter-spacing:-.1px;flex-shrink:0}
 .verse-hint{display:block;width:100%;margin-top:10px;background:transparent;border:none;font-family:inherit;font-size:11px;color:#8a6332;text-align:center;letter-spacing:-.1px;cursor:pointer;padding:6px 4px;border-radius:var(--gm-radius-btn);transition:background .2s}
 .verse-hint:hover{background:var(--gm-hover-btn-strong)}
-/* 이어서 읽기 카드 */
-.continue-card{display:flex;align-items:center;gap:10px;width:100%;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);box-shadow:var(--gm-card-shadow);padding:9px 10px;margin-bottom:8px;cursor:pointer;font-family:inherit;text-align:left;transition:background .22s ease,transform .15s ease}
-.continue-card:hover{background:var(--gm-hover-surface)}
-.continue-icon{width:34px;height:34px;flex-shrink:0;border-radius:var(--gm-radius-btn);background:rgba(194,142,67,.46);display:flex;align-items:center;justify-content:center;box-shadow:none;transition:background .22s ease}
-.continue-icon svg{width:20px;height:20px;stroke:#242018;fill:none;stroke-width:1.6;transition:stroke .22s ease}
-.continue-card:hover .continue-icon{background:rgba(190,135,56,.42)}
-.continue-card:hover .continue-icon svg{stroke:#1F1A14}
-.continue-info{flex:1;min-width:0}
-.continue-label{font-size:10px;font-weight:700;color:var(--gm-gold);letter-spacing:.4px;margin-bottom:2px}
-.continue-title{font-size:14.5px;font-weight:600;color:#2a1c0c;letter-spacing:-.2px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.continue-sub{font-size:10.5px;color:#8a6e4a;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.continue-arrow{flex-shrink:0;font-size:16px;color:#a87a35;font-weight:600}
+/* 말씀 이어가기 카드 */
+.home-resume-card{display:block;width:100%;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);box-shadow:var(--gm-card-shadow);padding:10px 11px 9px;margin-bottom:8px;font-family:inherit;text-align:left;box-sizing:border-box;pointer-events:auto}
+.home-resume-split{display:grid;grid-template-columns:1fr 1fr;gap:0;min-width:0;width:100%}
+.home-resume-pane{display:flex;flex-direction:column;align-items:stretch;min-width:0;min-height:100%;background:transparent;border:0;padding:1px 8px 1px 0;margin:0;cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent;border-radius:8px;transition:background .18s ease}
+.home-resume-pane + .home-resume-pane{padding:1px 0 1px 10px;border-left:1px solid rgba(168,122,53,.28)}
+.home-resume-pane:hover{background:rgba(200,152,73,.06)}
+.home-resume-pane:active{background:rgba(200,152,73,.1)}
+.home-resume-line1{display:flex;align-items:center;gap:5px;min-width:0;max-width:100%;margin:0 0 2px}
+.home-resume-pane-icon{width:16px;height:16px;flex-shrink:0;display:block;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.home-resume-pane-icon--read{stroke:#3F2A12;opacity:.88}
+.home-resume-pane-icon--listen{stroke:#234A52;opacity:.82}
+.home-resume-primary{min-width:0;flex:1;display:flex;align-items:baseline;gap:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+.home-resume-loc{font-size:13.5px;font-weight:700;color:#2a1c0c;letter-spacing:-.25px}
+.home-resume-place{font-size:11.5px;font-weight:500;color:#8a6e4a;letter-spacing:-.15px;margin-left:.2em}
+.home-resume-time{font-size:11px;color:#9a7a52;margin-top:1px;letter-spacing:-.15px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-resume-cta{margin-top:4px;font-size:12px;font-weight:600;color:#a87a35;letter-spacing:-.15px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-resume-card.home-resume--no-read .home-resume-loc,
+.home-resume-card.home-resume--no-listen .home-resume-loc{color:#6e5536;font-weight:600}
+.home-resume-card.home-resume--no-read .home-resume-place,
+.home-resume-card.home-resume--no-listen .home-resume-place{display:none}
+.home-resume-card.home-resume--no-read .home-resume-time,
+.home-resume-card.home-resume--no-listen .home-resume-time{opacity:.72}
+.home-resume-card.home-resume--no-read .home-resume-cta,
+.home-resume-card.home-resume--no-listen .home-resume-cta{opacity:.78}
+.home-resume-recent{display:flex;align-items:baseline;gap:6px;width:100%;margin-top:8px;padding-top:7px;border-top:1px solid rgba(180,140,90,.14);background:transparent;border-left:0;border-right:0;border-bottom:0;cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent}
+.home-resume-recent-label{flex-shrink:0;font-size:10px;font-weight:600;color:#8a6e4a;letter-spacing:-.1px}
+.home-resume-recent-line{min-width:0;flex:1;font-size:11.5px;font-weight:500;color:#3d2818;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-resume-card.home-resume--no-recent .home-resume-recent-line{color:#9a7a52;font-weight:450}
+.home-resume-pane:hover .home-resume-loc,
+.home-resume-pane:hover .home-resume-cta,
+.home-resume-recent:hover .home-resume-recent-line{color:#5a3818}
+@media (max-width:360px){
+  .home-resume-card{padding:9px 9px 8px}
+  .home-resume-line1{gap:4px}
+  .home-resume-pane-icon{width:15px;height:15px}
+  .home-resume-loc{font-size:12.5px}
+  .home-resume-place{font-size:11px}
+  .home-resume-time{font-size:10.5px}
+  .home-resume-cta{font-size:11.5px;margin-top:3px}
+  .home-resume-pane + .home-resume-pane{padding-left:8px}
+  .home-resume-recent-line{font-size:11px}
+}
 /* 빠른 메뉴 4칸 */
 .quick-menu{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);overflow:hidden;box-shadow:var(--gm-card-shadow);margin-bottom:4px}
 .quick-item{background:transparent;border:0;border-radius:0;box-shadow:none;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-family:inherit;transition:background .22s ease,transform .15s ease;-webkit-tap-highlight-color:transparent;min-width:0}
@@ -813,15 +843,34 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     </button>
   </div>
-  <button type="button" class="continue-card" id="continueCard" onclick="openContinueRead()" aria-label="이어서 읽기" data-i18n-aria-label="home.continue.aria">
-    <div class="continue-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M9 7h7M9 11h5"/></svg></div>
-    <div class="continue-info">
-      <div class="continue-label" id="continueLabel">처음부터 성경 읽기</div>
-      <div class="continue-title" id="continueTitle">창세기 1장</div>
-      <div class="continue-sub" id="continueSub" style="display:none"></div>
+  <section class="home-resume-card" id="homeResumeCard" aria-label="말씀 이어가기">
+    <div class="home-resume-split">
+      <button type="button" class="home-resume-pane" id="homeResumeReadPane" aria-label="이어서 읽기">
+        <div class="home-resume-line1">
+          <svg class="home-resume-pane-icon home-resume-pane-icon--read" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M9 7h7M9 11h5"/></svg>
+          <span class="home-resume-primary">
+            <span class="home-resume-loc" id="homeResumeReadLoc">성경읽기 시작</span><span class="home-resume-place" id="homeResumeReadPlace"></span>
+          </span>
+        </div>
+        <div class="home-resume-time" id="homeResumeReadTime">—</div>
+        <div class="home-resume-cta">이어서 읽기 →</div>
+      </button>
+      <button type="button" class="home-resume-pane" id="homeResumeListenPane" aria-label="이어서 듣기">
+        <div class="home-resume-line1">
+          <svg class="home-resume-pane-icon home-resume-pane-icon--listen" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+          <span class="home-resume-primary">
+            <span class="home-resume-loc" id="homeResumeListenLoc">말씀 듣기 시작</span><span class="home-resume-place" id="homeResumeListenPlace"></span>
+          </span>
+        </div>
+        <div class="home-resume-time" id="homeResumeListenTime">—</div>
+        <div class="home-resume-cta">이어서 듣기 ▶</div>
+      </button>
     </div>
-    <div class="continue-arrow" aria-hidden="true">›</div>
-  </button>
+    <button type="button" class="home-resume-recent" id="homeResumeRecent" aria-label="최근 말씀">
+      <span class="home-resume-recent-label">최근 말씀</span>
+      <span class="home-resume-recent-line" id="homeResumeRecentLine">아직 기록이 없습니다</span>
+    </button>
+  </section>
   <div class="verse-card" id="today-word-card">
     <div class="verse-card-photo-layer" aria-hidden="true">
       <div class="verse-card-hero">
@@ -1412,74 +1461,19 @@ function scrollToTopics(){
 function openMainCommentaryListen(){
   openDailyVerse('commentary');
 }
-// ─── 이어서 읽기 카드: localStorage gomna_last_read ───
-function _readLastRead(){
-  try{
-    const raw=localStorage.getItem('gomna_last_read');
-    if(!raw)return null;
-    const d=JSON.parse(raw);
-    if(!d||typeof d.book!=='string'||!d.book||!d.chapter)return null;
-    return d;
-  }catch(e){return null;}
-}
-function _lastReadDayWord(ts){
-  if(window.GomnaUII18n&&typeof window.GomnaUII18n.formatRelativeDay==='function'&&document.documentElement.classList.contains('gomna-native-i18n-active')){
-    return window.GomnaUII18n.formatRelativeDay(ts,_homeUiLang());
-  }
-  const d=new Date(ts);
-  if(isNaN(d.getTime()))return'';
-  const now=new Date();
-  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-  const that=new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  const diff=Math.round((today-that)/86400000);
-  if(diff<=0)return'오늘';
-  if(diff===1)return'어제';
-  return (d.getMonth()+1)+'월 '+d.getDate()+'일';
-}
+/* 말씀 이어가기 카드 렌더는 js/gomna-home-resume.js */
 function renderContinueCard(){
-  const label=document.getElementById('continueLabel');
-  const title=document.getElementById('continueTitle');
-  const sub=document.getElementById('continueSub');
-  if(!label||!title||!sub)return;
-  const lang=_homeUiLang();
-  const native=document.documentElement.classList.contains('gomna-native-i18n-active')&&window.GomnaUII18n;
-  const d=_readLastRead();
-  if(d){
-    const dayWord=_lastReadDayWord(d.timestamp);
-    label.textContent=native?(_homeT('home.continue.resume')||'이어서 읽기'):'이어서 읽기';
-    if(native&&typeof window.GomnaUII18n.formatContinueTitle==='function'){
-      title.textContent=window.GomnaUII18n.formatContinueTitle(d.book,d.chapter,dayWord,lang);
-    }else{
-      title.textContent=d.book+' '+d.chapter+'장'+(dayWord?' · '+dayWord+' 읽던 곳':'');
-    }
-    if(d.timestamp&&!isNaN(new Date(d.timestamp).getTime())){
-      const t=new Date(d.timestamp);
-      const hh=String(t.getHours()).padStart(2,'0');
-      const mm=String(t.getMinutes()).padStart(2,'0');
-      if(native&&typeof window.GomnaUII18n.formatContinueSub==='function'){
-        sub.textContent=window.GomnaUII18n.formatContinueSub(dayWord,hh+':'+mm,lang);
-      }else{
-        sub.textContent=(dayWord||'')+' '+hh+':'+mm+'에 읽었습니다';
-      }
-      sub.style.display='';
-    }else{sub.style.display='none';}
-  }else{
-    label.textContent=native?(_homeT('home.continue.start')||'처음부터 성경 읽기'):'처음부터 성경 읽기';
-    if(native&&typeof window.GomnaUII18n.formatBookChapter==='function'){
-      title.textContent=window.GomnaUII18n.formatBookChapter('창세기',1,lang);
-    }else{
-      title.textContent='창세기 1장';
-    }
-    sub.style.display='none';
+  if(window.GOMNA_HOME_RESUME&&typeof window.GOMNA_HOME_RESUME.renderHomeCard==='function'){
+    window.GOMNA_HOME_RESUME.renderHomeCard();
   }
 }
 function openContinueRead(){
-  const d=_readLastRead();
-  const book=d?d.book:'창세기';
-  const chapter=d?d.chapter:1;
-  window.location.href='reader.html?book='+encodeURIComponent(book)+'&chapter='+chapter;
+  if(window.GOMNA_HOME_RESUME&&typeof window.GOMNA_HOME_RESUME.openRead==='function'){
+    window.GOMNA_HOME_RESUME.openRead();
+    return;
+  }
+  window.location.href='reader.html?book='+encodeURIComponent('창세기')+'&chapter=1&verse=1';
 }
-renderContinueCard();
 
 _verseSchedule(1000,startVerseCycle);
 document.addEventListener('visibilitychange',function(){if(document.hidden){_clearVerseCycle();}else{startVerseCycle();}});
@@ -1614,6 +1608,7 @@ function openSettings(){var p=document.getElementById('settingsPopup');if(p)p.cl
 function closeSettings(){var p=document.getElementById('settingsPopup');if(p)p.classList.remove('show');}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
+<script src="js/gomna-home-resume.js?v=20260728-home-resume-card-v9"></script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
 <script src="translate_feature.js?v=20260724-first-visit-detect-v2" defer></script>
 <script>

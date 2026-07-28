@@ -1584,7 +1584,7 @@
       '.title',
       '.sub',
       '#greeting',
-      '#continueLabel',
+      '.home-resume-loc',
       '.gm-btn-today-open',
       '#verse-tag',
       '.card.old .card-name',

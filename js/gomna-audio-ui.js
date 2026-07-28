@@ -1737,6 +1737,135 @@
     engine.playAudioQueue(audioIds, { source: queueSource });
   }
 
+  function updateVerseSkipButtons(state) {
+    var currentId = state && state.currentAudioId ? String(state.currentAudioId) : '';
+    var parts = parseAudioIdParts(currentId);
+    var endVerse = getCurrentVerseCountValue();
+    /* Disabled by verse number only — never by queue index. */
+    var atStart = !parts || parts.verse <= 1;
+    var atEnd = !parts || !endVerse || parts.verse >= endVerse;
+    var prevButtons = document.querySelectorAll(
+      '[data-audio-action="skip-verse-prev"], .gomna-audio-btn-seek-back'
+    );
+    var nextButtons = document.querySelectorAll(
+      '[data-audio-action="skip-verse-next"], .gomna-audio-btn-seek-forward'
+    );
+    var i;
+
+    for (i = 0; i < prevButtons.length; i++) {
+      prevButtons[i].disabled = atStart;
+      prevButtons[i].setAttribute('aria-disabled', atStart ? 'true' : 'false');
+    }
+    for (i = 0; i < nextButtons.length; i++) {
+      nextButtons[i].disabled = atEnd;
+      nextButtons[i].setAttribute('aria-disabled', atEnd ? 'true' : 'false');
+    }
+  }
+
+  /**
+   * Mini/expanded player prev/next: move by current verse number ± 1.
+   * Never uses queue index. Rebuilds to-end queue from the target verse.
+   */
+  function skipBibleVerse(step) {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var currentId;
+    var parts;
+    var endVerse;
+    var targetVerse;
+    var targetId;
+    var queueIds;
+    var queueSource;
+    var verse;
+    var started;
+
+    if (!engine || !state) return false;
+    if (!allowVerseScreenAudioPlayback()) return false;
+
+    currentId = state.currentAudioId ? String(state.currentAudioId) : '';
+    parts = parseAudioIdParts(currentId);
+
+    /* Non-bible (commentary etc.): keep legacy ±10s seek. */
+    if (!parts) {
+      if (typeof engine.seekAudio === 'function') {
+        engine.seekAudio(step > 0 ? 10 : -10);
+        return true;
+      }
+      return false;
+    }
+
+    if (!engine.playAudioQueue) {
+      showToast('오디오 준비 중입니다.');
+      return false;
+    }
+
+    endVerse = getCurrentVerseCountValue();
+    targetVerse = parts.verse + (step > 0 ? 1 : -1);
+
+    /* Same-chapter only: never go to verse 0 / past chapter end. */
+    if (targetVerse < 1) {
+      updateVerseSkipButtons(state);
+      return false;
+    }
+    if (endVerse && targetVerse > endVerse) {
+      updateVerseSkipButtons(state);
+      return false;
+    }
+
+    targetId = buildBibleAudioId(parts.bookId, parts.chapter, targetVerse, 1);
+
+    queueIds = collectRenderedBibleAudioIds({
+      bookId: parts.bookId,
+      chapter: parts.chapter,
+      startFromAudioId: targetId
+    });
+
+    if (!queueIds.length) {
+      queueIds = [];
+      started = false;
+      for (verse = 1; verse <= (endVerse || targetVerse); verse++) {
+        if (!started) {
+          if (verse === targetVerse) started = true;
+          else continue;
+        }
+        queueIds.push(buildBibleAudioId(parts.bookId, parts.chapter, verse, 1));
+      }
+    }
+
+    if (!queueIds.length) {
+      queueIds = [targetId];
+    }
+
+    /* Ensure the computed previous/next verse is first, even if DOM miss. */
+    if (queueIds[0] !== targetId) {
+      queueIds = [targetId].concat(
+        queueIds.filter(function (id) {
+          return id !== targetId;
+        })
+      );
+    }
+
+    queueSource =
+      'bible-to-end:' +
+      parts.bookId +
+      '.' +
+      pad3(parts.chapter) +
+      '.from-' +
+      formatVerseSegment(targetVerse, 1);
+
+    started = !!engine.playAudioQueue(queueIds, {
+      source: queueSource,
+      forceRestart: true
+    });
+
+    if (started) {
+      /* Reflect new verse immediately for rapid repeated clicks. */
+      updateVerseSkipButtons(engine.getState ? engine.getState() : state);
+    }
+
+    return started;
+  }
+
   function updateRangeAudioButtons(state) {
     var buttons = document.querySelectorAll('[data-audio-action="play-range"]');
     var label = '선택 범위 듣기';
@@ -1854,10 +1983,26 @@
         }
         break;
 
+      case 'skip-verse-prev':
+        skipBibleVerse(-1);
+        break;
+
+      case 'skip-verse-next':
+        skipBibleVerse(1);
+        break;
+
       case 'seek':
+        /*
+         * Legacy ±10s controls: for bible playback treat as verse skip
+         * (forward often felt like "next verse" when clips were short).
+         */
         var seconds = parseInt(actionEl.getAttribute('data-seek-seconds'), 10);
         if (!isNaN(seconds)) {
-          engine.seekAudio(seconds);
+          if (state && state.currentAudioId && parseAudioIdParts(String(state.currentAudioId))) {
+            skipBibleVerse(seconds >= 0 ? 1 : -1);
+          } else {
+            engine.seekAudio(seconds);
+          }
         }
         break;
 
@@ -1913,6 +2058,7 @@
     updateCurrentText(detail.entry, detail.audioId);
     bindMiniProgressAudio();
     updateRangeAudioButtons(state);
+    updateVerseSkipButtons(state);
     bindBibleResumeTimeupdate();
     saveBibleResumeSession();
     updateExpandedSettingsSummary(state);
@@ -1929,6 +2075,7 @@
     setPlayPauseIcon(false);
     updateMiniProgressFromState(state);
     updateRangeAudioButtons(state);
+    updateVerseSkipButtons(state);
     saveBibleResumeSession();
     stopHeroCaptionSync();
     updateHeroCaptionFromState();
@@ -1941,6 +2088,7 @@
     setPlayPauseIcon(true);
     bindMiniProgressAudio();
     updateRangeAudioButtons(state);
+    updateVerseSkipButtons(state);
     if (isExpandedPlayerVisible()) {
       startHeroCaptionSync();
     }

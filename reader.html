@@ -2168,7 +2168,7 @@ html.reader-hide-chrome #favView.active #favResultsArea{
 </script>
 <link rel="manifest" href="manifest.json?v=20260704-pwa-cache-fix">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
-<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260724-expand-overlay-fix">
+<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260728-verse-skip-v1">
 <style id="gomna-commentary-unified-scroll-css">
 /* After audio CSS: one native scroll for header→verse-nav; footer stays fixed.
  * pinch-zoom + pan-x restore browser zoom/pan; do not use pan-y alone.
@@ -11788,7 +11788,7 @@ function changeFont(delta) {
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260725-contained-audio-hide-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=20260728-continuous-no-stop-v7" defer></script>
-<script src="/js/gomna-audio-ui.js?v=20260728-continuous-no-stop-v7" defer></script>
+<script src="/js/gomna-audio-ui.js?v=20260728-verse-skip-v2" defer></script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)
@@ -11968,10 +11968,9 @@ function loadAds() {
 
   <div class="gomna-audio-mini-controls">
     <button class="gomna-audio-btn-seek-back"
-            data-audio-action="seek"
-            data-seek-seconds="-10"
-            aria-label="10초 뒤로">
-      ⟲ 10
+            data-audio-action="skip-verse-prev"
+            aria-label="이전 절">
+      ⟲
     </button>
 
     <button class="gomna-audio-btn-play-pause"
@@ -11982,10 +11981,9 @@ function loadAds() {
     </button>
 
     <button class="gomna-audio-btn-seek-forward"
-            data-audio-action="seek"
-            data-seek-seconds="10"
-            aria-label="10초 앞으로">
-      10 ⟳
+            data-audio-action="skip-verse-next"
+            aria-label="다음 절">
+      ⟳
     </button>
 
     <button class="gomna-audio-btn-speed"
@@ -12065,11 +12063,9 @@ function loadAds() {
   <div class="gomna-audio-expanded-controls">
     <button type="button"
             class="gomna-audio-btn-seek-circle"
-            data-audio-action="seek"
-            data-seek-seconds="-10"
-            aria-label="10초 뒤로">
+            data-audio-action="skip-verse-prev"
+            aria-label="이전 절">
       <span class="gomna-audio-seek-glyph" aria-hidden="true">⟲</span>
-      <span class="gomna-audio-seek-num" aria-hidden="true">10</span>
     </button>
 
     <button type="button"
@@ -12082,10 +12078,8 @@ function loadAds() {
 
     <button type="button"
             class="gomna-audio-btn-seek-circle"
-            data-audio-action="seek"
-            data-seek-seconds="10"
-            aria-label="10초 앞으로">
-      <span class="gomna-audio-seek-num" aria-hidden="true">10</span>
+            data-audio-action="skip-verse-next"
+            aria-label="다음 절">
       <span class="gomna-audio-seek-glyph" aria-hidden="true">⟳</span>
     </button>
   </div>
@@ -12567,23 +12561,66 @@ function loadAds() {
   });
 })();
 </script>
+<script src="/js/gomna-home-resume.js?v=20260728-home-resume-card-v9"></script>
 <script>
-/* ── home-ui-v1: 마지막 읽은 위치(gomna_last_read) + 방문일(gomna_visit_days) 저장 ──
-   기존 로직은 수정하지 않고, 장 렌더링 완료 시 발생하는
-   'gomna:verse_list_rendered' 이벤트만 구독해서 저장한다. */
+/* ── home resume: 읽던/듣던/최근 말씀 + 방문일 저장 ──
+   audio-engine 내부는 건드리지 않고 audio:start / verse 이벤트만 구독한다.
+   read / listen key는 완전히 분리한다. */
 (function(){
   'use strict';
-  function saveLastRead(bookName, chapter){
+  var entrySource = '';
+  try{
+    entrySource = String(new URLSearchParams(location.search).get('source') || '');
+  }catch(e){ entrySource = ''; }
+
+  /* 듣던 말씀 진입 세션에서는 read key를 절대 갱신하지 않는다. */
+  var suppressReadEntireSession = entrySource === 'home-resume-listen';
+  /* 최근/듣기 진입 직후 자동 저장은 막고, 사용자 읽기 행동만 허용한다. */
+  var suppressReadAutoOnRender =
+    suppressReadEntireSession ||
+    entrySource === 'home-resume-recent';
+
+  function resolveVerse(fallback){
+    var fromUrl = NaN;
+    var selected = window.selectedVerseNum;
     try{
+      var p = new URLSearchParams(location.search);
+      var raw = p.get('verseStart') || p.get('verse');
+      if(raw != null && raw !== '') fromUrl = parseInt(raw, 10);
+    }catch(e){}
+    if(!isNaN(selected) && selected >= 1) return Number(selected);
+    if(!isNaN(fromUrl) && fromUrl >= 1) return fromUrl;
+    return fallback || 1;
+  }
+
+  function isBibleAudioActive(){
+    try{
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine && typeof engine.getState === 'function' ? engine.getState() : null;
+      var id = state && state.currentAudioId ? String(state.currentAudioId) : '';
+      if(!state || !id || !/\.bible$/.test(id)) return false;
+      return !!(state.isPlaying || state.queueActive);
+    }catch(e){ return false; }
+  }
+
+  function saveLastRead(bookName, chapter, verse){
+    try{
+      if(suppressReadEntireSession) return;
       if(!bookName || !chapter) return;
+      var v = (!isNaN(verse) && verse >= 1) ? Number(verse) : 1;
+      if(window.GOMNA_HOME_RESUME && typeof window.GOMNA_HOME_RESUME.saveRead === 'function'){
+        window.GOMNA_HOME_RESUME.saveRead(bookName, chapter, v);
+        return;
+      }
       localStorage.setItem('gomna_last_read', JSON.stringify({
         book: String(bookName),
         chapter: Number(chapter),
-        verse: 1,
+        verse: v,
         timestamp: Date.now()
       }));
     }catch(e){ /* storage 불가 환경 무시 */ }
   }
+
   function saveVisitDay(){
     try{
       var now = new Date();
@@ -12602,13 +12639,109 @@ function loadAds() {
       }
     }catch(e){ /* storage 불가 환경 무시 */ }
   }
+
   window.addEventListener('gomna:verse_list_rendered', function(e){
     var d = e && e.detail;
     var bookName = (d && d.bookName) || (window.currentBook && window.currentBook.name);
     var chapter = (d && d.chapter) || window.currentChapter;
-    saveLastRead(bookName, chapter);
+    if(suppressReadAutoOnRender) return;
+    /* 본문 오디오 재생/큐 전환 중 chapter render는 read를 건드리지 않는다. */
+    if(isBibleAudioActive()) return;
+    saveLastRead(bookName, chapter, resolveVerse(1));
   });
+
+  document.addEventListener('click', function(e){
+    var t = e.target;
+    var item;
+    var verse;
+    var bookName;
+    var chapter;
+    if(suppressReadEntireSession) return;
+    /* 듣기/말씀풀이 버튼 클릭은 읽기 기록이 아니다. */
+    if(t && t.closest && t.closest('.gomna-audio-verse-button, .gomna-audio-commentary-button, [data-gomna-chapter-listen], #opt4VerseListen')){
+      return;
+    }
+    item = t && t.closest ? t.closest('#verseList .verse-item') : null;
+    if(!item) return;
+    verse = parseInt(item.getAttribute('data-verse'), 10);
+    bookName = window.currentBook && window.currentBook.name;
+    chapter = window.currentChapter;
+    if(!bookName || !chapter || isNaN(verse) || verse < 1) return;
+    setTimeout(function(){
+      var v = (!isNaN(window.selectedVerseNum) && window.selectedVerseNum >= 1)
+        ? Number(window.selectedVerseNum)
+        : verse;
+      saveLastRead(bookName, chapter, v);
+    }, 0);
+  }, true);
+
+  window.addEventListener('audio:start', function(e){
+    var detail = e && e.detail;
+    var audioId = detail && detail.audioId;
+    var api = window.GOMNA_HOME_RESUME;
+    var parts;
+    var bookName;
+    if(!audioId || !api || typeof api.parseBibleAudioId !== 'function') return;
+    if(!/\.bible$/.test(String(audioId))) return;
+    parts = api.parseBibleAudioId(audioId);
+    bookName = api.bookNameFromAudioId(audioId);
+    if(!parts || !bookName) return;
+    /* listen only — never touch read key here. */
+    api.saveListen(bookName, parts.chapter, parts.verse);
+  });
+
   saveVisitDay();
+})();
+</script>
+<script>
+/* ── home resume listen: 자동재생 없이 해당 절로 이동·듣기 버튼 포커스 ── */
+(function(){
+  'use strict';
+  var pending=null;
+  var done=false;
+  var retryCount=0;
+  var MAX_RETRY=40;
+  try{
+    var p=new URLSearchParams(location.search);
+    if(p.get('source')!=='home-resume-listen')return;
+    pending={
+      book:(p.get('book')||'').trim(),
+      chapter:parseInt(p.get('chapter'),10),
+      verse:parseInt(p.get('verse')||'1',10)
+    };
+  }catch(e){}
+  if(!pending||!pending.book||!pending.chapter||isNaN(pending.verse))return;
+
+  function focusListenButton(verse){
+    var item=document.querySelector('#verseList .verse-item[data-verse="'+verse+'"]');
+    if(!item)return false;
+    try{item.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){item.scrollIntoView();}
+    setTimeout(function(){
+      var btn=item.querySelector('.gomna-audio-verse-button');
+      if(btn){
+        try{btn.focus({preventScroll:true});}catch(e2){btn.focus();}
+      }
+    },350);
+    return true;
+  }
+
+  function tryFocus(){
+    if(done||retryCount++>MAX_RETRY)return;
+    if(!window.currentBook||window.currentBook.name!==pending.book)return;
+    if(Number(window.currentChapter)!==pending.chapter)return;
+    if(!focusListenButton(pending.verse))return;
+    done=true;
+  }
+
+  function schedule(){
+    tryFocus();
+    setTimeout(tryFocus,80);
+    setTimeout(tryFocus,400);
+    setTimeout(tryFocus,1200);
+  }
+
+  window.addEventListener('gomna:verse_list_rendered',schedule);
+  if(document.readyState!=='loading')schedule();
 })();
 </script>
 <script src="/js/gomna-card-highlight-test.js?v=20260726-bible-active-card-v1"></script>
