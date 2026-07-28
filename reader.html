@@ -1115,6 +1115,16 @@ html.gomna-lang-bridge-in-commentary .gomna-reader-lang-bridge-host:not(.gomna-r
 .opt4-verse-listen{min-width:0;min-height:40px;padding:4px 4px;background:rgba(200,152,73,.18);color:#5A321C;border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:normal;line-height:1.15;-webkit-tap-highlight-color:transparent;opacity:1;box-sizing:border-box}
 .opt4-verse-listen:active{background:rgba(200,152,73,.3)}
 .opt4-verse-listen[hidden]{display:none}
+.opt4-verse-listen-choice{display:grid;grid-template-columns:1fr 1fr;gap:4px;min-width:0;width:100%;max-width:100%;align-items:stretch;box-sizing:border-box}
+.opt4-verse-listen-choice[hidden]{display:none!important}
+.opt4-verse-listen-choice .opt4-verse-listen{width:100%;min-width:0;padding:4px 2px;font-size:11px;letter-spacing:-.2px}
+/* 한 절 선택: 듣기 영역 2칸을 써서 두 버튼 문구가 375px에서도 잘리지 않게 한다 */
+#opt4VerseToolbar.opt4-bar-mode:has(#opt4VerseListenChoice:not([hidden])){
+  grid-template-columns:repeat(6,minmax(0,1fr));
+}
+#opt4VerseToolbar.opt4-bar-mode:has(#opt4VerseListenChoice:not([hidden])) #opt4VerseListenChoice{
+  grid-column:span 2;
+}
 .opt4-verse-commentary{min-width:0;min-height:40px;padding:4px 4px;background:#fff;border:0.5px solid rgba(180,140,90,.4);border-radius:10px;font-size:13px;font-weight:700;color:#5A321C;font-family:inherit;cursor:pointer;white-space:normal;line-height:1.15;-webkit-tap-highlight-color:transparent;opacity:1;box-sizing:border-box}
 .opt4-verse-commentary:active{background:rgba(244,232,205,.6)}
 .opt4-verse-more{min-width:0;min-height:40px;padding:4px 2px;background:transparent;border:none;font-size:13px;font-weight:700;color:#5A321C;font-family:inherit;cursor:pointer;white-space:normal;line-height:1.15;-webkit-tap-highlight-color:transparent;opacity:1;box-sizing:border-box}
@@ -1169,6 +1179,7 @@ html.gomna-lang-bridge-in-commentary .gomna-reader-lang-bridge-host:not(.gomna-r
 /* 절 본문 하단 조작 바: 항상 선명·활성 (오디오 CSS disabled 흐림 덮기) */
 #opt4VerseToolbar .verse-toolbar-target-btn,
 #opt4VerseToolbar .opt4-verse-listen,
+#opt4VerseToolbar .opt4-verse-listen-choice .opt4-verse-listen,
 #opt4VerseToolbar .opt4-verse-commentary,
 #opt4VerseToolbar .opt4-verse-more,
 #opt4VerseToolbar .opt4-verse-list{
@@ -1197,11 +1208,13 @@ html.gomna-lang-bridge-in-commentary .gomna-reader-lang-bridge-host:not(.gomna-r
 }
 html.gomna-reader-ui-en #opt4VerseToolbar .verse-toolbar-target-btn,
 html.gomna-reader-ui-en #opt4VerseToolbar .opt4-verse-listen,
+html.gomna-reader-ui-en #opt4VerseToolbar .opt4-verse-listen-choice .opt4-verse-listen,
 html.gomna-reader-ui-en #opt4VerseToolbar .opt4-verse-commentary,
 html.gomna-reader-ui-en #opt4VerseToolbar .opt4-verse-more,
 html.gomna-reader-ui-en #opt4VerseToolbar .opt4-verse-list,
 html.gomna-reader-ui-ja #opt4VerseToolbar .verse-toolbar-target-btn,
 html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-listen,
+html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-listen-choice .opt4-verse-listen,
 html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-commentary,
 html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-more,
 html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
@@ -2574,7 +2587,11 @@ if ("serviceWorker" in navigator) {
           <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="clear" onclick="chooseVerseListenTargetMode('clear')" role="menuitem" aria-label="선택한 구절 모두 해제"><span class="verse-toolbar-target-menu-label">선택 해제</span><span class="verse-toolbar-target-menu-suffix" aria-hidden="true">↺</span></button>
         </div>
       </div>
-      <button type="button" class="opt4-verse-listen" id="opt4VerseListen" data-gomna-chapter-listen="1">전체 듣기</button>
+      <button type="button" class="opt4-verse-listen" id="opt4VerseListen" data-gomna-chapter-listen="1">장 전체 듣기</button>
+      <div id="opt4VerseListenChoice" class="opt4-verse-listen-choice" hidden>
+        <button type="button" class="opt4-verse-listen" id="opt4VerseListenOnly">이 절만 듣기</button>
+        <button type="button" class="opt4-verse-listen" id="opt4VerseListenFromHere">여기부터 이어듣기</button>
+      </div>
       <button type="button" class="opt4-verse-commentary" id="opt4VerseCommentary" onclick="opt4ToolbarCommentary()">말씀풀이</button>
       <button type="button" class="opt4-verse-more" id="opt4VerseMore" onclick="openVerseToolbarMoreMenu()">더보기</button>
       <button type="button" class="opt4-verse-list" id="opt4VerseList" onclick="opt4OpenChapterList()" aria-label="돌아가기">← 돌아가기</button>
@@ -3697,7 +3714,7 @@ function getReaderToolbarLabels(lang) {
   }
   return {
     find: '본문 찾기',
-    listen: '전체 듣기',
+    listen: '장 전체 듣기',
     listenPause: '전체 일시정지',
     listenResume: '전체 이어듣기',
     commentary: '말씀풀이',
@@ -7706,19 +7723,71 @@ function isSameAudioIdArray(a, b) {
 
 function syncVerseToolbarListenButton() {
   var btn = document.getElementById('opt4VerseListen');
-  if (!btn) return;
+  var choiceWrap = document.getElementById('opt4VerseListenChoice');
+  var onlyBtn = document.getElementById('opt4VerseListenOnly');
+  var fromBtn = document.getElementById('opt4VerseListenFromHere');
   var engine = window.GOMNA_AUDIO_ENGINE;
   var state = engine && engine.getState ? engine.getState() : null;
-  btn.hidden = false;
-  btn.disabled = false;
-  btn.removeAttribute('aria-disabled');
   var uiLang = getReaderUiLangCode();
   var nativeUi = isReaderNativeUiLang(uiLang);
   var tLabels = getReaderToolbarLabels(uiLang || 'ko');
+  var selCount = typeof getSelectedVerseCount === 'function'
+    ? getSelectedVerseCount()
+    : (selectedVerseNums ? selectedVerseNums.length : 0);
+  var actionVerse;
+  var actionOccurrence;
+  var audioId;
+  var fromVerseIds;
+  var onlyIds;
+  var onlyLabel;
+  var fromLabel;
+  var onlyActive;
+  var fromActive;
+  var multiLabel;
+  var rangeCount;
+  var rangeLabel;
+  var chapterLabel;
 
-  if (verseListenMode === 'chapter' || (!selectedVerseNums.length && verseListenMode === 'selected')) {
+  if (!btn) return;
+
+  function hideSingleVerseChoice() {
+    if (choiceWrap) choiceWrap.hidden = true;
+  }
+
+  function showSingleVerseChoice() {
+    if (choiceWrap) choiceWrap.hidden = false;
+  }
+
+  function resetListenBtnBase() {
+    btn.disabled = false;
+    btn.removeAttribute('aria-disabled');
+  }
+
+  resetListenBtnBase();
+
+  if (verseListenMode === 'range') {
+    btn.hidden = false;
+    hideSingleVerseChoice();
     btn.removeAttribute('data-audio-id');
-    var chapterLabel = nativeUi ? tLabels.listen : '전체 듣기';
+    rangeCount = Math.max(0, opt4RangeEnd - opt4RangeStart + 1);
+    rangeLabel = rangeCount === 1 ? '1절 듣기' : rangeCount + '개 절 듣기';
+    if (state && state.queueActive && isSameAudioIdArray(state.queueAudioIds, getRangeAudioIds())) {
+      if (state.isPlaying) rangeLabel = '일시정지';
+      else if (state.isPaused) rangeLabel = '이어듣기';
+    }
+    btn.textContent = rangeLabel;
+    return;
+  }
+
+  if (
+    verseListenMode === 'chapter' ||
+    (!selectedVerseNums.length && verseListenMode === 'selected') ||
+    selCount === 0
+  ) {
+    btn.hidden = false;
+    hideSingleVerseChoice();
+    btn.removeAttribute('data-audio-id');
+    chapterLabel = nativeUi ? tLabels.listen : '장 전체 듣기';
     if (state && state.queueActive && isSameAudioIdArray(state.queueAudioIds, getChapterAudioIds())) {
       if (state.isPlaying) chapterLabel = nativeUi ? tLabels.listenPause : '전체 일시정지';
       else if (state.isPaused) chapterLabel = nativeUi ? tLabels.listenResume : '전체 이어듣기';
@@ -7728,21 +7797,11 @@ function syncVerseToolbarListenButton() {
     return;
   }
 
-  if (verseListenMode === 'range') {
+  if (selCount > 1) {
+    btn.hidden = false;
+    hideSingleVerseChoice();
     btn.removeAttribute('data-audio-id');
-    var rangeCount = Math.max(0, opt4RangeEnd - opt4RangeStart + 1);
-    var rangeLabel = rangeCount === 1 ? '1절 듣기' : rangeCount + '개 절 듣기';
-    if (state && state.queueActive && isSameAudioIdArray(state.queueAudioIds, getRangeAudioIds())) {
-      if (state.isPlaying) rangeLabel = '일시정지';
-      else if (state.isPaused) rangeLabel = '이어듣기';
-    }
-    btn.textContent = rangeLabel;
-    return;
-  }
-
-  if (selectedVerseNums.length > 1) {
-    btn.removeAttribute('data-audio-id');
-    var multiLabel = selectedVerseNums.length + '개 절 듣기';
+    multiLabel = '선택한 ' + selCount + '절 듣기';
     if (state && state.queueActive && state.queueSource === getSelectedVersesAudioQueueSource()) {
       if (state.isPlaying) multiLabel = '일시정지';
       else if (state.isPaused) multiLabel = '이어듣기';
@@ -7751,29 +7810,62 @@ function syncVerseToolbarListenButton() {
     return;
   }
 
-  var actionVerse = getToolbarActionVerse();
-  var actionOccurrence = selectedVerseNum ? selectedVerseOccurrence : 1;
-  var audioId = getVerseAudioId(actionVerse, actionOccurrence);
-  var fromVerseIds = selectedVerseNums.length === 1
-    ? getChapterAudioIds(getSortedUniqueSelectedVerseNums()[0] || actionVerse)
-    : [];
-  if (audioId && isVerseAudioAvailable(actionVerse, actionOccurrence)) {
-    btn.setAttribute('data-audio-id', audioId);
-  } else {
-    btn.removeAttribute('data-audio-id');
+  /* Exactly one selected verse: dual listen buttons. */
+  btn.hidden = true;
+  showSingleVerseChoice();
+  actionVerse = getSortedUniqueSelectedVerseNums()[0] || getToolbarActionVerse();
+  actionOccurrence = selectedVerseNum ? selectedVerseOccurrence : 1;
+  audioId = getVerseAudioId(actionVerse, actionOccurrence);
+  fromVerseIds = getChapterAudioIds(actionVerse);
+  onlyIds = audioId ? [audioId] : [];
+  onlyLabel = '이 절만 듣기';
+  fromLabel = '여기부터 이어듣기';
+  onlyActive = !!(
+    state &&
+    state.queueActive &&
+    state.queueSource &&
+    String(state.queueSource).indexOf('bible-single-verse:') === 0 &&
+    onlyIds.length &&
+    isSameAudioIdArray(state.queueAudioIds, onlyIds)
+  );
+  fromActive = !!(
+    state &&
+    state.queueActive &&
+    state.queueSource &&
+    String(state.queueSource).indexOf('bible-chapter:') === 0 &&
+    fromVerseIds.length &&
+    isSameAudioIdArray(state.queueAudioIds, fromVerseIds)
+  );
+
+  if (onlyBtn) {
+    onlyBtn.disabled = false;
+    onlyBtn.removeAttribute('aria-disabled');
+    if (audioId && isVerseAudioAvailable(actionVerse, actionOccurrence)) {
+      onlyBtn.setAttribute('data-audio-id', audioId);
+    } else {
+      onlyBtn.removeAttribute('data-audio-id');
+    }
+    if (onlyActive) {
+      if (state.isPlaying) onlyLabel = '일시정지';
+      else if (state.isPaused) onlyLabel = '이어듣기';
+    }
+    onlyBtn.textContent = onlyLabel;
   }
-  var label = '1절 듣기';
-  if (selectedVerseNums.length === 1) label = '1절 듣기';
-  if (state && state.queueActive && fromVerseIds.length && isSameAudioIdArray(state.queueAudioIds, fromVerseIds)) {
-    if (state.isPlaying) label = '일시정지';
-    else if (state.isPaused) label = '이어듣기';
-  } else if (state && audioId && state.currentAudioId === audioId) {
-    if (state.isPlaying) label = '일시정지';
-    else if (state.isPaused) label = '이어듣기';
-  } else if (audioId && window.GOMNA_AUDIO_BIBLE_RESUME && GOMNA_AUDIO_BIBLE_RESUME.getSessionForAudioId && GOMNA_AUDIO_BIBLE_RESUME.getSessionForAudioId(audioId)) {
-    label = '이어듣기';
+
+  if (fromBtn) {
+    fromBtn.disabled = false;
+    fromBtn.removeAttribute('aria-disabled');
+    if (audioId && isVerseAudioAvailable(actionVerse, actionOccurrence)) {
+      fromBtn.setAttribute('data-audio-id', audioId);
+    } else {
+      fromBtn.removeAttribute('data-audio-id');
+    }
+    if (fromActive) {
+      if (state.isPlaying) fromLabel = '일시정지';
+      else if (state.isPaused) fromLabel = '이어듣기';
+    }
+    fromBtn.textContent = fromLabel;
   }
-  btn.textContent = label;
 }
 
 function getToolbarActionVerse() {
@@ -7947,13 +8039,20 @@ function updateVerseToolbar() {
     }
     markReaderOwnedTranslate(listBtn, nativeUi);
   }
-  [commentaryBtn, moreBtn, targetBtn, listBtn, listenBtn].forEach(function(btn) {
+  [commentaryBtn, moreBtn, targetBtn, listBtn].forEach(function(btn) {
     if (!btn) return;
     btn.disabled = false;
     btn.removeAttribute('disabled');
     btn.setAttribute('aria-disabled', 'false');
     btn.hidden = false;
   });
+  if (listenBtn) {
+    listenBtn.disabled = false;
+    listenBtn.removeAttribute('disabled');
+    listenBtn.setAttribute('aria-disabled', 'false');
+  }
+  /* Listen button visibility (single vs dual) is owned by syncVerseToolbarListenButton. */
+  syncVerseToolbarListenButton();
   syncOpt4ToolbarWrapMode();
 }
 
@@ -10418,6 +10517,8 @@ function initVerseToolbarEvents() {
     });
   });
   var listenBtn = document.getElementById('opt4VerseListen');
+  var listenOnlyBtn = document.getElementById('opt4VerseListenOnly');
+  var listenFromBtn = document.getElementById('opt4VerseListenFromHere');
   if (listenBtn) {
     listenBtn.addEventListener('click', function(e) {
       var selCount;
@@ -10429,10 +10530,25 @@ function initVerseToolbarEvents() {
       } else if (selCount >= 2) {
         playSelectedVersesQueue();
       } else if (selCount === 1) {
+        /* Dual buttons own single-verse actions; keep as safe fallback. */
         playSingleSelectedVerse();
       } else {
         playChapterAudio();
       }
+    });
+  }
+  if (listenOnlyBtn) {
+    listenOnlyBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      playSingleVerseOnly();
+    });
+  }
+  if (listenFromBtn) {
+    listenFromBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      playSingleSelectedVerse();
     });
   }
   document.addEventListener('click', function(e) {
@@ -10586,6 +10702,30 @@ function playRangeAudio() {
   clearBibleContinuousChapterPlayback();
   var rangeBtn = document.querySelector('[data-audio-action="play-range"]');
   if (rangeBtn) rangeBtn.click();
+}
+
+/** One selected verse only: play that verse audioId and stop (no next verse/chapter). */
+function playSingleVerseOnly() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var verses;
+  var verse;
+  var occurrence;
+  var audioId;
+  var source;
+
+  clearBibleContinuousChapterPlayback();
+  if (!engine || !engine.playAudioQueue) return;
+
+  verses = getSortedUniqueSelectedVerseNums();
+  if (verses.length !== 1) return;
+  verse = verses[0];
+  occurrence = selectedVerseOccurrence || 1;
+  if (!isVerseAudioAvailable(verse, occurrence)) return;
+  audioId = getVerseAudioId(verse, occurrence);
+  if (!audioId) return;
+
+  source = 'bible-single-verse:' + audioId.replace(/\.bible$/, '');
+  engine.playAudioQueue([audioId], { source: source });
 }
 
 /** One selected verse: play from that verse to chapter end, then continue chapters. */
@@ -12658,7 +12798,7 @@ function loadAds() {
     var chapter;
     if(suppressReadEntireSession) return;
     /* 듣기/말씀풀이 버튼 클릭은 읽기 기록이 아니다. */
-    if(t && t.closest && t.closest('.gomna-audio-verse-button, .gomna-audio-commentary-button, [data-gomna-chapter-listen], #opt4VerseListen')){
+    if(t && t.closest && t.closest('.gomna-audio-verse-button, .gomna-audio-commentary-button, [data-gomna-chapter-listen], #opt4VerseListen, #opt4VerseListenOnly, #opt4VerseListenFromHere, #opt4VerseListenChoice')){
       return;
     }
     item = t && t.closest ? t.closest('#verseList .verse-item') : null;
