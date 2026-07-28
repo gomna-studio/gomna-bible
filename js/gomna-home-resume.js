@@ -218,91 +218,133 @@
     return String(bookName);
   }
 
+  /** Display-only book label for current UI language (storage stays Korean). */
+  function bookDisplayName(bookName) {
+    var lang = uiLang();
+    if (!bookName) return '';
+    if (lang === 'ko') return String(bookName);
+    try {
+      if (typeof window.GomnaTranslateBookName === 'function') {
+        return window.GomnaTranslateBookName(bookName, lang) || bookName;
+      }
+    } catch (e) { /* ignore */ }
+    return String(bookName);
+  }
+
+  /** Recent chips: Korean keeps short labels; other langs use full translated names. */
+  function bookChipLabel(bookName) {
+    var lang = uiLang();
+    if (lang === 'ko') return bookShortName(bookName);
+    return bookDisplayName(bookName);
+  }
+
   function formatLocation(entry) {
     if (!entry) return '';
+    try {
+      if (
+        window.GomnaUII18n &&
+        typeof window.GomnaUII18n.formatBookChapterVerse === 'function'
+      ) {
+        return (
+          window.GomnaUII18n.formatBookChapterVerse(
+            entry.bookName,
+            entry.chapter,
+            entry.verse,
+            uiLang()
+          ) || ''
+        );
+      }
+    } catch (e) { /* ignore */ }
     return entry.bookName + ' ' + entry.chapter + '장 ' + entry.verse + '절';
   }
 
   function formatRecentChip(entry) {
     if (!entry) return '';
-    return bookShortName(entry.bookName) + ' ' + entry.chapter + ':' + entry.verse;
+    return bookChipLabel(entry.bookName) + ' ' + entry.chapter + ':' + entry.verse;
   }
 
   function pad2(n) {
     return String(n).padStart(2, '0');
   }
 
-  function formatDayTimePrefix(ts) {
-    var d = new Date(ts);
-    var now;
-    var today;
-    var that;
-    var diff;
-    var hm;
-    if (isNaN(d.getTime())) return '';
-    now = new Date();
-    today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    that = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    diff = Math.round((today - that) / 86400000);
-    hm = pad2(d.getHours()) + ':' + pad2(d.getMinutes());
-    if (diff <= 0) return '오늘 ' + hm;
-    if (diff === 1) return '어제 ' + hm;
-    if (d.getFullYear() === now.getFullYear()) {
-      return d.getMonth() + 1 + '.' + d.getDate() + ' ' + hm;
-    }
-    return (
-      d.getFullYear() +
-      '.' +
-      pad2(d.getMonth() + 1) +
-      '.' +
-      pad2(d.getDate()) +
-      ' ' +
-      hm
-    );
+  function uiLang() {
+    try {
+      if (window.GomnaUII18n && typeof window.GomnaUII18n.getLanguage === 'function') {
+        return window.GomnaUII18n.getLanguage() || 'ko';
+      }
+    } catch (e) { /* ignore */ }
+    return 'ko';
   }
 
-  /* Kept for callers; prefer formatReadStamp / formatListenStamp on home. */
-  function formatStamp(ts) {
-    return formatDayTimePrefix(ts);
+  function uiT(key, fallback) {
+    try {
+      if (window.GomnaUII18n && typeof window.GomnaUII18n.t === 'function') {
+        var v = window.GomnaUII18n.t(key, uiLang());
+        if (v) return v;
+      }
+    } catch (e) { /* ignore */ }
+    return fallback || '';
   }
 
-  function formatReadStamp(ts) {
-    var prefix = formatDayTimePrefix(ts);
-    return prefix ? prefix + '에 읽었습니다' : '';
-  }
-
-  function formatListenStamp(ts) {
-    var prefix = formatDayTimePrefix(ts);
-    return prefix ? prefix + '에 들었습니다' : '';
-  }
-
-  function formatDayPlacePrefix(ts) {
+  function formatRelativeDayPart(ts) {
     var d = new Date(ts);
     var now;
     var today;
     var that;
     var diff;
     if (isNaN(d.getTime())) return '';
+    try {
+      if (window.GomnaUII18n && typeof window.GomnaUII18n.formatRelativeDay === 'function') {
+        return window.GomnaUII18n.formatRelativeDay(ts, uiLang()) || '';
+      }
+    } catch (e) { /* ignore */ }
     now = new Date();
     today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     that = new Date(d.getFullYear(), d.getMonth(), d.getDate());
     diff = Math.round((today - that) / 86400000);
     if (diff <= 0) return '오늘';
     if (diff === 1) return '어제';
-    if (d.getFullYear() === now.getFullYear()) {
-      return d.getMonth() + 1 + '.' + d.getDate();
-    }
-    return d.getFullYear() + '.' + pad2(d.getMonth() + 1) + '.' + pad2(d.getDate());
+    if (diff >= 2 && diff <= 6) return diff + '일 전';
+    return d.getMonth() + 1 + '월 ' + d.getDate() + '일';
+  }
+
+  /** Home time line: "오늘 · HH:MM" / "3일 전 · HH:MM" / "7월 20일 · HH:MM" */
+  function formatResumeTimeLine(ts) {
+    var d = new Date(ts);
+    var dayPart;
+    if (isNaN(d.getTime())) return '';
+    dayPart = formatRelativeDayPart(ts);
+    if (!dayPart) return '';
+    return dayPart + ' · ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+
+  function formatDayTimePrefix(ts) {
+    return formatResumeTimeLine(ts);
+  }
+
+  /* Kept for callers; prefer formatReadStamp / formatListenStamp on home. */
+  function formatStamp(ts) {
+    return formatResumeTimeLine(ts);
+  }
+
+  function formatReadStamp(ts) {
+    return formatResumeTimeLine(ts);
+  }
+
+  function formatListenStamp(ts) {
+    return formatResumeTimeLine(ts);
+  }
+
+  function formatDayPlacePrefix(ts) {
+    return formatRelativeDayPart(ts);
   }
 
   function formatReadPlace(ts) {
-    var day = formatDayPlacePrefix(ts);
-    return day ? ' · ' + day + ' 읽던 곳' : '';
+    return '';
   }
 
   function formatListenPlace(ts) {
-    var day = formatDayPlacePrefix(ts);
-    return day ? ' · ' + day + ' 듣던 곳' : '';
+    return '';
   }
 
   function pushRecent(entry) {
@@ -470,58 +512,66 @@
     if (el) el.textContent = text == null ? '' : String(text);
   }
 
+  function renderRecentChips(host, recent) {
+    var i;
+    var btn;
+    var empty;
+    if (!host) return;
+    host.innerHTML = '';
+    if (!recent || !recent.length) {
+      empty = document.createElement('span');
+      empty.className = 'home-resume-recent-empty';
+      empty.setAttribute('data-i18n-key', 'home.resume.recentEmpty');
+      empty.textContent = uiT('home.resume.recentEmpty', '아직 기록이 없습니다');
+      host.appendChild(empty);
+      return;
+    }
+    for (i = 0; i < recent.length; i++) {
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'home-resume-recent-chip';
+      btn.setAttribute('data-recent-index', String(i));
+      btn.textContent = formatRecentChip(recent[i]);
+      host.appendChild(btn);
+    }
+  }
+
   function renderHomeCard() {
     var root = document.getElementById('homeResumeCard');
     var readLoc = document.getElementById('homeResumeReadLoc');
-    var readPlace = document.getElementById('homeResumeReadPlace');
     var readTime = document.getElementById('homeResumeReadTime');
     var listenLoc = document.getElementById('homeResumeListenLoc');
-    var listenPlace = document.getElementById('homeResumeListenPlace');
     var listenTime = document.getElementById('homeResumeListenTime');
-    var recentLine = document.getElementById('homeResumeRecentLine');
+    var recentChips = document.getElementById('homeResumeRecentChips');
     var read = getRead();
     var listen = getListen();
     var recent = getRecent(RECENT_HOME);
-    var chips;
-    var i;
 
     if (!root) return;
 
     if (read) {
       setText(readLoc, formatLocation(read));
-      setText(readPlace, formatReadPlace(read.timestamp));
-      setText(readTime, formatReadStamp(read.timestamp));
+      setText(readTime, formatResumeTimeLine(read.timestamp) || '—');
       root.classList.remove('home-resume--no-read');
     } else {
-      setText(readLoc, '성경읽기 시작');
-      setText(readPlace, '');
+      setText(readLoc, uiT('home.resume.readStart', '성경읽기 시작'));
       setText(readTime, '—');
       root.classList.add('home-resume--no-read');
     }
 
     if (listen) {
       setText(listenLoc, formatLocation(listen));
-      setText(listenPlace, formatListenPlace(listen.timestamp));
-      setText(listenTime, formatListenStamp(listen.timestamp));
+      setText(listenTime, formatResumeTimeLine(listen.timestamp) || '—');
       root.classList.remove('home-resume--no-listen');
     } else {
-      setText(listenLoc, '말씀 듣기 시작');
-      setText(listenPlace, '');
+      setText(listenLoc, uiT('home.resume.listenStart', '말씀 듣기 시작'));
       setText(listenTime, '—');
       root.classList.add('home-resume--no-listen');
     }
 
-    if (recent.length) {
-      chips = [];
-      for (i = 0; i < recent.length; i++) {
-        chips.push(formatRecentChip(recent[i]));
-      }
-      setText(recentLine, chips.join(' · '));
-      root.classList.remove('home-resume--no-recent');
-    } else {
-      setText(recentLine, '아직 기록이 없습니다');
-      root.classList.add('home-resume--no-recent');
-    }
+    renderRecentChips(recentChips, recent);
+    if (recent.length) root.classList.remove('home-resume--no-recent');
+    else root.classList.add('home-resume--no-recent');
   }
 
   function openRead() {
@@ -539,8 +589,14 @@
   }
 
   function openRecent() {
-    var recent = getRecent(1);
-    if (!recent.length) {
+    openRecentAt(0);
+  }
+
+  function openRecentAt(index) {
+    var recent = getRecent(RECENT_HOME);
+    var i = parseInt(index, 10);
+    if (isNaN(i) || i < 0) i = 0;
+    if (!recent.length || !recent[i]) {
       window.location.href =
         'reader.html?book=' +
         encodeURIComponent('창세기') +
@@ -548,15 +604,16 @@
       return;
     }
     /* Navigate only — do not rewrite read/listen keys here. */
-    window.location.href = readerUrl(recent[0], 'home-resume-recent');
+    window.location.href = readerUrl(recent[i], 'home-resume-recent');
   }
 
   function bindHomeCard() {
     var root = document.getElementById('homeResumeCard');
     var readPane = document.getElementById('homeResumeReadPane');
     var listenPane = document.getElementById('homeResumeListenPane');
-    var recentBtn = document.getElementById('homeResumeRecent');
-    if (!root) return;
+    var recentHost = document.getElementById('homeResumeRecentChips');
+    if (!root || root.getAttribute('data-home-resume-bound') === '1') return;
+    root.setAttribute('data-home-resume-bound', '1');
 
     function stop(e) {
       if (e) {
@@ -565,7 +622,7 @@
       }
     }
 
-    /* No whole-card click — only independent panes + recent. */
+    /* No whole-card click — only independent panes + recent chips. */
     if (readPane) {
       readPane.addEventListener('click', function (e) {
         stop(e);
@@ -578,10 +635,12 @@
         openListen();
       });
     }
-    if (recentBtn) {
-      recentBtn.addEventListener('click', function (e) {
+    if (recentHost) {
+      recentHost.addEventListener('click', function (e) {
+        var chip = e.target && e.target.closest && e.target.closest('.home-resume-recent-chip');
+        if (!chip || !recentHost.contains(chip)) return;
         stop(e);
-        openRecent();
+        openRecentAt(chip.getAttribute('data-recent-index'));
       });
     }
   }
