@@ -1516,10 +1516,18 @@
     return parts.bookId === bookId && parts.chapter === chapter;
   }
 
+  function isBibleContinuousChapterPlaybackActive() {
+    return !!(
+      window.__gomnaBibleContinuousChapterPlayback ||
+      window.__gomnaBibleContinuousChapterAdvancing
+    );
+  }
+
   function resetAudioUiForChapterChange(detail) {
     var contextKey = getChapterContextKey(detail);
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
+    var continuousAdvance = isBibleContinuousChapterPlaybackActive();
 
     if (contextKey && contextKey === lastRenderedAudioContextKey) {
       return;
@@ -1527,15 +1535,28 @@
 
     lastRenderedAudioContextKey = contextKey;
 
-    if (state && state.currentAudioId && !isAudioIdInCurrentChapter(state.currentAudioId, detail)) {
+    /*
+     * Whole-chapter continuous listen navigates 1→2→3 via nextChapter().
+     * Stopping here on "audio id not in new chapter" killed the queue and
+     * cleared continuous mode (stopAudio → user_stop) before the next
+     * chapter queue could start.
+     */
+    if (
+      !continuousAdvance &&
+      state &&
+      state.currentAudioId &&
+      !isAudioIdInCurrentChapter(state.currentAudioId, detail)
+    ) {
       if (engine && engine.stopAudio) {
         engine.stopAudio();
       }
     }
 
-    hideMiniPlayer();
-    updateCurrentText(null, null);
-    setPlayPauseIcon(false);
+    if (!continuousAdvance) {
+      hideMiniPlayer();
+      updateCurrentText(null, null);
+      setPlayPauseIcon(false);
+    }
     updateRangeAudioButtons(engine && engine.getState ? engine.getState() : state);
   }
 
@@ -1928,13 +1949,28 @@
   window.addEventListener('audio:end', function(e) {
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
+    var detail = e && e.detail ? e.detail : {};
+    var continuousContinuing = !!(
+      window.__gomnaBibleContinuousChapterPlayback ||
+      window.__gomnaBibleContinuousChapterAdvancing
+    ) && detail.reason === 'queue_completed';
+
+    /*
+     * Continuous next-chapter already started the next queue synchronously
+     * (or is about to). Do not tear down the player / wipe UI mid-handoff.
+     */
+    if (continuousContinuing && state && (state.isPlaying || state.queueActive)) {
+      setPlayPauseIcon(!!state.isPlaying);
+      updateRangeAudioButtons(state);
+      return;
+    }
 
     setPlayPauseIcon(false);
     unbindMiniProgressAudio();
     updateMiniProgressFromState(state);
     hideMiniPlayer();
     updateRangeAudioButtons(state);
-    clearBibleResumeSessionIfQueueCompleted(e.detail || {});
+    clearBibleResumeSessionIfQueueCompleted(detail);
     stopHeroCaptionSync();
     updateHeroCaptionFromState({ useLastOnEnd: true });
   });

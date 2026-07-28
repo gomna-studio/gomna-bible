@@ -1446,6 +1446,8 @@ html.plain-verse-gesture-active body{
   transform-origin:0 0;
   will-change:auto;
   transition:none;
+  height:auto;
+  min-height:0;
 }
 #verseGestureSurface.is-gesture-active{
   will-change:transform;
@@ -1456,8 +1458,9 @@ html.plain-verse-gesture-active body{
   display:grid!important;
   grid-template-columns:44px minmax(0,1fr) auto 44px;
   grid-template-rows:auto;
-  position:relative;
-  top:auto;
+  position:relative!important;
+  top:auto!important;
+  bottom:auto!important;
   z-index:1;
   width:100%;
   box-sizing:border-box;
@@ -1465,7 +1468,16 @@ html.plain-verse-gesture-active body{
 #verseGestureSurface > #verseView.view{
   display:block!important;
   width:100%;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
   box-sizing:border-box;
+}
+#verseGestureSurface .verse-list{
+  overflow:visible;
+  height:auto;
+  max-height:none;
+  min-height:0;
 }
 #verseGestureSurface #verseReadHeader button,
 #verseGestureSurface #verseReadHeader a{
@@ -2562,7 +2574,7 @@ if ("serviceWorker" in navigator) {
           <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="clear" onclick="chooseVerseListenTargetMode('clear')" role="menuitem" aria-label="선택한 구절 모두 해제"><span class="verse-toolbar-target-menu-label">선택 해제</span><span class="verse-toolbar-target-menu-suffix" aria-hidden="true">↺</span></button>
         </div>
       </div>
-      <button type="button" class="opt4-verse-listen" id="opt4VerseListen" data-audio-action="play-verse-to-end">전체 듣기</button>
+      <button type="button" class="opt4-verse-listen" id="opt4VerseListen" data-gomna-chapter-listen="1">전체 듣기</button>
       <button type="button" class="opt4-verse-commentary" id="opt4VerseCommentary" onclick="opt4ToolbarCommentary()">말씀풀이</button>
       <button type="button" class="opt4-verse-more" id="opt4VerseMore" onclick="openVerseToolbarMoreMenu()">더보기</button>
       <button type="button" class="opt4-verse-list" id="opt4VerseList" onclick="opt4OpenChapterList()" aria-label="돌아가기">← 돌아가기</button>
@@ -4899,6 +4911,9 @@ function getInitialConsonant(str) {
 function selectBook(name, chapters, testament) {
   var displayChapters = isPsalmsBook(name) ? Math.min(chapters, 150) : chapters;
   var chapterUnit = getChapterUnit(name);
+  if (typeof clearBibleContinuousChapterPlayback === 'function') {
+    clearBibleContinuousChapterPlayback();
+  }
   currentBook = {name: name, chapters: displayChapters, testament: testament};
   document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
   var chapterView = document.getElementById('chapterView');
@@ -4924,6 +4939,9 @@ function selectBook(name, chapters, testament) {
 }
 
 function selectChapter(ch) {
+  if (typeof clearBibleContinuousChapterPlayback === 'function') {
+    clearBibleContinuousChapterPlayback();
+  }
   currentChapter = ch;
   document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
   document.getElementById('verseView').classList.add('active');
@@ -7592,25 +7610,50 @@ function clearVerseSelection() {
 }
 
 function getSelectedVersesAudioQueueSource() {
+  var verses;
   if (!currentBook || !currentChapter) return null;
-  return 'bible-multi-select:' + currentBook.name + '.' + currentChapter + '.' + selectedVerseNums.join('-');
+  verses = typeof getSortedUniqueSelectedVerseNums === 'function'
+    ? getSortedUniqueSelectedVerseNums()
+    : selectedVerseNums.slice();
+  return 'bible-multi-select:' + currentBook.name + '.' + currentChapter + '.' + verses.join('-');
 }
 
-function getChapterAudioIds() {
-  if (!currentBook || !currentChapter) return [];
-  var bookAudioId = window.GOMNA_AUDIO_BOOK && window.GOMNA_AUDIO_BOOK.getBookAudioId ? window.GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name) : null;
-  if (!bookAudioId) return [];
+function getChapterAudioIds(startVerseOrOptions) {
+  var startVerse = 1;
+  var bookAudioId;
   var ids = [];
-  var items = document.querySelectorAll('#verseList .verse-item[data-verse]');
+  var items;
+  var v;
+  var verseNum;
+  var id;
+
+  if (typeof startVerseOrOptions === 'number') {
+    startVerse = startVerseOrOptions;
+  } else if (startVerseOrOptions && typeof startVerseOrOptions === 'object') {
+    startVerse = parseInt(startVerseOrOptions.startVerse, 10) || 1;
+  }
+  startVerse = parseInt(startVerse, 10);
+  if (isNaN(startVerse) || startVerse < 1) startVerse = 1;
+
+  if (!currentBook || !currentChapter) return [];
+  bookAudioId = window.GOMNA_AUDIO_BOOK && window.GOMNA_AUDIO_BOOK.getBookAudioId
+    ? window.GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name)
+    : null;
+  if (!bookAudioId) return [];
+
+  items = document.querySelectorAll('#verseList .verse-item[data-verse]');
   if (items.length) {
     items.forEach(function(item) {
-      var id = getVerseAudioIdFromItem(item);
+      verseNum = parseInt(item.getAttribute('data-verse'), 10);
+      if (isNaN(verseNum) || verseNum < startVerse) return;
+      id = getVerseAudioIdFromItem(item);
       if (id) ids.push(id);
     });
     return ids;
   }
-  for (var v = 1; v <= currentVerseCount; v++) {
-    ids.push(getVerseAudioId(v));
+  for (v = startVerse; v <= currentVerseCount; v++) {
+    id = getVerseAudioId(v);
+    if (id) ids.push(id);
   }
   return ids;
 }
@@ -7711,6 +7754,9 @@ function syncVerseToolbarListenButton() {
   var actionVerse = getToolbarActionVerse();
   var actionOccurrence = selectedVerseNum ? selectedVerseOccurrence : 1;
   var audioId = getVerseAudioId(actionVerse, actionOccurrence);
+  var fromVerseIds = selectedVerseNums.length === 1
+    ? getChapterAudioIds(getSortedUniqueSelectedVerseNums()[0] || actionVerse)
+    : [];
   if (audioId && isVerseAudioAvailable(actionVerse, actionOccurrence)) {
     btn.setAttribute('data-audio-id', audioId);
   } else {
@@ -7718,7 +7764,10 @@ function syncVerseToolbarListenButton() {
   }
   var label = '1절 듣기';
   if (selectedVerseNums.length === 1) label = '1절 듣기';
-  if (state && audioId && state.currentAudioId === audioId) {
+  if (state && state.queueActive && fromVerseIds.length && isSameAudioIdArray(state.queueAudioIds, fromVerseIds)) {
+    if (state.isPlaying) label = '일시정지';
+    else if (state.isPaused) label = '이어듣기';
+  } else if (state && audioId && state.currentAudioId === audioId) {
     if (state.isPlaying) label = '일시정지';
     else if (state.isPaused) label = '이어듣기';
   } else if (audioId && window.GOMNA_AUDIO_BIBLE_RESUME && GOMNA_AUDIO_BIBLE_RESUME.getSessionForAudioId && GOMNA_AUDIO_BIBLE_RESUME.getSessionForAudioId(audioId)) {
@@ -8131,8 +8180,27 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
   var velSamples = [];
   var inertiaRaf = 0;
   var inertiaActive = false;
+  var MANUAL_SCROLL_HOLD_MS = 4000;
 
   function $(id) { return document.getElementById(id); }
+  function isPlainVerseUserInteracting() {
+    return !!(
+      pointers.size ||
+      mode === 'pan' ||
+      mode === 'pinch' ||
+      mode === 'pending' ||
+      inertiaActive
+    );
+  }
+  function notePlainVerseManualScroll() {
+    /* User finger pan/pinch — pause audio auto-center for a short hold. */
+    window.__gomnaPlainVerseManualScrollUntil = Date.now() + MANUAL_SCROLL_HOLD_MS;
+  }
+  function shouldBlockAudioAutoCenter() {
+    if (isPlainVerseUserInteracting()) return true;
+    var until = window.__gomnaPlainVerseManualScrollUntil;
+    return typeof until === 'number' && until > Date.now();
+  }
   function nowMs() {
     return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   }
@@ -8194,9 +8262,19 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     var barTop = visibleChromeTop('opt4BottomBar');
     var scriptureTop = visibleChromeTop('scriptureDock');
     var cookieTop = visibleChromeTop('cookie-banner');
+    var mini = document.querySelector('.gomna-audio-mini-player.gomna-audio-visible');
+    var miniTop = null;
+    if (mini) {
+      var mr = mini.getBoundingClientRect();
+      var mcs = window.getComputedStyle(mini);
+      if (mcs.display !== 'none' && mcs.visibility !== 'hidden' && mr.height > 1) {
+        miniTop = mr.top;
+      }
+    }
     if (barTop != null) bottom = Math.min(bottom, barTop);
     if (scriptureTop != null) bottom = Math.min(bottom, scriptureTop);
     if (cookieTop != null) bottom = Math.min(bottom, cookieTop);
+    if (miniTop != null) bottom = Math.min(bottom, miniTop);
     var left = pr.left;
     var width = pr.width || window.innerWidth;
     var height = Math.max(120, bottom - top);
@@ -8206,8 +8284,13 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     var scaledW = baseW * scale;
     var scaledH = baseH * scale;
     var scaledHeaderH = headerBaseH * scale;
+    /* Full surface content (header + verseView + verseList) must drive the
+       upward pan limit so long chapters can keep moving past the header. */
     minPanY = Math.min(0, viewportH - scaledH - 24);
-    maxPanY = Math.max(0, viewportH - scaledHeaderH - 16);
+    /* panY = 0 puts #verseReadHeader at the top. Always allow returning to
+       that top rest position from a deep auto-centered verse (15/17+). */
+    maxPanY = Math.max(0, viewportH - Math.max(scaledHeaderH, 0) - 16);
+    if (!(maxPanY >= 0)) maxPanY = 0;
     if (scale <= 1 || scaledW <= viewportW) {
       minPanX = 0;
       maxPanX = 0;
@@ -8304,15 +8387,58 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     viewport.style.width = box.width + 'px';
     viewport.style.height = box.height + 'px';
   }
+  function isAudioPlayStabilizing() {
+    return typeof window.__gomnaAudioPlayStabilizeUntil === 'number' &&
+      window.__gomnaAudioPlayStabilizeUntil > Date.now();
+  }
   function measureBaseSizes() {
     if (!surface || !viewport) return;
     applyViewportBox(getViewportBox());
+    /* During finger pan, never clear transform — iOS visualViewport resize
+       used to snap surface back and fight upward scrolls to the header. */
+    if (isPlainVerseUserInteracting() || isAudioPlayStabilizing()) {
+      updateBounds();
+      return;
+    }
     var prev = surface.style.transform;
+    var header = $('verseReadHeader');
+    var view = $('verseView');
+    var list = $('verseList');
+    var lastItem = list ? list.querySelector('.verse-item:last-child') : null;
+    var surfaceTop;
+    var contentBottom = 0;
+    var viewH = 0;
+    var listH = 0;
+
     surface.style.transform = 'none';
     baseW = surface.offsetWidth || surface.scrollWidth || viewportW;
-    baseH = Math.max(surface.offsetHeight || 0, surface.scrollHeight || 0, surface.clientHeight || 0);
-    var header = $('verseReadHeader');
     headerBaseH = header ? (header.offsetHeight || header.clientHeight || 0) : 0;
+    if (view) {
+      viewH = Math.max(view.offsetHeight || 0, view.scrollHeight || 0, view.clientHeight || 0);
+    }
+    if (list) {
+      listH = Math.max(list.offsetHeight || 0, list.scrollHeight || 0, list.clientHeight || 0);
+      viewH = Math.max(viewH, (list.offsetTop || 0) + listH);
+    }
+    surfaceTop = surface.getBoundingClientRect().top;
+    if (lastItem) {
+      contentBottom = lastItem.getBoundingClientRect().bottom - surfaceTop;
+    } else if (list) {
+      contentBottom = list.getBoundingClientRect().bottom - surfaceTop;
+    } else if (view) {
+      contentBottom = view.getBoundingClientRect().bottom - surfaceTop;
+    } else if (header) {
+      contentBottom = header.getBoundingClientRect().bottom - surfaceTop;
+    }
+    /* Prefer the tallest real content signal so iOS short scrollHeight cannot
+       freeze panY while #verseReadHeader is still on screen. */
+    baseH = Math.max(
+      surface.offsetHeight || 0,
+      surface.scrollHeight || 0,
+      surface.clientHeight || 0,
+      headerBaseH + viewH,
+      contentBottom
+    );
     surface.style.transform = prev || '';
     updateBounds();
   }
@@ -8501,6 +8627,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     didPinch = true;
     didDrag = true;
     markGestureLayer();
+    notePlainVerseManualScroll();
     pts.forEach(function(p) { capturePointer(p.id); });
     pinchStartDist = distBetween(pts[0], pts[1]) || 1;
     var mid = midBetween(pts[0], pts[1]);
@@ -8527,6 +8654,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     if (next <= 1) targetPanX = 0;
     targetPanX = clampX(targetPanX);
     targetPanY = clampY(targetPanY);
+    notePlainVerseManualScroll();
     schedulePaint();
   }
   function onPointerDown(e) {
@@ -8538,6 +8666,9 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     cancelInertia();
     var c = latestClient(e);
     pointers.set(e.pointerId, { id: e.pointerId, x: c.x, y: c.y });
+    /* Finger contact itself blocks audio auto-center so a verse change cannot
+       yank panY back before the first touchmove. */
+    notePlainVerseManualScroll();
     if (pointers.size === 1) bindDocPointerFollow();
     if (pointers.size >= 2) {
       beginPinch();
@@ -8571,11 +8702,22 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
       mode = 'pan';
       markGestureLayer();
       capturePointer(e.pointerId);
+      /* Re-anchor at drag commit so audio centering during slop cannot
+         desync startPanY from the visible surface. */
+      startClientX = c.x;
+      startClientY = c.y;
+      startPanX = renderedPanX;
+      startPanY = renderedPanY;
+      dx = 0;
+      dy = 0;
+      notePlainVerseManualScroll();
     }
     if (e.cancelable) e.preventDefault();
     recordVel(c.x, c.y);
+    notePlainVerseManualScroll();
     if (targetScale <= 1) {
       targetPanX = 0;
+      /* Finger down (+dy) raises panY toward 0/maxPanY → header / verse 1. */
       targetPanY = clampY(startPanY + dy);
     } else {
       targetPanX = clampX(startPanX + dx);
@@ -8619,6 +8761,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     didDrag = false;
     didPinch = false;
     clearPointers();
+    if (wasGesture) notePlainVerseManualScroll();
     if (runInertia && startInertia()) return;
     if (wasGesture) scheduleGestureLayerRelease();
   }
@@ -8687,30 +8830,95 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     commitTransform();
     return true;
   }
-  function scrollToVerse(verseNum) {
+  function getItemOffsetYInSurface(item) {
+    var prev;
+    var y;
+    var itemH;
+    var surfaceRect;
+    var itemRect;
+    var useScale;
+    if (!item || !surface) return null;
+    /* While play() is settling, keep transform and derive local Y from rects. */
+    if (isAudioPlayStabilizing() || isPlainVerseUserInteracting()) {
+      surfaceRect = surface.getBoundingClientRect();
+      itemRect = item.getBoundingClientRect();
+      useScale = scale > 0 ? scale : 1;
+      y = (itemRect.top - surfaceRect.top) / useScale;
+      itemH = (itemRect.height || item.offsetHeight || 0) / useScale;
+      if (!isFinite(y)) return null;
+      return { y: y, height: itemH };
+    }
+    prev = surface.style.transform;
+    surface.style.transform = 'none';
+    y = item.getBoundingClientRect().top - surface.getBoundingClientRect().top;
+    itemH = item.getBoundingClientRect().height || item.offsetHeight || 0;
+    surface.style.transform = prev || '';
+    if (!isFinite(y)) return null;
+    return { y: y, height: itemH };
+  }
+  function scrollToVerse(verseNum, options) {
     if (!active || !surface) return false;
     var item = document.querySelector('#verseList .verse-item[data-verse="' + verseNum + '"]');
+    var offset;
+    var mid;
+    var ratio;
+    var idealPanY;
     if (!item) return false;
-    measureBaseSizes();
-    var y = 0;
-    var el = item;
-    while (el && el !== surface) {
-      y += el.offsetTop;
-      el = el.offsetParent;
+    if (options && options.reason === 'audio-highlight') {
+      if (shouldBlockAudioAutoCenter()) return false;
+      /* Whole-chapter stop/pause must never keep yanking panY to a verse. */
+      try {
+        var audioEngine = window.GOMNA_AUDIO_ENGINE;
+        var audioState = audioEngine && audioEngine.getState ? audioEngine.getState() : null;
+        if (
+          !audioState ||
+          !audioState.isPlaying ||
+          audioState.isPaused ||
+          !audioState.currentAudioId
+        ) {
+          return false;
+        }
+      } catch (audioGuardErr) {
+        return false;
+      }
     }
-    var mid = y + (item.offsetHeight || 0) / 2;
+    measureBaseSizes();
+    offset = getItemOffsetYInSurface(item);
+    if (!offset) return false;
+    mid = offset.y + offset.height / 2;
+    ratio = 0.35;
+    if (
+      options &&
+      typeof options.centerRatio === 'number' &&
+      options.centerRatio > 0 &&
+      options.centerRatio < 1
+    ) {
+      ratio = options.centerRatio;
+    }
     targetScale = scale;
     targetPanX = scale <= 1 ? 0 : panX;
-    targetPanY = clampY(viewportH * 0.35 - mid * scale);
+    /* visible viewport center (or 0.35 default) relative to full surface content */
+    idealPanY = viewportH * ratio - mid * scale;
+    targetPanY = clampY(idealPanY);
     flushPaint();
     return true;
   }
   function onResize() {
     if (!active) return;
+    /* Keep current drag targets; never stomp with stale panY while the user
+       is moving back toward the header. */
+    if (isPlainVerseUserInteracting()) {
+      applyViewportBox(getViewportBox());
+      updateBounds();
+      targetPanX = clampX(targetPanX);
+      targetPanY = clampY(targetPanY);
+      schedulePaint();
+      return;
+    }
     layoutViewportOnly();
     measureBaseSizes();
-    targetPanX = clampX(panX);
-    targetPanY = clampY(panY);
+    targetPanX = clampX(targetPanX);
+    targetPanY = clampY(targetPanY);
     flushPaint();
   }
   function onVerseRendered() {
@@ -8726,6 +8934,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
   window.syncPlainVerseGestureMode = syncMode;
   window.__gomnaPlainVerseGestureResetPan = resetPan;
   window.__gomnaPlainVerseGestureScrollToVerse = scrollToVerse;
+  window.__gomnaPlainVerseGestureIsUserInteracting = isPlainVerseUserInteracting;
   window.addEventListener('gomna:verse_list_rendered', onVerseRendered);
   window.addEventListener('resize', onResize);
   if (window.visualViewport) {
@@ -10170,19 +10379,38 @@ function initVerseToolbarEvents() {
   if (!verseView || verseView.getAttribute('data-verse-toolbar-bound') === '1') return;
   verseView.setAttribute('data-verse-toolbar-bound', '1');
   verseView.addEventListener('click', function(e) {
+    var item;
+    var verseNum;
     if (e.target.closest('button, a, [data-audio-action]')) return;
-    var item = e.target.closest('#verseList .verse-item');
+    item = e.target.closest('#verseList .verse-item');
     if (!item || item.style.display === 'none') return;
-    var verseNum = parseInt(item.getAttribute('data-verse'), 10);
-    if (!isNaN(verseNum)) selectVerse(verseNum, item);
+    verseNum = parseInt(item.getAttribute('data-verse'), 10);
+    if (isNaN(verseNum)) return;
+    /* Continuous chapter listen: verse tap jumps playback, not selection toggle. */
+    if (
+      typeof tryJumpBibleContinuousPlaybackToVerse === 'function' &&
+      tryJumpBibleContinuousPlaybackToVerse(verseNum, item)
+    ) {
+      return;
+    }
+    selectVerse(verseNum, item);
   });
   verseView.addEventListener('keydown', function(e) {
+    var item;
+    var verseNum;
     if (e.key !== 'Enter' && e.key !== ' ') return;
-    var item = e.target.closest('#verseList .verse-item');
+    item = e.target.closest('#verseList .verse-item');
     if (!item || item.style.display === 'none') return;
     e.preventDefault();
-    var verseNum = parseInt(item.getAttribute('data-verse'), 10);
-    if (!isNaN(verseNum)) selectVerse(verseNum, item);
+    verseNum = parseInt(item.getAttribute('data-verse'), 10);
+    if (isNaN(verseNum)) return;
+    if (
+      typeof tryJumpBibleContinuousPlaybackToVerse === 'function' &&
+      tryJumpBibleContinuousPlaybackToVerse(verseNum, item)
+    ) {
+      return;
+    }
+    selectVerse(verseNum, item);
   });
   ['audio:start', 'audio:pause', 'audio:resume', 'audio:end', 'audio:error', 'gomna:bible_resume_session_changed'].forEach(function(evt) {
     window.addEventListener(evt, function() {
@@ -10192,15 +10420,15 @@ function initVerseToolbarEvents() {
   var listenBtn = document.getElementById('opt4VerseListen');
   if (listenBtn) {
     listenBtn.addEventListener('click', function(e) {
+      var selCount;
       e.stopPropagation();
       e.preventDefault();
-      if (verseListenMode === 'chapter' || (!selectedVerseNums.length && verseListenMode !== 'range')) {
-        playChapterAudio();
-      } else if (verseListenMode === 'range') {
+      selCount = typeof getSelectedVerseCount === 'function' ? getSelectedVerseCount() : selectedVerseNums.length;
+      if (verseListenMode === 'range') {
         playRangeAudio();
-      } else if (selectedVerseNums.length > 1) {
+      } else if (selCount >= 2) {
         playSelectedVersesQueue();
-      } else if (selectedVerseNums.length === 1) {
+      } else if (selCount === 1) {
         playSingleSelectedVerse();
       } else {
         playChapterAudio();
@@ -10218,11 +10446,128 @@ function initVerseToolbarEvents() {
   });
 }
 
-function playChapterAudio() {
+function setBibleContinuousChapterPlayback(enabled) {
+  window.__gomnaBibleContinuousChapterPlayback = !!enabled;
+  if (!enabled) {
+    window.__gomnaBibleContinuousChapterAdvancing = false;
+    window.__gomnaBibleContinuousChapterJumping = false;
+  }
+}
+
+function clearBibleContinuousChapterPlayback() {
+  window.__gomnaBibleContinuousChapterPlayback = false;
+  window.__gomnaBibleContinuousChapterAdvancing = false;
+  window.__gomnaBibleContinuousChapterJumping = false;
+}
+
+/** True while whole-chapter / continuous bible queue is active (playing or paused). */
+function isBibleContinuousChapterListeningActive() {
   var engine = window.GOMNA_AUDIO_ENGINE;
+  var state;
+  var audioId;
+  var source;
+
+  if (!window.__gomnaBibleContinuousChapterPlayback) return false;
+  if (window.__gomnaBibleContinuousChapterAdvancing) return false;
+  if (!engine) return false;
+
+  state = engine.getState ? engine.getState() : engine._state;
+  if (!state) return false;
+  if (!(state.queueActive || state.isPlaying || state.isPaused)) return false;
+
+  audioId = state.currentAudioId ? String(state.currentAudioId) : '';
+  source = state.queueSource ? String(state.queueSource) : '';
+  if (source.indexOf('bible-chapter:') === 0) return true;
+  if (source.indexOf('bible-multi-select:') === 0) return false;
+  return /\.bible$/.test(audioId);
+}
+
+/**
+ * During continuous chapter listen, tapping a verse card restarts from that verse
+ * to chapter end and keeps next-chapter continuous mode on.
+ */
+function tryJumpBibleContinuousPlaybackToVerse(verseNum, itemEl) {
+  var engine;
+  var audioIds;
+  var startVerse;
+  var jumpingPrev;
+
+  if (!isBibleContinuousChapterListeningActive()) return false;
+
+  startVerse = parseInt(verseNum, 10);
+  if (isNaN(startVerse) || startVerse < 1) return false;
+  if (!isVerseAudioAvailable(startVerse, getVerseOccurrenceFromItem(itemEl))) {
+    return false;
+  }
+
+  audioIds = getChapterAudioIds(startVerse);
+  engine = window.GOMNA_AUDIO_ENGINE;
+  if (!audioIds.length || !engine || !engine.playAudioQueue) return false;
+
+  jumpingPrev = !!window.__gomnaBibleContinuousChapterJumping;
+  window.__gomnaBibleContinuousChapterJumping = true;
+  setBibleContinuousChapterPlayback(true);
+
+  try {
+    engine.playAudioQueue(audioIds, {
+      source: 'bible-chapter:' + audioIds[0].replace(/\.bible$/, ''),
+      forceRestart: true
+    });
+  } finally {
+    window.__gomnaBibleContinuousChapterJumping = jumpingPrev;
+  }
+
+  return true;
+}
+
+/** Selected verses: unique + ascending by verse number (ignore tap order). */
+function getSortedUniqueSelectedVerseNums() {
+  var seen = {};
+  var sorted = [];
+  var i;
+  var n;
+  for (i = 0; i < selectedVerseNums.length; i++) {
+    n = parseInt(selectedVerseNums[i], 10);
+    if (isNaN(n) || n < 1 || seen[n]) continue;
+    seen[n] = true;
+    sorted.push(n);
+  }
+  sorted.sort(function(a, b) { return a - b; });
+  return sorted;
+}
+
+function getSelectedVerseCount() {
+  return getSortedUniqueSelectedVerseNums().length;
+}
+
+function playChapterAudio(options) {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var state;
+  var audioIds;
+  var sameChapterQueue;
+  var startVerse = 1;
+  var bookAudioId;
+  options = options || {};
+  startVerse = parseInt(options.startVerse, 10);
+  if (isNaN(startVerse) || startVerse < 1) startVerse = 1;
+
   if (!engine || !currentBook || !currentChapter) return;
-  var audioIds = getChapterAudioIds();
+  audioIds = getChapterAudioIds(startVerse);
   if (!audioIds.length) return;
+  state = engine.getState ? engine.getState() : null;
+  sameChapterQueue = !!(
+    state &&
+    state.queueActive &&
+    isSameAudioIdArray(state.queueAudioIds, audioIds)
+  );
+
+  /* Pause / resume of the same chapter queue ends continuous next-chapter mode. */
+  if (sameChapterQueue && (state.isPlaying || state.isPaused)) {
+    clearBibleContinuousChapterPlayback();
+  } else {
+    setBibleContinuousChapterPlayback(true);
+  }
+
   if (engine.playAudioQueue) {
     engine.playAudioQueue(audioIds, {
       source: 'bible-chapter:' + audioIds[0].replace(/\.bible$/, '')
@@ -10230,37 +10575,210 @@ function playChapterAudio() {
     return;
   }
   if (!engine.playAudioRange || !currentVerseCount) return;
-  var bookAudioId = window.GOMNA_AUDIO_BOOK && window.GOMNA_AUDIO_BOOK.getBookAudioId ? window.GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name) : null;
+  bookAudioId = window.GOMNA_AUDIO_BOOK && window.GOMNA_AUDIO_BOOK.getBookAudioId
+    ? window.GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name)
+    : null;
   if (!bookAudioId) return;
-  engine.playAudioRange(bookAudioId, currentChapter, 1, currentVerseCount);
+  engine.playAudioRange(bookAudioId, currentChapter, startVerse, currentVerseCount);
 }
 
 function playRangeAudio() {
+  clearBibleContinuousChapterPlayback();
   var rangeBtn = document.querySelector('[data-audio-action="play-range"]');
   if (rangeBtn) rangeBtn.click();
 }
 
+/** One selected verse: play from that verse to chapter end, then continue chapters. */
 function playSingleSelectedVerse() {
-  var engine = window.GOMNA_AUDIO_ENGINE;
-  var verse = selectedVerseNum || getToolbarActionVerse();
-  var occurrence = selectedVerseNum ? selectedVerseOccurrence : 1;
-  if (!engine || !engine.playAudioById || !verse) return;
-  if (!isVerseAudioAvailable(verse, occurrence)) return;
-  var audioId = getVerseAudioId(verse, occurrence);
-  if (!audioId) return;
-  engine.playAudioById(audioId, { startTime: 0 });
+  var verses = getSortedUniqueSelectedVerseNums();
+  var startVerse = verses.length === 1
+    ? verses[0]
+    : (selectedVerseNum || (typeof getToolbarActionVerse === 'function' ? getToolbarActionVerse() : null));
+  startVerse = parseInt(startVerse, 10);
+  if (isNaN(startVerse) || startVerse < 1) return;
+  playChapterAudio({ startVerse: startVerse });
 }
 
 function playSelectedVersesQueue() {
   var engine = window.GOMNA_AUDIO_ENGINE;
+  var verses;
+  var audioIds;
+  clearBibleContinuousChapterPlayback();
   if (!engine || !engine.playAudioQueue || !selectedVerseNums.length) return;
-  var audioIds = selectedVerseNums
+  verses = getSortedUniqueSelectedVerseNums();
+  if (verses.length < 2) {
+    if (verses.length === 1) playSingleSelectedVerse();
+    return;
+  }
+  audioIds = verses
     .filter(function(v) { return isVerseAudioAvailable(v); })
     .map(function(v) { return getVerseAudioId(v); })
     .filter(function(id) { return !!id; });
   if (!audioIds.length) return;
   engine.playAudioQueue(audioIds, { source: getSelectedVersesAudioQueueSource() });
 }
+
+function continueBibleContinuousChapterPlayback() {
+  var bookName;
+  var nextCh;
+  var onRendered;
+  var safetyTimer;
+
+  if (!window.__gomnaBibleContinuousChapterPlayback) return;
+  if (window.__gomnaBibleContinuousChapterAdvancing) return;
+  if (!currentBook || !currentChapter) {
+    clearBibleContinuousChapterPlayback();
+    return;
+  }
+  if (currentChapter >= currentBook.chapters) {
+    clearBibleContinuousChapterPlayback();
+    return;
+  }
+
+  bookName = currentBook.name;
+  nextCh = currentChapter + 1;
+  window.__gomnaBibleContinuousChapterAdvancing = true;
+
+  onRendered = function() {
+    var engine;
+    var ids;
+    var firstCard;
+    var startQueue;
+
+    window.removeEventListener('gomna:verse_list_rendered', onRendered);
+    if (safetyTimer) {
+      clearTimeout(safetyTimer);
+      safetyTimer = 0;
+    }
+    if (!window.__gomnaBibleContinuousChapterPlayback) {
+      window.__gomnaBibleContinuousChapterAdvancing = false;
+      return;
+    }
+    if (!currentBook || currentBook.name !== bookName || Number(currentChapter) !== nextCh) {
+      clearBibleContinuousChapterPlayback();
+      return;
+    }
+
+    ids = getChapterAudioIds();
+    firstCard = document.querySelector('#verseList .verse-item[data-verse="1"]');
+    engine = window.GOMNA_AUDIO_ENGINE;
+    if (!ids.length || !firstCard || !engine || !engine.playAudioQueue) {
+      console.warn('[GOMNA_AUDIO] continuous next chapter: empty queue or missing verse 1', {
+        book: bookName,
+        chapter: nextCh,
+        idCount: ids ? ids.length : 0
+      });
+      clearBibleContinuousChapterPlayback();
+      return;
+    }
+    if (currentVerseCount > 0 && ids.length < currentVerseCount) {
+      console.warn('[GOMNA_AUDIO] continuous next chapter: queue shorter than chapter', {
+        book: bookName,
+        chapter: nextCh,
+        idCount: ids.length,
+        verseCount: currentVerseCount
+      });
+      clearBibleContinuousChapterPlayback();
+      return;
+    }
+
+    /* Keep continuous on so 2→3→… continues after this chapter queue ends. */
+    setBibleContinuousChapterPlayback(true);
+
+    startQueue = function() {
+      if (!window.__gomnaBibleContinuousChapterPlayback) {
+        window.__gomnaBibleContinuousChapterAdvancing = false;
+        return;
+      }
+      if (!currentBook || currentBook.name !== bookName || Number(currentChapter) !== nextCh) {
+        clearBibleContinuousChapterPlayback();
+        return;
+      }
+      if (typeof engine.prepareFreshQueuePlayback === 'function') {
+        engine.prepareFreshQueuePlayback();
+      }
+      console.log('[GOMNA_AUDIO] continuous next chapter queue', {
+        book: bookName,
+        chapter: nextCh,
+        idCount: ids.length,
+        first: ids[0],
+        last: ids[ids.length - 1]
+      });
+      engine.playAudioQueue(ids, {
+        source: 'bible-chapter:' + ids[0].replace(/\.bible$/, ''),
+        forceRestart: true
+      });
+      window.__gomnaBibleContinuousChapterAdvancing = false;
+      if (
+        window.GOMNA_AUDIO_HIGHLIGHT &&
+        typeof window.GOMNA_AUDIO_HIGHLIGHT.reapplyCurrentBibleHighlight === 'function'
+      ) {
+        window.requestAnimationFrame(function() {
+          window.GOMNA_AUDIO_HIGHLIGHT.reapplyCurrentBibleHighlight();
+        });
+      }
+    };
+
+    /*
+     * Let listen-button mark data-audio-target and avoid racing the previous
+     * chapter's audio:end highlight cleanup. One rAF is enough — no long polls.
+     */
+    window.requestAnimationFrame(startQueue);
+  };
+
+  window.addEventListener('gomna:verse_list_rendered', onRendered);
+  safetyTimer = setTimeout(function() {
+    window.removeEventListener('gomna:verse_list_rendered', onRendered);
+    window.__gomnaBibleContinuousChapterAdvancing = false;
+    if (window.__gomnaBibleContinuousChapterPlayback) {
+      clearBibleContinuousChapterPlayback();
+    }
+  }, 8000);
+
+  try {
+    nextChapter();
+  } catch (err) {
+    window.removeEventListener('gomna:verse_list_rendered', onRendered);
+    clearBibleContinuousChapterPlayback();
+  }
+}
+
+window.addEventListener('audio:end', function(e) {
+  var detail = e && e.detail ? e.detail : {};
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var cancelled = !!(engine && engine._state && engine._state.playbackCancelled);
+
+  if (detail.reason === 'user_stop' || detail.reason === 'soft_fail_limit') {
+    clearBibleContinuousChapterPlayback();
+    return;
+  }
+  /*
+   * playbackCancelled can briefly be true while a new continuous chapter queue
+   * is being prepared. Only treat cancel as stop when nothing is restarting.
+   */
+  if (cancelled && !window.__gomnaBibleContinuousChapterAdvancing && !window.__gomnaBibleContinuousChapterJumping) {
+    if (!(engine && engine._state && (engine._state.queueActive || engine._state.isPlaying))) {
+      clearBibleContinuousChapterPlayback();
+      return;
+    }
+  }
+  if (detail.reason !== 'queue_completed') {
+    return;
+  }
+  if (!window.__gomnaBibleContinuousChapterPlayback) return;
+  continueBibleContinuousChapterPlayback();
+});
+
+window.addEventListener('audio:pause', function() {
+  if (window.__gomnaBibleContinuousChapterAdvancing) return;
+  if (window.__gomnaBibleContinuousChapterJumping) return;
+  clearBibleContinuousChapterPlayback();
+});
+
+window.addEventListener('audio:error', function() {
+  if (window.__gomnaBibleContinuousChapterJumping) return;
+  clearBibleContinuousChapterPlayback();
+});
 
 function getVerseRangeModalHtml() {
   verseRangeModalMax = currentVerseCount;
@@ -10720,6 +11238,9 @@ function applyRange(startOpt, endOpt) {
 
 function prevChapter() {
   if (currentChapter > 1) {
+    if (typeof clearBibleContinuousChapterPlayback === 'function') {
+      clearBibleContinuousChapterPlayback();
+    }
     if (typeof window.exitScriptureEntryView === 'function') window.exitScriptureEntryView();
     selectedVerseNum = null;
     currentChapter--;
@@ -10731,6 +11252,11 @@ function prevChapter() {
 }
 function nextChapter() {
   if (currentChapter < currentBook.chapters) {
+    /* Auto continuous advance sets this flag; manual next-chapter must cancel it. */
+    if (!window.__gomnaBibleContinuousChapterAdvancing &&
+        typeof clearBibleContinuousChapterPlayback === 'function') {
+      clearBibleContinuousChapterPlayback();
+    }
     if (typeof window.exitScriptureEntryView === 'function') window.exitScriptureEntryView();
     selectedVerseNum = null;
     currentChapter++;
@@ -11258,11 +11784,11 @@ function changeFont(delta) {
 </script>
 <script src="/js/audio-config.js?v=20260724-manifest-shard-v1" defer></script>
 <script src="/js/gomna-audio-manifest-shards.js?v=20260724-manifest-shard-v1" defer></script>
-<script src="/js/audio-engine.js?v=20260604-1830" defer></script>
+<script src="/js/audio-engine.js?v=20260728-continuous-no-stop-v7" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260725-contained-audio-hide-v1" defer></script>
-<script src="/js/gomna-audio-highlight.js?v=20260726-bible-active-card-v1" defer></script>
-<script src="/js/gomna-audio-ui.js?v=20260727-listen-supported-books-v1" defer></script>
+<script src="/js/gomna-audio-highlight.js?v=20260728-continuous-no-stop-v7" defer></script>
+<script src="/js/gomna-audio-ui.js?v=20260728-continuous-no-stop-v7" defer></script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)
