@@ -89,8 +89,17 @@
       'language.openAria': '언어 선택',
       'home.relative.today': '오늘',
       'home.relative.yesterday': '어제',
+      'home.relative.daysAgo': '{n}일 전',
       'home.continue.lastReadSuffix': '읽던 곳',
-      'home.continue.readAt': '{day} {time}에 읽었습니다'
+      'home.continue.readAt': '{day} {time}에 읽었습니다',
+      'home.resume.readPlace': '읽던 곳',
+      'home.resume.listenPlace': '듣던 곳',
+      'home.resume.listenCta': '이어서 듣기',
+      'home.resume.listenAria': '이어서 듣기',
+      'home.resume.recent': '최근 말씀',
+      'home.resume.recentEmpty': '아직 기록이 없습니다',
+      'home.resume.readStart': '성경읽기 시작',
+      'home.resume.listenStart': '말씀 듣기 시작'
     },
     en: {
       'brand.title': 'Word of Grace',
@@ -162,8 +171,17 @@
       'language.openAria': 'Choose language',
       'home.relative.today': 'today',
       'home.relative.yesterday': 'yesterday',
+      'home.relative.daysAgo': '{n} days ago',
       'home.continue.lastReadSuffix': 'Last read',
-      'home.continue.readAt': 'Read {day} at {time}'
+      'home.continue.readAt': 'Read {day} at {time}',
+      'home.resume.readPlace': 'Last read',
+      'home.resume.listenPlace': 'Last listened',
+      'home.resume.listenCta': 'Continue Listening',
+      'home.resume.listenAria': 'Continue listening',
+      'home.resume.recent': 'Recent',
+      'home.resume.recentEmpty': 'No recent verses yet',
+      'home.resume.readStart': 'Start Bible reading',
+      'home.resume.listenStart': 'Start listening'
     },
     ja: {
       'brand.title': '恵みのみことば',
@@ -235,8 +253,17 @@
       'language.openAria': '言語を選択',
       'home.relative.today': '今日',
       'home.relative.yesterday': '昨日',
+      'home.relative.daysAgo': '{n}日前',
       'home.continue.lastReadSuffix': 'に読んだ箇所',
-      'home.continue.readAt': '{day} {time}に読みました'
+      'home.continue.readAt': '{day} {time}に読みました',
+      'home.resume.readPlace': '読んだ箇所',
+      'home.resume.listenPlace': '聴いた箇所',
+      'home.resume.listenCta': '続きを聴く',
+      'home.resume.listenAria': '続きを聴く',
+      'home.resume.recent': '最近の聖句',
+      'home.resume.recentEmpty': 'まだ記録がありません',
+      'home.resume.readStart': '聖書を読み始める',
+      'home.resume.listenStart': 'みことばを聴き始める'
     }
   };
 
@@ -447,6 +474,17 @@
     return name + ' ' + ch + '장';
   }
 
+  /** Full scripture location for home resume cards (display-only). */
+  function formatBookChapterVerse(bookKo, chapter, verse, lang) {
+    var code = isSupported(lang) ? lang : currentLang;
+    var name = translateBookName(bookKo, code);
+    var ch = String(chapter);
+    var v = String(verse);
+    if (code === 'en') return name + ' ' + ch + ':' + v;
+    if (code === 'ja') return name + ' ' + ch + '章 ' + v + '節';
+    return name + ' ' + ch + '장 ' + v + '절';
+  }
+
   function formatRelativeDay(ts, lang) {
     var code = isSupported(lang) ? lang : currentLang;
     var d = new Date(ts);
@@ -457,6 +495,9 @@
     var diff = Math.round((today - that) / 86400000);
     if (diff <= 0) return t('home.relative.today', code);
     if (diff === 1) return t('home.relative.yesterday', code);
+    if (diff >= 2 && diff <= 6) {
+      return String(t('home.relative.daysAgo', code) || '{n}일 전').replace('{n}', String(diff));
+    }
     try {
       return new Intl.DateTimeFormat(localeTag(code), { month: 'long', day: 'numeric' }).format(d);
     } catch (e) {
@@ -669,6 +710,7 @@
     clearBoot: clearBoot,
     t: t,
     formatBookChapter: formatBookChapter,
+    formatBookChapterVerse: formatBookChapterVerse,
     formatRelativeDay: formatRelativeDay,
     formatContinueTitle: formatContinueTitle,
     formatContinueSub: formatContinueSub,

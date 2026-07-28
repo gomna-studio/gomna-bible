@@ -173,7 +173,7 @@
 <style id="gomna-ui-i18n-boot-css">
 html.gomna-ui-i18n-boot [data-i18n-key]:not(img){visibility:hidden}
 </style>
-<script src="js/gomna-ui-i18n.js?v=20260724-first-visit-detect-v2"></script>
+<script src="js/gomna-ui-i18n.js?v=20260729-resume-i18n-books"></script>
 <style id="gt-translation-pending-css">
 html.gt-translation-pending,
 html.gt-translation-pending body{
@@ -525,45 +525,47 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .verse-hint:hover{background:var(--gm-hover-btn-strong)}
 /* 말씀 이어가기 카드 */
 .home-resume-card{display:block;width:100%;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);box-shadow:var(--gm-card-shadow);padding:10px 11px 9px;margin-bottom:8px;font-family:inherit;text-align:left;box-sizing:border-box;pointer-events:auto}
-.home-resume-split{display:grid;grid-template-columns:1fr 1fr;gap:0;min-width:0;width:100%}
-.home-resume-pane{display:flex;flex-direction:column;align-items:stretch;min-width:0;min-height:100%;background:transparent;border:0;padding:1px 8px 1px 0;margin:0;cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent;border-radius:8px;transition:background .18s ease}
+.home-resume-split{display:grid;grid-template-columns:1fr 1fr;gap:0;min-width:0;width:100%;align-items:stretch}
+.home-resume-pane{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;min-width:0;min-height:100%;background:transparent;border:0;padding:1px 8px 1px 0;margin:0;cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent;border-radius:8px;transition:background .18s ease}
 .home-resume-pane + .home-resume-pane{padding:1px 0 1px 10px;border-left:1px solid rgba(168,122,53,.28)}
 .home-resume-pane:hover{background:rgba(200,152,73,.06)}
 .home-resume-pane:active{background:rgba(200,152,73,.1)}
-.home-resume-line1{display:flex;align-items:center;gap:5px;min-width:0;max-width:100%;margin:0 0 2px}
-.home-resume-pane-icon{width:16px;height:16px;flex-shrink:0;display:block;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.home-resume-kicker{display:flex;align-items:center;gap:5px;min-width:0;max-width:100%;margin:0 0 3px}
+.home-resume-pane-icon{width:15px;height:15px;flex-shrink:0;display:block;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .home-resume-pane-icon--read{stroke:#3F2A12;opacity:.88}
 .home-resume-pane-icon--listen{stroke:#234A52;opacity:.82}
-.home-resume-primary{min-width:0;flex:1;display:flex;align-items:baseline;gap:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
-.home-resume-loc{font-size:13.5px;font-weight:700;color:#2a1c0c;letter-spacing:-.25px}
-.home-resume-place{font-size:11.5px;font-weight:500;color:#8a6e4a;letter-spacing:-.15px;margin-left:.2em}
-.home-resume-time{font-size:11px;color:#9a7a52;margin-top:1px;letter-spacing:-.15px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.home-resume-cta{margin-top:4px;font-size:12px;font-weight:600;color:#a87a35;letter-spacing:-.15px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-resume-kicker-text{min-width:0;font-size:11px;font-weight:600;color:#8a6e4a;letter-spacing:-.15px;line-height:1.2}
+.home-resume-loc{min-width:0;margin:0;font-size:clamp(12.5px,3.3vw,14px);font-weight:700;color:#2a1c0c;letter-spacing:-.25px;line-height:1.3;word-break:keep-all;overflow-wrap:anywhere;white-space:normal}
+.home-resume-time{font-size:11px;color:#9a7a52;margin-top:3px;letter-spacing:-.15px;line-height:1.25;white-space:nowrap}
+.home-resume-cta{display:inline-flex;align-items:center;gap:0;margin-top:5px;font-size:12px;font-weight:600;color:#a87a35;letter-spacing:-.15px;line-height:1.2;white-space:nowrap;max-width:100%}
+.home-resume-cta-text{min-width:0}
+.home-resume-cta-arrow{display:inline-block;position:relative;width:1.3em;height:.72em;margin-left:.28em;flex-shrink:0;vertical-align:middle;color:currentColor}
+.home-resume-cta-arrow::before{content:"";position:absolute;left:0;right:.32em;top:50%;height:2px;background:currentColor;border-radius:1px;transform:translateY(-50%);opacity:1}
+.home-resume-cta-arrow::after{content:"";position:absolute;right:0;top:50%;width:.42em;height:.42em;border-right:2px solid currentColor;border-top:2px solid currentColor;transform:translateY(-50%) rotate(45deg);opacity:1}
+.home-resume-cta-play{display:inline-block;margin-left:.28em;flex-shrink:0;font-size:1em;line-height:1;color:currentColor}
 .home-resume-card.home-resume--no-read .home-resume-loc,
 .home-resume-card.home-resume--no-listen .home-resume-loc{color:#6e5536;font-weight:600}
-.home-resume-card.home-resume--no-read .home-resume-place,
-.home-resume-card.home-resume--no-listen .home-resume-place{display:none}
 .home-resume-card.home-resume--no-read .home-resume-time,
 .home-resume-card.home-resume--no-listen .home-resume-time{opacity:.72}
 .home-resume-card.home-resume--no-read .home-resume-cta,
 .home-resume-card.home-resume--no-listen .home-resume-cta{opacity:.78}
-.home-resume-recent{display:flex;align-items:baseline;gap:6px;width:100%;margin-top:8px;padding-top:7px;border-top:1px solid rgba(180,140,90,.14);background:transparent;border-left:0;border-right:0;border-bottom:0;cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent}
-.home-resume-recent-label{flex-shrink:0;font-size:10px;font-weight:600;color:#8a6e4a;letter-spacing:-.1px}
-.home-resume-recent-line{min-width:0;flex:1;font-size:11.5px;font-weight:500;color:#3d2818;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.home-resume-card.home-resume--no-recent .home-resume-recent-line{color:#9a7a52;font-weight:450}
+.home-resume-recent{display:flex;align-items:flex-start;gap:6px;width:100%;margin-top:8px;padding-top:7px;border-top:1px solid rgba(180,140,90,.14);box-sizing:border-box}
+.home-resume-recent-label{flex-shrink:0;margin-top:3px;font-size:10px;font-weight:600;color:#8a6e4a;letter-spacing:-.1px;line-height:1.2}
+.home-resume-recent-chips{display:flex;flex-wrap:wrap;gap:5px;min-width:0;flex:1}
+.home-resume-recent-chip{appearance:none;-webkit-appearance:none;margin:0;padding:3px 7px;border:1px solid rgba(180,140,90,.28);border-radius:999px;background:rgba(200,152,73,.08);color:#3d2818;font:inherit;font-size:11px;font-weight:600;letter-spacing:-.15px;line-height:1.25;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.home-resume-recent-chip:active{background:rgba(200,152,73,.16)}
+.home-resume-recent-empty{font-size:11.5px;font-weight:450;color:#9a7a52;letter-spacing:-.15px;line-height:1.3;padding:2px 0}
 .home-resume-pane:hover .home-resume-loc,
-.home-resume-pane:hover .home-resume-cta,
-.home-resume-recent:hover .home-resume-recent-line{color:#5a3818}
+.home-resume-pane:hover .home-resume-cta{color:#5a3818}
 @media (max-width:360px){
   .home-resume-card{padding:9px 9px 8px}
-  .home-resume-line1{gap:4px}
-  .home-resume-pane-icon{width:15px;height:15px}
-  .home-resume-loc{font-size:12.5px}
-  .home-resume-place{font-size:11px}
+  .home-resume-kicker{gap:4px}
+  .home-resume-pane-icon{width:14px;height:14px}
+  .home-resume-loc{font-size:clamp(12px,3.4vw,13px)}
   .home-resume-time{font-size:10.5px}
-  .home-resume-cta{font-size:11.5px;margin-top:3px}
+  .home-resume-cta{font-size:11.5px;margin-top:4px}
   .home-resume-pane + .home-resume-pane{padding-left:8px}
-  .home-resume-recent-line{font-size:11px}
+  .home-resume-recent-chip{font-size:10.5px;padding:3px 6px}
 }
 /* 빠른 메뉴 4칸 */
 .quick-menu{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);overflow:hidden;box-shadow:var(--gm-card-shadow);margin-bottom:4px}
@@ -845,31 +847,35 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
   </div>
   <section class="home-resume-card" id="homeResumeCard" aria-label="말씀 이어가기">
     <div class="home-resume-split">
-      <button type="button" class="home-resume-pane" id="homeResumeReadPane" aria-label="이어서 읽기">
-        <div class="home-resume-line1">
+      <button type="button" class="home-resume-pane" id="homeResumeReadPane" aria-label="이어서 읽기" data-i18n-aria-label="home.continue.aria">
+        <div class="home-resume-kicker">
           <svg class="home-resume-pane-icon home-resume-pane-icon--read" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M9 7h7M9 11h5"/></svg>
-          <span class="home-resume-primary">
-            <span class="home-resume-loc" id="homeResumeReadLoc">성경읽기 시작</span><span class="home-resume-place" id="homeResumeReadPlace"></span>
-          </span>
+          <span class="home-resume-kicker-text" data-i18n-key="home.resume.readPlace">읽던 곳</span>
         </div>
+        <div class="home-resume-loc" id="homeResumeReadLoc">성경읽기 시작</div>
         <div class="home-resume-time" id="homeResumeReadTime">—</div>
-        <div class="home-resume-cta">이어서 읽기 →</div>
-      </button>
-      <button type="button" class="home-resume-pane" id="homeResumeListenPane" aria-label="이어서 듣기">
-        <div class="home-resume-line1">
-          <svg class="home-resume-pane-icon home-resume-pane-icon--listen" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-          <span class="home-resume-primary">
-            <span class="home-resume-loc" id="homeResumeListenLoc">말씀 듣기 시작</span><span class="home-resume-place" id="homeResumeListenPlace"></span>
-          </span>
+        <div class="home-resume-cta">
+          <span class="home-resume-cta-text" data-i18n-key="home.continue.resume">이어서 읽기</span>
+          <span class="home-resume-cta-arrow" aria-hidden="true"></span>
         </div>
+      </button>
+      <button type="button" class="home-resume-pane" id="homeResumeListenPane" aria-label="이어서 듣기" data-i18n-aria-label="home.resume.listenAria">
+        <div class="home-resume-kicker">
+          <svg class="home-resume-pane-icon home-resume-pane-icon--listen" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+          <span class="home-resume-kicker-text" data-i18n-key="home.resume.listenPlace">듣던 곳</span>
+        </div>
+        <div class="home-resume-loc" id="homeResumeListenLoc">말씀 듣기 시작</div>
         <div class="home-resume-time" id="homeResumeListenTime">—</div>
-        <div class="home-resume-cta">이어서 듣기 ▶</div>
+        <div class="home-resume-cta">
+          <span class="home-resume-cta-text" data-i18n-key="home.resume.listenCta">이어서 듣기</span>
+          <span class="home-resume-cta-play" aria-hidden="true">▶</span>
+        </div>
       </button>
     </div>
-    <button type="button" class="home-resume-recent" id="homeResumeRecent" aria-label="최근 말씀">
-      <span class="home-resume-recent-label">최근 말씀</span>
-      <span class="home-resume-recent-line" id="homeResumeRecentLine">아직 기록이 없습니다</span>
-    </button>
+    <div class="home-resume-recent" id="homeResumeRecent" aria-label="최근 말씀">
+      <span class="home-resume-recent-label" data-i18n-key="home.resume.recent">최근 말씀</span>
+      <div class="home-resume-recent-chips" id="homeResumeRecentChips"></div>
+    </div>
   </section>
   <div class="verse-card" id="today-word-card">
     <div class="verse-card-photo-layer" aria-hidden="true">
@@ -1608,7 +1614,7 @@ function openSettings(){var p=document.getElementById('settingsPopup');if(p)p.cl
 function closeSettings(){var p=document.getElementById('settingsPopup');if(p)p.classList.remove('show');}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
-<script src="js/gomna-home-resume.js?v=20260728-home-resume-card-v9"></script>
+<script src="js/gomna-home-resume.js?v=20260729-resume-i18n-books"></script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
 <script src="translate_feature.js?v=20260724-first-visit-detect-v2" defer></script>
 <script>

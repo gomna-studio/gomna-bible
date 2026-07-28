@@ -425,6 +425,26 @@ body[data-i18n-mode="foreign"] .consonant-btn.cat-btn.cat-all .cat-label{font-si
 #easyView:not(.easy-view--ganada) .easy-ganada-bubble{
   display:none!important;
 }
+/* 최근 본 책: 스크롤 시 위로 사라지고 sticky에 포함하지 않음 */
+.easy-recent-books{margin:0 0 10px;padding:0}
+.easy-recent-books[hidden]{display:none!important}
+.easy-recent-title{font-size:13px;font-weight:700;color:var(--text-light,#3D2817);margin:0 0 8px;letter-spacing:-.1px}
+.easy-recent-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box}
+.easy-recent-grid .book-btn{min-width:0;padding:12px 4px}
+.easy-recent-grid .book-btn .name{word-break:keep-all;overflow-wrap:anywhere}
+/* 분류/가나다 조작 영역 sticky (제목·닫기 헤더 아래) */
+.easy-sticky-controls{
+  position:sticky;
+  top:var(--reader-dock-top-height,54px);
+  z-index:40;
+  background:var(--cream,#FDF8F3);
+  padding:2px 0 8px;
+  margin:0 0 6px;
+  box-sizing:border-box;
+}
+.easy-sticky-controls .easy-mode-seg{margin-top:0;margin-bottom:6px}
+.easy-sticky-controls .easy-book-search{margin-bottom:6px}
+.easy-sticky-controls .easy-ganada-quick{margin-bottom:0}
 /* 가나다: 가로 초성 버튼 사용 — 세로 인덱스·말풍선은 숨김 */
 #easyView.easy-view--ganada .easy-ganada-index,
 #easyView.easy-view--ganada .easy-ganada-bubble{
@@ -1115,6 +1135,16 @@ html.gomna-lang-bridge-in-commentary .gomna-reader-lang-bridge-host:not(.gomna-r
 .opt4-verse-listen{min-width:0;min-height:40px;padding:4px 4px;background:rgba(200,152,73,.18);color:#5A321C;border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:normal;line-height:1.15;-webkit-tap-highlight-color:transparent;opacity:1;box-sizing:border-box}
 .opt4-verse-listen:active{background:rgba(200,152,73,.3)}
 .opt4-verse-listen[hidden]{display:none}
+.opt4-verse-listen-choice{display:grid;grid-template-columns:1fr 1fr;gap:4px;min-width:0;width:100%;max-width:100%;align-items:stretch;box-sizing:border-box}
+.opt4-verse-listen-choice[hidden]{display:none!important}
+.opt4-verse-listen-choice .opt4-verse-listen{width:100%;min-width:0;padding:4px 2px;font-size:11px;letter-spacing:-.2px;font-weight:800;opacity:1;color:#5A321C}
+/* 한 절 선택: 듣기 영역 2칸을 써서 두 버튼 문구가 375px에서도 잘리지 않게 한다 */
+#opt4VerseToolbar.opt4-bar-mode:has(#opt4VerseListenChoice:not([hidden])){
+  grid-template-columns:repeat(6,minmax(0,1fr));
+}
+#opt4VerseToolbar.opt4-bar-mode:has(#opt4VerseListenChoice:not([hidden])) #opt4VerseListenChoice{
+  grid-column:span 2;
+}
 .opt4-verse-commentary{min-width:0;min-height:40px;padding:4px 4px;background:#fff;border:0.5px solid rgba(180,140,90,.4);border-radius:10px;font-size:13px;font-weight:700;color:#5A321C;font-family:inherit;cursor:pointer;white-space:normal;line-height:1.15;-webkit-tap-highlight-color:transparent;opacity:1;box-sizing:border-box}
 .opt4-verse-commentary:active{background:rgba(244,232,205,.6)}
 .opt4-verse-more{min-width:0;min-height:40px;padding:4px 2px;background:transparent;border:none;font-size:13px;font-weight:700;color:#5A321C;font-family:inherit;cursor:pointer;white-space:normal;line-height:1.15;-webkit-tap-highlight-color:transparent;opacity:1;box-sizing:border-box}
@@ -1169,6 +1199,7 @@ html.gomna-lang-bridge-in-commentary .gomna-reader-lang-bridge-host:not(.gomna-r
 /* 절 본문 하단 조작 바: 항상 선명·활성 (오디오 CSS disabled 흐림 덮기) */
 #opt4VerseToolbar .verse-toolbar-target-btn,
 #opt4VerseToolbar .opt4-verse-listen,
+#opt4VerseToolbar .opt4-verse-listen-choice .opt4-verse-listen,
 #opt4VerseToolbar .opt4-verse-commentary,
 #opt4VerseToolbar .opt4-verse-more,
 #opt4VerseToolbar .opt4-verse-list{
@@ -1178,6 +1209,13 @@ html.gomna-lang-bridge-in-commentary .gomna-reader-lang-bridge-host:not(.gomna-r
   filter:none!important;
   pointer-events:auto!important;
   cursor:pointer!important;
+}
+#opt4VerseToolbar #opt4VerseListenOnly,
+#opt4VerseToolbar #opt4VerseListenFromHere,
+#opt4VerseToolbar .opt4-verse-listen-choice .opt4-verse-listen{
+  font-weight:800!important;
+  opacity:1!important;
+  color:#5A321C!important;
 }
 #opt4VerseToolbar .opt4-verse-list{
   margin-left:0!important;
@@ -1195,13 +1233,45 @@ html.gomna-lang-bridge-in-commentary .gomna-reader-lang-bridge-host:not(.gomna-r
   font-size:13px!important;
   white-space:normal!important;
 }
+#opt4VerseList .opt4-verse-list-arrow,
+#opt4VerseList .opt4-verse-list-label{display:inline}
+@media (max-width:430px){
+  /* 한 줄 유지: 앞 3버튼에 조금 더, 더보기·← 여유만 줄여 재분배 */
+  #opt4VerseToolbar.opt4-bar-mode{
+    gap:3px;
+    grid-template-columns:1.35fr 1.35fr 1.2fr minmax(48px,0.85fr) minmax(44px,0.65fr);
+  }
+  #opt4VerseToolbar.opt4-bar-mode:has(#opt4VerseListenChoice:not([hidden])){
+    gap:3px;
+    grid-template-columns:1.25fr 1.1fr 1.1fr 1.15fr minmax(48px,0.85fr) minmax(44px,0.65fr);
+  }
+  #opt4VerseList .opt4-verse-list-label{display:none!important}
+  #opt4VerseToolbar .opt4-verse-list,
+  #opt4VerseList.opt4-verse-list{
+    min-width:44px!important;
+    min-height:44px!important;
+    width:100%!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  #opt4VerseList .opt4-verse-list-arrow{
+    font-size:24px!important;
+    font-weight:800!important;
+    line-height:1!important;
+    opacity:1!important;
+    color:#5A321C!important;
+  }
+}
 html.gomna-reader-ui-en #opt4VerseToolbar .verse-toolbar-target-btn,
 html.gomna-reader-ui-en #opt4VerseToolbar .opt4-verse-listen,
+html.gomna-reader-ui-en #opt4VerseToolbar .opt4-verse-listen-choice .opt4-verse-listen,
 html.gomna-reader-ui-en #opt4VerseToolbar .opt4-verse-commentary,
 html.gomna-reader-ui-en #opt4VerseToolbar .opt4-verse-more,
 html.gomna-reader-ui-en #opt4VerseToolbar .opt4-verse-list,
 html.gomna-reader-ui-ja #opt4VerseToolbar .verse-toolbar-target-btn,
 html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-listen,
+html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-listen-choice .opt4-verse-listen,
 html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-commentary,
 html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-more,
 html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
@@ -2574,10 +2644,14 @@ if ("serviceWorker" in navigator) {
           <button type="button" class="verse-toolbar-target-menu-item" data-target-mode="clear" onclick="chooseVerseListenTargetMode('clear')" role="menuitem" aria-label="선택한 구절 모두 해제"><span class="verse-toolbar-target-menu-label">선택 해제</span><span class="verse-toolbar-target-menu-suffix" aria-hidden="true">↺</span></button>
         </div>
       </div>
-      <button type="button" class="opt4-verse-listen" id="opt4VerseListen" data-gomna-chapter-listen="1">전체 듣기</button>
+      <button type="button" class="opt4-verse-listen" id="opt4VerseListen" data-gomna-chapter-listen="1">장 전체 듣기</button>
+      <div id="opt4VerseListenChoice" class="opt4-verse-listen-choice" hidden>
+        <button type="button" class="opt4-verse-listen" id="opt4VerseListenOnly">절 듣기</button>
+        <button type="button" class="opt4-verse-listen" id="opt4VerseListenFromHere">이어듣기</button>
+      </div>
       <button type="button" class="opt4-verse-commentary" id="opt4VerseCommentary" onclick="opt4ToolbarCommentary()">말씀풀이</button>
       <button type="button" class="opt4-verse-more" id="opt4VerseMore" onclick="openVerseToolbarMoreMenu()">더보기</button>
-      <button type="button" class="opt4-verse-list" id="opt4VerseList" onclick="opt4OpenChapterList()" aria-label="돌아가기">← 돌아가기</button>
+      <button type="button" class="opt4-verse-list" id="opt4VerseList" onclick="opt4OpenChapterList()" aria-label="돌아가기"><span class="opt4-verse-list-arrow" aria-hidden="true">←</span><span class="opt4-verse-list-label"> 돌아가기</span></button>
     </div>
   </nav>
   <div id="verseToolbarMoreOverlay" class="verse-toolbar-more-overlay" aria-hidden="true" onclick="if(event.target===this)closeVerseToolbarMoreMenu()">
@@ -3132,6 +3206,7 @@ function handleScriptureDock(action) {
     }
     if (action === 'find') {
       switchTab('easy');
+      if (typeof renderEasyRecentBooks === 'function') renderEasyRecentBooks();
       var easyView = document.getElementById('easyView');
       if (easyView) easyView.scrollIntoView({ behavior: 'smooth', block: 'start' });
       syncScriptureDockActive('find');
@@ -3427,6 +3502,9 @@ function switchTab(tab) {
     // v72: 대상 전체 화면 진입 시 투명 여유 공간만큼 스크롤을 내려, 처음엔 빈 공간 없이 헤더가 상단에서 시작하도록 한다 (데스크톱은 offset 0으로 기존과 동일)
     resetBibleListScroll();
   }
+  if (tab === 'easy' && typeof renderEasyRecentBooks === 'function') {
+    renderEasyRecentBooks();
+  }
   if (tab === 'search') {
     var siR = document.getElementById('searchInputReader');
     // preventScroll: 검색어 입력창 포커스가 초기 스크롤(스페이서 오프셋)을 흔들지 않도록 한다
@@ -3697,7 +3775,7 @@ function getReaderToolbarLabels(lang) {
   }
   return {
     find: '본문 찾기',
-    listen: '전체 듣기',
+    listen: '장 전체 듣기',
     listenPause: '전체 일시정지',
     listenResume: '전체 이어듣기',
     commentary: '말씀풀이',
@@ -4443,12 +4521,20 @@ function renderEasyFind() {
   easyFindBrowseMode = 'category';
   easyGanadaActiveCons = 'all';
   easyGanadaComposing = false;
-  var html = '<!-- gomna-easy v31 :: inline category results + ganada search/quick -->';
-  html += '<div class="consonant-grid cat-grid">';
+  var html = '<!-- gomna-easy v32 :: recent books + sticky controls -->';
+  html += '<div class="easy-recent-books" id="easyRecentBooks" hidden></div>';
+  html += '<div class="easy-sticky-controls" id="easyStickyControls">';
   html += '<div class="easy-mode-seg" role="tablist" aria-label="쉬운찾기 보기 전환">';
   html += '<button type="button" class="easy-mode-seg-btn is-active" role="tab" aria-selected="true" data-easy-mode="category" onclick="setEasyFindBrowseMode(\'category\')">분류별</button>';
   html += '<button type="button" class="easy-mode-seg-btn" role="tab" aria-selected="false" data-easy-mode="ganada" onclick="setEasyFindBrowseMode(\'ganada\')">가나다</button>';
   html += '</div>';
+  html += '<div class="easy-book-search" id="easyBookSearch" hidden>';
+  html += '<input type="text" id="easyBookSearchInput" class="easy-book-search-input" placeholder="성경책 이름을 입력하세요" aria-label="성경책 이름 검색" inputmode="search" autocomplete="off" spellcheck="false">';
+  html += '<button type="button" id="easyBookSearchClear" class="easy-book-search-clear" hidden aria-label="검색어 지우기">✕</button>';
+  html += '</div>';
+  html += '<div class="easy-ganada-quick" id="easyGanadaQuick" hidden role="toolbar" aria-label="초성 빠른 선택"></div>';
+  html += '</div>';
+  html += '<div class="consonant-grid cat-grid">';
   html += '<div class="easy-category-block" id="easyCategoryBlock">';
   html += '<div class="cat-col-header cat-col-ot" data-i18n-testament="ot" translate="no">' + _escR(otHdrText) + '</div>';
   html += '<div class="easy-cat-list easy-cat-list--ot">';
@@ -4461,11 +4547,6 @@ function renderEasyFind() {
   html += '</div>';
   html += '</div>';
   html += '<div class="filtered-books" id="filteredBooks"></div>';
-  html += '<div class="easy-book-search" id="easyBookSearch" hidden>';
-  html += '<input type="text" id="easyBookSearchInput" class="easy-book-search-input" placeholder="성경책 이름을 입력하세요" aria-label="성경책 이름 검색" inputmode="search" autocomplete="off" spellcheck="false">';
-  html += '<button type="button" id="easyBookSearchClear" class="easy-book-search-clear" hidden aria-label="검색어 지우기">✕</button>';
-  html += '</div>';
-  html += '<div class="easy-ganada-quick" id="easyGanadaQuick" hidden role="toolbar" aria-label="초성 빠른 선택"></div>';
   html += '<div class="easy-ganada-root" id="easyGanadaRoot" hidden></div>';
   html += '<div class="easy-ganada-index" id="easyGanadaIndex" hidden aria-hidden="true"></div>';
   html += '<div class="easy-ganada-bubble" id="easyGanadaBubble" hidden aria-hidden="true"></div>';
@@ -4473,6 +4554,7 @@ function renderEasyFind() {
   easyView.classList.remove('easy-view--ganada', 'easy-view--filtered');
   easyView.innerHTML = html;
   bindEasyBookSearchEvents();
+  renderEasyRecentBooks();
 
   if (typeof window.GomnaApplyUiI18n === 'function') {
     try { window.GomnaApplyUiI18n(lang); } catch(e) {}
@@ -4908,12 +4990,83 @@ function getInitialConsonant(str) {
   return ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'][Math.floor(code / 588)];
 }
 
+var EASY_RECENT_BOOKS_KEY = 'gomna_reader_recent_books_v1';
+var EASY_RECENT_BOOKS_STORE_MAX = 8;
+var EASY_RECENT_BOOKS_SHOW_MAX = 3;
+
+function readEasyRecentBookNames() {
+  var raw;
+  var list;
+  try {
+    raw = localStorage.getItem(EASY_RECENT_BOOKS_KEY);
+    list = raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+  if (!Array.isArray(list)) return [];
+  return list.filter(function(name) { return typeof name === 'string' && name; });
+}
+
+function rememberEasyRecentBook(name) {
+  var next;
+  var list;
+  if (!name || typeof name !== 'string') return;
+  try {
+    list = readEasyRecentBookNames();
+    next = [name];
+    list.forEach(function(n) {
+      if (n !== name) next.push(n);
+    });
+    if (next.length > EASY_RECENT_BOOKS_STORE_MAX) {
+      next = next.slice(0, EASY_RECENT_BOOKS_STORE_MAX);
+    }
+    localStorage.setItem(EASY_RECENT_BOOKS_KEY, JSON.stringify(next));
+  } catch (e) { /* ignore storage errors */ }
+}
+
+function getEasyRecentBooksForDisplay() {
+  var currentName = currentBook && currentBook.name ? currentBook.name : null;
+  var out = [];
+  var seen = {};
+  readEasyRecentBookNames().forEach(function(name) {
+    if (!name || seen[name]) return;
+    if (currentName && name === currentName) return;
+    seen[name] = true;
+    out.push(name);
+  });
+  return out.slice(0, EASY_RECENT_BOOKS_SHOW_MAX);
+}
+
+function renderEasyRecentBooks() {
+  var host = document.getElementById('easyRecentBooks');
+  var names;
+  var byName = {};
+  var html;
+  if (!host) return;
+  names = getEasyRecentBooksForDisplay();
+  if (!names.length) {
+    host.hidden = true;
+    host.innerHTML = '';
+    return;
+  }
+  getAllBooks().forEach(function(b) { byName[b.name] = b; });
+  html = '<div class="easy-recent-title">최근 본 책</div><div class="easy-recent-grid">';
+  names.forEach(function(name) {
+    var b = byName[name];
+    if (b) html += buildEasyBookCardHtml(b);
+  });
+  html += '</div>';
+  host.innerHTML = html;
+  host.hidden = false;
+}
+
 function selectBook(name, chapters, testament) {
   var displayChapters = isPsalmsBook(name) ? Math.min(chapters, 150) : chapters;
   var chapterUnit = getChapterUnit(name);
   if (typeof clearBibleContinuousChapterPlayback === 'function') {
     clearBibleContinuousChapterPlayback();
   }
+  rememberEasyRecentBook(name);
   currentBook = {name: name, chapters: displayChapters, testament: testament};
   document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
   var chapterView = document.getElementById('chapterView');
@@ -4942,6 +5095,7 @@ function selectChapter(ch) {
   if (typeof clearBibleContinuousChapterPlayback === 'function') {
     clearBibleContinuousChapterPlayback();
   }
+  if (currentBook && currentBook.name) rememberEasyRecentBook(currentBook.name);
   currentChapter = ch;
   document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
   document.getElementById('verseView').classList.add('active');
@@ -7190,16 +7344,13 @@ function renderUnifiedModalBody() {
 }
 
 function unifiedBcGoBookList() {
-  var sec = findUnifiedBookSection(unifiedBcState.selectedBook, unifiedBcState.testament);
-  if (sec) {
-    unifiedBcState.bookListCategory = stripUnifiedSectionEmoji(sec.title);
-  } else {
-    var fallback = getUnifiedOldSections()[0];
-    unifiedBcState.testament = 'old';
-    unifiedBcState.bookListCategory = stripUnifiedSectionEmoji(fallback.title);
+  /* 긴 66권 목록 대신 기존 쉬운찾기 화면을 그대로 연다. */
+  closeUnifiedBookChapterModal();
+  if (typeof handleScriptureDock === 'function') {
+    handleScriptureDock('find');
+    return;
   }
-  unifiedBcState.step = 'books';
-  renderUnifiedModalBody();
+  if (typeof switchTab === 'function') switchTab('easy');
 }
 
 function unifiedBcBackToChapters() {
@@ -7294,6 +7445,7 @@ function unifiedBcApplyChapter(ch) {
   var name = unifiedBcState.selectedBook;
   var testament = unifiedBcState.testament;
   var displayChapters = unifiedBcState.displayChapters;
+  rememberEasyRecentBook(name);
   currentBook = { name: name, chapters: displayChapters, testament: testament };
   currentChapter = ch;
   currentTab = testament;
@@ -7706,32 +7858,54 @@ function isSameAudioIdArray(a, b) {
 
 function syncVerseToolbarListenButton() {
   var btn = document.getElementById('opt4VerseListen');
-  if (!btn) return;
+  var choiceWrap = document.getElementById('opt4VerseListenChoice');
+  var onlyBtn = document.getElementById('opt4VerseListenOnly');
+  var fromBtn = document.getElementById('opt4VerseListenFromHere');
   var engine = window.GOMNA_AUDIO_ENGINE;
   var state = engine && engine.getState ? engine.getState() : null;
-  btn.hidden = false;
-  btn.disabled = false;
-  btn.removeAttribute('aria-disabled');
   var uiLang = getReaderUiLangCode();
   var nativeUi = isReaderNativeUiLang(uiLang);
   var tLabels = getReaderToolbarLabels(uiLang || 'ko');
+  var selCount = typeof getSelectedVerseCount === 'function'
+    ? getSelectedVerseCount()
+    : (selectedVerseNums ? selectedVerseNums.length : 0);
+  var actionVerse;
+  var actionOccurrence;
+  var audioId;
+  var fromVerseIds;
+  var onlyIds;
+  var onlyLabel;
+  var fromLabel;
+  var onlyActive;
+  var fromActive;
+  var multiLabel;
+  var rangeCount;
+  var rangeLabel;
+  var chapterLabel;
 
-  if (verseListenMode === 'chapter' || (!selectedVerseNums.length && verseListenMode === 'selected')) {
-    btn.removeAttribute('data-audio-id');
-    var chapterLabel = nativeUi ? tLabels.listen : '전체 듣기';
-    if (state && state.queueActive && isSameAudioIdArray(state.queueAudioIds, getChapterAudioIds())) {
-      if (state.isPlaying) chapterLabel = nativeUi ? tLabels.listenPause : '전체 일시정지';
-      else if (state.isPaused) chapterLabel = nativeUi ? tLabels.listenResume : '전체 이어듣기';
-    }
-    btn.textContent = chapterLabel;
-    markReaderOwnedTranslate(btn, nativeUi);
-    return;
+  if (!btn) return;
+
+  function hideSingleVerseChoice() {
+    if (choiceWrap) choiceWrap.hidden = true;
   }
 
+  function showSingleVerseChoice() {
+    if (choiceWrap) choiceWrap.hidden = false;
+  }
+
+  function resetListenBtnBase() {
+    btn.disabled = false;
+    btn.removeAttribute('aria-disabled');
+  }
+
+  resetListenBtnBase();
+
   if (verseListenMode === 'range') {
+    btn.hidden = false;
+    hideSingleVerseChoice();
     btn.removeAttribute('data-audio-id');
-    var rangeCount = Math.max(0, opt4RangeEnd - opt4RangeStart + 1);
-    var rangeLabel = rangeCount === 1 ? '1절 듣기' : rangeCount + '개 절 듣기';
+    rangeCount = Math.max(0, opt4RangeEnd - opt4RangeStart + 1);
+    rangeLabel = rangeCount === 1 ? '1절 듣기' : rangeCount + '개 절 듣기';
     if (state && state.queueActive && isSameAudioIdArray(state.queueAudioIds, getRangeAudioIds())) {
       if (state.isPlaying) rangeLabel = '일시정지';
       else if (state.isPaused) rangeLabel = '이어듣기';
@@ -7740,40 +7914,112 @@ function syncVerseToolbarListenButton() {
     return;
   }
 
-  if (selectedVerseNums.length > 1) {
+  if (
+    verseListenMode === 'chapter' ||
+    (!selectedVerseNums.length && verseListenMode === 'selected') ||
+    selCount === 0
+  ) {
+    btn.hidden = false;
+    hideSingleVerseChoice();
     btn.removeAttribute('data-audio-id');
-    var multiLabel = selectedVerseNums.length + '개 절 듣기';
+    chapterLabel = nativeUi ? tLabels.listen : '장 전체 듣기';
+    if (state && state.queueActive && isSameAudioIdArray(state.queueAudioIds, getChapterAudioIds())) {
+      if (state.isPlaying) chapterLabel = nativeUi ? tLabels.listenPause : '전체 일시정지';
+      else if (state.isPaused) chapterLabel = nativeUi ? tLabels.listenResume : '전체 이어듣기';
+    }
+    btn.textContent = chapterLabel;
+    btn.setAttribute('aria-label', chapterLabel);
+    markReaderOwnedTranslate(btn, nativeUi);
+    return;
+  }
+
+  if (selCount > 1) {
+    btn.hidden = false;
+    hideSingleVerseChoice();
+    btn.removeAttribute('data-audio-id');
+    multiLabel = selCount + '구절 듣기';
+    btn.setAttribute('aria-label', '선택한 ' + selCount + '구절 듣기');
     if (state && state.queueActive && state.queueSource === getSelectedVersesAudioQueueSource()) {
-      if (state.isPlaying) multiLabel = '일시정지';
-      else if (state.isPaused) multiLabel = '이어듣기';
+      if (state.isPlaying) {
+        multiLabel = '일시정지';
+        btn.setAttribute('aria-label', '일시정지');
+      } else if (state.isPaused) {
+        multiLabel = '이어듣기';
+        btn.setAttribute('aria-label', '이어듣기');
+      }
     }
     btn.textContent = multiLabel;
     return;
   }
 
-  var actionVerse = getToolbarActionVerse();
-  var actionOccurrence = selectedVerseNum ? selectedVerseOccurrence : 1;
-  var audioId = getVerseAudioId(actionVerse, actionOccurrence);
-  var fromVerseIds = selectedVerseNums.length === 1
-    ? getChapterAudioIds(getSortedUniqueSelectedVerseNums()[0] || actionVerse)
-    : [];
-  if (audioId && isVerseAudioAvailable(actionVerse, actionOccurrence)) {
-    btn.setAttribute('data-audio-id', audioId);
-  } else {
-    btn.removeAttribute('data-audio-id');
+  /* Exactly one selected verse: dual listen buttons. */
+  btn.hidden = true;
+  showSingleVerseChoice();
+  actionVerse = getSortedUniqueSelectedVerseNums()[0] || getToolbarActionVerse();
+  actionOccurrence = selectedVerseNum ? selectedVerseOccurrence : 1;
+  audioId = getVerseAudioId(actionVerse, actionOccurrence);
+  fromVerseIds = getChapterAudioIds(actionVerse);
+  onlyIds = audioId ? [audioId] : [];
+  onlyLabel = actionVerse + '절 듣기';
+  fromLabel = '이어듣기';
+  onlyActive = !!(
+    state &&
+    state.queueActive &&
+    state.queueSource &&
+    String(state.queueSource).indexOf('bible-single-verse:') === 0 &&
+    onlyIds.length &&
+    isSameAudioIdArray(state.queueAudioIds, onlyIds)
+  );
+  fromActive = !!(
+    state &&
+    state.queueActive &&
+    state.queueSource &&
+    String(state.queueSource).indexOf('bible-chapter:') === 0 &&
+    fromVerseIds.length &&
+    isSameAudioIdArray(state.queueAudioIds, fromVerseIds)
+  );
+
+  if (onlyBtn) {
+    onlyBtn.disabled = false;
+    onlyBtn.removeAttribute('aria-disabled');
+    if (audioId && isVerseAudioAvailable(actionVerse, actionOccurrence)) {
+      onlyBtn.setAttribute('data-audio-id', audioId);
+    } else {
+      onlyBtn.removeAttribute('data-audio-id');
+    }
+    onlyBtn.setAttribute('aria-label', actionVerse + '절만 듣기');
+    if (onlyActive) {
+      if (state.isPlaying) {
+        onlyLabel = '일시정지';
+        onlyBtn.setAttribute('aria-label', '일시정지');
+      } else if (state.isPaused) {
+        onlyLabel = '이어듣기';
+        onlyBtn.setAttribute('aria-label', '이어듣기');
+      }
+    }
+    onlyBtn.textContent = onlyLabel;
   }
-  var label = '1절 듣기';
-  if (selectedVerseNums.length === 1) label = '1절 듣기';
-  if (state && state.queueActive && fromVerseIds.length && isSameAudioIdArray(state.queueAudioIds, fromVerseIds)) {
-    if (state.isPlaying) label = '일시정지';
-    else if (state.isPaused) label = '이어듣기';
-  } else if (state && audioId && state.currentAudioId === audioId) {
-    if (state.isPlaying) label = '일시정지';
-    else if (state.isPaused) label = '이어듣기';
-  } else if (audioId && window.GOMNA_AUDIO_BIBLE_RESUME && GOMNA_AUDIO_BIBLE_RESUME.getSessionForAudioId && GOMNA_AUDIO_BIBLE_RESUME.getSessionForAudioId(audioId)) {
-    label = '이어듣기';
+
+  if (fromBtn) {
+    fromBtn.disabled = false;
+    fromBtn.removeAttribute('aria-disabled');
+    if (audioId && isVerseAudioAvailable(actionVerse, actionOccurrence)) {
+      fromBtn.setAttribute('data-audio-id', audioId);
+    } else {
+      fromBtn.removeAttribute('data-audio-id');
+    }
+    fromBtn.setAttribute('aria-label', actionVerse + '절부터 이어듣기');
+    if (fromActive) {
+      if (state.isPlaying) {
+        fromLabel = '일시정지';
+        fromBtn.setAttribute('aria-label', '일시정지');
+      } else if (state.isPaused) {
+        fromLabel = '이어듣기';
+        fromBtn.setAttribute('aria-label', '이어듣기');
+      }
+    }
+    fromBtn.textContent = fromLabel;
   }
-  btn.textContent = label;
 }
 
 function getToolbarActionVerse() {
@@ -7821,10 +8067,25 @@ function syncVerseToolbarTargetButton() {
   var nativeUi = isReaderNativeUiLang(uiLang);
   var tLabels = getReaderToolbarLabels(uiLang || 'ko');
   var label = nativeUi ? tLabels.find : '본문 찾기';
+  var ariaLabel = label;
+  var selCount;
+  var verseNum;
   if (verseListenMode === 'selected') {
-    if (uiLang === 'en') label = 'Selected';
-    else if (uiLang === 'ja') label = '選択した節';
-    else label = '선택한 절';
+    selCount = typeof getSelectedVerseCount === 'function'
+      ? getSelectedVerseCount()
+      : (selectedVerseNums ? selectedVerseNums.length : 0);
+    if (selCount > 1) {
+      if (uiLang === 'en') label = selCount + ' selected';
+      else if (uiLang === 'ja') label = selCount + '個選択';
+      else label = selCount + '구절 선택';
+      ariaLabel = '선택한 ' + selCount + '구절';
+    } else if (selCount === 1) {
+      verseNum = getSortedUniqueSelectedVerseNums()[0] || selectedVerseNum || getToolbarActionVerse();
+      if (uiLang === 'en') label = 'v' + verseNum;
+      else if (uiLang === 'ja') label = verseNum + '節選択';
+      else label = verseNum + '절 선택';
+      ariaLabel = verseNum + '절 선택';
+    }
   } else if (verseListenMode === 'range') {
     if (uiLang === 'en') {
       label = (opt4RangeStart === opt4RangeEnd) ? ('v' + opt4RangeStart) : (opt4RangeStart + '–' + opt4RangeEnd);
@@ -7833,8 +8094,10 @@ function syncVerseToolbarTargetButton() {
     } else {
       label = (opt4RangeStart === opt4RangeEnd) ? (opt4RangeStart + '절') : (opt4RangeStart + '~' + opt4RangeEnd + '절');
     }
+    ariaLabel = label;
   }
   btn.textContent = label + ' ▼';
+  btn.setAttribute('aria-label', ariaLabel);
   markReaderOwnedTranslate(btn, nativeUi);
   syncVerseToolbarTargetMenuActive();
 }
@@ -7941,19 +8204,27 @@ function updateVerseToolbar() {
     markReaderOwnedTranslate(moreBtn, nativeUi);
   }
   if (listBtn) {
-    if (nativeUi) {
-      listBtn.textContent = tLabels.back;
-      listBtn.setAttribute('aria-label', tLabels.backAria);
-    }
+    var backLabel = '돌아가기';
+    if (nativeUi && uiLang === 'en') backLabel = 'Back';
+    else if (nativeUi && uiLang === 'ja') backLabel = '戻る';
+    listBtn.innerHTML = '<span class="opt4-verse-list-arrow" aria-hidden="true">←</span><span class="opt4-verse-list-label"> ' + backLabel + '</span>';
+    listBtn.setAttribute('aria-label', (tLabels && tLabels.backAria) || '돌아가기');
     markReaderOwnedTranslate(listBtn, nativeUi);
   }
-  [commentaryBtn, moreBtn, targetBtn, listBtn, listenBtn].forEach(function(btn) {
+  [commentaryBtn, moreBtn, targetBtn, listBtn].forEach(function(btn) {
     if (!btn) return;
     btn.disabled = false;
     btn.removeAttribute('disabled');
     btn.setAttribute('aria-disabled', 'false');
     btn.hidden = false;
   });
+  if (listenBtn) {
+    listenBtn.disabled = false;
+    listenBtn.removeAttribute('disabled');
+    listenBtn.setAttribute('aria-disabled', 'false');
+  }
+  /* Listen button visibility (single vs dual) is owned by syncVerseToolbarListenButton. */
+  syncVerseToolbarListenButton();
   syncOpt4ToolbarWrapMode();
 }
 
@@ -10418,6 +10689,8 @@ function initVerseToolbarEvents() {
     });
   });
   var listenBtn = document.getElementById('opt4VerseListen');
+  var listenOnlyBtn = document.getElementById('opt4VerseListenOnly');
+  var listenFromBtn = document.getElementById('opt4VerseListenFromHere');
   if (listenBtn) {
     listenBtn.addEventListener('click', function(e) {
       var selCount;
@@ -10429,10 +10702,25 @@ function initVerseToolbarEvents() {
       } else if (selCount >= 2) {
         playSelectedVersesQueue();
       } else if (selCount === 1) {
+        /* Dual buttons own single-verse actions; keep as safe fallback. */
         playSingleSelectedVerse();
       } else {
         playChapterAudio();
       }
+    });
+  }
+  if (listenOnlyBtn) {
+    listenOnlyBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      playSingleVerseOnly();
+    });
+  }
+  if (listenFromBtn) {
+    listenFromBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      playSingleSelectedVerse();
     });
   }
   document.addEventListener('click', function(e) {
@@ -10586,6 +10874,30 @@ function playRangeAudio() {
   clearBibleContinuousChapterPlayback();
   var rangeBtn = document.querySelector('[data-audio-action="play-range"]');
   if (rangeBtn) rangeBtn.click();
+}
+
+/** One selected verse only: play that verse audioId and stop (no next verse/chapter). */
+function playSingleVerseOnly() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var verses;
+  var verse;
+  var occurrence;
+  var audioId;
+  var source;
+
+  clearBibleContinuousChapterPlayback();
+  if (!engine || !engine.playAudioQueue) return;
+
+  verses = getSortedUniqueSelectedVerseNums();
+  if (verses.length !== 1) return;
+  verse = verses[0];
+  occurrence = selectedVerseOccurrence || 1;
+  if (!isVerseAudioAvailable(verse, occurrence)) return;
+  audioId = getVerseAudioId(verse, occurrence);
+  if (!audioId) return;
+
+  source = 'bible-single-verse:' + audioId.replace(/\.bible$/, '');
+  engine.playAudioQueue([audioId], { source: source });
 }
 
 /** One selected verse: play from that verse to chapter end, then continue chapters. */
@@ -12658,7 +12970,7 @@ function loadAds() {
     var chapter;
     if(suppressReadEntireSession) return;
     /* 듣기/말씀풀이 버튼 클릭은 읽기 기록이 아니다. */
-    if(t && t.closest && t.closest('.gomna-audio-verse-button, .gomna-audio-commentary-button, [data-gomna-chapter-listen], #opt4VerseListen')){
+    if(t && t.closest && t.closest('.gomna-audio-verse-button, .gomna-audio-commentary-button, [data-gomna-chapter-listen], #opt4VerseListen, #opt4VerseListenOnly, #opt4VerseListenFromHere, #opt4VerseListenChoice')){
       return;
     }
     item = t && t.closest ? t.closest('#verseList .verse-item') : null;
