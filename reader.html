@@ -1446,6 +1446,8 @@ html.plain-verse-gesture-active body{
   transform-origin:0 0;
   will-change:auto;
   transition:none;
+  height:auto;
+  min-height:0;
 }
 #verseGestureSurface.is-gesture-active{
   will-change:transform;
@@ -1456,8 +1458,9 @@ html.plain-verse-gesture-active body{
   display:grid!important;
   grid-template-columns:44px minmax(0,1fr) auto 44px;
   grid-template-rows:auto;
-  position:relative;
-  top:auto;
+  position:relative!important;
+  top:auto!important;
+  bottom:auto!important;
   z-index:1;
   width:100%;
   box-sizing:border-box;
@@ -1465,7 +1468,16 @@ html.plain-verse-gesture-active body{
 #verseGestureSurface > #verseView.view{
   display:block!important;
   width:100%;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
   box-sizing:border-box;
+}
+#verseGestureSurface .verse-list{
+  overflow:visible;
+  height:auto;
+  max-height:none;
+  min-height:0;
 }
 #verseGestureSurface #verseReadHeader button,
 #verseGestureSurface #verseReadHeader a{
@@ -8131,8 +8143,27 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
   var velSamples = [];
   var inertiaRaf = 0;
   var inertiaActive = false;
+  var MANUAL_SCROLL_HOLD_MS = 4000;
 
   function $(id) { return document.getElementById(id); }
+  function isPlainVerseUserInteracting() {
+    return !!(
+      pointers.size ||
+      mode === 'pan' ||
+      mode === 'pinch' ||
+      mode === 'pending' ||
+      inertiaActive
+    );
+  }
+  function notePlainVerseManualScroll() {
+    /* User finger pan/pinch — pause audio auto-center for a short hold. */
+    window.__gomnaPlainVerseManualScrollUntil = Date.now() + MANUAL_SCROLL_HOLD_MS;
+  }
+  function shouldBlockAudioAutoCenter() {
+    if (isPlainVerseUserInteracting()) return true;
+    var until = window.__gomnaPlainVerseManualScrollUntil;
+    return typeof until === 'number' && until > Date.now();
+  }
   function nowMs() {
     return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   }
@@ -8194,9 +8225,19 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     var barTop = visibleChromeTop('opt4BottomBar');
     var scriptureTop = visibleChromeTop('scriptureDock');
     var cookieTop = visibleChromeTop('cookie-banner');
+    var mini = document.querySelector('.gomna-audio-mini-player.gomna-audio-visible');
+    var miniTop = null;
+    if (mini) {
+      var mr = mini.getBoundingClientRect();
+      var mcs = window.getComputedStyle(mini);
+      if (mcs.display !== 'none' && mcs.visibility !== 'hidden' && mr.height > 1) {
+        miniTop = mr.top;
+      }
+    }
     if (barTop != null) bottom = Math.min(bottom, barTop);
     if (scriptureTop != null) bottom = Math.min(bottom, scriptureTop);
     if (cookieTop != null) bottom = Math.min(bottom, cookieTop);
+    if (miniTop != null) bottom = Math.min(bottom, miniTop);
     var left = pr.left;
     var width = pr.width || window.innerWidth;
     var height = Math.max(120, bottom - top);
@@ -8206,8 +8247,13 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     var scaledW = baseW * scale;
     var scaledH = baseH * scale;
     var scaledHeaderH = headerBaseH * scale;
+    /* Full surface content (header + verseView + verseList) must drive the
+       upward pan limit so long chapters can keep moving past the header. */
     minPanY = Math.min(0, viewportH - scaledH - 24);
-    maxPanY = Math.max(0, viewportH - scaledHeaderH - 16);
+    /* panY = 0 puts #verseReadHeader at the top. Always allow returning to
+       that top rest position from a deep auto-centered verse (15/17+). */
+    maxPanY = Math.max(0, viewportH - Math.max(scaledHeaderH, 0) - 16);
+    if (!(maxPanY >= 0)) maxPanY = 0;
     if (scale <= 1 || scaledW <= viewportW) {
       minPanX = 0;
       maxPanX = 0;
@@ -8307,12 +8353,51 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
   function measureBaseSizes() {
     if (!surface || !viewport) return;
     applyViewportBox(getViewportBox());
+    /* During finger pan, never clear transform — iOS visualViewport resize
+       used to snap surface back and fight upward scrolls to the header. */
+    if (isPlainVerseUserInteracting()) {
+      updateBounds();
+      return;
+    }
     var prev = surface.style.transform;
+    var header = $('verseReadHeader');
+    var view = $('verseView');
+    var list = $('verseList');
+    var lastItem = list ? list.querySelector('.verse-item:last-child') : null;
+    var surfaceTop;
+    var contentBottom = 0;
+    var viewH = 0;
+    var listH = 0;
+
     surface.style.transform = 'none';
     baseW = surface.offsetWidth || surface.scrollWidth || viewportW;
-    baseH = Math.max(surface.offsetHeight || 0, surface.scrollHeight || 0, surface.clientHeight || 0);
-    var header = $('verseReadHeader');
     headerBaseH = header ? (header.offsetHeight || header.clientHeight || 0) : 0;
+    if (view) {
+      viewH = Math.max(view.offsetHeight || 0, view.scrollHeight || 0, view.clientHeight || 0);
+    }
+    if (list) {
+      listH = Math.max(list.offsetHeight || 0, list.scrollHeight || 0, list.clientHeight || 0);
+      viewH = Math.max(viewH, (list.offsetTop || 0) + listH);
+    }
+    surfaceTop = surface.getBoundingClientRect().top;
+    if (lastItem) {
+      contentBottom = lastItem.getBoundingClientRect().bottom - surfaceTop;
+    } else if (list) {
+      contentBottom = list.getBoundingClientRect().bottom - surfaceTop;
+    } else if (view) {
+      contentBottom = view.getBoundingClientRect().bottom - surfaceTop;
+    } else if (header) {
+      contentBottom = header.getBoundingClientRect().bottom - surfaceTop;
+    }
+    /* Prefer the tallest real content signal so iOS short scrollHeight cannot
+       freeze panY while #verseReadHeader is still on screen. */
+    baseH = Math.max(
+      surface.offsetHeight || 0,
+      surface.scrollHeight || 0,
+      surface.clientHeight || 0,
+      headerBaseH + viewH,
+      contentBottom
+    );
     surface.style.transform = prev || '';
     updateBounds();
   }
@@ -8501,6 +8586,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     didPinch = true;
     didDrag = true;
     markGestureLayer();
+    notePlainVerseManualScroll();
     pts.forEach(function(p) { capturePointer(p.id); });
     pinchStartDist = distBetween(pts[0], pts[1]) || 1;
     var mid = midBetween(pts[0], pts[1]);
@@ -8527,6 +8613,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     if (next <= 1) targetPanX = 0;
     targetPanX = clampX(targetPanX);
     targetPanY = clampY(targetPanY);
+    notePlainVerseManualScroll();
     schedulePaint();
   }
   function onPointerDown(e) {
@@ -8538,6 +8625,9 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     cancelInertia();
     var c = latestClient(e);
     pointers.set(e.pointerId, { id: e.pointerId, x: c.x, y: c.y });
+    /* Finger contact itself blocks audio auto-center so a verse change cannot
+       yank panY back before the first touchmove. */
+    notePlainVerseManualScroll();
     if (pointers.size === 1) bindDocPointerFollow();
     if (pointers.size >= 2) {
       beginPinch();
@@ -8571,11 +8661,22 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
       mode = 'pan';
       markGestureLayer();
       capturePointer(e.pointerId);
+      /* Re-anchor at drag commit so audio centering during slop cannot
+         desync startPanY from the visible surface. */
+      startClientX = c.x;
+      startClientY = c.y;
+      startPanX = renderedPanX;
+      startPanY = renderedPanY;
+      dx = 0;
+      dy = 0;
+      notePlainVerseManualScroll();
     }
     if (e.cancelable) e.preventDefault();
     recordVel(c.x, c.y);
+    notePlainVerseManualScroll();
     if (targetScale <= 1) {
       targetPanX = 0;
+      /* Finger down (+dy) raises panY toward 0/maxPanY → header / verse 1. */
       targetPanY = clampY(startPanY + dy);
     } else {
       targetPanX = clampX(startPanX + dx);
@@ -8619,6 +8720,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     didDrag = false;
     didPinch = false;
     clearPointers();
+    if (wasGesture) notePlainVerseManualScroll();
     if (runInertia && startInertia()) return;
     if (wasGesture) scheduleGestureLayerRelease();
   }
@@ -8687,30 +8789,82 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     commitTransform();
     return true;
   }
-  function scrollToVerse(verseNum) {
+  function getItemOffsetYInSurface(item) {
+    var prev;
+    var y;
+    var itemH;
+    if (!item || !surface) return null;
+    prev = surface.style.transform;
+    surface.style.transform = 'none';
+    y = item.getBoundingClientRect().top - surface.getBoundingClientRect().top;
+    itemH = item.getBoundingClientRect().height || item.offsetHeight || 0;
+    surface.style.transform = prev || '';
+    if (!isFinite(y)) return null;
+    return { y: y, height: itemH };
+  }
+  function scrollToVerse(verseNum, options) {
     if (!active || !surface) return false;
     var item = document.querySelector('#verseList .verse-item[data-verse="' + verseNum + '"]');
+    var offset;
+    var mid;
+    var ratio;
+    var idealPanY;
     if (!item) return false;
-    measureBaseSizes();
-    var y = 0;
-    var el = item;
-    while (el && el !== surface) {
-      y += el.offsetTop;
-      el = el.offsetParent;
+    if (options && options.reason === 'audio-highlight') {
+      if (shouldBlockAudioAutoCenter()) return false;
+      /* Whole-chapter stop/pause must never keep yanking panY to a verse. */
+      try {
+        var audioEngine = window.GOMNA_AUDIO_ENGINE;
+        var audioState = audioEngine && audioEngine.getState ? audioEngine.getState() : null;
+        if (
+          !audioState ||
+          !audioState.isPlaying ||
+          audioState.isPaused ||
+          !audioState.currentAudioId
+        ) {
+          return false;
+        }
+      } catch (audioGuardErr) {
+        return false;
+      }
     }
-    var mid = y + (item.offsetHeight || 0) / 2;
+    measureBaseSizes();
+    offset = getItemOffsetYInSurface(item);
+    if (!offset) return false;
+    mid = offset.y + offset.height / 2;
+    ratio = 0.35;
+    if (
+      options &&
+      typeof options.centerRatio === 'number' &&
+      options.centerRatio > 0 &&
+      options.centerRatio < 1
+    ) {
+      ratio = options.centerRatio;
+    }
     targetScale = scale;
     targetPanX = scale <= 1 ? 0 : panX;
-    targetPanY = clampY(viewportH * 0.35 - mid * scale);
+    /* visible viewport center (or 0.35 default) relative to full surface content */
+    idealPanY = viewportH * ratio - mid * scale;
+    targetPanY = clampY(idealPanY);
     flushPaint();
     return true;
   }
   function onResize() {
     if (!active) return;
+    /* Keep current drag targets; never stomp with stale panY while the user
+       is moving back toward the header. */
+    if (isPlainVerseUserInteracting()) {
+      applyViewportBox(getViewportBox());
+      updateBounds();
+      targetPanX = clampX(targetPanX);
+      targetPanY = clampY(targetPanY);
+      schedulePaint();
+      return;
+    }
     layoutViewportOnly();
     measureBaseSizes();
-    targetPanX = clampX(panX);
-    targetPanY = clampY(panY);
+    targetPanX = clampX(targetPanX);
+    targetPanY = clampY(targetPanY);
     flushPaint();
   }
   function onVerseRendered() {
@@ -8726,6 +8880,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
   window.syncPlainVerseGestureMode = syncMode;
   window.__gomnaPlainVerseGestureResetPan = resetPan;
   window.__gomnaPlainVerseGestureScrollToVerse = scrollToVerse;
+  window.__gomnaPlainVerseGestureIsUserInteracting = isPlainVerseUserInteracting;
   window.addEventListener('gomna:verse_list_rendered', onVerseRendered);
   window.addEventListener('resize', onResize);
   if (window.visualViewport) {
@@ -11261,7 +11416,7 @@ function changeFont(delta) {
 <script src="/js/audio-engine.js?v=20260604-1830" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260725-contained-audio-hide-v1" defer></script>
-<script src="/js/gomna-audio-highlight.js?v=20260726-bible-active-card-v1" defer></script>
+<script src="/js/gomna-audio-highlight.js?v=20260728-audio-stop-free-pan-v1" defer></script>
 <script src="/js/gomna-audio-ui.js?v=20260727-listen-supported-books-v1" defer></script>
 <script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
 <!-- ==========================
