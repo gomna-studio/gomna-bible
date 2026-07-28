@@ -17,14 +17,66 @@
       nextAudioId: null,
       isPlaying: false,
       isPaused: false,
+      playbackCancelled: false,
       currentSpeed: 1.0,
       currentVoice: 'calm',
       queueAudioIds: [],
       queueIndex: -1,
       queueActive: false,
       queueSource: null,
+      queueSoftFailStreak: 0,
+      queueEpoch: 0,
       restoreStartTime: 0,
       timerId: null
+    },
+
+    _MAX_QUEUE_SOFT_FAIL_STREAK: 12,
+
+    _bumpQueueEpoch: function() {
+      var state = window.GOMNA_AUDIO_ENGINE._state;
+      state.queueEpoch = (state.queueEpoch || 0) + 1;
+      return state.queueEpoch;
+    },
+
+    _resetQueueSoftFailStreak: function() {
+      window.GOMNA_AUDIO_ENGINE._state.queueSoftFailStreak = 0;
+    },
+
+    _noteQueueSoftFailSkip: function() {
+      var state = window.GOMNA_AUDIO_ENGINE._state;
+      state.queueSoftFailStreak = (state.queueSoftFailStreak || 0) + 1;
+      return state.queueSoftFailStreak;
+    },
+
+    _abortQueueSoftFailLimit: function(audioId, entry) {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+
+      console.warn('[GOMNA_AUDIO] queue soft-fail streak limit — stopping queue safely');
+      state.playbackCancelled = true;
+      engine._bumpQueueEpoch();
+      engine._clearQueue();
+      engine._cleanupCurrentAudio();
+      state.currentAudioId = null;
+      state.isPlaying = false;
+      state.isPaused = false;
+      state.restoreStartTime = 0;
+      engine._emit('audio:end', {
+        audioId: audioId || null,
+        entry: entry || null,
+        reason: 'soft_fail_limit'
+      });
+    },
+
+    /** Reset soft-fail / cancel flags when starting a fresh chapter queue. */
+    prepareFreshQueuePlayback: function() {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+      engine._bumpQueueEpoch();
+      engine._resetQueueSoftFailStreak();
+      state.playbackCancelled = false;
+      state.isPaused = false;
+      state.restoreStartTime = 0;
     },
 
     _emit: function(eventName, detail) {
@@ -77,6 +129,7 @@
       state.queueIndex = -1;
       state.queueActive = false;
       state.queueSource = null;
+      state.queueSoftFailStreak = 0;
     },
 
     _isSameQueue: function(audioIds, source) {
@@ -200,7 +253,7 @@
       }
     },
 
-    _playNextInQueue: function() {
+    _playNextInQueue: function(expectedEpoch) {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
 
@@ -208,10 +261,20 @@
         return false;
       }
 
+      if (
+        typeof expectedEpoch === 'number' &&
+        state.queueEpoch !== expectedEpoch
+      ) {
+        return false;
+      }
+
       state.queueIndex += 1;
 
       while (state.queueIndex < state.queueAudioIds.length) {
-        if (engine.playAudioById(state.queueAudioIds[state.queueIndex], { fromQueue: true })) {
+        if (engine.playAudioById(state.queueAudioIds[state.queueIndex], {
+          fromQueue: true,
+          queueEpoch: state.queueEpoch
+        })) {
           return true;
         }
 
@@ -232,7 +295,7 @@
 
       console.log('[GOMNA_AUDIO] play:', audioId);
 
-      if (state.currentAudio && state.currentAudioId === audioId) {
+      if (state.currentAudio && state.currentAudioId === audioId && !options.forceRestart) {
         if (state.isPlaying) {
           engine.pauseAudio();
           return true;
@@ -246,6 +309,7 @@
 
       if (!options.fromQueue) {
         engine._clearQueue();
+        state.playbackCancelled = false;
       }
 
       if (!config) {
@@ -337,21 +401,38 @@
         applyStartTime();
       }
 
+      /*
+       * Capture session id for this Audio element. Stale ended/error/play
+       * callbacks from a replaced element must not advance the new queue —
+       * that was skipping to verse 2–3 and emitting false queue_completed.
+       */
+      var playEpoch = state.queueEpoch;
+
       audio.addEventListener('ended', function() {
+        if (state.queueEpoch !== playEpoch) return;
+        if (audio !== state.currentAudio || audioId !== state.currentAudioId) return;
+
         state.isPlaying = false;
         state.isPaused = false;
         state.restoreStartTime = 0;
 
-        if (engine._playNextInQueue()) {
+        if (state.playbackCancelled) {
           return;
         }
+
+        if (engine._playNextInQueue(playEpoch)) {
+          return;
+        }
+
+        if (state.queueEpoch !== playEpoch) return;
 
         state.currentAudio = null;
         state.currentAudioId = null;
 
         engine._emit('audio:end', {
           audioId: audioId,
-          entry: entry
+          entry: entry,
+          reason: 'queue_completed'
         });
       });
 
@@ -365,7 +446,12 @@
           src: audio.src || ''
         };
 
+        if (state.queueEpoch !== playEpoch) return;
         if (audio !== state.currentAudio || audioId !== state.currentAudioId) {
+          return;
+        }
+
+        if (state.playbackCancelled || state.isPaused) {
           return;
         }
 
@@ -373,6 +459,28 @@
 
         state.isPlaying = false;
         state.isPaused = false;
+        state.restoreStartTime = 0;
+
+        /* Queue playback: skip the broken verse instead of killing the chapter. */
+        if (options.fromQueue && state.queueActive) {
+          if (engine._noteQueueSoftFailSkip() >= engine._MAX_QUEUE_SOFT_FAIL_STREAK) {
+            engine._abortQueueSoftFailLimit(audioId, entry);
+            return;
+          }
+          if (engine._playNextInQueue(playEpoch)) {
+            return;
+          }
+          if (state.queueEpoch !== playEpoch) return;
+          state.currentAudio = null;
+          state.currentAudioId = null;
+          engine._emit('audio:end', {
+            audioId: audioId,
+            entry: entry,
+            reason: 'queue_completed'
+          });
+          return;
+        }
+
         engine._emit('audio:error', {
           audioId: audioId,
           reason: 'play_error',
@@ -392,6 +500,16 @@
       state.isPlaying = true;
       state.isPaused = false;
 
+      try {
+        window.__gomnaAudioPlayStabilizeUntil = Date.now() + 450;
+      } catch (stabilizeErr) { /* ignore */ }
+
+      audio.addEventListener('playing', function onPlayingResetSoftFail() {
+        if (state.queueEpoch !== playEpoch) return;
+        if (audio !== state.currentAudio || audioId !== state.currentAudioId) return;
+        engine._resetQueueSoftFailStreak();
+      }, { once: true });
+
       engine._emit('audio:start', {
         audioId: audioId,
         entry: entry
@@ -403,8 +521,22 @@
       }
 
       if (playPromise !== undefined) {
-        playPromise.catch(function(err) {
+        playPromise.then(function() {
+          if (state.queueEpoch !== playEpoch) return;
+          if (audio === state.currentAudio && audioId === state.currentAudioId) {
+            engine._resetQueueSoftFailStreak();
+          }
+        }).catch(function(err) {
+          var retryCount;
+          var errName;
+          var maxRetry = 2;
+
+          if (state.queueEpoch !== playEpoch) return;
           if (audio !== state.currentAudio || audioId !== state.currentAudioId) {
+            return;
+          }
+
+          if (state.playbackCancelled) {
             return;
           }
 
@@ -412,17 +544,69 @@
             return;
           }
 
-          console.error('[GOMNA_AUDIO] play rejected:', err);
+          errName = err && err.name ? String(err.name) : '';
+          retryCount = parseInt(options._retryCount, 10);
+          if (isNaN(retryCount) || retryCount < 0) retryCount = 0;
+
+          console.warn('[GOMNA_AUDIO] play rejected:', audioId, errName || err);
 
           state.isPlaying = false;
-          state.isPaused = false;
           state.restoreStartTime = 0;
+
+          /* Queue: soft-fail — retry, then skip verse. Never wipe the chapter queue. */
+          if (options.fromQueue && state.queueActive && !state.playbackCancelled && !state.isPaused) {
+            if (retryCount < maxRetry) {
+              window.setTimeout(function() {
+                if (state.queueEpoch !== playEpoch) return;
+                if (state.playbackCancelled || state.isPaused || !state.queueActive) return;
+                if (state.currentAudioId && state.currentAudioId !== audioId) return;
+                if (
+                  !state.queueAudioIds ||
+                  state.queueAudioIds[state.queueIndex] !== audioId
+                ) {
+                  return;
+                }
+                engine.playAudioById(audioId, {
+                  fromQueue: true,
+                  startTime: 0,
+                  _retryCount: retryCount + 1,
+                  queueEpoch: playEpoch
+                });
+              }, 180 + retryCount * 120);
+              return;
+            }
+
+            if (state.queueEpoch !== playEpoch) return;
+
+            if (engine._noteQueueSoftFailSkip() >= engine._MAX_QUEUE_SOFT_FAIL_STREAK) {
+              engine._abortQueueSoftFailLimit(audioId, entry);
+              return;
+            }
+
+            if (engine._playNextInQueue(playEpoch)) {
+              return;
+            }
+
+            if (state.queueEpoch !== playEpoch) return;
+
+            state.currentAudio = null;
+            state.currentAudioId = null;
+            engine._emit('audio:end', {
+              audioId: audioId,
+              entry: entry,
+              reason: 'queue_completed'
+            });
+            return;
+          }
+
+          state.isPaused = false;
           engine._clearQueue();
 
           engine._emit('audio:error', {
             audioId: audioId,
             reason: 'play_rejected',
-            entry: entry
+            entry: entry,
+            errorName: errName
           });
 
           showOrLog('재생을 시작할 수 없습니다.');
@@ -454,7 +638,15 @@
         startIndex = audioIds.length - 1;
       }
 
-      if (engine._isSameQueue(audioIds, options.source || null) && state.currentAudio) {
+      /*
+       * Same-queue tap normally toggles pause/resume. forceRestart (verse jump /
+       * continuous replace) must rebuild and play from the requested index.
+       */
+      if (
+        !options.forceRestart &&
+        engine._isSameQueue(audioIds, options.source || null) &&
+        state.currentAudio
+      ) {
         if (state.isPlaying) {
           engine.pauseAudio();
           return true;
@@ -466,7 +658,19 @@
         }
       }
 
+      /* Invalidate stale soft-fail retries from a previous chapter/queue. */
+      engine.prepareFreshQueuePlayback();
       engine._clearQueue();
+      state.playbackCancelled = false;
+
+      /* Drop current element without stopAudio/user_stop or audio:pause. */
+      engine._cleanupCurrentAudio();
+      state.currentAudioId = null;
+      state.isPlaying = false;
+      state.isPaused = false;
+      state.restoreStartTime = 0;
+      engine._resetQueueSoftFailStreak();
+
       state.queueAudioIds = audioIds.slice();
       state.queueIndex = startIndex;
       state.queueActive = true;
@@ -474,7 +678,8 @@
 
       if (!engine.playAudioById(state.queueAudioIds[state.queueIndex], {
         fromQueue: true,
-        startTime: startTime
+        startTime: startTime,
+        forceRestart: !!options.forceRestart
       })) {
         return engine._playNextInQueue();
       }
@@ -576,20 +781,24 @@
     stopAudio: function() {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
+      var audioId = state.currentAudioId;
+      var hadPlayback = !!(state.currentAudio || state.queueActive);
 
-      if (state.currentAudio) {
-        var audioId = state.currentAudioId;
+      /* Explicit user/system stop — do not soft-retry or continue chapters. */
+      state.playbackCancelled = true;
+      engine._bumpQueueEpoch();
+      engine._clearQueue();
+      engine._cleanupCurrentAudio();
 
-        engine._clearQueue();
-        engine._cleanupCurrentAudio();
+      state.currentAudioId = null;
+      state.isPlaying = false;
+      state.isPaused = false;
+      state.restoreStartTime = 0;
 
-        state.currentAudioId = null;
-        state.isPlaying = false;
-        state.isPaused = false;
-        state.restoreStartTime = 0;
-
+      if (hadPlayback) {
         engine._emit('audio:end', {
-          audioId: audioId
+          audioId: audioId,
+          reason: 'user_stop'
         });
       }
     },
