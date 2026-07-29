@@ -276,4 +276,9 @@ export const BOOKS = {
     testamentVariable: 'newTestamentData',
     bookSlug: '2thessalonians',
   },
+  '1timothy': {
+    book: '디모데전서',
+    testamentVariable: 'newTestamentData',
+    bookSlug: '1timothy',
+  },
 };
