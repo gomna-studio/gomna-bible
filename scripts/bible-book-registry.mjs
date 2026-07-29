@@ -281,4 +281,9 @@ export const BOOKS = {
     testamentVariable: 'newTestamentData',
     bookSlug: '1timothy',
   },
+  '2timothy': {
+    book: '디모데후서',
+    testamentVariable: 'newTestamentData',
+    bookSlug: '2timothy',
+  },
 };
