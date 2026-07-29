@@ -286,4 +286,9 @@ export const BOOKS = {
     testamentVariable: 'newTestamentData',
     bookSlug: '2timothy',
   },
+  'titus': {
+    book: '디도서',
+    testamentVariable: 'newTestamentData',
+    bookSlug: 'titus',
+  },
 };
