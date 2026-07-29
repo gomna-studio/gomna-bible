@@ -261,4 +261,9 @@ export const BOOKS = {
     testamentVariable: 'newTestamentData',
     bookSlug: 'philippians',
   },
+  colossians: {
+    book: '골로새서',
+    testamentVariable: 'newTestamentData',
+    bookSlug: 'colossians',
+  },
 };
