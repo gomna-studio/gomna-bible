@@ -296,4 +296,9 @@ export const BOOKS = {
     testamentVariable: 'newTestamentData',
     bookSlug: 'philemon',
   },
+  'hebrews': {
+    book: '히브리서',
+    testamentVariable: 'newTestamentData',
+    bookSlug: 'hebrews',
+  },
 };
