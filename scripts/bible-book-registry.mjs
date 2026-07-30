@@ -316,4 +316,24 @@ export const BOOKS = {
     testamentVariable: 'newTestamentData',
     bookSlug: '2peter',
   },
+  '1john': {
+    book: '요한일서',
+    testamentVariable: 'newTestamentData',
+    bookSlug: '1john',
+  },
+  '2john': {
+    book: '요한이서',
+    testamentVariable: 'newTestamentData',
+    bookSlug: '2john',
+  },
+  '3john': {
+    book: '요한삼서',
+    testamentVariable: 'newTestamentData',
+    bookSlug: '3john',
+  },
+  'jude': {
+    book: '유다서',
+    testamentVariable: 'newTestamentData',
+    bookSlug: 'jude',
+  },
 };
