@@ -70,7 +70,8 @@ function usage() {
   console.error('Usage:');
   console.error('  node scripts/build-commentary-highlight-cues.mjs --audit|--dry-run|--write [scope]');
   console.error('Scope: --all | --book <id> [--chapter N] [--verse N] [--type <type>]');
-  console.error('Options: --locale ko-KR (default), --force');
+  console.error('Options: --locale ko-KR (default), --force, --production-output');
+  console.error('  --production-output  최종 MP3를 audio/v1에, cue를 audio/cues에 기록 (기본 scoped 동작은 highlight-test 유지)');
 }
 
 function parseArgs(argv) {
@@ -86,6 +87,7 @@ function parseArgs(argv) {
     write: false,
     force: false,
     confirmAllGeneration: false,
+    productionOutput: false,
   };
 
   for (let i = 0; i < argv.length; i++) {
@@ -101,6 +103,7 @@ function parseArgs(argv) {
     else if (arg === '--write') args.write = true;
     else if (arg === '--force') args.force = true;
     else if (arg === '--confirm-all-generation') args.confirmAllGeneration = true;
+    else if (arg === '--production-output') args.productionOutput = true;
     else if (arg === '--help' || arg === '-h') {
       usage();
       process.exit(0);
@@ -120,6 +123,10 @@ function parseArgs(argv) {
 
   if (args.all && args.write && args.confirmAllGeneration) {
     throw new Error('--all --write --confirm-all-generation 조합은 허용되지 않습니다.');
+  }
+
+  if (args.productionOutput && args.all) {
+    throw new Error('--production-output은 --all과 함께 사용할 수 없습니다. --book 범위를 지정하세요.');
   }
 
   if (!args.all && !args.bookId) {
@@ -241,18 +248,36 @@ function getTypeConfigs(typeFilter) {
     : COMMENTARY_TYPES;
 }
 
-function getOutputPaths(target, typeConfig, { useTestOutputs = false } = {}) {
+function resolveOutputOptions(args) {
+  if (args.productionOutput) {
+    return { productionOutput: true, useTestOutputs: false };
+  }
+  // Existing scoped behavior: write final MP3 under highlight-test; --all uses build paths.
+  return { productionOutput: false, useTestOutputs: !args.all };
+}
+
+function getOutputPaths(target, typeConfig, { useTestOutputs = false, productionOutput = false } = {}) {
   const chapter3 = pad3(target.chapter);
   const verse3 = pad3(target.verse);
-  const segmentsBase = useTestOutputs
-    ? path.join(ROOT, 'audio', 'highlight-segments')
-    : BUILD_SEGMENTS_BASE;
-  const mp3Base = useTestOutputs
-    ? path.join(ROOT, 'audio', 'highlight-test')
-    : BUILD_SEGMENTS_BASE;
-  const cuesBase = useTestOutputs
-    ? path.join(ROOT, 'audio', 'cues')
-    : BUILD_CUES_BASE;
+
+  let segmentsBase;
+  let mp3Base;
+  let cuesBase;
+
+  if (productionOutput) {
+    // Single production path: segment TTS cache → concat → audio/v1 MP3 + audio/cues.
+    segmentsBase = path.join(ROOT, 'audio', 'highlight-segments');
+    mp3Base = path.join(ROOT, 'audio', 'v1');
+    cuesBase = path.join(ROOT, 'audio', 'cues');
+  } else if (useTestOutputs) {
+    segmentsBase = path.join(ROOT, 'audio', 'highlight-segments');
+    mp3Base = path.join(ROOT, 'audio', 'highlight-test');
+    cuesBase = path.join(ROOT, 'audio', 'cues');
+  } else {
+    segmentsBase = BUILD_SEGMENTS_BASE;
+    mp3Base = BUILD_SEGMENTS_BASE;
+    cuesBase = BUILD_CUES_BASE;
+  }
 
   const segmentDir = path.join(
     segmentsBase,
@@ -284,10 +309,10 @@ function getOutputPaths(target, typeConfig, { useTestOutputs = false } = {}) {
   return { segmentDir, finalMp3Path, cuePath, markerPath, tmpWorkDir };
 }
 
-function inspectTypeTarget({ target, typeConfig, mode, useTestOutputs = false }) {
+function inspectTypeTarget({ target, typeConfig, mode, useTestOutputs = false, productionOutput = false }) {
   const txtPath = path.join(target.verseDir, `${typeConfig.type}.txt`);
   const audioId = buildAudioId(target.bookId, target.chapter, target.verse, typeConfig.type);
-  const outputs = getOutputPaths(target, typeConfig, { useTestOutputs });
+  const outputs = getOutputPaths(target, typeConfig, { useTestOutputs, productionOutput });
   const blocker = {
     book: target.bookId,
     chapter: target.chapter,
@@ -772,6 +797,7 @@ function initReport(mode, args) {
       verse: args.verse,
       type: args.type,
       locale: args.locale,
+      productionOutput: Boolean(args.productionOutput),
     },
     summary: {
       totalVerseDirectoryCount: 0,
@@ -869,11 +895,12 @@ async function main() {
         continue;
       }
 
+      const outputOptions = resolveOutputOptions(args);
       const inspected = inspectTypeTarget({
         target,
         typeConfig,
         mode,
-        useTestOutputs: !args.all,
+        ...outputOptions,
       });
       inspected.typeConfig = typeConfig;
 
@@ -921,6 +948,7 @@ async function main() {
 
   if (mode === 'write') {
     const apiKey = getOpenAiApiKey();
+    const outputOptions = resolveOutputOptions(args);
     for (const item of report.results) {
       if (item.status !== 'valid' && item.status !== 'skip_complete') continue;
       const target = verseTargets.find((entry) => (
@@ -933,7 +961,7 @@ async function main() {
         target,
         typeConfig,
         mode,
-        useTestOutputs: !args.all,
+        ...outputOptions,
       });
       inspected.typeConfig = typeConfig;
       let writeResult;
