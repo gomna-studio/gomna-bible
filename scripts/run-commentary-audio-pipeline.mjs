@@ -37,6 +37,26 @@ const SAFE_TARGET_RANGES = [
     fromVerse: 1,
     toVerse: 25,
   },
+  // Genesis 3: plan / dry-run / qa only. Not in APPROVED_* write targets.
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 3,
+    fromVerse: 1,
+    toVerse: 24,
+  },
+];
+
+const COMMENTARY_TOPIC_TYPES = [
+  { type: 'original-language', voicePreset: 'study' },
+  { type: 'history', voicePreset: 'warm' },
+  { type: 'theology', voicePreset: 'warm' },
+  { type: 'typology', voicePreset: 'study' },
+  { type: 'matthew-henry', voicePreset: 'calm' },
+  { type: 'sermon', voicePreset: 'strong' },
+  { type: 'hymn', voicePreset: 'soft' },
+  { type: 'counseling', voicePreset: 'warm' },
+  { type: 'cross-reference', voicePreset: 'calm' },
 ];
 
 const APPROVED_AUDIO_WRITE_TARGETS = [
@@ -181,7 +201,10 @@ const DEFAULT_STAGE = 'prepare';
 function usage() {
   console.error('Usage: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --verse 5 --stage prepare --dry-run');
   console.error('   or: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --from-verse 6 --to-verse 10 --stage scripts --dry-run');
-  console.error('Stages: prepare, scripts, audio, upload, manifest, publish, qa. Safe targets: ko-KR genesis 1:5, 1:6-10, 1:11-31, and 2:1-25 scripts.');
+  console.error('   or: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 3 --from-verse 1 --to-verse 24 --stage prepare --dry-run');
+  console.error('Stages: prepare, scripts, audio, upload, manifest, publish, qa.');
+  console.error('Default mode: dry-run. Write/upload/manifest require explicit --write and approved targets.');
+  console.error('Safe plan/qa targets: ko-KR genesis 1:5, 1:6-31, 2:1-25, 3:1-24. Write targets remain genesis 1–2 approved ranges only.');
 }
 
 function parseArgs(argv) {
@@ -282,8 +305,152 @@ function assertSafeTarget(args) {
   ));
 
   if (!matched) {
-    throw new Error('master pipeline은 현재 ko-KR 창세기 1장 5절, 1장 6절~10절, 1장 11절~31절, 또는 2장 1절~25절 범위만 처리할 수 있습니다.');
+    throw new Error('master pipeline은 현재 ko-KR 창세기 1장 5절, 1:6-31, 2:1-25, 또는 3:1-24(plan/qa) 범위만 처리할 수 있습니다.');
   }
+}
+
+function resolveQaMode(args) {
+  if (args.bookId === 'genesis' && args.chapter <= 2) return 'legacy';
+  return 'strict';
+}
+
+function countNonEmptyParagraphs(text) {
+  return String(text || '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean).length;
+}
+
+function buildHardeningPlanSummary(args) {
+  const verseCount = args.toVerse - args.fromVerse + 1;
+  const topicsPerVerse = COMMENTARY_TOPIC_TYPES.length;
+  const targetAudioCount = verseCount * topicsPerVerse;
+  const targetCueCount = targetAudioCount;
+
+  let existingScriptCount = 0;
+  let existingMp3Count = 0;
+  let existingCueCount = 0;
+  let plannedGenerateCount = 0;
+  let plannedSkipCount = 0;
+  let plannedOverwriteCount = 0;
+  let estimatedSegmentTtsCalls = 0;
+  let segmentEstimateComplete = true;
+  const blockers = [];
+
+  for (let verse = args.fromVerse; verse <= args.toVerse; verse++) {
+    for (const typeConfig of COMMENTARY_TOPIC_TYPES) {
+      const scriptAbs = path.join(
+        ROOT,
+        'tts-scripts',
+        args.locale,
+        args.bookId,
+        pad3(args.chapter),
+        pad3(verse),
+        `${typeConfig.type}.txt`,
+      );
+      const mp3Abs = path.join(
+        ROOT,
+        'audio',
+        'v1',
+        args.locale,
+        args.bookId,
+        pad3(args.chapter),
+        pad3(verse),
+        `${typeConfig.type}-${typeConfig.voicePreset}.mp3`,
+      );
+      const cueAbs = path.join(
+        ROOT,
+        'audio',
+        'cues',
+        args.locale,
+        args.bookId,
+        pad3(args.chapter),
+        pad3(verse),
+        `${typeConfig.type}.json`,
+      );
+
+      const hasScript = fs.existsSync(scriptAbs) && fs.statSync(scriptAbs).size > 0;
+      const hasMp3 = fs.existsSync(mp3Abs) && fs.statSync(mp3Abs).size > 0;
+      const hasCue = fs.existsSync(cueAbs);
+
+      if (hasScript) {
+        existingScriptCount += 1;
+        estimatedSegmentTtsCalls += countNonEmptyParagraphs(fs.readFileSync(scriptAbs, 'utf8'));
+      } else {
+        segmentEstimateComplete = false;
+      }
+      if (hasMp3) existingMp3Count += 1;
+      if (hasCue) existingCueCount += 1;
+
+      if (hasMp3 && !args.overwrite) {
+        plannedSkipCount += 1;
+      } else if (hasMp3 && args.overwrite) {
+        plannedOverwriteCount += 1;
+        plannedGenerateCount += 1;
+      } else {
+        plannedGenerateCount += 1;
+      }
+    }
+  }
+
+  if (args.write && args.chapter === 3) {
+    blockers.push('창세기 3장 write는 아직 승인되지 않았습니다. dry-run/qa만 허용됩니다.');
+  }
+
+  return {
+    locale: args.locale,
+    bookId: args.bookId,
+    chapter: args.chapter,
+    verseCount,
+    topicsPerVerse,
+    targetAudioCount,
+    targetCueCount,
+    existingScriptCount,
+    existingMp3Count,
+    existingCueCount,
+    plannedGenerateCount,
+    plannedSkipCount,
+    plannedOverwriteCount,
+    estimatedSegmentTtsCalls: segmentEstimateComplete ? estimatedSegmentTtsCalls : null,
+    estimatedSegmentTtsNote: segmentEstimateComplete
+      ? '기존 대본 문단 수 합계(세그먼트 TTS 후보)'
+      : '대본 미생성 항목이 있어 세그먼트 TTS 호출 수를 확정할 수 없음',
+    outOfRangeTargetCount: 0,
+    costNote: '비용 계산 자료 없음',
+    qaMode: resolveQaMode(args),
+    writeEnabled: Boolean(args.write),
+    blockers,
+  };
+}
+
+function printHardeningPlanSummary(summary) {
+  const segmentLine = summary.estimatedSegmentTtsCalls == null
+    ? `○ 예상 세그먼트 TTS 호출 수: 미확정 (${summary.estimatedSegmentTtsNote})`
+    : `○ 예상 세그먼트 TTS 호출 수: ${summary.estimatedSegmentTtsCalls}`;
+
+  const lines = [
+    '○ 말씀풀이 파이프라인 plan (API 호출 없음)',
+    `○ 대상 언어: ${summary.locale}`,
+    `○ 대상 책: ${summary.bookId}`,
+    `○ 대상 장: ${summary.chapter}`,
+    `○ 대상 절 수: ${summary.verseCount}`,
+    `○ 절마다 주제 수: ${summary.topicsPerVerse}`,
+    `○ 전체 말씀풀이 오디오 목표 수: ${summary.targetAudioCount}`,
+    `○ 전체 cue 목표 수: ${summary.targetCueCount}`,
+    `○ 기존 대본 수: ${summary.existingScriptCount}`,
+    `○ 기존 MP3 수: ${summary.existingMp3Count}`,
+    `○ 기존 cue 수: ${summary.existingCueCount}`,
+    `○ 새로 생성 예정 수: ${summary.plannedGenerateCount}`,
+    `○ 기존 파일 skip 예정 수: ${summary.plannedSkipCount}`,
+    `○ 덮어쓰기 예정 수: ${summary.plannedOverwriteCount}`,
+    segmentLine,
+    `○ 범위 밖 대상 수: ${summary.outOfRangeTargetCount}`,
+    `○ blockers: ${summary.blockers.length ? summary.blockers.join(' | ') : '없음'}`,
+    `○ write 실행 여부: ${summary.writeEnabled ? '예' : '아니오 (dry-run)'}`,
+    `○ QA mode: ${summary.qaMode}`,
+    `○ 예상 API 비용: ${summary.costNote}`,
+  ];
+  console.error(lines.join('\n'));
 }
 
 function isLegacySafeTarget(args) {
@@ -490,6 +657,8 @@ function qaTargetArgs(args) {
     String(args.fromVerse),
     '--to-verse',
     String(args.toVerse),
+    '--mode',
+    resolveQaMode(args),
     '--dry-run',
   ];
 }
@@ -983,13 +1152,17 @@ function runQaStage(args) {
     process.stderr.write(result.stderr);
   }
   if (result.exitCode !== 0) {
-    process.exitCode = result.exitCode;
+    process.exitCode = result.exitCode || 1;
   }
+  return result;
 }
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
   assertSafeTarget(args);
+
+  const hardeningPlan = buildHardeningPlanSummary(args);
+  printHardeningPlanSummary(hardeningPlan);
 
   if (isOnlyQaStage(args)) {
     runQaStage(args);
@@ -997,6 +1170,13 @@ function main() {
   }
 
   const initialPlan = buildPlan(args);
+  if (hardeningPlan.blockers.length) {
+    initialPlan.safetyBlockers = [
+      ...initialPlan.safetyBlockers,
+      ...hardeningPlan.blockers,
+    ];
+  }
+
   const finalPlan = executePlan({ args, plan: initialPlan });
   const executedStepCount = finalPlan.verses.reduce((count, verse) => (
     count + verse.steps.filter((step) => step.executed).length
@@ -1011,6 +1191,7 @@ function main() {
     masterDryRunPlanOnly: args.dryRun && executedStepCount === 0,
     reportWritten: false,
     ...summary,
+    hardeningPlan,
     target: {
       locale: args.locale,
       bookId: args.bookId,
