@@ -311,4 +311,9 @@ export const BOOKS = {
     testamentVariable: 'newTestamentData',
     bookSlug: '1peter',
   },
+  '2peter': {
+    book: '베드로후서',
+    testamentVariable: 'newTestamentData',
+    bookSlug: '2peter',
+  },
 };
