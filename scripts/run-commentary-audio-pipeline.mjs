@@ -164,6 +164,13 @@ const APPROVED_UPLOAD_WRITE_TARGETS = [
     fromVerse: 1,
     toVerse: 25,
   },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 3,
+    fromVerse: 1,
+    toVerse: 24,
+  },
 ];
 
 const APPROVED_MANIFEST_WRITE_TARGETS = [
@@ -209,6 +216,13 @@ const APPROVED_MANIFEST_WRITE_TARGETS = [
     fromVerse: 1,
     toVerse: 25,
   },
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 3,
+    fromVerse: 1,
+    toVerse: 24,
+  },
 ];
 
 const REPORT_DIR = path.join(ROOT, 'reports', 'commentary-pipeline');
@@ -223,7 +237,8 @@ function usage() {
   console.error('Default mode: dry-run. Write/upload/manifest require explicit --write and approved targets.');
   console.error('Safe targets: ko-KR genesis 1:5, 1:6-31, 2:1-25, 3:1-24.');
   console.error('Genesis 3: scripts --write allowed; audio uses production cue builder (not batch).');
-  console.error('Genesis 3 production audio+cue write requires --confirm-production-audio-write. Upload/manifest remain blocked.');
+  console.error('Genesis 3 production audio+cue write requires --confirm-production-audio-write.');
+  console.error('Genesis 3 upload/manifest write: --stage upload --write --upload / --stage manifest --write, verses 1–24 only.');
 }
 
 function parseArgs(argv) {
@@ -430,20 +445,18 @@ function buildGenesis3WriteBlockers(args) {
   if (!args.write || !isGenesis3ProductionTarget(args)) return blockers;
 
   const stages = args.stages || [];
-  const wantsAudio = stages.includes('audio') || stages.includes('prepare') || stages.includes('publish');
-  const wantsUpload = stages.includes('upload') || stages.includes('publish');
-  const wantsManifest = stages.includes('manifest') || stages.includes('publish');
+  const wantsAudio = stages.includes('audio') || stages.includes('prepare');
+  const wantsPublish = stages.includes('publish');
   const scriptsOnly = stages.length > 0 && stages.every((stage) => stage === 'scripts');
+  const uploadOnly = stages.length === 1 && stages[0] === 'upload';
+  const manifestOnly = stages.length === 1 && stages[0] === 'manifest';
 
-  if (scriptsOnly) {
+  if (scriptsOnly || uploadOnly || manifestOnly) {
     return blockers;
   }
 
-  if (wantsUpload) {
-    blockers.push('창세기 3장 upload/publish는 차단됩니다.');
-  }
-  if (wantsManifest) {
-    blockers.push('창세기 3장 manifest write는 차단됩니다.');
+  if (wantsPublish) {
+    blockers.push('창세기 3장 publish 일괄 stage는 차단됩니다. upload와 manifest를 각각 실행하세요.');
   }
   if (wantsAudio && !args.confirmProductionAudioWrite) {
     blockers.push('창세기 3장 production audio+cue write는 --confirm-production-audio-write가 필요합니다.');
@@ -822,7 +835,7 @@ function qaTargetArgs(args) {
   ];
 }
 
-function stagesToSteps(stages) {
+function stagesToSteps(stages, args = null) {
   const steps = [];
   const add = (step) => {
     if (!steps.includes(step)) steps.push(step);
@@ -843,7 +856,10 @@ function stagesToSteps(stages) {
     } else if (stage === 'upload') {
       add('upload');
     } else if (stage === 'manifest') {
-      add('cue-check');
+      // Genesis 3 uses highlight cue JSON (not matthew-henry manual cue-check in JS).
+      if (!(args && isGenesis3ProductionTarget(args))) {
+        add('cue-check');
+      }
       add('manifest');
     } else if (stage === 'publish') {
       add('cue-check');
@@ -946,9 +962,13 @@ function isOnlyUploadStage(args, steps) {
 }
 
 function isOnlyManifestStage(args, steps) {
+  if (!(args.stages.length === 1 && args.stages[0] === 'manifest')) {
+    return false;
+  }
+  if (isGenesis3ProductionTarget(args)) {
+    return steps.length === 1 && steps[0] === 'manifest';
+  }
   return (
-    args.stages.length === 1 &&
-    args.stages[0] === 'manifest' &&
     steps.length === 2 &&
     steps[0] === 'cue-check' &&
     steps[1] === 'manifest'
@@ -1051,6 +1071,26 @@ function validateApprovedUploadWritePreflight(args) {
   return blockers;
 }
 
+function validateGenesis3HighlightCuesPresent(args, verse) {
+  const types = COMMENTARY_TOPIC_TYPES.map((item) => item.type);
+  for (const type of types) {
+    const cueAbs = path.join(
+      ROOT,
+      'audio',
+      'cues',
+      args.locale,
+      args.bookId,
+      pad3(args.chapter),
+      pad3(verse),
+      `${type}.json`,
+    );
+    if (!fs.existsSync(cueAbs) || fs.statSync(cueAbs).size <= 0) {
+      return `manifest write preflight 실패: ${args.bookId} ${args.chapter}:${verse} highlight cue 누락: ${type}.json`;
+    }
+  }
+  return null;
+}
+
 function validateApprovedManifestWritePreflight(args) {
   const blockers = [];
 
@@ -1059,12 +1099,20 @@ function validateApprovedManifestWritePreflight(args) {
     const env = pipelineEnv(args, verse);
     const expectedKeyBase = expectedR2KeyBase(args, verse);
 
-    const cueCheck = runPreflightCommand(
-      buildCommand('scripts/verify-commentary-cues.mjs', targetArgs, env),
-    );
-    if (cueCheck.exitCode !== 0 || cueCheck.parsedStdout?.status !== 'PASS') {
-      blockers.push(`manifest write preflight 실패: ${args.bookId} ${args.chapter}:${verse} cue-check가 PASS가 아닙니다.`);
-      continue;
+    if (isGenesis3ProductionTarget(args)) {
+      const highlightCueBlocker = validateGenesis3HighlightCuesPresent(args, verse);
+      if (highlightCueBlocker) {
+        blockers.push(highlightCueBlocker);
+        continue;
+      }
+    } else {
+      const cueCheck = runPreflightCommand(
+        buildCommand('scripts/verify-commentary-cues.mjs', targetArgs, env),
+      );
+      if (cueCheck.exitCode !== 0 || cueCheck.parsedStdout?.status !== 'PASS') {
+        blockers.push(`manifest write preflight 실패: ${args.bookId} ${args.chapter}:${verse} cue-check가 PASS가 아닙니다.`);
+        continue;
+      }
     }
 
     const manifestDryRun = runPreflightCommand(
@@ -1117,11 +1165,22 @@ function validateWriteSafety({ args, steps }) {
     if (scriptsOnly) {
       return [];
     }
-    if (steps.includes('upload') || args.stages.includes('publish')) {
-      blockers.push('창세기 3장 upload/publish는 차단됩니다.');
+    if (args.stages.includes('publish')) {
+      blockers.push('창세기 3장 publish 일괄 stage는 차단됩니다. upload와 manifest를 각각 실행하세요.');
+    }
+    if (steps.includes('upload')) {
+      if (!isOnlyUploadStage(args, steps) || !isApprovedUploadWriteTarget(args) || !args.upload) {
+        blockers.push('창세기 3장 upload write는 --stage upload --write --upload 정확한 범위(1–24)에서만 허용됩니다.');
+      } else {
+        blockers.push(...validateApprovedUploadWritePreflight(args));
+      }
     }
     if (steps.includes('manifest')) {
-      blockers.push('창세기 3장 manifest write는 차단됩니다.');
+      if (!isOnlyManifestStage(args, steps) || !isApprovedManifestWriteTarget(args)) {
+        blockers.push('창세기 3장 manifest write는 --stage manifest --write 정확한 범위(1–24)에서만 허용됩니다.');
+      } else {
+        blockers.push(...validateApprovedManifestWritePreflight(args));
+      }
     }
     if (steps.includes('audio')) {
       if (!args.confirmProductionAudioWrite) {
@@ -1208,7 +1267,7 @@ function dryRunExecutesSteps(stages) {
 }
 
 function buildPlan(args) {
-  const steps = stagesToSteps(args.stages);
+  const steps = stagesToSteps(args.stages, args);
   const safetyBlockers = validateWriteSafety({ args, steps });
   const verses = [];
   const planOnly = args.dryRun && !dryRunExecutesSteps(args.stages);
