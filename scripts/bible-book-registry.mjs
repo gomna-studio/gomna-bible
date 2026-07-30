@@ -336,4 +336,9 @@ export const BOOKS = {
     testamentVariable: 'newTestamentData',
     bookSlug: 'jude',
   },
+  'revelation': {
+    book: '요한계시록',
+    testamentVariable: 'newTestamentData',
+    bookSlug: 'revelation',
+  },
 };
