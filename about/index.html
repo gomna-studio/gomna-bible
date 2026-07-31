@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About | GOMNA Studio</title>
-  <meta name="description" content="곰나 스튜디오 대표 이덕규. 구조를 설계하는 1인 개발자입니다." />
+  <meta name="description" content="Gomna Studio, Inc. 대표 이덕규. 가치를 구조로 구현합니다." />
   <meta name="theme-color" content="#a87a35" />
   <link rel="icon" type="image/png" href="/favicon.png?v=6" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=6" />
@@ -19,24 +19,35 @@
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
 
     :root {
       --bg:       #0a0a0f;
       --bg2:      #111118;
       --bg3:      #16161f;
-      --border:   rgba(255,255,255,0.07);
-      --border2:  rgba(255,255,255,0.13);
+      --border:   rgba(255,255,255,0.06);
+      --border2:  rgba(255,255,255,0.11);
       --accent:   #B8751F;
       --accent2:  #D4A056;
       --accent-g: #D4A056;
       --text:     #f0f0f5;
-      --text2:    #9090a8;
-      --text3:    #5a5a72;
-      --white:    #ffffff;
+      --text2:    #a8a8c2;
+      --text3:    #6f6f88;
+      --white:    #f3f2f8;
       --nav-bg:   #1E293B;
-      --studio-nav-height: 56px;
+      /* Shared header frame (primary + anchor) */
+      --header-frame: 1180px;
+      --header-pad-x: 24px;
+      --header-nav-h: 86px;
+      --header-anchor-h: 60px;
+      /* Mobile defaults before JS measures real heights */
+      --studio-nav-height: 108px;
       --studio-anchor-bar: 52px;
+      --prose:    640px;
     }
 
     [data-theme="light"] {
@@ -50,28 +61,35 @@
       --accent-g: #a87a25;
       --text:     #2a2418;
       --text2:    #5a5042;
-      --text3:    #8a7d68;
+      --text3:    #7d6f58;
       --white:    #1a1610;
       --nav-bg:   #f0ebe0;
     }
 
     *, body { font-family: 'Noto Sans KR', sans-serif; }
-    body { background: var(--bg); color: var(--text); line-height: 1.7; overflow-x: hidden; transition: background 0.3s ease, color 0.3s ease; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
 
     .theme-btn {
       background: transparent;
       border: 1px solid var(--border2);
       color: var(--accent2);
-      width: 32px; height: 32px;
+      width: 44px; height: 44px;
+      min-width: 44px; min-height: 44px;
       border-radius: 50%;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 15px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       transition: background 0.2s, color 0.2s, border-color 0.2s;
       padding: 0;
       line-height: 1;
+      flex-shrink: 0;
     }
     .theme-btn:hover {
       background: var(--accent);
@@ -81,47 +99,65 @@
     a { text-decoration: none; color: inherit; }
     .container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
 
-    /* NAV */
+    /* NAV — primary header */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       background: var(--nav-bg);
       border-bottom: 1px solid rgba(184, 117, 31, 0.45);
       box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
-      min-height: 60px;
+      min-height: var(--header-nav-h);
       display: flex; align-items: center;
       transition: background 0.3s ease, transform 0.3s ease;
     }
     nav.nav-hidden { transform: translateY(-100%); }
-    [data-theme="light"] .nav-logo { color: #2a2418; }
-    [data-theme="light"] .nav-links a { color: rgba(42,36,24,0.82); }
-    [data-theme="light"] .nav-links a:hover { color: #8c6520; }
+    [data-theme="light"] .nav-primary a,
+    [data-theme="light"] .nav-utility a { color: rgba(42,36,24,0.82); }
+    [data-theme="light"] .nav-primary a:hover,
+    [data-theme="light"] .nav-utility a:hover { color: #8c6520; }
     .nav-inner {
-      max-width: 1080px; margin: 0 auto; padding: 12px 24px;
-      width: 100%; display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 12px 16px;
+      max-width: var(--header-frame);
+      width: 100%;
+      margin-inline: auto;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-left: max(var(--header-pad-x), env(safe-area-inset-left, 0px));
+      padding-right: max(var(--header-pad-x), env(safe-area-inset-right, 0px));
+      min-height: var(--header-nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+      flex-wrap: nowrap;
+      box-sizing: border-box;
     }
-    .nav-logo {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 1.1rem; font-weight: 500;
-      color: #f5e6d3; letter-spacing: 0.05em;
+    .nav-primary,
+    .nav-utility {
+      display: flex;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      flex-wrap: nowrap;
+      min-width: 0;
     }
-    .nav-logo span { color: #B8751F; }
-    .nav-links {
-      display: flex; gap: 1.25rem 1.5rem; flex-wrap: wrap;
-      list-style: none; align-items: center; justify-content: flex-end;
-      margin: 0; padding: 0;
-    }
-    .nav-links a {
-      font-size: 0.82rem;
-      color: rgba(245, 230, 211, 0.82);
+    .nav-primary { gap: 28px; flex: 1 1 auto; }
+    .nav-utility { gap: 18px; flex: 0 0 auto; }
+    .nav-primary a,
+    .nav-utility > li > a:not(.gs-app-link) {
+      font-size: 17px;
+      font-weight: 500;
+      color: rgba(245, 230, 211, 0.88);
       transition: color 0.2s;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
     }
-    .nav-links a:hover { color: #e8c88a; }
-    .nav-links a.active {
+    .nav-primary a:hover { color: #e8c88a; }
+    .nav-primary a.active {
       color: #B8751F;
       font-weight: 600;
       text-decoration: underline;
-      text-underline-offset: 4px;
+      text-underline-offset: 5px;
       text-decoration-color: rgba(184, 117, 31, 0.85);
     }
     @keyframes gs-app-book-flap {
@@ -139,17 +175,20 @@
     }
     .gs-app-link {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 6px;
-      font-weight: bold;
-      letter-spacing: 0.05em;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       text-decoration: none;
       cursor: pointer;
       transition: transform 0.3s ease;
       position: relative;
-      margin: 0 12px;
+      margin: 0;
+      white-space: nowrap;
+      min-height: 44px;
+      flex-shrink: 0;
     }
     .gs-app-link:hover { transform: scale(1.05); }
     .gs-app-text {
@@ -178,13 +217,13 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 1.05em;
-      height: 0.72em;
-      min-width: 17px;
-      min-height: 12px;
+      width: 22px;
+      height: 15px;
+      min-width: 22px;
+      min-height: 15px;
       flex-shrink: 0;
       color: #9a7048;
-      margin-top: 1px;
+      margin-top: 0;
     }
     .gs-app-book svg { display: block; width: 100%; height: 100%; overflow: visible; }
     .gs-app-book .gs-app-book-right {
@@ -207,31 +246,37 @@
     .gs-app-link:hover .gs-app-book { color: #c9a06c; filter: brightness(1.08); }
 
     /* SECTION BASE */
-    section { padding: 80px 24px; }
+    section { padding: 88px 24px; }
     .section-tag {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.7rem; letter-spacing: 0.15em;
       text-transform: uppercase; color: var(--accent2);
-      margin-bottom: 16px; display: block;
+      margin-bottom: 14px; display: block;
     }
 
     /* HERO */
     .hero {
-      padding: 160px 24px 100px;
+      padding: 48px 24px 96px;
       position: relative; overflow: hidden;
     }
     .hero::before {
       content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 400px;
-      background: radial-gradient(ellipse at 30% top, rgba(37,99,235,0.12) 0%, transparent 70%);
+      position: absolute; top: 0; left: 0; right: 0; height: 380px;
+      background: radial-gradient(ellipse at 28% top, rgba(184,117,31,0.12) 0%, transparent 68%);
       pointer-events: none;
     }
-    .hero-inner { max-width: 800px; margin: 0 auto; }
+    .hero-inner { max-width: var(--prose); margin: 0 auto; }
+    .hero h2 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.35rem; font-weight: 500;
+      color: var(--white); margin-bottom: 28px;
+      letter-spacing: -0.01em;
+    }
     .hero h1 {
-      font-size: clamp(0.9rem, 1.875vw, 1.35rem);
-      font-weight: 700; line-height: 1.25;
-      letter-spacing: -0.03em; color: var(--white);
-      margin-bottom: 24px;
+      font-size: clamp(1.15rem, 2.4vw, 1.55rem);
+      font-weight: 700; line-height: 1.55;
+      letter-spacing: -0.02em; color: var(--white);
+      margin-bottom: 28px;
     }
     .hero h1 em {
       font-style: normal;
@@ -239,42 +284,46 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+    .hero-body { display: flex; flex-direction: column; gap: 16px; max-width: var(--prose); }
     .hero p {
-      font-size: 1rem; color: var(--text2);
-      line-height: 1.9; max-width: 560px;
+      font-size: 0.98rem; color: var(--text2);
+      line-height: 1.9; max-width: var(--prose);
     }
 
     /* WHO I AM */
     .who { background: var(--bg2); }
-    .who-inner { max-width: 800px; margin: 0 auto; }
+    .who-inner { max-width: var(--prose); margin: 0 auto; }
     .who h2 {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 1.4rem; font-weight: 500;
-      color: var(--white); margin-bottom: 24px;
+      font-size: 1.35rem; font-weight: 500;
+      color: var(--white); margin-bottom: 28px;
       letter-spacing: -0.01em;
     }
     .who p {
-      font-size: 0.95rem; color: var(--text2);
-      line-height: 1.95;
+      font-size: 0.96rem; color: var(--text2);
+      line-height: 1.95; margin-bottom: 16px;
+      max-width: var(--prose);
     }
+    .who p:last-child { margin-bottom: 0; }
     .who-name {
-      font-size: 0.78rem; font-weight: 500;
-      color: var(--accent-g);
+      font-size: 0.82rem; font-weight: 500;
+      color: var(--accent2);
       font-family: 'IBM Plex Mono', monospace;
       letter-spacing: 0.08em;
-      margin-bottom: 20px; display: block;
     }
 
     /* 공통 섹션 스타일 */
-    .section-block { max-width: 800px; margin: 0 auto; }
+    .section-block { max-width: var(--prose); margin: 0 auto; }
     .section-block h2 {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 1.4rem; font-weight: 500;
-      color: var(--white); margin-bottom: 24px;
+      font-size: 1.35rem; font-weight: 500;
+      color: var(--white); margin-bottom: 28px;
+      letter-spacing: -0.01em;
     }
     .section-block p {
-      font-size: 0.95rem; color: var(--text2);
-      line-height: 1.95; margin-bottom: 16px;
+      font-size: 0.96rem; color: var(--text2);
+      line-height: 1.95; margin-bottom: 18px;
+      max-width: var(--prose);
     }
     .section-block p:last-child { margin-bottom: 0; }
     .section-block strong { color: var(--text); font-weight: 500; }
@@ -295,26 +344,28 @@
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.75rem; font-weight: 500;
       color: var(--accent-g);
-      background: rgba(37,99,235,0.12);
-      border: 1px solid rgba(37,99,235,0.25);
+      background: rgba(184,117,31,0.10);
+      border: 1px solid rgba(184,117,31,0.28);
       border-radius: 4px; padding: 6px 14px;
       letter-spacing: 0.05em;
     }
 
     /* PROOF */
     .proof { background: var(--bg2); }
+    .proof .section-block { max-width: 720px; }
     .proof-list {
       list-style: none;
       display: flex; flex-direction: column; gap: 0;
       border: 1px solid var(--border);
       border-radius: 12px; overflow: hidden;
-      margin-top: 8px;
+      margin-top: 4px;
     }
     .proof-list li {
-      display: flex; align-items: center; gap: 16px;
-      padding: 20px 28px;
-      border-bottom:1px solid #B8751F;
-      font-size: 0.9rem; color: var(--text2);
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 22px 26px;
+      border-bottom: 1px solid rgba(184,117,31,0.35);
+      font-size: 0.92rem; color: var(--text2);
+      line-height: 1.7;
       background: var(--bg3);
       transition: background 0.2s;
     }
@@ -325,69 +376,83 @@
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.75rem; color: var(--accent-g);
       flex-shrink: 0;
+      margin-top: 3px;
     }
 
     /* NEXT CHAPTER */
     .next { background: var(--bg); }
-    .next-inner { max-width: 800px; margin: 0 auto; }
+    .next-inner { max-width: 960px; margin: 0 auto; }
     .next h2 {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 1.4rem; font-weight: 500;
-      color: var(--white); margin-bottom: 12px;
+      font-size: 1.35rem; font-weight: 500;
+      color: var(--white); margin-bottom: 14px;
+      letter-spacing: -0.01em;
     }
     .next-sub {
-      font-size: 0.9rem; color: var(--text3);
-      margin-bottom: 40px;
+      font-size: 0.92rem; color: var(--text3);
+      margin-bottom: 36px;
       font-family: 'IBM Plex Mono', monospace;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.02em;
+      line-height: 1.75;
+      max-width: var(--prose);
     }
     .next-cards {
       display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      gap: 18px;
+      align-items: stretch;
     }
     .next-card {
       background: var(--bg2);
       border: 1px solid var(--border);
       border-radius: 12px; padding: 28px 24px;
       transition: border-color 0.2s, transform 0.2s;
+      display: flex; flex-direction: column;
+      min-height: 100%;
     }
-    .next-card:hover { border-color: rgba(184,117,31,0.4); transform: translateY(-3px); }
+    .next-card:hover { border-color: rgba(184,117,31,0.4); transform: translateY(-2px); }
     .next-card-badge {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.72rem; color: var(--accent-g);
-      background: rgba(37,99,235,0.12);
-      border: 1px solid rgba(37,99,235,0.25);
+      background: rgba(184,117,31,0.10);
+      border: 1px solid rgba(184,117,31,0.28);
       border-radius: 4px; padding: 4px 10px;
-      display: inline-block; margin-bottom: 16px;
+      display: inline-block; margin-bottom: 18px;
       letter-spacing: 0.1em;
+      align-self: flex-start;
     }
     .next-card h3 {
       font-size: 0.95rem; font-weight: 700;
-      color: var(--white); margin-bottom: 8px;
+      color: var(--white); margin-bottom: 12px;
+      line-height: 1.45;
     }
-    .next-card p { font-size: 0.83rem; color: var(--text2); line-height: 1.7; }
+    .next-card p { font-size: 0.86rem; color: var(--text2); line-height: 1.75; flex: 1; }
 
     /* CTA */
     .cta {
       background: var(--bg2);
       border-top: 1px solid var(--border);
-      text-align: center; padding: 100px 24px;
+      text-align: center; padding: 104px 24px 96px;
       position: relative; overflow: hidden;
     }
     .cta::before {
       content: '';
       position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%);
-      width: 500px; height: 260px;
-      background: radial-gradient(ellipse, rgba(37,99,235,0.1) 0%, transparent 70%);
+      width: 480px; height: 240px;
+      background: radial-gradient(ellipse, rgba(184,117,31,0.10) 0%, transparent 70%);
       pointer-events: none;
     }
+    .cta .section-tag { margin-bottom: 18px; }
     .cta h2 {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 1.6rem; font-weight: 500;
-      color: var(--white); margin-bottom: 12px;
+      font-size: clamp(1.35rem, 2.6vw, 1.7rem); font-weight: 500;
+      color: var(--white); margin-bottom: 16px;
       letter-spacing: -0.01em;
     }
-    .cta p { font-size: 0.95rem; color: var(--text2); margin-bottom: 36px; }
+    .cta p {
+      font-size: 0.95rem; color: var(--text3);
+      margin-bottom: 36px; line-height: 1.85;
+      max-width: 360px; margin-left: auto; margin-right: auto;
+    }
     .cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     .btn-primary {
       display: inline-flex; align-items: center; gap: 8px;
@@ -411,7 +476,7 @@
       color: var(--text); font-size: 0.88rem; font-weight: 500;
       border-radius: 8px; transition: border-color 0.2s, background 0.2s, transform 0.15s;
     }
-    .btn-secondary:hover { border-color: var(--accent2); background: rgba(37,99,235,0.08); transform: translateY(-1px); }
+    .btn-secondary:hover { border-color: var(--accent2); background: rgba(184,117,31,0.08); transform: translateY(-1px); }
 
     /* FOOTER */
     footer {
@@ -432,82 +497,152 @@
     .footer-copy { font-size: 0.75rem; color: var(--text3); }
 
     /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .next-cards { grid-template-columns: 1fr; gap: 14px; }
+      .next-inner { max-width: var(--prose); }
+    }
     @media (max-width: 768px) {
-      .next-cards { grid-template-columns: 1fr; }
+      section { padding: 72px 20px; }
+      .hero { padding: 28px 18px 64px; }
+      .hero h1 { font-size: 1.12rem; margin-bottom: 22px; }
+      .proof-list li { padding: 18px 18px; font-size: 0.88rem; }
+      .next-card { padding: 24px 20px; }
+      .cta { padding: 80px 20px 72px; }
+      .cta p { margin-bottom: 28px; }
       .footer-inner { flex-direction: column; align-items: flex-start; }
+      nav { min-height: 0; }
       .nav-inner {
         flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding: 14px 16px;
-        gap: 12px;
+        align-items: stretch;
+        justify-content: center;
+        gap: 8px;
+        min-height: 0;
+        padding-top: max(10px, env(safe-area-inset-top, 0px));
+        padding-bottom: 10px;
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
       }
-      .nav-links {
+      .nav-primary,
+      .nav-utility {
         width: 100%;
         justify-content: center;
-        flex-wrap: wrap;
-        gap: 10px 12px;
+        flex-wrap: nowrap;
       }
-      .nav-links a { font-size: 12px; }
-      .nav-logo { font-size: 1rem; }
-      .gs-app-link { font-size: 5px; margin: 0; gap: 4px; }
+      .nav-primary { gap: 16px; }
+      .nav-utility { gap: 14px; }
+      .nav-primary a {
+        font-size: 15px;
+        min-height: 44px;
+      }
+      .gs-app-link {
+        font-size: 13px;
+        gap: 6px;
+        min-height: 44px;
+      }
+      .gs-app-book {
+        width: 20px;
+        height: 14px;
+        min-width: 20px;
+      }
       .gs-app-text::after { bottom: -2px; }
+      .theme-btn {
+        font-size: 16px;
+      }
     }
   
-/* Anchor Navigation */
-html { scroll-behavior: smooth; }
+/* Anchor Navigation — secondary header (same frame as primary) */
 .anchor-nav {
   background: #FFFBF0;
   backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(184, 134, 11, 0.2);
-  border-bottom: 1px solid rgba(184, 134, 11, 0.2);
+  border-top: 1px solid rgba(184, 134, 11, 0.18);
+  border-bottom: 1px solid rgba(184, 134, 11, 0.18);
   position: sticky;
-  top: 56px;
+  top: var(--header-nav-h);
   z-index: 50;
-  padding: 12px 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.anchor-nav-inner {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 0 24px;
+  min-height: var(--header-anchor-h);
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  padding: 0;
+  box-shadow: none;
+}
+.anchor-nav-inner {
+  max-width: var(--header-frame);
+  width: 100%;
+  margin-inline: auto;
+  padding-left: max(var(--header-pad-x), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--header-pad-x), env(safe-area-inset-right, 0px));
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 18px;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
   white-space: nowrap;
+  box-sizing: border-box;
 }
 .anchor-nav-inner::-webkit-scrollbar { display: none; }
 .anchor-link {
   color: #5D4516;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 500;
   text-decoration: none;
-  padding: 6px 12px;
+  padding: 10px 2px;
   border-radius: 6px;
-  transition: all 0.2s ease;
-  letter-spacing: 0.02em;
+  transition: background 0.2s ease, color 0.2s ease;
+  letter-spacing: 0.01em;
   flex-shrink: 0;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 .anchor-link:hover {
   background: rgba(184, 134, 11, 0.12);
   color: #B8860B;
 }
 .anchor-dot {
-  color: rgba(184, 134, 11, 0.4);
-  font-size: 12px;
+  color: rgba(184, 134, 11, 0.35);
+  font-size: 11px;
   flex-shrink: 0;
+  margin: 0;
+  line-height: 1;
 }
-section[id], div[id="us-location"] { scroll-margin-top: 120px; }
+@media (min-width: 769px) {
+  /* Offset fixed primary nav so sticky secondary sits on the same system */
+  body { padding-top: var(--header-nav-h); }
+  section[id], div[id="us-location"] {
+    scroll-margin-top: calc(var(--header-nav-h) + var(--header-anchor-h) + 10px);
+  }
+}
 @media (max-width: 768px) {
   body { padding-top: var(--studio-nav-height); }
-  .anchor-nav { position: relative; top: 0; padding: 8px 0; }
-  .anchor-nav-inner { justify-content: flex-start; padding: 0 16px; }
-  .anchor-link { font-size: 12px; padding: 5px 10px; }
+  .anchor-nav {
+    position: relative;
+    top: 0;
+    min-height: 50px;
+    border-top: none;
+    box-shadow: none;
+  }
+  .anchor-nav-inner {
+    justify-content: flex-start;
+    gap: 20px;
+    max-width: none;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .anchor-link {
+    font-size: 13.5px;
+    font-weight: 500;
+    padding: 8px 0;
+    min-height: 44px;
+  }
+  .anchor-dot {
+    font-size: 10px;
+    opacity: 0.85;
+  }
   section[id], div[id="us-location"] {
-    scroll-margin-top: calc(var(--studio-nav-height) + var(--studio-anchor-bar) + 8px);
+    scroll-margin-top: calc(var(--studio-nav-height) + 8px);
   }
 }
 
@@ -518,12 +653,13 @@ section[id], div[id="us-location"] { scroll-margin-top: 120px; }
 <!-- NAV -->
 <nav aria-label="주요 메뉴">
   <div class="nav-inner">
-    <a href="/studio" class="nav-logo">GOMNA STUDIO</a>
-    <ul class="nav-links">
+    <ul class="nav-primary">
       <li><a href="/studio">Studio</a></li>
       <li><a href="/about" class="active">About</a></li>
       <li><a href="/contact">Contact</a></li>
-          <li><a href="/guide">User Guide</a></li>
+      <li><a href="/guide">User Guide</a></li>
+    </ul>
+    <ul class="nav-utility">
       <li><a href="/" class="gs-app-link">
         <span class="gs-app-text">은혜의말씀(Words of Grace)</span>
         <span class="gs-app-book" aria-hidden="true">
@@ -546,15 +682,15 @@ section[id], div[id="us-location"] { scroll-margin-top: 120px; }
 <!-- Anchor Navigation -->
 <div class="anchor-nav" aria-label="Section Navigation">
   <div class="anchor-nav-inner">
-    <a href="#who" class="anchor-link">자기 소개</a>
+    <a href="#who" class="anchor-link">Founder</a>
     <span class="anchor-dot">&middot;</span>
     <a href="#why" class="anchor-link">Why GOMNA</a>
     <span class="anchor-dot">&middot;</span>
-    <a href="#what" class="anchor-link">무엇을 만드는가</a>
+    <a href="#what" class="anchor-link">What We Build</a>
     <span class="anchor-dot">&middot;</span>
-    <a href="#how" class="anchor-link">어떻게 만드는가</a>
+    <a href="#how" class="anchor-link">How We Build</a>
     <span class="anchor-dot">&middot;</span>
-    <a href="#proof" class="anchor-link">여정</a>
+    <a href="#next-chapter" class="anchor-link">Next Chapter</a>
     <span class="anchor-dot">&middot;</span>
     <a href="#us-location" class="anchor-link">U.S. Location</a>
   </div>
@@ -566,22 +702,29 @@ section[id], div[id="us-location"] { scroll-margin-top: 120px; }
     <span class="section-tag">// About</span>
     <h2>About</h2>
     <h1>
-      1인기업·1인개발,<br>
-      <em>Gomna Studio, Inc.에서 실현됩니다.</em><br><span style="font-size:0.6em;font-weight:400;display:block;margin-top:12px;line-height:1.6">웹앱의 본질적 가치를 발견하고,<br>구조 설계를 통해 그 가치를 확장합니다.</span>
+      아이디어가 기술이 되고,<br>
+      기술이 새로운 가치로 실현되는 곳.<br>
+      <em>Gomna Studio, Inc.</em>
     </h1>
-    <p>거인들의 어깨 위에서, 실제로 작동하는 가치를 만듭니다.</p>
+    <div class="hero-body">
+      <p>웹앱이 가진 본질적인 가치를 발견하고,<br>정교한 구조 설계를 통해 그 가능성을 확장합니다.</p>
+      <p>축적된 기술과 지혜 위에 새로운 관점을 더해,<br>실제로 쓰이고 오래 지속되는 가치를 만들어갑니다.</p>
+    </div>
   </div>
 </section>
 
 <!-- WHO I AM -->
 <section class="who" id="who">
   <div class="who-inner">
-    <span class="section-tag">// About Me</span>
-    <h2>About Me</h2>
+    <span class="section-tag">// FOUNDER</span>
+    <h2>Founder</h2>
+    <p><span class="who-name">LEE DUK KYU</span></p>
+    <p>Founder &amp; CEO</p>
+    <p>Gomna Studio, Inc.</p>
     <p>
-      곰나 스튜디오(GOMNA Studio, Inc.)를 운영하는 1인 개발자 <span style="color:#60a5fa;font-size:0.85em;font-weight:500;opacity:0.7">LEE DUK KYU</span> 입니다.<br>
-      실제로 작동하는 제품을 빠르게 구현하고,<br>
-      그 구조를 확장 가능한 시스템으로 설계합니다.
+      아이디어를 실제 서비스로 구체화하고,<br>
+      그 가능성이 지속적인 성장으로 이어질 수 있도록<br>
+      안정성과 확장성을 갖춘 구조를 설계합니다.
     </p>
   </div>
 </section>
@@ -592,41 +735,52 @@ section[id], div[id="us-location"] { scroll-margin-top: 120px; }
     <span class="section-tag">// Why GOMNA</span>
     <h2>Why GOMNA</h2>
     <p>
-      GOMNA는 Google, OpenAI, Microsoft, NVIDIA, Anthropic —<br>
-      AI 시대를 이끄는 기술 흐름 위에서 시작된 이름입니다.
+      GOMNA는 Google, OpenAI, Microsoft, NVIDIA, Anthropic의 이니셜에서 출발했습니다.<br>
+      빠르게 변화하는 AI 기술의 흐름을 읽고, 새로운 가능성을 실제 서비스로 전환한다는 방향성을 담은 이름입니다.
     </p>
     <p>
-      나는 이 거대한 흐름 속에서,<br>
-      <strong>1인 개발자도 구조를 만들고 확장할 수 있다는 가능성을 증명하고자 합니다.</strong>
+      곰나 스튜디오는 세계적인 기술 위에 독창적인 아이디어와 정교한 구조를 더해,<br>
+      실제로 작동하는 서비스를 만들고 지속 가능한 사업으로 확장해 나갑니다.
+    </p>
+    <p>
+      GOMNA라는 이름에는 기술의 흐름을 따라가는 데 머물지 않고,<br>
+      언젠가 그 흐름을 함께 만들어가는 기업으로 성장하겠다는 비전이 담겨 있습니다.
     </p>
   </div>
 </section>
 
-<!-- WHAT I BUILD -->
+<!-- WHAT WE BUILD -->
 <section class="what" id="what">
   <div class="section-block">
-    <span class="section-tag">// What I Build</span>
-    <h2>What I Build</h2>
+    <span class="section-tag">// What We Build</span>
+    <h2>What We Build</h2>
     <p>
-      나는 단순한 기능을 만드는 것이 아니라,<br>
-      데이터와 구조를 기반으로 확장 가능한 시스템을 만듭니다.
+      곰나 스튜디오는 단순한 기능을 넘어,<br>
+      데이터와 정교한 구조를 기반으로<br>
+      지속적으로 확장할 수 있는 시스템을 만듭니다.
     </p>
     <p>
       은혜의말씀은 그 첫 번째 결과물입니다.<br>
-      성경 66권 전체를 절 단위로 구조화하고,<br>
-      누구나 사용할 수 있는 형태로 설계하고 있습니다.
+      성경 66권 전체를 절 단위로 체계화하여,<br>
+      누구나 쉽고 편리하게 말씀을 읽고 듣고 깊이 이해할 수 있는<br>
+      디지털 플랫폼으로 설계했습니다.
     </p>
   </div>
 </section>
 
-<!-- HOW I BUILD -->
+<!-- HOW WE BUILD -->
 <section class="how" id="how">
   <div class="section-block">
-    <span class="section-tag">// How I Build</span>
-    <h2>How I Build</h2>
+    <span class="section-tag">// How We Build</span>
+    <h2>How We Build</h2>
     <p>
-      글로벌 개발 환경을 기반으로,<br>
-      빠르게 구축되고 계속 확장되는 구조를 설계합니다.
+      글로벌 개발 환경과 AI 보조 개발을 바탕으로,<br>
+      빠르게 구현하고 지속적으로 개선할 수 있는 구조를 설계합니다.
+    </p>
+    <p>
+      기능의 수보다 서비스의 방향과 구조를 먼저 생각합니다.<br>
+      지금의 완성도와 다음 단계의 확장까지<br>
+      하나의 흐름으로 연결해 설계합니다.
     </p>
   </div>
 </section>
@@ -637,35 +791,35 @@ section[id], div[id="us-location"] { scroll-margin-top: 120px; }
     <span class="section-tag">// Proof</span>
     <h2>Proof</h2>
     <ul class="proof-list">
-      <li>성경 66권 절별 데이터 구조 설계</li>
-      <li>9개 분석 표 기반 콘텐츠 시스템 구축</li>
-      <li>대규모 JSON 구조 설계 및 운영</li>
-      <li>웹앱 형태로 실제 배포 및 테스트 진행</li>
+      <li>성경 66권 전체 절 단위 데이터 구조 설계</li>
+      <li>9개 분석 영역 기반 콘텐츠 시스템 구축</li>
+      <li>약 28만 건 규모의 해설 및 관련 데이터 구조화</li>
+      <li>웹앱 형태의 실제 서비스 배포 및 운영 검증</li>
     </ul>
   </div>
 </section>
 
 <!-- NEXT CHAPTER -->
-<section class="next">
+<section class="next" id="next-chapter">
   <div class="next-inner">
     <span class="section-tag">// Next Chapter</span>
     <h2>Next Chapter</h2>
-    <p class="next-sub">이것은 끝이 아니라, 시작입니다.</p>
+    <p class="next-sub">더 넓은 가능성의 시작</p>
     <div class="next-cards">
       <div class="next-card">
         <span class="next-card-badge">GEO</span>
-        <h3>공간 기반 성경 탐색</h3>
-        <p>성경 사건의 실제 좌표를 현대 지도 위에 연결하는 기술</p>
+        <h3>공간과 본문을 연결하는 성경 지리 탐색</h3>
+        <p>성경 사건의 실제 장소와 본문을 함께 이해할 수 있도록 돕는 지도 기반 구조</p>
       </div>
       <div class="next-card">
         <span class="next-card-badge">3D</span>
-        <h3>입체적 말씀 경험</h3>
-        <p>실제 지형 데이터를 기반으로 성경의 공간을 3D로 재구성하는 기술</p>
+        <h3>성경 지리의 입체적 재구성</h3>
+        <p>실제 지형 데이터를 바탕으로 성경의 공간적 맥락을 입체적으로 탐구하는 구조</p>
       </div>
       <div class="next-card">
         <span class="next-card-badge">TIME</span>
-        <h3>시간 흐름 속 말씀 구조화</h3>
-        <p>성경의 시간과 장소를 결합해 현장감을 시각적으로 복원하는 구조</p>
+        <h3>시간과 공간으로 읽는 성경</h3>
+        <p>사건의 순서와 이동 경로를 시각적으로 연결하여 성경의 흐름을 이해하는 구조</p>
       </div>
     </div>
   </div>
@@ -673,9 +827,8 @@ section[id], div[id="us-location"] { scroll-margin-top: 120px; }
 
 <!-- CTA -->
 <section class="cta">
-  <span class="section-tag" style="display:block; margin-bottom:16px;">// Start with WORDS OF GRACE</span>
-  <h2>Start with the Words of Grace.</h2>
-  <p>은혜의 말씀으로 시작하십시오.</p>
+  <span class="section-tag">// START WITH WORDS OF GRACE</span>
+  <h2>Start with Words of Grace.</h2>
   <div class="cta-buttons">
     <a href="/" class="btn-primary">은혜의말씀 바로가기<span class="gs-app-book gs-app-book--btn" aria-hidden="true">
       <svg viewBox="0 0 28 18" xmlns="http://www.w3.org/2000/svg" focusable="false">
