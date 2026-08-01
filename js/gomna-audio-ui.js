@@ -393,6 +393,26 @@
     return document.querySelector('[data-audio-hero-caption]');
   }
 
+  /* Clear leftover inline sizing from removed auto-fit so CSS 17px always wins. */
+  function clearHeroCaptionInlineSizeStyles(el) {
+    var caption;
+
+    if (!el) return;
+    el.style.removeProperty('font-size');
+    el.style.removeProperty('max-height');
+    el.style.removeProperty('height');
+    el.style.removeProperty('overflow');
+    el.style.removeProperty('line-height');
+    el.style.removeProperty('white-space');
+
+    caption = el.closest ? el.closest('.gomna-audio-hero-caption') : null;
+    if (!caption) return;
+    caption.style.removeProperty('font-size');
+    caption.style.removeProperty('max-height');
+    caption.style.removeProperty('height');
+    caption.style.removeProperty('overflow');
+  }
+
   function getHeroCaptionDefaultText() {
     return window.GOMNA_AUDIO_CAPTION && window.GOMNA_AUDIO_CAPTION.DEFAULT_TEXT
       ? window.GOMNA_AUDIO_CAPTION.DEFAULT_TEXT
@@ -457,6 +477,8 @@
 
     if (!el || !result) return;
 
+    clearHeroCaptionInlineSizeStyles(el);
+
     fullText = String(result.fullText || result.text || '').trim();
     if (!fullText) {
       fullText = getHeroCaptionDefaultText();
@@ -471,6 +493,7 @@
 
       el.classList.add('is-changing');
       heroCaptionTransitionTimer = setTimeout(function() {
+        clearHeroCaptionInlineSizeStyles(el);
         renderHeroCaptionWords(el, result.words, fullText);
         lastHeroCaptionReadCount = -1;
         updateHeroCaptionReadState(result.readCount || 0);
@@ -564,6 +587,8 @@
     var state = engine && engine.getState ? engine.getState() : null;
     var captionApi = window.GOMNA_AUDIO_CAPTION;
     var audioId = state && state.currentAudioId;
+
+    clearHeroCaptionInlineSizeStyles(getHeroCaptionElement());
 
     if (audioId && captionApi && typeof captionApi.ensureLoaded === 'function') {
       captionApi.ensureLoaded(audioId).then(function() {
@@ -1066,40 +1091,53 @@
     }
   }
 
-  function isChapterAutoActive(state) {
-    state = state || (window.GOMNA_AUDIO_ENGINE && window.GOMNA_AUDIO_ENGINE.getState
-      ? window.GOMNA_AUDIO_ENGINE.getState()
-      : null);
-
-    return !!(state && isBibleToEndQueueSource(state.queueSource)) || readChapterAutoPref();
+  /*
+   * Toggle UI/pref only. Do NOT OR live queueSource — once bible-to-end is
+   * playing, that made OFF clicks look stuck ON (pref=0 but UI forced true on
+   * every audio:start → updateChapterAutoToggle).
+   */
+  function isChapterAutoActive() {
+    return readChapterAutoPref();
   }
 
-  function updateChapterAutoToggle(state) {
+  function updateChapterAutoToggle() {
     var toggle = document.querySelector('[data-audio-action="toggle-chapter-auto"]');
     var isOn;
 
     if (!toggle) return;
 
-    isOn = isChapterAutoActive(state);
+    isOn = isChapterAutoActive();
     toggle.setAttribute('aria-checked', isOn ? 'true' : 'false');
+    toggle.setAttribute('aria-pressed', isOn ? 'true' : 'false');
     toggle.classList.toggle('is-on', isOn);
   }
 
   function toggleChapterAutoPlayback(state) {
-    var currentlyOn = isChapterAutoActive(state);
+    var currentlyOn = isChapterAutoActive();
 
     if (currentlyOn) {
+      /* Pref OFF only — never pause/stop/clear the current queue or MP3. */
       writeChapterAutoPref(false);
-      updateChapterAutoToggle(state);
+      updateChapterAutoToggle();
       return;
     }
 
     writeChapterAutoPref(true);
-    updateChapterAutoToggle(state);
+    updateChapterAutoToggle();
 
-    if (state && state.currentAudioId && /\.bible$/.test(state.currentAudioId)) {
-      playVerseToChapterEnd(state.currentAudioId);
+    if (!state || !state.currentAudioId || !/\.bible$/.test(String(state.currentAudioId))) {
+      return;
     }
+
+    /*
+     * Already in a chapter to-end queue: keep current playback.
+     * Calling playVerseToChapterEnd here would pause/resume the same verse.
+     */
+    if (state.queueActive && isBibleToEndQueueSource(state.queueSource)) {
+      return;
+    }
+
+    playVerseToChapterEnd(state.currentAudioId);
   }
 
   function setActiveWithinGroup(btn, selector) {
