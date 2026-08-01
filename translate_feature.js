@@ -276,11 +276,15 @@
   };
 
   const COUNTRY_SEARCH_ALIASES = {
-    US: ['usa', 'america', 'united states of america', '미국', 'アメリカ', '英語'],
+    US: ['usa', 'america', 'united states of america', '미국', 'アメリカ', '英語', 'english'],
     GB: ['uk', 'britain', 'england', 'great britain', '영국', 'イギリス'],
     KR: ['korea', 'south korea', '한국', '대한민국', '韓国', '韓国語', '한국어'],
-    JP: ['japan', '일본', '日本', '日本語'],
+    JP: ['japan', 'japanese', '일본', '일본어', '日本', '日本語'],
     CN: ['china', 'prc', '중국', '中国', '中国語'],
+    PH: ['philippines', 'filipino', 'tagalog', '필리핀', '필리핀어', '타갈로그', 'フィリピン', 'フィリピン語', 'タガログ語'],
+    VN: ['vietnam', 'vietnamese', 'viet nam', '베트남', '베트남어', 'ベトナム', 'ベトナム語'],
+    TH: ['thailand', 'thai', '태국', '태국어', 'タイ', 'タイ語'],
+    ID: ['indonesia', 'indonesian', '인도네시아', '인도네시아어', 'インドネシア', 'インドネシア語'],
     ZA: ['rsa', 's. africa', 'south africa', '남아공', '남아프리카', '南アフリカ'],
     AE: ['uae', 'emirates', '아랍에미리트', 'アラブ首長国連邦']
   };
@@ -1084,6 +1088,27 @@
   }
 
   function resolveHomeDisplayLanguage() {
+    // Explicit app ko/en/ja first; then valid googtrans user choice; then browser.
+    // Never let browser-ko auto-detect wipe a complete /ko/<foreign> cookie.
+    try {
+      var storedEarly = localStorage.getItem('gomna_ui_language');
+      if (isNativeHomeLanguage(storedEarly)) {
+        if (storedEarly === 'ko') clearGoogTransCookie();
+        ensureDefaultQuickForeignLanguage();
+        return { lang: storedEarly, mode: 'native', persisted: true };
+      }
+    } catch (eStoredEarly) { /* ignore */ }
+
+    var cookieTargetEarly = null;
+    try { cookieTargetEarly = getCurrentTargetLang(); } catch (eCookie) { cookieTargetEarly = null; }
+    if (cookieTargetEarly && cookieTargetEarly !== 'ko' && !getNativeHomeLanguage()) {
+      ensureDefaultQuickForeignLanguage();
+      if (cookieTargetEarly === 'en' || cookieTargetEarly === 'ja') {
+        return { lang: cookieTargetEarly, mode: 'native', persisted: false };
+      }
+      return { lang: cookieTargetEarly, mode: 'google', persisted: false };
+    }
+
     if (window.GomnaUII18n && typeof window.GomnaUII18n.resolveInitialHomeLanguage === 'function') {
       var shared = window.GomnaUII18n.resolveInitialHomeLanguage();
       if (shared && shared.mode === 'native' && isNativeHomeLanguage(shared.lang)) {
@@ -1104,8 +1129,7 @@
       }
     } catch (e) { /* ignore */ }
 
-    // No explicit app selection: browser/phone language wins over leftover googtrans.
-    // Display-only — never write gomna_ui_language from auto-detect.
+    // No explicit app/cookie selection: browser/phone language (display-only).
     var detected = detectBrowserPreferredHomeLanguage();
     if (detected.mode === 'native' && isNativeHomeLanguage(detected.lang)) {
       if (detected.lang === 'ko') clearGoogTransCookie();
@@ -2270,7 +2294,7 @@
       !(homeNative && isGoogleTranslatedDom()) &&
       !(readerNativePair && nextLang === 'ko' && isGoogleTranslatedDom())
     ) {
-      closeModal();
+      closeModal({ skipHomeRestore: true });
       try { window.__gomnaBridgeDisplayLang = null; } catch (ePend2) { /* ignore */ }
       dispatchReaderLanguageChange(nextLang, applySource + '-noop');
       return;
@@ -2278,7 +2302,7 @@
 
     /* Drop duplicate in-flight applies for the same target (rapid globe / bridge taps). */
     if (isApplyInFlight(nextLang) && !readerBodyNeedsGoogle) {
-      closeModal();
+      closeModal({ skipHomeRestore: true });
       return;
     }
     cancelWidgetLanguageTrigger();
@@ -2295,7 +2319,7 @@
       try { localStorage.setItem('gomna_ui_language', nextLang); } catch (e) { /* ignore */ }
       if (nextLang === 'ko') clearGoogTransCookie();
       else setGoogTransCookie(nextLang);
-      closeModal();
+      closeModal({ skipHomeRestore: true });
 
       // Leaving a Google-translated DOM for native mode needs one cleanup reload.
       if (isGoogleTranslatedDom()) {
@@ -2336,7 +2360,7 @@
      * - →KO: reload to restore clean Korean source DOM.
      */
     if (readerNativePair) {
-      closeModal();
+      closeModal({ skipHomeRestore: true });
       dispatchReaderLanguageChange(nextLang, applySource + '-reader-native');
 
       if (nextLang === 'ko') {
@@ -2394,7 +2418,7 @@
     // Korean = source language → undo translation (non-native / Google-only langs).
     if (nextLang === 'ko') {
       clearGoogTransCookie();
-      closeModal();
+      closeModal({ skipHomeRestore: true });
       showToast('🌐 한국어로 복원 중... · Restoring Korean...');
       dispatchReaderLanguageChange('ko', applySource);
       setTimeout(function () { location.reload(); }, 250);
@@ -2407,9 +2431,11 @@
     // the saved language automatically. The widget cannot reliably
     // retranslate an already-translated DOM (e.g. ENG → ESP), so reload
     // is required to go from any source → any target.
+    // skipHomeRestore: closeModal must NOT call restoreHomeLanguageState here —
+    // that path can clear googtrans and snap back to Korean before reload.
     startTranslationPending();
     setGoogTransCookie(nextLang);
-    closeModal();
+    closeModal({ skipHomeRestore: true });
     showToast('🌐 ' + country[1] + ' · ' + country[4] + ' 적용 중...');
     dispatchReaderLanguageChange(nextLang, applySource);
     setTimeout(function () { location.reload(); }, 250);
@@ -2424,23 +2450,37 @@
     applyLanguage(country, { source: source || 'apply-by-code' });
   }
 
+  // Compare-only normalization. Never write this back into the search input
+  // (NFD would split Hangul jamo if it were assigned to input.value).
+  function normalizeSearchQuery(query) {
+    var s = String(query == null ? '' : query).replace(/\s+/g, ' ').trim();
+    if (!s) return '';
+    try { s = s.normalize('NFC'); } catch (eNfc) { /* ignore */ }
+    return s.toLowerCase();
+  }
+
   function searchCountries(query) {
-    const qRaw = (query || '').trim();
-    if (!qRaw) return [];
-    const q = qRaw.toLowerCase();
+    const q = normalizeSearchQuery(query);
+    if (!q) return [];
     const out = [];
+    const seen = {};
     for (let i = 0; i < COUNTRIES.length; i++) {
       const c = COUNTRIES[i];
+      if (seen[c[0]]) continue;
       const names = getCountrySearchNames(c);
       let score = 0;
       for (let n = 0; n < names.length; n++) {
         if (!names[n]) continue;
-        const hay = String(names[n]).toLowerCase();
+        const hay = normalizeSearchQuery(names[n]);
+        if (!hay) continue;
         if (hay === q) score = Math.max(score, 100);
         else if (hay.startsWith(q)) score = Math.max(score, 80);
         else if (hay.indexOf(q) >= 0) score = Math.max(score, 60);
       }
-      if (score > 0) out.push([score, c]);
+      if (score > 0) {
+        seen[c[0]] = true;
+        out.push([score, c]);
+      }
     }
     out.sort(function (a, b) { return b[0] - a[0]; });
     return out.slice(0, 40).map(function (x) { return x[1]; });
@@ -2504,10 +2544,13 @@
 .gt-pop-flag{font-size:26px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.08))}\
 .gt-pop-label{font-size:10.5px;color:#5a3818;font-weight:500;line-height:1.2;text-align:center;letter-spacing:-.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}\
 .gt-search-wrap{position:relative;margin-bottom:10px}\
-.gt-search-input{width:100%;padding:11px 14px 11px 38px;border-radius:24px;border:.5px solid rgba(180,140,90,.4);background:#fff;font-family:inherit;font-size:14px;color:#3d2818;outline:none;-webkit-appearance:none;appearance:none}\
+.gt-search-input{width:100%;padding:11px 40px 11px 38px;border-radius:24px;border:.5px solid rgba(180,140,90,.4);background:#fff;font-family:inherit;font-size:14px;color:#3d2818;outline:none;-webkit-appearance:none;appearance:none;letter-spacing:normal;word-break:normal}\
 .gt-search-input::placeholder{color:#a89890}\
 .gt-search-input:focus{border-color:#c89849;box-shadow:0 0 0 3px rgba(200,152,73,.15)}\
 .gt-search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;opacity:.55;pointer-events:none}\
+.gt-search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:none;border-radius:50%;background:rgba(0,0,0,.08);color:#5a3818;font-size:14px;line-height:1;cursor:pointer;font-family:inherit;display:none;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent}\
+.gt-search-clear.is-visible{display:inline-flex}\
+.gt-search-clear:active{opacity:.7;transform:translateY(-50%) scale(.94)}\
 .gt-results{max-height:360px;overflow-y:auto;-webkit-overflow-scrolling:touch}\
 .gt-result{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;cursor:pointer;transition:background .15s;font-family:inherit;width:100%;text-align:left;border:none;background:transparent}\
 .gt-result:hover{background:#fff5e0}\
@@ -2637,7 +2680,21 @@
     return html;
   }
 
-  function renderAllCountriesView(filterQuery) {
+  function renderSearchFieldHtml(ui, initialValue) {
+    var val = initialValue == null ? '' : String(initialValue);
+    return '<div class="gt-section-label">' + escapeHtml(ui.searchLabel) + '</div>' +
+      '<div class="gt-search-wrap">' +
+      '<svg class="gt-search-icon" viewBox="0 0 24 24" fill="none" stroke="#3d2818" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
+      '<input type="search" class="gt-search-input" id="gtSearchInput" placeholder="' +
+      escapeHtml(ui.searchPlaceholder) + '" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"' +
+      (val ? ' value="' + escapeHtml(val) + '"' : '') + '>' +
+      '<button type="button" class="gt-search-clear' + (val ? ' is-visible' : '') +
+      '" id="gtSearchClear" aria-label="Clear">×</button>' +
+      '</div>';
+  }
+
+  // Regions / no-results only — never recreate the search <input> while typing.
+  function renderAllCountriesResultsHtml(filterQuery) {
     const ui = getModalUi();
     const uiLang = _gtModalUiLang;
     const activeLang = getActiveLangCode();
@@ -2647,23 +2704,11 @@
     const matchedSet = {};
     matched.forEach(function (c) { matchedSet[c[0]] = true; });
 
-    let html = '<div class="gt-all-view">' +
-      '<button type="button" class="gt-back-btn" data-gt-view="popular">' +
-      escapeHtml(ui.backPopular) + '</button>' +
-      '<div class="gt-all-sticky">' +
-      '<div class="gt-section-label">' + escapeHtml(ui.searchLabel) + '</div>' +
-      '<div class="gt-search-wrap">' +
-      '<svg class="gt-search-icon" viewBox="0 0 24 24" fill="none" stroke="#3d2818" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
-      '<input type="search" class="gt-search-input" id="gtSearchInput" placeholder="' +
-      escapeHtml(ui.searchPlaceholder) + '" autocomplete="off" value="' + escapeHtml(q) + '">' +
-      '</div></div>';
-
     if (q && matched.length === 0) {
-      html += '<div class="gt-no-results">' + escapeHtml(ui.noResults) + '</div></div>';
-      return html;
+      return '<div class="gt-no-results">' + escapeHtml(ui.noResults) + '</div>';
     }
 
-    html += '<div class="gt-regions gt-all-regions">';
+    let html = '<div class="gt-regions gt-all-regions">';
     ALL_REGION_ORDER.forEach(function (regionKey) {
       const codes = [];
       COUNTRIES.forEach(function (c) {
@@ -2684,8 +2729,22 @@
       html += renderRegionBlock('asia', orphanCodes, uiLang, activeAnchorCode, 'gt-all-grid');
     }
 
-    html += '</div></div>';
+    html += '</div>';
     return html;
+  }
+
+  function renderAllCountriesView(filterQuery) {
+    const ui = getModalUi();
+    const q = (filterQuery || '').trim();
+    return '<div class="gt-all-view">' +
+      '<button type="button" class="gt-back-btn" data-gt-view="popular">' +
+      escapeHtml(ui.backPopular) + '</button>' +
+      '<div class="gt-all-sticky">' +
+      renderSearchFieldHtml(ui, q) +
+      '</div>' +
+      '<div id="gtAllResults">' +
+      renderAllCountriesResultsHtml(q) +
+      '</div></div>';
   }
 
   function renderPopularBody() {
@@ -2711,12 +2770,7 @@
     html += '<button type="button" class="gt-view-all-btn" data-gt-view="all">' +
       escapeHtml(ui.viewAll) + '</button>';
 
-    html += '<div class="gt-section-label">' + escapeHtml(ui.searchLabel) + '</div>' +
-      '<div class="gt-search-wrap">' +
-      '<svg class="gt-search-icon" viewBox="0 0 24 24" fill="none" stroke="#3d2818" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
-      '<input type="search" class="gt-search-input" id="gtSearchInput" placeholder="' +
-      escapeHtml(ui.searchPlaceholder) + '" autocomplete="off">' +
-      '</div>' +
+    html += renderSearchFieldHtml(ui, '') +
       '<div class="gt-results" id="gtResults"></div>';
 
     return html;
@@ -2727,34 +2781,42 @@
     return renderPopularBody();
   }
 
+  function syncSearchClearButton(query) {
+    var clearBtn = document.getElementById('gtSearchClear');
+    if (!clearBtn) return;
+    if ((query || '').trim()) clearBtn.classList.add('is-visible');
+    else clearBtn.classList.remove('is-visible');
+  }
+
+  // Shared renderer for both popular-view and all-countries-view search boxes.
+  // Never assigns normalized text back into the input (preserves Hangul IME).
   function renderResults(query) {
     const ui = getModalUi();
+    const q = String(query == null ? '' : query);
+    syncSearchClearButton(q);
+
     if (_gtModalView === 'all') {
-      const body = document.querySelector('#gtModal .gt-body');
-      if (!body) return;
-      body.innerHTML = renderAllCountriesView(query);
-      const input = document.getElementById('gtSearchInput');
-      if (input) {
-        input.focus();
-        try {
-          var len = input.value.length;
-          input.setSelectionRange(len, len);
-        } catch (e) { /* ignore */ }
-      }
+      const host = document.getElementById('gtAllResults');
+      if (!host) return;
+      host.innerHTML = renderAllCountriesResultsHtml(q);
       return;
     }
-    const list = searchCountries(query);
+
+    const list = q.trim() ? searchCountries(q) : [];
     const el = document.getElementById('gtResults');
     if (!el) return;
-    if (!query.trim()) { el.innerHTML = ''; return; }
+    if (!q.trim()) { el.innerHTML = ''; return; }
     if (list.length === 0) {
       el.innerHTML = '<div class="gt-no-results">' + escapeHtml(ui.noResults) + '</div>';
       return;
     }
     const uiLang = _gtModalUiLang;
+    const seen = {};
     el.innerHTML = list.map(function (c) {
+      if (seen[c[0]]) return '';
+      seen[c[0]] = true;
       var name = getLocalizedCountryName(c[0], uiLang, c);
-      return '<button type="button" class="gt-result" data-code="' + c[0] + '">' +
+      return '<button type="button" class="gt-result" data-code="' + c[0] + '" data-lang="' + escapeHtml(c[3]) + '">' +
         '<div class="gt-result-flag">' + flag(c[0]) + '</div>' +
         '<div class="gt-result-info">' +
         '<div class="gt-result-country">' + escapeHtml(name) + '</div>' +
@@ -2795,7 +2857,49 @@
 
   var _gtModalDelegatesBound = false;
   var _gtModalEscapeBound = false;
+  var _gtModalSearchBound = false;
   var _gtModalOpener = null;
+  var _gtSearchComposing = false;
+
+  function clearCountrySearchInput() {
+    var input = document.getElementById('gtSearchInput');
+    if (input) input.value = '';
+    _gtSearchComposing = false;
+    renderResults('');
+  }
+
+  function bindModalSearchHandlers(modal) {
+    if (_gtModalSearchBound || !modal) return;
+    _gtModalSearchBound = true;
+
+    modal.addEventListener('compositionstart', function (e) {
+      if (e.target && e.target.id === 'gtSearchInput') _gtSearchComposing = true;
+    });
+    modal.addEventListener('compositionend', function (e) {
+      if (!e.target || e.target.id !== 'gtSearchInput') return;
+      _gtSearchComposing = false;
+      // Final committed string only — never rewrite input.value from a normalized copy.
+      renderResults(e.target.value);
+    });
+    modal.addEventListener('input', function (e) {
+      if (!e.target || e.target.id !== 'gtSearchInput') return;
+      if (e.isComposing || _gtSearchComposing) {
+        syncSearchClearButton(e.target.value);
+        return;
+      }
+      renderResults(e.target.value);
+    });
+    modal.addEventListener('click', function (e) {
+      var clearBtn = e.target && e.target.closest && e.target.closest('#gtSearchClear');
+      if (!clearBtn || !modal.contains(clearBtn)) return;
+      e.preventDefault();
+      clearCountrySearchInput();
+      var input = document.getElementById('gtSearchInput');
+      if (input) {
+        try { input.focus(); } catch (eFocus) { /* ignore */ }
+      }
+    });
+  }
 
   function injectModal() {
     if (document.getElementById('gtModal')) return;
@@ -2834,6 +2938,7 @@
         if (viewBtn && modal.contains(viewBtn)) {
           const next = viewBtn.getAttribute('data-gt-view');
           _gtModalView = (next === 'all') ? 'all' : 'popular';
+          _gtSearchComposing = false;
           refreshModalBody();
           return;
         }
@@ -2843,6 +2948,8 @@
         if (c) applyLanguage(c);
       });
     }
+
+    bindModalSearchHandlers(modal);
 
     if (!_gtModalEscapeBound) {
       _gtModalEscapeBound = true;
@@ -2866,16 +2973,11 @@
     if (!modal) return;
     _gtModalUiLang = resolveModalUiLang();
     _gtModalView = 'popular';
+    _gtSearchComposing = false;
     const body = modal.querySelector('.gt-body');
     body.innerHTML = renderBody();
     applyModalChrome();
-
-    if (body.getAttribute('data-gt-search-delegate') !== '1') {
-      body.setAttribute('data-gt-search-delegate', '1');
-      body.addEventListener('input', function (e) {
-        if (e.target && e.target.id === 'gtSearchInput') renderResults(e.target.value);
-      });
-    }
+    bindModalSearchHandlers(modal);
 
     const input = document.getElementById('gtSearchInput');
     _gtModalOpener = document.activeElement;
@@ -2887,11 +2989,15 @@
     setTimeout(function () { if (input && window.matchMedia('(min-width:481px)').matches) input.focus(); }, 250);
   }
 
-  function closeModal() {
+  function closeModal(opts) {
+    opts = opts || {};
     const modal = document.getElementById('gtModal');
     if (!modal) return;
     // Pure dismiss: never clear language storage, googtrans, Google state, or reload.
+    // When closing after applyLanguage, skip home restore — it can overwrite googtrans
+    // with browser/default Korean before the reload applies the selected language.
     _gtModalView = 'popular';
+    _gtSearchComposing = false;
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden', 'true');
     if (isCommentaryPopupOpen()) {
@@ -2910,7 +3016,9 @@
         try { gtBtn.focus(); } catch (e2) { /* ignore */ }
       }
     }
-    if (isHomePage()) {
+    var skipRestore = !!(opts.skipHomeRestore || _gtApplyInFlightLang ||
+      (document.documentElement && document.documentElement.classList.contains('gt-translation-pending')));
+    if (isHomePage() && !skipRestore) {
       restoreHomeLanguageState('language-modal-close');
     }
   }

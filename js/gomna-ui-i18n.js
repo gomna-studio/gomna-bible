@@ -273,7 +273,16 @@
 
   var RECENT_FOREIGN_KEY = 'gomna_recent_foreign_language';
   var DEFAULT_QUICK_FOREIGN = 'en';
-  var GT_CLEAR_GUARD_KEY = 'gomna_first_visit_gt_cleared';
+  // Supported Google targets from COUNTRIES (non-ko). Keep valid user choices.
+  var GT_TARGET_SET = {
+    af: 1, am: 1, ar: 1, az: 1, be: 1, bg: 1, bn: 1, bs: 1, cs: 1, da: 1,
+    de: 1, el: 1, en: 1, es: 1, et: 1, fa: 1, fi: 1, fr: 1, hi: 1, hr: 1,
+    hu: 1, hy: 1, id: 1, is: 1, it: 1, iw: 1, ja: 1, ka: 1, kk: 1, km: 1,
+    lo: 1, lt: 1, lv: 1, mg: 1, mk: 1, mn: 1, ms: 1, mt: 1, my: 1, ne: 1,
+    nl: 1, no: 1, pl: 1, ps: 1, pt: 1, ro: 1, ru: 1, rw: 1, si: 1, sk: 1,
+    sl: 1, so: 1, sq: 1, sr: 1, sv: 1, sw: 1, th: 1, tl: 1, tr: 1, uk: 1,
+    ur: 1, uz: 1, vi: 1, 'zh-CN': 1, 'zh-TW': 1
+  };
 
   function clearIncompleteGoogTrans() {
     try {
@@ -290,29 +299,48 @@
     } catch (e) { /* ignore */ }
   }
 
-  function clearStaleGoogTransOnce() {
-    try {
-      if (sessionStorage.getItem(GT_CLEAR_GUARD_KEY) === '1') return;
-      sessionStorage.setItem(GT_CLEAR_GUARD_KEY, '1');
-    } catch (eGuard) { /* ignore */ }
-    clearIncompleteGoogTrans();
+  function normalizeGoogTransTarget(rawTarget) {
+    var t = String(rawTarget || '').trim();
+    if (!t) return '';
+    if (t === 'zh-cn' || t === 'zh_cn') return 'zh-CN';
+    if (t === 'zh-tw' || t === 'zh_tw') return 'zh-TW';
+    if (/^[a-z]{2}$/i.test(t)) return t.toLowerCase();
+    return t;
   }
 
-  function readGoogTransTarget() {
+  // Keep valid /ko/<target> user choices. Incomplete/unsupported → ''.
+  function readValidGoogTransTarget() {
     try {
       var m = (document.cookie || '').match(/(?:^|;\s*)googtrans=([^;]+)/);
       if (!m) return '';
       var raw = decodeURIComponent(m[1] || '');
       var parts = String(raw || '').split('/');
-      var target = parts[2] || '';
-      if (!target || target === 'null' || target === 'undefined') {
-        clearIncompleteGoogTrans();
-        return '';
-      }
+      var source = parts[1] || '';
+      var target = normalizeGoogTransTarget(parts[2] || '');
+      if (!source || !target) return '';
+      if (target === 'ko' || target === 'null' || target === 'undefined') return '';
+      if (!GT_TARGET_SET[target]) return '';
       return target;
     } catch (e) {
       return '';
     }
+  }
+
+  function readGoogTransTarget() {
+    var valid = readValidGoogTransTarget();
+    if (valid) return valid;
+    try {
+      if (/(?:^|;\s*)googtrans=/.test(document.cookie || '')) clearIncompleteGoogTrans();
+    } catch (eClear) { /* ignore */ }
+    return '';
+  }
+
+  function clearInvalidGoogTransOnly() {
+    try {
+      if (!/(?:^|;\s*)googtrans=/.test(document.cookie || '')) return;
+      if (readValidGoogTransTarget()) return;
+      clearIncompleteGoogTrans();
+    } catch (eInv) { /* ignore */ }
   }
 
   function setGoogTransCookie(targetLang) {
@@ -395,21 +423,31 @@
   /**
    * Unified initial home language decision.
    * 1) explicit localStorage ko/en/ja (app UI selection) — keep forever
-   * 2) no app selection → browser/phone language (not leftover googtrans alone)
-   * 3) ko/en/ja → native; known other → Google; unknown → en
+   * 2) valid googtrans user choice (/ko/tl|/ko/en|/ko/ja|/ko/vi…) — keep
+   * 3) no app/cookie selection → browser/phone language
    * Quick languages are always ["ko","en"] and are not derived from detection.
    */
   function resolveInitialHomeLanguage() {
     try {
       var stored = localStorage.getItem(STORAGE_KEY);
       if (isSupported(stored)) {
+        if (stored === 'ko') clearIncompleteGoogTrans();
         ensureDefaultQuickForeign();
         return { lang: stored, mode: 'native', active: true, persisted: true };
       }
     } catch (e) { /* ignore */ }
 
-    // First visit / no explicit app selection: ignore leftover googtrans as authority.
-    clearStaleGoogTransOnce();
+    // Honor explicit Google target before browser-ko auto-detect clears it.
+    var validGt = readValidGoogTransTarget();
+    if (validGt) {
+      ensureDefaultQuickForeign();
+      if (validGt === 'en' || validGt === 'ja') {
+        return { lang: validGt, mode: 'native', active: true, persisted: false };
+      }
+      return { lang: validGt, mode: 'google', active: false, persisted: false };
+    }
+
+    clearInvalidGoogTransOnly();
     var detected = detectBrowserPreferredLanguage();
 
     if (detected.mode === 'native' && isSupported(detected.lang)) {
@@ -466,27 +504,30 @@
   }
 
   function formatBookChapter(bookKo, chapter, lang) {
-    var code = isSupported(lang) ? lang : currentLang;
+    var code = lang || currentLang || 'ko';
     var name = translateBookName(bookKo, code);
     var ch = String(chapter);
-    if (code === 'en') return name + ' ' + ch;
+    if (code === 'ko') return name + ' ' + ch + '장';
     if (code === 'ja') return name + ' ' + ch + '章';
-    return name + ' ' + ch + '장';
+    // en + Google targets (tl/vi/…): localized book + bare chapter (no Korean units)
+    return name + ' ' + ch;
   }
 
   /** Full scripture location for home resume cards (display-only). */
   function formatBookChapterVerse(bookKo, chapter, verse, lang) {
-    var code = isSupported(lang) ? lang : currentLang;
+    var code = lang || currentLang || 'ko';
     var name = translateBookName(bookKo, code);
     var ch = String(chapter);
     var v = String(verse);
-    if (code === 'en') return name + ' ' + ch + ':' + v;
+    if (code === 'ko') return name + ' ' + ch + '장 ' + v + '절';
     if (code === 'ja') return name + ' ' + ch + '章 ' + v + '節';
-    return name + ' ' + ch + '장 ' + v + '절';
+    // en + Google targets: localized book + ch:v (avoids leftover 장/절)
+    return name + ' ' + ch + ':' + v;
   }
 
   function formatRelativeDay(ts, lang) {
-    var code = isSupported(lang) ? lang : currentLang;
+    // Native packs: ko/en/ja. Other Google targets fall back to en (never ko leftovers).
+    var code = isSupported(lang) ? lang : 'en';
     var d = new Date(ts);
     if (isNaN(d.getTime())) return '';
     var now = new Date();
@@ -717,6 +758,7 @@
     formatCalendarMonth: formatCalendarMonth,
     formatCalendarDayAria: formatCalendarDayAria,
     formatChapterCount: formatChapterCount,
+    readValidGoogTransTarget: readValidGoogTransTarget,
     isActive: function () {
       try {
         if (document.documentElement.classList.contains('gomna-native-i18n-active')) return true;

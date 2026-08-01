@@ -218,6 +218,49 @@
     return String(bookName);
   }
 
+  function isNativeUiLang(lang) {
+    return lang === 'ko' || lang === 'en' || lang === 'ja';
+  }
+
+  /**
+   * Display language for home resume cards.
+   * Priority: explicit app ko/en/ja → valid googtrans target → getLanguage → ko.
+   * Do not treat Google-mode getLanguage()==='ko' as the real UI language.
+   */
+  function uiLang() {
+    try {
+      var stored = localStorage.getItem('gomna_ui_language');
+      if (stored === 'ko' || stored === 'en' || stored === 'ja') return stored;
+    } catch (e0) { /* ignore */ }
+    try {
+      if (
+        window.GomnaUII18n &&
+        typeof window.GomnaUII18n.readValidGoogTransTarget === 'function'
+      ) {
+        var gt = window.GomnaUII18n.readValidGoogTransTarget();
+        if (gt) return gt;
+      }
+    } catch (e1) { /* ignore */ }
+    try {
+      if (window.GomnaUII18n && typeof window.GomnaUII18n.getLanguage === 'function') {
+        return window.GomnaUII18n.getLanguage() || 'ko';
+      }
+    } catch (e2) { /* ignore */ }
+    return 'ko';
+  }
+
+  /** True when book-name dictionary can localize this lang (not Hangul passthrough). */
+  function hasBookNameDict(lang) {
+    if (!lang || lang === 'ko') return false;
+    if (lang === 'en' || lang === 'ja') return true;
+    try {
+      if (typeof window.GomnaTranslateBookName !== 'function') return false;
+      return window.GomnaTranslateBookName('창세기', lang) !== '창세기';
+    } catch (e) {
+      return false;
+    }
+  }
+
   /** Display-only book label for current UI language (storage stays Korean). */
   function bookDisplayName(bookName) {
     var lang = uiLang();
@@ -235,11 +278,13 @@
   function bookChipLabel(bookName) {
     var lang = uiLang();
     if (lang === 'ko') return bookShortName(bookName);
+    // Never feed Korean abbreviations (창/딤후/요) to Google / dict paths.
     return bookDisplayName(bookName);
   }
 
   function formatLocation(entry) {
     if (!entry) return '';
+    var lang = uiLang();
     try {
       if (
         window.GomnaUII18n &&
@@ -250,12 +295,15 @@
             entry.bookName,
             entry.chapter,
             entry.verse,
-            uiLang()
+            lang
           ) || ''
         );
       }
     } catch (e) { /* ignore */ }
-    return entry.bookName + ' ' + entry.chapter + '장 ' + entry.verse + '절';
+    if (lang === 'ko') {
+      return entry.bookName + ' ' + entry.chapter + '장 ' + entry.verse + '절';
+    }
+    return bookDisplayName(entry.bookName) + ' ' + entry.chapter + ':' + entry.verse;
   }
 
   function formatRecentChip(entry) {
@@ -267,19 +315,12 @@
     return String(n).padStart(2, '0');
   }
 
-  function uiLang() {
-    try {
-      if (window.GomnaUII18n && typeof window.GomnaUII18n.getLanguage === 'function') {
-        return window.GomnaUII18n.getLanguage() || 'ko';
-      }
-    } catch (e) { /* ignore */ }
-    return 'ko';
-  }
-
   function uiT(key, fallback) {
+    var lang = uiLang();
+    var packLang = isNativeUiLang(lang) ? lang : 'en';
     try {
       if (window.GomnaUII18n && typeof window.GomnaUII18n.t === 'function') {
-        var v = window.GomnaUII18n.t(key, uiLang());
+        var v = window.GomnaUII18n.t(key, packLang);
         if (v) return v;
       }
     } catch (e) { /* ignore */ }
@@ -292,16 +333,24 @@
     var today;
     var that;
     var diff;
+    var lang = uiLang();
+    var dayLang = isNativeUiLang(lang) ? lang : 'en';
     if (isNaN(d.getTime())) return '';
     try {
       if (window.GomnaUII18n && typeof window.GomnaUII18n.formatRelativeDay === 'function') {
-        return window.GomnaUII18n.formatRelativeDay(ts, uiLang()) || '';
+        return window.GomnaUII18n.formatRelativeDay(ts, dayLang) || '';
       }
     } catch (e) { /* ignore */ }
     now = new Date();
     today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     that = new Date(d.getFullYear(), d.getMonth(), d.getDate());
     diff = Math.round((today - that) / 86400000);
+    if (dayLang === 'en') {
+      if (diff <= 0) return 'today';
+      if (diff === 1) return 'yesterday';
+      if (diff >= 2 && diff <= 6) return diff + ' days ago';
+      return d.getMonth() + 1 + '/' + d.getDate();
+    }
     if (diff <= 0) return '오늘';
     if (diff === 1) return '어제';
     if (diff >= 2 && diff <= 6) return diff + '일 전';
@@ -508,21 +557,38 @@
     return url;
   }
 
-  function setText(el, text) {
-    if (el) el.textContent = text == null ? '' : String(text);
+  function setLocalizedText(el, text, lockFromGoogle) {
+    if (!el) return;
+    el.textContent = text == null ? '' : String(text);
+    if (lockFromGoogle) {
+      el.setAttribute('translate', 'no');
+      if (el.classList && !el.classList.contains('notranslate')) {
+        el.classList.add('notranslate');
+      }
+    } else {
+      el.removeAttribute('translate');
+      if (el.classList) el.classList.remove('notranslate');
+    }
   }
 
   function renderRecentChips(host, recent) {
     var i;
     var btn;
     var empty;
+    var lang = uiLang();
+    var lock = lang !== 'ko' && hasBookNameDict(lang);
     if (!host) return;
     host.innerHTML = '';
     if (!recent || !recent.length) {
       empty = document.createElement('span');
       empty.className = 'home-resume-recent-empty';
       empty.setAttribute('data-i18n-key', 'home.resume.recentEmpty');
-      empty.textContent = uiT('home.resume.recentEmpty', '아직 기록이 없습니다');
+      empty.textContent = uiT('home.resume.recentEmpty', 'No recent verses yet');
+      // Empty copy uses native/en pack; lock when non-ko so Google won't mix.
+      if (lang !== 'ko') {
+        empty.setAttribute('translate', 'no');
+        empty.classList.add('notranslate');
+      }
       host.appendChild(empty);
       return;
     }
@@ -531,10 +597,12 @@
       btn.type = 'button';
       btn.className = 'home-resume-recent-chip';
       btn.setAttribute('data-recent-index', String(i));
-      btn.textContent = formatRecentChip(recent[i]);
+      setLocalizedText(btn, formatRecentChip(recent[i]), lock || (lang !== 'ko' && isNativeUiLang(lang)));
       host.appendChild(btn);
     }
   }
+
+  var _homeResumeLangEventsBound = false;
 
   function renderHomeCard() {
     var root = document.getElementById('homeResumeCard');
@@ -546,26 +614,29 @@
     var read = getRead();
     var listen = getListen();
     var recent = getRecent(RECENT_HOME);
+    var lang = uiLang();
+    // Lock dictionary-localized dynamic text so GT / applyBookNameI18n cannot mix units.
+    var lockDynamic = lang !== 'ko' && (isNativeUiLang(lang) || hasBookNameDict(lang));
 
     if (!root) return;
 
     if (read) {
-      setText(readLoc, formatLocation(read));
-      setText(readTime, formatResumeTimeLine(read.timestamp) || '—');
+      setLocalizedText(readLoc, formatLocation(read), lockDynamic);
+      setLocalizedText(readTime, formatResumeTimeLine(read.timestamp) || '—', lockDynamic);
       root.classList.remove('home-resume--no-read');
     } else {
-      setText(readLoc, uiT('home.resume.readStart', '성경읽기 시작'));
-      setText(readTime, '—');
+      setLocalizedText(readLoc, uiT('home.resume.readStart', 'Start Bible reading'), lockDynamic);
+      setLocalizedText(readTime, '—', lockDynamic);
       root.classList.add('home-resume--no-read');
     }
 
     if (listen) {
-      setText(listenLoc, formatLocation(listen));
-      setText(listenTime, formatResumeTimeLine(listen.timestamp) || '—');
+      setLocalizedText(listenLoc, formatLocation(listen), lockDynamic);
+      setLocalizedText(listenTime, formatResumeTimeLine(listen.timestamp) || '—', lockDynamic);
       root.classList.remove('home-resume--no-listen');
     } else {
-      setText(listenLoc, uiT('home.resume.listenStart', '말씀 듣기 시작'));
-      setText(listenTime, '—');
+      setLocalizedText(listenLoc, uiT('home.resume.listenStart', 'Start listening'), lockDynamic);
+      setLocalizedText(listenTime, '—', lockDynamic);
       root.classList.add('home-resume--no-listen');
     }
 
@@ -645,9 +716,29 @@
     }
   }
 
+  function bindHomeLangEvents() {
+    if (_homeResumeLangEventsBound) return;
+    _homeResumeLangEventsBound = true;
+    try {
+      window.addEventListener('gomna:ui-language-changed', function () {
+        renderHomeCard();
+      });
+    } catch (e0) { /* ignore */ }
+    try {
+      window.addEventListener('gomna:reader-translation-settled', function () {
+        if (document.getElementById('homeResumeCard')) renderHomeCard();
+      });
+    } catch (e1) { /* ignore */ }
+  }
+
   function initHome() {
+    bindHomeLangEvents();
     renderHomeCard();
     bindHomeCard();
+    // translate_feature.js is defer — one re-render after it exposes GomnaTranslateBookName.
+    setTimeout(function () {
+      if (document.getElementById('homeResumeCard')) renderHomeCard();
+    }, 0);
   }
 
   window.GOMNA_HOME_RESUME = {
