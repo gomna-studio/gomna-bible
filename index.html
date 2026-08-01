@@ -289,17 +289,31 @@ html.gt-translation-pending body::after{
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "은혜의말씀",
-  "alternateName": "Words of Grace",
-  "url": "https://gomnastudio.com/",
-  "description": "개역한글 성경 66권을 읽고 들으며, 원어·역사·신학·예표·매튜헨리·설교·찬송·상담·교차참조의 9개 말씀풀이로 깊이 묵상하세요.",
-  "inLanguage": "ko-KR",
-  "publisher": {
-    "@type": "Organization",
-    "name": "Gomna Studio, Inc.",
-    "url": "https://gomnastudio.com/"
-  }
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://gomnastudio.com/#organization",
+      "name": "Gomna Studio, Inc.",
+      "url": "https://gomnastudio.com/",
+      "logo": "https://gomnastudio.com/logo-home.png",
+      "sameAs": [
+        "https://www.youtube.com/@GomnaStudio",
+        "https://pf.kakao.com/_bxgXjX"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://gomnastudio.com/#website",
+      "name": "은혜의말씀",
+      "alternateName": "Words of Grace",
+      "url": "https://gomnastudio.com/",
+      "description": "개역한글 성경 66권을 읽고 들으며, 원어·역사·신학·예표·매튜헨리·설교·찬송·상담·교차참조의 9개 말씀풀이로 깊이 묵상하세요.",
+      "inLanguage": "ko-KR",
+      "publisher": {
+        "@id": "https://gomnastudio.com/#organization"
+      }
+    }
+  ]
 }
 </script>
 <link rel="manifest" href="manifest.json?v=20260722-home-ko-default-v1">
@@ -719,7 +733,28 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .cal-cell.selected.sat{color:#165a85}
 .cal-hint{font-size:11px;color:#8a6e4a;text-align:center;margin-bottom:14px;line-height:1.4}
 @keyframes verseRise{from{opacity:0;transform:translate3d(0,8px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
-.imprint-bottom{margin-top:18px;padding-top:14px;padding-bottom:30px;border-top:.5px solid rgba(255,255,255,.18);text-align:center}
+.home-brand-blurb{margin:14px 8px 0;padding:0 4px;text-align:center;font-size:12px;line-height:1.55;font-weight:400;letter-spacing:-0.01em;color:rgba(74,62,50,.70);word-break:keep-all;overflow-wrap:break-word}
+.home-brand-copy{
+  display:inline-grid;
+  grid-template-columns:max-content minmax(0,1fr);
+  grid-template-areas:
+    "prefix owner"
+    ". detail";
+  column-gap:.35em;
+  max-width:100%;
+  text-align:left;
+}
+.home-brand-prefix{
+  grid-area:prefix;
+}
+.home-brand-owner{
+  grid-area:owner;
+}
+.home-brand-detail{
+  grid-area:detail;
+  min-width:0;
+}
+.imprint-bottom{margin-top:10px;padding-top:14px;padding-bottom:30px;border-top:.5px solid rgba(255,255,255,.18);text-align:center}
 @keyframes gs-imprint-underline{
   0%{width:0;left:0;opacity:0}
   14%{width:0;left:0;opacity:1}
@@ -1097,6 +1132,13 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
     <button type="button" class="search-inline-chip" onclick="topic('기도')" data-i18n-key="search.chip.prayer">#기도</button>
   </div>
   </div>
+  <p class="home-brand-blurb">
+  <span class="home-brand-copy">
+    <span class="home-brand-prefix">은혜의말씀은</span>
+    <span class="home-brand-owner">Gomna Studio, Inc.가 운영하는</span>
+    <span class="home-brand-detail">성경 읽기·듣기와 깊이 있는 말씀풀이 플랫폼입니다.</span>
+  </span>
+</p>
   <div class="imprint-bottom">
     <a class="gs-link" href="/studio" aria-label="Gomna Studio, Inc. 스튜디오 페이지"><span class="gs-text" translate="no">Gomna Studio, Inc.</span><span class="gs-arrow" aria-hidden="true">↗</span></a>
   </div>
