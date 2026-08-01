@@ -5,6 +5,7 @@
   var ACTIVE_CLASS = 'gomna-commentary-card-active';
   var autoCenterToken = 0;
   var autoCenterRafId = 0;
+  var autoCenterTimeoutId = 0;
   var pendingHighlightAudioId = null;
   var pendingHighlightTimer = 0;
 
@@ -43,6 +44,16 @@
     if (autoCenterRafId) {
       cancelAnimationFrame(autoCenterRafId);
       autoCenterRafId = 0;
+    }
+    if (autoCenterTimeoutId) {
+      clearTimeout(autoCenterTimeoutId);
+      autoCenterTimeoutId = 0;
+    }
+    /* Visual-only cancel — never touches audio queue / playback. */
+    if (typeof window.__gomnaPlainVerseGestureCancelAudioPan === 'function') {
+      try {
+        window.__gomnaPlainVerseGestureCancelAudioPan();
+      } catch (eCancelPan) { /* ignore */ }
     }
   }
 
@@ -188,48 +199,48 @@
       cancelAnimationFrame(autoCenterRafId);
       autoCenterRafId = 0;
     }
-
-    token = autoCenterToken;
+    if (autoCenterTimeoutId) {
+      clearTimeout(autoCenterTimeoutId);
+      autoCenterTimeoutId = 0;
+    }
+    token = ++autoCenterToken;
 
     /*
      * Defer centering until after iOS audio.play() has settled.
      * Immediate transform measurement on audio:start was aborting queue play().
+     * Mac + mobile both use centerActiveCard (gesture only as scroll-target adapter).
      */
     autoCenterRafId = requestAnimationFrame(function() {
       autoCenterRafId = 0;
-      window.setTimeout(function() {
-        var verseNumber;
+      if (token !== autoCenterToken) return;
+
+      autoCenterTimeoutId = window.setTimeout(function() {
+        autoCenterTimeoutId = 0;
 
         if (token !== autoCenterToken) return;
         if (!isAudioActivelyPlaying()) return;
         if (isPlainVerseManualScrollHoldActive()) return;
 
         if (
-          document.documentElement.classList.contains('plain-verse-gesture-active') &&
-          typeof window.__gomnaPlainVerseGestureScrollToVerse === 'function'
+          window.GOMNA_CARD_HIGHLIGHT &&
+          typeof window.GOMNA_CARD_HIGHLIGHT.centerActiveCard === 'function'
         ) {
-          verseNumber = resolveVerseNumber(verseItem);
-          if (verseNumber != null) {
-            window.__gomnaPlainVerseGestureScrollToVerse(verseNumber, {
-              centerRatio: 0.5,
-              reason: 'audio-highlight'
-            });
+          try {
+            window.GOMNA_CARD_HIGHLIGHT.centerActiveCard(verseItem);
+          } catch (eCenter) {
+            console.warn('[GOMNA_AUDIO_HIGHLIGHT] centerActiveCard failed:', eCenter);
           }
           return;
         }
 
-        if (
-          window.GOMNA_CARD_HIGHLIGHT &&
-          typeof window.GOMNA_CARD_HIGHLIGHT.centerActiveCard === 'function'
-        ) {
-          window.GOMNA_CARD_HIGHLIGHT.centerActiveCard(verseItem);
-          return;
+        try {
+          verseItem.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        } catch (eScroll) {
+          console.warn('[GOMNA_AUDIO_HIGHLIGHT] scrollIntoView failed:', eScroll);
         }
-
-        verseItem.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
-        });
       }, 320);
     });
   }
@@ -272,7 +283,9 @@
         window.GOMNA_CARD_HIGHLIGHT &&
         typeof window.GOMNA_CARD_HIGHLIGHT.clearHighlight === 'function'
       ) {
-        window.GOMNA_CARD_HIGHLIGHT.clearHighlight();
+        try {
+          window.GOMNA_CARD_HIGHLIGHT.clearHighlight();
+        } catch (eClear) { /* ignore — never block audio highlight */ }
       }
       /* Reuse commentary active class + color on the verse card. */
       verseItem.classList.add(activeClass);
@@ -286,10 +299,14 @@
       target.classList.add('gomna-audio-reading');
 
       if (canAutoCenterBibleCard()) {
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
-        });
+        try {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        } catch (eTargetScroll) {
+          console.warn('[GOMNA_AUDIO_HIGHLIGHT] target scroll failed:', eTargetScroll);
+        }
       }
     }
   }
@@ -353,8 +370,12 @@
   }
 
   window.addEventListener('audio:start', function(e) {
-    if (e.detail && e.detail.audioId) {
+    if (!e.detail || !e.detail.audioId) return;
+    try {
       highlightAudio(e.detail.audioId);
+    } catch (err) {
+      /* Highlight/scroll must never interrupt the audio queue. */
+      console.warn('[GOMNA_AUDIO_HIGHLIGHT] audio:start highlight failed:', err);
     }
   });
 

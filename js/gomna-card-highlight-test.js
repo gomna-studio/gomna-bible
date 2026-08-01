@@ -660,13 +660,48 @@
     var maxTop;
     var token;
     var alignTop;
+    var verseItem;
+    var verseNumber;
 
     if (!element) return;
 
+    behavior = getScrollBehavior();
+
+    /*
+     * Plain-verse gesture (iPhone): document scroll is locked; panY owns motion.
+     * Reuse the same center entry + smooth behavior as MacBook, and only adapt
+     * the scroll target to __gomnaPlainVerseGestureScrollToVerse.
+     */
+    if (
+      document.documentElement.classList.contains('plain-verse-gesture-active') &&
+      typeof window.__gomnaPlainVerseGestureScrollToVerse === 'function' &&
+      element.closest
+    ) {
+      verseItem = element.closest('#verseList .verse-item');
+      if (verseItem) {
+        verseNumber = parseInt(
+          verseItem.getAttribute('data-verse') ||
+            verseItem.getAttribute('data-verse-number') ||
+            '',
+          10
+        );
+        if (!isNaN(verseNumber) && verseNumber > 0) {
+          try {
+            window.__gomnaPlainVerseGestureScrollToVerse(verseNumber, {
+              centerRatio: 0.5,
+              reason: 'audio-highlight',
+              behavior: behavior
+            });
+          } catch (eGestureScroll) {
+            /* Visual adapter only — never escalate to audio:error. */
+          }
+          return;
+        }
+      }
+    }
+
     scrollContainer = scrollContainer || getScrollableParent(element);
     if (!scrollContainer) return;
-
-    behavior = getScrollBehavior();
 
     if (isDocumentScrollContainer(scrollContainer)) {
       /* Commentary must never scroll the page/document. */
