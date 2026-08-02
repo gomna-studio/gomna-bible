@@ -1,18 +1,21 @@
 // 은혜의말씀 Service Worker
-// 전략: HTML/앱 코드 자원은 network-first, 이미지/아이콘은 cache-first, 책별 데이터는 cache-first
+// 전략: HTML/앱 코드 자원은 network-first(타임아웃 포함), 이미지/아이콘은 cache-first, 책별 데이터는 cache-first
 // 캐시 키 정책:
 //   - STATIC: HTML/JS/CSS/매니페스트/기본 아이콘 — 코드 변경 시 버전 bump
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 
-const CACHE_VERSION = '2026-07-27-listen-supported-books-v1';
+const CACHE_VERSION = '2026-08-02-reader-entry-data-loading-v1';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE   = 'gomna-data-v1';
+const NETWORK_FIRST_TIMEOUT_MS = 4000;
 
 const STATIC_URLS = [
   '/',
   '/index.html',
-  '/translate_feature.js?v=20260723-scroll-ko-parity-v7',
+  '/reader.html',
+  '/translate_feature.js?v=20260724-first-visit-detect-v2',
+  '/js/gomna-ui-i18n.js?v=20260729-resume-i18n-books',
   '/analytics.js',
   '/settings_guide.js',
   '/gomna_category_feature.js',
@@ -69,6 +72,11 @@ function isCommentaryData(url) {
   return /\/gomna_data_[a-z0-9]+\.js(\?|$)/i.test(url);
 }
 
+// 대형 성경 본문 데이터 — 4초 network-first timeout 적용 금지
+function isLargeBibleDataScript(url) {
+  return /\/(?:old|new)_testament\.js$/i.test(url.pathname);
+}
+
 // HTML: network-first — 항상 최신 페이지 보장
 function isHtmlNav(req) {
   return req.mode === 'navigate'
@@ -77,6 +85,18 @@ function isHtmlNav(req) {
 
 function isSameOrigin(url) {
   return url.origin === self.location.origin;
+}
+
+function htmlFallbackFor(url) {
+  const path = url.pathname || '/';
+  if (path === '/reader.html' || path.endsWith('/reader.html')) {
+    return '/reader.html';
+  }
+  if (path === '/' || path === '/index.html') {
+    return '/index.html';
+  }
+  // 다른 HTML: 요청 URL 자체 캐시만 사용 (홈으로 오인 폴백 금지)
+  return null;
 }
 
 function isFreshAppAsset(req, url) {
@@ -100,17 +120,44 @@ function isFreshAppAsset(req, url) {
 }
 
 function networkFirst(req, fallbackUrl) {
-  return fetch(req).then(resp => {
+  const networkPromise = fetch(req).then(resp => {
     if (resp.ok && resp.type === 'basic') {
       const clone = resp.clone();
       caches.open(STATIC_CACHE).then(cache => cache.put(req, clone));
     }
     return resp;
-  }).catch(() =>
+  });
+
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('network-first-timeout')), NETWORK_FIRST_TIMEOUT_MS);
+  });
+
+  return Promise.race([networkPromise, timeoutPromise]).catch(() =>
     caches.match(req).then(hit => {
       if (hit) return hit;
-      if (fallbackUrl) return caches.match(fallbackUrl);
+      if (fallbackUrl) {
+        return caches.match(fallbackUrl).then(fb => fb || Response.error());
+      }
       return Response.error();
+    })
+  );
+}
+
+// 대형 성경 데이터: 캐시가 있으면 즉시 제공 후 백그라운드 갱신, 없으면 네트워크를 timeout 없이 대기
+function bibleDataStaleWhileRevalidate(req) {
+  return caches.open(STATIC_CACHE).then(cache =>
+    cache.match(req).then(hit => {
+      const fetching = fetch(req).then(resp => {
+        if (resp.ok && resp.type === 'basic') {
+          cache.put(req, resp.clone());
+        }
+        return resp;
+      });
+      if (hit) {
+        fetching.catch(() => {});
+        return hit;
+      }
+      return fetching;
     })
   );
 }
@@ -137,9 +184,15 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // ── 2) HTML 네비게이션: 네트워크 우선, 실패 시 캐시 폴백 ──
+  // ── 1b) 대형 성경 본문 데이터: 4초 timeout 금지 ──
+  if (isLargeBibleDataScript(url)) {
+    event.respondWith(bibleDataStaleWhileRevalidate(req));
+    return;
+  }
+
+  // ── 2) HTML 네비게이션: 네트워크 우선, 경로별 폴백 ──
   if (isHtmlNav(req)) {
-    event.respondWith(networkFirst(req, '/index.html'));
+    event.respondWith(networkFirst(req, htmlFallbackFor(url)));
     return;
   }
 

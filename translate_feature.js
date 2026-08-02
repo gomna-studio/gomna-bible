@@ -1420,13 +1420,18 @@
   function startTranslationPending() {
     try {
       document.documentElement.classList.add('gt-translation-pending');
+      // Hard deadline from first pending so re-entry cannot extend forever.
+      if (!window.__gomnaTranslationPendingDeadline) {
+        window.__gomnaTranslationPendingDeadline = Date.now() + 6000;
+      }
       if (window.__gomnaTranslationPendingFailsafe) {
         clearTimeout(window.__gomnaTranslationPendingFailsafe);
         window.__gomnaTranslationPendingFailsafe = null;
       }
+      var remain = Math.max(0, window.__gomnaTranslationPendingDeadline - Date.now());
       window.__gomnaTranslationPendingFailsafe = setTimeout(function () {
         endTranslationPending();
-      }, 6000);
+      }, remain);
     } catch (e) { /* ignore */ }
   }
 
@@ -1487,6 +1492,7 @@
     try {
       document.documentElement.classList.remove('gt-translation-pending');
       clearApplyInFlight(null);
+      window.__gomnaTranslationPendingDeadline = null;
       if (window.__gomnaTranslationPendingFailsafe) {
         clearTimeout(window.__gomnaTranslationPendingFailsafe);
         window.__gomnaTranslationPendingFailsafe = null;
@@ -3106,14 +3112,8 @@
         if (!document.documentElement.classList.contains('gt-translation-pending')) {
           startTranslationPending();
         } else {
-          // Re-arm failsafe so observer/timers are cleaned on timeout (not only class remove).
-          if (window.__gomnaTranslationPendingFailsafe) {
-            clearTimeout(window.__gomnaTranslationPendingFailsafe);
-            window.__gomnaTranslationPendingFailsafe = null;
-          }
-          window.__gomnaTranslationPendingFailsafe = setTimeout(function () {
-            endTranslationPending();
-          }, 6000);
+          // Re-arm failsafe (same hard deadline) so endTranslationPending runs, not only class remove.
+          startTranslationPending();
         }
         watchTranslationPendingComplete();
       } else if (isReaderPage()) {
