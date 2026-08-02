@@ -3,11 +3,13 @@
 // 캐시 키 정책:
 //   - STATIC: HTML/JS/CSS/매니페스트/기본 아이콘 — 코드 변경 시 버전 bump
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
+//   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-08-02-isaiah30-repair-v1';
+const CACHE_VERSION = '2026-08-02-audio-manifest-recovery-v1';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
-const DATA_CACHE   = 'gomna-data-v1';
+const DATA_CACHE = 'gomna-data-v1';
+const AUDIO_MANIFEST_CACHE = 'gomna-audio-manifest-v1';
 const NETWORK_FIRST_TIMEOUT_MS = 4000;
 
 const STATIC_URLS = [
@@ -40,34 +42,6 @@ const STATIC_URLS = [
   '/assets/globe_3d_128.png'
 ];
 
-self.addEventListener('install', event => {
-  self.skipWaiting();
-  event.waitUntil(
-    caches.open(STATIC_CACHE).then(cache => {
-      // addAll은 1개라도 실패하면 전체 실패 — 개별 add로 부분 실패를 허용
-      return Promise.all(STATIC_URLS.map(url =>
-        cache.add(url).catch(err => {
-          console.warn('[sw] failed to cache', url, err);
-        })
-      ));
-    })
-  );
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(names => {
-      const valid = new Set([STATIC_CACHE, DATA_CACHE]);
-      return Promise.all(
-        names
-          .filter(name => name.startsWith(CACHE_PREFIX) && !valid.has(name))
-          .map(name => caches.delete(name))
-      );
-    }).then(() => self.clients.claim())
-  );
-});
-
-// 책별 commentary 데이터: cache-first, 영구 보관 (immutable URL)
 function isCommentaryData(url) {
   return /\/gomna_data_[a-z0-9]+\.js(\?|$)/i.test(url);
 }
@@ -76,6 +50,146 @@ function isCommentaryData(url) {
 function isLargeBibleDataScript(url) {
   return /\/(?:old|new)_testament\.js$/i.test(url.pathname);
 }
+
+// 대형 audio manifest — 4초 network-first timeout 적용 금지
+function isAudioManifestJson(url) {
+  return url.pathname === '/audio/audio-manifest.json';
+}
+
+async function migrateAudioManifestFromStaticCaches() {
+  const manifestCache = await caches.open(AUDIO_MANIFEST_CACHE);
+  const names = await caches.keys();
+
+  await Promise.all(names.map(async (name) => {
+    if (!name.startsWith(`${CACHE_PREFIX}static-`)) return;
+    if (name === STATIC_CACHE) return;
+
+    try {
+      const cache = await caches.open(name);
+      const keys = await cache.keys();
+      await Promise.all(keys.map(async (req) => {
+        try {
+          const url = new URL(req.url);
+          if (!isAudioManifestJson(url)) return;
+          const resp = await cache.match(req);
+          if (!resp || !resp.ok) return;
+          await manifestCache.put(req, resp.clone());
+          await manifestCache.put(new Request(url.origin + url.pathname), resp.clone());
+        } catch (eItem) {
+          console.warn('[sw] audio manifest migrate item failed', req.url, eItem);
+        }
+      }));
+    } catch (eCache) {
+      console.warn('[sw] audio manifest migrate cache failed', name, eCache);
+    }
+  }));
+}
+
+async function findCachedAudioManifest(req) {
+  const url = new URL(req.url);
+  const dedicated = await caches.open(AUDIO_MANIFEST_CACHE);
+  const exact = await dedicated.match(req);
+  if (exact) return exact;
+
+  const bare = await dedicated.match(new Request(url.origin + url.pathname));
+  if (bare) return bare;
+
+  // Fallback: any existing cache (including older STATIC caches)
+  const matchAll = await caches.match(req);
+  if (matchAll) return matchAll;
+
+  const keys = await caches.keys();
+  for (const name of keys) {
+    try {
+      const cache = await caches.open(name);
+      const cacheKeys = await cache.keys();
+      for (const key of cacheKeys) {
+        const keyUrl = new URL(key.url);
+        if (keyUrl.pathname === '/audio/audio-manifest.json') {
+          const hit = await cache.match(key);
+          if (hit) return hit;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+  return null;
+}
+
+// audio-manifest.json:
+// 1) 전용 캐시 hit → 즉시 반환 + 백그라운드 갱신
+// 2) 캐시 miss → 네트워크를 timeout 없이 대기
+// 3) 네트워크 성공 → 전용 캐시 저장
+// 4) 네트워크 실패 → 다른 캐시 폴백
+// 5) 폴백도 없으면 실패
+async function audioManifestStaleWhileRevalidate(req) {
+  const url = new URL(req.url);
+  const cache = await caches.open(AUDIO_MANIFEST_CACHE);
+  const cached = (await cache.match(req)) || (await cache.match(new Request(url.origin + url.pathname)));
+
+  const fetching = fetch(req).then(async (resp) => {
+    if (resp && resp.ok && (resp.type === 'basic' || resp.type === 'cors')) {
+      await cache.put(req, resp.clone());
+      await cache.put(new Request(url.origin + url.pathname), resp.clone());
+    }
+    return resp;
+  });
+
+  if (cached) {
+    fetching.catch(() => {});
+    return cached;
+  }
+
+  try {
+    const resp = await fetching;
+    if (resp && resp.ok) return resp;
+    const fallback = await findCachedAudioManifest(req);
+    if (fallback) return fallback;
+    return resp || Response.error();
+  } catch (err) {
+    const fallback = await findCachedAudioManifest(req);
+    if (fallback) return fallback;
+    throw err;
+  }
+}
+
+self.addEventListener('install', event => {
+  self.skipWaiting();
+  event.waitUntil(
+    Promise.all([
+      caches.open(STATIC_CACHE).then(cache =>
+        Promise.all(STATIC_URLS.map(url =>
+          cache.add(url).catch(err => {
+            console.warn('[sw] failed to cache', url, err);
+          })
+        ))
+      ),
+      caches.open(AUDIO_MANIFEST_CACHE).then(cache =>
+        cache.add('/audio/audio-manifest.json').catch(err => {
+          console.warn('[sw] failed to prefetch audio manifest', err);
+        })
+      )
+    ])
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    migrateAudioManifestFromStaticCaches()
+      .catch(err => console.warn('[sw] audio manifest migrate failed', err))
+      .then(() => caches.keys())
+      .then(names => {
+        const valid = new Set([STATIC_CACHE, DATA_CACHE, AUDIO_MANIFEST_CACHE]);
+        return Promise.all(
+          names
+            .filter(name => name.startsWith(CACHE_PREFIX) && !valid.has(name))
+            .map(name => caches.delete(name))
+        );
+      })
+      .then(() => self.clients.claim())
+  );
+});
 
 // HTML: network-first — 항상 최신 페이지 보장
 function isHtmlNav(req) {
@@ -111,12 +225,14 @@ function isFreshAppAsset(req, url) {
     return true;
   }
 
+  // Large audio manifest has its own timeout-free handler.
+  if (isAudioManifestJson(url)) return false;
+
   return req.destination === 'script'
     || req.destination === 'style'
     || req.destination === 'worker'
     || /\.(?:js|css)(?:$|\?)/i.test(url.pathname + url.search)
-    || url.pathname === '/manifest.json'
-    || url.pathname === '/audio/audio-manifest.json';
+    || url.pathname === '/manifest.json';
 }
 
 function networkFirst(req, fallbackUrl) {
@@ -180,6 +296,15 @@ self.addEventListener('fetch', event => {
           });
         })
       )
+    );
+    return;
+  }
+
+  // ── 1a) 대형 audio manifest: 4초 timeout 금지, 전용 영구 캐시 ──
+  // isFreshAppAsset보다 먼저 처리해야 한다.
+  if (isAudioManifestJson(url)) {
+    event.respondWith(
+      audioManifestStaleWhileRevalidate(req).catch(() => Response.error())
     );
     return;
   }
