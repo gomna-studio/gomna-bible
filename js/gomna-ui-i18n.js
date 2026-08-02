@@ -652,6 +652,12 @@
   function clearBoot() {
     bootCleared = true;
     try { document.documentElement.classList.remove('gomna-ui-i18n-boot'); } catch (e) { /* ignore */ }
+    try {
+      if (global.__gomnaUiI18nBootFailsafe) {
+        clearTimeout(global.__gomnaUiI18nBootFailsafe);
+        global.__gomnaUiI18nBootFailsafe = null;
+      }
+    } catch (eFs) { /* ignore */ }
   }
 
   function apply(lang, opts) {
@@ -721,24 +727,34 @@
   }
 
   function boot() {
-    var resolved = resolveLanguage();
-    if (!resolved.active || !resolved.lang) {
-      active = false;
-      clearBoot();
-      return;
-    }
-    var applyOpts = { persist: !!resolved.persisted };
-    if (document.body) {
-      apply(resolved.lang, applyOpts);
-    } else {
-      currentLang = resolved.lang;
-      active = true;
-      document.addEventListener('DOMContentLoaded', function onReady() {
-        document.removeEventListener('DOMContentLoaded', onReady);
+    try {
+      var resolved = resolveLanguage();
+      if (!resolved.active || !resolved.lang) {
+        active = false;
+        clearBoot();
+        return;
+      }
+      var applyOpts = { persist: !!resolved.persisted };
+      if (document.body) {
         apply(resolved.lang, applyOpts);
-      });
+      } else {
+        currentLang = resolved.lang;
+        active = true;
+        document.addEventListener('DOMContentLoaded', function onReady() {
+          document.removeEventListener('DOMContentLoaded', onReady);
+          try {
+            apply(resolved.lang, applyOpts);
+          } catch (eApply) {
+            clearBoot();
+          }
+        });
+      }
+    } catch (eBoot) {
+      try { clearBoot(); } catch (eClear) { /* ignore */ }
+    } finally {
+      // Always schedule a late clear so exceptions cannot leave i18n-boot stuck.
+      setTimeout(clearBoot, 800);
     }
-    setTimeout(clearBoot, 800);
   }
 
   global.GomnaUII18n = {

@@ -17,6 +17,20 @@
     if (!targetLang || targetLang === 'ko') return;
     document.documentElement.classList.add('gomna-reader-boot-pending');
     document.documentElement.setAttribute('data-gomna-reader-target-lang', targetLang);
+    // HTML failsafe: reveal Reader even if translate_feature.js never clears boot.
+    if (window.__gomnaReaderBootFailsafe) {
+      clearTimeout(window.__gomnaReaderBootFailsafe);
+    }
+    window.__gomnaReaderBootFailsafe = setTimeout(function () {
+      try {
+        var html = document.documentElement;
+        html.classList.remove('gomna-reader-boot-pending');
+        html.classList.remove('gomna-reader-boot-leaving');
+        html.classList.remove('gt-reader-prepaint-pending');
+        html.removeAttribute('data-gomna-reader-target-lang');
+      } catch (eFs) { /* ignore */ }
+      window.__gomnaReaderBootFailsafe = null;
+    }, 6000);
   } catch (e) { /* ignore */ }
 })();
 </script>
@@ -3366,7 +3380,14 @@ function applyNavigationFromQuery() {
   if (testamentOnly === 'old' || testamentOnly === 'new') {
     switchTab(testamentOnly);
     syncReaderNavActive();
+    // Data may arrive after first paint; refresh the active testament list if needed.
+    refreshTestamentListIfNeeded(testamentOnly);
+    return;
   }
+  // Bare reader.html / unknown query: keep default 구약 list and refresh when data is ready.
+  switchTab('old');
+  syncReaderNavActive();
+  refreshTestamentListIfNeeded('old');
 }
 
 function runDeferredUrlNavigation() {
@@ -3395,31 +3416,125 @@ document.addEventListener('DOMContentLoaded', function() {
   loadBibleData();
 });
 
-function loadBibleData() {
-  var files = ["old_testament.js?v=20260704-mobile-loader-fix", "new_testament.js?v=20260704-mobile-loader-fix"];
-  var loaded = 0;
-  function done() {
-    loaded += 1;
-    if (loaded === files.length) initializeApp();
+var _gomnaBibleAppInitialized = false;
+var _gomnaOldTestamentLoadState = 'pending';
+var _gomnaNewTestamentLoadState = 'pending';
+var BIBLE_DATA_OLD_SRC = 'old_testament.js?v=20260704-mobile-loader-fix';
+var BIBLE_DATA_NEW_SRC = 'new_testament.js?v=20260704-mobile-loader-fix';
+
+function testamentListNeedsRender(viewId) {
+  var el = document.getElementById(viewId);
+  if (!el) return false;
+  if (el.querySelector('.book-btn')) return false;
+  return !!(el.querySelector('.loading-state') || el.querySelector('.bible-data-error') || !el.innerHTML.trim());
+}
+
+function refreshTestamentListIfNeeded(which) {
+  try {
+    if (which === 'old' && typeof oldTestamentData !== 'undefined' && oldTestamentData && testamentListNeedsRender('oldView')) {
+      renderOldTestament();
+    }
+    if (which === 'new' && typeof newTestamentData !== 'undefined' && newTestamentData && testamentListNeedsRender('newView')) {
+      renderNewTestament();
+    }
+  } catch (eRefresh) {
+    console.error('[GOMNA] testament list refresh failed:', eRefresh);
   }
-  files.forEach(function(src) {
-    var s = document.createElement("script");
-    s.src = src;
-    s.onload = done;
+}
+
+function showBibleDataError(viewId, which) {
+  var el = document.getElementById(viewId);
+  if (!el) return;
+  if (el.querySelector('.book-btn')) return;
+  var label = which === 'new' ? '신약' : '구약';
+  el.innerHTML =
+    '<div class="bible-data-error" role="alert" style="text-align:center;padding:40px 20px;color:#5a3818;">' +
+      '<div style="font-size:15px;font-weight:700;margin-bottom:8px;">성경 데이터를 불러오지 못했습니다.</div>' +
+      '<p style="font-size:13px;line-height:1.5;color:#6e5536;margin:0 0 16px;">' +
+        label + ' 목록을 표시할 수 없습니다. 인터넷 연결을 확인한 뒤 다시 시도해 주세요.' +
+      '</p>' +
+      '<button type="button" class="bible-data-retry-btn" onclick="retryBibleDataLoad()" ' +
+        'style="min-height:44px;padding:10px 18px;border:1px solid rgba(184,134,11,.45);border-radius:10px;' +
+        'background:#fff;color:#5a3818;font:inherit;font-size:14px;font-weight:700;cursor:pointer;">' +
+        '다시 시도' +
+      '</button>' +
+    '</div>';
+}
+
+function maybeShowBibleDataErrors() {
+  // Only replace the spinner after a real script failure (or empty payload after onload).
+  // Do not treat "still pending / slow network" as failure.
+  if (_gomnaOldTestamentLoadState === 'error') showBibleDataError('oldView', 'old');
+  if (_gomnaNewTestamentLoadState === 'error') showBibleDataError('newView', 'new');
+}
+
+function retryBibleDataLoad() {
+  try { location.reload(); } catch (eReload) { location.href = location.href; }
+}
+
+function loadBibleData() {
+  var files = [
+    { src: BIBLE_DATA_OLD_SRC, key: 'old' },
+    { src: BIBLE_DATA_NEW_SRC, key: 'new' }
+  ];
+  var settled = 0;
+  function onFileSettled() {
+    settled += 1;
+    if (settled < files.length) return;
+    initializeAppOnce();
+    maybeShowBibleDataErrors();
+  }
+  files.forEach(function(file) {
+    var s = document.createElement('script');
+    s.src = file.src;
+    s.onload = function() {
+      if (file.key === 'old') {
+        _gomnaOldTestamentLoadState = (typeof oldTestamentData !== 'undefined' && oldTestamentData) ? 'loaded' : 'error';
+      } else {
+        _gomnaNewTestamentLoadState = (typeof newTestamentData !== 'undefined' && newTestamentData) ? 'loaded' : 'error';
+      }
+      // Progressive render: paint each testament as soon as its data arrives.
+      refreshTestamentListIfNeeded(file.key);
+      onFileSettled();
+    };
     s.onerror = function() {
-      console.error("Bible data file load failed:", src);
-      done();
+      console.error('Bible data file load failed:', file.src);
+      if (file.key === 'old') {
+        _gomnaOldTestamentLoadState = 'error';
+        showBibleDataError('oldView', 'old');
+      } else {
+        _gomnaNewTestamentLoadState = 'error';
+        showBibleDataError('newView', 'new');
+      }
+      onFileSettled();
     };
     document.head.appendChild(s);
   });
+}
+
+function initializeAppOnce() {
+  if (_gomnaBibleAppInitialized) {
+    refreshTestamentListIfNeeded('old');
+    refreshTestamentListIfNeeded('new');
+    return;
+  }
+  _gomnaBibleAppInitialized = true;
+  initializeApp();
 }
 
 function initializeApp() {
   if (window.GomnaBibleSearch && oldTestamentData && newTestamentData) {
     GomnaBibleSearch.buildIndex(oldTestamentData, newTestamentData);
   }
-  renderOldTestament();
-  renderNewTestament();
+  refreshTestamentListIfNeeded('old');
+  refreshTestamentListIfNeeded('new');
+  // First paint may have already rendered lists; force render when views still empty.
+  if (typeof oldTestamentData !== 'undefined' && oldTestamentData && testamentListNeedsRender('oldView')) {
+    renderOldTestament();
+  }
+  if (typeof newTestamentData !== 'undefined' && newTestamentData && testamentListNeedsRender('newView')) {
+    renderNewTestament();
+  }
   renderEasyFind();
   renderFavorites();
   var _si=document.getElementById('searchInput');if(_si)_si.addEventListener('keypress', function(e) { if(e.key === 'Enter') doSearch(); });
@@ -3500,6 +3615,10 @@ function switchTab(tab) {
   syncReaderNavActive();
   updateOpt4BottomBar();
   syncReaderChapterLayout();
+  if (tab === 'old' || tab === 'new') {
+    // Data may have arrived while another tab was active; paint list if still loading/error shell.
+    refreshTestamentListIfNeeded(tab);
+  }
   if (tab === 'old' || tab === 'new' || tab === 'easy' || tab === 'search' || tab === 'fav') {
     // v72: 대상 전체 화면 진입 시 투명 여유 공간만큼 스크롤을 내려, 처음엔 빈 공간 없이 헤더가 상단에서 시작하도록 한다 (데스크톱은 offset 0으로 기존과 동일)
     resetBibleListScroll();

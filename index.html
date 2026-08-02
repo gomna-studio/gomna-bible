@@ -199,20 +199,37 @@
       html.classList.remove('gt-translation-pending', 'translated-ltr', 'translated-rtl');
       // ko source DOM is already Korean — do not hide it behind boot.
       // en/ja hide Korean leaves until native apply finishes.
-      if (native !== 'ko') html.classList.add('gomna-ui-i18n-boot');
+      if (native !== 'ko') {
+        html.classList.add('gomna-ui-i18n-boot');
+        // HTML failsafe: clear boot even if js/gomna-ui-i18n.js never runs.
+        // Normal clearBoot() usually wins earlier (~apply / 800ms).
+        if (window.__gomnaUiI18nBootFailsafe) {
+          clearTimeout(window.__gomnaUiI18nBootFailsafe);
+        }
+        window.__gomnaUiI18nBootFailsafe = setTimeout(function () {
+          try { document.documentElement.classList.remove('gomna-ui-i18n-boot'); } catch (eBootFs) {}
+          window.__gomnaUiI18nBootFailsafe = null;
+        }, 2500);
+      }
       return;
     }
 
     if (!googleTarget) return;
     window.__gomnaInitialTranslateTarget = googleTarget;
     document.documentElement.classList.add('gt-translation-pending');
+    // Hard deadline from first pending — re-arms must not extend past 6s.
+    if (!window.__gomnaTranslationPendingDeadline) {
+      window.__gomnaTranslationPendingDeadline = Date.now() + 6000;
+    }
     if (window.__gomnaTranslationPendingFailsafe) {
       clearTimeout(window.__gomnaTranslationPendingFailsafe);
     }
+    var pendingRemain = Math.max(0, window.__gomnaTranslationPendingDeadline - Date.now());
     window.__gomnaTranslationPendingFailsafe = setTimeout(function () {
       try { document.documentElement.classList.remove('gt-translation-pending'); } catch (e) {}
       window.__gomnaTranslationPendingFailsafe = null;
-    }, 6000);
+      window.__gomnaTranslationPendingDeadline = null;
+    }, pendingRemain);
   } catch (e) {}
 })();
 </script>
@@ -1067,7 +1084,7 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
     </div>
   </div>
   <div class="quick-menu">
-    <button type="button" class="quick-item" onclick="location.href='reader.html'" aria-label="성경읽기" data-i18n-aria-label="home.quick.read">
+    <button type="button" class="quick-item" onclick="location.href='reader.html?testament=old'" aria-label="성경읽기" data-i18n-aria-label="home.quick.read">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h7a3 3 0 013 3v13a2.5 2.5 0 00-2.5-2.5H2z"/><path d="M22 4h-7a3 3 0 00-3 3v13a2.5 2.5 0 012.5-2.5H22z"/></svg>
       <span class="quick-name" data-i18n-key="home.quick.read">성경읽기</span><span class="quick-desc" data-i18n-key="home.quick.readDesc">책·장·절로</span>
     </button>
