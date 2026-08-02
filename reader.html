@@ -3421,6 +3421,10 @@ var _gomnaOldTestamentLoadState = 'pending';
 var _gomnaNewTestamentLoadState = 'pending';
 var BIBLE_DATA_OLD_SRC = 'old_testament.js?v=20260802-isaiah30-repair-v1';
 var BIBLE_DATA_NEW_SRC = 'new_testament.js?v=20260704-mobile-loader-fix';
+var _gomnaBibleLoadInFlight = { old: false, new: false };
+var _gomnaBibleLoadAttemptCount = { old: 0, new: 0 };
+var BIBLE_DATA_MIN_AUTO_ATTEMPTS = 3;
+var BIBLE_DATA_RETRY_DELAY_MS = 450;
 
 function testamentListNeedsRender(viewId) {
   var el = document.getElementById(viewId);
@@ -3442,18 +3446,56 @@ function refreshTestamentListIfNeeded(which) {
   }
 }
 
-function showBibleDataError(viewId, which) {
+function bibleDataIsLoaded(which) {
+  if (which === 'old') return typeof oldTestamentData !== 'undefined' && !!oldTestamentData;
+  return typeof newTestamentData !== 'undefined' && !!newTestamentData;
+}
+
+function bibleDataViewId(which) {
+  return which === 'new' ? 'newView' : 'oldView';
+}
+
+function bibleDataSetState(which, state) {
+  if (which === 'old') _gomnaOldTestamentLoadState = state;
+  else _gomnaNewTestamentLoadState = state;
+}
+
+function bibleDataGetState(which) {
+  return which === 'old' ? _gomnaOldTestamentLoadState : _gomnaNewTestamentLoadState;
+}
+
+function bibleDataCandidateUrls(which) {
+  var primary = which === 'old' ? BIBLE_DATA_OLD_SRC : BIBLE_DATA_NEW_SRC;
+  var bare = which === 'old' ? 'old_testament.js' : 'new_testament.js';
+  var bust = bare + (bare.indexOf('?') >= 0 ? '&' : '?') + 'cb=' + Date.now();
+  var out = [];
+  [primary, bare, bust].forEach(function(url) {
+    if (url && out.indexOf(url) === -1) out.push(url);
+  });
+  return out;
+}
+
+function showBibleDataLoading(viewId) {
   var el = document.getElementById(viewId);
   if (!el) return;
   if (el.querySelector('.book-btn')) return;
-  var label = which === 'new' ? '신약' : '구약';
   el.innerHTML =
-    '<div class="bible-data-error" role="alert" style="text-align:center;padding:40px 20px;color:#5a3818;">' +
-      '<div style="font-size:15px;font-weight:700;margin-bottom:8px;">성경 데이터를 불러오지 못했습니다.</div>' +
-      '<p style="font-size:13px;line-height:1.5;color:#6e5536;margin:0 0 16px;">' +
-        label + ' 목록을 표시할 수 없습니다. 인터넷 연결을 확인한 뒤 다시 시도해 주세요.' +
-      '</p>' +
-      '<button type="button" class="bible-data-retry-btn" onclick="retryBibleDataLoad()" ' +
+    '<div class="loading-state" role="status">' +
+      '<div class="spinner"></div>' +
+      '<div>성경 데이터 로딩중...</div>' +
+    '</div>';
+}
+
+function showBibleDataRetrying(viewId, which) {
+  var el = document.getElementById(viewId);
+  if (!el) return;
+  if (el.querySelector('.book-btn')) return;
+  el.innerHTML =
+    '<div class="loading-state bible-data-retrying" role="status" style="text-align:center;padding:50px 20px;color:#5a3818;">' +
+      '<div class="spinner"></div>' +
+      '<div style="font-size:15px;font-weight:700;margin:0 0 14px;">성경 데이터를 다시 불러오는 중입니다.</div>' +
+      '<button type="button" class="bible-data-retry-btn" data-bible-retry="' + which + '" ' +
+        'onclick="retryBibleDataLoad(\'' + which + '\')" ' +
         'style="min-height:44px;padding:10px 18px;border:1px solid rgba(184,134,11,.45);border-radius:10px;' +
         'background:#fff;color:#5a3818;font:inherit;font-size:14px;font-weight:700;cursor:pointer;">' +
         '다시 시도' +
@@ -3461,54 +3503,134 @@ function showBibleDataError(viewId, which) {
     '</div>';
 }
 
-function maybeShowBibleDataErrors() {
-  // Only replace the spinner after a real script failure (or empty payload after onload).
-  // Do not treat "still pending / slow network" as failure.
-  if (_gomnaOldTestamentLoadState === 'error') showBibleDataError('oldView', 'old');
-  if (_gomnaNewTestamentLoadState === 'error') showBibleDataError('newView', 'new');
+function showBibleDataError(viewId, which) {
+  // Kept for compatibility, but load failures use the recoverable retrying state instead.
+  showBibleDataRetrying(viewId, which);
 }
 
-function retryBibleDataLoad() {
-  try { location.reload(); } catch (eReload) { location.href = location.href; }
+function maybeShowBibleDataErrors() {
+  if (_gomnaOldTestamentLoadState === 'error') showBibleDataRetrying('oldView', 'old');
+  if (_gomnaNewTestamentLoadState === 'error') showBibleDataRetrying('newView', 'new');
+}
+
+function markBibleDataLoaded(which) {
+  bibleDataSetState(which, 'loaded');
+  _gomnaBibleLoadInFlight[which] = false;
+  refreshTestamentListIfNeeded(which);
+  initializeAppOnce();
+}
+
+function loadOneBibleData(which, options) {
+  options = options || {};
+  if (which !== 'old' && which !== 'new') return;
+  if (bibleDataIsLoaded(which)) {
+    markBibleDataLoaded(which);
+    return;
+  }
+  if (_gomnaBibleLoadInFlight[which] && !options.force) return;
+
+  _gomnaBibleLoadInFlight[which] = true;
+  bibleDataSetState(which, 'loading');
+  _gomnaBibleLoadAttemptCount[which] = 0;
+
+  var viewId = bibleDataViewId(which);
+  if (!document.getElementById(viewId) || !document.getElementById(viewId).querySelector('.book-btn')) {
+    showBibleDataLoading(viewId);
+  }
+
+  var urls = bibleDataCandidateUrls(which);
+  var attemptIndex = 0;
+
+  function finishFailure() {
+    _gomnaBibleLoadInFlight[which] = false;
+    if (bibleDataIsLoaded(which)) {
+      markBibleDataLoaded(which);
+      return;
+    }
+    bibleDataSetState(which, 'error');
+    showBibleDataRetrying(viewId, which);
+    initializeAppOnce();
+  }
+
+  function tryNext() {
+    if (bibleDataIsLoaded(which)) {
+      markBibleDataLoaded(which);
+      return;
+    }
+    if (attemptIndex >= urls.length) {
+      finishFailure();
+      return;
+    }
+
+    var src = urls[attemptIndex++];
+    _gomnaBibleLoadAttemptCount[which] += 1;
+    var settled = false;
+    var script = document.createElement('script');
+    script.async = true;
+    script.src = src;
+
+    function settle(ok) {
+      if (settled) return;
+      settled = true;
+      script.onload = null;
+      script.onerror = null;
+      if (ok && bibleDataIsLoaded(which)) {
+        markBibleDataLoaded(which);
+        return;
+      }
+      // Never show the hard-fail screen before the minimum auto attempts.
+      if (_gomnaBibleLoadAttemptCount[which] < BIBLE_DATA_MIN_AUTO_ATTEMPTS || attemptIndex < urls.length) {
+        setTimeout(tryNext, BIBLE_DATA_RETRY_DELAY_MS);
+        return;
+      }
+      finishFailure();
+    }
+
+    script.onload = function() {
+      settle(bibleDataIsLoaded(which));
+    };
+    script.onerror = function() {
+      console.error('Bible data file load failed:', src);
+      settle(false);
+    };
+    document.head.appendChild(script);
+  }
+
+  tryNext();
+}
+
+function retryBibleDataLoad(which) {
+  if (which === 'old' || which === 'new') {
+    _gomnaBibleLoadInFlight[which] = false;
+    loadOneBibleData(which, { force: true });
+    return;
+  }
+  if (!bibleDataIsLoaded('old')) {
+    _gomnaBibleLoadInFlight.old = false;
+    loadOneBibleData('old', { force: true });
+  }
+  if (!bibleDataIsLoaded('new')) {
+    _gomnaBibleLoadInFlight.new = false;
+    loadOneBibleData('new', { force: true });
+  }
 }
 
 function loadBibleData() {
-  var files = [
-    { src: BIBLE_DATA_OLD_SRC, key: 'old' },
-    { src: BIBLE_DATA_NEW_SRC, key: 'new' }
-  ];
-  var settled = 0;
-  function onFileSettled() {
-    settled += 1;
-    if (settled < files.length) return;
-    initializeAppOnce();
-    maybeShowBibleDataErrors();
-  }
-  files.forEach(function(file) {
-    var s = document.createElement('script');
-    s.src = file.src;
-    s.onload = function() {
-      if (file.key === 'old') {
-        _gomnaOldTestamentLoadState = (typeof oldTestamentData !== 'undefined' && oldTestamentData) ? 'loaded' : 'error';
-      } else {
-        _gomnaNewTestamentLoadState = (typeof newTestamentData !== 'undefined' && newTestamentData) ? 'loaded' : 'error';
-      }
-      // Progressive render: paint each testament as soon as its data arrives.
-      refreshTestamentListIfNeeded(file.key);
-      onFileSettled();
-    };
-    s.onerror = function() {
-      console.error('Bible data file load failed:', file.src);
-      if (file.key === 'old') {
-        _gomnaOldTestamentLoadState = 'error';
-        showBibleDataError('oldView', 'old');
-      } else {
-        _gomnaNewTestamentLoadState = 'error';
-        showBibleDataError('newView', 'new');
-      }
-      onFileSettled();
-    };
-    document.head.appendChild(s);
+  loadOneBibleData('old');
+  loadOneBibleData('new');
+}
+
+if (!window.__gomnaBibleOnlineRetryBound) {
+  window.__gomnaBibleOnlineRetryBound = true;
+  window.addEventListener('online', function() {
+    if (!bibleDataIsLoaded('old') && bibleDataGetState('old') !== 'loaded') {
+      _gomnaBibleLoadInFlight.old = false;
+      loadOneBibleData('old', { force: true });
+    }
+    if (!bibleDataIsLoaded('new') && bibleDataGetState('new') !== 'loaded') {
+      _gomnaBibleLoadInFlight.new = false;
+      loadOneBibleData('new', { force: true });
+    }
   });
 }
 
