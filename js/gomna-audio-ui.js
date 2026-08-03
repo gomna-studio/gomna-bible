@@ -1775,13 +1775,26 @@
     engine.playAudioQueue(audioIds, { source: queueSource });
   }
 
+  function isCommentaryPlaybackAudioId(audioId) {
+    var api = window.GOMNA_AUDIO_COMMENTARY_BUTTONS;
+    return !!(
+      audioId &&
+      api &&
+      typeof api.stepCard === 'function' &&
+      typeof api.isCommentaryAudioId === 'function' &&
+      api.isCommentaryAudioId(audioId)
+    );
+  }
+
   function updateVerseSkipButtons(state) {
     var currentId = state && state.currentAudioId ? String(state.currentAudioId) : '';
     var parts = parseAudioIdParts(currentId);
     var endVerse = getCurrentVerseCountValue();
+    /* 말씀풀이는 카드 단위 이동이므로 절 번호로 잠그지 않는다. */
+    var commentaryPlayback = !parts && isCommentaryPlaybackAudioId(currentId);
     /* Disabled by verse number only — never by queue index. */
-    var atStart = !parts || parts.verse <= 1;
-    var atEnd = !parts || !endVerse || parts.verse >= endVerse;
+    var atStart = commentaryPlayback ? false : (!parts || parts.verse <= 1);
+    var atEnd = commentaryPlayback ? false : (!parts || !endVerse || parts.verse >= endVerse);
     var prevButtons = document.querySelectorAll(
       '[data-audio-action="skip-verse-prev"], .gomna-audio-btn-seek-back'
     );
@@ -1818,10 +1831,16 @@
     var started;
 
     if (!engine || !state) return false;
-    if (!allowVerseScreenAudioPlayback()) return false;
 
     currentId = state.currentAudioId ? String(state.currentAudioId) : '';
     parts = parseAudioIdParts(currentId);
+
+    /* 말씀풀이 재생 중에는 카드 단위(앞·뒤 번호 카드)로 이동한다. */
+    if (!parts && isCommentaryPlaybackAudioId(currentId)) {
+      return !!window.GOMNA_AUDIO_COMMENTARY_BUTTONS.stepCard(step);
+    }
+
+    if (!allowVerseScreenAudioPlayback()) return false;
 
     /* Non-bible (commentary etc.): keep legacy ±10s seek. */
     if (!parts) {

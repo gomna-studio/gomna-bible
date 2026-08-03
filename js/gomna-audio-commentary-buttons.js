@@ -37,6 +37,10 @@
   var currentCommentaryAudioIds = [];
   var currentSequenceSource = '';
   var currentSelectedType = 'original-language';
+  var lastFollowedPlaybackAudioId = null;
+  var manualCueLoads = {};
+  var verseChainType = null;
+  var verseChainTimer = null;
 
   // Future Matthew Henry audio option:
   // English originals can later be generated with a separate en-US voice,
@@ -1456,6 +1460,7 @@
     lastSequenceQueueIndex = -1;
     replayGuardAudioId = null;
     currentCueKey = null;
+    lastFollowedPlaybackAudioId = null;
   }
 
   function isCommentaryCompleted(audioId) {
@@ -1714,12 +1719,79 @@
     }
   }
 
+  function wrapManualCueCell(cell, audioId, cueId, text) {
+    var span = document.createElement('span');
+
+    span.className = 'gomna-commentary-cue';
+    span.setAttribute('data-audio-id', audioId);
+    span.setAttribute('data-cue-id', cueId);
+    span.setAttribute('role', 'button');
+    span.setAttribute('tabindex', '0');
+    span.setAttribute('aria-label', '매튜헨리 영어 원문 구간 다시듣기');
+    span.textContent = text;
+
+    cell.textContent = '';
+    cell.appendChild(span);
+  }
+
+  /**
+   * Verses without hard-coded cue points reuse the same manual cue mechanism,
+   * with item start times read from the commentary cue file.
+   */
+  function ensureManualCuesFromCueFile(audioId, onReady) {
+    var parts = String(audioId || '').split('.');
+    var path;
+
+    if (parts.length < 4 || COMMENTARY_MANUAL_CUES[audioId]) return;
+    if (manualCueLoads[audioId] || typeof window.fetch !== 'function') return;
+
+    manualCueLoads[audioId] = true;
+    path =
+      '/audio/cues/ko-KR/' +
+      parts[0] + '/' + parts[1] + '/' + parts[2] + '/' + parts[3] + '.json';
+
+    window.fetch(path, { cache: 'no-cache' })
+      .then(function(response) {
+        if (!response.ok) throw new Error('cue fetch failed');
+        return response.json();
+      })
+      .then(function(cue) {
+        var segments = cue && Array.isArray(cue.segments) ? cue.segments : [];
+        var cues = {};
+        var count = 0;
+        var i;
+
+        for (i = 0; i < segments.length; i++) {
+          if (!segments[i] || segments[i].type !== 'item') continue;
+          if (typeof segments[i].start !== 'number') continue;
+
+          count++;
+          cues['mh-en-' + count] = segments[i].start;
+        }
+
+        if (!count) return;
+
+        COMMENTARY_MANUAL_CUES[audioId] = cues;
+        if (typeof onReady === 'function') onReady();
+      })
+      .catch(function() {
+        /* No cue file: English originals stay plain text. */
+      });
+  }
+
   function enhanceManualCueTargets(content) {
     var section = document.getElementById('tab-매튜헨리');
+    var item;
     var audioId;
     var cueTexts;
+    var cues;
     var cueIds;
     var cells;
+    var rows;
+    var cell;
+    var cueId;
+    var text;
+    var i;
 
     if (!section || !content || !content.contains(section)) return;
     if (!currentContext) return;
@@ -1730,35 +1802,60 @@
       currentContext.verse,
       'matthew-henry'
     );
+    item = getItemByType('matthew-henry');
     cueTexts = COMMENTARY_MANUAL_CUE_TEXTS[audioId];
+    cues = COMMENTARY_MANUAL_CUES[audioId];
 
-    if (!cueTexts || !COMMENTARY_MANUAL_CUES[audioId]) return;
+    if (!cues) {
+      // Cue points are only valid for the Korean exposition track.
+      if (item && item.language && item.language !== 'ko') return;
+
+      ensureManualCuesFromCueFile(audioId, function() {
+        var latest = getContent();
+
+        if (!latest) return;
+
+        enhanceManualCueTargets(latest);
+        updateManualCueHighlights(latest);
+      });
+      return;
+    }
+
+    if (!cueTexts) {
+      // English original of row i replays cue item i.
+      rows = section.querySelectorAll('tr[data-verse-ref]');
+
+      for (i = 0; i < rows.length; i++) {
+        cueId = 'mh-en-' + (i + 1);
+        if (typeof cues[cueId] !== 'number') continue;
+
+        cell = rows[i].querySelector('td.col1');
+        if (!cell || cell.querySelector('.gomna-commentary-cue')) continue;
+
+        text = (cell.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!text) continue;
+
+        wrapManualCueCell(cell, audioId, cueId, text);
+      }
+
+      return;
+    }
 
     cueIds = Object.keys(cueTexts);
     cells = section.querySelectorAll('td.col1');
 
-    for (var i = 0; i < cells.length; i++) {
-      var cell = cells[i];
-      var text = (cell.textContent || '').replace(/\s+/g, ' ').trim();
+    for (i = 0; i < cells.length; i++) {
+      cell = cells[i];
+      text = (cell.textContent || '').replace(/\s+/g, ' ').trim();
 
       if (cell.querySelector('.gomna-commentary-cue')) continue;
 
       for (var j = 0; j < cueIds.length; j++) {
-        var cueId = cueIds[j];
+        cueId = cueIds[j];
 
         if (text !== cueTexts[cueId]) continue;
 
-        var span = document.createElement('span');
-        span.className = 'gomna-commentary-cue';
-        span.setAttribute('data-audio-id', audioId);
-        span.setAttribute('data-cue-id', cueId);
-        span.setAttribute('role', 'button');
-        span.setAttribute('tabindex', '0');
-        span.setAttribute('aria-label', '매튜헨리 영어 원문 구간 다시듣기');
-        span.textContent = text;
-
-        cell.textContent = '';
-        cell.appendChild(span);
+        wrapManualCueCell(cell, audioId, cueId, text);
         break;
       }
     }
@@ -2080,6 +2177,58 @@
     });
   }
 
+  /* 번호 카드(01, 02, 03…) 클릭 대상 찾기.
+   * 관련 구절 링크·버튼·매튜헨리 cue 문장은 각자의 동작을 그대로 유지한다.
+   */
+  function getCommentaryCardTarget(event) {
+    var content = getContent();
+    var row;
+    var section;
+    var item = null;
+    var i;
+
+    if (event.type !== 'click' || !content) return null;
+    if (event.target.closest('a, button, [onclick], .gomna-commentary-cue')) return null;
+
+    row = event.target.closest('#commentaryContent tr[data-verse-ref]');
+    if (!row || !content.contains(row)) return null;
+
+    for (i = 0; i < currentCommentaryItems.length; i++) {
+      section = document.getElementById(currentCommentaryItems[i].tabId);
+      if (section && section.contains(row)) {
+        item = currentCommentaryItems[i];
+        break;
+      }
+    }
+
+    if (!item) return null;
+
+    applyResolvedCommentaryTarget(item);
+    if (!item.published) return null;
+
+    return { item: item, row: row };
+  }
+
+  /* 카드 cue를 미리 읽어 두면, 클릭 시점에 재생이 사용자 제스처 안에서 시작된다. */
+  function prewarmCardCues(item) {
+    var highlight = window.GOMNA_CARD_HIGHLIGHT;
+    var section;
+    var row;
+
+    if (!item || !item.published) return;
+    if (!highlight || typeof highlight.getRowStartTime !== 'function') return;
+
+    section = document.getElementById(item.tabId);
+    row = section && section.querySelector('tr[data-verse-ref]');
+    if (!row) return;
+
+    try {
+      highlight.getRowStartTime(item.audioId, row);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
   function handleCommentaryButtonClick(event) {
     var cueEl = event.target.closest('.gomna-commentary-cue[data-audio-id][data-cue-id]');
     var replayBtn = event.target.closest('.' + REPLAY_BUTTON_CLASS + '[data-audio-replay-id]');
@@ -2088,6 +2237,7 @@
     var popup = getPopup();
     var audioId;
     var item;
+    var cardTarget;
 
     if (cueEl) {
       if (!content || !content.contains(cueEl)) return;
@@ -2116,7 +2266,15 @@
       return;
     }
 
-    if (!btn || btn.matches(ALL_TABS_BUTTON_SELECTOR)) return;
+    if (!btn) {
+      cardTarget = getCommentaryCardTarget(event);
+      if (cardTarget) {
+        CommentaryAudioController.playCardRow(cardTarget.item, cardTarget.row);
+      }
+      return;
+    }
+
+    if (btn.matches(ALL_TABS_BUTTON_SELECTOR)) return;
     if (!popup || !popup.contains(btn)) return;
 
     audioId = btn.getAttribute('data-audio-id');
@@ -2323,14 +2481,80 @@
         }
       }
 
+      clearVerseChain();
       return this.startSingleFromBeginning(item.baseAudioId || audioId);
     },
 
     replaySingle: function(audioId) {
       var item = getItemByAudioId(audioId);
       if (!item) return false;
+      clearVerseChain();
       // Same resolution path as playSingle: locale comes from active language.
       return this.startSingleFromBeginning(item.baseAudioId || audioId);
+    },
+
+    /* 번호 카드 클릭: 그 카드 cue부터 재생하고, 같은 주제로 다음 절까지 이어 읽는다. */
+    playCardRow: function(item, row) {
+      var self = this;
+      var highlight = window.GOMNA_CARD_HIGHLIGHT;
+
+      if (!item || !row) return false;
+      if (!highlight || typeof highlight.getRowStartTime !== 'function') return false;
+
+      highlight.getRowStartTime(item.audioId, row).then(function(startTime) {
+        if (typeof startTime !== 'number' || !(startTime >= 0)) return;
+        self.playFromCardStart(item, startTime);
+      });
+
+      return true;
+    },
+
+    /* 미니 재생바·확장 카드의 앞·뒤 버튼: 현재 강조 카드에서 ±1 카드로 이동.
+     * 재생은 번호 카드 클릭과 같은 playCardRow(getRowStartTime) 경로를 쓴다.
+     * 첫 카드 이전 / 마지막 카드 다음은 현재 위치를 유지한다.
+     */
+    stepCard: function(step) {
+      var state = this.getState();
+      var item = state ? getItemByAudioId(state.currentAudioId) : null;
+      var section = item ? document.getElementById(item.tabId) : null;
+      var rows = section ? section.querySelectorAll('tr[data-verse-ref]') : null;
+      var activeClass =
+        window.GOMNA_CARD_HIGHLIGHT && window.GOMNA_CARD_HIGHLIGHT.ACTIVE_CLASS;
+      var current = -1;
+      var target;
+      var i;
+
+      if (!item || !rows || !rows.length) return false;
+
+      for (i = 0; i < rows.length; i++) {
+        if (activeClass && rows[i].classList.contains(activeClass)) {
+          current = i;
+          break;
+        }
+      }
+
+      // 도입부 재생 중(강조 카드 없음)에는 앞으로 가기만 첫 카드로 이동한다.
+      target = current < 0 ? (step > 0 ? 0 : -1) : current + (step > 0 ? 1 : -1);
+      if (target < 0 || target >= rows.length) return false;
+
+      return this.playCardRow(item, rows[target]);
+    },
+
+    playFromCardStart: function(item, startTime) {
+      var engine = this.getEngine();
+      var state = this.getState();
+
+      if (!engine || !engine.playAudioById || !item) return false;
+
+      clearCommentaryCompleted(item.audioId);
+      currentCueKey = null;
+      lastSequenceQueueIndex = -1;
+      currentSelectedType = item.type;
+      verseChainType = item.type;
+      this.stopForTransition(engine, state);
+      engine.playAudioById(item.audioId, { startTime: startTime });
+      updateCommentaryButtonLabels();
+      return true;
     },
 
     startSingleFromBeginning: function(audioId) {
@@ -2369,6 +2593,7 @@
 
       if (!engine || !engine.playAudioSequence || !ids.length) return false;
 
+      clearVerseChain();
       currentCueKey = null;
 
       if (this.isSequenceActive(state)) {
@@ -2406,6 +2631,7 @@
 
       if (!engine || !engine.playAudioSequence || startIndex < 0) return false;
 
+      clearVerseChain();
       clearCommentaryCompleted(audioId);
       currentCueKey = null;
       lastSequenceQueueIndex = startIndex;
@@ -2474,6 +2700,7 @@
       if (!engine || !engine.stopAudio || !state) return false;
 
       if (this.isSequenceActive(state) || isCommentaryAudioId(state.currentAudioId)) {
+        clearVerseChain();
         lastSequenceQueueIndex = -1;
         currentCueKey = null;
         this.stopForTransition(engine, state);
@@ -2484,6 +2711,103 @@
       return false;
     }
   };
+
+  function clearVerseChain() {
+    verseChainType = null;
+
+    if (verseChainTimer) {
+      clearTimeout(verseChainTimer);
+      verseChainTimer = null;
+    }
+  }
+
+  function totalVersesForChain(ctx) {
+    if (!ctx || typeof window.getTotalVersesInChapter !== 'function') return 0;
+
+    try {
+      return window.getTotalVersesInChapter(ctx.bookName, ctx.chapter) || 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  /* 카드 클릭으로 시작한 재생이 끝나면 같은 주제로 다음 절(장 끝이면 다음 장 1절)로
+   * 이동한다. 이동·카드 렌더는 기존 goToVerseCommentary / goToChapterCommentary 경로를
+   * 그대로 쓰고, 재생만 이어 붙인다.
+   */
+  function advanceVerseChain(endedItem) {
+    var ctx = currentContext;
+    var type = verseChainType;
+    var chapterCount;
+    var target;
+
+    if (!ctx || !type || !endedItem || endedItem.type !== type) return;
+
+    if (ctx.verse + 1 <= totalVersesForChain(ctx)) {
+      if (typeof window.goToVerseCommentary !== 'function') {
+        clearVerseChain();
+        return;
+      }
+      target = { chapter: ctx.chapter, verse: ctx.verse + 1 };
+      window.goToVerseCommentary(target.verse);
+    } else {
+      chapterCount = window.currentBook && window.currentBook.chapters;
+      if (
+        !chapterCount ||
+        ctx.chapter + 1 > chapterCount ||
+        typeof window.goToChapterCommentary !== 'function'
+      ) {
+        clearVerseChain();
+        return;
+      }
+      target = { chapter: ctx.chapter + 1, verse: 1 };
+      window.goToChapterCommentary(target.chapter);
+    }
+
+    waitForVerseChainTarget(target, type, 0);
+  }
+
+  function waitForVerseChainTarget(target, type, attempt) {
+    var content = getContent();
+    var ctx = getCommentaryContext();
+    var item;
+
+    if (verseChainType !== type) return;
+
+    if (attempt > 40) {
+      clearVerseChain();
+      return;
+    }
+
+    if (
+      ctx &&
+      ctx.chapter === target.chapter &&
+      ctx.verse === target.verse &&
+      content &&
+      content.querySelector('.commentary-tabs')
+    ) {
+      syncCommentaryItemsForContext(ctx);
+      refreshPublishedFlags();
+      item = getItemByType(type);
+
+      if (item && item.published) {
+        currentSelectedType = type;
+        CommentaryAudioController.startSingleFromBeginning(item.baseAudioId || item.audioId);
+        verseChainType = type;
+        prewarmCardCues(item);
+        return;
+      }
+
+      if (item && !item.published) {
+        clearVerseChain();
+        return;
+      }
+    }
+
+    verseChainTimer = setTimeout(function() {
+      waitForVerseChainTarget(target, type, attempt + 1);
+    }, 150);
+  }
 
   function syncSequenceCompletedFromQueue(state) {
     var ids;
@@ -2560,8 +2884,7 @@
       if (activeAudioId === item.audioId) {
         button.classList.add(ACTIVE_BUTTON_CLASS);
         button.setAttribute('aria-pressed', 'true');
-        // Audio playback must never steal the selected commentary tab/panel.
-        // Panel visibility and .active selection belong to user tab clicks.
+        followPlaybackPanel(content, item);
       } else {
         button.classList.remove(ACTIVE_BUTTON_CLASS);
         button.setAttribute('aria-pressed', 'false');
@@ -2699,6 +3022,7 @@
         tab.setAttribute('aria-current', 'true');
       }
       markActiveCommentarySection(content, item);
+      prewarmCardCues(item);
     }
     syncCommentaryFooterControls(content);
     syncInlineControls(content);
@@ -2717,10 +3041,44 @@
 
     if (!tab) return;
 
-    // Visual audio-active marker only. Never call switchCommentaryTab here —
-    // unpublished/preparing audio and active playback must not change panels.
+    // Visual audio-active marker only. Panel switching belongs to
+    // followPlaybackPanel (playing audio) and user tab clicks.
     tab.classList.add(ACTIVE_TAB_CLASS);
     tab.setAttribute('aria-current', 'true');
+  }
+
+  /**
+   * Playing audio owns the panel: when playback moves to another commentary
+   * type (sequence transition or direct play), open that type's panel so the
+   * tab color, cards and cue highlight all point at the same audio.
+   * Only the audio-id change follows the panel, so a user tab click on a
+   * different type is never yanked back by later label refreshes.
+   */
+  function followPlaybackPanel(content, item) {
+    var tab;
+
+    markActiveCommentaryTab(content, item);
+    markActiveCommentarySection(content, item);
+
+    if (lastFollowedPlaybackAudioId === item.audioId) return;
+    lastFollowedPlaybackAudioId = item.audioId;
+
+    tab = getTabButtonForItem(content, item);
+    if (!tab || tab.classList.contains('active')) return;
+    if (typeof window.switchCommentaryTab !== 'function') return;
+
+    window.switchCommentaryTab(tab, item.tabId);
+
+    try {
+      if (
+        window.GOMNA_CARD_HIGHLIGHT &&
+        typeof window.GOMNA_CARD_HIGHLIGHT.startPlaybackVisualTick === 'function'
+      ) {
+        window.GOMNA_CARD_HIGHLIGHT.startPlaybackVisualTick();
+      }
+    } catch (e) {
+      /* ignore */
+    }
   }
 
   function markActiveCommentarySection(content, item) {
@@ -2968,6 +3326,7 @@
       }
 
       enhanceManualCueTargets(content);
+      prewarmCardCues(getItemByType(currentSelectedType));
       removeLegacySequenceControls(content);
       bindAllTabsAudio(content);
       bindCommentaryButtonReplayHandler();
@@ -3191,9 +3550,17 @@
     markCommentaryCompleted(detail.audioId);
     lastSequenceQueueIndex = -1;
     updateCommentaryButtonLabels();
+
+    // 자연 종료만 다음 절로 이어 읽는다 (정지·오류는 제외).
+    if (detail.reason === 'queue_completed') {
+      advanceVerseChain(getItemByAudioId(detail.audioId));
+    }
   });
 
-  window.addEventListener('audio:error', updateCommentaryButtonLabels);
+  window.addEventListener('audio:error', function() {
+    clearVerseChain();
+    updateCommentaryButtonLabels();
+  });
 
   if (!languageChangeListenerBound) {
     languageChangeListenerBound = true;
@@ -3207,6 +3574,9 @@
     },
     stopIfCommentaryAudio: function() {
       return CommentaryAudioController.stopIfCurrentCommentary();
+    },
+    stepCard: function(step) {
+      return CommentaryAudioController.stepCard(step);
     },
     syncContainedAudioControlsVisibility: syncContainedMultilangAudioControlsVisibility,
     isCurrentContainedUnverified: isCurrentCommentaryContainedUnverified,
