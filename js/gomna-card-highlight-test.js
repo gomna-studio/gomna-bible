@@ -122,6 +122,8 @@
   var lastUserInputAt = 0;
   var lastFollowedKey = '';
   var lastFollowedAudioId = '';
+  var deferredFollowRafId = 0;
+  var deferredFollowTimerId = null;
   var autoCenterListenersBound = false;
   var ignoreProgrammaticScrollUntil = 0;
 
@@ -637,7 +639,11 @@
     if (!state.isPlaying) return false;
     if (lastRowIndex < 0) return false;
     if (!isCommentaryPopupContext()) return false;
-    if (!isMobileAutoCenterEnvironment()) return false;
+    /*
+     * Same rule as the bible verse follow (canAutoCenterBibleCard in
+     * gomna-audio-highlight.js): desktop and mobile both center the card,
+     * only user input suspends it.
+     */
     if (isLanguageModalOpen()) return false;
     if (isSeekUiActive) return false;
     if (isHeaderPullDragging) return false;
@@ -760,6 +766,49 @@
     return true;
   }
 
+  function cancelDeferredFollow() {
+    if (deferredFollowRafId) {
+      window.cancelAnimationFrame(deferredFollowRafId);
+      deferredFollowRafId = 0;
+    }
+    if (deferredFollowTimerId != null) {
+      clearTimeout(deferredFollowTimerId);
+      deferredFollowTimerId = null;
+    }
+  }
+
+  /*
+   * A new audio may have just switched the commentary panel, so the first
+   * measurement can run before the panel reflows. Re-measure after layout,
+   * the same deferral the bible verse follow uses (centerBibleVerseCard in
+   * gomna-audio-highlight.js).
+   */
+  function centerActiveCardAfterLayout(audioId) {
+    var gen = autoCenterGeneration;
+
+    cancelDeferredFollow();
+
+    deferredFollowRafId = window.requestAnimationFrame(function () {
+      deferredFollowRafId = 0;
+      deferredFollowTimerId = window.setTimeout(function () {
+        var engine = window.GOMNA_AUDIO_ENGINE;
+        var state = engine && engine.getState ? engine.getState() : null;
+        var active;
+
+        deferredFollowTimerId = null;
+
+        if (gen !== autoCenterGeneration) return;
+        if (!state || state.currentAudioId !== audioId) return;
+        if (!shouldAutoCenterActiveCommentaryCard()) return;
+
+        active = document.querySelector('#commentaryContent .' + ACTIVE_CLASS);
+        if (!active || isCardNearCenter(active)) return;
+
+        centerActiveCard(active);
+      }, 320);
+    });
+  }
+
   function followActiveCard(element, options) {
     var scrollContainer;
     var opts = options || {};
@@ -767,6 +816,7 @@
     var state = engine && engine.getState ? engine.getState() : null;
     var audioId = state && state.currentAudioId;
     var followKey = lastRowIndicesKey || String(lastRowIndex);
+    var audioChanged = !!audioId && lastFollowedAudioId !== audioId;
 
     if (!element || !canAutoScroll()) return;
 
@@ -790,6 +840,10 @@
     lastFollowedKey = followKey;
     lastFollowedAudioId = audioId || '';
     centerActiveCard(element, scrollContainer);
+
+    if (audioChanged) {
+      centerActiveCardAfterLayout(audioId);
+    }
   }
 
   function isCommentaryControlInteractionTarget(target) {
@@ -801,6 +855,8 @@
       '.gomna-audio-player, ' +
       '[data-audio-progress], ' +
       '[data-audio-action], ' +
+      '.commentary-tab, ' +
+      '.gomna-commentary-cue, ' +
       'button.gomna-commentary-header-close'
     );
   }
@@ -1185,6 +1241,69 @@
         ? [segments[segments.length - 1].rowIndex]
         : []
     };
+  }
+
+  function startTimeForRowIndex(data, rowIndex, audioId) {
+    var segments = data && data.segments;
+    var entry;
+    var duration;
+    var total = 0;
+    var sum = 0;
+    var indices;
+    var i;
+
+    if (!segments || !segments.length || rowIndex < 0) return null;
+
+    if (data.mode === 'cue') {
+      for (i = 0; i < segments.length; i++) {
+        if (segments[i].type !== 'item') continue;
+        indices = segments[i].itemIndices || [segments[i].itemIndex];
+        if (indices.indexOf(rowIndex) < 0) continue;
+        return typeof segments[i].start === 'number' ? segments[i].start : null;
+      }
+      return null;
+    }
+
+    /* Weight mode is the same proportional map rowIndexAtTimeFromWeight reads,
+     * just inverted: sum the weights before the card.
+     */
+    entry = getManifestEntry(audioId);
+    duration = data.duration || (entry && entry.duration) || 0;
+    if (!duration) return null;
+
+    for (i = 0; i < segments.length; i++) {
+      total += segments[i].weight;
+    }
+    if (!total) return null;
+
+    for (i = 0; i < segments.length; i++) {
+      if (segments[i].rowIndex === rowIndex) {
+        return (sum / total) * duration;
+      }
+      sum += segments[i].weight;
+    }
+
+    return null;
+  }
+
+  /* Card click → cue start of that card. Uses the same rows and cue segments
+   * the playback highlight already resolves, so 01/02/03 map to their own cue.
+   */
+  function getRowStartTime(audioId, rowEl) {
+    var config = getConfigForAudioId(audioId);
+    var section = getSection(config);
+    var rows = config ? getRowsForAudioId(audioId, section, config) : [];
+    var rowIndex = rows.indexOf(rowEl);
+
+    if (!config || rowIndex < 0) return Promise.resolve(null);
+
+    return loadSegments(audioId, config)
+      .then(function (data) {
+        return startTimeForRowIndex(data, rowIndex, audioId);
+      })
+      .catch(function () {
+        return null;
+      });
   }
 
   function clearHighlight() {
@@ -1986,6 +2105,7 @@
     stopPlaybackVisualTick: stopPlaybackVisualTick,
     clearHighlight: clearHighlight,
     centerActiveCard: centerActiveCard,
+    getRowStartTime: getRowStartTime,
     ACTIVE_CLASS: ACTIVE_CLASS,
     shouldAutoCenterActiveCommentaryCard: shouldAutoCenterActiveCommentaryCard
   };
