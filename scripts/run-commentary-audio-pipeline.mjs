@@ -9,6 +9,12 @@ import {
   buildGenerationPlan,
   countPlannedSegments,
 } from './lib/commentary-highlight-plan.mjs';
+import {
+  loadSegmentCacheIndex,
+  lookupSegmentCache,
+  buildCacheKeyForText,
+  expandPlanSegments,
+} from './lib/commentary-segment-cache.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
@@ -19,6 +25,14 @@ const LEGACY_SAFE_TARGET = {
   chapter: 1,
   fromVerse: 5,
   toVerse: 5,
+};
+
+const GENESIS_VERSE_COUNTS = {
+  1: 31, 2: 25, 3: 24, 4: 26, 5: 32, 6: 22, 7: 24, 8: 22, 9: 29, 10: 32,
+  11: 32, 12: 20, 13: 18, 14: 24, 15: 21, 16: 16, 17: 27, 18: 33, 19: 38, 20: 18,
+  21: 34, 22: 24, 23: 20, 24: 67, 25: 34, 26: 35, 27: 46, 28: 22, 29: 35, 30: 43,
+  31: 55, 32: 32, 33: 20, 34: 31, 35: 29, 36: 43, 37: 36, 38: 30, 39: 23, 40: 23,
+  41: 57, 42: 38, 43: 34, 44: 34, 45: 28, 46: 34, 47: 31, 48: 22, 49: 33, 50: 26,
 };
 
 const SAFE_TARGET_RANGES = [
@@ -46,7 +60,7 @@ const SAFE_TARGET_RANGES = [
   },
   // Genesis 3: scripts write + production audio/cue plan allowed.
   // Production audio+cue write requires --confirm-production-audio-write.
-  // Upload / manifest publish remain blocked.
+  // Upload / manifest publish remain blocked for chapters 4–50.
   {
     locale: 'ko-KR',
     bookId: 'genesis',
@@ -54,6 +68,18 @@ const SAFE_TARGET_RANGES = [
     fromVerse: 1,
     toVerse: 24,
   },
+  // Genesis 4–50 book unit: scripts write + production audio/cue plan allowed.
+  // Upload / manifest publish remain blocked until a later approved step.
+  ...Object.entries(GENESIS_VERSE_COUNTS)
+    .map(([chapter, toVerse]) => ({ chapter: Number(chapter), toVerse }))
+    .filter(({ chapter }) => chapter >= 4 && chapter <= 50)
+    .map(({ chapter, toVerse }) => ({
+      locale: 'ko-KR',
+      bookId: 'genesis',
+      chapter,
+      fromVerse: 1,
+      toVerse,
+    })),
 ];
 
 const GENESIS_3_PRODUCTION_TARGET = {
@@ -233,12 +259,16 @@ function usage() {
   console.error('Usage: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --verse 5 --stage prepare --dry-run');
   console.error('   or: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 1 --from-verse 6 --to-verse 10 --stage scripts --dry-run');
   console.error('   or: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --chapter 3 --from-verse 1 --to-verse 24 --stage prepare --dry-run');
+  console.error('   or: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --from-chapter 4 --to-chapter 50 --stage prepare --dry-run');
   console.error('Stages: prepare, scripts, audio, upload, manifest, publish, qa.');
   console.error('Default mode: dry-run. Write/upload/manifest require explicit --write and approved targets.');
-  console.error('Safe targets: ko-KR genesis 1:5, 1:6-31, 2:1-25, 3:1-24.');
-  console.error('Genesis 3: scripts --write allowed; audio uses production cue builder (not batch).');
-  console.error('Genesis 3 production audio+cue write requires --confirm-production-audio-write.');
+  console.error('Safe targets: ko-KR genesis 1:5, 1:6-31, 2:1-25, 3:1-24, 4:1–50:end.');
+  console.error('Genesis 3–50: scripts --write allowed; audio uses production cue builder (not batch).');
+  console.error('Production audio+cue write requires --confirm-production-audio-write.');
+  console.error('Book-unit production audio also requires segment cache + --max-new-tts-calls N + --confirm-new-tts-calls N.');
+  console.error('Emergency only: --allow-no-segment-cache');
   console.error('Genesis 3 upload/manifest write: --stage upload --write --upload / --stage manifest --write, verses 1–24 only.');
+  console.error('Genesis 4–50 upload/manifest write: blocked.');
 }
 
 function parseArgs(argv) {
@@ -249,6 +279,8 @@ function parseArgs(argv) {
     verse: null,
     fromVerse: null,
     toVerse: null,
+    fromChapter: null,
+    toChapter: null,
     stages: [],
     dryRun: true,
     write: false,
@@ -256,6 +288,9 @@ function parseArgs(argv) {
     upload: false,
     report: true,
     confirmProductionAudioWrite: false,
+    maxNewTtsCalls: null,
+    confirmNewTtsCalls: null,
+    allowNoSegmentCache: false,
   };
   let dryRunExplicit = false;
   let writeExplicit = false;
@@ -275,6 +310,10 @@ function parseArgs(argv) {
       args.fromVerse = Number(argv[++i]);
     } else if (arg === '--to-verse') {
       args.toVerse = Number(argv[++i]);
+    } else if (arg === '--from-chapter') {
+      args.fromChapter = Number(argv[++i]);
+    } else if (arg === '--to-chapter') {
+      args.toChapter = Number(argv[++i]);
     } else if (arg === '--stage') {
       args.stages.push(argv[++i]);
     } else if (arg === '--dry-run') {
@@ -290,6 +329,12 @@ function parseArgs(argv) {
       args.upload = true;
     } else if (arg === '--confirm-production-audio-write') {
       args.confirmProductionAudioWrite = true;
+    } else if (arg === '--max-new-tts-calls') {
+      args.maxNewTtsCalls = Number(argv[++i]);
+    } else if (arg === '--confirm-new-tts-calls') {
+      args.confirmNewTtsCalls = Number(argv[++i]);
+    } else if (arg === '--allow-no-segment-cache') {
+      args.allowNoSegmentCache = true;
     } else if (arg === '--no-report') {
       args.report = false;
     } else if (arg === '--help' || arg === '-h') {
@@ -304,22 +349,45 @@ function parseArgs(argv) {
   if (dryRunExplicit && writeExplicit) {
     throw new Error('--dry-run과 --write는 동시에 사용할 수 없습니다.');
   }
-  if (!args.bookId || !args.chapter) {
+  if (!args.bookId) {
     usage();
     throw new Error('필수 옵션이 누락되었습니다.');
   }
 
-  if (args.verse != null) {
-    args.fromVerse = args.verse;
-    args.toVerse = args.verse;
+  const bookMode = args.fromChapter != null || args.toChapter != null;
+  if (bookMode) {
+    if (args.fromChapter == null || args.toChapter == null) {
+      throw new Error('--from-chapter와 --to-chapter는 함께 필요합니다.');
+    }
+    if (args.chapter != null || args.verse != null || args.fromVerse != null || args.toVerse != null) {
+      throw new Error('책 단위 모드(--from-chapter/--to-chapter)에서는 --chapter/--verse/--from-verse/--to-verse를 함께 쓸 수 없습니다.');
+    }
+    if (args.fromChapter > args.toChapter) {
+      throw new Error('--from-chapter는 --to-chapter보다 클 수 없습니다.');
+    }
+    for (let chapter = args.fromChapter; chapter <= args.toChapter; chapter++) {
+      if (!GENESIS_VERSE_COUNTS[chapter]) {
+        throw new Error(`지원하지 않는 장입니다: ${chapter}`);
+      }
+    }
+  } else {
+    if (args.chapter == null) {
+      usage();
+      throw new Error('필수 옵션이 누락되었습니다.');
+    }
+    if (args.verse != null) {
+      args.fromVerse = args.verse;
+      args.toVerse = args.verse;
+    }
+    if (args.fromVerse == null || args.toVerse == null) {
+      usage();
+      throw new Error('--verse 또는 --from-verse/--to-verse가 필요합니다.');
+    }
+    if (args.fromVerse > args.toVerse) {
+      throw new Error('--from-verse는 --to-verse보다 클 수 없습니다.');
+    }
   }
-  if (args.fromVerse == null || args.toVerse == null) {
-    usage();
-    throw new Error('--verse 또는 --from-verse/--to-verse가 필요합니다.');
-  }
-  if (args.fromVerse > args.toVerse) {
-    throw new Error('--from-verse는 --to-verse보다 클 수 없습니다.');
-  }
+
   if (args.stages.length === 0) {
     args.stages.push(DEFAULT_STAGE);
   }
@@ -332,6 +400,25 @@ function parseArgs(argv) {
   return args;
 }
 
+function expandChapterJobs(args) {
+  if (args.fromChapter != null) {
+    const jobs = [];
+    for (let chapter = args.fromChapter; chapter <= args.toChapter; chapter++) {
+      jobs.push({
+        ...args,
+        chapter,
+        fromVerse: 1,
+        toVerse: GENESIS_VERSE_COUNTS[chapter],
+        verse: null,
+        fromChapter: null,
+        toChapter: null,
+      });
+    }
+    return jobs;
+  }
+  return [args];
+}
+
 function assertSafeTarget(args) {
   const matched = SAFE_TARGET_RANGES.some((range) => (
     args.locale === range.locale &&
@@ -342,7 +429,7 @@ function assertSafeTarget(args) {
   ));
 
   if (!matched) {
-    throw new Error('master pipeline은 현재 ko-KR 창세기 1장 5절, 1:6-31, 2:1-25, 또는 3:1-24 범위만 처리할 수 있습니다.');
+    throw new Error('master pipeline은 현재 ko-KR 창세기 1:5, 1:6-31, 2:1-25, 3:1-24, 또는 4:1–50:end 범위만 처리할 수 있습니다.');
   }
 }
 
@@ -361,8 +448,15 @@ function isGenesis3ProductionTarget(args) {
   );
 }
 
+function isGenesis4to50ProductionTarget(args) {
+  if (args.locale !== 'ko-KR' || args.bookId !== 'genesis') return false;
+  if (args.chapter < 4 || args.chapter > 50) return false;
+  const maxVerse = GENESIS_VERSE_COUNTS[args.chapter];
+  return args.fromVerse >= 1 && args.toVerse <= maxVerse;
+}
+
 function usesProductionCueBuilder(args) {
-  return isGenesis3ProductionTarget(args);
+  return isGenesis3ProductionTarget(args) || isGenesis4to50ProductionTarget(args);
 }
 
 function countNonEmptyParagraphs(text) {
@@ -400,27 +494,32 @@ function loadGenesisCommentaryData() {
   return genesisCommentaryDataCache;
 }
 
-function estimateSegmentTtsCallsFromScripts(args, scriptAbs, typeConfig, verse) {
+function emptySegmentBreakdown(total = 0) {
+  return { total, intro: 0, item: 0, closing: 0, other: 0 };
+}
+
+function estimateSegmentBreakdownFromScripts(args, scriptAbs, typeConfig, verse) {
+  const raw = fs.readFileSync(scriptAbs, 'utf8');
   if (!usesProductionCueBuilder(args)) {
-    return countNonEmptyParagraphs(fs.readFileSync(scriptAbs, 'utf8'));
+    const total = countNonEmptyParagraphs(raw);
+    return { total, intro: 0, item: total, closing: 0, other: 0 };
   }
 
-  const raw = fs.readFileSync(scriptAbs, 'utf8');
   const paragraphs = splitParagraphs(raw);
   const dataResult = loadGenesisCommentaryData();
   if (!dataResult.ok) {
-    return countNonEmptyParagraphs(raw);
+    return emptySegmentBreakdown(countNonEmptyParagraphs(raw));
   }
 
   const highlightType = HIGHLIGHT_COMMENTARY_TYPES.find((item) => item.type === typeConfig.type);
   if (!highlightType) {
-    return countNonEmptyParagraphs(raw);
+    return emptySegmentBreakdown(countNonEmptyParagraphs(raw));
   }
 
   const verseKey = `창세기_${args.chapter}_${verse}`;
   const entry = dataResult.data[verseKey];
   if (!entry || !Array.isArray(entry[highlightType.tableKey])) {
-    return countNonEmptyParagraphs(raw);
+    return emptySegmentBreakdown(countNonEmptyParagraphs(raw));
   }
 
   const rowCount = entry[highlightType.tableKey].length;
@@ -435,21 +534,173 @@ function estimateSegmentTtsCallsFromScripts(args, scriptAbs, typeConfig, verse) 
     verse,
   });
   if (!plan) {
-    return countNonEmptyParagraphs(raw);
+    return emptySegmentBreakdown(countNonEmptyParagraphs(raw));
   }
-  return countPlannedSegments(plan);
+
+  const breakdown = emptySegmentBreakdown(0);
+  for (const unit of plan) {
+    const unitCount = Array.isArray(unit.ttsTexts) && unit.ttsTexts.length
+      ? unit.ttsTexts.length
+      : unit.paragraphIndices.length;
+    breakdown.total += unitCount;
+    if (unit.kind === 'intro') breakdown.intro += unitCount;
+    else if (unit.kind === 'item') breakdown.item += unitCount;
+    else if (unit.kind === 'closing') breakdown.closing += unitCount;
+    else breakdown.other += unitCount;
+  }
+  return breakdown;
 }
 
-function buildGenesis3WriteBlockers(args) {
+function isBookUnitProductionTarget(args) {
+  return args.fromChapter != null && args.toChapter != null && usesProductionCueBuilder({
+    ...args,
+    chapter: args.fromChapter,
+    fromVerse: 1,
+    toVerse: GENESIS_VERSE_COUNTS[args.fromChapter] || 1,
+  });
+}
+
+function estimateSegmentCachePlan(args) {
+  const empty = {
+    totalSegments: 0,
+    cacheHitCount: 0,
+    cacheMissCount: 0,
+    cacheHitRate: 0,
+    expectedNewTtsCalls: 0,
+    expectedReusedCalls: 0,
+    totalNewInputCharacters: 0,
+    cacheIndexOk: false,
+    cacheIndexReason: 'not_checked',
+    incompleteAudioIds: 0,
+  };
+
+  if (!usesProductionCueBuilder(args)) return empty;
+
+  const loaded = loadSegmentCacheIndex(ROOT, args.locale);
+  empty.cacheIndexOk = loaded.ok;
+  empty.cacheIndexReason = loaded.ok ? null : loaded.reason;
+
+  const dataResult = loadGenesisCommentaryData();
+  if (!dataResult.ok) {
+    empty.cacheIndexReason = empty.cacheIndexReason || 'commentary_data_unavailable';
+    return empty;
+  }
+
+  let totalSegments = 0;
+  let cacheHitCount = 0;
+  let cacheMissCount = 0;
+  let totalNewInputCharacters = 0;
+  let incompleteAudioIds = 0;
+
+  for (let verse = args.fromVerse; verse <= args.toVerse; verse++) {
+    for (const typeConfig of COMMENTARY_TOPIC_TYPES) {
+      const mp3Abs = path.join(
+        ROOT, 'audio', 'v1', args.locale, args.bookId,
+        pad3(args.chapter), pad3(verse),
+        `${typeConfig.type}-${typeConfig.voicePreset}.mp3`,
+      );
+      const cueAbs = path.join(
+        ROOT, 'audio', 'cues', args.locale, args.bookId,
+        pad3(args.chapter), pad3(verse),
+        `${typeConfig.type}.json`,
+      );
+      const completePair = fs.existsSync(mp3Abs) && fs.statSync(mp3Abs).size > 0
+        && fs.existsSync(cueAbs) && fs.statSync(cueAbs).size > 0;
+      if (completePair && !args.overwrite) continue;
+
+      incompleteAudioIds += 1;
+      const scriptAbs = path.join(
+        ROOT, 'tts-scripts', args.locale, args.bookId,
+        pad3(args.chapter), pad3(verse),
+        `${typeConfig.type}.txt`,
+      );
+      if (!fs.existsSync(scriptAbs)) continue;
+
+      const highlightType = HIGHLIGHT_COMMENTARY_TYPES.find((item) => item.type === typeConfig.type);
+      if (!highlightType) continue;
+      const paragraphs = splitParagraphs(fs.readFileSync(scriptAbs, 'utf8'));
+      const verseKey = `창세기_${args.chapter}_${verse}`;
+      const entry = dataResult.data[verseKey];
+      const rows = entry?.[highlightType.tableKey];
+      if (!Array.isArray(rows)) continue;
+      const plan = buildGenerationPlan({
+        typeConfig: highlightType,
+        paragraphs,
+        rowCount: rows.length,
+        rows,
+        bookId: args.bookId,
+        chapter: args.chapter,
+        verse,
+      });
+      if (!plan) continue;
+
+      for (const segment of expandPlanSegments(plan, paragraphs)) {
+        totalSegments += 1;
+        const keyInfo = buildCacheKeyForText(segment.text, { locale: args.locale });
+        if (!loaded.ok) {
+          // No usable index: treat every planned segment as a new TTS call.
+          cacheMissCount += 1;
+          totalNewInputCharacters += keyInfo.signature.text.length;
+          continue;
+        }
+        const lookup = lookupSegmentCache(ROOT, args.locale, keyInfo.key, {
+          index: loaded,
+          skipValidate: true,
+        });
+        if (lookup.hit) {
+          cacheHitCount += 1;
+        } else {
+          cacheMissCount += 1;
+          totalNewInputCharacters += keyInfo.signature.text.length;
+        }
+      }
+    }
+  }
+
+  return {
+    totalSegments,
+    cacheHitCount,
+    cacheMissCount,
+    cacheHitRate: totalSegments ? cacheHitCount / totalSegments : 0,
+    expectedNewTtsCalls: cacheMissCount,
+    expectedReusedCalls: cacheHitCount,
+    totalNewInputCharacters,
+    cacheIndexOk: loaded.ok,
+    cacheIndexReason: loaded.ok ? null : loaded.reason,
+    incompleteAudioIds,
+  };
+}
+
+function buildProductionWriteBlockers(args) {
   const blockers = [];
-  if (!args.write || !isGenesis3ProductionTarget(args)) return blockers;
+  if (!args.write || !usesProductionCueBuilder(args)) return blockers;
 
   const stages = args.stages || [];
   const wantsAudio = stages.includes('audio') || stages.includes('prepare');
   const wantsPublish = stages.includes('publish');
+  const wantsUpload = stages.includes('upload') || wantsPublish;
+  const wantsManifest = stages.includes('manifest') || wantsPublish;
   const scriptsOnly = stages.length > 0 && stages.every((stage) => stage === 'scripts');
   const uploadOnly = stages.length === 1 && stages[0] === 'upload';
   const manifestOnly = stages.length === 1 && stages[0] === 'manifest';
+  const chapterLabel = `창세기 ${args.chapter}장`;
+
+  if (isGenesis4to50ProductionTarget(args)) {
+    if (scriptsOnly) return blockers;
+    if (wantsUpload || uploadOnly) {
+      blockers.push(`${chapterLabel} upload write는 현재 차단됩니다.`);
+    }
+    if (wantsManifest || manifestOnly) {
+      blockers.push(`${chapterLabel} manifest write는 현재 차단됩니다.`);
+    }
+    if (wantsPublish) {
+      blockers.push(`${chapterLabel} publish 일괄 stage는 차단됩니다.`);
+    }
+    if (wantsAudio && !args.confirmProductionAudioWrite) {
+      blockers.push(`${chapterLabel} production audio+cue write는 --confirm-production-audio-write가 필요합니다.`);
+    }
+    return blockers;
+  }
 
   if (scriptsOnly || uploadOnly || manifestOnly) {
     return blockers;
@@ -480,7 +731,11 @@ function buildHardeningPlanSummary(args) {
   let plannedOverwriteCount = 0;
   let estimatedSegmentTtsCalls = 0;
   let segmentEstimateComplete = true;
-  const blockers = buildGenesis3WriteBlockers(args);
+  const blockers = buildProductionWriteBlockers(args);
+  let introSegmentCount = 0;
+  let itemSegmentCount = 0;
+  let closingSegmentCount = 0;
+  let otherSegmentCount = 0;
 
   for (let verse = args.fromVerse; verse <= args.toVerse; verse++) {
     for (const typeConfig of COMMENTARY_TOPIC_TYPES) {
@@ -516,20 +771,26 @@ function buildHardeningPlanSummary(args) {
 
       const hasScript = fs.existsSync(scriptAbs) && fs.statSync(scriptAbs).size > 0;
       const hasMp3 = fs.existsSync(mp3Abs) && fs.statSync(mp3Abs).size > 0;
-      const hasCue = fs.existsSync(cueAbs);
+      const hasCue = fs.existsSync(cueAbs) && fs.statSync(cueAbs).size > 0;
 
       if (hasScript) {
         existingScriptCount += 1;
-        estimatedSegmentTtsCalls += estimateSegmentTtsCallsFromScripts(args, scriptAbs, typeConfig, verse);
+        const segmentBreakdown = estimateSegmentBreakdownFromScripts(args, scriptAbs, typeConfig, verse);
+        estimatedSegmentTtsCalls += segmentBreakdown.total;
+        introSegmentCount += segmentBreakdown.intro;
+        itemSegmentCount += segmentBreakdown.item;
+        closingSegmentCount += segmentBreakdown.closing;
+        otherSegmentCount += segmentBreakdown.other;
       } else {
         segmentEstimateComplete = false;
       }
       if (hasMp3) existingMp3Count += 1;
       if (hasCue) existingCueCount += 1;
 
-      if (hasMp3 && !args.overwrite && !args.confirmProductionAudioWrite) {
+      const completePair = hasMp3 && hasCue;
+      if (completePair && !args.overwrite) {
         plannedSkipCount += 1;
-      } else if (hasMp3 && (args.overwrite || args.confirmProductionAudioWrite)) {
+      } else if (hasMp3 && args.overwrite) {
         plannedOverwriteCount += 1;
         plannedGenerateCount += 1;
       } else {
@@ -542,6 +803,8 @@ function buildHardeningPlanSummary(args) {
     locale: args.locale,
     bookId: args.bookId,
     chapter: args.chapter,
+    fromChapter: args.fromChapter,
+    toChapter: args.toChapter,
     verseCount,
     topicsPerVerse,
     targetAudioCount,
@@ -553,6 +816,10 @@ function buildHardeningPlanSummary(args) {
     plannedSkipCount,
     plannedOverwriteCount,
     estimatedSegmentTtsCalls: segmentEstimateComplete ? estimatedSegmentTtsCalls : null,
+    introSegmentCount: segmentEstimateComplete ? introSegmentCount : null,
+    itemSegmentCount: segmentEstimateComplete ? itemSegmentCount : null,
+    closingSegmentCount: segmentEstimateComplete ? closingSegmentCount : null,
+    otherSegmentCount: segmentEstimateComplete ? otherSegmentCount : null,
     estimatedSegmentTtsNote: segmentEstimateComplete
       ? (productionPath
         ? '생성 대본 기준 production cue builder 세그먼트 수(카드별 TTS)'
@@ -568,6 +835,22 @@ function buildHardeningPlanSummary(args) {
     finalMp3Root: productionPath ? 'audio/v1' : null,
     cueRoot: productionPath ? 'audio/cues' : null,
     blockers,
+    ...(() => {
+      const cachePlan = productionPath ? estimateSegmentCachePlan(args) : null;
+      if (!cachePlan) return {};
+      return {
+        totalSegments: cachePlan.totalSegments,
+        cacheHitCount: cachePlan.cacheHitCount,
+        cacheMissCount: cachePlan.cacheMissCount,
+        cacheHitRate: cachePlan.cacheHitRate,
+        expectedNewTtsCalls: cachePlan.expectedNewTtsCalls,
+        expectedReusedCalls: cachePlan.expectedReusedCalls,
+        totalNewInputCharacters: cachePlan.totalNewInputCharacters,
+        incompleteAudioIds: cachePlan.incompleteAudioIds,
+        cacheIndexOk: cachePlan.cacheIndexOk,
+        cacheIndexReason: cachePlan.cacheIndexReason,
+      };
+    })(),
   };
 }
 
@@ -577,24 +860,40 @@ function printHardeningPlanSummary(summary) {
     : `○ 예상 카드별 TTS 세그먼트: ${summary.estimatedSegmentTtsCalls}`;
 
   if (summary.productionAudioPath) {
+    const chapterLabel = summary.fromChapter != null
+      ? `${summary.fromChapter}–${summary.toChapter}`
+      : String(summary.chapter);
     const lines = [
       '○ 말씀풀이 파이프라인 plan (API 호출 없음)',
+      `○ 대상 장: ${chapterLabel}`,
       `○ 대상 절: ${summary.verseCount}`,
       `○ 최종 MP3: ${summary.targetAudioCount}`,
       `○ cue: ${summary.targetCueCount}`,
       segmentLine,
+      `○ intro 세그먼트: ${summary.introSegmentCount ?? '미확정'}`,
+      `○ item 세그먼트: ${summary.itemSegmentCount ?? '미확정'}`,
+      `○ closing 세그먼트: ${summary.closingSegmentCount ?? '미확정'}`,
       `○ 기존 production MP3: ${summary.existingMp3Count}`,
       `○ 기존 cue: ${summary.existingCueCount}`,
       `○ 신규 생성 예정: ${summary.plannedGenerateCount}`,
+      `○ skip 예정: ${summary.plannedSkipCount}`,
       `○ overwrite: ${summary.plannedOverwriteCount}`,
       '○ batch 이중 생성 없음',
       `○ OpenAI 실행 여부: ${summary.openAiWouldRun}`,
-      `○ 최종 MP3 경로: ${summary.finalMp3Root}/ko-KR/genesis/003/{VVV}/{type}-{preset}.mp3`,
-      `○ cue 경로: ${summary.cueRoot}/ko-KR/genesis/003/{VVV}/{type}.json`,
+      `○ 최종 MP3 경로: ${summary.finalMp3Root}/ko-KR/genesis/{CCC}/{VVV}/{type}-{preset}.mp3`,
+      `○ cue 경로: ${summary.cueRoot}/ko-KR/genesis/{CCC}/{VVV}/{type}.json`,
       `○ 기존 대본 수: ${summary.existingScriptCount}`,
+      `○ segment cache index: ${summary.cacheIndexOk ? 'ok' : `missing/invalid (${summary.cacheIndexReason || 'n/a'})`}`,
+      `○ 신규 audio ID: ${summary.incompleteAudioIds ?? 0}`,
+      `○ cache hit: ${summary.cacheHitCount ?? 0}`,
+      `○ cache miss / 예상 신규 TTS: ${summary.expectedNewTtsCalls ?? summary.cacheMissCount ?? 0}`,
+      `○ cache hit rate: ${summary.cacheHitRate != null ? `${(summary.cacheHitRate * 100).toFixed(2)}%` : 'n/a'}`,
+      `○ 재사용 예정 세그먼트: ${summary.expectedReusedCalls ?? 0}`,
+      `○ 신규 입력 문자 수: ${summary.totalNewInputCharacters ?? 0}`,
       `○ blockers: ${summary.blockers.length ? summary.blockers.join(' | ') : '없음'}`,
       `○ write 실행 여부: ${summary.writeEnabled ? '예' : '아니오 (dry-run)'}`,
       `○ QA mode: ${summary.qaMode}`,
+      `○ 예상 비용: ${summary.costNote}`,
     ];
     console.error(lines.join('\n'));
     return;
@@ -856,8 +1155,8 @@ function stagesToSteps(stages, args = null) {
     } else if (stage === 'upload') {
       add('upload');
     } else if (stage === 'manifest') {
-      // Genesis 3 uses highlight cue JSON (not matthew-henry manual cue-check in JS).
-      if (!(args && isGenesis3ProductionTarget(args))) {
+      // Production cue path uses highlight cue JSON (not matthew-henry manual cue-check in JS).
+      if (!(args && usesProductionCueBuilder(args))) {
         add('cue-check');
       }
       add('manifest');
@@ -906,6 +1205,7 @@ function commandForStep({ args, verse, step }) {
           '--production-output',
           writeAudio ? '--write' : '--dry-run',
           writeAudio && args.overwrite ? '--force' : null,
+          args.allowNoSegmentCache ? '--allow-no-segment-cache' : null,
         ].filter(Boolean),
         env,
       );
@@ -965,7 +1265,7 @@ function isOnlyManifestStage(args, steps) {
   if (!(args.stages.length === 1 && args.stages[0] === 'manifest')) {
     return false;
   }
-  if (isGenesis3ProductionTarget(args)) {
+  if (usesProductionCueBuilder(args)) {
     return steps.length === 1 && steps[0] === 'manifest';
   }
   return (
@@ -1099,7 +1399,7 @@ function validateApprovedManifestWritePreflight(args) {
     const env = pipelineEnv(args, verse);
     const expectedKeyBase = expectedR2KeyBase(args, verse);
 
-    if (isGenesis3ProductionTarget(args)) {
+    if (usesProductionCueBuilder(args)) {
       const highlightCueBlocker = validateGenesis3HighlightCuesPresent(args, verse);
       if (highlightCueBlocker) {
         blockers.push(highlightCueBlocker);
@@ -1159,6 +1459,27 @@ function validateWriteSafety({ args, steps }) {
   if (!args.write) return [];
 
   const blockers = [];
+
+  if (isGenesis4to50ProductionTarget(args)) {
+    const scriptsOnly = steps.every((step) => step === 'build-scripts' || step === 'validate-scripts');
+    if (scriptsOnly) {
+      return [];
+    }
+    if (steps.includes('upload') || args.stages.includes('publish')) {
+      blockers.push(`창세기 ${args.chapter}장 upload/publish write는 현재 차단됩니다.`);
+    }
+    if (steps.includes('manifest')) {
+      blockers.push(`창세기 ${args.chapter}장 manifest write는 현재 차단됩니다.`);
+    }
+    if (steps.includes('audio')) {
+      if (!args.confirmProductionAudioWrite) {
+        blockers.push(`창세기 ${args.chapter}장 production audio+cue write는 --confirm-production-audio-write가 필요합니다.`);
+      } else if (!isOnlyAudioStage(args, steps)) {
+        blockers.push(`창세기 ${args.chapter}장 production audio+cue write는 --stage audio 단독 실행에서만 허용됩니다.`);
+      }
+    }
+    return blockers;
+  }
 
   if (isGenesis3ProductionTarget(args)) {
     const scriptsOnly = steps.every((step) => step === 'build-scripts' || step === 'validate-scripts');
@@ -1417,16 +1738,158 @@ function runQaStage(args) {
   return result;
 }
 
-function main() {
-  const args = parseArgs(process.argv.slice(2));
+function mergeHardeningPlanSummaries(jobs, args) {
+  const summaries = jobs.map((job) => buildHardeningPlanSummary(job));
+  const merged = {
+    locale: args.locale,
+    bookId: args.bookId,
+    chapter: args.fromChapter != null ? null : args.chapter,
+    fromChapter: args.fromChapter,
+    toChapter: args.toChapter,
+    verseCount: 0,
+    topicsPerVerse: COMMENTARY_TOPIC_TYPES.length,
+    targetAudioCount: 0,
+    targetCueCount: 0,
+    existingScriptCount: 0,
+    existingMp3Count: 0,
+    existingCueCount: 0,
+    plannedGenerateCount: 0,
+    plannedSkipCount: 0,
+    plannedOverwriteCount: 0,
+    estimatedSegmentTtsCalls: 0,
+    introSegmentCount: 0,
+    itemSegmentCount: 0,
+    closingSegmentCount: 0,
+    otherSegmentCount: 0,
+    estimatedSegmentTtsNote: null,
+    outOfRangeTargetCount: 0,
+    costNote: '비용 계산 자료 없음',
+    qaMode: 'strict',
+    writeEnabled: Boolean(args.write),
+    productionAudioPath: true,
+    batchDoubleGeneration: false,
+    openAiWouldRun: false,
+    finalMp3Root: 'audio/v1',
+    cueRoot: 'audio/cues',
+    blockers: [],
+  };
+
+  let segmentEstimateComplete = true;
+  for (const summary of summaries) {
+    merged.verseCount += summary.verseCount;
+    merged.targetAudioCount += summary.targetAudioCount;
+    merged.targetCueCount += summary.targetCueCount;
+    merged.existingScriptCount += summary.existingScriptCount;
+    merged.existingMp3Count += summary.existingMp3Count;
+    merged.existingCueCount += summary.existingCueCount;
+    merged.plannedGenerateCount += summary.plannedGenerateCount;
+    merged.plannedSkipCount += summary.plannedSkipCount;
+    merged.plannedOverwriteCount += summary.plannedOverwriteCount;
+    merged.outOfRangeTargetCount += summary.outOfRangeTargetCount;
+    merged.openAiWouldRun = merged.openAiWouldRun || summary.openAiWouldRun;
+    merged.productionAudioPath = merged.productionAudioPath && summary.productionAudioPath;
+    merged.blockers.push(...summary.blockers);
+    if (summary.estimatedSegmentTtsCalls == null) {
+      segmentEstimateComplete = false;
+    } else {
+      merged.estimatedSegmentTtsCalls += summary.estimatedSegmentTtsCalls;
+      merged.introSegmentCount += summary.introSegmentCount || 0;
+      merged.itemSegmentCount += summary.itemSegmentCount || 0;
+      merged.closingSegmentCount += summary.closingSegmentCount || 0;
+      merged.otherSegmentCount += summary.otherSegmentCount || 0;
+    }
+  }
+
+  if (!segmentEstimateComplete) {
+    merged.estimatedSegmentTtsCalls = null;
+    merged.introSegmentCount = null;
+    merged.itemSegmentCount = null;
+    merged.closingSegmentCount = null;
+    merged.otherSegmentCount = null;
+    merged.estimatedSegmentTtsNote = '대본 미생성 항목이 있어 세그먼트 TTS 호출 수를 확정할 수 없음';
+  } else {
+    merged.estimatedSegmentTtsNote = '생성 대본 기준 production cue builder 세그먼트 수(카드별 TTS)';
+  }
+
+  // Book-unit cache / cost guards (aggregate across chapters).
+  let totalSegments = 0;
+  let cacheHitCount = 0;
+  let cacheMissCount = 0;
+  let totalNewInputCharacters = 0;
+  let incompleteAudioIds = 0;
+  let cacheIndexOk = true;
+  let cacheIndexReason = null;
+  for (const summary of summaries) {
+    totalSegments += summary.totalSegments || 0;
+    cacheHitCount += summary.cacheHitCount || 0;
+    cacheMissCount += summary.cacheMissCount || 0;
+    totalNewInputCharacters += summary.totalNewInputCharacters || 0;
+    incompleteAudioIds += summary.incompleteAudioIds || 0;
+    if (summary.cacheIndexOk === false) {
+      cacheIndexOk = false;
+      cacheIndexReason = summary.cacheIndexReason || 'cache_index_missing';
+    }
+  }
+  merged.totalSegments = totalSegments;
+  merged.cacheHitCount = cacheHitCount;
+  merged.cacheMissCount = cacheMissCount;
+  merged.cacheHitRate = totalSegments ? cacheHitCount / totalSegments : 0;
+  merged.expectedNewTtsCalls = cacheMissCount;
+  merged.expectedReusedCalls = cacheHitCount;
+  merged.totalNewInputCharacters = totalNewInputCharacters;
+  merged.incompleteAudioIds = incompleteAudioIds;
+  merged.cacheIndexOk = cacheIndexOk;
+  merged.cacheIndexReason = cacheIndexReason;
+
+  const wantsAudioWrite = Boolean(
+    args.write
+    && args.confirmProductionAudioWrite
+    && (args.stages || []).includes('audio'),
+  );
+  if (wantsAudioWrite) {
+    if (!args.allowNoSegmentCache && !cacheIndexOk) {
+      merged.blockers.push(
+        `책 단위 production audio는 segment cache index가 필요합니다 (${cacheIndexReason || 'missing'}). `
+        + '비상 시에만 --allow-no-segment-cache.',
+      );
+    }
+    if (args.maxNewTtsCalls == null || !Number.isFinite(args.maxNewTtsCalls)) {
+      merged.blockers.push('책 단위 production audio write는 --max-new-tts-calls N이 필요합니다.');
+    }
+    if (args.confirmNewTtsCalls == null || !Number.isFinite(args.confirmNewTtsCalls)) {
+      merged.blockers.push('책 단위 production audio write는 --confirm-new-tts-calls N이 필요합니다.');
+    }
+    if (Number.isFinite(args.confirmNewTtsCalls) && args.confirmNewTtsCalls !== cacheMissCount) {
+      merged.blockers.push(
+        `--confirm-new-tts-calls(${args.confirmNewTtsCalls})가 계획 cache miss(${cacheMissCount})와 일치하지 않습니다.`,
+      );
+    }
+    if (Number.isFinite(args.maxNewTtsCalls) && cacheMissCount > args.maxNewTtsCalls) {
+      merged.blockers.push(
+        `예상 신규 TTS(${cacheMissCount})가 --max-new-tts-calls(${args.maxNewTtsCalls})를 초과합니다.`,
+      );
+    }
+  }
+
+  merged.blockers = [...new Set(merged.blockers)];
+  return merged;
+}
+
+function runSingleChapterPipeline(args, { printPlan = true, compactStdout = false } = {}) {
   assertSafeTarget(args);
 
   const hardeningPlan = buildHardeningPlanSummary(args);
-  printHardeningPlanSummary(hardeningPlan);
+  if (printPlan) {
+    printHardeningPlanSummary(hardeningPlan);
+  }
 
   if (isOnlyQaStage(args)) {
     runQaStage(args);
-    return;
+    return {
+      success: process.exitCode ? false : true,
+      hardeningPlan,
+      output: null,
+    };
   }
 
   const initialPlan = buildPlan(args);
@@ -1464,7 +1927,8 @@ function main() {
     plannedSteps: finalPlan.steps,
     safetyBlockers: finalPlan.safetyBlockers,
     success: finalPlan.safetyBlockers.length === 0 && !hasFailures,
-    plan: finalPlan.verses,
+    plan: compactStdout ? undefined : finalPlan.verses,
+    verseCount: finalPlan.verses.length,
   };
 
   if (args.report) {
@@ -1473,9 +1937,103 @@ function main() {
     output.reportPath = toRelativePath(reportPath);
   }
 
-  console.log(JSON.stringify(output, null, 2));
+  return {
+    success: output.success,
+    hardeningPlan,
+    output,
+    hasFailures,
+    safetyBlockers: finalPlan.safetyBlockers,
+  };
+}
 
-  if (finalPlan.safetyBlockers.length > 0 || hasFailures) {
+function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const jobs = expandChapterJobs(args);
+
+  if (jobs.length === 1) {
+    const result = runSingleChapterPipeline(jobs[0]);
+    console.log(JSON.stringify(result.output, null, 2));
+    if (!result.success) {
+      process.exitCode = 1;
+    }
+    return;
+  }
+
+  // Book-unit mode: aggregate plan, then run each chapter while preserving completed artifacts.
+  const hardeningPlan = mergeHardeningPlanSummaries(jobs, args);
+  printHardeningPlanSummary(hardeningPlan);
+
+  if (isOnlyQaStage(args)) {
+    let failed = false;
+    for (const job of jobs) {
+      console.error(`○ QA chapter ${job.chapter}`);
+      const result = runSingleChapterPipeline(job, { printPlan: false, compactStdout: true });
+      if (!result.success) failed = true;
+    }
+    if (failed) process.exitCode = 1;
+    return;
+  }
+
+  // Prepare/plan-only book dry-run: do not expand thousands of per-verse command rows to stdout.
+  const planOnly = args.dryRun && !dryRunExecutesSteps(args.stages);
+  const chapterResults = [];
+  let failed = hardeningPlan.blockers.length > 0;
+
+  if (!planOnly && hardeningPlan.blockers.length === 0) {
+    for (const job of jobs) {
+      console.error(`○ chapter ${job.chapter}/${args.toChapter} start`);
+      const result = runSingleChapterPipeline(job, { printPlan: false, compactStdout: true });
+      chapterResults.push({
+        chapter: job.chapter,
+        success: result.success,
+        reportPath: result.output?.reportPath || null,
+        generatedTextFileCount: result.output?.generatedTextFileCount ?? null,
+        safetyBlockers: result.safetyBlockers || [],
+      });
+      if (!result.success) {
+        failed = true;
+        console.error(`○ chapter ${job.chapter} failed (continuing remaining chapters)`);
+      } else {
+        console.error(`○ chapter ${job.chapter} done`);
+      }
+    }
+  } else if (hardeningPlan.blockers.length > 0) {
+    console.error(`○ book write blocked: ${hardeningPlan.blockers.join(' | ')}`);
+  }
+
+  const output = {
+    mode: args.write ? 'write' : 'dry-run',
+    masterDryRunPlanOnly: planOnly,
+    reportWritten: false,
+    hardeningPlan,
+    target: {
+      locale: args.locale,
+      bookId: args.bookId,
+      fromChapter: args.fromChapter,
+      toChapter: args.toChapter,
+      chapterCount: jobs.length,
+      verseCount: hardeningPlan.verseCount,
+      targetAudioCount: hardeningPlan.targetAudioCount,
+    },
+    stages: args.stages,
+    safetyBlockers: hardeningPlan.blockers,
+    success: hardeningPlan.blockers.length === 0 && !failed,
+    chapterResults,
+  };
+
+  if (args.report) {
+    fs.mkdirSync(REPORT_DIR, { recursive: true });
+    const reportPath = path.join(
+      REPORT_DIR,
+      `${timestampForFileName()}-${args.bookId}-${pad3(args.fromChapter)}-${pad3(args.toChapter)}-book-${args.stages.join('+')}-${output.mode}.json`,
+    );
+    fs.writeFileSync(reportPath, `${JSON.stringify(output, null, 2)}\n`, 'utf8');
+    output.reportWritten = true;
+    output.reportPath = toRelativePath(reportPath);
+  }
+
+  console.log(JSON.stringify(output, null, 2));
+  if (!output.success) {
     process.exitCode = 1;
   }
 }

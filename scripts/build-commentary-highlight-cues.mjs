@@ -12,6 +12,19 @@ import {
   expectedItemCount,
 } from './lib/commentary-highlight-plan.mjs';
 import { buildWordCuesFromPlan } from './lib/word-cue-builder.mjs';
+import {
+  COMMENTARY_TTS_REQUEST_DEFAULTS,
+  buildCacheKeyForText,
+  loadSegmentCacheIndex,
+  lookupSegmentCache,
+  withSegmentCacheLock,
+  materializeCachedSegment,
+  appendSegmentCacheEntryAtomic,
+  validateSegmentFile,
+  toPosixRel,
+  fileSha256,
+  assertSegmentCacheDeletionAllowed,
+} from './lib/commentary-segment-cache.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
@@ -40,25 +53,10 @@ const BOOK_ID_TO_NAME = Object.fromEntries(
 );
 
 const TTS_DEFAULTS = {
-  model: 'gpt-4o-mini-tts',
-  providerVoice: 'marin',
-  outputFormat: 'mp3',
-  instructions: [
-    '한국어 문장은 자연스러운 한국어로 읽는다.',
-    '“창세기”는 한국어 성경 책 이름으로 자연스럽게 “창-세-기”라고 읽는다.',
-    '“창세기”의 첫 음절 “창”은 받침 ㅇ을 분명하게 하되 과장하지 않는다.',
-    '성경 구절 제목은 또박또박 자연스러운 한국어 성경 낭독 톤으로 읽는다.',
-    '“창세기”를 다른 단어처럼 뭉개거나 이상하게 발음하지 않는다.',
-    '영어 원문 문장은 생략하지 않는다.',
-    '영어 원문은 번역하지 않는다.',
-    '영어 원문은 영어 문장 그대로 읽는다.',
-    '따옴표 안의 영어 문장도 반드시 읽는다.',
-    '매튜헨리의 영어 원문은 한국어식으로 읽지 말고, 자연스러운 영어 발음으로 읽는다.',
-    '영어 원문 줄은 영어 문장처럼 분명히 끊어 읽는다.',
-    '영어 원문과 한국어 해설 사이에는 짧게 쉬어 읽는다.',
-    '한국어 해설은 기존처럼 차분한 한국어 낭독 톤을 유지한다.',
-    '매튜헨리 항목에서는 영어원문과 한국어 해설을 모두 읽는다.',
-  ].join(' '),
+  model: COMMENTARY_TTS_REQUEST_DEFAULTS.model,
+  providerVoice: COMMENTARY_TTS_REQUEST_DEFAULTS.voice,
+  outputFormat: COMMENTARY_TTS_REQUEST_DEFAULTS.responseFormat,
+  instructions: COMMENTARY_TTS_REQUEST_DEFAULTS.instructions,
 };
 
 const BUILD_SEGMENTS_BASE = path.join(ROOT, 'audio', 'highlight-build');
@@ -72,6 +70,8 @@ function usage() {
   console.error('Scope: --all | --book <id> [--chapter N] [--verse N] [--type <type>]');
   console.error('Options: --locale ko-KR (default), --force, --production-output');
   console.error('  --production-output  최종 MP3를 audio/v1에, cue를 audio/cues에 기록 (기본 scoped 동작은 highlight-test 유지)');
+  console.error('  Segment cache: exact TTS request reuse from audio/commentary-segment-cache (no OpenAI on hit).');
+  console.error('  Deleting audio/highlight-segments requires --confirm-delete-commentary-segment-cache.');
 }
 
 function parseArgs(argv) {
@@ -88,6 +88,8 @@ function parseArgs(argv) {
     force: false,
     confirmAllGeneration: false,
     productionOutput: false,
+    confirmDeleteCommentarySegmentCache: false,
+    allowNoSegmentCache: false,
   };
 
   for (let i = 0; i < argv.length; i++) {
@@ -104,6 +106,8 @@ function parseArgs(argv) {
     else if (arg === '--force') args.force = true;
     else if (arg === '--confirm-all-generation') args.confirmAllGeneration = true;
     else if (arg === '--production-output') args.productionOutput = true;
+    else if (arg === '--confirm-delete-commentary-segment-cache') args.confirmDeleteCommentarySegmentCache = true;
+    else if (arg === '--allow-no-segment-cache') args.allowNoSegmentCache = true;
     else if (arg === '--help' || arg === '-h') {
       usage();
       process.exit(0);
@@ -397,11 +401,20 @@ function inspectTypeTarget({ target, typeConfig, mode, useTestOutputs = false, p
   }
 
   const segmentCount = countPlannedSegments(plan);
-  const complete = fs.existsSync(outputs.markerPath)
-    && fs.existsSync(outputs.cuePath)
-    && fs.existsSync(outputs.finalMp3Path);
+  const mp3Ok = fs.existsSync(outputs.finalMp3Path) && fs.statSync(outputs.finalMp3Path).size > 0;
+  const cueOk = fs.existsSync(outputs.cuePath) && fs.statSync(outputs.cuePath).size > 0;
+  // Production resume: final MP3 + cue pair is enough to skip.
+  // Segment files under audio/highlight-segments are permanent cache assets (do not delete).
+  // Scoped/test path still requires the build-complete marker.
+  const complete = productionOutput
+    ? (mp3Ok && cueOk)
+    : (
+      fs.existsSync(outputs.markerPath)
+      && cueOk
+      && mp3Ok
+    );
 
-  if (complete && mode === 'write') {
+  if (complete) {
     return {
       status: 'skip_complete',
       blocker: null,
@@ -547,6 +560,139 @@ async function callOpenAiTts({ apiKey, text }) {
   return Buffer.from(await response.arrayBuffer());
 }
 
+function resolveOrMaterializeSegment({
+  locale,
+  text,
+  segFile,
+  force,
+  cacheIndex,
+  audioId,
+  kind,
+}) {
+  if (fs.existsSync(segFile) && !force) {
+    const local = validateSegmentFile(segFile);
+    if (local.ok) {
+      return { source: 'local-segment', absPath: segFile, duration: local.duration, cacheKey: null };
+    }
+  }
+
+  const keyInfo = buildCacheKeyForText(text, { locale });
+  const lookup = lookupSegmentCache(ROOT, locale, keyInfo.key, { index: cacheIndex });
+  if (lookup.hit) {
+    materializeCachedSegment(lookup.absPath, segFile);
+    const duration = lookup.duration ?? probeDurationSeconds(segFile);
+    return {
+      source: 'segment-cache',
+      absPath: segFile,
+      duration,
+      cacheKey: keyInfo.key,
+      cachePath: lookup.absPath,
+    };
+  }
+
+  return {
+    source: 'miss',
+    absPath: segFile,
+    cacheKey: keyInfo.key,
+    keyInfo,
+  };
+}
+
+async function synthesizeSegmentWithCache({
+  apiKey,
+  locale,
+  text,
+  segFile,
+  force,
+  cacheIndex,
+  audioId,
+  kind,
+}) {
+  const resolved = resolveOrMaterializeSegment({
+    locale,
+    text,
+    segFile,
+    force,
+    cacheIndex,
+    audioId,
+    kind,
+  });
+  if (resolved.source !== 'miss') {
+    return { ...resolved, created: false };
+  }
+
+  const lockResult = await withSegmentCacheLock(ROOT, resolved.cacheKey, async () => {
+    // Another worker may have finished while we waited for the lock.
+    const again = resolveOrMaterializeSegment({
+      locale,
+      text,
+      segFile,
+      force,
+      cacheIndex,
+      audioId,
+      kind,
+    });
+    if (again.source !== 'miss') {
+      return { ...again, created: false };
+    }
+
+    fs.mkdirSync(path.dirname(segFile), { recursive: true });
+    const audio = await callOpenAiTts({ apiKey, text });
+    if (!audio?.length) {
+      throw new Error(`empty_tts_audio:${audioId}`);
+    }
+    fs.writeFileSync(segFile, audio);
+    const validation = validateSegmentFile(segFile);
+    if (!validation.ok) {
+      try { fs.unlinkSync(segFile); } catch { /* keep failure out of cache */ }
+      throw new Error(`tts_segment_invalid:${validation.reason}:${audioId}`);
+    }
+
+    appendSegmentCacheEntryAtomic(ROOT, locale, {
+      key: resolved.keyInfo.key,
+      formatVersion: resolved.keyInfo.signature.formatVersion,
+      normalizedTextHash: resolved.keyInfo.normalizedTextHash,
+      locale,
+      model: resolved.keyInfo.signature.model,
+      voice: resolved.keyInfo.signature.voice,
+      presetId: resolved.keyInfo.signature.presetId,
+      instructionsHash: resolved.keyInfo.instructionsHash,
+      responseFormat: resolved.keyInfo.signature.responseFormat,
+      sampleRate: validation.sampleRate,
+      channels: validation.channels,
+      bitrate: validation.bitrate,
+      existingSegmentPath: toPosixRel(ROOT, segFile),
+      audioSha256: fileSha256(segFile),
+      fileSize: validation.size,
+      duration: validation.duration,
+      sourceCount: 1,
+      canonicalAudioId: audioId,
+      kind,
+    });
+
+    return {
+      source: 'openai',
+      absPath: segFile,
+      duration: validation.duration,
+      cacheKey: resolved.cacheKey,
+      created: true,
+    };
+  }, { locale, index: cacheIndex });
+
+  if (lockResult.reused && lockResult.lookup?.hit) {
+    materializeCachedSegment(lockResult.lookup.absPath, segFile);
+    return {
+      source: 'segment-cache-after-wait',
+      absPath: segFile,
+      duration: lockResult.lookup.duration ?? probeDurationSeconds(segFile),
+      cacheKey: resolved.cacheKey,
+      created: false,
+    };
+  }
+
+  return lockResult.result;
+}
+
 function segmentTypeFromKind(kind) {
   if (kind === 'item') return 'item';
   if (kind === 'intro') return 'intro';
@@ -663,7 +809,7 @@ function validateBuiltCue({ duration, finalMp3Duration, segments, rowCount, type
   return errors;
 }
 
-async function writeTypeTarget({ inspected, apiKey, force }) {
+async function writeTypeTarget({ inspected, apiKey, force, locale, cacheIndex }) {
   const {
     plan,
     outputs,
@@ -683,6 +829,8 @@ async function writeTypeTarget({ inspected, apiKey, force }) {
   const unitSpeechStarts = new Map();
   const orderedSegmentMp3s = [];
   let timelineCursor = 0;
+  let cacheHits = 0;
+  let openaiCalls = 0;
 
   for (let unitIndex = 0; unitIndex < plan.length; unitIndex++) {
     const unit = plan[unitIndex];
@@ -700,21 +848,20 @@ async function writeTypeTarget({ inspected, apiKey, force }) {
         `unit-${String(unitIndex).padStart(2, '0')}-para-${String(paragraphIndex).padStart(2, '0')}${ttsTexts.length > 1 ? `-part-${String(textIndex).padStart(2, '0')}` : ''}.mp3`,
       );
 
-      if (fs.existsSync(segFile) && !force) {
-        const duration = probeDurationSeconds(segFile);
-        if (unitSpeechStart == null) {
-          unitSpeechStart = roundTime(timelineCursor + detectLeadingSilenceSeconds(segFile));
-        }
-        unitDuration += duration;
-        orderedSegmentMp3s.push(segFile);
-        timelineCursor += duration;
-        continue;
-      }
+      const synthesized = await synthesizeSegmentWithCache({
+        apiKey,
+        locale,
+        text: ttsTexts[textIndex],
+        segFile,
+        force,
+        cacheIndex,
+        audioId,
+        kind: unit.kind,
+      });
+      if (synthesized.source === 'openai') openaiCalls += 1;
+      else if (String(synthesized.source).includes('cache') || synthesized.source === 'local-segment') cacheHits += 1;
 
-      fs.mkdirSync(path.dirname(segFile), { recursive: true });
-      const audio = await callOpenAiTts({ apiKey, text: ttsTexts[textIndex] });
-      fs.writeFileSync(segFile, audio);
-      const duration = probeDurationSeconds(segFile);
+      const duration = synthesized.duration ?? probeDurationSeconds(segFile);
       if (unitSpeechStart == null) {
         unitSpeechStart = roundTime(timelineCursor + detectLeadingSilenceSeconds(segFile));
       }
@@ -783,7 +930,15 @@ async function writeTypeTarget({ inspected, apiKey, force }) {
     cuePath: toRelativePath(outputs.cuePath),
   }, null, 2)}\n`);
 
-  return { status: 'written', audioId, errors: [], finalMp3Duration, durationDelta: 0 };
+  return {
+    status: 'written',
+    audioId,
+    errors: [],
+    finalMp3Duration,
+    durationDelta: 0,
+    cacheHits,
+    openaiCalls,
+  };
 }
 
 function initReport(mode, args) {
@@ -839,6 +994,10 @@ function bumpCount(bucket, key, field, amount = 1) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  // Keep delete confirmation wiring live so accidental rm helpers can gate on argv.
+  if (args.confirmDeleteCommentarySegmentCache) {
+    assertSegmentCacheDeletionAllowed(process.argv.slice(2));
+  }
   const mode = args.audit ? 'audit' : args.dryRun ? 'dry-run' : 'write';
   const verseTargets = discoverVerseDirectories(args);
   const typeConfigs = getTypeConfigs(args.type);
@@ -947,6 +1106,13 @@ async function main() {
   report.ttsInventory.totalTxtFiles = txtFiles;
 
   if (mode === 'write') {
+    const cacheIndex = loadSegmentCacheIndex(ROOT, args.locale);
+    if (args.productionOutput && !cacheIndex.ok && !args.allowNoSegmentCache) {
+      throw new Error(
+        `segment_cache_required:${cacheIndex.reason}. `
+        + '인덱스를 먼저 만들거나 비상 시에만 --allow-no-segment-cache를 사용하세요.',
+      );
+    }
     const apiKey = getOpenAiApiKey();
     const outputOptions = resolveOutputOptions(args);
     for (const item of report.results) {
@@ -966,7 +1132,13 @@ async function main() {
       inspected.typeConfig = typeConfig;
       let writeResult;
       try {
-        writeResult = await writeTypeTarget({ inspected, apiKey, force: args.force });
+        writeResult = await writeTypeTarget({
+          inspected,
+          apiKey,
+          force: args.force,
+          locale: args.locale,
+          cacheIndex,
+        });
       } catch (error) {
         writeResult = {
           status: 'failed',
