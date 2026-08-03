@@ -7481,13 +7481,24 @@ function renderUnifiedModalBody() {
 }
 
 function unifiedBcGoBookList() {
-  /* 긴 66권 목록 대신 기존 쉬운찾기 화면을 그대로 연다. */
+  /* 긴 66권 목록 대신 기존 '성경' 책 선택 화면을 그대로 연다. */
   closeUnifiedBookChapterModal();
+  /* 말씀풀이가 열려 있으면 화면을 가리므로 기존 닫기 경로로 먼저 닫는다. */
+  var commentaryPopupEl = document.getElementById('commentaryPopup');
+  if (
+    commentaryPopupEl &&
+    commentaryPopupEl.classList.contains('show') &&
+    typeof closeCommentary === 'function'
+  ) {
+    closeCommentary();
+  }
   if (typeof handleScriptureDock === 'function') {
-    handleScriptureDock('find');
+    handleScriptureDock('bible');
     return;
   }
-  if (typeof switchTab === 'function') switchTab('easy');
+  if (typeof switchTab === 'function') {
+    switchTab(currentBook && currentBook.testament === 'new' ? 'new' : 'old');
+  }
 }
 
 function unifiedBcBackToChapters() {
