@@ -2963,7 +2963,149 @@ var VERSE_RANGE_START_HINT_TEXT = '시작 절을 선택하세요';
 var VERSE_RANGE_END_HINT_TEXT = '끝 절을 선택하세요';
 
 var fontSize = 17;
-var favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+
+var FAVORITES_STORAGE_KEY = 'favorites';
+
+function createFavoriteId() {
+  try {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+  } catch (e) {}
+  return 'fav_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+}
+
+// id·createdAt·updatedAt이 비어 있는 항목만 채운다(기존 값·나머지 속성은 그대로 둔다).
+function stampFavoriteMeta(entry) {
+  if (!entry || typeof entry !== 'object') return false;
+  var changed = false;
+  if (!entry.id) {
+    entry.id = createFavoriteId();
+    changed = true;
+  }
+  if (!entry.createdAt) {
+    entry.createdAt = new Date().toISOString();
+    changed = true;
+  }
+  if (!entry.updatedAt) {
+    entry.updatedAt = entry.createdAt;
+    changed = true;
+  }
+  return changed;
+}
+
+function copyFavoriteEntry(entry) {
+  var copy = {};
+  Object.keys(entry).forEach(function(key) {
+    copy[key] = entry[key];
+  });
+  return copy;
+}
+
+// 기존 보관함 항목으로 인정할 최소 구조.
+function isValidFavoriteEntry(entry) {
+  if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return false;
+  if (typeof entry.ref !== 'string' || !entry.ref) return false;
+  if (typeof entry.book !== 'string' || !entry.book) return false;
+  if (entry.chapter === undefined || entry.chapter === null) return false;
+  if (entry.verse === undefined || entry.verse === null) return false;
+  if (entry.text === undefined || entry.text === null) return false;
+  return true;
+}
+
+function createFavoriteEntry(fields) {
+  var entry = {
+    ref: fields.ref,
+    text: fields.text,
+    book: fields.book,
+    chapter: fields.chapter,
+    verse: fields.verse
+  };
+  stampFavoriteMeta(entry);
+  return entry;
+}
+
+// 저장소에서 읽은 값을 그대로 신뢰할 수 없으면(깨진 JSON, 배열 아님, 잘못된 항목)
+// 원본을 지키기 위해 쓰기를 막는다. 화면은 메모리 목록으로 계속 동작한다.
+var favoritesStorageSafe = true;
+
+function markFavoritesStorageUnsafe() {
+  favoritesStorageSafe = false;
+}
+
+function isFavoritesStorageSafe() {
+  return favoritesStorageSafe === true;
+}
+
+function saveFavorites(list) {
+  var data = Array.isArray(list) ? list : favorites;
+  if (!Array.isArray(data)) return false;
+  if (!isFavoritesStorageSafe()) return false;
+  try {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(data));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// 저장이 성공했을 때만 메모리 목록을 교체한다. 실패하면 이전 목록이 그대로 남는다.
+function commitFavorites(nextList) {
+  if (!Array.isArray(nextList)) return false;
+  if (!saveFavorites(nextList)) return false;
+  favorites = nextList;
+  return true;
+}
+
+function loadFavorites() {
+  var raw = null;
+  try {
+    raw = localStorage.getItem(FAVORITES_STORAGE_KEY);
+  } catch (e) {
+    markFavoritesStorageUnsafe();
+    return [];
+  }
+  // 키가 아예 없을 때만 신규 사용자로 본다.
+  if (raw === null) return [];
+  if (typeof raw !== 'string' || raw === '') {
+    // 빈 문자열은 정상적인 저장 결과가 아니므로 깨진 값으로 다룬다.
+    markFavoritesStorageUnsafe();
+    return [];
+  }
+
+  var parsed = null;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    // 깨진 JSON이면 읽기만 포기해 본문 화면이 멈추지 않게 하고, 저장된 원본은 덮어쓰지 않는다.
+    markFavoritesStorageUnsafe();
+    return [];
+  }
+  if (!Array.isArray(parsed)) {
+    markFavoritesStorageUnsafe();
+    return [];
+  }
+
+  var kept = [];
+  var upgraded = [];
+  var stamped = false;
+  parsed.forEach(function(entry) {
+    if (!isValidFavoriteEntry(entry)) {
+      // 최소 구조를 갖추지 못한 항목이 있으면 원본을 그대로 남긴다.
+      markFavoritesStorageUnsafe();
+      return;
+    }
+    // 원본 항목은 건드리지 않고 복사본에만 메타를 채운다.
+    var copy = copyFavoriteEntry(entry);
+    if (stampFavoriteMeta(copy)) stamped = true;
+    kept.push(entry);
+    upgraded.push(copy);
+  });
+  if (!stamped) return upgraded;
+  // 보강한 목록은 저장에 성공했을 때만 쓴다. 실패하면 보강 전 목록을 그대로 쓴다.
+  if (saveFavorites(upgraded)) return upgraded;
+  return kept;
+}
+
+var favorites = loadFavorites();
 
 // 주석 파일 매핑
 
@@ -8424,21 +8566,22 @@ function opt4ToolbarSaveMulti() {
   if (!currentBook) return;
   var verses = getToolbarActionVerses();
   if (!verses.length) return;
+  var next = favorites.slice();
   var added = false;
   verses.forEach(function(v) {
     if (!isVerseFavorited(v)) {
-      favorites.push({
+      next.push(createFavoriteEntry({
         ref: currentBook.name + ' ' + currentChapter + ':' + v,
         text: getVersePlainText(v),
         book: currentBook.name,
         chapter: currentChapter,
         verse: v
-      });
+      }));
       added = true;
     }
   });
   if (added) {
-    localStorage.setItem('favorites', JSON.stringify(favorites));
+    commitFavorites(next);
     renderFavorites();
   }
 }
@@ -11843,9 +11986,10 @@ function goHome() {
 function toggleFav(book, chapter, verse, text) {
   var ref = book + ' ' + chapter + ':' + verse;
   var idx = favorites.findIndex(function(f) { return f.ref === ref; });
-  if(idx >= 0) favorites.splice(idx, 1);
-  else favorites.push({ref: ref, text: text, book: book, chapter: chapter, verse: verse});
-  localStorage.setItem('favorites', JSON.stringify(favorites));
+  var next = favorites.slice();
+  if(idx >= 0) next.splice(idx, 1);
+  else next.push(createFavoriteEntry({ref: ref, text: text, book: book, chapter: chapter, verse: verse}));
+  commitFavorites(next);
   var keepSelection = selectedVerseNums.slice();
   if (document.getElementById('verseView') && document.getElementById('verseView').classList.contains('active')) {
     renderVerses();
@@ -11870,8 +12014,9 @@ function renderFavorites() {
 }
 
 function removeFav(idx) {
-  favorites.splice(idx, 1);
-  localStorage.setItem('favorites', JSON.stringify(favorites));
+  var next = favorites.slice();
+  next.splice(idx, 1);
+  commitFavorites(next);
   renderFavorites();
 }
 
