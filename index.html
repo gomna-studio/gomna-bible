@@ -382,6 +382,114 @@ body{background:linear-gradient(180deg,#F0E4CD 0%,#EBDDC2 100%);min-height:100vh
   .gt-btn.gt-btn-home-custom .gt-home-globe{width:34px;height:34px}
   .gt-btn.gt-btn-home-custom .gt-home-lang-label{font-size:10px}
 }
+/* v73: 상단 오른쪽 계정(로그인·프로필) 버튼 — 지구본 버튼과 같은 형태로 나란히 둔다 */
+.header-actions{position:relative;display:flex;align-items:center;gap:10px;flex-shrink:0}
+/* 지구본은 translate_feature.js가 .settings-btn 바로 앞에 넣는다.
+   톱니바퀴는 계정 메뉴로 옮겼고, 이 자리표시자는 지구본 삽입 기준점만 유지한다. */
+.home-gt-anchor{display:none!important}
+.home-account-btn{width:auto;min-width:44px;min-height:44px;padding:0 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;align-self:center;flex-shrink:0;background:transparent;border:none;border-radius:8px;cursor:pointer;font-family:inherit;transition:background .2s ease,transform .15s ease}
+.home-account-btn:hover{background:var(--gm-hover-btn-strong);border-radius:8px}
+.home-account-avatar{position:relative;width:38px;height:38px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#FBF3E4;border:1px solid rgba(184,134,11,.3);box-sizing:border-box}
+.home-account-avatar-img{width:100%;height:100%;object-fit:cover;display:block}
+.home-account-avatar-img[hidden]{display:none}
+.home-account-avatar-icon{width:22px;height:22px;stroke:#6e4a1f;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.home-account-label{font-size:10.5px;font-weight:600;color:#6e4a1f;letter-spacing:-.15px;line-height:1.15;white-space:nowrap;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif}
+@media (max-width:380px){
+  .home-account-avatar{width:34px;height:34px}
+  .home-account-avatar-icon{width:20px;height:20px}
+  .home-account-label{font-size:10px}
+}
+/* 세로 점 3개 더보기 버튼 — 지구본·프로필 버튼과 같은 높이·무게 */
+/* 아래 여백 13px = 옆 버튼 라벨 한 줄(10.5px × 1.15) + 세로 간격 1px.
+   라벨 없는 이 버튼의 점 아이콘 중심을 지구본·프로필 원형 아이콘 중심선에 맞춘다. */
+.home-more-btn{width:auto;min-width:44px;min-height:44px;padding:0 2px 13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;align-self:center;flex-shrink:0;background:transparent;border:none;border-radius:8px;cursor:pointer;font-family:inherit;transition:background .2s ease,transform .15s ease;-webkit-appearance:none;appearance:none;box-shadow:none}
+/* 테두리는 어느 상태에서도 그리지 않는다. 키보드 focus-visible 금색 outline만 예외로 남긴다. */
+.home-more-btn:hover,.home-more-btn:active,.home-more-btn:focus,.home-more-btn[aria-expanded="true"]{border:none;box-shadow:none;outline:none}
+.home-more-btn:hover{background:var(--gm-hover-btn-strong)}
+/* 메뉴가 열렸을 때만 아주 옅은 아이보리로 구분한다. */
+.home-more-btn[aria-expanded="true"]{background:#FBF6EC}
+.home-more-dots{width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.home-more-dots svg{width:20px;height:20px;display:block;fill:#6e4a1f}
+
+/* 계정 패널 / 더보기 메뉴 — 따뜻한 아이보리 바탕에 부드러운 갈색 그림자 */
+.home-account-panel,.home-more-menu{position:absolute;top:calc(100% + 12px);right:0;z-index:200;box-sizing:border-box;background:#FFFDF8;border:1px solid rgba(151,105,53,.20);border-radius:20px;box-shadow:0 16px 38px rgba(92,64,32,.20);text-align:left;max-width:calc(100vw - 32px);max-height:calc(100vh - 130px);max-height:calc(100dvh - 130px);overflow-y:auto;-webkit-overflow-scrolling:touch;animation:homePopIn 180ms ease-out}
+.home-account-panel[hidden],.home-more-menu[hidden]{display:none}
+.home-account-panel{width:332px;padding:18px 16px 14px}
+.home-more-menu{width:272px;padding:16px}
+@keyframes homePopIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes homeSheetUp{from{transform:translateY(28px)}to{transform:none}}
+@keyframes homeScrimIn{from{opacity:0}to{opacity:1}}
+/* 모바일 시트에서만 쓰는 손잡이·닫기 */
+.home-account-sheet-handle,.home-account-sheet-close,.home-account-scrim{display:none}
+/* 계정 정보 영역 — 이름 → 상태 배지 → 설명 순서 */
+.home-account-panel-title,.home-more-menu-title{padding:0 4px 12px;font-size:12.5px;font-weight:700;color:#8B6B3D;letter-spacing:.2px}
+.home-account-panel-id{display:flex;align-items:center;gap:13px;padding:0 4px 16px;margin-bottom:14px;border-bottom:1px solid rgba(151,105,53,.16)}
+.home-account-panel-avatar{position:relative;width:56px;height:56px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#F8EDDF;border:1px solid rgba(151,105,53,.22);box-sizing:border-box}
+.home-account-panel-avatar .home-account-avatar-icon{width:30px;height:30px}
+.home-account-panel-id-text{min-width:0}
+.home-account-panel-name{font-size:18px;font-weight:700;color:#3D2818;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-account-panel-email{margin-top:3px;font-size:14px;color:#765B3D;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-account-panel-email[hidden]{display:none}
+.home-account-panel-badge{display:inline-block;max-width:100%;margin-top:7px;padding:4px 10px;border-radius:999px;background:#F8EDDF;border:1px solid rgba(151,105,53,.18);font-size:12.5px;font-weight:600;color:#765B3D;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-account-panel-badge[hidden]{display:none}
+.home-account-panel-desc{margin:0 4px 14px;font-size:14.5px;line-height:1.6;color:#765B3D;word-break:keep-all}
+/* 주요 버튼 — 밝은 샴페인 아이보리에 짙은 갈색 글자 */
+.home-account-cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;margin:0;padding:12px 16px;border:none;border-radius:16px;background:#2F67C7;color:#FFFFFF;box-shadow:0 6px 16px rgba(47,103,199,.24);font-family:inherit;font-size:16.5px;font-weight:700;line-height:1.3;cursor:pointer;box-sizing:border-box;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;transition:background 160ms ease}
+.home-account-cta:hover{background:#285DB8}
+.home-account-cta:active{background:#2455AA}
+.home-account-cta svg{width:20px;height:20px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* 메뉴 그룹과 항목 */
+.home-account-group{margin-top:14px}
+.home-account-group-title{padding:0 12px 4px;font-size:12px;font-weight:700;color:#8B6B3D;letter-spacing:.2px}
+.home-account-menu-item{display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:0 12px;border:none;border-radius:14px;background:transparent;color:#3D2818;font-family:inherit;font-size:16px;font-weight:600;text-align:left;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;transition:background 160ms ease}
+.home-account-menu-item:hover{background:rgba(151,105,53,.07)}
+.home-account-menu-item:active{background:rgba(151,105,53,.12)}
+.home-account-menu-item svg{width:21px;height:21px;flex-shrink:0;fill:none;stroke:#8A6A45;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.home-account-menu-item-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-account-menu-item-arrow{flex-shrink:0;width:8px;height:8px;margin-right:3px;border-right:1.8px solid #B79A73;border-bottom:1.8px solid #B79A73;transform:rotate(-45deg)}
+.home-account-panel-group--divided{margin-top:10px;padding-top:10px;border-top:1px solid rgba(151,105,53,.16)}
+/* 더보기 메뉴 */
+.home-more-menu-hint{margin:0;padding:0 4px 2px;font-size:14.5px;line-height:1.6;color:#765B3D;word-break:keep-all}
+.home-more-menu-items:empty{display:none}
+.home-account-btn:focus-visible,.home-more-btn:focus-visible,.home-account-menu-item:focus-visible,.home-account-cta:focus-visible,.home-account-sheet-close:focus-visible{outline:2px solid #B8751F;outline-offset:2px}
+/* 휴대폰 폭에서는 버튼 3개가 로고·제목 자리를 밀지 않도록 간격과 점 버튼 폭만 줄인다.
+   지구본 버튼 규칙은 그대로 두고, 새로 넣은 요소만 조인다. */
+@media (max-width:430px){
+  .header-actions{gap:4px}
+  .home-more-dots{width:34px;height:34px}
+}
+/* 모바일: 계정 패널을 화면 아래에서 올라오는 시트로 바꾼다 */
+@media (max-width:600px){
+  .home-account-scrim{display:block;position:fixed;inset:0;z-index:190;background:rgba(58,38,20,.38);animation:homeScrimIn 180ms ease-out}
+  .home-account-scrim[hidden]{display:none}
+  .home-account-panel{
+    position:fixed;
+    top:auto;
+    left:0;
+    right:0;
+    bottom:0;
+    width:100%;
+    max-width:none;
+    max-height:calc(100vh - 24px);
+    max-height:calc(100dvh - 24px);
+    padding:6px 18px calc(16px + env(safe-area-inset-bottom,0px));
+    border-width:1px 0 0;
+    border-radius:22px 22px 0 0;
+    animation:homeSheetUp 200ms ease-out;
+  }
+  .home-account-sheet-handle{display:block;width:44px;height:5px;margin:8px auto 12px;border-radius:3px;background:rgba(151,105,53,.26)}
+  .home-account-sheet-close{display:flex;position:absolute;top:10px;right:12px;width:40px;height:40px;align-items:center;justify-content:center;padding:0;border:none;border-radius:50%;background:rgba(139,94,44,.10);color:#5A3A1C;font-size:19px;line-height:1;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+  .home-account-sheet-close:active{background:rgba(139,94,44,.22)}
+  .home-account-panel-title{padding-top:2px}
+  .home-more-menu{width:272px;max-width:calc(100vw - 24px)}
+}
+/* 패널이 열린 동안에만 홈 본문 묶음을 쿠키 배너 위로 올린다(.container는 z-index:1 쌓임 맥락) */
+html.home-overlay-open .container{z-index:400}
+html.home-sheet-open,html.home-sheet-open body{overflow:hidden;overscroll-behavior:none}
+@media (prefers-reduced-motion:reduce){
+  .home-account-panel,.home-more-menu,.home-account-scrim{animation:none}
+}
+
 @keyframes gearRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes gearGlow{0%,100%{filter:drop-shadow(0 0 5px rgba(255,235,180,0.6))}50%{filter:drop-shadow(0 0 14px rgba(255,235,180,1)) drop-shadow(0 0 22px rgba(255,215,100,0.7))}}
 .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;margin-bottom:6px}
@@ -843,6 +951,259 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .popup-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:300;justify-content:center;align-items:center}
 .popup-overlay.show{display:flex}
 .popup-box{background:#fff;border-radius:20px;padding:28px 24px;width:90%;max-width:420px;max-height:90vh;overflow-y:auto;text-align:center;color:#4A2511}
+/* v75: 로그인 안내창 — index.html과 reader.html이 같은 마크업·같은 값을 쓴다.
+   .popup-box 뒤에 두어 두 페이지에서 같은 규칙이 이기게 한다.
+   데스크톱은 가운데 대화상자, 600px 이하는 아래에서 올라오는 시트. */
+.login-overlay{z-index:10000;padding:16px;box-sizing:border-box;background:rgba(58,38,20,.44)}
+.login-box{
+  position:relative;
+  width:100%;
+  max-width:412px;
+  max-height:calc(100vh - 32px);
+  max-height:calc(100dvh - 32px);
+  padding:26px 22px 18px;
+  background:#FFFDF8;
+  border:1px solid rgba(151,105,53,.18);
+  border-radius:22px;
+  box-shadow:0 18px 44px rgba(92,64,32,.22);
+  color:#3D2818;
+  text-align:left;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  box-sizing:border-box;
+  animation:loginBoxIn 180ms ease-out;
+}
+@keyframes loginBoxIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes loginSheetUp{from{transform:translateY(24px)}to{transform:none}}
+.login-sheet-handle{display:none}
+.login-close{
+  position:absolute;
+  top:14px;
+  right:14px;
+  width:40px;
+  height:40px;
+  min-width:40px;
+  padding:0;
+  border:none;
+  border-radius:50%;
+  background:rgba(139,94,44,.10);
+  color:#5A3A1C;
+  font-size:19px;
+  line-height:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:5;
+  -webkit-appearance:none;
+  appearance:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.login-close:hover{background:rgba(139,94,44,.16)}
+.login-close:active{background:rgba(139,94,44,.22)}
+/* 중앙 브랜드 비주얼 — 대표가 준 이미지 3장을 각각 그대로 두고
+   위치·크기·회전·그림자만 CSS로 얹어 한 상징물처럼 겹친다. */
+.login-brand-visual{
+  --lv-w:206px;
+  --lv-h:130px;
+  --lv-front:96px;
+  --lv-gold:78px;
+  --lv-gomna:70px;
+  position:relative;
+  width:var(--lv-w);
+  max-width:100%;
+  height:var(--lv-h);
+  margin:6px auto 16px;
+  animation:loginBrandIn 200ms ease-out both;
+}
+@keyframes loginBrandIn{from{opacity:0}to{opacity:1}}
+.login-brand-glow{
+  position:absolute;
+  left:-9%;
+  right:-9%;
+  top:-12%;
+  bottom:-12%;
+  z-index:0;
+  border-radius:50%;
+  background:radial-gradient(58% 58% at 50% 54%,rgba(246,234,214,.85) 0%,rgba(251,245,236,.45) 46%,rgba(255,253,248,0) 74%);
+}
+.login-brand-card{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  overflow:hidden;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.62);
+  box-shadow:0 8px 18px rgba(74,46,24,.16),0 3px 9px rgba(28,38,78,.13);
+  background:#FFFDF8;
+  box-sizing:border-box;
+}
+.login-brand-card[hidden]{display:none}
+.login-brand-card img{width:100%;height:100%;object-fit:cover;display:block}
+.login-brand-card--blue{
+  width:var(--lv-front);
+  height:var(--lv-front);
+  z-index:3;
+  transform:translateX(-50%);
+  animation:loginBrandBlueIn 220ms ease-out both;
+}
+.login-brand-card--gold{
+  width:var(--lv-gold);
+  height:var(--lv-gold);
+  top:0;
+  bottom:auto;
+  z-index:1;
+  transform:translateX(calc(-50% - var(--lv-front) * .62)) rotate(-8deg);
+  animation:loginBrandGoldIn 220ms ease-out 30ms both;
+}
+.login-brand-card--gomna{
+  width:var(--lv-gomna);
+  height:var(--lv-gomna);
+  top:7%;
+  bottom:auto;
+  z-index:2;
+  transform:translateX(calc(-50% + var(--lv-front) * .60)) rotate(8deg);
+  animation:loginBrandGomnaIn 220ms ease-out 50ms both;
+}
+@keyframes loginBrandBlueIn{from{opacity:0;transform:translateX(-50%) translateY(7px)}to{opacity:1;transform:translateX(-50%)}}
+@keyframes loginBrandGoldIn{from{opacity:0;transform:translateX(calc(-50% - var(--lv-front) * .62)) translateY(6px) rotate(-8deg)}to{opacity:1;transform:translateX(calc(-50% - var(--lv-front) * .62)) rotate(-8deg)}}
+@keyframes loginBrandGomnaIn{from{opacity:0;transform:translateX(calc(-50% + var(--lv-front) * .60)) translateY(6px) rotate(8deg)}to{opacity:1;transform:translateX(calc(-50% + var(--lv-front) * .60)) rotate(8deg)}}
+.login-title{margin:0 44px 10px 0;font-size:21px;font-weight:700;color:#3D2818;line-height:1.4;letter-spacing:-.3px;text-align:left}
+.login-desc{margin:0 0 20px;font-size:15.5px;line-height:1.65;color:#765B3D}
+.login-providers{display:flex;flex-direction:column;gap:10px}
+.login-provider{
+  display:grid;
+  grid-template-columns:24px minmax(0,1fr) 24px;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  height:56px;
+  min-height:56px;
+  margin:0;
+  padding:0 16px;
+  border:1px solid transparent;
+  border-radius:13px;
+  font-family:inherit;
+  font-size:17px;
+  font-weight:700;
+  line-height:1.3;
+  cursor:pointer;
+  box-sizing:border-box;
+  overflow:hidden;
+  -webkit-appearance:none;
+  appearance:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:background 160ms ease,filter 160ms ease;
+}
+.login-provider-icon{display:flex;width:24px;height:24px;align-items:center;justify-content:center}
+.login-provider-icon img{width:21px;height:21px;object-fit:contain;display:block}
+.login-provider svg{width:21px;height:21px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.login-provider-label{min-width:0;text-align:center}
+.login-provider-balance{display:block;width:24px;height:1px}
+/* 카카오·네이버는 각 사 공식 완성 버튼 이미지를 그대로 버튼 전체로 쓴다.
+   심볼·레이블·비율·색상을 손대지 않고, 컨테이너만 좌우로 넓힌다. */
+.login-provider--official{display:block;padding:0;border:none}
+.login-provider--official .login-provider-official-img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
+.login-provider-fallback{display:none}
+.login-provider--mark-failed .login-provider-official-img{display:none}
+.login-provider--mark-failed .login-provider-fallback{display:flex;width:100%;height:100%;align-items:center;justify-content:center;font-size:17px;font-weight:700}
+.login-provider--kakao{background:#FEE500}
+.login-provider--kakao .login-provider-fallback{color:rgba(0,0,0,.85)}
+.login-provider--naver{background:#03A94D}
+.login-provider--naver .login-provider-fallback{color:#FFFFFF}
+.login-provider--official:hover{filter:brightness(.97)}
+.login-provider--official:active{filter:brightness(.94)}
+.login-provider--google{background:#FFFFFF;border-color:#DCCDB8;color:#3C2A1A}
+.login-provider--google:hover{background:#FBF6EF}
+.login-provider--google:active{background:#F5EFE6}
+.login-provider--email{background:linear-gradient(180deg,#FFF9F0 0%,#F5E8D8 100%);border-color:#D9BE94;color:#56351F}
+.login-provider--email:hover{background:linear-gradient(180deg,#F8EDDF 0%,#F0E0CC 100%)}
+.login-provider--email:active{background:#EEDDC7}
+.login-next-step-notice{
+  margin:14px 0 0;
+  padding:13px 15px;
+  border:1px solid #EADFCB;
+  border-radius:14px;
+  background:#FBF6EC;
+  font-size:15px;
+  line-height:1.6;
+  color:#5A4632;
+  text-align:center;
+}
+.login-next-step-notice[hidden]{display:none}
+.login-skip{
+  display:block;
+  width:100%;
+  min-height:48px;
+  margin:16px 0 0;
+  padding:12px;
+  border:none;
+  border-radius:14px;
+  background:transparent;
+  color:#765B3D;
+  font-family:inherit;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  box-sizing:border-box;
+  -webkit-appearance:none;
+  appearance:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:background 160ms ease;
+}
+.login-skip:hover{background:rgba(151,105,53,.07);color:#5A3A1C}
+.login-skip:active{background:rgba(151,105,53,.12)}
+/* 키보드 초점에서만 금색 outline. 마우스·터치 뒤에는 테두리가 남지 않는다. */
+.login-close:focus-visible,
+.login-provider:focus-visible,
+.login-skip:focus-visible{outline:2px solid #B8751F;outline-offset:2px}
+/* 창이 열린 동안 배경 스크롤 차단 */
+html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-behavior:none}
+/* 모바일: 화면 아래에서 올라오는 로그인 시트 */
+@media (max-width:600px){
+  .login-overlay{padding:0;align-items:flex-end}
+  .login-box{
+    max-width:none;
+    padding:6px 18px calc(16px + env(safe-area-inset-bottom,0px));
+    border-width:1px 0 0;
+    border-radius:22px 22px 0 0;
+    max-height:calc(100vh - 24px);
+    max-height:calc(100dvh - 24px);
+    animation:loginSheetUp 200ms ease-out;
+  }
+  .login-sheet-handle{display:block;width:44px;height:5px;margin:8px auto 12px;border-radius:3px;background:rgba(151,105,53,.26)}
+  .login-close{top:10px;right:10px}
+  .login-brand-visual{margin-top:2px}
+  .login-title{font-size:20px}
+  .login-provider{font-size:16.5px}
+}
+/* 일반 아이폰 폭 */
+@media (max-width:430px){
+  .login-brand-visual{--lv-w:180px;--lv-h:112px;--lv-front:85px;--lv-gold:68px;--lv-gomna:61px}
+}
+/* 작은 아이폰 폭 */
+@media (max-width:374px){
+  .login-brand-visual{--lv-w:158px;--lv-h:96px;--lv-front:76px;--lv-gold:61px;--lv-gomna:55px}
+  .login-provider{padding:0 12px;font-size:16px}
+}
+/* 세로가 짧은 화면: 비주얼을 먼저 줄여 로그인 버튼을 화면 안에 남긴다. */
+@media (max-height:740px){
+  .login-brand-visual{--lv-w:170px;--lv-h:88px;--lv-front:73px;--lv-gold:59px;--lv-gomna:53px;margin:2px auto 12px}
+  .login-title{margin-bottom:8px}
+  .login-desc{margin-bottom:14px}
+  .login-providers{gap:8px}
+  .login-provider{height:52px;min-height:52px}
+}
+@media (max-height:650px){
+  .login-brand-visual{--lv-w:152px;--lv-h:76px;--lv-front:65px;--lv-gold:52px;--lv-gomna:47px;margin:0 auto 10px}
+  .login-box{padding-top:20px}
+  .login-desc{margin-bottom:12px;font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){
+  .login-box,
+  .login-brand-visual,
+  .login-brand-card{animation:none}
+}
 .popup-title{font-size:18px;font-weight:700;margin-bottom:16px;color:#4A2511}
 .font-control{display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:28px}
 .font-btn{width:48px;height:48px;border-radius:50%;border:2px solid #4A2511;background:#fff;color:#4A2511;font-size:22px;font-weight:700;cursor:pointer}
@@ -1013,9 +1374,99 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
       <h1 class="title" data-i18n-key="brand.title">은혜의말씀</h1>
       <div class="sub" data-i18n-key="brand.subtitle">Holy Bible · Korean Revised</div>
     </div>
-    <button class="settings-btn" onclick="openSettings()" title="설정" aria-label="설정" data-i18n-title="settings.openAria" data-i18n-aria-label="settings.openAria">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-    </button>
+    <div class="header-actions" id="homeHeaderActions">
+      <!-- 지구본 언어 버튼(.gt-btn)은 translate_feature.js가 .settings-btn 바로 앞에 넣는다.
+           설정은 계정 메뉴로 옮겼으므로, 이 자리표시자는 지구본 삽입 기준점 역할만 한다. -->
+      <span class="settings-btn home-gt-anchor" aria-hidden="true" hidden></span>
+      <button type="button" class="home-account-btn" id="homeAccountBtn" onclick="toggleHomeAccountPanel()" aria-haspopup="dialog" aria-expanded="false" aria-controls="homeAccountPanel" title="계정 및 설정" aria-label="계정 및 설정">
+        <span class="home-account-avatar">
+          <img class="home-account-avatar-img" id="homeAccountAvatarImg" alt="" hidden>
+          <svg class="home-account-avatar-icon" id="homeAccountAvatarIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg>
+        </span>
+        <span class="home-account-label" id="homeAccountLabel">로그인</span>
+      </button>
+      <button type="button" class="home-more-btn" id="homeMoreBtn" onclick="toggleHomeMoreMenu()" aria-haspopup="menu" aria-expanded="false" aria-controls="homeMoreMenu" title="더보기" aria-label="더보기">
+        <span class="home-more-dots" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.05"/><circle cx="12" cy="12" r="2.05"/><circle cx="12" cy="19" r="2.05"/></svg></span>
+      </button>
+      <!-- 모바일 시트일 때만 보이는 가림막. 데스크톱에서는 CSS로 숨긴다. -->
+      <div class="home-account-scrim" id="homeAccountScrim" onclick="closeHomeAccountPanel()" hidden></div>
+      <div class="home-account-panel" id="homeAccountPanel" role="dialog" aria-labelledby="homeAccountPanelTitle" hidden>
+        <span class="home-account-sheet-handle" aria-hidden="true"></span>
+        <button type="button" class="home-account-sheet-close" onclick="closeHomeAccountPanel()" aria-label="닫기">✕</button>
+        <div class="home-account-panel-title" id="homeAccountPanelTitle">계정 및 설정</div>
+        <div class="home-account-panel-id">
+          <span class="home-account-panel-avatar">
+            <img class="home-account-avatar-img" id="homeAccountPanelAvatarImg" alt="" hidden>
+            <svg class="home-account-avatar-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg>
+          </span>
+          <div class="home-account-panel-id-text">
+            <div class="home-account-panel-name" id="homeAccountPanelName">계정 연결 전</div>
+            <div class="home-account-panel-email" id="homeAccountPanelEmail" hidden></div>
+            <span class="home-account-panel-badge" id="homeAccountPanelBadge">현재 기록은 이 기기에 보관됩니다</span>
+          </div>
+        </div>
+        <div data-account-group="signed-out">
+          <p class="home-account-panel-desc">계정을 연결하면 저장한 말씀과 읽던 곳, 듣던 곳을 어느 기기에서든 안전하게 이어갈 수 있습니다.</p>
+          <button type="button" class="home-account-cta" id="homeAccountLoginCta" onclick="homeAccountPanelLogin()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 5.4 5.9v5.3c0 4 2.8 7.7 6.6 9.1 3.8-1.4 6.6-5.1 6.6-9.1V5.9z"/><path d="m9.4 11.9 1.9 1.9 3.6-3.7"/></svg>
+            기록을 안전하게 이어가기
+          </button>
+        </div>
+        <!-- 로그인 후 열릴 구조. 실제 동작은 인증을 붙이는 다음 단계에서 연결한다. -->
+        <div class="home-account-group" data-account-group="signed-in" hidden>
+          <div class="home-account-group-title">내 계정</div>
+          <button type="button" class="home-account-menu-item" data-account-action="profile">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg>
+            <span class="home-account-menu-item-label">내 프로필</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="home-account-menu-item" data-account-action="avatar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.6h3.3L9 6.2h6l1.7 2.4H20v10H4z"/><circle cx="12" cy="13.3" r="3.2"/></svg>
+            <span class="home-account-menu-item-label">프로필 사진 변경</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="home-account-group" data-account-group="signed-in" hidden>
+          <div class="home-account-group-title">나의 기록</div>
+          <button type="button" class="home-account-menu-item" data-account-action="sync">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 9.6A7.5 7.5 0 0 0 5.6 8.2"/><path d="M4.6 14.4a7.5 7.5 0 0 0 13.8 1.4"/><path d="M4.6 4.8v3.6h3.6M19.4 19.2v-3.6h-3.6"/></svg>
+            <span class="home-account-menu-item-label">기록 동기화</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="home-account-menu-item" data-account-action="favorites">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.6h10v15l-5-3.4-5 3.4z"/></svg>
+            <span class="home-account-menu-item-label">저장한 말씀</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="home-account-menu-item" data-account-action="subscription">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="6" width="17.2" height="12" rx="2.6"/><path d="M3.4 10.2h17.2"/></svg>
+            <span class="home-account-menu-item-label">구독 관리</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="home-account-group">
+          <div class="home-account-group-title">앱 설정</div>
+          <button type="button" class="home-account-menu-item" onclick="homeAccountPanelSettings()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.3 14.1a1.5 1.5 0 0 0 .3 1.6l.1.1a1.8 1.8 0 1 1-2.5 2.5l-.1-.1a1.5 1.5 0 0 0-2.5 1v.3a1.8 1.8 0 1 1-3.6 0v-.2a1.5 1.5 0 0 0-2.6-1l-.1.1a1.8 1.8 0 1 1-2.5-2.5l.1-.1a1.5 1.5 0 0 0-1-2.5h-.3a1.8 1.8 0 1 1 0-3.6h.2a1.5 1.5 0 0 0 1-2.6l-.1-.1a1.8 1.8 0 1 1 2.5-2.5l.1.1a1.5 1.5 0 0 0 1.6.3h.1a1.5 1.5 0 0 0 .9-1.4v-.3a1.8 1.8 0 1 1 3.6 0v.2a1.5 1.5 0 0 0 2.5 1l.1-.1a1.8 1.8 0 1 1 2.5 2.5l-.1.1a1.5 1.5 0 0 0 1 2.5h.3a1.8 1.8 0 1 1 0 3.6h-.2a1.5 1.5 0 0 0-1.3.9z"/></svg>
+            <span class="home-account-menu-item-label">설정</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="home-account-menu-item" onclick="homeAccountPanelLanguage()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path d="M3.8 12h16.4"/><path d="M12 3.8c2.1 2.2 3.2 5.1 3.2 8.2s-1.1 6-3.2 8.2c-2.1-2.2-3.2-5.1-3.2-8.2s1.1-6 3.2-8.2z"/></svg>
+            <span class="home-account-menu-item-label">언어</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+          <!-- 도움말: 앱 사용안내 화면이 아직 없어 항목을 만들지 않는다.
+               (guide·about·contact는 아카이브·회사 소개·문의 페이지라 도움말이 아니다) -->
+        </div>
+        <div class="home-account-panel-group--divided" data-account-group="signed-in" hidden>
+          <button type="button" class="home-account-menu-item" data-account-action="logout">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 6.4V5.2a1.8 1.8 0 0 0-1.8-1.8H6.2a1.8 1.8 0 0 0-1.8 1.8v13.6a1.8 1.8 0 0 0 1.8 1.8h6.2a1.8 1.8 0 0 0 1.8-1.8v-1.2"/><path d="M9.6 12h10.2m-2.8-3 2.8 3-2.8 3"/></svg>
+            <span class="home-account-menu-item-label">로그아웃</span>
+          </button>
+        </div>
+      </div>
+      <div class="home-more-menu" id="homeMoreMenu" role="menu" aria-labelledby="homeMoreMenuTitle" hidden>
+        <div class="home-more-menu-title" id="homeMoreMenuTitle">더보기</div>
+        <p class="home-more-menu-hint">추가 기능을 준비하고 있습니다.</p>
+        <!-- 앞으로 항목을 넣을 자리. 아래 형태로 한 줄씩 추가한다.
+             <button type="button" class="home-account-menu-item" role="menuitem" data-more-action="이름">항목</button> -->
+        <div class="home-more-menu-items" id="homeMoreMenuItems"></div>
+      </div>
+    </div>
   </div>
   <section class="home-resume-card" id="homeResumeCard" aria-label="말씀 이어가기">
     <div class="home-resume-bars">
@@ -1188,6 +1639,28 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
       <button class="font-btn" onclick="changeFont(1)">+</button>
     </div>
     <button class="popup-close" onclick="closeSettings()" data-i18n-key="common.close">닫기</button>
+  </div>
+</div>
+<div class="popup-overlay login-overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" aria-describedby="loginModalDesc" aria-hidden="true" onclick="if(event.target===this)closeLoginModal()">
+  <div class="popup-box login-box" onclick="event.stopPropagation()">
+    <span class="login-sheet-handle" aria-hidden="true"></span>
+    <button type="button" class="login-close" id="loginModalCloseBtn" onclick="closeLoginModal()" aria-label="닫기">✕</button>
+    <div class="login-brand-visual" aria-hidden="true">
+      <span class="login-brand-glow"></span>
+      <span class="login-brand-card login-brand-card--gold"><img src="assets/login/login-visual-gold.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
+      <span class="login-brand-card login-brand-card--gomna"><img src="assets/login/login-visual-gomna.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
+      <span class="login-brand-card login-brand-card--blue"><img src="assets/login/login-visual-blue.png?v=1" alt="" decoding="async" onerror="if(this.getAttribute('data-fallback-used')){var c=this.closest('.login-brand-card');if(c)c.hidden=true;return;}this.setAttribute('data-fallback-used','1');this.src='logo-home.png?v=1';"></span>
+    </div>
+    <div class="login-title" id="loginModalTitle">말씀 기록을 안전하게 이어가세요</div>
+    <p class="login-desc" id="loginModalDesc">로그인하면 저장한 말씀과 읽던 곳, 듣던 곳을 어느 기기에서든 안전하게 이어갈 수 있습니다.</p>
+    <div class="login-providers">
+      <button type="button" class="login-provider login-provider--official login-provider--kakao" id="loginKakaoBtn" onclick="showLoginNextStepNotice()"><img class="login-provider-official-img" src="assets/auth/kakao-login-button-ko-wide.png?v=1" alt="카카오 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">카카오 로그인</span></button>
+      <button type="button" class="login-provider login-provider--official login-provider--naver" onclick="showLoginNextStepNotice()"><img class="login-provider-official-img" src="assets/auth/naver-login-button-ko-wide.png?v=1" alt="네이버 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">네이버 로그인</span></button>
+      <button type="button" class="login-provider login-provider--google" onclick="showLoginNextStepNotice()"><span class="login-provider-icon" aria-hidden="true"><img src="assets/auth/google-g-logo.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">Google 계정으로 로그인</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--email" onclick="showLoginNextStepNotice()"><span class="login-provider-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m4 7.5 8 5.2 8-5.2"/></svg></span><span class="login-provider-label">이메일로 로그인</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+    </div>
+    <div class="login-next-step-notice" id="loginNextStepNotice" role="status" aria-live="polite" hidden>로그인 연결은 다음 단계에서 작동합니다.</div>
+    <button type="button" class="login-skip" onclick="closeLoginModal()">로그인 없이 계속</button>
   </div>
 </div>
 <div class="popup-overlay" id="versePopup" onclick="if(event.target===this)closeVerseDatePicker()">
@@ -1798,6 +2271,252 @@ function topic(keyword){
 }
 function openSettings(){var p=document.getElementById('settingsPopup');if(p)p.classList.add('show');}
 function closeSettings(){var p=document.getElementById('settingsPopup');if(p)p.classList.remove('show');}
+
+/* v74: 계정 및 설정 패널 — 데스크톱은 프로필 버튼 아래 팝오버, 600px 이하는 하단 시트.
+   설정·언어·로그인은 모두 기존 기능(openSettings, 기존 언어창, openLoginModal)을 그대로 부른다. */
+function isHomeAccountSheetMode(){
+  try{return window.matchMedia('(max-width:600px)').matches;}catch(e){return false;}
+}
+function isHomeAccountPanelOpen(){
+  var panel=document.getElementById('homeAccountPanel');
+  return !!(panel&&!panel.hidden);
+}
+function openHomeAccountPanel(){
+  var panel=document.getElementById('homeAccountPanel');
+  var btn=document.getElementById('homeAccountBtn');
+  var scrim=document.getElementById('homeAccountScrim');
+  if(!panel)return;
+  closeHomeMoreMenu();
+  panel.hidden=false;
+  if(scrim)scrim.hidden=false;
+  document.documentElement.classList.add('home-overlay-open');
+  if(isHomeAccountSheetMode()){
+    panel.setAttribute('aria-modal','true');
+    document.documentElement.classList.add('home-sheet-open');
+  }else{
+    panel.removeAttribute('aria-modal');
+  }
+  if(btn)btn.setAttribute('aria-expanded','true');
+  /* 열리면 가장 중요한 버튼으로 초점을 옮긴다 */
+  try{
+    var first=panel.querySelector('[data-account-group="signed-out"]:not([hidden]) .home-account-cta')||panel.querySelector('.home-account-menu-item');
+    if(first&&typeof first.focus==='function')first.focus();
+  }catch(e){}
+}
+function closeHomeAccountPanel(returnFocus){
+  var panel=document.getElementById('homeAccountPanel');
+  var btn=document.getElementById('homeAccountBtn');
+  var scrim=document.getElementById('homeAccountScrim');
+  if(!panel||panel.hidden)return;
+  var hadFocus=panel.contains(document.activeElement);
+  panel.hidden=true;
+  panel.removeAttribute('aria-modal');
+  if(scrim)scrim.hidden=true;
+  document.documentElement.classList.remove('home-sheet-open');
+  if(!isHomeMoreMenuOpen())document.documentElement.classList.remove('home-overlay-open');
+  if(btn){
+    btn.setAttribute('aria-expanded','false');
+    /* 패널 안에 있던 초점은 원래 버튼으로 되돌린다 */
+    if(returnFocus!==false&&hadFocus&&typeof btn.focus==='function'){try{btn.focus();}catch(e){}}
+  }
+}
+function toggleHomeAccountPanel(){
+  if(isHomeAccountPanelOpen())closeHomeAccountPanel();
+  else openHomeAccountPanel();
+}
+function homeAccountPanelLogin(){
+  closeHomeAccountPanel();
+  openLoginModal('home-account-panel');
+}
+function homeAccountPanelSettings(){
+  closeHomeAccountPanel();
+  openSettings();
+}
+/* 언어는 지구본 버튼이 열던 기존 언어창을 그대로 연다. */
+function homeAccountPanelLanguage(){
+  closeHomeAccountPanel();
+  if(typeof window.GomnaOpenLanguageModal==='function'){window.GomnaOpenLanguageModal();return;}
+  var globe=document.querySelector('.header-actions .gt-btn');
+  if(globe&&typeof globe.click==='function')globe.click();
+}
+
+/* v73: 더보기 메뉴 — 계정 기능과 분리된 확장 공간. 항목은 data-more-action으로 붙인다. */
+function isHomeMoreMenuOpen(){
+  var menu=document.getElementById('homeMoreMenu');
+  return !!(menu&&!menu.hidden);
+}
+function openHomeMoreMenu(){
+  var menu=document.getElementById('homeMoreMenu');
+  var btn=document.getElementById('homeMoreBtn');
+  if(!menu)return;
+  closeHomeAccountPanel(false);
+  menu.hidden=false;
+  document.documentElement.classList.add('home-overlay-open');
+  if(btn)btn.setAttribute('aria-expanded','true');
+}
+function closeHomeMoreMenu(returnFocus){
+  var menu=document.getElementById('homeMoreMenu');
+  var btn=document.getElementById('homeMoreBtn');
+  if(!menu||menu.hidden)return;
+  var hadFocus=menu.contains(document.activeElement);
+  menu.hidden=true;
+  if(!isHomeAccountPanelOpen())document.documentElement.classList.remove('home-overlay-open');
+  if(btn){
+    btn.setAttribute('aria-expanded','false');
+    if(returnFocus!==false&&hadFocus&&typeof btn.focus==='function'){try{btn.focus();}catch(e){}}
+  }
+}
+function toggleHomeMoreMenu(){
+  if(isHomeMoreMenuOpen())closeHomeMoreMenu();
+  else openHomeMoreMenu();
+}
+
+/* 로그인 후 프로필 사진을 넣을 자리. Google·카카오 사진이나 사용자가 고른 URL을 그대로 전달한다. */
+function setHomeAccountAvatar(url){
+  var ids=['homeAccountAvatarImg','homeAccountPanelAvatarImg'];
+  for(var i=0;i<ids.length;i++){
+    var img=document.getElementById(ids[i]);
+    if(!img)continue;
+    var icon=img.parentNode?img.parentNode.querySelector('.home-account-avatar-icon'):null;
+    if(url){
+      img.onerror=function(){setHomeAccountAvatar('');};
+      img.src=url;
+      img.hidden=false;
+      if(icon)icon.style.display='none';
+    }else{
+      img.onerror=null;
+      img.removeAttribute('src');
+      img.hidden=true;
+      if(icon)icon.style.display='';
+    }
+  }
+}
+/* 로그인 상태가 붙는 다음 단계에서 setState('signed-in',{name,email,avatar})로 호출한다.
+   실제 인증 전에는 항상 'signed-out'이고, 가짜 이름·이메일을 만들지 않는다. */
+function setHomeAccountState(state,profile){
+  var signedIn=state==='signed-in';
+  var info=profile||{};
+  document.querySelectorAll('#homeAccountPanel [data-account-group]').forEach(function(group){
+    var forSignedIn=group.getAttribute('data-account-group')==='signed-in';
+    group.hidden=forSignedIn?!signedIn:signedIn;
+  });
+  var label=document.getElementById('homeAccountLabel');
+  if(label)label.textContent=signedIn?'내 정보':'로그인';
+  var name=document.getElementById('homeAccountPanelName');
+  if(name)name.textContent=signedIn?(info.name||'내 정보'):'계정 연결 전';
+  var email=document.getElementById('homeAccountPanelEmail');
+  if(email){
+    email.textContent=signedIn?(info.email||''):'';
+    email.hidden=!email.textContent;
+  }
+  var badge=document.getElementById('homeAccountPanelBadge');
+  if(badge)badge.textContent=signedIn?'기록 보호 중':'현재 기록은 이 기기에 보관됩니다';
+  var btn=document.getElementById('homeAccountBtn');
+  if(btn){
+    btn.setAttribute('aria-label',signedIn?'내 정보':'계정 및 설정');
+    btn.setAttribute('title',signedIn?'내 정보':'계정 및 설정');
+  }
+  setHomeAccountAvatar(signedIn?(info.avatar||''):'');
+}
+window.GomnaHomeAccount={setAvatar:setHomeAccountAvatar,setState:setHomeAccountState};
+
+/* 바깥 클릭으로 닫기. 모바일 가림막은 자체 onclick으로 닫는다. */
+document.addEventListener('click',function(e){
+  if(isHomeAccountPanelOpen()&&!e.target.closest('#homeAccountBtn')&&!e.target.closest('#homeAccountPanel')){
+    closeHomeAccountPanel(false);
+  }
+  if(isHomeMoreMenuOpen()&&!e.target.closest('#homeMoreBtn')&&!e.target.closest('#homeMoreMenu')){
+    closeHomeMoreMenu(false);
+  }
+});
+
+/* v73: 로그인 안내창 — 첫 방문에 자동으로 열지 않고, 계정 메뉴에서만 연다.
+   실제 인증 연결은 다음 단계에서 붙인다. */
+var loginModalLastFocus=null;
+
+function isLoginModalOpen(){
+  var overlay=document.getElementById('loginModal');
+  return !!(overlay&&overlay.classList.contains('show'));
+}
+
+function hideLoginNextStepNotice(){
+  var notice=document.getElementById('loginNextStepNotice');
+  if(notice)notice.hidden=true;
+}
+
+function showLoginNextStepNotice(){
+  var notice=document.getElementById('loginNextStepNotice');
+  if(notice)notice.hidden=false;
+}
+
+function loginModalBox(){return document.querySelector('#loginModal .login-box');}
+function loginModalCanFocus(el){
+  try{return !!(el&&typeof el.focus==='function'&&el.isConnected&&!el.disabled&&el.getClientRects().length);}catch(e){return false;}
+}
+/* 로그인창을 닫은 뒤 돌아갈 자리. 원래 버튼이 이미 화면에서 사라졌으면
+   지금 실제로 보이는 버튼으로 초점을 되돌린다. */
+function loginModalFocusTarget(){
+  if(loginModalCanFocus(loginModalLastFocus))return loginModalLastFocus;
+  var fallbacks=[document.getElementById('homeAccountBtn'),document.getElementById('homeMoreBtn')];
+  for(var i=0;i<fallbacks.length;i++){if(loginModalCanFocus(fallbacks[i]))return fallbacks[i];}
+  return null;
+}
+function loginModalFocusables(){
+  var box=loginModalBox();
+  if(!box)return [];
+  return Array.prototype.filter.call(
+    box.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'),
+    function(el){return !el.disabled&&el.getClientRects().length;}
+  );
+}
+
+function openLoginModal(source){
+  var overlay=document.getElementById('loginModal');
+  if(!overlay)return;
+  hideLoginNextStepNotice();
+  overlay.setAttribute('data-login-source',source||'');
+  overlay.classList.add('show');
+  overlay.setAttribute('aria-hidden','false');
+  document.documentElement.classList.add('login-modal-open');
+  try{
+    loginModalLastFocus=document.activeElement;
+    var first=document.getElementById('loginKakaoBtn');
+    if(first&&typeof first.focus==='function')first.focus();
+  }catch(e){}
+}
+
+function closeLoginModal(){
+  var overlay=document.getElementById('loginModal');
+  if(!overlay)return;
+  overlay.classList.remove('show');
+  overlay.setAttribute('aria-hidden','true');
+  document.documentElement.classList.remove('login-modal-open');
+  hideLoginNextStepNotice();
+  try{
+    var back=loginModalFocusTarget();
+    if(back)back.focus();
+  }catch(e){}
+  loginModalLastFocus=null;
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape')return;
+  if(isLoginModalOpen()){closeLoginModal();return;}
+  if(isHomeAccountPanelOpen())closeHomeAccountPanel();
+  if(isHomeMoreMenuOpen())closeHomeMoreMenu();
+});
+
+/* 로그인창이 열린 동안 Tab·Shift+Tab 초점이 창 밖으로 빠져나가지 않게 순환시킨다. */
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Tab'||!isLoginModalOpen())return;
+  var box=loginModalBox(),items=loginModalFocusables();
+  if(!box||!items.length)return;
+  var first=items[0],last=items[items.length-1],cur=document.activeElement;
+  if(e.shiftKey){
+    if(cur===first||!box.contains(cur)){e.preventDefault();last.focus();}
+  }else if(cur===last||!box.contains(cur)){e.preventDefault();first.focus();}
+});
+
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
 <script src="js/gomna-home-resume.js?v=20260729-resume-i18n-books"></script>
