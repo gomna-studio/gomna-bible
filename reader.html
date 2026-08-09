@@ -2251,6 +2251,8 @@ html.reader-hide-chrome #favView.active #favResultsArea{
   border-radius:12px;
   background:#fff;
 }
+/* 로그인한 사용자에게는 영역 전체를 감춘다(빈 테두리 카드나 여백이 남지 않게 한다). */
+.fav-login-notice[hidden]{display:none}
 .fav-login-notice-text{font-size:15px;font-weight:600;color:var(--text-light);line-height:1.4}
 /* 보관함 CTA도 로그인창·계정 패널과 같은 샴페인 아이보리로 맞춘다 */
 .fav-login-notice-btn{
@@ -2718,6 +2720,10 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 <script type="text/javascript">(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","vxpnb5ay5l");</script>
+<!-- 사용자 글자 크기(공용). 첫 그림 전에 저장된 비율을 적용하려고 head에서 바로 읽는다. -->
+<script src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
+<!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
+<script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
 </head>
 <body data-gomna-page="reader">
 <div id="gomnaReaderBootOverlay" class="gomna-reader-boot-overlay" aria-hidden="true">
@@ -3027,21 +3033,23 @@ if ("serviceWorker" in navigator) {
 </div>
 <div class="popup-overlay" id="settingsPopup">
   <div class="popup-box">
-    <!-- v74: 성경 화면의 계정 입구. 하단 6번째 탭이나 상단 새 버튼 대신 설정 안 맨 위에 둔다. -->
-    <button type="button" class="reader-account-entry" onclick="closeSettings();openLoginModal('reader-settings');">
+    <!-- v74: 성경 화면의 계정 입구. 하단 6번째 탭이나 상단 새 버튼 대신 설정 안 맨 위에 둔다.
+         settings_guide.js가 설정창 내용을 다시 만들기 때문에 실제로 보이는 계정 줄은
+         gomna-auth.js가 만들어진 목록 맨 위에 넣는다. 아래 markup은 그 파일이 없을 때의 대비다. -->
+    <button type="button" class="reader-account-entry" onclick="openReaderAccountView()">
       <span class="reader-account-entry-avatar" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg></span>
       <span class="reader-account-entry-text">
-        <span class="reader-account-entry-title">계정 및 기록 보호</span>
+        <span class="reader-account-entry-title">내 정보</span>
         <span class="reader-account-entry-sub">이 기기에만 저장 중</span>
       </span>
       <span class="reader-account-entry-arrow" aria-hidden="true"></span>
     </button>
     <div class="reader-settings-divider" role="presentation"></div>
-    <div class="popup-title">⚙️ 글자 크기 설정</div>
+    <div class="popup-title">글자 크기</div>
     <div class="font-control">
-      <button class="font-btn" onclick="changeFont(-1)">−</button>
-      <span class="font-size-display" id="fontDisplay">17px</span>
-      <button class="font-btn" onclick="changeFont(1)">+</button>
+      <button type="button" class="font-btn" id="fontMinusBtn" onclick="changeFont(-1)" aria-label="글자 작게">－</button>
+      <span class="font-size-display" id="fontDisplay" aria-live="polite">22px</span>
+      <button type="button" class="font-btn" id="fontPlusBtn" onclick="changeFont(1)" aria-label="글자 크게">＋</button>
     </div>
     <button class="popup-close" onclick="closeSettings()">닫기</button>
   </div>
@@ -3059,10 +3067,10 @@ if ("serviceWorker" in navigator) {
     <div class="login-title" id="loginModalTitle">말씀 기록을 안전하게 이어가세요</div>
     <p class="login-desc" id="loginModalDesc">로그인하면 저장한 말씀과 읽던 곳, 듣던 곳을 어느 기기에서든 안전하게 이어갈 수 있습니다.</p>
     <div class="login-providers">
-      <button type="button" class="login-provider login-provider--official login-provider--kakao" id="loginKakaoBtn" onclick="showLoginNextStepNotice()"><img class="login-provider-official-img" src="assets/auth/kakao-login-button-ko-wide.png?v=1" alt="카카오 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">카카오 로그인</span></button>
-      <button type="button" class="login-provider login-provider--official login-provider--naver" onclick="showLoginNextStepNotice()"><img class="login-provider-official-img" src="assets/auth/naver-login-button-ko-wide.png?v=1" alt="네이버 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">네이버 로그인</span></button>
-      <button type="button" class="login-provider login-provider--google" onclick="showLoginNextStepNotice()"><span class="login-provider-icon" aria-hidden="true"><img src="assets/auth/google-g-logo.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">Google 계정으로 로그인</span><span class="login-provider-balance" aria-hidden="true"></span></button>
-      <button type="button" class="login-provider login-provider--email" onclick="showLoginNextStepNotice()"><span class="login-provider-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m4 7.5 8 5.2 8-5.2"/></svg></span><span class="login-provider-label">이메일로 로그인</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--official login-provider--kakao" id="loginKakaoBtn" data-auth-provider="kakao"><img class="login-provider-official-img" src="assets/auth/kakao-login-button-ko-wide.png?v=1" alt="카카오 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">카카오 로그인</span></button>
+      <button type="button" class="login-provider login-provider--official login-provider--naver" onclick="if(window.GomnaAuth)window.GomnaAuth.showNaverNotice();else showLoginNextStepNotice();"><img class="login-provider-official-img" src="assets/auth/naver-login-button-ko-wide.png?v=1" alt="네이버 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">네이버 로그인</span></button>
+      <button type="button" class="login-provider login-provider--google" data-auth-provider="google"><span class="login-provider-icon" aria-hidden="true"><img src="assets/auth/google-g-logo.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">Google 계정으로 로그인</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--email" onclick="if(window.GomnaAuth)window.GomnaAuth.openEmailLogin();else showLoginNextStepNotice();"><span class="login-provider-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m4 7.5 8 5.2 8-5.2"/></svg></span><span class="login-provider-label">이메일로 로그인</span><span class="login-provider-balance" aria-hidden="true"></span></button>
     </div>
     <div class="login-next-step-notice" id="loginNextStepNotice" role="status" aria-live="polite" hidden>로그인 연결은 다음 단계에서 작동합니다.</div>
     <button type="button" class="login-skip" onclick="closeLoginModal()">로그인 없이 계속</button>
@@ -12874,10 +12882,9 @@ document.addEventListener('keydown', function(e) {
     if (cur === first || !box.contains(cur)) { e.preventDefault(); last.focus(); }
   } else if (cur === last || !box.contains(cur)) { e.preventDefault(); first.focus(); }
 });
+/* 글자 크기는 홈·Reader 공용 기능(js/gomna-text-scale.js)이 담당한다. */
 function changeFont(delta) {
-  fontSize = Math.min(26, Math.max(14, fontSize + delta * 2));
-  document.documentElement.style.setProperty('--font-size', fontSize + 'px');
-  document.getElementById('fontDisplay').textContent = fontSize + 'px';
+  if (window.GomnaTextScale) return window.GomnaTextScale.step(delta);
 }
 </script>
 
@@ -12945,7 +12952,7 @@ function changeFont(delta) {
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260803-card-skip-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
 <script src="/js/gomna-audio-ui.js?v=20260803-card-skip-v1" defer></script>
-<script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
+<script src="settings_guide.js?v=20260807-settings-v3" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)
 - "서비스 개선" 자동 체크
@@ -13110,7 +13117,7 @@ function loadAds() {
 }
 </script>
 <script src="/js/gomna-reader-lang-bridge.js?v=20260724-first-visit-detect-v2" defer></script>
-<script src="translate_feature.js?v=20260724-reader-trigger-guard-v1" defer></script>
+<script src="translate_feature.js?v=20260809-lang-suggest-v1" defer></script>
 <!-- 은혜의말씀 오디오 미니 플레이어 (평소 hidden, 듣기 클릭 시 등장) -->
 <div id="gomna-audio-mini-player" class="gomna-audio-mini-player" hidden>
   <div class="gomna-audio-mini-info">
@@ -13901,5 +13908,69 @@ function loadAds() {
 })();
 </script>
 <script src="/js/gomna-card-highlight-test.js?v=20260803-bible-follow-prod-v1"></script>
+<script>
+/* 로그인 상태를 Reader에 반영하는 얇은 연결. 새 계정 UI를 만들지 않고
+   설정창에 이미 있는 계정 입구의 안내 줄과 보관함 안내 영역만 갱신한다. */
+(function () {
+  var defaultSub = null;
+  var signedInNow = false;
+
+  function accountSignedIn() {
+    return !!(window.GomnaAuth && window.GomnaAuth.isSignedIn && window.GomnaAuth.isSignedIn()) || signedInNow;
+  }
+
+  /* 설정창의 계정 입구가 쓰는 내 정보 진입점. */
+  window.openReaderAccountView = function () {
+    try { if (typeof closeSettings === 'function') closeSettings(); } catch (e) {}
+    if (accountSignedIn() && window.GomnaAuth && typeof window.GomnaAuth.openProfile === 'function') {
+      window.GomnaAuth.openProfile();
+      return;
+    }
+    openLoginModal('reader-settings');
+  };
+
+  /* 계정 화면의 "저장한 말씀"에서 기존 보관함을 그대로 연다(새 화면을 만들지 않는다). */
+  window.GomnaReaderFavorites = function () {
+    try { if (typeof closeSettings === 'function') closeSettings(); } catch (e) {}
+    try { if (typeof switchTab === 'function') switchTab('fav'); } catch (e) {}
+    try { if (typeof renderFavorites === 'function') renderFavorites(); } catch (e) {}
+  };
+
+  function setState(state, profile) {
+    var signedIn = state === 'signed-in';
+    var info = profile || {};
+    signedInNow = signedIn;
+
+    var entryTitle = document.querySelector('.reader-account-entry-title');
+    if (entryTitle) entryTitle.textContent = signedIn ? '내 정보' : '로그인';
+
+    var sub = document.querySelector('.reader-account-entry-sub');
+    if (sub) {
+      if (defaultSub === null) defaultSub = sub.textContent;
+      if (!signedIn) {
+        sub.textContent = defaultSub;
+      } else {
+        var label = (typeof info.email === 'string' && info.email) ? info.email : '';
+        if (!label && typeof info.name === 'string') label = info.name;
+        sub.textContent = label || defaultSub;
+      }
+    }
+
+    /* 로그인한 사용자에게 "이 기기에만 저장 중"과 "기록 보호하기"를 보여주지 않는다.
+       영역 전체를 감춰 보관함 목록이 자연스럽게 위로 올라오게 한다. */
+    var notice = document.getElementById('favLoginNotice');
+    if (notice) notice.hidden = signedIn;
+
+    /* 로그인 상태에서는 별도 안내 없이 보관함 목록만 보여준다.
+       계정 입구는 설정창의 "내 정보" 줄이 담당한다. */
+  }
+  window.GomnaReaderAccount = { setState: setState };
+})();
+</script>
+<!-- 로그인 연결: Supabase 공식 CDN이 먼저, 그 뒤에 gomna-auth.js. 순서를 바꾸지 않는다. -->
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="js/gomna-auth.js?v=20260808-account-v9"></script>
+<!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
+<script defer src="js/gomna-help.js?v=20260808-help-v8"></script>
 </body>
 </html>

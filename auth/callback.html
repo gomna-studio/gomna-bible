@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>로그인 처리 중</title>
+<style>
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#FFFDF8;color:#3D2818;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+  p{margin:0;font-size:16px;line-height:1.6;text-align:center}
+  main{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:520px}
+  /* [임시 진단] 로컬에서 실패했을 때만 보인다. 원인 확정 후 제거한다. */
+  #authCallbackDetail{white-space:pre-wrap;text-align:left;font-size:13px;line-height:1.7;color:#6B4E33;background:#FFF6E6;border:1px solid #E6D5B8;border-radius:12px;padding:12px 14px;word-break:break-all}
+  #authCallbackBack{font-size:15px;color:#2F67C7}
+</style>
+</head>
+<body>
+<main>
+<p id="authCallbackStatus" role="status" aria-live="polite">로그인을 처리하고 있습니다. 잠시만 기다려 주세요.</p>
+<p id="authCallbackDetail" hidden></p>
+<a id="authCallbackBack" href="/" hidden>홈으로 돌아가기</a>
+</main>
+<!-- 실제 PKCE 코드 교환은 js/gomna-auth.js 안에서 이 경로를 확인해 처리한다. -->
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="../js/gomna-auth.js?v=20260806-account-v2"></script>
+</body>
+</html>

@@ -5,12 +5,17 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-08-03-expanded-progress-slim-v1';
+const CACHE_VERSION = '2026-08-06-expanded-progress-slim-v2';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE = 'gomna-data-v1';
 const AUDIO_MANIFEST_CACHE = 'gomna-audio-manifest-v1';
 const NETWORK_FIRST_TIMEOUT_MS = 4000;
+
+// 로컬 미리보기 주소에서만 적용하는 예외.
+// 운영 도메인에서는 아래 값이 false이므로 기존 동작이 그대로 유지된다.
+const LOCAL_PREVIEW_HOSTS = ['127.0.0.1', 'localhost', '::1'];
+const IS_LOCAL_PREVIEW = LOCAL_PREVIEW_HOSTS.indexOf(self.location.hostname) !== -1;
 
 const STATIC_URLS = [
   '/',
@@ -259,6 +264,26 @@ function networkFirst(req, fallbackUrl) {
   );
 }
 
+// 로컬 미리보기 전용: HTML 이동 요청은 4초 timeout으로 옛 캐시로 되돌리지 않는다.
+// 네트워크 응답을 기다려 디스크의 현재 화면을 보여주고, 네트워크가 실제로 실패할 때만 캐시를 쓴다.
+function networkFirstWithoutTimeout(req, fallbackUrl) {
+  return fetch(req).then(resp => {
+    if (resp.ok && resp.type === 'basic') {
+      const clone = resp.clone();
+      caches.open(STATIC_CACHE).then(cache => cache.put(req, clone));
+    }
+    return resp;
+  }).catch(() =>
+    caches.match(req).then(hit => {
+      if (hit) return hit;
+      if (fallbackUrl) {
+        return caches.match(fallbackUrl).then(fb => fb || Response.error());
+      }
+      return Response.error();
+    })
+  );
+}
+
 // 대형 성경 데이터: 캐시가 있으면 즉시 제공 후 백그라운드 갱신, 없으면 네트워크를 timeout 없이 대기
 function bibleDataStaleWhileRevalidate(req) {
   return caches.open(STATIC_CACHE).then(cache =>
@@ -317,7 +342,11 @@ self.addEventListener('fetch', event => {
 
   // ── 2) HTML 네비게이션: 네트워크 우선, 경로별 폴백 ──
   if (isHtmlNav(req)) {
-    event.respondWith(networkFirst(req, htmlFallbackFor(url)));
+    event.respondWith(
+      IS_LOCAL_PREVIEW
+        ? networkFirstWithoutTimeout(req, htmlFallbackFor(url))
+        : networkFirst(req, htmlFallbackFor(url))
+    );
     return;
   }
 
