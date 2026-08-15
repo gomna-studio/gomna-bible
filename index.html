@@ -289,10 +289,10 @@ html.gt-translation-pending body::after{
   ]
 }
 </script>
-<link rel="manifest" href="manifest.json?v=20260722-home-ko-default-v1">
+<link rel="manifest" href="manifest.json?v=2026-08-15-scripture-quick-move-v1">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <script>
-window.GOMNA_ASSET_VERSION = "20260722-home-ko-default-v1";
+window.GOMNA_ASSET_VERSION = "2026-08-15-scripture-quick-move-v1";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -650,7 +650,9 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .verse-card-verse-layer{position:absolute;inset:0;z-index:1;display:grid;grid-template-rows:auto 1fr;min-height:100%;padding:10px 12px 11px;box-sizing:border-box;gap:0;background-color:#D8C8A8;background-image:url('today-verse-slide-2-bg-v3.png');background-size:cover;background-position:center;background-repeat:no-repeat;opacity:0;visibility:hidden;pointer-events:none;will-change:opacity}
 .verse-card-verse-layer .verse-center{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:0;padding:8px 10px 10px;text-align:center}
 .verse-card-verse-layer .verse-tag{font-family:inherit;font-size:clamp(15px,3.6vw,16px);font-weight:600;font-style:normal;letter-spacing:.02em;color:#3d2818;-webkit-text-fill-color:#3d2818;text-transform:none;opacity:0;padding-top:0;line-height:1.2;text-shadow:0 1px 1px rgba(255,255,255,.28)}
-.verse-card-verse-layer .verse-text{font-size:clamp(12.5px,3.1vw,14.5px);color:#3d2818;-webkit-text-fill-color:#3d2818;line-height:1.42;letter-spacing:-0.1px;margin-bottom:5px;padding:0;opacity:0;font-weight:600;display:block;overflow:visible;white-space:normal;text-align:center;text-shadow:0 1px 1px rgba(255,255,255,.28)}
+.verse-card-verse-layer .verse-text{font-size:clamp(12.5px,3.1vw,14.5px);color:#3d2818;-webkit-text-fill-color:#3d2818;line-height:1.42;letter-spacing:-0.1px;margin-bottom:5px;padding:0;opacity:0;font-weight:600;display:block;overflow:visible;white-space:normal;word-break:keep-all;overflow-wrap:break-word;text-align:center;text-shadow:0 1px 1px rgba(255,255,255,.28)}
+/* 구절이 실제로 보이는 동안에만 누를 수 있게 한다(사진 장면에서는 빈 곳을 눌러도 반응하지 않는다). */
+.verse-card.is-verse-active .verse-card-verse-layer .verse-text{pointer-events:auto;cursor:pointer}
 .verse-card-verse-layer .verse-ref{font-size:clamp(12px,2.8vw,13px);color:#3d2818;-webkit-text-fill-color:#3d2818;font-style:normal;text-align:center;font-family:inherit;opacity:0;margin-top:0;margin-bottom:0;line-height:1.32;font-weight:600;text-shadow:0 1px 1px rgba(255,255,255,.28)}
 .verse-card-controls{position:absolute;inset:0;z-index:2;display:grid;grid-template-rows:auto 1fr auto;min-height:100%;padding:10px 12px 11px;box-sizing:border-box;gap:0;pointer-events:none}
 .verse-card-controls .verse-footer{grid-row:3;align-self:end;width:100%;height:0;padding:0;overflow:visible;pointer-events:none}
@@ -728,7 +730,7 @@ html.translated-ltr .verse-card .gm-btn-today-open,html.translated-rtl .verse-ca
 .home-brand-blurb{margin:14px 8px 0;padding:0 4px;text-align:center;font-size:12px;line-height:1.55;font-weight:400;letter-spacing:-0.01em;color:rgba(74,62,50,.70);word-break:keep-all;overflow-wrap:break-word}
 .home-brand-line{display:block}
 .imprint-bottom{margin-top:10px;padding-top:14px;padding-bottom:30px;border-top:.5px solid rgba(255,255,255,.18);text-align:center}
-.gs-link{font-family:monospace;font-size:10.5px;font-weight:400;letter-spacing:0.04em;display:inline-flex;align-items:center;justify-content:center;max-width:100%;min-height:32px;padding:7px 10px;margin:-4px 0;text-decoration:none;color:rgba(74,62,50,.70);opacity:.74;box-sizing:border-box;-webkit-tap-highlight-color:transparent;transition:opacity .3s ease}
+.gs-link{font-family:inherit;font-size:10.5px;font-weight:400;letter-spacing:normal;display:inline-flex;align-items:center;justify-content:center;max-width:100%;min-height:32px;padding:7px 10px;margin:-4px 0;text-decoration:none;color:rgba(74,62,50,.70);opacity:.74;box-sizing:border-box;-webkit-tap-highlight-color:transparent;transition:opacity .3s ease}
 @media (hover:hover){.gs-link:hover{opacity:.92}}
 .gs-link:focus-visible{outline:2px solid rgba(122,78,29,.45);outline-offset:2px;border-radius:6px}
 .gs-copy{display:inline-block;white-space:normal}
@@ -1181,6 +1183,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 <script src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
 <script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
+<link rel="stylesheet" href="js/gomna-scripture-quick-move.css?v=20260815-desktop-align-v2">
 </head>
 <body data-gomna-page="home">
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
@@ -1313,7 +1316,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
     <div class="verse-card-verse-layer" aria-hidden="true">
       <div class="verse-tag" id="verse-tag" data-i18n-key="home.todayWord.tag">오늘의 말씀</div>
       <div class="verse-center">
-        <div class="verse-text" id="verse-text">"수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라"</div>
+        <div class="verse-text" id="verse-text" onclick="openDailyVerse('read')">"수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라"</div>
         <div class="verse-ref" id="verse-ref">— 마태복음 11:28</div>
       </div>
     </div>
@@ -1327,7 +1330,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
     </div>
   </div>
   <div class="quick-menu">
-    <button type="button" class="quick-item" onclick="location.href='reader.html?testament=old'" aria-label="읽기" data-i18n-aria-label="home.quick.read">
+    <button type="button" class="quick-item" onclick="openReadResume()" aria-label="읽기" data-i18n-aria-label="home.quick.read">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h7a3 3 0 013 3v13a2.5 2.5 0 00-2.5-2.5H2z"/><path d="M22 4h-7a3 3 0 00-3 3v13a2.5 2.5 0 012.5-2.5H22z"/></svg>
       <span class="quick-name" data-i18n-key="home.quick.read">읽기</span>
     </button>
@@ -1351,7 +1354,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
           <img class="home-bible-cover" src="images/home/bible-old.png" alt="" aria-hidden="true" decoding="async">
         </div>
       </div>
-      <div class="card-label"><div class="card-name" data-i18n-key="home.oldTestament.title">구약 39권</div></div>
+      <div class="card-label"><div class="card-name" data-i18n-key="home.sheet.oldTestament">구약</div></div>
     </button>
     <button type="button" class="card new" onclick="openBible('new')" ontouchstart="" aria-label="신약 27권 장·절로 읽기" data-i18n-aria-label="home.newTestament.title">
       <div class="card-visual">
@@ -1359,7 +1362,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
           <img class="home-bible-cover" src="images/home/bible-new.png" alt="" aria-hidden="true" decoding="async">
         </div>
       </div>
-      <div class="card-label"><div class="card-name" data-i18n-key="home.newTestament.title">신약 27권</div></div>
+      <div class="card-label"><div class="card-name" data-i18n-key="home.sheet.newTestament">신약</div></div>
     </button>
     <a class="card easy" id="homeEasyFindBtn" href="./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3" role="link" aria-label="쉬운 찾기" data-i18n-aria-label="home.easyFind.title">
       <div class="card-visual">
@@ -1385,7 +1388,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
   </div>
   <p class="home-brand-blurb">
     <span class="home-brand-line">성경을 읽고 듣고,</span>
-    <span class="home-brand-line">깊이 있는 말씀풀이로 묵상하는 은혜의말씀</span>
+    <span class="home-brand-line">말씀풀이와 함께 깊이 묵상하는 은혜의말씀</span>
   </p>
   <div class="imprint-bottom">
     <a class="gs-link" href="/studio" aria-label="Gomna Studio, Inc. 회사 소개"><span class="gs-copy" translate="no">© 2026 Gomna Studio, Inc.</span></a>
@@ -1431,7 +1434,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
     <p class="login-desc" id="loginModalDesc">로그인 방법을 선택하세요.</p>
     <div class="login-providers">
       <button type="button" class="login-provider login-provider--official login-provider--kakao" id="loginKakaoBtn" data-auth-provider="kakao"><img class="login-provider-official-img" src="assets/auth/kakao-login-button-ko-wide.png?v=1" alt="카카오 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">카카오 로그인</span></button>
-      <button type="button" class="login-provider login-provider--official login-provider--naver" onclick="if(window.GomnaAuth)window.GomnaAuth.showNaverNotice();else showLoginNextStepNotice();"><img class="login-provider-official-img" src="assets/auth/naver-login-button-ko-wide.png?v=1" alt="네이버 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">네이버 로그인</span></button>
+      <button type="button" class="login-provider login-provider--official login-provider--naver" data-auth-provider="custom:naver"><img class="login-provider-official-img" src="assets/auth/naver-login-button-ko-wide.png?v=1" alt="네이버 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">네이버 로그인</span></button>
       <button type="button" class="login-provider login-provider--google" data-auth-provider="google"><span class="login-provider-icon" aria-hidden="true"><img src="assets/auth/google-g-logo.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">Google 계정으로 로그인</span><span class="login-provider-balance" aria-hidden="true"></span></button>
       <button type="button" class="login-provider login-provider--email" onclick="if(window.GomnaAuth)window.GomnaAuth.openEmailLogin();else showLoginNextStepNotice();"><span class="login-provider-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m4 7.5 8 5.2 8-5.2"/></svg></span><span class="login-provider-label">이메일로 로그인</span><span class="login-provider-balance" aria-hidden="true"></span></button>
     </div>
@@ -1505,6 +1508,12 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 const oldData=[{cat:'📜 모세오경',books:[['창세기',50],['출애굽기',40],['레위기',27],['민수기',36],['신명기',34]]},{cat:'📜 역사서',books:[['여호수아',24],['사사기',21],['룻기',4],['사무엘상',31],['사무엘하',24],['열왕기상',22],['열왕기하',25],['역대상',29],['역대하',36],['에스라',10],['느헤미야',13],['에스더',10]]},{cat:'📜 시가서',books:[['욥기',42],['시편',150],['잠언',31],['전도서',12],['아가',8]]},{cat:'📜 대선지서',books:[['이사야',66],['예레미야',52],['예레미야애가',5],['에스겔',48],['다니엘',12]]},{cat:'📜 소선지서',books:[['호세아',14],['요엘',3],['아모스',9],['오바댜',1],['요나',4],['미가',7],['나훔',3],['하박국',3],['스바냐',3],['학개',2],['스가랴',14],['말라기',4]]}];
 const newData=[{cat:'📖 복음서',books:[['마태복음',28],['마가복음',16],['누가복음',24],['요한복음',21]]},{cat:'📖 역사서',books:[['사도행전',28]]},{cat:'📖 바울서신',books:[['로마서',16],['고린도전서',16],['고린도후서',13],['갈라디아서',6],['에베소서',6],['빌립보서',4],['골로새서',4],['데살로니가전서',5],['데살로니가후서',3],['디모데전서',6],['디모데후서',4],['디도서',3],['빌레몬서',1]]},{cat:'📖 공동서신',books:[['히브리서',13],['야고보서',5],['베드로전서',5],['베드로후서',3],['요한일서',5],['요한이서',1],['요한삼서',1],['유다서',1]]},{cat:'📖 예언서',books:[['요한계시록',22]]}];
 const allBooks=[['창세기',50],['출애굽기',40],['레위기',27],['민수기',36],['신명기',34],['여호수아',24],['사사기',21],['룻기',4],['사무엘상',31],['사무엘하',24],['열왕기상',22],['열왕기하',25],['역대상',29],['역대하',36],['에스라',10],['느헤미야',13],['에스더',10],['욥기',42],['시편',150],['잠언',31],['전도서',12],['아가',8],['이사야',66],['예레미야',52],['예레미야애가',5],['에스겔',48],['다니엘',12],['호세아',14],['요엘',3],['아모스',9],['오바댜',1],['요나',4],['미가',7],['나훔',3],['하박국',3],['스바냐',3],['학개',2],['스가랴',14],['말라기',4],['마태복음',28],['마가복음',16],['누가복음',24],['요한복음',21],['사도행전',28],['로마서',16],['고린도전서',16],['고린도후서',13],['갈라디아서',6],['에베소서',6],['빌립보서',4],['골로새서',4],['데살로니가전서',5],['데살로니가후서',3],['디모데전서',6],['디모데후서',4],['디도서',3],['빌레몬서',1],['히브리서',13],['야고보서',5],['베드로전서',5],['베드로후서',3],['요한일서',5],['요한이서',1],['요한삼서',1],['유다서',1],['요한계시록',22]];
+function getAllBooks(){
+  var all=[];
+  oldData.forEach(function(c){(c.books||[]).forEach(function(bk){all.push({name:bk[0],chapters:bk[1],testament:'old'});});});
+  newData.forEach(function(c){(c.books||[]).forEach(function(bk){all.push({name:bk[0],chapters:bk[1],testament:'new'});});});
+  return all;
+}
 const consonants=['전체','ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅎ'];
 let easyOpenTimer=null;
 function getConsonant(name){const c=name.charCodeAt(0);if(c<0xAC00||c>0xD7A3)return null;const idx=Math.floor((c-0xAC00)/588);const map=['ㄱ','ㄱ','ㄴ','ㄷ','ㄷ','ㄹ','ㅁ','ㅂ','ㅂ','ㅅ','ㅅ','ㅇ','ㅈ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];return map[idx]||null;}
@@ -1784,6 +1793,8 @@ function openDailyVerse(mode){
   params.set('chapter',String(t.chapter));
   params.set('verseStart',String(t.startVerse));
   params.set('verse',String(t.startVerse));
+  /* 로마서 8:38-39처럼 범위형 말씀은 끝 절까지 함께 표시하도록 넘긴다. */
+  if(t.endVerse>t.startVerse)params.set('verseEnd',String(t.endVerse));
   params.set('source','home-daily-read');
   window.location.href='reader.html?'+params.toString();
 }
@@ -1839,8 +1850,24 @@ function openContinueRead(){
 _verseSchedule(1000,startVerseCycle);
 document.addEventListener('visibilitychange',function(){if(document.hidden){_clearVerseCycle();}else{startVerseCycle();}});
 function openBible(testament){
-  window.location.href='reader.html?testament='+encodeURIComponent(testament);
+  var t = testament === 'new' ? 'new' : 'old';
+  if (typeof window.openScriptureQuickMove === 'function') {
+    window.openScriptureQuickMove({ testament: t, stage: 'book', resetPlace: true });
+    return;
+  }
+  window.location.href = 'reader.html?book=' + encodeURIComponent(t === 'new' ? '마태복음' : '창세기') + '&chapter=1&verse=1';
 }
+/* 홈 「읽기」 = 「계속 읽기」 카드와 같은 검증된 이동 경로.
+   기존 최근 읽기 기록(레거시 포함)이 없으면 GOMNA_HOME_RESUME가 창세기 1장 1절로 보낸다.
+   66권 분류 화면은 본문 「더보기 → 가이드」로 옮겼다. */
+function openReadResume(){
+  if(window.GOMNA_HOME_RESUME && typeof window.GOMNA_HOME_RESUME.openRead==='function'){
+    window.GOMNA_HOME_RESUME.openRead();
+    return;
+  }
+  window.location.href='reader.html?book='+encodeURIComponent('창세기')+'&chapter=1&verse=1';
+}
+window.openReadResume=openReadResume;
 function openEasy(){
   // 홈 「말씀 바로찾기」→ reader #easyView 만. 홈 #overlay / renderEasy 절대 사용 금지
   window.location.assign('./reader.html?easy=1&v=20260712-easyfind-direct-v3');
@@ -2198,7 +2225,8 @@ document.addEventListener('keydown',function(e){
 
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
-<script src="js/gomna-home-resume.js?v=20260809-smart-continue-v3"></script>
+<script src="js/gomna-home-resume.js?v=20260812-resume-clock-v1"></script>
+<script src="js/gomna-scripture-quick-move.js?v=20260815-reuse-range-v1"></script>
 <script src="settings_guide.js?v=20260807-settings-v3" defer></script>
 <script src="translate_feature.js?v=20260809-lang-suggest-v1" defer></script>
 <script>
@@ -2358,7 +2386,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 </script>
 <!-- 로그인 연결: Supabase 공식 CDN이 먼저, 그 뒤에 gomna-auth.js. 순서를 바꾸지 않는다. -->
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="js/gomna-auth.js?v=20260808-account-v9"></script>
+<script defer src="js/gomna-auth.js?v=20260813-google-gis-v1"></script>
 <!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
 <script defer src="js/gomna-help.js?v=20260808-help-v8"></script>
 </body>

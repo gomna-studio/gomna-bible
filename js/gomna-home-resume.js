@@ -357,14 +357,26 @@
     return d.getMonth() + 1 + '월 ' + d.getDate() + '일';
   }
 
-  /** Home time line: "오늘 · HH:MM" / "3일 전 · HH:MM" / "7월 20일 · HH:MM" */
+  /* 한국어 화면에서는 "21:23"을 재생 위치로 오해하지 않도록 오전/오후를 붙인 12시간제로 읽어 준다. */
+  function formatClockPart(d) {
+    var hour = d.getHours();
+    var minute = pad2(d.getMinutes());
+    var meridiem;
+    if (uiLang() !== 'ko') return pad2(hour) + ':' + minute;
+    meridiem = hour < 12 ? '오전' : '오후';
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+    return meridiem + ' ' + hour + ':' + minute;
+  }
+
+  /** Home time line: "오늘 · 오후 9:23" / "3일 전 · 오후 9:23" / "7월 20일 · 오후 9:23" */
   function formatResumeTimeLine(ts) {
     var d = new Date(ts);
     var dayPart;
     if (isNaN(d.getTime())) return '';
     dayPart = formatRelativeDayPart(ts);
     if (!dayPart) return '';
-    return dayPart + ' · ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    return dayPart + ' · ' + formatClockPart(d);
   }
 
   function formatDayTimePrefix(ts) {

@@ -599,20 +599,16 @@
   function ensureHeaderBridge() {
     var header = document.getElementById('verseReadHeader');
     var el = document.getElementById(FIXED_ID);
-    var nextBtn = document.getElementById('verseReadNextBtn');
     if (!el) {
       el = document.createElement('div');
       el.id = FIXED_ID;
       el.className = 'gomna-reader-lang-bridge-host notranslate';
       el.setAttribute('translate', 'no');
-      if (header && nextBtn) header.insertBefore(el, nextBtn);
-      else if (header) header.appendChild(el);
+      if (header) header.appendChild(el);
       else document.body.appendChild(el);
-    } else if (header && nextBtn && el.nextElementSibling !== nextBtn) {
-      header.insertBefore(el, nextBtn);
-    } else if (header && el.parentNode !== header) {
-      if (nextBtn) header.insertBefore(el, nextBtn);
-      else header.appendChild(el);
+    } else if (header && header.lastElementChild !== el) {
+      /* Sits right of the chapter-move group, as the header's last slot. */
+      header.appendChild(el);
     }
     el.classList.add('gomna-reader-lang-bridge-host', 'notranslate');
     el.setAttribute('translate', 'no');

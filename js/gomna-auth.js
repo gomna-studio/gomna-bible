@@ -13,9 +13,31 @@
   var SUPABASE_PUBLISHABLE_KEY =
     'sb_publishable_XWXOFlU4rLS-oqTB0uOlYw_NB1Qbeiz';
 
+  /* 카카오 로그인에만 쓰는 공개 JavaScript 키.
+     대표님이 Kakao Developers > 앱 키 > JavaScript 키 값을 이 한 줄에만 붙여넣는다.
+     비어 있으면 이 경로를 건너뛰고 지금까지 쓰던 카카오 로그인을 그대로 쓴다.
+     REST API 키·Client Secret·Supabase service_role 같은 비밀값은 절대 넣지 않는다. */
+  var KAKAO_JAVASCRIPT_KEY = 'fe56d790f77b9210314935348fe4986a';
+
+  /* Google 로그인에만 쓰는 공개 Web Client ID.
+     Google Identity Services가 브라우저에서 그대로 쓰는 값이라 공개해도 된다.
+     Client Secret은 어떤 경우에도 이 파일에 넣지 않는다. */
+  var GOOGLE_CLIENT_ID = '695452296101-9a9dgdkragirdb780sjafba5kru1tlfn.apps.googleusercontent.com';
+  var GOOGLE_GIS_SRC = 'https://accounts.google.com/gsi/client';
+
   var KEY_PLACEHOLDER = '__PASTE_SUPABASE_PUBLISHABLE_KEY_HERE__';
-  var ALLOWED_PROVIDERS = ['google', 'kakao'];
+  /* Supabase OAuth 리다이렉트를 쓰는 공급자만 남긴다.
+     Google은 Google Identity Services + signInWithIdToken 경로를 쓴다.
+     네이버는 Supabase Custom OIDC Provider라 이름이 'custom:naver'다.
+     Client ID·Secret은 Supabase 서버에만 있고 여기서는 공급자 이름만 쓴다. */
+  var ALLOWED_PROVIDERS = ['kakao', 'custom:naver'];
   var CALLBACK_PATH = '/auth/callback.html';
+  var KAKAO_SDK_SRC = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js';
+  /* openid는 ID 토큰을 받기 위해서만 넣는다. account_email은 어떤 경우에도 요청하지 않는다. */
+  var KAKAO_JS_SCOPE = 'openid,profile_nickname,profile_image';
+  var KAKAO_STATE_KEY = 'gomna.auth.kakaoState';
+  var KAKAO_OFF_KEY = 'gomna.auth.kakaoSdkOff';
+  var KAKAO_EXCHANGE_PATH = '/functions/v1/kakao-mobile-login'; /* Edge Function 이름 */
   var ALLOWED_RETURN_PATHS = ['/', '/index.html', '/reader.html'];
   var RETURN_TO_KEY = 'gomna.auth.returnTo';
   var MESSAGE_KEY = 'gomna.auth.message';
@@ -31,6 +53,7 @@
     failed: '로그인을 완료하지 못했습니다. 다시 시도해 주세요.',
     network: '인터넷 연결을 확인한 뒤 다시 시도해 주세요.',
     cancelled: '로그인이 취소되었습니다.',
+    googleUnavailable: 'Google 로그인을 준비하지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도해 주세요.',
     logoutFailed: '로그아웃을 완료하지 못했습니다. 다시 시도해 주세요.'
   };
 
@@ -105,8 +128,50 @@
 
   /* ── 로그인 사용자 표시값 ────────────────────────────────── */
 
+  /* 이번 세션에서 실제로 쓴 로그인 방법(access_token의 amr). 값은 'otp'·'oauth'처럼 방법 이름뿐이고,
+     토큰 자체는 저장하지도 기록하지도 않는다. 예전부터 계정에 붙어 있는 provider와 다를 수 있다.
+     (같은 주소의 Google 계정에 인증번호로 로그인하면 provider는 google로 남아 있다.) */
+  var currentAuthMethod = '';
+  var EMAIL_AUTH_METHODS = { otp: 1, magiclink: 1, password: 1, email: 1 };
+
+  function decodeJwtClaims(token) {
+    try {
+      var parts = String(token || '').split('.');
+      if (parts.length !== 3) return null;
+      var body = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (body.length % 4) body += '=';
+      var binary = window.atob(body);
+      var bytes = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return JSON.parse(new TextDecoder('utf-8').decode(bytes));
+    } catch (e) { return null; }
+  }
+
+  /* amr 목록에서 가장 최근 인증 방법 하나만 꺼낸다. 읽지 못하면 빈 문자열로 두고 기존 방식으로 돌아간다. */
+  function readAuthMethod(session) {
+    var claims = decodeJwtClaims(session && session.access_token);
+    var amr = (claims && claims.amr instanceof Array) ? claims.amr : null;
+    if (!amr || !amr.length) return '';
+    var best = '';
+    var bestAt = -1;
+    for (var i = 0; i < amr.length; i++) {
+      var entry = amr[i];
+      if (!entry) continue;
+      var method = text(typeof entry === 'string' ? entry : entry.method);
+      if (!method) continue;
+      var at = (typeof entry.timestamp === 'number') ? entry.timestamp : -1;
+      if (at >= bestAt) { best = method; bestAt = at; }
+    }
+    return best;
+  }
+
+  /* 세션에는 Custom OIDC가 'custom:naver'로 돌아온다. 표시용으로는 앞의 'custom:'만 뗀다.
+     이번 로그인이 인증번호·비밀번호였다면 계정에 남아 있는 소셜 provider 대신 이메일로 본다. */
   function pickProvider(user) {
-    try { return text(user && user.app_metadata && user.app_metadata.provider); } catch (e) { return ''; }
+    if (EMAIL_AUTH_METHODS[currentAuthMethod]) return 'email';
+    var raw;
+    try { raw = text(user && user.app_metadata && user.app_metadata.provider); } catch (e) { return ''; }
+    return raw.indexOf('custom:') === 0 ? raw.slice(7) : raw;
   }
 
   function pickName(user) {
@@ -118,10 +183,14 @@
     for (var i = 0; i < candidates.length; i++) {
       if (text(candidates[i])) return text(candidates[i]);
     }
+    var provider = pickProvider(user);
+    /* 이메일 주소 자체를 큰 제목으로 노출하지 않는다. */
+    if (provider === 'email') return '이메일 사용자';
     var email = pickEmail(user);
     if (email && email.indexOf('@') > 0) return email.split('@')[0];
-    /* 카카오는 이메일 없이 로그인될 수 있어 이름 후보가 모두 비면 여기까지 온다. */
-    return pickProvider(user) === 'kakao' ? '카카오 사용자' : '사용자';
+    /* 카카오·네이버는 이메일 없이 로그인될 수 있어 이름 후보가 모두 비면 여기까지 온다. */
+    if (provider === 'kakao' || provider === 'naver') return PROVIDER_LABEL[provider] + ' 사용자';
+    return '사용자';
   }
 
   function pickEmail(user) {
@@ -132,9 +201,13 @@
   /* 이메일 칸에 넣을 문구. 이메일이 없으면 빈칸·undefined를 넣지 않고,
      가짜 이메일도 만들지 않고 로그인 수단만 알려 준다. */
   function pickAccountLine(user) {
+    var provider = pickProvider(user);
+    if (provider === 'email' || provider === 'kakao' || provider === 'naver') {
+      return PROVIDER_LABEL[provider] + ' 계정으로 로그인';
+    }
     var email = pickEmail(user);
     if (email) return email;
-    return pickProvider(user) === 'kakao' ? '카카오 계정으로 로그인' : '';
+    return '';
   }
 
   function pickAvatar(user) {
@@ -201,6 +274,7 @@
     var user = (candidate && text(candidate.id)) ? candidate : null;
     var wasSignedIn = !!currentUser;
     currentUser = user;
+    currentAuthMethod = user ? readAuthMethod(session) : '';
     /* 다른 사용자로 바뀌면 앞 사용자의 표시 이름·사진을 쓰지 않는다. */
     if (user && profileRowFor && profileRowFor !== user.id) {
       profileRow = null;
@@ -257,6 +331,7 @@
   function clearOwnStaleState() {
     dropStore(CODE_USED_KEY); /* 지난 콜백의 완료 표시가 새 흐름을 막지 않게 한다 */
     dropStore(MESSAGE_KEY);   /* 지난 실패 안내가 새 로그인 뒤에 뒤늦게 뜨지 않게 한다 */
+    dropStore(KAKAO_STATE_KEY); /* 끝나지 않은 지난 카카오 시도의 확인값은 새 시도에 쓰지 않는다 */
     dropStore(DEBUG_KEY);
     try { window.localStorage.removeItem(DEBUG_KEY); } catch (e) {} /* [임시 진단] 기록도 이번 시도부터 새로 */
   }
@@ -269,6 +344,89 @@
       var list = document.querySelectorAll('[data-auth-provider]');
       for (var i = 0; i < list.length; i++) setButtonBusy(list[i], false);
     } catch (e) {}
+  }
+
+  /* ── 카카오 로그인(카카오 SDK 경로) ──────────────────────
+     공개 JavaScript 키가 있고 SDK가 준비되면 PC·모바일 모두 Kakao.Auth.authorize()를 쓴다.
+     카카오톡이 깔린 기기에서는 카카오가 알아서 카카오톡 간편로그인으로 보내고,
+     없으면 카카오계정 로그인 화면으로 보낸다(우리가 기기를 판별하지 않는다).
+     키가 없거나 SDK가 준비되지 않으면 기존 Supabase 카카오 로그인으로 그대로 넘어간다. */
+
+  function kakaoSdkPathUsable() {
+    if (typeof KAKAO_JAVASCRIPT_KEY !== 'string' || KAKAO_JAVASCRIPT_KEY === '') return false;
+    return readStore(KAKAO_OFF_KEY) !== '1'; /* 이번 방문에서 한 번 실패했으면 다시 시도하지 않는다 */
+  }
+
+  /* 이 경로가 불가능한 것으로 확인되면 이번 방문 동안은 기존 카카오 로그인만 쓴다(반복 실패 방지). */
+  function markKakaoSdkUnavailable() {
+    writeStore(KAKAO_OFF_KEY, '1');
+  }
+
+  function randomToken() {
+    try {
+      var buf = new Uint8Array(8);
+      window.crypto.getRandomValues(buf);
+      var out = '';
+      for (var i = 0; i < buf.length; i++) out += ('0' + buf[i].toString(16)).slice(-2);
+      return out;
+    } catch (e) {
+      return String(Date.now()) + String(Math.floor(Math.random() * 1e6));
+    }
+  }
+
+  /* 카카오 SDK는 로그인을 누른 순간에만 불러온다(페이지에 미리 심지 않는다). */
+  function loadKakaoSdk(done) {
+    if (window.Kakao && window.Kakao.Auth) { done(true); return; }
+    var finished = false;
+    function finish(ok) {
+      if (finished) return;
+      finished = true;
+      done(ok);
+    }
+    var el = document.querySelector('script[data-gomna-kakao-sdk]');
+    if (!el) {
+      try {
+        el = document.createElement('script');
+        el.src = KAKAO_SDK_SRC;
+        el.async = true;
+        el.setAttribute('data-gomna-kakao-sdk', '1');
+        el.setAttribute('crossorigin', 'anonymous');
+        document.head.appendChild(el);
+      } catch (e) { finish(false); return; }
+    }
+    el.addEventListener('load', function () { finish(true); });
+    el.addEventListener('error', function () { finish(false); });
+    window.setTimeout(function () { finish(!!(window.Kakao && window.Kakao.Auth)); }, 6000);
+  }
+
+  function initKakaoSdk() {
+    try {
+      if (!window.Kakao) return false;
+      if (typeof window.Kakao.isInitialized === 'function' && !window.Kakao.isInitialized()) {
+        window.Kakao.init(KAKAO_JAVASCRIPT_KEY);
+      }
+      return !!(window.Kakao.Auth && typeof window.Kakao.Auth.authorize === 'function');
+    } catch (e) { return false; }
+  }
+
+  /* 준비되면 카카오 로그인 화면으로 보낸다. 준비되지 않으면 곧바로 fallback(기존 로그인)을 부른다. */
+  function startKakaoSdkLogin(fallback) {
+    loadKakaoSdk(function (ok) {
+      if (!ok || !initKakaoSdk()) { markKakaoSdkUnavailable(); fallback(); return; }
+      var state = 'gomna-kakao-' + randomToken();
+      writeStore(KAKAO_STATE_KEY, state);
+      try {
+        window.Kakao.Auth.authorize({
+          redirectUri: window.location.origin + CALLBACK_PATH,
+          scope: KAKAO_JS_SCOPE,
+          state: state
+        });
+      } catch (e) {
+        dropStore(KAKAO_STATE_KEY);
+        markKakaoSdkUnavailable();
+        fallback();
+      }
+    });
   }
 
   function startOAuth(provider, button) {
@@ -290,26 +448,233 @@
       notify(message);
     }
 
-    var options = { redirectTo: window.location.origin + CALLBACK_PATH };
-    /* 카카오만: Supabase 기본 scope에 account_email이 들어가 KOE205(설정하지 않은 동의 항목)가 난다.
-       options.scopes는 기본 scope에 더해지기만 해서 제거가 안 되므로,
-       단수형 queryParams.scope로 최종 인가 요청의 scope를 덮어쓴다. Google 요청은 그대로 둔다. */
-    if (provider === 'kakao') {
-      options.queryParams = { scope: 'profile_nickname,profile_image' };
+    /* 지금까지 실제로 성공해 온 경로. 어떤 경우에도 이 길이 안전망으로 남아 있어야 한다. */
+    function runSupabaseOAuth() {
+      var options = { redirectTo: window.location.origin + CALLBACK_PATH };
+      /* 카카오만: Supabase 기본 scope에 account_email이 들어가 KOE205(설정하지 않은 동의 항목)가 난다.
+         options.scopes는 기본 scope에 더해지기만 해서 제거가 안 되므로,
+         단수형 queryParams.scope로 최종 인가 요청의 scope를 덮어쓴다. Google 요청은 그대로 둔다. */
+      if (provider === 'kakao') {
+        options.queryParams = { scope: 'profile_nickname,profile_image' };
+      }
+
+      try {
+        supabaseClient.auth.signInWithOAuth({
+          provider: provider,
+          options: options
+        }).then(function (result) {
+          /* 정상일 때는 브라우저가 공급자 화면으로 이동한다. */
+          if (result && result.error) recover(MSG.startFailed);
+        })['catch'](function () {
+          recover(MSG.startFailed);
+        });
+      } catch (e) {
+        recover(MSG.startFailed);
+      }
+    }
+
+    /* 카카오는 SDK 경로를 먼저 쓴다. 키가 없거나 SDK가 안 되면 곧바로 기존 경로로 간다. */
+    if (provider === 'kakao' && kakaoSdkPathUsable()) {
+      startKakaoSdkLogin(runSupabaseOAuth);
+      return;
+    }
+    runSupabaseOAuth();
+  }
+
+  /* ── Google 로그인: Google Identity Services + Supabase signInWithIdToken ──
+     Supabase OAuth 리다이렉트를 거치지 않으므로 Google 계정 선택 화면에
+     Supabase 주소가 나타나지 않는다. 카카오·네이버·이메일 경로는 그대로 둔다. */
+  var GIS_SLOT_CLASS = 'gomna-gis-slot';
+  var gisState = 'idle'; /* idle | loading | ready | failed */
+  var gisWaiters = [];
+  var gisInited = false;
+  var googleBusy = false;
+
+  function gisApi() {
+    return (window.google && window.google.accounts && window.google.accounts.id)
+      ? window.google.accounts.id
+      : null;
+  }
+
+  function loadGoogleGis(done) {
+    if (gisApi()) { gisState = 'ready'; done(true); return; }
+    if (gisState === 'failed') { done(false); return; }
+    gisWaiters.push(done);
+    if (gisState === 'loading') return;
+    gisState = 'loading';
+
+    function settle() {
+      if (gisState !== 'loading') return;
+      gisState = gisApi() ? 'ready' : 'failed';
+      var list = gisWaiters.slice();
+      gisWaiters = [];
+      for (var i = 0; i < list.length; i++) {
+        try { list[i](gisState === 'ready'); } catch (e) {}
+      }
+    }
+
+    var el = document.querySelector('script[data-gomna-gis]');
+    if (!el) {
+      try {
+        el = document.createElement('script');
+        el.src = GOOGLE_GIS_SRC;
+        el.async = true;
+        el.defer = true;
+        el.setAttribute('data-gomna-gis', '1');
+        document.head.appendChild(el);
+      } catch (e) { settle(); return; }
+    }
+    el.addEventListener('load', settle);
+    el.addEventListener('error', settle);
+    window.setTimeout(settle, 8000);
+  }
+
+  /* Google 권장대로 초기화는 한 번만. 자동 계정 선택은 쓰지 않는다. */
+  function initGoogleGis() {
+    var api = gisApi();
+    if (!api) return false;
+    if (gisInited) return true;
+    try {
+      api.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: onGoogleCredential,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+        itp_support: true,
+        ux_mode: 'popup',
+        context: 'signin'
+      });
+      gisInited = true;
+    } catch (e) {
+      gisInited = false;
+    }
+    return gisInited;
+  }
+
+  /* 공식 버튼 자리만 잡아 주는 최소 스타일. 기존 로그인 버튼 CSS는 건드리지 않는다. */
+  function ensureGisSlotStyle() {
+    if (document.getElementById('gomnaGisSlotStyle')) return;
+    try {
+      var style = document.createElement('style');
+      style.id = 'gomnaGisSlotStyle';
+      /* 로그인 버튼은 display:grid라 hidden만으로는 감춰지지 않는다. 이 규칙은 Google 버튼에만 닿는다. */
+      style.textContent = '.' + GIS_SLOT_CLASS
+        + '{display:flex;width:100%;min-height:56px;align-items:center;justify-content:center}'
+        + '.login-provider--google[hidden]{display:none}';
+      document.head.appendChild(style);
+    } catch (e) {}
+  }
+
+  /* Google 공식 버튼은 200~400px만 허용한다. 기존 버튼이 차지하던 폭에 맞춘다. */
+  function gisButtonWidth(slot) {
+    var width = 0;
+    try { width = Math.round(slot.getBoundingClientRect().width); } catch (e) { width = 0; }
+    if (!width && slot.parentElement) {
+      try { width = Math.round(slot.parentElement.getBoundingClientRect().width); } catch (e) { width = 0; }
+    }
+    if (!width) return 0;
+    if (width > 400) width = 400;
+    if (width < 200) width = 200;
+    return width;
+  }
+
+  function renderGoogleButton(legacy) {
+    var api = gisApi();
+    if (!api || !legacy || !legacy.parentElement) return false;
+    ensureGisSlotStyle();
+    var slot = legacy.previousElementSibling;
+    if (!slot || !slot.classList || !slot.classList.contains(GIS_SLOT_CLASS)) {
+      slot = document.createElement('div');
+      slot.className = GIS_SLOT_CLASS;
+      legacy.parentElement.insertBefore(slot, legacy);
+    }
+    var width = gisButtonWidth(slot);
+    if (!width) return false; /* 창이 닫혀 있어 폭을 못 재면 열릴 때 다시 그린다 */
+    if (slot.getAttribute('data-gis-width') === String(width) && slot.firstChild) {
+      legacy.hidden = true;
+      return true;
+    }
+    try {
+      slot.innerHTML = '';
+      api.renderButton(slot, {
+        type: 'standard',
+        theme: 'outline',
+        size: 'large',
+        shape: 'rectangular',
+        text: 'signin_with',
+        logo_alignment: 'left',
+        locale: 'ko',
+        width: width
+      });
+      slot.setAttribute('data-gis-width', String(width));
+    } catch (e) {
+      return false;
+    }
+    legacy.hidden = true;
+    return true;
+  }
+
+  function refreshGoogleButtons() {
+    var list = document.querySelectorAll('[data-auth-provider="google"]');
+    if (!list.length) return;
+    loadGoogleGis(function (ok) {
+      if (!ok || !initGoogleGis()) return;
+      for (var i = 0; i < list.length; i++) renderGoogleButton(list[i]);
+    });
+  }
+
+  /* 로그인창이 열린 뒤에야 실제 폭을 잴 수 있어 두 번 확인한다. */
+  function queueGoogleButtonRefresh() {
+    window.setTimeout(refreshGoogleButtons, 0);
+    window.setTimeout(refreshGoogleButtons, 300);
+  }
+
+  /* 공식 버튼이 아직 자리 잡지 못했을 때만 기존 버튼이 눌린다.
+     실패해도 예전 Supabase OAuth로 되돌아가지 않는다. */
+  function onGoogleButtonClick(button) {
+    setButtonBusy(button, true);
+    loadGoogleGis(function (ok) {
+      setButtonBusy(button, false);
+      if (ok && initGoogleGis() && renderGoogleButton(button)) return;
+      notify(MSG.googleUnavailable);
+    });
+  }
+
+  /* Google이 돌려준 ID 토큰을 기존 Supabase 클라이언트로 세션으로 바꾼다.
+     세션 반영·계정 패널·프로필·기록 동기화는 기존 onAuthStateChange 경로가 처리한다. */
+  function onGoogleCredential(response) {
+    var token = text(response && response.credential);
+    if (!token) { notify(MSG.failed); return; }
+    if (googleBusy) return;
+    if (!isConfigured()) { notify(MSG.notConfigured); return; }
+    var supabaseClient = getClient();
+    if (!supabaseClient) { notify(MSG.libMissing); return; }
+
+    googleBusy = true;
+    clearOwnStaleState();
+
+    function fail(message, stage, info) {
+      googleBusy = false;
+      debugNote(stage, info || null);
+      notify(message);
     }
 
     try {
-      supabaseClient.auth.signInWithOAuth({
-        provider: provider,
-        options: options
-      }).then(function (result) {
-        /* 정상일 때는 브라우저가 공급자 화면으로 이동한다. */
-        if (result && result.error) recover(MSG.startFailed);
-      })['catch'](function () {
-        recover(MSG.startFailed);
-      });
+      supabaseClient.auth.signInWithIdToken({ provider: 'google', token: token })
+        .then(function (result) {
+          if (result && result.error) {
+            fail(MSG.failed, 'Google ID 토큰 로그인 응답 오류', result.error);
+            return;
+          }
+          var session = (result && result.data) ? result.data.session : null;
+          if (!session) { fail(MSG.failed, 'Google ID 토큰 로그인 후 세션 없음'); return; }
+          googleBusy = false;
+          try { if (typeof window.closeLoginModal === 'function') window.closeLoginModal(); } catch (e) {}
+        })['catch'](function (e) {
+          fail(navigator.onLine === false ? MSG.network : MSG.failed, 'Google ID 토큰 로그인 호출 실패', e);
+        });
     } catch (e) {
-      recover(MSG.startFailed);
+      fail(MSG.failed, 'Google 로그인 처리 중 예외', e);
     }
   }
 
@@ -337,6 +702,14 @@
   function bindProviderButton(button) {
     if (!button || alreadyBound(button)) return;
     var provider = button.getAttribute('data-auth-provider');
+    if (provider === 'google') {
+      markBound(button);
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        onGoogleButtonClick(button);
+      });
+      return;
+    }
     if (ALLOWED_PROVIDERS.indexOf(provider) === -1) return;
     markBound(button);
     button.addEventListener('click', function (event) {
@@ -348,12 +721,14 @@
   function bindProviderButtons() {
     var list = document.querySelectorAll('[data-auth-provider]');
     for (var i = 0; i < list.length; i++) bindProviderButton(list[i]);
+    refreshGoogleButtons();
 
     /* 나중에 DOM에 추가되는 버튼용 보조 위임. 이미 직접 연결된 버튼은 건너뛰어 중복 실행을 막는다. */
     document.addEventListener('click', function (event) {
       var button = closestMatch(event.target, '[data-auth-provider]');
       if (!button || alreadyBound(button)) return;
       var provider = button.getAttribute('data-auth-provider');
+      if (provider === 'google') { event.preventDefault(); onGoogleButtonClick(button); return; }
       if (ALLOWED_PROVIDERS.indexOf(provider) === -1) return;
       event.preventDefault();
       startOAuth(provider, button);
@@ -770,6 +1145,10 @@
     + '.gomna-email-back{display:inline-flex;align-items:center;min-height:40px;padding:0 4px;border:none;background:transparent;'
     + 'font-family:inherit;font-size:14.5px;font-weight:600;color:#7A5A2E;cursor:pointer}'
     + '.gomna-email-title{margin:4px 0 10px;font-size:16.5px;font-weight:800;color:#3D2818}'
+    + '.gomna-email-desc{margin:0 0 12px;font-size:13.5px;line-height:1.6;color:#6B5335}'
+    + '.gomna-email-desc[hidden]{display:none}'
+    + '.gomna-email-code input{text-align:center;letter-spacing:.42em;text-indent:.42em;font-size:21px;font-weight:800;'
+    + 'font-variant-numeric:tabular-nums}'
     + '.gomna-email-field{display:block;margin-bottom:10px;font-size:13.5px;font-weight:700;color:#6B5335}'
     + '.gomna-email-field input{display:block;width:100%;box-sizing:border-box;margin-top:5px;min-height:50px;padding:0 12px;'
     + 'border-radius:12px;border:1px solid rgba(184,134,11,.34);background:#fff;font-family:inherit;font-size:16px;color:#3D2818}'
@@ -782,6 +1161,7 @@
     + '.gomna-email-links button{border:none;background:transparent;padding:8px 0;font-family:inherit;font-size:14px;'
     + 'font-weight:600;color:#2F67C7;cursor:pointer}'
     + '.gomna-email-links button[hidden]{display:none}'
+    + '.gomna-email-links button:disabled{opacity:.55;cursor:default;text-decoration:none}'
     + '.gomna-email-status{margin:10px 0 0;font-size:13.5px;line-height:1.6;color:#5C4423}'
     + '.gomna-email-status[hidden]{display:none}'
     + '.login-box.gomna-email-open .login-providers,.login-box.gomna-email-open .login-brand-visual,'
@@ -859,17 +1239,23 @@
   var EMAIL_AUTH_HTML = ''
     + '<button type="button" class="gomna-email-back" data-gomna-email="back">← 다른 방법으로 로그인</button>'
     + '<div class="gomna-email-title" id="gomnaEmailTitle">이메일로 로그인</div>'
+    + '<p class="gomna-email-desc" id="gomnaEmailDesc" hidden></p>'
     + '<form id="gomnaEmailForm" novalidate>'
     + '<label class="gomna-email-field" id="gomnaEmailField">이메일'
     + '<input type="email" id="gomnaEmailInput" autocomplete="email" inputmode="email" placeholder="name@example.com"></label>'
     + '<label class="gomna-email-field" id="gomnaEmailPwField">비밀번호'
     + '<input type="password" id="gomnaEmailPw" autocomplete="current-password" placeholder="6자 이상"></label>'
+    + '<label class="gomna-email-field gomna-email-code" id="gomnaEmailCodeField" for="gomnaEmailCode" hidden>인증번호'
+    + '<input type="text" id="gomnaEmailCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" '
+    + 'autocomplete="one-time-code" placeholder="______" aria-label="6자리 인증번호"></label>'
     + '<button type="submit" class="gomna-email-submit" id="gomnaEmailSubmit">로그인</button>'
     + '</form>'
     + '<div class="gomna-email-links">'
     + '<button type="button" data-gomna-email="signup" id="gomnaEmailToSignup">이메일로 회원가입</button>'
     + '<button type="button" data-gomna-email="reset" id="gomnaEmailToReset">비밀번호를 잊으셨나요?</button>'
     + '<button type="button" data-gomna-email="signin" id="gomnaEmailToSignin" hidden>이미 계정이 있습니다</button>'
+    + '<button type="button" data-gomna-email="otp-resend" id="gomnaEmailResend" hidden>인증번호 다시 받기</button>'
+    + '<button type="button" data-gomna-email="otp-email" id="gomnaEmailChange" hidden>이메일 주소 바꾸기</button>'
     + '</div>'
     + '<p class="gomna-email-status" id="gomnaEmailStatus" role="status" aria-live="polite" hidden></p>';
 
@@ -934,10 +1320,29 @@
         /* 로그인 상자에 onclick="event.stopPropagation()"이 있어 클릭이 document까지 오지 않는다.
            그래서 상자 안 버튼은 버튼 자신에 처리기를 붙인다. */
         bindDirect(email, '[data-gomna-email]', function (button) {
-          var next = button.getAttribute('data-gomna-email');
-          if (next === 'back') resetEmailPanel();
-          else setEmailMode(next);
+          handleEmailPanelAction(button.getAttribute('data-gomna-email'), button);
         });
+        /* 인증번호 칸에는 숫자만, 최대 6자리만 남긴다(자동완성 포함). */
+        var codeInput = document.getElementById('gomnaEmailCode');
+        if (codeInput) {
+          codeInput.addEventListener('input', function () {
+            var digits = String(codeInput.value || '').replace(/\D/g, '').slice(0, 6);
+            if (codeInput.value !== digits) codeInput.value = digits;
+          });
+          /* 붙여넣기는 직접 처리한다. maxlength가 공백·하이픈까지 세고 먼저 잘라내서
+             '123 456'·'123-456'을 붙여넣으면 숫자가 모자라기 때문이다. */
+          codeInput.addEventListener('paste', function (event) {
+            var pasted = '';
+            try {
+              var clip = event.clipboardData || window.clipboardData;
+              pasted = clip ? String(clip.getData('text') || '') : '';
+            } catch (e) { pasted = ''; }
+            var digits = pasted.replace(/\D/g, '').slice(0, 6);
+            if (!digits) return;
+            event.preventDefault();
+            codeInput.value = digits;
+          });
+        }
       }
 
       document.addEventListener('click', onSharedClick);
@@ -951,7 +1356,10 @@
 
       /* 기존 함수는 그대로 두고 감싸서, 창을 열고 닫을 때 안내 문구만 정리한다. */
       wrapWindowFn('closeLoginModal', resetEmailPanel);
-      wrapWindowFn('openLoginModal', resetEmailPanel);
+      wrapWindowFn('openLoginModal', function () {
+        resetEmailPanel();
+        queueGoogleButtonRefresh();
+      });
       wrapWindowFn('openHomeAccountPanel', onHomePanelClose);
       wrapWindowFn('closeHomeAccountPanel', onHomePanelClose);
 
@@ -1160,9 +1568,7 @@
     if (mode) {
       if (alreadyBound(mode)) return;
       event.preventDefault();
-      var next = mode.getAttribute('data-gomna-email');
-      if (next === 'back') resetEmailPanel();
-      else setEmailMode(next);
+      handleEmailPanelAction(mode.getAttribute('data-gomna-email'), mode);
       return;
     }
     /* 홈 계정 패널의 항목들. 로그아웃은 별도 처리기가 담당한다. */
@@ -1657,6 +2063,10 @@
   /* ── 이메일 로그인 ─────────────────────────────────────── */
 
   var EMAIL_MODES = {
+    /* 기본 사용자 화면은 otp -> otpverify 두 단계다.
+       아래 signin·signup·reset·newpw(비밀번호 방식)는 되돌릴 때를 대비해 그대로 남겨 둔다. */
+    otp: { title: '이메일로 로그인', desc: '이메일로 받은 인증번호로 안전하게 로그인합니다.', submit: '인증번호 받기', pw: false },
+    otpverify: { title: '인증번호 입력', submit: '로그인', pw: false, code: true, hideEmail: true },
     signin: { title: '이메일로 로그인', submit: '로그인', pw: true, pwLabel: '비밀번호', autocomplete: 'current-password' },
     signup: { title: '이메일로 회원가입', submit: '회원가입', pw: true, pwLabel: '비밀번호(6자 이상)', autocomplete: 'new-password' },
     reset: { title: '비밀번호 찾기', submit: '재설정 메일 받기', pw: false },
@@ -1696,14 +2106,36 @@
       pw.value = '';
       pw.setAttribute('autocomplete', conf.autocomplete || 'current-password');
     }
+    var desc = document.getElementById('gomnaEmailDesc');
+    if (desc) {
+      var descText = conf.desc || '';
+      if (emailMode === 'otpverify') {
+        descText = (otpEmail ? otpEmail + '로 보낸 ' : '') + '6자리 인증번호를 입력해 주세요.';
+      }
+      desc.textContent = descText;
+      desc.hidden = !descText;
+    }
+    var codeField = document.getElementById('gomnaEmailCodeField');
+    var code = document.getElementById('gomnaEmailCode');
+    if (codeField) codeField.hidden = !conf.code;
+    if (code && !conf.code) code.value = '';
+
     var toSignup = document.getElementById('gomnaEmailToSignup');
     var toReset = document.getElementById('gomnaEmailToReset');
     var toSignin = document.getElementById('gomnaEmailToSignin');
+    var resend = document.getElementById('gomnaEmailResend');
+    var change = document.getElementById('gomnaEmailChange');
     if (toSignup) toSignup.hidden = (emailMode !== 'signin');
     if (toReset) toReset.hidden = (emailMode !== 'signin');
-    if (toSignin) toSignin.hidden = (emailMode === 'signin' || emailMode === 'newpw');
+    if (toSignin) toSignin.hidden = (emailMode !== 'signup' && emailMode !== 'reset');
+    if (resend) resend.hidden = (emailMode !== 'otpverify');
+    if (change) change.hidden = (emailMode !== 'otpverify');
+    if (emailMode !== 'otpverify') stopOtpTimer();
+    else paintOtpResend();
     emailStatus('');
-    var focusTarget = conf.hideEmail ? document.getElementById('gomnaEmailPw') : document.getElementById('gomnaEmailInput');
+    var focusTarget = document.getElementById('gomnaEmailInput');
+    if (conf.code) focusTarget = document.getElementById('gomnaEmailCode');
+    else if (conf.hideEmail) focusTarget = document.getElementById('gomnaEmailPw');
     if (focusTarget) { try { focusTarget.focus(); } catch (e) {} }
   }
 
@@ -1715,11 +2147,152 @@
     emailStatus('');
     var pw = document.getElementById('gomnaEmailPw');
     if (pw) pw.value = '';
+    var code = document.getElementById('gomnaEmailCode');
+    if (code) code.value = '';
+    stopOtpTimer();
+    otpEmail = '';
+    otpResendUntil = 0;
   }
 
+  /* 기본 사용자 화면은 인증번호 방식으로 시작한다(비밀번호 화면은 setEmailMode('signin')으로 남아 있다). */
   function openEmailLogin() {
     injectShared();
-    setEmailMode('signin');
+    setEmailMode('otp');
+  }
+
+  /* ── 이메일 인증번호(6자리) ─────────────────────────────
+     인증번호·토큰 값은 어떤 경우에도 기록하거나 화면에 남기지 않는다. */
+
+  var otpEmail = '';
+  var otpSending = false;
+  var otpResendUntil = 0;
+  var otpTimerId = 0;
+  var OTP_COOLDOWN_MS = 60000;
+
+  function looksLikeEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  function stopOtpTimer() {
+    if (!otpTimerId) return;
+    try { window.clearInterval(otpTimerId); } catch (e) {}
+    otpTimerId = 0;
+  }
+
+  /* 남은 시간을 버튼 글자에 그대로 보여주고, 그동안 다시 받기를 잠근다. */
+  function paintOtpResend() {
+    var button = document.getElementById('gomnaEmailResend');
+    if (!button) return;
+    var left = Math.ceil((otpResendUntil - Date.now()) / 1000);
+    if (left > 0) {
+      button.disabled = true;
+      button.textContent = '인증번호 다시 받기 (' + left + ')';
+      return;
+    }
+    button.disabled = false;
+    button.textContent = '인증번호 다시 받기';
+    stopOtpTimer();
+  }
+
+  function startOtpCooldown() {
+    otpResendUntil = Date.now() + OTP_COOLDOWN_MS;
+    stopOtpTimer();
+    paintOtpResend();
+    try { otpTimerId = window.setInterval(paintOtpResend, 1000); } catch (e) {}
+  }
+
+  function sendOtpCode(email, button, resend) {
+    var client = getClient();
+    if (!isConfigured()) { emailStatus(MSG.notConfigured); return; }
+    if (!client) { emailStatus(MSG.libMissing); return; }
+    if (!looksLikeEmail(email)) { emailStatus('올바른 이메일 주소를 입력해 주세요.'); return; }
+    if (otpSending) return;
+    if (resend && otpResendUntil > Date.now()) return;
+
+    otpSending = true;
+    setButtonBusy(button, true);
+    emailStatus('인증번호 보내는 중…');
+
+    function fail(message) {
+      otpSending = false;
+      setButtonBusy(button, false);
+      emailStatus(message);
+    }
+
+    var request;
+    try {
+      request = client.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true } });
+    } catch (e) {
+      fail('인증번호를 보내지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      return;
+    }
+
+    request.then(function (res) {
+      otpSending = false;
+      setButtonBusy(button, false);
+      if (res && res.error) { emailStatus(emailErrorText(res.error)); return; }
+      /* 발송만 하는 요청이라 user·session이 비어 있는 것이 정상이다. 이것을 실패로 보지 않는다. */
+      otpEmail = email;
+      if (!resend) setEmailMode('otpverify');
+      startOtpCooldown();
+      emailStatus(resend
+        ? '인증번호를 다시 보냈습니다. 메일을 확인해 주세요.'
+        : '메일로 받은 6자리 인증번호를 입력해 주세요.');
+    })['catch'](function () {
+      fail('인증번호를 보내지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    });
+  }
+
+  function verifyOtpCode() {
+    var client = getClient();
+    if (!isConfigured()) { emailStatus(MSG.notConfigured); return; }
+    if (!client) { emailStatus(MSG.libMissing); return; }
+    var codeEl = document.getElementById('gomnaEmailCode');
+    var submit = document.getElementById('gomnaEmailSubmit');
+    var token = codeEl ? String(codeEl.value || '').replace(/\D/g, '') : '';
+    if (!otpEmail) { setEmailMode('otp'); emailStatus('이메일 주소를 먼저 입력해 주세요.'); return; }
+    if (token.length !== 6) { emailStatus('인증번호 6자리를 입력해 주세요.'); return; }
+
+    setButtonBusy(submit, true);
+    emailStatus('확인하고 있습니다…');
+
+    var request;
+    try {
+      request = client.auth.verifyOtp({ email: otpEmail, token: token, type: 'email' });
+    } catch (e) {
+      setButtonBusy(submit, false);
+      emailStatus('요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      return;
+    }
+
+    request.then(function (res) {
+      setButtonBusy(submit, false);
+      if (res && res.error) { emailStatus(emailErrorText(res.error)); return; }
+      var session = (res && res.data) ? res.data.session : null;
+      if (!session) { emailStatus('로그인을 완료하지 못했습니다. 다시 시도해 주세요.'); return; }
+      /* 여기서부터는 Google·카카오·네이버 로그인과 똑같은 공용 경로만 쓴다. */
+      stopOtpTimer();
+      emailStatus('');
+      applySession(session);
+      try { if (typeof window.closeLoginModal === 'function') window.closeLoginModal(); } catch (e) {}
+    })['catch'](function () {
+      setButtonBusy(submit, false);
+      emailStatus(navigator.onLine === false ? MSG.network : '요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    });
+  }
+
+  /* 이메일 화면의 보조 버튼(모드 전환 + 인증번호 다시 받기 / 이메일 바꾸기)을 한 곳에서 처리한다. */
+  function handleEmailPanelAction(next, button) {
+    if (next === 'back') { resetEmailPanel(); return; }
+    if (next === 'otp-resend') { sendOtpCode(otpEmail, button, true); return; }
+    if (next === 'otp-email') {
+      stopOtpTimer();
+      setEmailMode('otp');
+      var input = document.getElementById('gomnaEmailInput');
+      if (input) { input.value = otpEmail || ''; try { input.focus(); } catch (e) {} }
+      return;
+    }
+    setEmailMode(next);
   }
 
   /* Supabase가 돌려주는 오류를 쉬운 한국어로 바꾼다. 원문은 화면에 내보내지 않는다. */
@@ -1734,6 +2307,10 @@
     if (raw.indexOf('email not confirmed') !== -1) return '이메일 확인이 아직 끝나지 않았습니다. 받은 메일의 확인 링크를 눌러 주세요.';
     if (raw.indexOf('password') !== -1 && raw.indexOf('least') !== -1) return '비밀번호를 6자 이상으로 입력해 주세요.';
     if (raw.indexOf('rate limit') !== -1 || raw.indexOf('too many') !== -1) return '요청이 많습니다. 잠시 후 다시 시도해 주세요.';
+    if (raw.indexOf('otp_expired') !== -1 || (raw.indexOf('expired') !== -1 && raw.indexOf('token') !== -1)) {
+      return '인증번호가 만료되었거나 올바르지 않습니다. 새 인증번호를 받아 다시 시도해 주세요.';
+    }
+    if (raw.indexOf('otp') !== -1 || raw.indexOf('token') !== -1) return '인증번호를 다시 확인해 주세요.';
     if (raw.indexOf('invalid email') !== -1) return '이메일 주소 형식을 확인해 주세요.';
     if (raw.indexOf('signups not allowed') !== -1 || raw.indexOf('signup is disabled') !== -1) {
       return '이메일 가입이 아직 열려 있지 않습니다.';
@@ -1751,6 +2328,9 @@
     var email = emailEl ? String(emailEl.value || '').trim() : '';
     var password = pwEl ? String(pwEl.value || '') : '';
     var conf = EMAIL_MODES[emailMode] || EMAIL_MODES.signin;
+
+    if (emailMode === 'otp') { sendOtpCode(email, submit, false); return; }
+    if (emailMode === 'otpverify') { verifyOtpCode(); return; }
 
     if (!conf.hideEmail && (!email || email.indexOf('@') < 1)) { emailStatus('이메일 주소를 확인해 주세요.'); return; }
     if (conf.pw && password.length < 6) { emailStatus('비밀번호를 6자 이상으로 입력해 주세요.'); return; }
@@ -1977,6 +2557,62 @@
   }
   /* ── [임시 조사용] 끝 ── */
 
+  /* 카카오 SDK 로그인에서 돌아온 경우.
+     인가 코드는 브라우저에서 교환할 수 없으므로(비밀값 필요) Edge Function이 서버에서만 교환하고,
+     받은 ID 토큰으로 지금까지와 똑같은 Supabase 세션을 만든다. 계정 체계는 하나 그대로다. */
+  function handleKakaoSdkCallback(code, errorCode, errorDetail, note) {
+    cleanCallbackUrl(); /* 인가 코드가 주소창에 남지 않게 먼저 지운다 */
+
+    function giveUp(message, stage, error) {
+      markKakaoSdkUnavailable(); /* 다음 시도는 기존 카카오 계정 로그인으로 간다 */
+      var d = safeErr(error) || {};
+      d.stage = stage;
+      d.note = note;
+      callbackFailed(message, d);
+    }
+
+    if (errorCode) {
+      var cancelled = /access_denied|user_cancel|cancel/i.test(String(errorCode) + ' ' + String(errorDetail));
+      if (cancelled) { callbackFailed(MSG.cancelled, { stage: '카카오 로그인 취소', note: note }); return; }
+      giveUp(MSG.failed, '카카오 응답 오류: ' + String(errorCode));
+      return;
+    }
+    if (!text(code)) { giveUp(MSG.failed, '카카오 응답에 code 없음'); return; }
+    if (!isConfigured()) { callbackFailed(MSG.notConfigured, { stage: '키 설정 미완료', note: note }); return; }
+    var supabaseClient = getClient();
+    if (!supabaseClient) { callbackFailed(MSG.libMissing, { stage: 'Supabase 라이브러리 없음', note: note }); return; }
+
+    var endpoint = SUPABASE_URL + KAKAO_EXCHANGE_PATH;
+    window.fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_PUBLISHABLE_KEY,
+        Authorization: 'Bearer ' + SUPABASE_PUBLISHABLE_KEY
+      },
+      body: JSON.stringify({ code: code, redirect_uri: window.location.origin + CALLBACK_PATH })
+    }).then(function (res) {
+      return res.json()['catch'](function () { return null; }).then(function (data) {
+        return { ok: res.ok, status: res.status, data: data };
+      });
+    }).then(function (out) {
+      var idToken = (out && out.data) ? text(out.data.id_token) : '';
+      if (!out.ok || !idToken) {
+        giveUp(MSG.failed, '카카오 토큰 교환 실패(status ' + (out ? out.status : '?') + ')');
+        return null;
+      }
+      return supabaseClient.auth.signInWithIdToken({ provider: 'kakao', token: idToken });
+    }).then(function (result) {
+      if (!result) return;
+      if (result.error) { giveUp(MSG.failed, 'ID 토큰 로그인 응답 오류', result.error); return; }
+      var session = (result.data) ? result.data.session : null;
+      if (!session) { giveUp(MSG.failed, 'ID 토큰 로그인 후 세션 없음'); return; }
+      callbackSucceeded(session);
+    })['catch'](function (e) {
+      giveUp(navigator.onLine === false ? MSG.network : MSG.failed, '카카오 로그인 처리 중 예외', e);
+    });
+  }
+
   function handleCallback() {
     var params;
     try { params = new URLSearchParams(window.location.search); } catch (e) { params = null; }
@@ -2009,6 +2645,21 @@
       configured: isConfigured(),
       libReady: libReady()
     });
+
+    /* 카카오 SDK 로그인으로 시작한 흐름인지 state 값으로 확인한다(요청과 복귀가 서로 맞는지 검증). */
+    var kakaoState = readStore(KAKAO_STATE_KEY);
+    if (text(kakaoState)) {
+      dropStore(KAKAO_STATE_KEY);
+      var stateParam = params ? params.get('state') : null;
+      if (text(stateParam) === kakaoState) {
+        handleKakaoSdkCallback(code, errorCode, errorDetail, note);
+        return;
+      }
+      /* 값이 맞지 않으면 이 복귀를 신뢰하지 않는다. 다음 시도는 기존 카카오 로그인으로 간다. */
+      markKakaoSdkUnavailable();
+      callbackFailed(MSG.failed, { stage: '카카오 state 불일치', note: note });
+      return;
+    }
 
     if (errorCode) {
       var cancelled = /access_denied|user_cancel|cancel/i.test(String(errorCode) + ' ' + String(errorDetail));
@@ -2076,6 +2727,13 @@
 
     /* 되살아난 페이지(뒤로 가기)에서도 로그인 버튼이 다시 눌리게 한다. */
     window.addEventListener('pageshow', resetSignInBusy);
+
+    /* Google 공식 버튼은 폭이 고정이라 화면 폭이 바뀌면 다시 그린다. */
+    var googleResizeTimer = null;
+    window.addEventListener('resize', function () {
+      if (googleResizeTimer) window.clearTimeout(googleResizeTimer);
+      googleResizeTimer = window.setTimeout(refreshGoogleButtons, 200);
+    });
 
     /* 화면이 다시 보일 때, 아직 확정되지 않았다면 저장 구조를 한 번 더 확인한다.
        (대표님이 Supabase에 권한·표를 적용한 직후에도 새로고침 없이 반영되도록) */
