@@ -1,5 +1,5 @@
 /**
- * Home "말씀 이어가기" card — storage helpers + home renderer.
+ * Home "이어서" smart-continue card — storage helpers + home renderer.
  * Reader may call GOMNA_HOME_RESUME.saveRead / saveListen / pushRecent.
  * Does not touch audio-engine queue/playback logic.
  */
@@ -357,14 +357,26 @@
     return d.getMonth() + 1 + '월 ' + d.getDate() + '일';
   }
 
-  /** Home time line: "오늘 · HH:MM" / "3일 전 · HH:MM" / "7월 20일 · HH:MM" */
+  /* 한국어 화면에서는 "21:23"을 재생 위치로 오해하지 않도록 오전/오후를 붙인 12시간제로 읽어 준다. */
+  function formatClockPart(d) {
+    var hour = d.getHours();
+    var minute = pad2(d.getMinutes());
+    var meridiem;
+    if (uiLang() !== 'ko') return pad2(hour) + ':' + minute;
+    meridiem = hour < 12 ? '오전' : '오후';
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+    return meridiem + ' ' + hour + ':' + minute;
+  }
+
+  /** Home time line: "오늘 · 오후 9:23" / "3일 전 · 오후 9:23" / "7월 20일 · 오후 9:23" */
   function formatResumeTimeLine(ts) {
     var d = new Date(ts);
     var dayPart;
     if (isNaN(d.getTime())) return '';
     dayPart = formatRelativeDayPart(ts);
     if (!dayPart) return '';
-    return dayPart + ' · ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    return dayPart + ' · ' + formatClockPart(d);
   }
 
   function formatDayTimePrefix(ts) {
@@ -604,45 +616,72 @@
 
   var _homeResumeLangEventsBound = false;
 
+  function setHidden(el, hidden) {
+    if (!el) return;
+    if (hidden) el.setAttribute('hidden', '');
+    else el.removeAttribute('hidden');
+  }
+
+  /**
+   * Most recent activity wins the main card.
+   * Uses the timestamps already stored in the existing read/listen resume
+   * entries (gomna_resume_read_v1 / gomna_resume_listen_v1 and their legacy
+   * fallbacks) — no extra tracking key.
+   */
+  function pickMainMode(read, listen) {
+    if (read && listen) return listen.timestamp > read.timestamp ? 'listen' : 'read';
+    if (read) return 'read';
+    if (listen) return 'listen';
+    return null;
+  }
+
   function renderHomeCard() {
     var root = document.getElementById('homeResumeCard');
-    var readLoc = document.getElementById('homeResumeReadLoc');
-    var readTime = document.getElementById('homeResumeReadTime');
-    var listenLoc = document.getElementById('homeResumeListenLoc');
-    var listenTime = document.getElementById('homeResumeListenTime');
-    var recentChips = document.getElementById('homeResumeRecentChips');
+    var mainBtn = document.getElementById('homeContinueMain');
+    var mainLoc = document.getElementById('homeContinueLoc');
+    var mainTime = document.getElementById('homeContinueTime');
+    var mainAction = document.getElementById('homeContinueAction');
+    var mainMark = document.getElementById('homeContinueActionMark');
     var read = getRead();
     var listen = getListen();
-    var recent = getRecent(RECENT_HOME);
     var lang = uiLang();
     // Lock dictionary-localized dynamic text so GT / applyBookNameI18n cannot mix units.
     var lockDynamic = lang !== 'ko' && (isNativeUiLang(lang) || hasBookNameDict(lang));
+    var mainMode = pickMainMode(read, listen);
+    var mainEntry = mainMode === 'listen' ? listen : read;
+    var actionKey;
+    var actionText;
 
     if (!root) return;
 
-    if (read) {
-      setLocalizedText(readLoc, formatLocation(read), lockDynamic);
-      setLocalizedText(readTime, formatResumeTimeLine(read.timestamp) || '—', lockDynamic);
-      root.classList.remove('home-resume--no-read');
-    } else {
-      setLocalizedText(readLoc, uiT('home.resume.readStart', 'Start Bible reading'), lockDynamic);
-      setLocalizedText(readTime, '—', lockDynamic);
-      root.classList.add('home-resume--no-read');
+    /* No real resume record → hide the whole area, never a fake card. */
+    if (!mainMode) {
+      setHidden(mainBtn, true);
+      setHidden(root, true);
+      return;
     }
 
-    if (listen) {
-      setLocalizedText(listenLoc, formatLocation(listen), lockDynamic);
-      setLocalizedText(listenTime, formatResumeTimeLine(listen.timestamp) || '—', lockDynamic);
-      root.classList.remove('home-resume--no-listen');
-    } else {
-      setLocalizedText(listenLoc, uiT('home.resume.listenStart', 'Start listening'), lockDynamic);
-      setLocalizedText(listenTime, '—', lockDynamic);
-      root.classList.add('home-resume--no-listen');
-    }
+    setHidden(root, false);
+    setHidden(mainBtn, false);
+    if (mainBtn) mainBtn.setAttribute('data-continue-mode', mainMode);
+    setLocalizedText(mainLoc, formatLocation(mainEntry), lockDynamic);
+    setLocalizedText(mainTime, formatResumeTimeLine(mainEntry.timestamp), lockDynamic);
 
-    renderRecentChips(recentChips, recent);
-    if (recent.length) root.classList.remove('home-resume--no-recent');
-    else root.classList.add('home-resume--no-recent');
+    actionKey = mainMode === 'listen' ? 'home.continue.listenCta' : 'home.continue.readCta';
+    actionText = uiT(actionKey, mainMode === 'listen' ? 'Continue listening' : 'Continue reading');
+    if (mainAction) {
+      mainAction.setAttribute('data-i18n-key', actionKey);
+      mainAction.textContent = actionText;
+    }
+    if (mainMark) {
+      mainMark.innerHTML =
+        mainMode === 'listen'
+          ? '<span class="home-continue-play">\u25B6</span>'
+          : '<span class="home-continue-arrow"></span>';
+    }
+    if (mainBtn) {
+      mainBtn.setAttribute('aria-label', actionText + ' · ' + formatLocation(mainEntry));
+    }
   }
 
   function openRead() {
@@ -680,38 +719,19 @@
 
   function bindHomeCard() {
     var root = document.getElementById('homeResumeCard');
-    var readPane = document.getElementById('homeResumeReadPane');
-    var listenPane = document.getElementById('homeResumeListenPane');
-    var recentHost = document.getElementById('homeResumeRecentChips');
+    var mainBtn = document.getElementById('homeContinueMain');
     if (!root || root.getAttribute('data-home-resume-bound') === '1') return;
     root.setAttribute('data-home-resume-bound', '1');
 
-    function stop(e) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }
-
-    /* No whole-card click — only independent panes + recent chips. */
-    if (readPane) {
-      readPane.addEventListener('click', function (e) {
-        stop(e);
-        openRead();
-      });
-    }
-    if (listenPane) {
-      listenPane.addEventListener('click', function (e) {
-        stop(e);
-        openListen();
-      });
-    }
-    if (recentHost) {
-      recentHost.addEventListener('click', function (e) {
-        var chip = e.target && e.target.closest && e.target.closest('.home-resume-recent-chip');
-        if (!chip || !recentHost.contains(chip)) return;
-        stop(e);
-        openRecentAt(chip.getAttribute('data-recent-index'));
+    /* Whole card is the only click target; it reuses the existing resume actions. */
+    if (mainBtn) {
+      mainBtn.addEventListener('click', function (e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        if (mainBtn.getAttribute('data-continue-mode') === 'listen') openListen();
+        else openRead();
       });
     }
   }

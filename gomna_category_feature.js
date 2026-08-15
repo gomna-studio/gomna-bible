@@ -88,7 +88,14 @@
       '.scripture-guide-panel{overflow-y:auto;-webkit-overflow-scrolling:touch;scroll-behavior:auto;overscroll-behavior:contain;touch-action:pan-y}' +
       '.scripture-guide-body{overflow:visible;flex:0 0 auto;min-height:100%;touch-action:auto}' +
       '.scripture-guide-pull-spacer{display:block;flex:0 0 auto;width:100%;height:min(48vh,380px);pointer-events:none;background:transparent}' +
-    '}';
+    '}' +
+    'html.scripture-all-guides-lock,html.scripture-all-guides-lock body{overflow:hidden!important}' +
+    '.scripture-all-guides-overlay{position:fixed;inset:0;z-index:330;display:none;flex-direction:column;background:linear-gradient(180deg,#F7F0E4 0%,#F3EBDD 100%);box-sizing:border-box}' +
+    '.scripture-all-guides-overlay.is-open{display:flex}' +
+    '.scripture-all-guides-overlay[hidden]{display:none}' +
+    '.scripture-all-guides-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:8px 18px calc(28px + env(safe-area-inset-bottom,0));box-sizing:border-box}' +
+    '.scripture-all-guides-testament{font-size:13px;font-weight:700;color:#9a7209;margin:22px 0 10px;letter-spacing:0.02em}' +
+    '.scripture-all-guides-article+.scripture-all-guides-article{margin-top:28px;padding-top:22px;border-top:1px solid rgba(139,94,44,0.16)}';
   document.head.appendChild(styleEl);
 
   // === 2. 카테고리 정보 ===
@@ -498,7 +505,7 @@
     }
   };
 
-  function buildGuideDetailHtml(guide) {
+  function buildGuideDetailHtml(guide, opts) {
     var c = guide;
     var html = '<h3 class="scripture-guide-detail-h">' + escGuideHtml(c.detailTitle) + '</h3>';
     var sections = c.sections || [];
@@ -537,7 +544,9 @@
       html += '</button>';
     }
     html += '</div>';
-    html += '<button type="button" class="scripture-guide-read-btn" data-guide-read-testament="' + escGuideHtml(c.testament) + '" data-guide-read-cat="' + escGuideHtml(c.categoryName) + '">' + escGuideHtml(c.readButtonLabel) + '</button>';
+    if (!opts || !opts.omitReadButton) {
+      html += '<button type="button" class="scripture-guide-read-btn" data-guide-read-testament="' + escGuideHtml(c.testament) + '" data-guide-read-cat="' + escGuideHtml(c.categoryName) + '">' + escGuideHtml(c.readButtonLabel) + '</button>';
+    }
     return html;
   }
 
@@ -1374,6 +1383,126 @@
     window.renderUnifiedModalBody = wrapped;
     return true;
   }
+
+  var allGuidesOverlay = null;
+  var allGuidesBound = false;
+  var allGuidesReturnScroll = 0;
+  var ALL_GUIDE_ORDER = {
+    old: ['모세오경', '역사서', '시가서', '대선지서', '소선지서'],
+    new: ['복음서', '역사서', '바울서신', '공동서신', '예언서']
+  };
+
+  function buildGuideReadingArticleHtml(guide) {
+    return ''
+      + '<article class="scripture-all-guides-article">'
+      +   '<h2 class="scripture-guide-cat">' + escGuideHtml(guide.categoryName) + '</h2>'
+      +   '<p class="scripture-guide-alt">' + escGuideHtml(guide.altNames) + '</p>'
+      +   '<p class="scripture-guide-p">' + escGuideHtml(guide.summaryLine1) + '</p>'
+      +   '<p class="scripture-guide-p">' + escGuideHtml(guide.summaryLine2) + '</p>'
+      +   '<p class="scripture-guide-label">포함된 성경</p>'
+      +   '<p class="scripture-guide-books">' + escGuideHtml(guide.books) + '</p>'
+      +   buildGuideDetailHtml(guide, { omitReadButton: true })
+      + '</article>';
+  }
+
+  function buildAllGuidesHtml() {
+    var html = '';
+    var groups = [
+      { label: '구약', testament: 'old' },
+      { label: '신약', testament: 'new' }
+    ];
+    for (var g = 0; g < groups.length; g++) {
+      var names = ALL_GUIDE_ORDER[groups[g].testament] || [];
+      html += '<p class="scripture-all-guides-testament">' + escGuideHtml(groups[g].label) + '</p>';
+      for (var i = 0; i < names.length; i++) {
+        var guide = getScriptureGuide(groups[g].testament, names[i]);
+        if (guide) html += buildGuideReadingArticleHtml(guide);
+      }
+    }
+    return html;
+  }
+
+  function getAllGuidesScrollEl() {
+    if (typeof getBibleListScrollContainer === 'function') {
+      try { return getBibleListScrollContainer(); } catch (e) {}
+    }
+    return document.scrollingElement || document.documentElement;
+  }
+
+  function closeAllScriptureGuides() {
+    if (!allGuidesOverlay || !allGuidesOverlay.classList.contains('is-open')) return;
+    allGuidesOverlay.classList.remove('is-open');
+    allGuidesOverlay.setAttribute('aria-hidden', 'true');
+    allGuidesOverlay.hidden = true;
+    document.documentElement.classList.remove('scripture-all-guides-lock');
+    var scrollEl = getAllGuidesScrollEl();
+    if (scrollEl) scrollEl.scrollTop = allGuidesReturnScroll;
+  }
+
+  function onAllGuidesKeydown(e) {
+    if (!allGuidesOverlay || !allGuidesOverlay.classList.contains('is-open')) return;
+    if (e.key !== 'Escape' && e.key !== 'Esc') return;
+    e.preventDefault();
+    closeAllScriptureGuides();
+  }
+
+  function ensureAllGuidesOverlay() {
+    if (allGuidesOverlay) return allGuidesOverlay;
+    var overlay = document.createElement('div');
+    overlay.id = 'scriptureAllGuidesOverlay';
+    overlay.className = 'scripture-all-guides-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'scriptureAllGuidesTitle');
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.hidden = true;
+    overlay.innerHTML =
+      '<div class="scripture-guide-head">' +
+        '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
+        '<h1 class="scripture-guide-head-title" id="scriptureAllGuidesTitle">가이드</h1>' +
+        '<button type="button" class="scripture-guide-head-close" data-all-guides-close aria-label="닫기">✕</button>' +
+      '</div>' +
+      '<div class="scripture-all-guides-body" id="scriptureAllGuidesBody"></div>';
+    document.body.appendChild(overlay);
+    overlay.querySelector('[data-all-guides-close]').addEventListener('click', closeAllScriptureGuides);
+    overlay.querySelector('#scriptureAllGuidesBody').addEventListener('click', function(e) {
+      var verseBtn = e.target.closest('[data-guide-verse]');
+      if (!verseBtn) return;
+      e.preventDefault();
+      closeAllScriptureGuides();
+      navigateToGuideRelatedVerse({
+        book: verseBtn.getAttribute('data-book'),
+        chapter: parseInt(verseBtn.getAttribute('data-chapter'), 10),
+        verse: parseInt(verseBtn.getAttribute('data-verse'), 10),
+        testament: verseBtn.getAttribute('data-testament') || undefined
+      });
+    });
+    if (!allGuidesBound) {
+      document.addEventListener('keydown', onAllGuidesKeydown);
+      allGuidesBound = true;
+    }
+    allGuidesOverlay = overlay;
+    return overlay;
+  }
+
+  function openAllScriptureGuides() {
+    var overlay = ensureAllGuidesOverlay();
+    var body = overlay.querySelector('#scriptureAllGuidesBody');
+    var scrollEl = getAllGuidesScrollEl();
+    allGuidesReturnScroll = scrollEl ? scrollEl.scrollTop : 0;
+    if (body && !body.getAttribute('data-guides-filled')) {
+      body.innerHTML = buildAllGuidesHtml();
+      body.setAttribute('data-guides-filled', '1');
+    }
+    overlay.hidden = false;
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('scripture-all-guides-lock');
+    if (body) body.scrollTop = 0;
+  }
+
+  window.openAllScriptureGuides = openAllScriptureGuides;
+  window.closeAllScriptureGuides = closeAllScriptureGuides;
 
   var attempts = 0;
   function init(){

@@ -114,45 +114,9 @@
       } catch (eSeed) { /* ignore */ }
     }
 
-    var GOOGLE_HOME_LANGS = {
-      es: 1, pt: 1, fr: 1, de: 1, vi: 1, hi: 1, id: 1, tl: 1, sw: 1, af: 1,
-      zh: 1, 'zh-cn': 1, 'zh-tw': 1
-    };
-
-    function detectBrowserPreferredLanguage() {
-      var list = [];
-      try {
-        if (navigator.languages && navigator.languages.length) {
-          for (var i = 0; i < navigator.languages.length; i++) list.push(navigator.languages[i]);
-        }
-      } catch (e0) { /* ignore */ }
-      try { list.push(navigator.language || navigator.userLanguage || ''); } catch (e1) { /* ignore */ }
-      for (var j = 0; j < list.length; j++) {
-        var raw = String(list[j] || '').toLowerCase().replace(/_/g, '-');
-        if (!raw) continue;
-        if (raw.indexOf('ko') === 0) return { lang: 'ko', mode: 'native' };
-        if (raw.indexOf('en') === 0) return { lang: 'en', mode: 'native' };
-        if (raw.indexOf('ja') === 0) return { lang: 'ja', mode: 'native' };
-        if (raw.indexOf('zh') === 0) {
-          var zh =
-            raw.indexOf('tw') !== -1 ||
-            raw.indexOf('hk') !== -1 ||
-            raw.indexOf('hant') !== -1
-              ? 'zh-TW'
-              : 'zh-CN';
-          return { lang: zh, mode: 'google' };
-        }
-        var primary = raw.split('-')[0];
-        if (primary && GOOGLE_HOME_LANGS[primary]) {
-          return { lang: primary, mode: 'google' };
-        }
-      }
-      // Unsupported / undetectable → English home (not Korean).
-      return { lang: 'en', mode: 'native' };
-    }
-
     // First-paint language gate (mirrors GomnaUII18n.resolveInitialHomeLanguage).
-    // Priority: explicit app ko/en/ja → valid googtrans user choice → browser detect.
+    // Priority: explicit app ko/en/ja → valid googtrans user choice → app default.
+    // 브라우저 선호 언어로 자동 전환하지 않는다. 그 값은 헤더 스마트 제안 힌트로만 쓴다.
     var stored = null;
     try {
       var s = localStorage.getItem(STORAGE_KEY);
@@ -173,20 +137,8 @@
           googleTarget = validGt;
         }
       } else {
+        // 직접 선택도 유효한 번역 상태도 없으면 앱 기본 화면(한국어)을 그대로 둔다.
         clearInvalidGoogTransOnly();
-        var detected = detectBrowserPreferredLanguage();
-        if (detected.mode === 'native' && (detected.lang === 'ko' || detected.lang === 'en' || detected.lang === 'ja')) {
-          // Display-only auto detect — never write gomna_ui_language here.
-          native = detected.lang;
-          if (native === 'ko') clearIncompleteGoogTrans();
-          else setGoogTransCookie(native);
-        } else if (detected.mode === 'google' && detected.lang) {
-          googleTarget = detected.lang;
-          setGoogTransCookie(googleTarget);
-        } else {
-          native = 'en';
-          setGoogTransCookie('en');
-        }
       }
     }
 
@@ -236,7 +188,7 @@
 <style id="gomna-ui-i18n-boot-css">
 html.gomna-ui-i18n-boot [data-i18n-key]:not(img){visibility:hidden}
 </style>
-<script src="js/gomna-ui-i18n.js?v=20260729-resume-i18n-books"></script>
+<script src="js/gomna-ui-i18n.js?v=20260809-easyfind-label-v1"></script>
 <style id="gt-translation-pending-css">
 html.gt-translation-pending,
 html.gt-translation-pending body{
@@ -337,10 +289,10 @@ html.gt-translation-pending body::after{
   ]
 }
 </script>
-<link rel="manifest" href="manifest.json?v=20260722-home-ko-default-v1">
+<link rel="manifest" href="manifest.json?v=2026-08-15-scripture-quick-move-v1">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <script>
-window.GOMNA_ASSET_VERSION = "20260722-home-ko-default-v1";
+window.GOMNA_ASSET_VERSION = "2026-08-15-scripture-quick-move-v1";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
 }
@@ -353,17 +305,24 @@ if ("serviceWorker" in navigator) {
 html,body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#000}
 body{background:linear-gradient(180deg,#F0E4CD 0%,#EBDDC2 100%);min-height:100vh;overflow-x:hidden;position:relative}
 .container{max-width:520px;margin:0 auto;padding:18px 16px 24px;position:relative;z-index:1;min-height:100vh}
-.greeting{font-family:Georgia,'Times New Roman',serif;font-size:calc(var(--font-size,17px) * 13 / 17);font-style:italic;text-align:center;letter-spacing:.5px;margin-bottom:16px;color:#000;opacity:0;animation:fadeInDown 1.2s ease .3s forwards}
-@keyframes fadeInDown{from{opacity:0;transform:translateY(-6px)}to{opacity:.92;transform:translateY(0)}}
+/* 헤더 "내 정보"의 첫 글자 x 좌표를 오른쪽 텍스트 정렬선으로 공유한다.
+   값 = 콘텐츠 오른쪽 끝 → 그 글자까지의 거리
+   = ⋮ 44 + header-actions gap + 계정 버튼 절반 22 + "내 정보" 라벨폭 절반.
+   라벨은 글자 크기 설정을 따라 커지므로 절반 폭에만 --gomna-text-scale을 곱한다. */
+.container{--gm-right-text-inset:calc(18px + 58.765px * var(--gomna-text-scale, 1))}
+@media (max-width:430px){.container{--gm-right-text-inset:calc(12px + 58.765px * var(--gomna-text-scale, 1))}}
+@media (max-width:380px){.container{--gm-right-text-inset:calc(12px + 58.065px * var(--gomna-text-scale, 1))}}
 .header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.logo-img{width:46px;height:46px;border-radius:50%;overflow:hidden;object-fit:cover;flex-shrink:0;display:block}
+/* 헤더 아이콘은 아이폰 "홈 화면에 추가"가 쓰는 apple-touch-icon.png를 그대로 참조한다.
+   원형으로 자르지 않고, 홈 화면에서 보이는 둥근 사각형 비율(22.5%)만 준다. */
+.logo-img{width:48px;height:48px;border-radius:22.5%;overflow:hidden;object-fit:contain;flex-shrink:0;display:block}
 .title-block{flex:1}
 .title{margin:0;font-size:calc(var(--font-size,17px) * 20 / 17);font-weight:500;line-height:1.15;letter-spacing:-0.3px}
 .sub{font-family:Georgia,serif;font-size:calc(var(--font-size,17px) * 12 / 17);font-style:italic;letter-spacing:0.5px;opacity:.88;margin-top:3px}
 .settings-btn{width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:transparent;border:none;padding:0;position:relative;top:-7px;transition:background .2s ease,transform .15s ease}
 .settings-btn:hover{background:var(--gm-hover-btn-strong);border-radius:8px}
 .settings-btn svg{width:26px;height:26px;stroke:#3d2810;fill:none;stroke-width:1.8;animation:gearRotate 32s linear infinite,gearGlow 3.5s ease-in-out infinite}
-/* 홈 지구본 버튼 커스텀 (translate_feature.js 기능 유지, 외형만 교체) */
+/* 홈 헤더에는 상시 지구본을 넣지 않는다. 아래 규칙은 지구본이 다시 삽입될 때만 쓰인다. */
 .gt-btn.gt-btn-home-custom{width:auto;height:auto;min-width:44px;min-height:44px;padding:0 2px;margin-right:0;border-radius:8px;flex-direction:column;gap:1px;align-self:center;background:transparent!important;position:relative;overflow:visible}
 .gt-btn.gt-btn-home-custom.gt-on-dark{background:transparent!important;width:auto;height:auto}
 .gt-btn.gt-btn-home-custom::after{display:none!important}
@@ -382,10 +341,135 @@ body{background:linear-gradient(180deg,#F0E4CD 0%,#EBDDC2 100%);min-height:100vh
   .gt-btn.gt-btn-home-custom .gt-home-globe{width:34px;height:34px}
   .gt-btn.gt-btn-home-custom .gt-home-lang-label{font-size:10px}
 }
+/* v73: 상단 오른쪽 계정(로그인·프로필) 버튼 — 지구본 버튼과 같은 형태로 나란히 둔다 */
+.header-actions{position:relative;display:flex;align-items:center;gap:10px;flex-shrink:0}
+/* 톱니바퀴는 계정 메뉴로, 언어는 설정 → 언어로 옮겼다.
+   이 자리표시자는 이제 스마트 언어 제안을 넣는 기준점으로만 남는다. */
+.home-gt-anchor{display:none!important}
+/* 브라우저 선호 언어 제안 — 지구본·국기·배경 없이 언어 이름만 조용히 보여준다.
+   "내 정보"보다 강조되지 않도록 작은 갈색 텍스트로만 둔다. */
+.gomna-lang-suggest{align-self:center;flex-shrink:0;min-height:44px;padding:0 4px;display:inline-flex;align-items:center;background:none;border:0;border-radius:8px;box-shadow:none;font-family:inherit;font-size:12.5px;font-weight:600;color:#6e4a1f;opacity:.84;letter-spacing:-.15px;line-height:1.2;white-space:nowrap;cursor:pointer;-webkit-appearance:none;appearance:none;transition:opacity .2s ease}
+.gomna-lang-suggest:hover{background:var(--gm-hover-btn-strong);opacity:1}
+.gomna-lang-suggest:active{transform:none;filter:none;background:none;background-color:transparent;opacity:.62}
+.gomna-lang-suggest:focus-visible{outline:2px solid #B8751F;outline-offset:2px}
+html[data-gomna-theme="dark"] .gomna-lang-suggest{opacity:.7}
+html[data-gomna-theme="dark"] .gomna-lang-suggest:hover{opacity:.92}
+@media (max-width:430px){.gomna-lang-suggest{font-size:12px;padding:0 2px}}
+/* 배경 없는 조용한 기능 버튼. 44px 최소 크기로 터치 영역만 확보하고
+   hover·active에서도 배경 박스를 그리지 않고 옅기만 바꾼다. */
+.home-account-btn{width:auto;min-width:44px;min-height:44px;margin-right:calc(44px * var(--gomna-text-scale, 1) - 4px);padding:0 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;align-self:center;flex-shrink:0;background:transparent;border:none;border-radius:8px;box-shadow:none;cursor:pointer;font-family:inherit;transition:opacity .2s ease}
+.home-account-btn:hover,.home-account-btn:active,.home-account-btn:focus,.home-account-btn[aria-expanded="true"]{background:transparent;border:none;box-shadow:none}
+.home-account-btn:hover{opacity:.72}
+.home-account-btn:active{opacity:.58;transform:none;filter:none}
+/* 헤더의 사람 아이콘은 원형 배경·테두리·그림자 없이 그대로 둔다.
+   원형 자르기만 남겨 프로필 사진을 넣었을 때 사진이 각지지 않게 한다.
+   터치 영역은 아래 .home-account-btn의 44px 최소 크기가 담당한다. */
+.home-account-avatar{position:relative;width:38px;height:38px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:none;border:0;box-shadow:none;box-sizing:border-box}
+.home-account-avatar-img{width:100%;height:100%;object-fit:cover;display:block}
+.home-account-avatar-img[hidden]{display:none}
+.home-account-avatar-icon{width:22px;height:22px;stroke:#6e4a1f;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.home-account-label{font-size:10.5px;font-weight:600;color:#6e4a1f;letter-spacing:-.15px;line-height:1.15;white-space:nowrap;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif}
+@media (max-width:380px){
+  .home-account-avatar{width:34px;height:34px}
+  .home-account-avatar-icon{width:20px;height:20px}
+  .home-account-label{font-size:10px}
+}
+/* 세로 점 3개 더보기 버튼 — 지구본·프로필 버튼과 같은 높이·무게 */
+
+/* 계정 패널 — 따뜻한 아이보리 바탕에 부드러운 갈색 그림자 */
+.home-account-panel{position:absolute;top:calc(100% + 12px);right:0;z-index:200;box-sizing:border-box;background:#FFFDF8;border:1px solid rgba(151,105,53,.20);border-radius:20px;box-shadow:0 16px 38px rgba(92,64,32,.20);text-align:left;max-width:calc(100vw - 32px);max-height:calc(100vh - 130px);max-height:calc(100dvh - 130px);overflow-y:auto;-webkit-overflow-scrolling:touch;animation:homePopIn 180ms ease-out}
+.home-account-panel[hidden]{display:none}
+.home-account-panel{width:332px;padding:18px 16px 14px}
+@keyframes homePopIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes homeSheetUp{from{transform:translateY(28px)}to{transform:none}}
+@keyframes homeScrimIn{from{opacity:0}to{opacity:1}}
+/* 모바일 시트에서만 쓰는 손잡이·닫기 */
+.home-account-sheet-handle,.home-account-sheet-close,.home-account-scrim{display:none}
+/* 계정 정보 영역 — 이름 → 상태 배지 → 설명 순서 */
+.home-account-panel-title{padding:0 4px 12px;font-size:12.5px;font-weight:700;color:#8B6B3D;letter-spacing:.2px}
+.home-account-panel-id{display:flex;align-items:center;gap:13px;width:100%;box-sizing:border-box;padding:0 4px 16px;margin-bottom:14px;border:none;border-bottom:1px solid rgba(151,105,53,.16);background:transparent;font-family:inherit;text-align:left;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+.home-account-panel-avatar{position:relative;width:56px;height:56px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#F8EDDF;border:1px solid rgba(151,105,53,.22);box-sizing:border-box}
+.home-account-panel-avatar .home-account-avatar-icon{width:30px;height:30px}
+.home-account-panel-id-text{flex:1;min-width:0}
+.home-account-panel-name{display:block;font-size:18px;font-weight:700;color:#3D2818;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-account-panel-email{display:block;margin-top:3px;font-size:14px;color:#765B3D;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-account-panel-email[hidden]{display:none}
+.home-account-panel-badge{display:inline-block;max-width:100%;margin-top:7px;padding:4px 10px;border-radius:999px;background:#F8EDDF;border:1px solid rgba(151,105,53,.18);font-size:12.5px;font-weight:600;color:#765B3D;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-account-panel-badge[hidden]{display:none}
+/* 계정 선택창 — 계정 줄 바로 아래에 뜨는 작은 카드 */
+.home-account-switch{margin:-6px 0 12px;padding:10px 8px 8px;border-radius:16px;background:#FFFBF3;border:1px solid rgba(151,105,53,.20);box-shadow:0 10px 24px rgba(92,64,32,.14);animation:homePopIn 160ms ease-out}
+.home-account-switch[hidden]{display:none}
+.home-account-switch-label{padding:0 8px 8px;font-size:12.5px;font-weight:700;color:#8B6B3D;letter-spacing:.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-account-switch-row{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;min-height:56px;padding:6px 8px;border:none;border-radius:12px;background:transparent;font-family:inherit;text-align:left;color:#3D2818;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;transition:background 160ms ease}
+.home-account-switch-row:hover{background:rgba(151,105,53,.07)}
+.home-account-switch-row:active{background:rgba(151,105,53,.12)}
+.home-account-switch-avatar{width:40px;height:40px}
+.home-account-switch-avatar .home-account-avatar-icon{width:22px;height:22px}
+.home-account-switch-text{flex:1;min-width:0}
+.home-account-switch-name{display:block;font-size:15.5px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-account-switch-line{display:block;margin-top:2px;font-size:13px;color:#765B3D;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-account-switch-check{flex-shrink:0;width:20px;height:20px}
+.home-account-switch-check svg{width:20px;height:20px;display:block;fill:none;stroke:#8A6A45;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.home-account-panel-desc{margin:0 4px 14px;font-size:14.5px;line-height:1.6;color:#765B3D;word-break:keep-all}
+/* 계정 패널 안 안내 줄 — 문구가 없으면 감춰 빈 여백을 남기지 않는다 */
+.home-account-panel-status{margin:10px 4px 0;padding:10px 12px;border-radius:12px;background:#FFF9EE;border:1px solid rgba(184,134,11,.18);font-size:13.5px;line-height:1.6;color:#5C4423;word-break:keep-all}
+.home-account-panel-status[hidden]{display:none}
+/* 주요 버튼 — 밝은 샴페인 아이보리에 짙은 갈색 글자 */
+.home-account-cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;margin:0;padding:12px 16px;border:none;border-radius:16px;background:#2F67C7;color:#FFFFFF;box-shadow:0 6px 16px rgba(47,103,199,.24);font-family:inherit;font-size:16.5px;font-weight:700;line-height:1.3;cursor:pointer;box-sizing:border-box;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;transition:background 160ms ease}
+.home-account-cta:hover{background:#285DB8}
+.home-account-cta:active{background:#2455AA}
+.home-account-cta svg{width:20px;height:20px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* 메뉴 그룹과 항목 */
+.home-account-group{margin-top:14px}
+.home-account-group-title{padding:0 12px 4px;font-size:12px;font-weight:700;color:#8B6B3D;letter-spacing:.2px}
+.home-account-menu-item{display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:0 12px;border:none;border-radius:14px;background:transparent;color:#3D2818;font-family:inherit;font-size:16px;font-weight:600;text-align:left;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;transition:background 160ms ease}
+.home-account-menu-item:hover{background:rgba(151,105,53,.07)}
+.home-account-menu-item:active{background:rgba(151,105,53,.12)}
+.home-account-menu-item svg{width:21px;height:21px;flex-shrink:0;fill:none;stroke:#8A6A45;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.home-account-menu-item-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-account-menu-item-arrow{flex-shrink:0;width:8px;height:8px;margin-right:3px;border-right:1.8px solid #B79A73;border-bottom:1.8px solid #B79A73;transform:rotate(-45deg)}
+.home-account-panel-group--divided{margin-top:10px;padding-top:10px;border-top:1px solid rgba(151,105,53,.16)}
+.home-account-btn:focus-visible,.home-account-panel-id:focus-visible,.home-account-switch-row:focus-visible,.home-account-menu-item:focus-visible,.home-account-cta:focus-visible,.home-account-sheet-close:focus-visible{outline:2px solid #B8751F;outline-offset:2px}
+/* 휴대폰 폭에서는 헤더 버튼이 로고·제목 자리를 밀지 않도록 간격만 줄인다. */
+@media (max-width:430px){
+  .header-actions{gap:4px}
+  .home-account-btn{margin-right:calc(44px * var(--gomna-text-scale, 1) - 10px)}
+}
+/* 모바일: 계정 패널을 화면 아래에서 올라오는 시트로 바꾼다 */
+@media (max-width:600px){
+  .home-account-scrim{display:block;position:fixed;inset:0;z-index:190;background:rgba(58,38,20,.38);animation:homeScrimIn 180ms ease-out}
+  .home-account-scrim[hidden]{display:none}
+  .home-account-panel{
+    position:fixed;
+    top:auto;
+    left:0;
+    right:0;
+    bottom:0;
+    width:100%;
+    max-width:none;
+    max-height:calc(100vh - 24px);
+    max-height:calc(100dvh - 24px);
+    padding:6px 18px calc(16px + env(safe-area-inset-bottom,0px));
+    border-width:1px 0 0;
+    border-radius:22px 22px 0 0;
+    animation:homeSheetUp 200ms ease-out;
+  }
+  .home-account-sheet-handle{display:block;width:44px;height:5px;margin:8px auto 12px;border-radius:3px;background:rgba(151,105,53,.26)}
+  .home-account-sheet-close{display:flex;position:absolute;top:10px;right:12px;width:40px;height:40px;align-items:center;justify-content:center;padding:0;border:none;border-radius:50%;background:rgba(139,94,44,.10);color:#5A3A1C;font-size:19px;line-height:1;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+  .home-account-sheet-close:active{background:rgba(139,94,44,.22)}
+  .home-account-panel-title{padding-top:2px}
+}
+/* 패널이 열린 동안에만 홈 본문 묶음을 쿠키 배너 위로 올린다(.container는 z-index:1 쌓임 맥락) */
+html.home-overlay-open .container{z-index:400}
+html.home-sheet-open,html.home-sheet-open body{overflow:hidden;overscroll-behavior:none}
+@media (prefers-reduced-motion:reduce){
+  .home-account-panel,.home-account-scrim{animation:none}
+}
+
 @keyframes gearRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes gearGlow{0%,100%{filter:drop-shadow(0 0 5px rgba(255,235,180,0.6))}50%{filter:drop-shadow(0 0 14px rgba(255,235,180,1)) drop-shadow(0 0 22px rgba(255,215,100,0.7))}}
 .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;margin-bottom:6px}
-.card{border-radius:var(--gm-radius-card);padding:8px 4px 7px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;transition:transform .2s ease,background .2s ease,border-color .2s ease;position:relative;overflow:hidden;border:var(--gm-card-border-slim);box-shadow:var(--gm-card-shadow);background:var(--gm-card-bg);min-height:0}
+.card{border-radius:var(--gm-radius-card);padding:8px 4px 11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;transition:transform .2s ease,background .2s ease,border-color .2s ease;position:relative;overflow:hidden;border:var(--gm-card-border-slim);box-shadow:var(--gm-card-shadow);background:var(--gm-card-bg);min-height:0}
 .card:active{transform:scale(.97)}
 .card.old,.card.new,.card.easy{color:var(--gm-ink)}
 .card:hover,.card.old:hover,.card.new:hover,.card.easy:hover,button.card:hover,a.card:hover{background:var(--gm-hover-surface)}
@@ -458,7 +542,6 @@ body[data-i18n-mode="foreign"] .easy-key.cat-key .cat-label{font-size:clamp(9px,
 /* en/ja: show full card titles (no ellipsis); keep 3-col layout & KO sizes unchanged */
 html[data-gomna-ui-lang="en"] .cards .card-label,
 html[data-gomna-ui-lang="ja"] .cards .card-label{
-  min-height:3.55em;
   display:flex;
   flex-direction:column;
   justify-content:flex-start;
@@ -502,8 +585,9 @@ html[data-gomna-ui-lang="ja"] .quick-desc{
 }
 html[data-gomna-ui-lang="en"] .quick-desc{font-size:8px;letter-spacing:-.35px}
 html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
-.card-search-icon{width:30px;height:30px;border-radius:6px;background:linear-gradient(135deg,#F2E4C4,#E8D4A8);border:1px solid rgba(180,140,90,.28);display:flex;align-items:center;justify-content:center;box-shadow:none}
-.card-search-icon svg{width:15px;height:15px;stroke:#7a5828;fill:none;stroke-width:2.2}
+/* 찾기 카드는 작은 사각형 배경 없이 돋보기 선만 보여, 구약·신약 책 표지와 무게를 맞춘다. */
+.card-search-icon{display:flex;align-items:center;justify-content:center;background:none;border:0;border-radius:0;box-shadow:none}
+.card-search-icon svg{width:34px;height:34px;stroke:#7a5828;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .search{background:var(--gm-card-bg);border-radius:var(--gm-radius-card);padding:7px 8px 7px 14px;display:flex;align-items:center;color:#888;font-size:13px;margin-bottom:4px;border:var(--gm-card-border-slim);box-shadow:var(--gm-card-shadow);width:100%;font-family:inherit;text-align:left;transition:background .22s ease}
 .search:hover:not(.search-attention){background:var(--gm-hover-surface)}
 .search-shell{position:relative;margin-bottom:4px}
@@ -527,10 +611,15 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 @keyframes searchAttentionPulse{0%{border-color:rgba(220,30,30,.95);box-shadow:0 0 0 0 rgba(220,30,30,.28),0 2px 8px rgba(80,40,20,.08)}55%{border-color:rgba(210,40,40,.85);box-shadow:0 0 0 5px rgba(220,30,30,.10),0 2px 8px rgba(80,40,20,.08)}100%{border-color:rgba(228,210,178,.78);box-shadow:0 1px 2px rgba(60,40,18,.02)}}
 .search-input{flex:1;border:none;outline:none;background:transparent;color:#5a3a18;font-size:16px;font-family:inherit}
 .search-input::placeholder{color:#9a8a78}
-.search-icon{margin-left:auto;width:28px;height:28px;background:#c89849;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s ease,transform .15s ease}
-.search-submit{border:none;cursor:pointer;padding:0}
-.search-icon:hover,.search-submit:hover{background:#d9ae5c}
-.search-icon svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.5}
+/* 검색 실행 버튼도 찾기 카드와 같은 언어로 — 배경 없는 브라운 돋보기만 보이게 한다. */
+.search-icon{margin-left:auto;width:28px;height:28px;background:none;border:0;border-radius:0;box-shadow:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;transition:opacity .2s ease}
+.search-submit{border:none;cursor:pointer;padding:0;background:none;-webkit-appearance:none;appearance:none}
+/* 보이는 것은 돋보기뿐이어도 터치 영역은 44px를 유지한다. */
+.search-icon::after{content:"";position:absolute;inset:-8px;border-radius:10px}
+.search-icon:hover,.search-submit:hover{background:none;opacity:.78}
+.search-icon:active,.search-submit:active{transform:none;filter:none;background:none;background-color:transparent;opacity:.6}
+.search-submit:focus-visible{outline:2px solid #B8751F;outline-offset:2px;border-radius:8px}
+.search-icon svg{width:20px;height:20px;stroke:#7a5828;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
 .chips-label{font-size:calc(var(--font-size,17px) * 10.5 / 17);color:#000;font-style:italic;margin:3px 0 4px;padding-left:4px;letter-spacing:.3px;font-family:Georgia,serif}
 .chips{display:flex;gap:4px;overflow-x:auto;margin-bottom:12px;padding-bottom:4px;scrollbar-width:none;-ms-overflow-style:none}
 .chips::-webkit-scrollbar{display:none}
@@ -561,59 +650,29 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .verse-card-verse-layer{position:absolute;inset:0;z-index:1;display:grid;grid-template-rows:auto 1fr;min-height:100%;padding:10px 12px 11px;box-sizing:border-box;gap:0;background-color:#D8C8A8;background-image:url('today-verse-slide-2-bg-v3.png');background-size:cover;background-position:center;background-repeat:no-repeat;opacity:0;visibility:hidden;pointer-events:none;will-change:opacity}
 .verse-card-verse-layer .verse-center{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:0;padding:8px 10px 10px;text-align:center}
 .verse-card-verse-layer .verse-tag{font-family:inherit;font-size:clamp(15px,3.6vw,16px);font-weight:600;font-style:normal;letter-spacing:.02em;color:#3d2818;-webkit-text-fill-color:#3d2818;text-transform:none;opacity:0;padding-top:0;line-height:1.2;text-shadow:0 1px 1px rgba(255,255,255,.28)}
-.verse-card-verse-layer .verse-text{font-size:clamp(12.5px,3.1vw,14.5px);color:#3d2818;-webkit-text-fill-color:#3d2818;line-height:1.42;letter-spacing:-0.1px;margin-bottom:5px;padding:0;opacity:0;font-weight:600;display:block;overflow:visible;white-space:normal;text-align:center;text-shadow:0 1px 1px rgba(255,255,255,.28)}
+.verse-card-verse-layer .verse-text{font-size:clamp(12.5px,3.1vw,14.5px);color:#3d2818;-webkit-text-fill-color:#3d2818;line-height:1.42;letter-spacing:-0.1px;margin-bottom:5px;padding:0;opacity:0;font-weight:600;display:block;overflow:visible;white-space:normal;word-break:keep-all;overflow-wrap:break-word;text-align:center;text-shadow:0 1px 1px rgba(255,255,255,.28)}
+/* 구절이 실제로 보이는 동안에만 누를 수 있게 한다(사진 장면에서는 빈 곳을 눌러도 반응하지 않는다). */
+.verse-card.is-verse-active .verse-card-verse-layer .verse-text{pointer-events:auto;cursor:pointer}
 .verse-card-verse-layer .verse-ref{font-size:clamp(12px,2.8vw,13px);color:#3d2818;-webkit-text-fill-color:#3d2818;font-style:normal;text-align:center;font-family:inherit;opacity:0;margin-top:0;margin-bottom:0;line-height:1.32;font-weight:600;text-shadow:0 1px 1px rgba(255,255,255,.28)}
 .verse-card-controls{position:absolute;inset:0;z-index:2;display:grid;grid-template-rows:auto 1fr auto;min-height:100%;padding:10px 12px 11px;box-sizing:border-box;gap:0;pointer-events:none}
-.verse-card-controls .verse-head-btns{grid-row:1;justify-self:end;align-self:start;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;pointer-events:auto}
 .verse-card-controls .verse-footer{grid-row:3;align-self:end;width:100%;height:0;padding:0;overflow:visible;pointer-events:none}
 .verse-card.is-verse-active .verse-open-note{color:#5a4632;-webkit-text-fill-color:#5a4632;text-shadow:none}
 .verse-glow{display:none}
 .verse-card .verse-open-row{display:block;margin:0}
 .verse-card .verse-open-note{display:none!important}
-.verse-card .gm-btn-today-open{position:absolute;right:12px;bottom:10px;left:auto;transform:none;z-index:3;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:-.1px;padding:6px 13px;border-radius:14px;cursor:pointer;transition:all .2s;white-space:nowrap;background:transparent;color:#111;border:1px solid rgba(0,0,0,0.7);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:auto}
+.verse-card .gm-btn-today-open{--gm-btn-text-inset:14px;position:absolute;left:calc(100% - var(--gm-right-text-inset) + 1px - var(--gm-btn-text-inset));right:auto;top:5px;bottom:auto;transform:none;z-index:3;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:14px;font-weight:600;letter-spacing:-.1px;padding:5px 13px;border-radius:14px;cursor:pointer;transition:all .2s;white-space:nowrap;background:transparent;color:#111;border:1px solid rgba(0,0,0,0.7);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:auto}
 .verse-card .gm-btn-today-open:hover{filter:none;background:rgba(255,255,255,0.18);color:#000;border-color:#000}
 .verse-card .gm-btn-today-open:active{background:rgba(255,255,255,0.18);color:#000;border-color:#000}
 .verse-card .gm-btn-today-open:focus-visible{outline:2px solid rgba(0,0,0,0.35);outline-offset:2px}
-.verse-card .verse-date-btn{background:transparent;border:1px solid rgba(180,140,90,.42);color:#5a4632;font-family:inherit;font-size:12px;font-weight:500;padding:6px 10px;border-radius:14px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .2s;letter-spacing:-.1px;flex-shrink:0}
-.verse-card .verse-date-btn:hover{background:var(--gm-hover-btn-strong);border-color:rgba(170,125,70,.55)}
-.verse-card .verse-date-btn svg{stroke:#6a5542;flex-shrink:0;width:11px;height:11px}
-.verse-card .verse-today-btn{background:var(--gm-btn-bg);color:var(--gm-ink);border:1px solid rgba(180,140,90,.4);font-family:inherit;font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:var(--gm-radius-btn);cursor:pointer;transition:all .2s;letter-spacing:-.1px;box-shadow:0 1px 2px rgba(180,140,90,.12)}
-.verse-card .verse-today-btn:hover{background:var(--gm-hover-btn-strong);border-color:rgba(170,125,70,.55);box-shadow:0 1px 3px rgba(180,140,90,.14)}
 @media (max-width:520px){
-  .verse-card .gm-btn-today-open{padding:6px 12px}
+  .verse-card .gm-btn-today-open{--gm-btn-text-inset:13px;padding:5px 12px}
 }
 @media (max-width:375px){
   .verse-card-verse-layer,.verse-card-controls{padding:9px 11px 10px}
   .verse-card-verse-layer .verse-center{padding:4px 1px 6px}
   .verse-card-verse-layer .verse-tag{font-size:15px}
-  .verse-card .gm-btn-today-open{font-size:12.5px;padding:6px 11px}
+  .verse-card .gm-btn-today-open{--gm-btn-text-inset:12px;font-size:13.5px;padding:5px 11px}
 }
-.audio-pending-badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.88);color:#000;border:1px solid rgba(0,0,0,.08);font-size:10px;font-weight:700;line-height:1;white-space:nowrap;flex-shrink:0}
-/* 말씀풀이 듣기 slim 카드 */
-.commentary-slim-card{display:flex;align-items:center;gap:10px;width:100%;background:rgba(253,245,223,.95);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);box-shadow:var(--gm-card-shadow);padding:8px 10px;margin:4px 0;cursor:pointer;font-family:inherit;text-align:left;transition:background .22s ease,transform .15s ease}
-.commentary-slim-card:hover{background:var(--gm-hover-surface)}
-.commentary-slim-icon{width:30px;height:30px;flex-shrink:0;border-radius:var(--gm-radius-btn);background:rgba(194,142,67,.46);display:flex;align-items:center;justify-content:center;transition:background .22s ease}
-.commentary-slim-icon svg{width:20px;height:20px;stroke:#242018;fill:none;stroke-width:1.6}
-.commentary-slim-info{flex:1;min-width:0}
-.commentary-slim-title-row{display:inline-flex;align-items:center;gap:5px;flex-wrap:nowrap;max-width:100%}
-.commentary-slim-name{font-size:12px;font-weight:600;color:#C28E43;letter-spacing:-.25px;line-height:1.25;transition:color .22s ease}
-.commentary-slim-desc{font-size:10px;color:#6E4A1F;opacity:.72;margin-top:2px;line-height:1.3;letter-spacing:-.1px}
-.commentary-slim-arrow{flex-shrink:0;font-size:15px;color:#BE8738;opacity:.74;font-weight:600;transition:color .22s ease,opacity .22s ease}
-.commentary-slim-card:hover .commentary-slim-icon{background:rgba(190,135,56,.42)}
-.commentary-slim-card:hover .commentary-slim-icon svg{stroke:#1F1A14}
-.commentary-slim-card:hover .commentary-slim-name{color:#C9974F}
-.commentary-slim-card:hover .commentary-slim-arrow{color:#C28E43;opacity:.80}
-.commentary-slim-card .audio-pending-badge{background:rgba(255,247,232,.78);color:#8A6A42;border:1px solid rgba(190,135,56,.18)}
-@media (max-width:375px){
-  .commentary-slim-title-row{gap:4px}
-  .audio-pending-badge{font-size:9px;padding:2px 5px}
-  .commentary-slim-name{font-size:11.5px}
-}
-.verse-date-btn{background:transparent;border:1px solid rgba(180,140,90,.5);color:var(--gm-ink);font-family:inherit;font-size:11.5px;font-weight:500;padding:6px 11px;border-radius:var(--gm-radius-btn);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;letter-spacing:-.1px;flex-shrink:0}
-.verse-date-btn:hover{background:var(--gm-hover-btn-strong);border-color:rgba(170,125,70,.55)}
-.verse-date-btn svg{stroke:#7a5828;flex-shrink:0}
-.verse-today-btn{background:var(--gm-btn-bg);color:var(--gm-ink);border:1px solid rgba(180,140,90,.4);font-family:inherit;font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:var(--gm-radius-btn);cursor:pointer;transition:all .2s;letter-spacing:-.1px;box-shadow:0 1px 2px rgba(180,140,90,.12)}
-.verse-today-btn:hover{background:var(--gm-hover-btn-strong);border-color:rgba(170,125,70,.55);box-shadow:0 1px 3px rgba(180,140,90,.14)}
 /* 오늘의 말씀 카드 — 메인/보조 버튼 */
 .gm-btn{flex:1;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-family:inherit;font-size:13.5px;font-weight:600;letter-spacing:-.2px;padding:11px 8px;border-radius:var(--gm-radius-btn);cursor:pointer;transition:all .2s;white-space:nowrap}
 .gm-btn-main{background:linear-gradient(180deg,#9c6c33,#7d5322);color:var(--gm-cream);border:1px solid rgba(90,58,20,.55);box-shadow:0 2px 6px rgba(110,74,31,.28)}
@@ -623,104 +682,39 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .gm-badge-9{display:inline-flex;align-items:center;font-size:8.5px;font-weight:700;line-height:1;color:#8c4a3a;background:linear-gradient(135deg,#f6ddd2,#eec4b4);border:.5px solid rgba(150,80,55,.35);border-radius:8px;padding:3px 5px;letter-spacing:-.1px;flex-shrink:0}
 .verse-hint{display:block;width:100%;margin-top:10px;background:transparent;border:none;font-family:inherit;font-size:11px;color:#8a6332;text-align:center;letter-spacing:-.1px;cursor:pointer;padding:6px 4px;border-radius:var(--gm-radius-btn);transition:background .2s}
 .verse-hint:hover{background:var(--gm-hover-btn-strong)}
-/* 말씀 이어가기 카드 — 한 카드 안 위·아래 2줄 바 */
-.home-resume-card{display:block;width:100%;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);box-shadow:var(--gm-card-shadow);padding:8px 12px 8px;margin-bottom:8px;font-family:inherit;text-align:left;box-sizing:border-box;pointer-events:auto}
-.home-resume-bars{display:flex;flex-direction:column;gap:0;min-width:0;width:100%}
-.home-resume-pane{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"kicker main cta";align-items:center;column-gap:10px;row-gap:0;min-width:0;width:100%;box-sizing:border-box;background:transparent;border:0;padding:7px 2px;margin:0;cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent;border-radius:8px;transition:background .18s ease}
-.home-resume-pane + .home-resume-pane{border-top:1px solid rgba(168,122,53,.22);padding-top:8px;margin-top:1px}
-.home-resume-pane:hover{background:rgba(200,152,73,.06)}
-.home-resume-pane:active{background:rgba(200,152,73,.1)}
-.home-resume-kicker{grid-area:kicker;display:flex;align-items:center;gap:5px;min-width:0;margin:0;flex-shrink:0}
-.home-resume-pane-icon{width:16px;height:16px;flex-shrink:0;display:block;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:1}
-.home-resume-pane-icon--read{stroke:var(--gm-ink);opacity:1}
-.home-resume-pane-icon--listen{stroke:#1e3d44;opacity:1}
-.home-resume-kicker-text{min-width:0;font-size:11px;font-weight:700;color:var(--gm-gold-deep);letter-spacing:-.15px;line-height:1.2;white-space:nowrap;opacity:1}
-.home-resume-main{grid-area:main;display:inline-flex;align-items:baseline;gap:5px;min-width:0;margin:0;white-space:nowrap}
-.home-resume-loc{min-width:0;margin:0;font-size:clamp(12.5px,2.2vw,14px);font-weight:700;color:#2a1c0c;letter-spacing:-.25px;line-height:1.25;white-space:nowrap;opacity:1}
-.home-resume-time-wrap{display:inline-flex;align-items:baseline;flex-shrink:0;margin:0;font-size:11px;font-weight:600;color:#6e5536;letter-spacing:-.15px;line-height:1.25;white-space:nowrap;opacity:1}
-.home-resume-time{margin:0;font:inherit;font-weight:600;color:inherit;letter-spacing:inherit;line-height:inherit;white-space:nowrap;opacity:1}
-.home-resume-cta{grid-area:cta;display:inline-flex;align-items:center;gap:0;margin:0;font-size:13px;font-weight:700;color:var(--gm-gold-deep);letter-spacing:-.15px;line-height:1.2;white-space:nowrap;flex-shrink:0;justify-self:end;opacity:1}
-.home-resume-cta-text{min-width:0;white-space:nowrap;opacity:1}
-.home-resume-cta-arrow{display:inline-block;position:relative;width:1.08em;height:.64em;margin-left:.14em;flex-shrink:0;vertical-align:middle;color:currentColor;opacity:1}
-.home-resume-cta-arrow::before{content:"";position:absolute;left:0;right:.30em;top:50%;height:1.75px;background:currentColor;border-radius:1px;transform:translateY(-50%);opacity:1}
-.home-resume-cta-arrow::after{content:"";position:absolute;right:0;top:50%;width:.36em;height:.36em;border-right:1.75px solid currentColor;border-top:1.75px solid currentColor;transform:translateY(-50%) rotate(45deg);opacity:1}
-.home-resume-cta-play{display:inline-block;margin-left:.32em;flex-shrink:0;font-size:1em;line-height:1;color:currentColor;opacity:1;font-weight:700}
-.home-resume-card.home-resume--no-read .home-resume-loc,
-.home-resume-card.home-resume--no-listen .home-resume-loc{color:#6e5536;font-weight:600}
-.home-resume-card.home-resume--no-read .home-resume-time-wrap,
-.home-resume-card.home-resume--no-listen .home-resume-time-wrap{opacity:.72}
-.home-resume-card.home-resume--no-read .home-resume-cta,
-.home-resume-card.home-resume--no-listen .home-resume-cta{opacity:.78}
-.home-resume-recent{display:flex;align-items:flex-start;gap:6px;width:100%;margin-top:7px;padding-top:7px;border-top:1px solid rgba(180,140,90,.14);box-sizing:border-box}
-.home-resume-recent-label{flex-shrink:0;margin-top:3px;font-size:10px;font-weight:600;color:#8a6e4a;letter-spacing:-.1px;line-height:1.2}
-.home-resume-recent-chips{display:flex;flex-wrap:wrap;gap:5px;min-width:0;flex:1}
-.home-resume-recent-chip{appearance:none;-webkit-appearance:none;margin:0;padding:3px 7px;border:1px solid rgba(180,140,90,.28);border-radius:999px;background:rgba(200,152,73,.08);color:#3d2818;font:inherit;font-size:11px;font-weight:600;letter-spacing:-.15px;line-height:1.25;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.home-resume-recent-chip:active{background:rgba(200,152,73,.16)}
-.home-resume-recent-empty{font-size:11.5px;font-weight:450;color:#9a7a52;letter-spacing:-.15px;line-height:1.3;padding:2px 0}
-.home-resume-pane:hover .home-resume-loc,
-.home-resume-pane:hover .home-resume-cta{color:#5a3818}
-/* 모바일: 데스크톱과 동일하게 각 pane 한 줄 유지 — 글자·간격만 압축 */
-@media (max-width:720px){
-  .home-resume-card{padding:8px 12px}
-  .home-resume-pane{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"kicker main cta";column-gap:6px;row-gap:0;padding:8px 0;align-items:center}
-  .home-resume-pane + .home-resume-pane{padding-top:8px;margin-top:0}
-  .home-resume-kicker{gap:4px}
-  .home-resume-main{gap:4px}
-  .home-resume-pane-icon{width:17px;height:17px;stroke-width:2.1}
-  .home-resume-pane-icon--read,.home-resume-pane-icon--listen{opacity:1}
-  .home-resume-kicker-text{font-size:11px;font-weight:700;color:var(--gm-gold-deep)}
-  .home-resume-loc{font-size:13px;font-weight:700;letter-spacing:-.35px;color:#2a1c0c}
-  .home-resume-time-wrap,.home-resume-time{font-size:10.5px;font-weight:600;color:#6e5536}
-  .home-resume-cta{font-size:12px;font-weight:700;color:var(--gm-gold-deep)}
-  .home-resume-cta-arrow{width:1.08em;margin-left:.14em;opacity:1}
-  .home-resume-cta-play{opacity:1;color:currentColor}
-  .home-resume-recent-chip{font-size:10.5px;padding:3px 6px}
-}
+/* 스마트 이어보기 — 가장 최근 읽기/듣기 1개만 낮은 카드 한 줄로 */
+.home-continue{display:block;width:100%;margin-bottom:8px;box-sizing:border-box}
+.home-continue[hidden]{display:none}
+.home-continue-main{position:relative;display:flex;align-items:flex-start;gap:12px;width:100%;box-sizing:border-box;margin:0;padding:11px 16px;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:14px;box-shadow:var(--gm-card-shadow);font-family:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .18s ease}
+.home-continue-main[hidden]{display:none}
+.home-continue-main:hover{background:var(--gm-hover-surface)}
+.home-continue-main:active{background:var(--gm-hover-active)}
+.home-continue-main:focus-visible{outline:2px solid rgba(122,78,29,.55);outline-offset:2px}
+.home-continue-info{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1;padding-right:calc(var(--gm-right-text-inset) - 9px)}
+.home-continue-loc{min-width:0;font-size:14px;font-weight:700;color:#2a1c0c;letter-spacing:-.25px;line-height:1.3;overflow-wrap:anywhere}
+.home-continue-time{min-width:0;font-size:11.5px;font-weight:600;color:#6e5536;letter-spacing:-.15px;line-height:1.3;overflow-wrap:anywhere}
+.home-continue-action{position:absolute;top:11px;left:calc(100% - var(--gm-right-text-inset) + 1px);display:inline-flex;align-items:center;gap:4px;height:1.4em;color:var(--gm-gold-deep)}
+/* 한국어 외 표시 언어와 브라우저 번역에서는 행동 문구가 훨씬 길어지므로,
+   기준선 고정을 풀고 기존처럼 카드 오른쪽 여백에 맞춰 정렬한다. */
+html[data-gomna-ui-lang]:not([data-gomna-ui-lang="ko"]) .home-continue-action,
+html.translated-ltr .home-continue-action,html.translated-rtl .home-continue-action{position:static;flex-shrink:0;align-self:flex-start}
+html[data-gomna-ui-lang]:not([data-gomna-ui-lang="ko"]) .home-continue-info,
+html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{padding-right:0}
+html[data-gomna-ui-lang]:not([data-gomna-ui-lang="ko"]) .verse-card .gm-btn-today-open,
+html.translated-ltr .verse-card .gm-btn-today-open,html.translated-rtl .verse-card .gm-btn-today-open{left:auto;right:12px}
+.home-continue-action-text{font-size:13px;font-weight:700;color:inherit;letter-spacing:-.15px;line-height:1.25;white-space:nowrap}
+.home-continue-action-mark{flex-shrink:0;display:inline-flex;align-items:center;color:inherit}
+.home-continue-arrow{display:inline-block;position:relative;width:1.08em;height:.64em;flex-shrink:0;color:currentColor}
+.home-continue-arrow::before{content:"";position:absolute;left:0;right:.30em;top:50%;height:1.75px;background:currentColor;border-radius:1px;transform:translateY(-50%)}
+.home-continue-arrow::after{content:"";position:absolute;right:0;top:50%;width:.36em;height:.36em;border-right:1.75px solid currentColor;border-top:1.75px solid currentColor;transform:translateY(-50%) rotate(45deg)}
+.home-continue-play{display:inline-block;font-size:.92em;line-height:1;font-weight:700;color:currentColor}
 @media (max-width:390px){
-  .home-resume-card{padding:8px 10px}
-  .home-resume-pane{column-gap:5px;padding:7px 0}
-  .home-resume-pane + .home-resume-pane{padding-top:7px}
-  .home-resume-main{gap:4px}
-  .home-resume-pane-icon{width:16px;height:16px}
-  .home-resume-kicker-text{font-size:10.5px;font-weight:700}
-  .home-resume-loc{font-size:12.5px;font-weight:700;letter-spacing:-.4px}
-  .home-resume-time-wrap,.home-resume-time{font-size:10px;font-weight:600}
-  .home-resume-cta{font-size:12px;font-weight:700}
+  .home-continue-main{gap:10px}
+  .home-continue-action{gap:3px}
 }
-/* TEMP TEST: home resume read-listen accents 20260801 START */
-#homeResumeReadPane .home-resume-pane-icon--read{stroke:#7A4E1D;opacity:1}
-#homeResumeReadPane .home-resume-kicker-text{color:#7A4E1D;font-weight:700;opacity:1}
-#homeResumeReadPane .home-resume-cta{color:#7A4E1D;font-weight:700;opacity:1;background:rgba(122,78,29,.08);border:1px solid rgba(122,78,29,.28);border-radius:999px;padding:4px 8px;box-sizing:border-box}
-#homeResumeReadPane .home-resume-cta-arrow{width:1.08em;margin-left:.14em;color:currentColor;opacity:1}
-#homeResumeReadPane:hover .home-resume-cta{color:#7A4E1D}
-#homeResumeListenPane .home-resume-pane-icon--listen{stroke:#1E4F59;opacity:1}
-#homeResumeListenPane .home-resume-kicker-text{color:#1E4F59;font-weight:700;opacity:1}
-#homeResumeListenPane .home-resume-cta{color:#1E4F59;font-weight:700;opacity:1;background:rgba(30,79,89,.08);border:1px solid rgba(30,79,89,.28);border-radius:999px;padding:4px 8px;box-sizing:border-box}
-#homeResumeListenPane .home-resume-cta-play{color:currentColor;opacity:1;font-weight:700}
-#homeResumeListenPane:hover .home-resume-cta{color:#1E4F59}
-#homeResumeReadPane:hover .home-resume-loc,
-#homeResumeListenPane:hover .home-resume-loc{color:#2a1c0c}
-#homeResumeReadPane .home-resume-loc,
-#homeResumeListenPane .home-resume-loc{color:#2a1c0c;font-weight:700}
-#homeResumeReadPane .home-resume-time-wrap,
-#homeResumeListenPane .home-resume-time-wrap,
-#homeResumeReadPane .home-resume-time,
-#homeResumeListenPane .home-resume-time{color:#6e5536;font-weight:600}
-@media (max-width:720px){
-  #homeResumeReadPane .home-resume-cta,
-  #homeResumeListenPane .home-resume-cta{padding:3px 6px}
-  .home-resume-pane{column-gap:5px}
-}
-@media (max-width:390px){
-  #homeResumeReadPane .home-resume-cta,
-  #homeResumeListenPane .home-resume-cta{padding:3px 5px}
-  .home-resume-pane{column-gap:4px}
-  .home-resume-card{padding:8px 9px}
-}
-/* TEMP TEST: home resume read-listen accents 20260801 END */
 /* 빠른 메뉴 4칸 */
 .quick-menu{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);overflow:hidden;box-shadow:var(--gm-card-shadow);margin-bottom:4px}
-.quick-item{background:transparent;border:0;border-radius:0;box-shadow:none;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-family:inherit;transition:background .22s ease,transform .15s ease;-webkit-tap-highlight-color:transparent;min-width:0}
+.quick-item{background:transparent;border:0;border-radius:0;box-shadow:none;padding:12px 2px 11px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-family:inherit;transition:background .22s ease,transform .15s ease;-webkit-tap-highlight-color:transparent;min-width:0}
 .quick-item:not(:last-child){border-right:1px solid var(--gm-card-divider)}
 .quick-item:hover{background:var(--gm-hover-surface)}
 .quick-item:active{background:var(--gm-hover-active);transform:scale(.98)}
@@ -732,75 +726,15 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .quick-name{font-size:12px;font-weight:600;color:#000;letter-spacing:-.3px;line-height:1.2;white-space:nowrap}
 .quick-desc{font-size:9px;color:#000;opacity:.65;letter-spacing:-.2px;line-height:1.2;white-space:nowrap}
 @media (max-width:340px){.quick-menu{grid-template-columns:repeat(2,1fr)}}
-.verse-cal-box{padding:18px 20px 18px;max-width:340px}
-.verse-cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
-.cal-nav{background:rgba(200,152,73,.14);border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:20px;line-height:1;color:#5a3818;font-family:inherit;display:flex;align-items:center;justify-content:center;padding:0;font-weight:600}
-.cal-nav:hover{background:rgba(200,152,73,.28)}
-.cal-title{font-size:15.5px;font-weight:700;color:#3d2818;letter-spacing:-.2px}
-.cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px}
-.cal-week span{text-align:center;font-size:11px;font-weight:600;color:#a87a35;padding:5px 0}
-.cal-week span:first-child{color:#c2434a}
-.cal-week span:last-child{color:#1d5e8a}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px}
-.cal-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-family:inherit;border:none;background:transparent;cursor:pointer;color:#3d2818;font-weight:500;transition:background .15s,color .15s,transform .12s;padding:0;position:relative}
-.cal-cell.empty{visibility:hidden;cursor:default}
-.cal-cell:hover{background:rgba(200,152,73,.18)}
-.cal-cell.today{outline:1.5px solid #c89849;outline-offset:-1.5px;font-weight:700}
-.cal-cell.selected{background:#e4d2b4;color:#3d2818;font-weight:700;box-shadow:inset 0 0 0 1px rgba(180,140,90,.25)}
-.cal-cell.selected:hover{background:#dac49f}
-.cal-cell.sun{color:#c2434a}
-.cal-cell.sat{color:#1d5e8a}
-.cal-cell.selected.sun{color:#a82e35}
-.cal-cell.selected.sat{color:#165a85}
-.cal-hint{font-size:11px;color:#8a6e4a;text-align:center;margin-bottom:14px;line-height:1.4}
 @keyframes verseRise{from{opacity:0;transform:translate3d(0,8px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 .home-brand-blurb{margin:14px 8px 0;padding:0 4px;text-align:center;font-size:12px;line-height:1.55;font-weight:400;letter-spacing:-0.01em;color:rgba(74,62,50,.70);word-break:keep-all;overflow-wrap:break-word}
-.home-brand-copy{
-  display:inline-grid;
-  grid-template-columns:max-content minmax(0,1fr);
-  grid-template-areas:
-    "prefix owner"
-    ". detail";
-  column-gap:.35em;
-  max-width:100%;
-  text-align:left;
-}
-.home-brand-prefix{
-  grid-area:prefix;
-}
-.home-brand-owner{
-  grid-area:owner;
-}
-.home-brand-detail{
-  grid-area:detail;
-  min-width:0;
-}
+.home-brand-line{display:block}
 .imprint-bottom{margin-top:10px;padding-top:14px;padding-bottom:30px;border-top:.5px solid rgba(255,255,255,.18);text-align:center}
-@keyframes gs-imprint-underline{
-  0%{width:0;left:0;opacity:0}
-  14%{width:0;left:0;opacity:1}
-  52%{width:100%;left:0;opacity:1}
-  70%{width:0;left:100%;opacity:1}
-  76%{width:0;left:100%;opacity:0}
-  100%{width:0;left:100%;opacity:0}
-}
-@keyframes gs-arrow-gentle{
-  0%,14%{transform:translate(0,0);opacity:.72}
-  28%{transform:translate(1.6px,-1.3px);opacity:.95}
-  42%{transform:translate(3px,-2.5px);opacity:1}
-  56%{transform:translate(1.4px,-1.1px);opacity:.92}
-  70%,100%{transform:translate(0,0);opacity:.72}
-}
-.gs-link{font-family:monospace;font-size:11px;font-weight:400;letter-spacing:0.05em;display:inline-flex;align-items:center;justify-content:center;gap:5px;max-width:100%;min-height:40px;padding:10px 14px;margin:-4px 0;text-decoration:none;cursor:pointer;transition:transform .35s ease,background .2s ease;position:relative;border-radius:8px;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-.gs-link:hover{transform:scale(1.02);background:var(--gm-hover-btn-strong)}
-.gs-text{display:inline-block;position:relative;color:#000;white-space:normal}
-.gs-text::after{content:'';position:absolute;bottom:-3px;left:0;height:1.2px;width:0;border-radius:1px;background:linear-gradient(90deg,rgba(45,35,25,0) 0%,rgba(45,35,25,.22) 10%,rgba(45,35,25,.62) 50%,rgba(45,35,25,.22) 90%,rgba(45,35,25,0) 100%);animation:gs-imprint-underline 16s linear infinite}
-.gs-arrow{display:inline-block;font-size:10px;line-height:1;color:rgba(45,35,25,.58);transform:translateZ(0);animation:gs-arrow-gentle 2.75s ease-in-out infinite;transition:color .4s ease;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
-@media (hover:hover){.gs-link:hover .gs-arrow{color:rgba(45,35,25,.78)}}
-.gs-link:focus-visible .gs-arrow{color:rgba(45,35,25,.78)}
+.gs-link{font-family:inherit;font-size:10.5px;font-weight:400;letter-spacing:normal;display:inline-flex;align-items:center;justify-content:center;max-width:100%;min-height:32px;padding:7px 10px;margin:-4px 0;text-decoration:none;color:rgba(74,62,50,.70);opacity:.74;box-sizing:border-box;-webkit-tap-highlight-color:transparent;transition:opacity .3s ease}
+@media (hover:hover){.gs-link:hover{opacity:.92}}
+.gs-link:focus-visible{outline:2px solid rgba(122,78,29,.45);outline-offset:2px;border-radius:6px}
+.gs-copy{display:inline-block;white-space:normal}
 @media (prefers-reduced-motion:reduce){
-  .gs-text::after{animation:none!important;width:100%!important;left:0!important;opacity:0.55!important;height:1px;background:linear-gradient(90deg,rgba(0,0,0,.08) 0%,rgba(0,0,0,.34) 50%,rgba(0,0,0,.08) 100%)}
-  .gs-arrow{animation:none}
   .verse-card-verse-layer .verse-tag,.verse-card-verse-layer .verse-text,.verse-card-verse-layer .verse-ref{animation:none!important;opacity:1!important;transform:none!important}
   .verse-card-photo-layer,.verse-card-verse-layer{transition-duration:150ms!important}
 }
@@ -837,19 +771,270 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .cons-label{font-size:12px;color:#a87a35;margin-bottom:10px;font-weight:500}
 .bookmark-empty{text-align:center;padding:50px 20px;color:#8b6234;font-size:13px;line-height:1.7}
 .bookmark-empty .icon{font-size:42px;opacity:.4;margin-bottom:12px}
-.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(20,12,4,.92);color:#fff5e0;padding:12px 22px;border-radius:20px;font-size:13px;font-weight:500;z-index:200;display:none;box-shadow:0 4px 20px rgba(0,0,0,.3);max-width:90%;text-align:center}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(20,12,4,.92);color:#fff5e0;padding:12px 22px;border-radius:20px;font-size:13px;font-weight:500;z-index:200;display:none;box-shadow:0 4px 20px rgba(0,0,0,.3);max-width:90%;text-align:center;white-space:pre-line;line-height:1.6}
 .toast.show{display:block;animation:toastIn .3s ease}
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,-40%)}to{opacity:1;transform:translate(-50%,-50%)}}
 .popup-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:300;justify-content:center;align-items:center}
 .popup-overlay.show{display:flex}
 .popup-box{background:#fff;border-radius:20px;padding:28px 24px;width:90%;max-width:420px;max-height:90vh;overflow-y:auto;text-align:center;color:#4A2511}
+/* v75: 로그인 안내창 — index.html과 reader.html이 같은 마크업·같은 값을 쓴다.
+   .popup-box 뒤에 두어 두 페이지에서 같은 규칙이 이기게 한다.
+   데스크톱은 가운데 대화상자, 600px 이하는 아래에서 올라오는 시트. */
+.login-overlay{z-index:10000;padding:16px;box-sizing:border-box;background:rgba(58,38,20,.44)}
+.login-box{
+  position:relative;
+  width:100%;
+  max-width:412px;
+  max-height:calc(100vh - 32px);
+  max-height:calc(100dvh - 32px);
+  padding:26px 22px 18px;
+  background:#FFFDF8;
+  border:1px solid rgba(151,105,53,.18);
+  border-radius:22px;
+  box-shadow:0 18px 44px rgba(92,64,32,.22);
+  color:#3D2818;
+  text-align:left;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  box-sizing:border-box;
+  animation:loginBoxIn 180ms ease-out;
+}
+@keyframes loginBoxIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes loginSheetUp{from{transform:translateY(24px)}to{transform:none}}
+.login-sheet-handle{display:none}
+.login-close{
+  position:absolute;
+  top:14px;
+  right:14px;
+  width:40px;
+  height:40px;
+  min-width:40px;
+  padding:0;
+  border:none;
+  border-radius:50%;
+  background:rgba(139,94,44,.10);
+  color:#5A3A1C;
+  font-size:19px;
+  line-height:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:5;
+  -webkit-appearance:none;
+  appearance:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.login-close:hover{background:rgba(139,94,44,.16)}
+.login-close:active{background:rgba(139,94,44,.22)}
+/* 중앙 브랜드 비주얼 — 대표가 준 이미지 3장을 각각 그대로 두고
+   위치·크기·회전·그림자만 CSS로 얹어 한 상징물처럼 겹친다. */
+.login-brand-visual{
+  --lv-w:206px;
+  --lv-h:130px;
+  --lv-front:96px;
+  --lv-gold:78px;
+  --lv-gomna:70px;
+  position:relative;
+  width:var(--lv-w);
+  max-width:100%;
+  height:var(--lv-h);
+  margin:6px auto 16px;
+  animation:loginBrandIn 200ms ease-out both;
+}
+@keyframes loginBrandIn{from{opacity:0}to{opacity:1}}
+.login-brand-glow{
+  position:absolute;
+  left:-9%;
+  right:-9%;
+  top:-12%;
+  bottom:-12%;
+  z-index:0;
+  border-radius:50%;
+  background:radial-gradient(58% 58% at 50% 54%,rgba(246,234,214,.85) 0%,rgba(251,245,236,.45) 46%,rgba(255,253,248,0) 74%);
+}
+.login-brand-card{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  overflow:hidden;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.62);
+  box-shadow:0 8px 18px rgba(74,46,24,.16),0 3px 9px rgba(28,38,78,.13);
+  background:#FFFDF8;
+  box-sizing:border-box;
+}
+.login-brand-card[hidden]{display:none}
+.login-brand-card img{width:100%;height:100%;object-fit:cover;display:block}
+.login-brand-card--blue{
+  width:var(--lv-front);
+  height:var(--lv-front);
+  z-index:3;
+  transform:translateX(-50%);
+  animation:loginBrandBlueIn 220ms ease-out both;
+}
+.login-brand-card--gold{
+  width:var(--lv-gold);
+  height:var(--lv-gold);
+  top:0;
+  bottom:auto;
+  z-index:1;
+  transform:translateX(calc(-50% - var(--lv-front) * .62)) rotate(-8deg);
+  animation:loginBrandGoldIn 220ms ease-out 30ms both;
+}
+.login-brand-card--gomna{
+  width:var(--lv-gomna);
+  height:var(--lv-gomna);
+  top:7%;
+  bottom:auto;
+  z-index:2;
+  transform:translateX(calc(-50% + var(--lv-front) * .60)) rotate(8deg);
+  animation:loginBrandGomnaIn 220ms ease-out 50ms both;
+}
+@keyframes loginBrandBlueIn{from{opacity:0;transform:translateX(-50%) translateY(7px)}to{opacity:1;transform:translateX(-50%)}}
+@keyframes loginBrandGoldIn{from{opacity:0;transform:translateX(calc(-50% - var(--lv-front) * .62)) translateY(6px) rotate(-8deg)}to{opacity:1;transform:translateX(calc(-50% - var(--lv-front) * .62)) rotate(-8deg)}}
+@keyframes loginBrandGomnaIn{from{opacity:0;transform:translateX(calc(-50% + var(--lv-front) * .60)) translateY(6px) rotate(8deg)}to{opacity:1;transform:translateX(calc(-50% + var(--lv-front) * .60)) rotate(8deg)}}
+.login-title{margin:0 44px 10px 0;font-size:21px;font-weight:700;color:#3D2818;line-height:1.4;letter-spacing:-.3px;text-align:left}
+.login-desc{margin:0 0 20px;font-size:15.5px;line-height:1.65;color:#765B3D}
+.login-providers{display:flex;flex-direction:column;gap:10px}
+.login-provider{
+  display:grid;
+  grid-template-columns:24px minmax(0,1fr) 24px;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  height:56px;
+  min-height:56px;
+  margin:0;
+  padding:0 16px;
+  border:1px solid transparent;
+  border-radius:13px;
+  font-family:inherit;
+  font-size:17px;
+  font-weight:700;
+  line-height:1.3;
+  cursor:pointer;
+  box-sizing:border-box;
+  overflow:hidden;
+  -webkit-appearance:none;
+  appearance:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:background 160ms ease,filter 160ms ease;
+}
+.login-provider-icon{display:flex;width:24px;height:24px;align-items:center;justify-content:center}
+.login-provider-icon img{width:21px;height:21px;object-fit:contain;display:block}
+.login-provider svg{width:21px;height:21px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.login-provider-label{min-width:0;text-align:center}
+.login-provider-balance{display:block;width:24px;height:1px}
+/* 카카오·네이버는 각 사 공식 완성 버튼 이미지를 그대로 버튼 전체로 쓴다.
+   심볼·레이블·비율·색상을 손대지 않고, 컨테이너만 좌우로 넓힌다. */
+.login-provider--official{display:block;padding:0;border:none}
+.login-provider--official .login-provider-official-img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
+.login-provider-fallback{display:none}
+.login-provider--mark-failed .login-provider-official-img{display:none}
+.login-provider--mark-failed .login-provider-fallback{display:flex;width:100%;height:100%;align-items:center;justify-content:center;font-size:17px;font-weight:700}
+.login-provider--kakao{background:#FEE500}
+.login-provider--kakao .login-provider-fallback{color:rgba(0,0,0,.85)}
+.login-provider--naver{background:#03A94D}
+.login-provider--naver .login-provider-fallback{color:#FFFFFF}
+.login-provider--official:hover{filter:brightness(.97)}
+.login-provider--official:active{filter:brightness(.94)}
+.login-provider--google{background:#FFFFFF;border-color:#DCCDB8;color:#3C2A1A}
+.login-provider--google:hover{background:#FBF6EF}
+.login-provider--google:active{background:#F5EFE6}
+.login-provider--email{background:linear-gradient(180deg,#FFF9F0 0%,#F5E8D8 100%);border-color:#D9BE94;color:#56351F}
+.login-provider--email:hover{background:linear-gradient(180deg,#F8EDDF 0%,#F0E0CC 100%)}
+.login-provider--email:active{background:#EEDDC7}
+.login-next-step-notice{
+  margin:14px 0 0;
+  padding:13px 15px;
+  border:1px solid #EADFCB;
+  border-radius:14px;
+  background:#FBF6EC;
+  font-size:15px;
+  line-height:1.6;
+  color:#5A4632;
+  text-align:center;
+}
+.login-next-step-notice[hidden]{display:none}
+.login-skip{
+  display:block;
+  width:100%;
+  min-height:48px;
+  margin:16px 0 0;
+  padding:12px;
+  border:none;
+  border-radius:14px;
+  background:transparent;
+  color:#765B3D;
+  font-family:inherit;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  box-sizing:border-box;
+  -webkit-appearance:none;
+  appearance:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:background 160ms ease;
+}
+.login-skip:hover{background:rgba(151,105,53,.07);color:#5A3A1C}
+.login-skip:active{background:rgba(151,105,53,.12)}
+/* 키보드 초점에서만 금색 outline. 마우스·터치 뒤에는 테두리가 남지 않는다. */
+.login-close:focus-visible,
+.login-provider:focus-visible,
+.login-skip:focus-visible{outline:2px solid #B8751F;outline-offset:2px}
+/* 창이 열린 동안 배경 스크롤 차단 */
+html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-behavior:none}
+/* 모바일: 화면 아래에서 올라오는 로그인 시트 */
+@media (max-width:600px){
+  .login-overlay{padding:0;align-items:flex-end}
+  .login-box{
+    max-width:none;
+    padding:6px 18px calc(16px + env(safe-area-inset-bottom,0px));
+    border-width:1px 0 0;
+    border-radius:22px 22px 0 0;
+    max-height:calc(100vh - 24px);
+    max-height:calc(100dvh - 24px);
+    animation:loginSheetUp 200ms ease-out;
+  }
+  .login-sheet-handle{display:block;width:44px;height:5px;margin:8px auto 12px;border-radius:3px;background:rgba(151,105,53,.26)}
+  .login-close{top:10px;right:10px}
+  .login-brand-visual{margin-top:2px}
+  .login-title{font-size:20px}
+  .login-provider{font-size:16.5px}
+}
+/* 일반 아이폰 폭 */
+@media (max-width:430px){
+  .login-brand-visual{--lv-w:180px;--lv-h:112px;--lv-front:85px;--lv-gold:68px;--lv-gomna:61px}
+}
+/* 작은 아이폰 폭 */
+@media (max-width:374px){
+  .login-brand-visual{--lv-w:158px;--lv-h:96px;--lv-front:76px;--lv-gold:61px;--lv-gomna:55px}
+  .login-provider{padding:0 12px;font-size:16px}
+}
+/* 세로가 짧은 화면: 비주얼을 먼저 줄여 로그인 버튼을 화면 안에 남긴다. */
+@media (max-height:740px){
+  .login-brand-visual{--lv-w:170px;--lv-h:88px;--lv-front:73px;--lv-gold:59px;--lv-gomna:53px;margin:2px auto 12px}
+  .login-title{margin-bottom:8px}
+  .login-desc{margin-bottom:14px}
+  .login-providers{gap:8px}
+  .login-provider{height:52px;min-height:52px}
+}
+@media (max-height:650px){
+  .login-brand-visual{--lv-w:152px;--lv-h:76px;--lv-front:65px;--lv-gold:52px;--lv-gomna:47px;margin:0 auto 10px}
+  .login-box{padding-top:20px}
+  .login-desc{margin-bottom:12px;font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){
+  .login-box,
+  .login-brand-visual,
+  .login-brand-card{animation:none}
+}
 .popup-title{font-size:18px;font-weight:700;margin-bottom:16px;color:#4A2511}
 .font-control{display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:28px}
 .font-btn{width:48px;height:48px;border-radius:50%;border:2px solid #4A2511;background:#fff;color:#4A2511;font-size:22px;font-weight:700;cursor:pointer}
 .font-size-display{font-size:20px;font-weight:700;min-width:60px;color:#4A2511}
 .popup-close{width:100%;padding:14px;background:#B8751F;color:#fff;border:none;border-radius:25px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit}
-.verse-cal-box .popup-close{background:linear-gradient(180deg,#f8efd8,#ecd9a6);color:#4a3626;border:1px solid rgba(184,152,100,.4);box-shadow:0 1px 4px rgba(100,72,30,.1)}
-.verse-cal-box .popup-close:hover{filter:brightness(1.02)}
 @media (max-width:480px){
   .container{padding:16px 14px 22px}
   .card.easy{padding-left:5px;padding-right:5px}
@@ -877,8 +1062,7 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
   .easy-key.cat-key .cat-label{font-size:7.5px;line-height:1.05;letter-spacing:-0.5px}
 }
 /* touch feedback: iOS scale + opacity (strong) */
-.card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,.gs-link:active,button:active{transform: scale(0.90); opacity: 0.65; filter: brightness(0.85) saturate(1.3); background-color: rgba(200, 152, 73, 0.15); transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease, background-color 0.15s ease}
-.verse-cal-box .popup-close:active{transform:scale(.96);opacity:.94;filter:none;background:linear-gradient(180deg,#f0e4c8,#e3cf95);background-color:#e3cf95}
+.card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,button:active{transform: scale(0.90); opacity: 0.65; filter: brightness(0.85) saturate(1.3); background-color: rgba(200, 152, 73, 0.15); transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease, background-color 0.15s ease}
 .home-cookie-banner{position:fixed;left:16px;right:16px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:90;max-width:520px;margin:0 auto;background:rgba(255,251,240,.96);color:#3d2818;border:1px solid rgba(184,134,11,.28);border-radius:16px;padding:12px 13px;box-shadow:0 8px 24px rgba(80,55,20,.18);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:12px;line-height:1.45}
 .home-cookie-banner[hidden]{display:none}
 .home-cookie-text{margin:0 0 10px}
@@ -891,14 +1075,7 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .container .verse-card .gm-btn-today-open:hover{background:rgba(255,255,255,0.18);border-color:#000;color:#000}
 .container .verse-card .gm-btn-today-open:active{background:rgba(255,255,255,0.18);border-color:#000;color:#000}
 .container .verse-card .gm-btn-today-open:focus-visible{outline:2px solid rgba(0,0,0,0.35);outline-offset:2px}
-.container .verse-card .verse-date-btn{color:#9A6A24;border-color:#C9A66B;background:transparent}
-.container .verse-card .verse-date-btn svg{stroke:#9A6A24}
-.container .verse-card .verse-date-btn:hover{background:rgba(201,166,107,0.18);border-color:#C9A66B}
 .container .continue-label,.container .continue-arrow{color:#9A6A24}
-.container .commentary-slim-card{border-color:#C9A66B}
-.container .commentary-slim-name,.container .commentary-slim-arrow{color:#9A6A24}
-.container .commentary-slim-card:hover{background:rgba(201,166,107,0.18)}
-.container .commentary-slim-card:hover .commentary-slim-name,.container .commentary-slim-card:hover .commentary-slim-arrow{color:#9A6A24}
 .container .card,.container .quick-menu{background:#FFF6E4;border-color:#E3CFAB}
 .container button.card,.container a.card{border-color:#E3CFAB}
 .container .card:hover,.container .card.old:hover,.container .card.new:hover,.container .card.easy:hover,.container button.card:hover,.container a.card:hover{background:#F8EBCF}
@@ -915,9 +1092,9 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .container .search{background:#FFF9EF;border-color:#E3CFAB}
 .container .search-shell.topic-search-open .search-inline-topics{background:#FFF9EF;border-color:#E3CFAB}
 .container .search-input::placeholder{color:#9A8A78}
-.container .search-icon,.container .search-submit{background:#C89332;border:1px solid #C89332}
-.container .search-icon:hover,.container .search-submit:hover{background:#D3A649;border-color:#D3A649}
-.container .search-icon:active,.container .search-submit:active{background:#B67F27;border-color:#B67F27;filter:none;opacity:1}
+.container .search-icon,.container .search-submit{background:none;border:0;box-shadow:none}
+.container .search-icon:hover,.container .search-submit:hover{background:none;opacity:.78}
+.container .search-icon:active,.container .search-submit:active{background:none;background-color:transparent;border:0;filter:none;transform:none;opacity:.6}
 </style>
 <script>
 (function(){
@@ -1002,56 +1179,132 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
     initHomeAnalytics();
 })();
 </script>
+<!-- 사용자 글자 크기(공용). 첫 그림 전에 저장된 비율을 적용하려고 head에서 바로 읽는다. -->
+<script src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
+<!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
+<script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
+<link rel="stylesheet" href="js/gomna-scripture-quick-move.css?v=20260815-desktop-align-v2">
 </head>
 <body data-gomna-page="home">
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
 <div class="container">
-  <div class="greeting" id="greeting" data-i18n-key="home.greeting.morning">— 좋은 아침입니다 —</div>
   <div class="header">
-    <img src="logo-home.png?v=1" alt="은혜의말씀" class="logo-img" data-i18n-key="brand.logoAlt">
+    <img src="apple-touch-icon.png?v=5" alt="은혜의말씀" class="logo-img" data-i18n-key="brand.logoAlt">
     <div class="title-block">
       <h1 class="title" data-i18n-key="brand.title">은혜의말씀</h1>
-      <div class="sub" data-i18n-key="brand.subtitle">Holy Bible · Korean Revised</div>
+      <div class="sub" data-i18n-key="brand.subtitle">Words of Grace</div>
     </div>
-    <button class="settings-btn" onclick="openSettings()" title="설정" aria-label="설정" data-i18n-title="settings.openAria" data-i18n-aria-label="settings.openAria">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-    </button>
+    <div class="header-actions" id="homeHeaderActions">
+      <!-- 상시 지구본은 두지 않는다. translate_feature.js가 이 자리표시자 앞에
+           브라우저 선호 언어 제안(#gomnaLangSuggest)만 필요할 때 넣는다. -->
+      <span class="settings-btn home-gt-anchor" aria-hidden="true" hidden></span>
+      <button type="button" class="home-account-btn" id="homeAccountBtn" onclick="handleHomeAccountBtn()" aria-haspopup="dialog" aria-expanded="false" aria-controls="loginModal" title="로그인" aria-label="로그인">
+        <span class="home-account-avatar">
+          <img class="home-account-avatar-img" id="homeAccountAvatarImg" alt="" hidden>
+          <svg class="home-account-avatar-icon" id="homeAccountAvatarIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg>
+        </span>
+        <span class="home-account-label" id="homeAccountLabel">로그인</span>
+      </button>
+      <!-- 모바일 시트일 때만 보이는 가림막. 데스크톱에서는 CSS로 숨긴다. -->
+      <div class="home-account-scrim" id="homeAccountScrim" onclick="closeHomeAccountPanel()" hidden></div>
+      <div class="home-account-panel" id="homeAccountPanel" role="dialog" aria-labelledby="homeAccountPanelTitle" hidden>
+        <span class="home-account-sheet-handle" aria-hidden="true"></span>
+        <button type="button" class="home-account-sheet-close" onclick="closeHomeAccountPanel()" aria-label="닫기">✕</button>
+        <div class="home-account-panel-title" id="homeAccountPanelTitle">계정 및 설정</div>
+        <button type="button" class="home-account-panel-id" id="homeAccountPanelId" data-account-action="account-switch" aria-haspopup="menu" aria-expanded="false" aria-controls="homeAccountSwitch">
+          <span class="home-account-panel-avatar">
+            <img class="home-account-avatar-img" id="homeAccountPanelAvatarImg" alt="" hidden>
+            <svg class="home-account-avatar-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg>
+          </span>
+          <span class="home-account-panel-id-text">
+            <span class="home-account-panel-name" id="homeAccountPanelName">계정 연결 전</span>
+            <span class="home-account-panel-email" id="homeAccountPanelEmail" hidden></span>
+            <span class="home-account-panel-badge" id="homeAccountPanelBadge">현재 기록은 이 기기에 보관됩니다</span>
+          </span>
+          <span class="home-account-menu-item-arrow" id="homeAccountPanelIdArrow" aria-hidden="true" hidden></span>
+        </button>
+        <!-- 계정 확인창. 지금 로그인한 계정만 보여주고, 누르면 닫힌다. -->
+        <div class="home-account-switch" id="homeAccountSwitch" role="menu" aria-labelledby="homeAccountSwitchLabel" hidden>
+          <div class="home-account-switch-label" id="homeAccountSwitchLabel"></div>
+          <button type="button" class="home-account-switch-row" role="menuitemradio" aria-checked="true" data-account-action="account-current">
+            <span class="home-account-panel-avatar home-account-switch-avatar">
+              <img class="home-account-avatar-img" id="homeAccountSwitchAvatarImg" alt="" hidden>
+              <svg class="home-account-avatar-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg>
+            </span>
+            <span class="home-account-switch-text">
+              <span class="home-account-switch-name" id="homeAccountSwitchName"></span>
+              <span class="home-account-switch-line" id="homeAccountSwitchLine"></span>
+            </span>
+            <span class="home-account-switch-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.7 4.5 4.5L19 7.4"/></svg></span>
+          </button>
+        </div>
+        <div data-account-group="signed-out">
+          <p class="home-account-panel-desc">계정을 연결하면 저장한 말씀과 읽던 곳, 듣던 곳을 어느 기기에서든 안전하게 이어갈 수 있습니다.</p>
+          <button type="button" class="home-account-cta" id="homeAccountLoginCta" onclick="homeAccountPanelLogin()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 5.4 5.9v5.3c0 4 2.8 7.7 6.6 9.1 3.8-1.4 6.6-5.1 6.6-9.1V5.9z"/><path d="m9.4 11.9 1.9 1.9 3.6-3.7"/></svg>
+            기록을 안전하게 이어가기
+          </button>
+        </div>
+        <!-- 로그인 후 내 정보 첫 화면. Reader의 내 정보 시트와 같은 순서·문구를 쓴다. -->
+        <div class="home-account-group" data-account-group="signed-in" hidden>
+          <button type="button" class="home-account-menu-item" data-account-action="profile-edit">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg>
+            <span class="home-account-menu-item-label">프로필</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="home-account-menu-item" data-account-action="subscription">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="6" width="17.2" height="12" rx="2.6"/><path d="M3.4 10.2h17.2"/></svg>
+            <span class="home-account-menu-item-label">구독 관리</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="home-account-menu-item" data-account-action="favorites">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.6h10v15l-5-3.4-5 3.4z"/></svg>
+            <span class="home-account-menu-item-label">보관함</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="home-account-menu-item" data-account-action="sync">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 9.6A7.5 7.5 0 0 0 5.6 8.2"/><path d="M4.6 14.4a7.5 7.5 0 0 0 13.8 1.4"/><path d="M4.6 4.8v3.6h3.6M19.4 19.2v-3.6h-3.6"/></svg>
+            <span class="home-account-menu-item-label">동기화</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="home-account-menu-item" data-account-action="settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.3 14.1a1.5 1.5 0 0 0 .3 1.6l.1.1a1.8 1.8 0 1 1-2.5 2.5l-.1-.1a1.5 1.5 0 0 0-2.5 1v.3a1.8 1.8 0 1 1-3.6 0v-.2a1.5 1.5 0 0 0-2.6-1l-.1.1a1.8 1.8 0 1 1-2.5-2.5l.1-.1a1.5 1.5 0 0 0-1-2.5h-.3a1.8 1.8 0 1 1 0-3.6h.2a1.5 1.5 0 0 0 1-2.6l-.1-.1a1.8 1.8 0 1 1 2.5-2.5l.1.1a1.5 1.5 0 0 0 1.6.3h.1a1.5 1.5 0 0 0 .9-1.4v-.3a1.8 1.8 0 1 1 3.6 0v.2a1.5 1.5 0 0 0 2.5 1l.1-.1a1.8 1.8 0 1 1 2.5 2.5l-.1.1a1.5 1.5 0 0 0 1 2.5h.3a1.8 1.8 0 1 1 0 3.6h-.2a1.5 1.5 0 0 0-1.3.9z"/></svg>
+            <span class="home-account-menu-item-label">설정</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="home-account-menu-item" data-account-action="help">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path d="M9.9 9.4a2.2 2.2 0 1 1 3.4 2.2c-.8.5-1.3 1-1.3 1.9"/><path d="M12 16.9h.01"/></svg>
+            <span class="home-account-menu-item-label">도움말</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+        </div>
+        <!-- 동기화·구독 등 버튼 안내를 패널 안에서 보여주는 줄. 문구가 없으면 자리도 차지하지 않는다. -->
+        <p class="home-account-panel-status" id="homeAccountPanelStatus" role="status" aria-live="polite" hidden></p>
+        <div class="home-account-group" data-account-group="signed-out">
+          <div class="home-account-group-title">앱 설정</div>
+          <button type="button" class="home-account-menu-item" onclick="homeAccountPanelSettings()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.3 14.1a1.5 1.5 0 0 0 .3 1.6l.1.1a1.8 1.8 0 1 1-2.5 2.5l-.1-.1a1.5 1.5 0 0 0-2.5 1v.3a1.8 1.8 0 1 1-3.6 0v-.2a1.5 1.5 0 0 0-2.6-1l-.1.1a1.8 1.8 0 1 1-2.5-2.5l.1-.1a1.5 1.5 0 0 0-1-2.5h-.3a1.8 1.8 0 1 1 0-3.6h.2a1.5 1.5 0 0 0 1-2.6l-.1-.1a1.8 1.8 0 1 1 2.5-2.5l.1.1a1.5 1.5 0 0 0 1.6.3h.1a1.5 1.5 0 0 0 .9-1.4v-.3a1.8 1.8 0 1 1 3.6 0v.2a1.5 1.5 0 0 0 2.5 1l.1-.1a1.8 1.8 0 1 1 2.5 2.5l-.1.1a1.5 1.5 0 0 0 1 2.5h.3a1.8 1.8 0 1 1 0 3.6h-.2a1.5 1.5 0 0 0-1.3.9z"/></svg>
+            <span class="home-account-menu-item-label">설정</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="home-account-menu-item" onclick="homeAccountPanelLanguage()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path d="M3.8 12h16.4"/><path d="M12 3.8c2.1 2.2 3.2 5.1 3.2 8.2s-1.1 6-3.2 8.2c-2.1-2.2-3.2-5.1-3.2-8.2s1.1-6 3.2-8.2z"/></svg>
+            <span class="home-account-menu-item-label">언어</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="home-account-panel-group--divided" data-account-group="signed-in" hidden>
+          <button type="button" class="home-account-menu-item" data-account-action="logout">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 6.4V5.2a1.8 1.8 0 0 0-1.8-1.8H6.2a1.8 1.8 0 0 0-1.8 1.8v13.6a1.8 1.8 0 0 0 1.8 1.8h6.2a1.8 1.8 0 0 0 1.8-1.8v-1.2"/><path d="M9.6 12h10.2m-2.8-3 2.8 3-2.8 3"/></svg>
+            <span class="home-account-menu-item-label">로그아웃</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
-  <section class="home-resume-card" id="homeResumeCard" aria-label="말씀 이어가기">
-    <div class="home-resume-bars">
-      <button type="button" class="home-resume-pane home-resume-pane--read" id="homeResumeReadPane" aria-label="이어서 읽기" data-i18n-aria-label="home.continue.aria">
-        <div class="home-resume-kicker">
-          <svg class="home-resume-pane-icon home-resume-pane-icon--read" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M9 7h7M9 11h5"/></svg>
-          <span class="home-resume-kicker-text" data-i18n-key="home.resume.readPlace">읽던 곳</span>
-        </div>
-        <div class="home-resume-main">
-          <span class="home-resume-loc" id="homeResumeReadLoc">성경읽기 시작</span>
-          <span class="home-resume-time-wrap">(<span class="home-resume-time" id="homeResumeReadTime">—</span>)</span>
-        </div>
-        <div class="home-resume-cta">
-          <span class="home-resume-cta-text" data-i18n-key="home.continue.resume">이어서 읽기</span>
-          <span class="home-resume-cta-arrow" aria-hidden="true"></span>
-        </div>
-      </button>
-      <button type="button" class="home-resume-pane home-resume-pane--listen" id="homeResumeListenPane" aria-label="이어서 듣기" data-i18n-aria-label="home.resume.listenAria">
-        <div class="home-resume-kicker">
-          <svg class="home-resume-pane-icon home-resume-pane-icon--listen" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-          <span class="home-resume-kicker-text" data-i18n-key="home.resume.listenPlace">듣던 곳</span>
-        </div>
-        <div class="home-resume-main">
-          <span class="home-resume-loc" id="homeResumeListenLoc">말씀 듣기 시작</span>
-          <span class="home-resume-time-wrap">(<span class="home-resume-time" id="homeResumeListenTime">—</span>)</span>
-        </div>
-        <div class="home-resume-cta">
-          <span class="home-resume-cta-text" data-i18n-key="home.resume.listenCta">이어서 듣기</span>
-          <span class="home-resume-cta-play" aria-hidden="true">▶</span>
-        </div>
-      </button>
-    </div>
-    <div class="home-resume-recent" id="homeResumeRecent" aria-label="최근 말씀">
-      <span class="home-resume-recent-label" data-i18n-key="home.resume.recent">최근 말씀</span>
-      <div class="home-resume-recent-chips" id="homeResumeRecentChips"></div>
-    </div>
+  <section class="home-continue" id="homeResumeCard" aria-label="이어서" hidden>
+    <button type="button" class="home-continue-main" id="homeContinueMain" hidden>
+      <span class="home-continue-info">
+        <span class="home-resume-loc home-continue-loc" id="homeContinueLoc"></span>
+        <span class="home-continue-time" id="homeContinueTime"></span>
+      </span>
+      <span class="home-continue-action">
+        <span class="home-continue-action-text" id="homeContinueAction"></span>
+        <span class="home-continue-action-mark" id="homeContinueActionMark" aria-hidden="true"></span>
+      </span>
+    </button>
   </section>
   <div class="verse-card" id="today-word-card">
     <div class="verse-card-photo-layer" aria-hidden="true">
@@ -1063,57 +1316,37 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
     <div class="verse-card-verse-layer" aria-hidden="true">
       <div class="verse-tag" id="verse-tag" data-i18n-key="home.todayWord.tag">오늘의 말씀</div>
       <div class="verse-center">
-        <div class="verse-text" id="verse-text">"수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라"</div>
+        <div class="verse-text" id="verse-text" onclick="openDailyVerse('read')">"수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라"</div>
         <div class="verse-ref" id="verse-ref">— 마태복음 11:28</div>
       </div>
     </div>
     <div class="verse-card-controls">
-      <div class="verse-head-btns">
-        <button type="button" class="verse-today-btn" id="verseTodayBtn" onclick="resetVerseToToday()" style="display:none" data-i18n-ui="verse_back_today" data-i18n-key="home.todayWord.backToday" translate="no">오늘로 돌아가기</button>
-        <button type="button" class="verse-date-btn" onclick="openVerseDatePicker()" aria-label="다른 날짜 보기" data-i18n-aria-label="home.todayWord.otherDate">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span data-i18n-ui="verse_view_other" data-i18n-key="home.todayWord.otherDate" translate="no">다른 날짜 보기</span>
-        </button>
-      </div>
       <div class="verse-footer">
         <div class="verse-open-row">
-          <button type="button" class="gm-btn-today-open" onclick="openDailyVerse('read')" aria-label="오늘의 말씀 묵상하기" data-i18n-key="home.todayWord.open" data-i18n-aria-label="home.todayWord.open">오늘의 말씀 묵상하기</button>
+          <button type="button" class="gm-btn-today-open" onclick="openDailyVerse('read')" aria-label="묵상하기" data-i18n-key="home.todayWord.open" data-i18n-aria-label="home.todayWord.open">묵상하기</button>
           <span class="verse-open-note" aria-hidden="true" data-i18n-key="home.todayWord.openNote">오늘 말씀 기준으로 읽고 묵상하기</span>
         </div>
       </div>
     </div>
   </div>
   <div class="quick-menu">
-    <button type="button" class="quick-item" onclick="location.href='reader.html?testament=old'" aria-label="성경읽기" data-i18n-aria-label="home.quick.read">
+    <button type="button" class="quick-item" onclick="openReadResume()" aria-label="읽기" data-i18n-aria-label="home.quick.read">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h7a3 3 0 013 3v13a2.5 2.5 0 00-2.5-2.5H2z"/><path d="M22 4h-7a3 3 0 00-3 3v13a2.5 2.5 0 012.5-2.5H22z"/></svg>
-      <span class="quick-name" data-i18n-key="home.quick.read">성경읽기</span><span class="quick-desc" data-i18n-key="home.quick.readDesc">책·장·절로</span>
+      <span class="quick-name" data-i18n-key="home.quick.read">읽기</span>
     </button>
-    <button type="button" class="quick-item" onclick="location.href='reader.html?book=%EC%B0%BD%EC%84%B8%EA%B8%B0&chapter=1'" aria-label="오디오" data-i18n-aria-label="home.quick.audio">
+    <button type="button" class="quick-item" onclick="location.href='reader.html?book=%EC%B0%BD%EC%84%B8%EA%B8%B0&chapter=1'" aria-label="듣기" data-i18n-aria-label="home.quick.audio">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-      <span class="quick-name" data-i18n-key="home.quick.audio">오디오</span><span class="quick-desc" data-i18n-key="home.quick.audioDesc">듣고 묵상하기</span>
+      <span class="quick-name" data-i18n-key="home.quick.audio">듣기</span>
     </button>
     <button type="button" class="quick-item" onclick="scrollToTopics()" aria-label="주제별" data-i18n-aria-label="home.quick.topics">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-      <span class="quick-name" data-i18n-key="home.quick.topics">주제별</span><span class="quick-desc" data-i18n-key="home.quick.topicsDesc">말씀 찾아보기</span>
+      <span class="quick-name" data-i18n-key="home.quick.topics">주제별</span>
     </button>
     <button type="button" class="quick-item" onclick="location.href='reader.html?favorites'" aria-label="보관함" data-i18n-aria-label="home.quick.archive">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
-      <span class="quick-name" data-i18n-key="home.quick.archive">보관함</span><span class="quick-desc" data-i18n-key="home.quick.archiveDesc">저장한 말씀</span>
+      <span class="quick-name" data-i18n-key="home.quick.archive">보관함</span>
     </button>
   </div>
-  <button type="button" class="commentary-slim-card" onclick="openMainCommentaryListen()" aria-label="말씀풀이 듣기, 오디오 확장버젼 준비중" data-i18n-aria-label="home.commentary.title">
-    <div class="commentary-slim-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M9 7h7M9 11h5"/></svg>
-    </div>
-    <div class="commentary-slim-info">
-      <div class="commentary-slim-title-row">
-        <span class="commentary-slim-name" data-i18n-key="home.commentary.title">말씀풀이 듣기</span>
-        <span class="audio-pending-badge" data-i18n-key="home.commentary.badge">오디오 확장버젼 준비중</span>
-      </div>
-      <div class="commentary-slim-desc" data-i18n-key="home.commentary.desc">원어·역사·신학·교차참조 9개 표</div>
-    </div>
-    <span class="commentary-slim-arrow" aria-hidden="true">›</span>
-  </button>
   <div class="cards">
     <button type="button" class="card old" onclick="openBible('old')" ontouchstart="" aria-label="구약 39권 장·절로 읽기" data-i18n-aria-label="home.oldTestament.title">
       <div class="card-visual">
@@ -1121,7 +1354,7 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
           <img class="home-bible-cover" src="images/home/bible-old.png" alt="" aria-hidden="true" decoding="async">
         </div>
       </div>
-      <div class="card-label"><div class="card-name" data-i18n-key="home.oldTestament.title">구약 39권</div><div class="card-desc" data-i18n-key="home.testament.readByChapter">장·절로 읽기 <span class="card-arrow">›</span></div></div>
+      <div class="card-label"><div class="card-name" data-i18n-key="home.sheet.oldTestament">구약</div></div>
     </button>
     <button type="button" class="card new" onclick="openBible('new')" ontouchstart="" aria-label="신약 27권 장·절로 읽기" data-i18n-aria-label="home.newTestament.title">
       <div class="card-visual">
@@ -1129,18 +1362,18 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
           <img class="home-bible-cover" src="images/home/bible-new.png" alt="" aria-hidden="true" decoding="async">
         </div>
       </div>
-      <div class="card-label"><div class="card-name" data-i18n-key="home.newTestament.title">신약 27권</div><div class="card-desc" data-i18n-key="home.testament.readByChapter">장·절로 읽기 <span class="card-arrow">›</span></div></div>
+      <div class="card-label"><div class="card-name" data-i18n-key="home.sheet.newTestament">신약</div></div>
     </button>
-    <a class="card easy" id="homeEasyFindBtn" href="./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3" role="link" aria-label="말씀 바로찾기 분류별로 찾기" data-i18n-aria-label="home.easyFind.title">
+    <a class="card easy" id="homeEasyFindBtn" href="./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3" role="link" aria-label="쉬운 찾기" data-i18n-aria-label="home.easyFind.title">
       <div class="card-visual">
         <div class="card-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
       </div>
-      <div class="card-label"><div class="card-name" data-i18n-ui="find_word" data-i18n-key="home.easyFind.title" translate="no">말씀 바로찾기</div><div class="card-desc" data-i18n-key="home.easyFind.desc">분류별로 찾기 <span class="card-arrow">›</span></div></div>
+      <div class="card-label"><div class="card-name" data-i18n-ui="find_word" data-i18n-key="home.easyFind.title" translate="no">쉬운 찾기</div></div>
     </a>
   </div>
   <div class="search-shell" id="homeSearchShell">
   <form class="search" id="homeSearchForm" onsubmit="submitSearch(event)" onclick="activateSearch()">
-    <input id="homeSearchInput" class="search-input" type="search" placeholder="성경 말씀 찾기 (예: 사랑, 믿음, 로마서 8장)" aria-label="성경 검색어 입력" autocomplete="off" data-i18n-placeholder="search.placeholder.home" data-i18n-aria-label="search.inputAria">
+    <input id="homeSearchInput" class="search-input" type="search" placeholder="말씀 찾기 (예: 사랑, 믿음, 요한복음 3장 16절)" aria-label="성경 검색어 입력" autocomplete="off" data-i18n-placeholder="search.placeholder.home" data-i18n-aria-label="search.inputAria">
     <button type="submit" class="search-icon search-submit" aria-label="검색 실행" data-i18n-aria-label="search.submitAria"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
   </form>
   <div class="search-inline-topics" id="searchInlineTopics" aria-label="검색창 안 주제별 검색" data-i18n-aria-label="search.topicsAria">
@@ -1154,14 +1387,11 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
   </div>
   </div>
   <p class="home-brand-blurb">
-  <span class="home-brand-copy">
-    <span class="home-brand-prefix">은혜의말씀은</span>
-    <span class="home-brand-owner">Gomna Studio, Inc.가 운영하는</span>
-    <span class="home-brand-detail">성경 읽기·듣기와 깊이 있는 말씀풀이 플랫폼입니다.</span>
-  </span>
-</p>
+    <span class="home-brand-line">성경을 읽고 듣고,</span>
+    <span class="home-brand-line">말씀풀이와 함께 깊이 묵상하는 은혜의말씀</span>
+  </p>
   <div class="imprint-bottom">
-    <a class="gs-link" href="/studio" aria-label="Gomna Studio, Inc. 스튜디오 페이지"><span class="gs-text" translate="no">Gomna Studio, Inc.</span><span class="gs-arrow" aria-hidden="true">↗</span></a>
+    <a class="gs-link" href="/studio" aria-label="Gomna Studio, Inc. 회사 소개"><span class="gs-copy" translate="no">© 2026 Gomna Studio, Inc.</span></a>
   </div>
 </div>
 <div class="overlay" id="overlay" onclick="closeIfBg(event)">
@@ -1181,26 +1411,34 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 <div class="toast" id="toast"></div>
 <div class="popup-overlay" id="settingsPopup">
   <div class="popup-box">
-    <div class="popup-title" data-i18n-key="settings.fontSize">⚙️ 글자 크기 설정</div>
+    <div class="popup-title" data-i18n-key="settings.fontSize">글자 크기</div>
     <div class="font-control">
-      <button class="font-btn" onclick="changeFont(-1)">−</button>
-      <span class="font-size-display" id="fontDisplay">17px</span>
-      <button class="font-btn" onclick="changeFont(1)">+</button>
+      <button type="button" class="font-btn" id="fontMinusBtn" onclick="changeFont(-1)" aria-label="글자 작게">－</button>
+      <span class="font-size-display" id="fontDisplay" aria-live="polite">22px</span>
+      <button type="button" class="font-btn" id="fontPlusBtn" onclick="changeFont(1)" aria-label="글자 크게">＋</button>
     </div>
     <button class="popup-close" onclick="closeSettings()" data-i18n-key="common.close">닫기</button>
   </div>
 </div>
-<div class="popup-overlay" id="versePopup" onclick="if(event.target===this)closeVerseDatePicker()">
-  <div class="popup-box verse-cal-box">
-    <div class="verse-cal-head">
-      <button type="button" class="cal-nav" onclick="navMonth(-1)" aria-label="이전 달" data-i18n-aria-label="home.calendar.previousMonth">‹</button>
-      <div class="cal-title" id="calTitle">2026년 5월</div>
-      <button type="button" class="cal-nav" onclick="navMonth(1)" aria-label="다음 달" data-i18n-aria-label="home.calendar.nextMonth">›</button>
+<div class="popup-overlay login-overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" aria-describedby="loginModalDesc" aria-hidden="true" onclick="if(event.target===this)closeLoginModal()">
+  <div class="popup-box login-box" onclick="event.stopPropagation()">
+    <span class="login-sheet-handle" aria-hidden="true"></span>
+    <button type="button" class="login-close" id="loginModalCloseBtn" onclick="closeLoginModal()" aria-label="닫기">✕</button>
+    <div class="login-brand-visual" aria-hidden="true">
+      <span class="login-brand-glow"></span>
+      <span class="login-brand-card login-brand-card--gold"><img src="assets/login/login-visual-gold.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
+      <span class="login-brand-card login-brand-card--gomna"><img src="assets/login/login-visual-gomna.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
+      <span class="login-brand-card login-brand-card--blue"><img src="assets/login/login-visual-blue.png?v=1" alt="" decoding="async" onerror="if(this.getAttribute('data-fallback-used')){var c=this.closest('.login-brand-card');if(c)c.hidden=true;return;}this.setAttribute('data-fallback-used','1');this.src='logo-home.png?v=1';"></span>
     </div>
-    <div class="cal-week"><span data-i18n-key="home.calendar.weekday.sun">일</span><span data-i18n-key="home.calendar.weekday.mon">월</span><span data-i18n-key="home.calendar.weekday.tue">화</span><span data-i18n-key="home.calendar.weekday.wed">수</span><span data-i18n-key="home.calendar.weekday.thu">목</span><span data-i18n-key="home.calendar.weekday.fri">금</span><span data-i18n-key="home.calendar.weekday.sat">토</span></div>
-    <div class="cal-grid" id="calGrid"></div>
-    <div class="cal-hint" data-i18n-key="home.calendar.hint">날짜를 누르면 그날의 말씀이 표시됩니다 (1~30일 순환)</div>
-    <button type="button" class="popup-close" onclick="closeVerseDatePicker()" data-i18n-key="common.close">닫기</button>
+    <div class="login-title" id="loginModalTitle">로그인</div>
+    <p class="login-desc" id="loginModalDesc">로그인 방법을 선택하세요.</p>
+    <div class="login-providers">
+      <button type="button" class="login-provider login-provider--official login-provider--kakao" id="loginKakaoBtn" data-auth-provider="kakao"><img class="login-provider-official-img" src="assets/auth/kakao-login-button-ko-wide.png?v=1" alt="카카오 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">카카오 로그인</span></button>
+      <button type="button" class="login-provider login-provider--official login-provider--naver" data-auth-provider="custom:naver"><img class="login-provider-official-img" src="assets/auth/naver-login-button-ko-wide.png?v=1" alt="네이버 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">네이버 로그인</span></button>
+      <button type="button" class="login-provider login-provider--google" data-auth-provider="google"><span class="login-provider-icon" aria-hidden="true"><img src="assets/auth/google-g-logo.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">Google 계정으로 로그인</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--email" onclick="if(window.GomnaAuth)window.GomnaAuth.openEmailLogin();else showLoginNextStepNotice();"><span class="login-provider-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m4 7.5 8 5.2 8-5.2"/></svg></span><span class="login-provider-label">이메일로 로그인</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+    </div>
+    <div class="login-next-step-notice" id="loginNextStepNotice" role="status" aria-live="polite" hidden>로그인 연결은 다음 단계에서 작동합니다.</div>
   </div>
 </div>
 <div id="home-cookie-banner" class="home-cookie-banner" role="dialog" aria-label="분석 쿠키 동의 안내" data-i18n-aria-label="home.cookie.aria" hidden>
@@ -1270,6 +1508,12 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 const oldData=[{cat:'📜 모세오경',books:[['창세기',50],['출애굽기',40],['레위기',27],['민수기',36],['신명기',34]]},{cat:'📜 역사서',books:[['여호수아',24],['사사기',21],['룻기',4],['사무엘상',31],['사무엘하',24],['열왕기상',22],['열왕기하',25],['역대상',29],['역대하',36],['에스라',10],['느헤미야',13],['에스더',10]]},{cat:'📜 시가서',books:[['욥기',42],['시편',150],['잠언',31],['전도서',12],['아가',8]]},{cat:'📜 대선지서',books:[['이사야',66],['예레미야',52],['예레미야애가',5],['에스겔',48],['다니엘',12]]},{cat:'📜 소선지서',books:[['호세아',14],['요엘',3],['아모스',9],['오바댜',1],['요나',4],['미가',7],['나훔',3],['하박국',3],['스바냐',3],['학개',2],['스가랴',14],['말라기',4]]}];
 const newData=[{cat:'📖 복음서',books:[['마태복음',28],['마가복음',16],['누가복음',24],['요한복음',21]]},{cat:'📖 역사서',books:[['사도행전',28]]},{cat:'📖 바울서신',books:[['로마서',16],['고린도전서',16],['고린도후서',13],['갈라디아서',6],['에베소서',6],['빌립보서',4],['골로새서',4],['데살로니가전서',5],['데살로니가후서',3],['디모데전서',6],['디모데후서',4],['디도서',3],['빌레몬서',1]]},{cat:'📖 공동서신',books:[['히브리서',13],['야고보서',5],['베드로전서',5],['베드로후서',3],['요한일서',5],['요한이서',1],['요한삼서',1],['유다서',1]]},{cat:'📖 예언서',books:[['요한계시록',22]]}];
 const allBooks=[['창세기',50],['출애굽기',40],['레위기',27],['민수기',36],['신명기',34],['여호수아',24],['사사기',21],['룻기',4],['사무엘상',31],['사무엘하',24],['열왕기상',22],['열왕기하',25],['역대상',29],['역대하',36],['에스라',10],['느헤미야',13],['에스더',10],['욥기',42],['시편',150],['잠언',31],['전도서',12],['아가',8],['이사야',66],['예레미야',52],['예레미야애가',5],['에스겔',48],['다니엘',12],['호세아',14],['요엘',3],['아모스',9],['오바댜',1],['요나',4],['미가',7],['나훔',3],['하박국',3],['스바냐',3],['학개',2],['스가랴',14],['말라기',4],['마태복음',28],['마가복음',16],['누가복음',24],['요한복음',21],['사도행전',28],['로마서',16],['고린도전서',16],['고린도후서',13],['갈라디아서',6],['에베소서',6],['빌립보서',4],['골로새서',4],['데살로니가전서',5],['데살로니가후서',3],['디모데전서',6],['디모데후서',4],['디도서',3],['빌레몬서',1],['히브리서',13],['야고보서',5],['베드로전서',5],['베드로후서',3],['요한일서',5],['요한이서',1],['요한삼서',1],['유다서',1],['요한계시록',22]];
+function getAllBooks(){
+  var all=[];
+  oldData.forEach(function(c){(c.books||[]).forEach(function(bk){all.push({name:bk[0],chapters:bk[1],testament:'old'});});});
+  newData.forEach(function(c){(c.books||[]).forEach(function(bk){all.push({name:bk[0],chapters:bk[1],testament:'new'});});});
+  return all;
+}
 const consonants=['전체','ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅎ'];
 let easyOpenTimer=null;
 function getConsonant(name){const c=name.charCodeAt(0);if(c<0xAC00||c>0xD7A3)return null;const idx=Math.floor((c-0xAC00)/588);const map=['ㄱ','ㄱ','ㄴ','ㄷ','ㄷ','ㄹ','ㅁ','ㅂ','ㅂ','ㅅ','ㅅ','ㅇ','ㅈ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];return map[idx]||null;}
@@ -1286,18 +1530,6 @@ function _homeT(key){
   if(window.GomnaUII18n&&typeof window.GomnaUII18n.t==='function')return window.GomnaUII18n.t(key,_homeUiLang())||'';
   return '';
 }
-function _applyGreetingI18n(){
-  const el=document.getElementById('greeting');
-  if(!el)return;
-  const hour=new Date().getHours();
-  let key='home.greeting.morning';
-  if(hour>=12&&hour<18)key='home.greeting.afternoon';
-  else if(hour>=18||hour<5)key='home.greeting.evening';
-  el.setAttribute('data-i18n-key',key);
-  const text=_homeT(key);
-  if(text)el.textContent=text;
-}
-_applyGreetingI18n();
 var _fd=document.getElementById('fontDisplay');
 if(_fd) _fd.textContent=fontSize+'px';
 var _VERSE_EASE='cubic-bezier(0.4, 0, 0.2, 1)';
@@ -1315,8 +1547,8 @@ function _playVerseTextIn(){var els=_verseTextEls();var reduced=window.matchMedi
 /* 말씀→사진: 양방향 opacity를 같은 프레임에서 동시에 겹쳐 잔상 크로스페이드 */
 function _fadeVerseToPhoto(photo,verse,card){var d=_verseMotionMs(_VERSE_CROSSFADE_MS);var ease=_VERSE_EASE;_fadeVerseTextOut(d);if(photo){photo.style.transition='none';photo.style.opacity='0';photo.style.visibility='visible';photo.setAttribute('aria-hidden','false');}if(verse){verse.style.transition='none';verse.style.opacity='1';verse.style.visibility='visible';verse.setAttribute('aria-hidden','false');}if(photo)void photo.offsetWidth;else if(verse)void verse.offsetWidth;if(photo){photo.style.transition='opacity '+d+'ms '+ease;photo.style.opacity='1';}if(verse){verse.style.transition='opacity '+d+'ms '+ease+', visibility 0ms linear '+d+'ms';verse.style.opacity='0';_verseSchedule(d,function(){verse.style.visibility='hidden';verse.setAttribute('aria-hidden','true');});}_verseSchedule(d,function(){if(card)card.classList.remove('is-verse-active');});}
 function startVerseCycle(){_clearVerseCycle();var card=document.querySelector('.verse-card');var photo=document.querySelector('.verse-card-photo-layer');var verse=document.querySelector('.verse-card-verse-layer');var xfade=_VERSE_CROSSFADE_MS;if(card)card.classList.remove('is-verse-active');_resetVerseTextHidden();_setLayerOpacity(photo,1,0);_setLayerOpacity(verse,0,0);/* 0–8500 첫 장면 완전 표시(+4s) → 8500 크로스페이드 시작(2500ms) → 11000 글씨 → 23000 복귀 시작 → 25700 다음 사이클 */_verseSchedule(8500,function(){if(card)card.classList.add('is-verse-active');_setLayerOpacity(photo,0,_verseMotionMs(xfade));_setLayerOpacity(verse,1,_verseMotionMs(xfade));});_verseSchedule(11000,function(){_playVerseTextIn();});_verseSchedule(23000,function(){_fadeVerseToPhoto(photo,verse,card);});_verseSchedule(25700,startVerseCycle);}
-function applyVerseForDate(d){_setVerseDOM(d);startVerseCycle();}
-// ─── 오늘의 말씀: 30개 데이터 + 1~30일 순환 + 달력 모달 ───
+
+// ─── 오늘의 말씀: 30개 데이터 + 오늘 날짜 기준 1~30일 순환 ───
 // Daily verses multilingual sources (home native i18n; no runtime fetch)
 // Korean: existing 개역한글 data (t/r unchanged; used for reader navigation)
 // English: World English Bible, Protestant Edition (WEBP), Public Domain
@@ -1362,15 +1594,18 @@ function getVerseForDate(d){return DAILY_VERSES[((d.getDate()-1)%30+30)%30];}
 function _localDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
 function _isSameDate(a,b){const aa=_localDay(a),bb=_localDay(b);return aa.getTime()===bb.getTime();}
 let _selectedDate;
-let _hasUserSelectedDailyDate=false;
-let _calendarMonth=new Date();
 let _dailyVerseFitRaf=0;
 let _dailyVerseFitResizeBound=false;
 function _dailyVerseMinFontPx(){
+  /* 큰 글자를 고른 사용자에게는 줄맞춤 하한도 같은 비율로 올려 준다. */
+  var scale=1;
   try{
-    return window.matchMedia('(max-width: 480px)').matches?13:15;
+    if(window.GomnaTextScale)scale=window.GomnaTextScale.scale()||1;
+  }catch(e){}
+  try{
+    return (window.matchMedia('(max-width: 480px)').matches?13:15)*scale;
   }catch(e){
-    return 15;
+    return 15*scale;
   }
 }
 function _dailyVerseOverflows(txt,center){
@@ -1502,61 +1737,9 @@ function _setVerseDOM(d){
       ref.removeAttribute('data-bible-version');
     }
   }
-  const todayBtn=document.getElementById('verseTodayBtn');
-  if(todayBtn)todayBtn.style.display=(_hasUserSelectedDailyDate&&!isToday)?'inline-block':'none';
   ensureDailyVerseFitResizeListener();
   scheduleFitDailyVerseText();
 }
-function resetVerseToToday(){_hasUserSelectedDailyDate=false;applyVerseForDate(new Date());}
-const _MONTHS=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-function renderCalendar(year,month){
-  const grid=document.getElementById('calGrid');
-  const title=document.getElementById('calTitle');
-  if(!grid||!title)return;
-  const lang=_homeUiLang();
-  if(window.GomnaUII18n&&typeof window.GomnaUII18n.formatCalendarMonth==='function'&&document.documentElement.classList.contains('gomna-native-i18n-active')){
-    title.textContent=window.GomnaUII18n.formatCalendarMonth(year,month,lang);
-  }else{
-    title.textContent=year+'년 '+_MONTHS[month];
-  }
-  const startWd=new Date(year,month,1).getDay();
-  const daysInMonth=new Date(year,month+1,0).getDate();
-  const today=new Date();
-  let html='';
-  for(let i=0;i<startWd;i++)html+='<button type="button" class="cal-cell empty" tabindex="-1" aria-hidden="true"></button>';
-  for(let d=1;d<=daysInMonth;d++){
-    const wd=new Date(year,month,d).getDay();
-    const cls=['cal-cell'];
-    if(wd===0)cls.push('sun');else if(wd===6)cls.push('sat');
-    if(today.getFullYear()===year&&today.getMonth()===month&&today.getDate()===d)cls.push('today');
-    if(_selectedDate.getFullYear()===year&&_selectedDate.getMonth()===month&&_selectedDate.getDate()===d)cls.push('selected');
-    var dayAria=(month+1)+'월 '+d+'일';
-    if(window.GomnaUII18n&&typeof window.GomnaUII18n.formatCalendarDayAria==='function'&&document.documentElement.classList.contains('gomna-native-i18n-active')){
-      dayAria=window.GomnaUII18n.formatCalendarDayAria(month+1,d,lang);
-    }
-    html+='<button type="button" class="'+cls.join(' ')+'" data-d="'+d+'" aria-label="'+escapeHtml(dayAria)+'">'+d+'</button>';
-  }
-  grid.innerHTML=html;
-  grid.querySelectorAll('.cal-cell:not(.empty)').forEach(function(c){
-    c.addEventListener('click',function(){
-      const d=parseInt(c.getAttribute('data-d'),10);
-      _hasUserSelectedDailyDate=true;
-      applyVerseForDate(new Date(_calendarMonth.getFullYear(),_calendarMonth.getMonth(),d));
-      closeVerseDatePicker();
-    });
-  });
-}
-function navMonth(delta){
-  _calendarMonth=new Date(_calendarMonth.getFullYear(),_calendarMonth.getMonth()+delta,1);
-  renderCalendar(_calendarMonth.getFullYear(),_calendarMonth.getMonth());
-}
-function openVerseDatePicker(){
-  _calendarMonth=new Date(_selectedDate.getFullYear(),_selectedDate.getMonth(),1);
-  renderCalendar(_calendarMonth.getFullYear(),_calendarMonth.getMonth());
-  document.getElementById('versePopup').classList.add('show');
-}
-function closeVerseDatePicker(){document.getElementById('versePopup').classList.remove('show');}
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){const p=document.getElementById('versePopup');if(p&&p.classList.contains('show'))closeVerseDatePicker();}});
 function scrollToTodayWordCardFromHash(){if(location.hash!=='#today-word-card')return;const card=document.getElementById('today-word-card');if(!card)return;const scrollFn=function(){try{card.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){card.scrollIntoView();}};requestAnimationFrame(function(){setTimeout(scrollFn,80);});}
 _setVerseDOM(new Date());
 scrollToTodayWordCardFromHash();
@@ -1610,6 +1793,8 @@ function openDailyVerse(mode){
   params.set('chapter',String(t.chapter));
   params.set('verseStart',String(t.startVerse));
   params.set('verse',String(t.startVerse));
+  /* 로마서 8:38-39처럼 범위형 말씀은 끝 절까지 함께 표시하도록 넘긴다. */
+  if(t.endVerse>t.startVerse)params.set('verseEnd',String(t.endVerse));
   params.set('source','home-daily-read');
   window.location.href='reader.html?'+params.toString();
 }
@@ -1648,12 +1833,7 @@ function scrollToTopics(){
     topicSearchCloseTimer=setTimeout(function(){closeInlineTopics();},6500);
   },450);
 }
-// TODO: 말씀풀이 오디오 작업 완료 후 audio-pending-badge 제거 및 실제 말씀풀이 오디오 재생으로 연결
-// 현재는 홈에서 직접 호출 가능한 공개 오디오 API가 없어, 임시로 말씀풀이 팝업으로 연결합니다.
-function openMainCommentaryListen(){
-  openDailyVerse('commentary');
-}
-/* 말씀 이어가기 카드 렌더는 js/gomna-home-resume.js */
+/* 스마트 이어보기 카드 렌더는 js/gomna-home-resume.js */
 function renderContinueCard(){
   if(window.GOMNA_HOME_RESUME&&typeof window.GOMNA_HOME_RESUME.renderHomeCard==='function'){
     window.GOMNA_HOME_RESUME.renderHomeCard();
@@ -1670,8 +1850,24 @@ function openContinueRead(){
 _verseSchedule(1000,startVerseCycle);
 document.addEventListener('visibilitychange',function(){if(document.hidden){_clearVerseCycle();}else{startVerseCycle();}});
 function openBible(testament){
-  window.location.href='reader.html?testament='+encodeURIComponent(testament);
+  var t = testament === 'new' ? 'new' : 'old';
+  if (typeof window.openScriptureQuickMove === 'function') {
+    window.openScriptureQuickMove({ testament: t, stage: 'book', resetPlace: true });
+    return;
+  }
+  window.location.href = 'reader.html?book=' + encodeURIComponent(t === 'new' ? '마태복음' : '창세기') + '&chapter=1&verse=1';
 }
+/* 홈 「읽기」 = 「계속 읽기」 카드와 같은 검증된 이동 경로.
+   기존 최근 읽기 기록(레거시 포함)이 없으면 GOMNA_HOME_RESUME가 창세기 1장 1절로 보낸다.
+   66권 분류 화면은 본문 「더보기 → 가이드」로 옮겼다. */
+function openReadResume(){
+  if(window.GOMNA_HOME_RESUME && typeof window.GOMNA_HOME_RESUME.openRead==='function'){
+    window.GOMNA_HOME_RESUME.openRead();
+    return;
+  }
+  window.location.href='reader.html?book='+encodeURIComponent('창세기')+'&chapter=1&verse=1';
+}
+window.openReadResume=openReadResume;
 function openEasy(){
   // 홈 「말씀 바로찾기」→ reader #easyView 만. 홈 #overlay / renderEasy 절대 사용 금지
   window.location.assign('./reader.html?easy=1&v=20260712-easyfind-direct-v3');
@@ -1798,23 +1994,248 @@ function topic(keyword){
 }
 function openSettings(){var p=document.getElementById('settingsPopup');if(p)p.classList.add('show');}
 function closeSettings(){var p=document.getElementById('settingsPopup');if(p)p.classList.remove('show');}
+
+/* v74: 계정 및 설정 패널 — 데스크톱은 프로필 버튼 아래 팝오버, 600px 이하는 하단 시트.
+   설정·언어·로그인은 모두 기존 기능(openSettings, 기존 언어창, openLoginModal)을 그대로 부른다. */
+function isHomeAccountSheetMode(){
+  try{return window.matchMedia('(max-width:600px)').matches;}catch(e){return false;}
+}
+function isHomeAccountPanelOpen(){
+  var panel=document.getElementById('homeAccountPanel');
+  return !!(panel&&!panel.hidden);
+}
+function openHomeAccountPanel(){
+  var panel=document.getElementById('homeAccountPanel');
+  var btn=document.getElementById('homeAccountBtn');
+  var scrim=document.getElementById('homeAccountScrim');
+  if(!panel)return;
+  panel.hidden=false;
+  if(scrim)scrim.hidden=false;
+  document.documentElement.classList.add('home-overlay-open');
+  if(isHomeAccountSheetMode()){
+    panel.setAttribute('aria-modal','true');
+    document.documentElement.classList.add('home-sheet-open');
+  }else{
+    panel.removeAttribute('aria-modal');
+  }
+  if(btn)btn.setAttribute('aria-expanded','true');
+  /* 열리면 가장 중요한 버튼으로 초점을 옮긴다 */
+  try{
+    var first=panel.querySelector('[data-account-group="signed-out"]:not([hidden]) .home-account-cta')||panel.querySelector('.home-account-menu-item');
+    if(first&&typeof first.focus==='function')first.focus();
+  }catch(e){}
+}
+function closeHomeAccountPanel(returnFocus){
+  var panel=document.getElementById('homeAccountPanel');
+  var btn=document.getElementById('homeAccountBtn');
+  var scrim=document.getElementById('homeAccountScrim');
+  if(!panel||panel.hidden)return;
+  var hadFocus=panel.contains(document.activeElement);
+  panel.hidden=true;
+  panel.removeAttribute('aria-modal');
+  if(scrim)scrim.hidden=true;
+  document.documentElement.classList.remove('home-sheet-open');
+  document.documentElement.classList.remove('home-overlay-open');
+  if(btn){
+    btn.setAttribute('aria-expanded','false');
+    /* 패널 안에 있던 초점은 원래 버튼으로 되돌린다 */
+    if(returnFocus!==false&&hadFocus&&typeof btn.focus==='function'){try{btn.focus();}catch(e){}}
+  }
+}
+function toggleHomeAccountPanel(){
+  if(isHomeAccountPanelOpen())closeHomeAccountPanel();
+  else openHomeAccountPanel();
+}
+/* 로그인 여부는 setHomeAccountState가 넘겨주는 상태만 쓴다(별도 인증 상태를 만들지 않는다).
+   로그인 전에는 중간 안내 패널을 거치지 않고 로그인 선택창을 바로 연다. */
+var homeAccountSignedIn=false;
+function handleHomeAccountBtn(){
+  if(homeAccountSignedIn){toggleHomeAccountPanel();return;}
+  closeHomeAccountPanel();
+  openLoginModal('home-account-btn');
+}
+function homeAccountPanelLogin(){
+  closeHomeAccountPanel();
+  openLoginModal('home-account-panel');
+}
+function homeAccountPanelSettings(){
+  closeHomeAccountPanel();
+  openSettings();
+}
+/* 언어는 지구본 버튼이 열던 기존 언어창을 그대로 연다. */
+function homeAccountPanelLanguage(){
+  closeHomeAccountPanel();
+  if(typeof window.GomnaOpenLanguageModal==='function'){window.GomnaOpenLanguageModal();return;}
+  var globe=document.querySelector('.header-actions .gt-btn');
+  if(globe&&typeof globe.click==='function')globe.click();
+}
+
+/* 로그인 후 프로필 사진을 넣을 자리. Google·카카오 사진이나 사용자가 고른 URL을 그대로 전달한다. */
+function setHomeAccountAvatar(url){
+  var ids=['homeAccountAvatarImg','homeAccountPanelAvatarImg','homeAccountSwitchAvatarImg'];
+  for(var i=0;i<ids.length;i++){
+    var img=document.getElementById(ids[i]);
+    if(!img)continue;
+    var icon=img.parentNode?img.parentNode.querySelector('.home-account-avatar-icon'):null;
+    if(url){
+      img.onerror=function(){setHomeAccountAvatar('');};
+      img.src=url;
+      img.hidden=false;
+      if(icon)icon.style.display='none';
+    }else{
+      img.onerror=null;
+      img.removeAttribute('src');
+      img.hidden=true;
+      if(icon)icon.style.display='';
+    }
+  }
+}
+/* 로그인 상태가 붙는 다음 단계에서 setState('signed-in',{name,email,avatar})로 호출한다.
+   실제 인증 전에는 항상 'signed-out'이고, 가짜 이름·이메일을 만들지 않는다. */
+function setHomeAccountState(state,profile){
+  var signedIn=state==='signed-in';
+  var info=profile||{};
+  document.querySelectorAll('#homeAccountPanel [data-account-group]').forEach(function(group){
+    var forSignedIn=group.getAttribute('data-account-group')==='signed-in';
+    group.hidden=forSignedIn?!signedIn:signedIn;
+  });
+  var label=document.getElementById('homeAccountLabel');
+  if(label)label.textContent=signedIn?'내 정보':'로그인';
+  var name=document.getElementById('homeAccountPanelName');
+  if(name)name.textContent=signedIn?(info.name||'내 정보'):'계정 연결 전';
+  var email=document.getElementById('homeAccountPanelEmail');
+  if(email){
+    email.textContent=signedIn?(info.email||''):'';
+    email.hidden=!email.textContent;
+  }
+  /* 로그인 후 첫 화면에는 상태 배지를 두지 않는다. 로그인 전 안내만 남긴다. */
+  var badge=document.getElementById('homeAccountPanelBadge');
+  if(badge){
+    badge.textContent='현재 기록은 이 기기에 보관됩니다';
+    badge.hidden=signedIn;
+  }
+  var title=document.getElementById('homeAccountPanelTitle');
+  if(title)title.textContent=signedIn?'내 정보':'계정 및 설정';
+  var idArrow=document.getElementById('homeAccountPanelIdArrow');
+  if(idArrow)idArrow.hidden=!signedIn;
+  var btn=document.getElementById('homeAccountBtn');
+  if(btn){
+    btn.setAttribute('aria-label',signedIn?'내 정보':'로그인');
+    btn.setAttribute('title',signedIn?'내 정보':'로그인');
+    /* 로그인 전에는 이 버튼이 로그인 선택창을 직접 열므로 가리키는 대상도 함께 맞춘다. */
+    btn.setAttribute('aria-controls',signedIn?'homeAccountPanel':'loginModal');
+  }
+  homeAccountSignedIn=signedIn;
+  setHomeAccountAvatar(signedIn?(info.avatar||''):'');
+}
+window.GomnaHomeAccount={setAvatar:setHomeAccountAvatar,setState:setHomeAccountState};
+
+/* 바깥 클릭으로 닫기. 모바일 가림막은 자체 onclick으로 닫는다. */
+document.addEventListener('click',function(e){
+  if(isHomeAccountPanelOpen()&&!e.target.closest('#homeAccountBtn')&&!e.target.closest('#homeAccountPanel')){
+    closeHomeAccountPanel(false);
+  }
+});
+
+/* v73: 로그인 안내창 — 첫 방문에 자동으로 열지 않고, 계정 메뉴에서만 연다.
+   실제 인증 연결은 다음 단계에서 붙인다. */
+var loginModalLastFocus=null;
+
+function isLoginModalOpen(){
+  var overlay=document.getElementById('loginModal');
+  return !!(overlay&&overlay.classList.contains('show'));
+}
+
+function hideLoginNextStepNotice(){
+  var notice=document.getElementById('loginNextStepNotice');
+  if(notice)notice.hidden=true;
+}
+
+function showLoginNextStepNotice(){
+  var notice=document.getElementById('loginNextStepNotice');
+  if(notice)notice.hidden=false;
+}
+
+function loginModalBox(){return document.querySelector('#loginModal .login-box');}
+function loginModalCanFocus(el){
+  try{return !!(el&&typeof el.focus==='function'&&el.isConnected&&!el.disabled&&el.getClientRects().length);}catch(e){return false;}
+}
+/* 로그인창을 닫은 뒤 돌아갈 자리. 원래 버튼이 이미 화면에서 사라졌으면
+   지금 실제로 보이는 버튼으로 초점을 되돌린다. */
+function loginModalFocusTarget(){
+  if(loginModalCanFocus(loginModalLastFocus))return loginModalLastFocus;
+  var fallbacks=[document.getElementById('homeAccountBtn')];
+  for(var i=0;i<fallbacks.length;i++){if(loginModalCanFocus(fallbacks[i]))return fallbacks[i];}
+  return null;
+}
+function loginModalFocusables(){
+  var box=loginModalBox();
+  if(!box)return [];
+  return Array.prototype.filter.call(
+    box.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'),
+    function(el){return !el.disabled&&el.getClientRects().length;}
+  );
+}
+
+function openLoginModal(source){
+  var overlay=document.getElementById('loginModal');
+  if(!overlay)return;
+  hideLoginNextStepNotice();
+  overlay.setAttribute('data-login-source',source||'');
+  overlay.classList.add('show');
+  overlay.setAttribute('aria-hidden','false');
+  document.documentElement.classList.add('login-modal-open');
+  try{
+    loginModalLastFocus=document.activeElement;
+    var first=document.getElementById('loginKakaoBtn');
+    if(first&&typeof first.focus==='function')first.focus();
+  }catch(e){}
+}
+
+function closeLoginModal(){
+  var overlay=document.getElementById('loginModal');
+  if(!overlay)return;
+  overlay.classList.remove('show');
+  overlay.setAttribute('aria-hidden','true');
+  document.documentElement.classList.remove('login-modal-open');
+  hideLoginNextStepNotice();
+  try{
+    var back=loginModalFocusTarget();
+    if(back)back.focus();
+  }catch(e){}
+  loginModalLastFocus=null;
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape')return;
+  if(isLoginModalOpen()){closeLoginModal();return;}
+  if(isHomeAccountPanelOpen())closeHomeAccountPanel();
+});
+
+/* 로그인창이 열린 동안 Tab·Shift+Tab 초점이 창 밖으로 빠져나가지 않게 순환시킨다. */
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Tab'||!isLoginModalOpen())return;
+  var box=loginModalBox(),items=loginModalFocusables();
+  if(!box||!items.length)return;
+  var first=items[0],last=items[items.length-1],cur=document.activeElement;
+  if(e.shiftKey){
+    if(cur===first||!box.contains(cur)){e.preventDefault();last.focus();}
+  }else if(cur===last||!box.contains(cur)){e.preventDefault();first.focus();}
+});
+
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
-<script src="js/gomna-home-resume.js?v=20260729-resume-i18n-books"></script>
-<script src="settings_guide.js?v=20260710-settings-sheet-v99" defer></script>
-<script src="translate_feature.js?v=20260724-first-visit-detect-v2" defer></script>
+<script src="js/gomna-home-resume.js?v=20260812-resume-clock-v1"></script>
+<script src="js/gomna-scripture-quick-move.js?v=20260815-reuse-range-v1"></script>
+<script src="settings_guide.js?v=20260807-settings-v3" defer></script>
+<script src="translate_feature.js?v=20260809-lang-suggest-v1" defer></script>
 <script>
 (function(){
   function refreshHomeI18n(){
     try{
-      if(typeof _applyGreetingI18n==='function')_applyGreetingI18n();
       if(typeof renderContinueCard==='function')renderContinueCard();
       if(typeof _selectedDate!=='undefined'&&_selectedDate&&typeof _setVerseDOM==='function')_setVerseDOM(_selectedDate);
       if(typeof window.__gomnaSyncGlobeI18n==='function')window.__gomnaSyncGlobeI18n();
-      var vp=document.getElementById('versePopup');
-      if(vp&&vp.classList.contains('show')&&typeof renderCalendar==='function'&&typeof _calendarMonth!=='undefined'){
-        renderCalendar(_calendarMonth.getFullYear(),_calendarMonth.getMonth());
-      }
       var ov=document.getElementById('overlay');
       if(ov&&ov.classList.contains('show')){
         var activeTab=document.querySelector('.sheet-tabs .tab.active');
@@ -1963,5 +2384,10 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
   }
 })();
 </script>
+<!-- 로그인 연결: Supabase 공식 CDN이 먼저, 그 뒤에 gomna-auth.js. 순서를 바꾸지 않는다. -->
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="js/gomna-auth.js?v=20260813-google-gis-v1"></script>
+<!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
+<script defer src="js/gomna-help.js?v=20260808-help-v8"></script>
 </body>
 </html>

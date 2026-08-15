@@ -1035,11 +1035,6 @@
    */
   // Quick pair is always KO·EN — never seeded from device/home language.
   var QUICK_LANGUAGES = ['ko', 'en'];
-  var GOOGLE_HOME_LANGS = {
-    es: 1, pt: 1, fr: 1, de: 1, vi: 1, hi: 1, id: 1, tl: 1, sw: 1, af: 1,
-    zh: 1, 'zh-cn': 1, 'zh-tw': 1
-  };
-
   function ensureDefaultQuickForeignLanguage() {
     try {
       var existing = localStorage.getItem('gomna_recent_foreign_language');
@@ -1051,7 +1046,9 @@
     } catch (e) { /* ignore */ }
   }
 
-  function detectBrowserPreferredHomeLanguage() {
+  /* 브라우저 선호 언어는 자동 전환에 쓰지 않는다. 헤더 스마트 제안 후보를 고르는 힌트로만 읽는다.
+     IP·위치·시간대·국가는 보지 않고 navigator.languages(없으면 navigator.language)만 사용한다. */
+  function readBrowserLanguageTags() {
     var list = [];
     try {
       if (navigator.languages && navigator.languages.length) {
@@ -1059,32 +1056,41 @@
       }
     } catch (e0) { /* ignore */ }
     try { list.push(navigator.language || navigator.userLanguage || ''); } catch (e1) { /* ignore */ }
+    return list;
+  }
+
+  /* 사용자가 언어를 직접 고른 적이 있는지. 자동으로 생긴 googtrans 쿠키는 선택으로 보지 않는다.
+     gomna_ui_language(ko/en/ja 직접 선택)와 gomna_translate_recent(applyLanguage 기록)만 근거로 쓴다. */
+  function hasExplicitLanguageChoice() {
+    try {
+      if (isNativeHomeLanguage(localStorage.getItem('gomna_ui_language'))) return true;
+    } catch (e0) { /* ignore */ }
+    try {
+      if (localStorage.getItem(STORAGE_KEY)) return true;
+    } catch (e1) { /* ignore */ }
+    return false;
+  }
+
+  /* registry에서 지원하는 첫 번째 브라우저 선호 언어의 국가 행. 없으면 null이고 제안도 하지 않는다. */
+  function detectSuggestedLanguage() {
+    var list = readBrowserLanguageTags();
     for (var j = 0; j < list.length; j++) {
       var raw = String(list[j] || '').toLowerCase().replace(/_/g, '-');
       if (!raw) continue;
-      if (raw.indexOf('ko') === 0) return { lang: 'ko', mode: 'native' };
-      if (raw.indexOf('en') === 0) return { lang: 'en', mode: 'native' };
-      if (raw.indexOf('ja') === 0) return { lang: 'ja', mode: 'native' };
       if (raw.indexOf('zh') === 0) {
         var zh =
-          raw.indexOf('tw') !== -1 ||
-          raw.indexOf('hk') !== -1 ||
-          raw.indexOf('hant') !== -1
+          raw.indexOf('tw') !== -1 || raw.indexOf('hk') !== -1 || raw.indexOf('hant') !== -1
             ? 'zh-TW'
             : 'zh-CN';
-        return { lang: zh, mode: 'google' };
+        var zhRow = findAnchorForLang(zh);
+        if (zhRow) return zhRow;
+        continue;
       }
       var primary = raw.split('-')[0];
-      var matched = primary ? findAnchorForLang(primary) : null;
-      if (matched && matched[3] && matched[3] !== 'ko' && matched[3] !== 'en' && matched[3] !== 'ja') {
-        return { lang: matched[3], mode: 'google' };
-      }
-      if (primary && GOOGLE_HOME_LANGS[primary]) {
-        return { lang: primary, mode: 'google' };
-      }
+      var row = primary ? findAnchorForLang(primary) : null;
+      if (row) return row;
     }
-    // Unsupported / undetectable → English home.
-    return { lang: 'en', mode: 'native' };
+    return null;
   }
 
   function resolveHomeDisplayLanguage() {
@@ -1129,22 +1135,10 @@
       }
     } catch (e) { /* ignore */ }
 
-    // No explicit app/cookie selection: browser/phone language (display-only).
-    var detected = detectBrowserPreferredHomeLanguage();
-    if (detected.mode === 'native' && isNativeHomeLanguage(detected.lang)) {
-      if (detected.lang === 'ko') clearGoogTransCookie();
-      else setGoogTransCookie(detected.lang);
-      ensureDefaultQuickForeignLanguage();
-      return { lang: detected.lang, mode: 'native', persisted: false };
-    }
-    if (detected.mode === 'google' && detected.lang) {
-      setGoogTransCookie(detected.lang);
-      ensureDefaultQuickForeignLanguage();
-      return { lang: detected.lang, mode: 'google', persisted: false };
-    }
-    setGoogTransCookie('en');
+    /* 직접 선택도, 유효한 번역 상태도 없으면 앱 기본 화면을 그대로 둔다.
+       브라우저 언어로 자동 전환하지 않고 헤더에 스마트 제안만 띄운다. */
     ensureDefaultQuickForeignLanguage();
-    return { lang: 'en', mode: 'native', persisted: false };
+    return { lang: 'ko', mode: 'native', persisted: false };
   }
 
   var _homeLangRestoreRaf1 = 0;
@@ -1197,6 +1191,7 @@
       }
     } finally {
       _homeLangRestoreRunning = false;
+      try { syncLanguageSuggestion(); } catch (eSuggest) { /* ignore */ }
     }
   }
 
@@ -3047,6 +3042,11 @@
     if (!settingsBtns.length) return false;
     let injected = false;
     settingsBtns.forEach(function (btn) {
+      /* 홈 헤더에는 상시 지구본을 두지 않는다. 언어는 ⋮ → 설정 → 언어와 스마트 제안으로 연다. */
+      if (btn.classList.contains('home-gt-anchor')) {
+        injected = true;
+        return;
+      }
       if (btn.previousElementSibling && btn.previousElementSibling.classList.contains('gt-btn')) return;
       const onDark = isLightOnDark(btn);
       const globe = document.createElement('button');
@@ -3065,10 +3065,64 @@
     return injected;
   }
 
+  // ------------------------------------------------------------------
+  // Smart language suggestion (home header)
+  // ------------------------------------------------------------------
+  var SUGGEST_ID = 'gomnaLangSuggest';
+
+  function removeLanguageSuggestion() {
+    var el = document.getElementById(SUGGEST_ID);
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+  }
+
+  /* 직접 선택 이력이 없고, 브라우저 선호 언어가 registry에 있고, 지금 보이는 언어와 다를 때만
+     그 언어의 자국 표기(日本語 / English / Español …)를 헤더에 조용히 띄운다. */
+  function syncLanguageSuggestion() {
+    if (!isHomePage()) return;
+    var anchor = document.querySelector('.home-gt-anchor');
+    if (!anchor || !anchor.parentNode) return;
+    if (hasExplicitLanguageChoice()) {
+      removeLanguageSuggestion();
+      return;
+    }
+    var row = detectSuggestedLanguage();
+    var code = row ? row[3] : '';
+    var nativeName = row ? row[5] : '';
+    if (!code || !nativeName || code === getActiveLangCode()) {
+      removeLanguageSuggestion();
+      return;
+    }
+    var el = document.getElementById(SUGGEST_ID);
+    if (!el) {
+      el = document.createElement('button');
+      el.type = 'button';
+      el.id = SUGGEST_ID;
+      el.className = 'gomna-lang-suggest notranslate';
+      el.setAttribute('translate', 'no');
+      el.setAttribute('data-gomna-native-translate-owned', '1');
+      el.addEventListener('click', function () {
+        var picked = el.getAttribute('data-lang') || '';
+        /* 이름을 누르면 그 자체가 명시적 선택이다. 확인창 없이 기존 적용 함수를 그대로 쓴다. */
+        if (picked) applyLanguageByCode(picked, 'header-language-suggestion');
+      });
+      anchor.parentNode.insertBefore(el, anchor);
+    }
+    el.setAttribute('data-lang', code);
+    el.textContent = nativeName;
+    el.setAttribute('aria-label', nativeName);
+    el.title = nativeName;
+  }
+
   function init() {
     injectStyles();
     injectModal();
     bindHomeLanguageRestoreEvents();
+    if (isHomePage()) {
+      syncLanguageSuggestion();
+      window.addEventListener('gomna:ui-language-changed', function () {
+        syncLanguageSuggestion();
+      });
+    }
     if (!injectButtons()) {
       // Header may render later — retry briefly.
       let tries = 0;

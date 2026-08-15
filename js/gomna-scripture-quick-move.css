@@ -1,0 +1,69 @@
+/* Shared scripture quick-move card. Keep in sync with reader.html card styles. */
+html.scripture-quick-move-lock,html.scripture-quick-move-lock body{overflow:hidden!important}
+.scripture-quick-move-overlay{position:fixed;inset:0;z-index:1400;display:none;align-items:flex-end;justify-content:center;background:transparent;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;box-sizing:border-box;overflow:hidden}
+.scripture-quick-move-overlay.is-open{display:flex}
+.scripture-quick-move-overlay[hidden]{display:none}
+.scripture-quick-move-sheet:focus{outline:none}
+.scripture-quick-move-sheet{width:100%;max-width:var(--reader-frame-width,420px);max-height:min(86dvh,calc(100dvh - env(safe-area-inset-bottom,0px) - 8px),760px);display:flex;flex-direction:column;box-sizing:border-box;background:#FFFCF6;border-radius:22px 22px 0 0;box-shadow:0 -12px 44px rgba(90,60,30,.14);overflow:hidden;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1)}
+.scripture-quick-move-overlay.is-open .scripture-quick-move-sheet{transform:translateY(0)}
+@media (prefers-reduced-motion:reduce){.scripture-quick-move-sheet{transition:none}}
+.scripture-quick-move-head{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:8px 12px 4px 18px;flex-shrink:0}
+.scripture-quick-move-title{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.scripture-quick-move-close{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:none;border-radius:12px;background:transparent;color:#7A5A38;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .14s ease,transform .12s ease}
+.scripture-quick-move-close:active{color:#5A321C;transform:scale(.97);opacity:1;filter:none;background:transparent}
+.scripture-quick-move-close:focus-visible{outline:2px solid rgba(139,106,50,.55);outline-offset:2px}
+.scripture-quick-move-seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 16px 10px;padding:3px;background:#F3EDE1;border-radius:12px;flex-shrink:0}
+.scripture-quick-move-seg-btn{min-height:38px;border:none;border-radius:10px;background:transparent;font-size:14px;font-weight:700;color:#7A5A38;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .16s ease,color .16s ease}
+.scripture-quick-move-seg-btn:active{transform:none;opacity:1;filter:none}
+.scripture-quick-move-seg-btn.is-active{background:#FFFDF8;color:#4A2511;box-shadow:0 1px 3px rgba(90,60,30,.10)}
+.scripture-quick-move-seg-btn:focus-visible{outline:2px solid rgba(139,106,50,.55);outline-offset:1px}
+.scripture-quick-move-address{display:grid;grid-template-columns:1.5fr 12px 0.95fr 12px 1fr;align-items:center;gap:4px;margin:0 16px 10px;flex-shrink:0}
+.scripture-quick-move-addr-btn{min-width:0;min-height:44px;padding:4px 8px;border:1px solid rgba(180,140,90,.3);border-radius:12px;background:#FFFDF8;font-size:13px;font-weight:700;color:#3d2818;font-family:inherit;line-height:1.15;cursor:pointer;box-sizing:border-box;-webkit-tap-highlight-color:transparent;transition:background .16s ease,border-color .16s ease,color .16s ease,transform .12s ease}
+.scripture-quick-move-addr-text{display:block;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scripture-quick-move-addr-btn.is-empty{background:#F8F5EE;border-color:rgba(180,140,90,.22);color:#9A8874}
+.scripture-quick-move-addr-btn.is-current{background:#EFF3EF;border-color:rgba(139,106,50,.55);color:#4A2511}
+.scripture-quick-move-addr-btn:active{transform:scale(.98);opacity:1;filter:none}
+.scripture-quick-move-addr-btn:focus-visible{outline:2px solid rgba(139,106,50,.55);outline-offset:2px}
+.scripture-quick-move-addr-sep{font-size:12px;font-weight:700;color:#BCA37A;text-align:center;line-height:1}
+.scripture-quick-move-seg[hidden]{display:none}
+.scripture-quick-move-stage-title{margin:0 0 10px;font-size:13px;font-weight:700;color:#5A321C;letter-spacing:-.2px}
+.scripture-quick-move-body{flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:0 16px calc(20px + env(safe-area-inset-bottom,0px));scrollbar-width:none;-ms-overflow-style:none}
+.scripture-quick-move-body::-webkit-scrollbar{display:none;width:0;height:0}
+.scripture-quick-move-section+.scripture-quick-move-section{margin-top:18px}
+.scripture-quick-move-label{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.02em;color:#8b6a32}
+.scripture-quick-move-books{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.scripture-quick-move-books .scripture-quick-move-item{white-space:normal;overflow:visible;text-overflow:unset;overflow-wrap:break-word;word-break:keep-all}
+html.gomna-reader-ui-en .scripture-quick-move-books .scripture-quick-move-item,
+html.gomna-reader-ui-ja .scripture-quick-move-books .scripture-quick-move-item{font-size:12px;letter-spacing:-.2px}
+.scripture-quick-move-nums{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.scripture-quick-move-item{min-height:44px;padding:4px 4px;border:1px solid rgba(180,140,90,.26);border-radius:11px;background:#fff;font-size:13px;font-weight:600;color:#3d2818;font-family:inherit;line-height:1.2;word-break:keep-all;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .14s ease,border-color .14s ease,transform .12s ease}
+.scripture-quick-move-item:active{background:#FBF6EB;transform:scale(.98);opacity:1;filter:none}
+.scripture-quick-move-item:focus-visible{outline:2px solid rgba(139,106,50,.55);outline-offset:1px}
+.scripture-quick-move-item.is-selected{background:#F7EEDC;border-color:rgba(139,106,50,.62);color:#5A321C;font-weight:700}
+.scripture-quick-move-nums .scripture-quick-move-item{padding:4px 2px;font-size:14px;font-variant-numeric:tabular-nums}
+.scripture-quick-move-nums .verse-range-move-action{position:static;left:auto;top:auto;grid-column:1/-1;justify-self:start}
+.verse-range-move-action{position:absolute;left:8px;right:auto;top:0;bottom:auto;width:96px;height:44px;min-width:96px;padding:0 12px;border:1px solid #B8944F;border-radius:18px;background:#E2C98F;color:#4A3524;font-size:16px;font-weight:800;line-height:1;letter-spacing:-0.2px;box-sizing:border-box;box-shadow:0 8px 22px rgba(74,53,36,.18);z-index:8;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;transition:background-color .08s ease,transform .08s ease,box-shadow .08s ease}
+.verse-range-move-action[hidden]{display:none}
+.verse-range-move-action:active{background:#D7B873;transform:translateY(1px);box-shadow:0 4px 12px rgba(74,53,36,.16)}
+@media (hover:hover) and (pointer:fine) {
+  .verse-range-move-action:hover{background:#DCC184}
+}
+/* 홈 데스크톱: 시트 폭 = min(100vw, 홈 .container max-width) − 좌우 padding.
+   고정 px width/좌표를 쓰지 않고 홈 카드와 같은 공식으로 맞춘다. 모바일 규칙은 그대로 둔다. */
+@media (min-width:700px){
+  body[data-gomna-page="home"]{
+    --gomna-home-frame-max:520px;
+    --gomna-home-gutter:16px;
+    --qm-desktop-inset:16px;
+    --qm-desktop-v-gap:32px;
+    --qm-desktop-card-max:calc(min(100vw,var(--gomna-home-frame-max)) - var(--gomna-home-gutter) * 2);
+  }
+  body[data-gomna-page="home"] .scripture-quick-move-overlay.is-open{align-items:center;justify-content:center}
+  body[data-gomna-page="home"] .scripture-quick-move-sheet{width:min(100%,var(--qm-desktop-card-max));max-width:var(--qm-desktop-card-max);height:auto;max-height:calc(100dvh - var(--qm-desktop-v-gap) * 2);border-radius:22px;transform:none}
+  body[data-gomna-page="home"] .scripture-quick-move-overlay.is-open .scripture-quick-move-sheet{transform:none}
+  body[data-gomna-page="home"] .scripture-quick-move-seg,
+  body[data-gomna-page="home"] .scripture-quick-move-address{margin-left:var(--qm-desktop-inset);margin-right:var(--qm-desktop-inset)}
+  body[data-gomna-page="home"] .scripture-quick-move-body{padding-left:var(--qm-desktop-inset);padding-right:var(--qm-desktop-inset)}
+  body[data-gomna-page="home"] .scripture-quick-move-books{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+  body[data-gomna-page="home"] .scripture-quick-move-books .scripture-quick-move-item{min-width:0;overflow:hidden}
+}

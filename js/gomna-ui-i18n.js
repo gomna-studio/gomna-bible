@@ -21,22 +21,25 @@
   var STRINGS = {
     ko: {
       'brand.title': '은혜의말씀',
-      'brand.subtitle': 'Holy Bible · Korean Revised',
+      'brand.subtitle': 'Words of Grace',
       'brand.logoAlt': '은혜의말씀',
       'home.greeting.morning': '— 좋은 아침입니다 —',
       'home.greeting.afternoon': '— 평안한 오후입니다 —',
       'home.greeting.evening': '— 고요한 저녁입니다 —',
       'home.continue.start': '처음부터 성경 읽기',
+      'home.continue.sectionTitle': '이어서',
+      'home.continue.readCta': '계속 읽기',
+      'home.continue.listenCta': '계속 듣기',
       'home.continue.resume': '이어서 읽기',
       'home.continue.aria': '이어서 읽기',
       'home.todayWord.tag': '오늘의 말씀',
       'home.todayWord.backToday': '오늘로 돌아가기',
       'home.todayWord.otherDate': '다른 날짜 보기',
-      'home.todayWord.open': '오늘의 말씀 묵상하기',
+      'home.todayWord.open': '묵상하기',
       'home.todayWord.openNote': '오늘 말씀 기준으로 읽고 묵상하기',
-      'home.quick.read': '성경읽기',
+      'home.quick.read': '읽기',
       'home.quick.readDesc': '책·장·절로',
-      'home.quick.audio': '오디오',
+      'home.quick.audio': '듣기',
       'home.quick.audioDesc': '듣고 묵상하기',
       'home.quick.topics': '주제별',
       'home.quick.topicsDesc': '말씀 찾아보기',
@@ -48,9 +51,9 @@
       'home.oldTestament.title': '구약 39권',
       'home.newTestament.title': '신약 27권',
       'home.testament.readByChapter': '장·절로 읽기 ›',
-      'home.easyFind.title': '말씀 바로찾기',
+      'home.easyFind.title': '쉬운 찾기',
       'home.easyFind.desc': '분류별로 찾기 ›',
-      'search.placeholder.home': '성경 말씀 찾기 (예: 사랑, 믿음, 로마서 8장)',
+      'search.placeholder.home': '말씀 찾기 (예: 사랑, 믿음, 요한복음 3장 16절)',
       'search.inputAria': '성경 검색어 입력',
       'search.submitAria': '검색 실행',
       'search.topicsAria': '검색창 안 주제별 검색',
@@ -103,18 +106,21 @@
     },
     en: {
       'brand.title': 'Word of Grace',
-      'brand.subtitle': 'Holy Bible · Korean Revised Version',
+      'brand.subtitle': 'Words of Grace',
       'brand.logoAlt': 'Word of Grace',
       'home.greeting.morning': '— Good morning —',
       'home.greeting.afternoon': '— Have a peaceful afternoon —',
       'home.greeting.evening': '— Have a quiet evening —',
       'home.continue.start': 'Start Reading the Bible',
+      'home.continue.sectionTitle': 'Continue',
+      'home.continue.readCta': 'Continue reading',
+      'home.continue.listenCta': 'Continue listening',
       'home.continue.resume': 'Continue Reading',
       'home.continue.aria': 'Continue reading',
       'home.todayWord.tag': 'Verse of the Day',
       'home.todayWord.backToday': 'Back to Today',
       'home.todayWord.otherDate': 'View Another Date',
-      'home.todayWord.open': 'Reflect on Today’s Verse',
+      'home.todayWord.open': 'Reflect',
       'home.todayWord.openNote': 'Read and reflect on today’s verse',
       'home.quick.read': 'Bible Reading',
       'home.quick.readDesc': 'By Book, Chapter, and Verse',
@@ -185,18 +191,21 @@
     },
     ja: {
       'brand.title': '恵みのみことば',
-      'brand.subtitle': '聖書・韓国語改訳版',
+      'brand.subtitle': 'Words of Grace',
       'brand.logoAlt': '恵みのみことば',
       'home.greeting.morning': '— おはようございます —',
       'home.greeting.afternoon': '— 穏やかな午後をお過ごしください —',
       'home.greeting.evening': '— 静かな夜をお過ごしください —',
       'home.continue.start': '聖書を最初から読む',
+      'home.continue.sectionTitle': '続きから',
+      'home.continue.readCta': '続きを読む',
+      'home.continue.listenCta': '続きを聴く',
       'home.continue.resume': '続きを読む',
       'home.continue.aria': '続きを読む',
       'home.todayWord.tag': '今日の聖句',
       'home.todayWord.backToday': '今日に戻る',
       'home.todayWord.otherDate': '別の日を見る',
-      'home.todayWord.open': '今日の聖句を黙想する',
+      'home.todayWord.open': '黙想する',
       'home.todayWord.openNote': '今日の聖句を読み、黙想します',
       'home.quick.read': '聖書を読む',
       'home.quick.readDesc': '書・章・節から',
@@ -364,52 +373,6 @@
   }
 
   var QUICK_LANGUAGES = ['ko', 'en'];
-  var GOOGLE_HOME_LANGS = {
-    es: 1, pt: 1, fr: 1, de: 1, vi: 1, hi: 1, id: 1, tl: 1, sw: 1, af: 1,
-    zh: 1, 'zh-cn': 1, 'zh-tw': 1
-  };
-
-  /**
-   * Browser / phone preferred language for first-visit home only.
-   * Quick buttons are separate and always KO·EN.
-   */
-  function detectBrowserPreferredLanguage() {
-    var list = [];
-    try {
-      if (typeof navigator !== 'undefined' && navigator.languages && navigator.languages.length) {
-        for (var i = 0; i < navigator.languages.length; i++) list.push(navigator.languages[i]);
-      }
-    } catch (e0) { /* ignore */ }
-    try {
-      if (typeof navigator !== 'undefined') {
-        list.push(navigator.language || navigator.userLanguage || '');
-      }
-    } catch (e1) { /* ignore */ }
-
-    for (var j = 0; j < list.length; j++) {
-      var raw = String(list[j] || '').toLowerCase().replace(/_/g, '-');
-      if (!raw) continue;
-      if (raw.indexOf('ko') === 0) return { lang: 'ko', mode: 'native' };
-      if (raw.indexOf('en') === 0) return { lang: 'en', mode: 'native' };
-      if (raw.indexOf('ja') === 0) return { lang: 'ja', mode: 'native' };
-      if (raw.indexOf('zh') === 0) {
-        var zh =
-          raw.indexOf('tw') !== -1 ||
-          raw.indexOf('hk') !== -1 ||
-          raw.indexOf('hant') !== -1
-            ? 'zh-TW'
-            : 'zh-CN';
-        return { lang: zh, mode: 'google' };
-      }
-      var primary = raw.split('-')[0];
-      if (primary && GOOGLE_HOME_LANGS[primary]) {
-        return { lang: primary, mode: 'google' };
-      }
-    }
-    // Unsupported / undetectable → English home.
-    return { lang: 'en', mode: 'native' };
-  }
-
   /** Seed EN when empty. Never auto-seed JA from device/home language. */
   function ensureDefaultQuickForeign() {
     try {
@@ -424,7 +387,8 @@
    * Unified initial home language decision.
    * 1) explicit localStorage ko/en/ja (app UI selection) — keep forever
    * 2) valid googtrans user choice (/ko/tl|/ko/en|/ko/ja|/ko/vi…) — keep
-   * 3) no app/cookie selection → browser/phone language
+   * 3) no app/cookie selection → app default language (never browser auto-switch)
+   * 브라우저 선호 언어는 홈 헤더의 스마트 언어 제안 힌트로만 쓴다.
    * Quick languages are always ["ko","en"] and are not derived from detection.
    */
   function resolveInitialHomeLanguage() {
@@ -448,25 +412,8 @@
     }
 
     clearInvalidGoogTransOnly();
-    var detected = detectBrowserPreferredLanguage();
-
-    if (detected.mode === 'native' && isSupported(detected.lang)) {
-      // Display-only auto detect — do NOT write gomna_ui_language.
-      if (detected.lang === 'ko') clearIncompleteGoogTrans();
-      else setGoogTransCookie(detected.lang);
-      ensureDefaultQuickForeign();
-      return { lang: detected.lang, mode: 'native', active: true, persisted: false };
-    }
-
-    if (detected.mode === 'google' && detected.lang) {
-      setGoogTransCookie(detected.lang);
-      ensureDefaultQuickForeign();
-      return { lang: detected.lang, mode: 'google', active: false, persisted: false };
-    }
-
-    setGoogTransCookie('en');
     ensureDefaultQuickForeign();
-    return { lang: 'en', mode: 'native', active: true, persisted: false };
+    return { lang: SUPPORTED[0], mode: 'native', active: true, persisted: false };
   }
 
   function resolveLanguage() {
@@ -782,8 +729,7 @@
       return !!active;
     },
     resolveLanguage: resolveLanguage,
-    resolveInitialHomeLanguage: resolveInitialHomeLanguage,
-    detectBrowserPreferredLanguage: detectBrowserPreferredLanguage
+    resolveInitialHomeLanguage: resolveInitialHomeLanguage
   };
 
   boot();
