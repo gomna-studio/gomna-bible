@@ -13,12 +13,6 @@
   var SUPABASE_PUBLISHABLE_KEY =
     'sb_publishable_XWXOFlU4rLS-oqTB0uOlYw_NB1Qbeiz';
 
-  /* 카카오 로그인에만 쓰는 공개 JavaScript 키.
-     대표님이 Kakao Developers > 앱 키 > JavaScript 키 값을 이 한 줄에만 붙여넣는다.
-     비어 있으면 이 경로를 건너뛰고 지금까지 쓰던 카카오 로그인을 그대로 쓴다.
-     REST API 키·Client Secret·Supabase service_role 같은 비밀값은 절대 넣지 않는다. */
-  var KAKAO_JAVASCRIPT_KEY = 'fe56d790f77b9210314935348fe4986a';
-
   /* Google 로그인에만 쓰는 공개 Web Client ID.
      Google Identity Services가 브라우저에서 그대로 쓰는 값이라 공개해도 된다.
      Client Secret은 어떤 경우에도 이 파일에 넣지 않는다. */
@@ -32,12 +26,7 @@
      Client ID·Secret은 Supabase 서버에만 있고 여기서는 공급자 이름만 쓴다. */
   var ALLOWED_PROVIDERS = ['kakao', 'custom:naver'];
   var CALLBACK_PATH = '/auth/callback.html';
-  var KAKAO_SDK_SRC = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js';
-  /* openid는 ID 토큰을 받기 위해서만 넣는다. account_email은 어떤 경우에도 요청하지 않는다. */
-  var KAKAO_JS_SCOPE = 'openid,profile_nickname,profile_image';
-  var KAKAO_STATE_KEY = 'gomna.auth.kakaoState';
-  var KAKAO_OFF_KEY = 'gomna.auth.kakaoSdkOff';
-  var KAKAO_EXCHANGE_PATH = '/functions/v1/kakao-mobile-login'; /* Edge Function 이름 */
+  var KAKAO_NICK_KEY = 'gomna.auth.kakaoNick';
   var ALLOWED_RETURN_PATHS = ['/', '/index.html', '/reader.html'];
   var RETURN_TO_KEY = 'gomna.auth.returnTo';
   var MESSAGE_KEY = 'gomna.auth.message';
@@ -85,7 +74,7 @@
           flowType: 'pkce',
           persistSession: true,
           autoRefreshToken: true,
-          detectSessionInUrl: false
+          detectSessionInUrl: true
         }
       });
     } catch (e) {
@@ -174,15 +163,33 @@
     return raw.indexOf('custom:') === 0 ? raw.slice(7) : raw;
   }
 
-  function pickName(user) {
+  var pendingKakaoNickname = '';
+  var nameConfirmShown = false;
+
+  function normalizeDisplayName(raw) {
+    var name = String(raw == null ? '' : raw).trim();
+    if (!name || name === '이름 없음' || name === '카카오 사용자') return '';
+    return name.length > 30 ? name.slice(0, 30) : name;
+  }
+
+  function metaDisplayName(user) {
     var meta = (user && user.user_metadata) ? user.user_metadata : {};
     var candidates = [
-      meta.name, meta.full_name, meta.preferred_username,
+      meta.display_name, meta.name, meta.full_name, meta.preferred_username,
       meta.user_name, meta.nickname
     ];
     for (var i = 0; i < candidates.length; i++) {
-      if (text(candidates[i])) return text(candidates[i]);
+      var name = normalizeDisplayName(candidates[i]);
+      if (name) return name;
     }
+    return '';
+  }
+
+  function pickName(user) {
+    var stored = metaDisplayName(user);
+    if (stored) return stored;
+    var fromKakao = normalizeDisplayName(pendingKakaoNickname);
+    if (fromKakao) return fromKakao;
     var provider = pickProvider(user);
     /* 이메일 주소 자체를 큰 제목으로 노출하지 않는다. */
     if (provider === 'email') return '이메일 사용자';
@@ -211,10 +218,10 @@
   }
 
   function pickAvatar(user) {
+    /* 카카오 로그인 경로에서는 프로필 사진을 쓰지 않는다. */
+    if (pickProvider(user) === 'kakao') return null;
     var meta = (user && user.user_metadata) ? user.user_metadata : {};
-    var candidates = [
-      meta.avatar_url, meta.picture, meta.profile_image, meta.profile_image_url
-    ];
+    var candidates = [meta.avatar_url, meta.picture];
     for (var i = 0; i < candidates.length; i++) {
       if (text(candidates[i])) return text(candidates[i]);
     }
@@ -286,6 +293,9 @@
       caps.profiles = 'unknown';
       profileRow = null;
       profileRowFor = '';
+      pendingKakaoNickname = '';
+      nameConfirmShown = false;
+      dropStore(KAKAO_NICK_KEY);
       if (wasSignedIn) closeProfile();
     }
     refreshAccountViews();
@@ -331,7 +341,9 @@
   function clearOwnStaleState() {
     dropStore(CODE_USED_KEY); /* 지난 콜백의 완료 표시가 새 흐름을 막지 않게 한다 */
     dropStore(MESSAGE_KEY);   /* 지난 실패 안내가 새 로그인 뒤에 뒤늦게 뜨지 않게 한다 */
-    dropStore(KAKAO_STATE_KEY); /* 끝나지 않은 지난 카카오 시도의 확인값은 새 시도에 쓰지 않는다 */
+    dropStore('gomna.auth.kakaoState');
+    dropStore('gomna.auth.kakaoRedirect');
+    dropStore('gomna.auth.kakaoSdkOff');
     dropStore(DEBUG_KEY);
     try { window.localStorage.removeItem(DEBUG_KEY); } catch (e) {} /* [임시 진단] 기록도 이번 시도부터 새로 */
   }
@@ -346,89 +358,8 @@
     } catch (e) {}
   }
 
-  /* ── 카카오 로그인(카카오 SDK 경로) ──────────────────────
-     공개 JavaScript 키가 있고 SDK가 준비되면 PC·모바일 모두 Kakao.Auth.authorize()를 쓴다.
-     카카오톡이 깔린 기기에서는 카카오가 알아서 카카오톡 간편로그인으로 보내고,
-     없으면 카카오계정 로그인 화면으로 보낸다(우리가 기기를 판별하지 않는다).
-     키가 없거나 SDK가 준비되지 않으면 기존 Supabase 카카오 로그인으로 그대로 넘어간다. */
-
-  function kakaoSdkPathUsable() {
-    if (typeof KAKAO_JAVASCRIPT_KEY !== 'string' || KAKAO_JAVASCRIPT_KEY === '') return false;
-    return readStore(KAKAO_OFF_KEY) !== '1'; /* 이번 방문에서 한 번 실패했으면 다시 시도하지 않는다 */
-  }
-
-  /* 이 경로가 불가능한 것으로 확인되면 이번 방문 동안은 기존 카카오 로그인만 쓴다(반복 실패 방지). */
-  function markKakaoSdkUnavailable() {
-    writeStore(KAKAO_OFF_KEY, '1');
-  }
-
-  function randomToken() {
-    try {
-      var buf = new Uint8Array(8);
-      window.crypto.getRandomValues(buf);
-      var out = '';
-      for (var i = 0; i < buf.length; i++) out += ('0' + buf[i].toString(16)).slice(-2);
-      return out;
-    } catch (e) {
-      return String(Date.now()) + String(Math.floor(Math.random() * 1e6));
-    }
-  }
-
-  /* 카카오 SDK는 로그인을 누른 순간에만 불러온다(페이지에 미리 심지 않는다). */
-  function loadKakaoSdk(done) {
-    if (window.Kakao && window.Kakao.Auth) { done(true); return; }
-    var finished = false;
-    function finish(ok) {
-      if (finished) return;
-      finished = true;
-      done(ok);
-    }
-    var el = document.querySelector('script[data-gomna-kakao-sdk]');
-    if (!el) {
-      try {
-        el = document.createElement('script');
-        el.src = KAKAO_SDK_SRC;
-        el.async = true;
-        el.setAttribute('data-gomna-kakao-sdk', '1');
-        el.setAttribute('crossorigin', 'anonymous');
-        document.head.appendChild(el);
-      } catch (e) { finish(false); return; }
-    }
-    el.addEventListener('load', function () { finish(true); });
-    el.addEventListener('error', function () { finish(false); });
-    window.setTimeout(function () { finish(!!(window.Kakao && window.Kakao.Auth)); }, 6000);
-  }
-
-  function initKakaoSdk() {
-    try {
-      if (!window.Kakao) return false;
-      if (typeof window.Kakao.isInitialized === 'function' && !window.Kakao.isInitialized()) {
-        window.Kakao.init(KAKAO_JAVASCRIPT_KEY);
-      }
-      return !!(window.Kakao.Auth && typeof window.Kakao.Auth.authorize === 'function');
-    } catch (e) { return false; }
-  }
-
-  /* 준비되면 카카오 로그인 화면으로 보낸다. 준비되지 않으면 곧바로 fallback(기존 로그인)을 부른다. */
-  function startKakaoSdkLogin(fallback) {
-    loadKakaoSdk(function (ok) {
-      if (!ok || !initKakaoSdk()) { markKakaoSdkUnavailable(); fallback(); return; }
-      var state = 'gomna-kakao-' + randomToken();
-      writeStore(KAKAO_STATE_KEY, state);
-      try {
-        window.Kakao.Auth.authorize({
-          redirectUri: window.location.origin + CALLBACK_PATH,
-          scope: KAKAO_JS_SCOPE,
-          state: state
-        });
-      } catch (e) {
-        dropStore(KAKAO_STATE_KEY);
-        markKakaoSdkUnavailable();
-        fallback();
-      }
-    });
-  }
-
+  /* 카카오·네이버는 성공했던 Supabase OAuth/PKCE만 쓴다.
+     Kakao.Auth.authorize · kakao-mobile-login · signInWithIdToken(kakao)는 쓰지 않는다. */
   function startOAuth(provider, button) {
     if (ALLOWED_PROVIDERS.indexOf(provider) === -1) return;
     if (signInBusy) return;
@@ -448,37 +379,27 @@
       notify(message);
     }
 
-    /* 지금까지 실제로 성공해 온 경로. 어떤 경우에도 이 길이 안전망으로 남아 있어야 한다. */
-    function runSupabaseOAuth() {
-      var options = { redirectTo: window.location.origin + CALLBACK_PATH };
-      /* 카카오만: Supabase 기본 scope에 account_email이 들어가 KOE205(설정하지 않은 동의 항목)가 난다.
-         options.scopes는 기본 scope에 더해지기만 해서 제거가 안 되므로,
-         단수형 queryParams.scope로 최종 인가 요청의 scope를 덮어쓴다. Google 요청은 그대로 둔다. */
-      if (provider === 'kakao') {
-        options.queryParams = { scope: 'profile_nickname,profile_image' };
-      }
+    var options = { redirectTo: window.location.origin + CALLBACK_PATH };
+    /* 카카오만: Supabase 기본 scope에 account_email이 들어가 KOE205(설정하지 않은 동의 항목)가 난다.
+       options.scopes는 기본 scope에 더해지기만 해서 제거가 안 되므로,
+       단수형 queryParams.scope로 최종 인가 요청의 scope를 덮어쓴다. Google 요청은 그대로 둔다. */
+    if (provider === 'kakao') {
+      options.queryParams = { scope: 'profile_nickname,profile_image' };
+    }
 
-      try {
-        supabaseClient.auth.signInWithOAuth({
-          provider: provider,
-          options: options
-        }).then(function (result) {
-          /* 정상일 때는 브라우저가 공급자 화면으로 이동한다. */
-          if (result && result.error) recover(MSG.startFailed);
-        })['catch'](function () {
-          recover(MSG.startFailed);
-        });
-      } catch (e) {
+    try {
+      supabaseClient.auth.signInWithOAuth({
+        provider: provider,
+        options: options
+      }).then(function (result) {
+        /* 정상일 때는 브라우저가 공급자 화면으로 이동한다. */
+        if (result && result.error) recover(MSG.startFailed);
+      })['catch'](function () {
         recover(MSG.startFailed);
-      }
+      });
+    } catch (e) {
+      recover(MSG.startFailed);
     }
-
-    /* 카카오는 SDK 경로를 먼저 쓴다. 키가 없거나 SDK가 안 되면 곧바로 기존 경로로 간다. */
-    if (provider === 'kakao' && kakaoSdkPathUsable()) {
-      startKakaoSdkLogin(runSupabaseOAuth);
-      return;
-    }
-    runSupabaseOAuth();
   }
 
   /* ── Google 로그인: Google Identity Services + Supabase signInWithIdToken ──
@@ -1165,7 +1086,8 @@
     + '.gomna-email-status{margin:10px 0 0;font-size:13.5px;line-height:1.6;color:#5C4423}'
     + '.gomna-email-status[hidden]{display:none}'
     + '.login-box.gomna-email-open .login-providers,.login-box.gomna-email-open .login-brand-visual,'
-    + '.login-box.gomna-email-open .login-desc,.login-box.gomna-email-open .login-skip{display:none}';
+    + '.login-box.gomna-email-open .login-desc,.login-box.gomna-email-open .login-skip{display:none}'
+    + '.gomna-name-confirm-desc{margin:0 2px 14px;font-size:14px;line-height:1.6;color:#6B5335}';
 
   var ACCOUNT_SHEET_HTML = ''
     + '<div class="gomna-acc-box" role="document" tabindex="-1">'
@@ -1259,6 +1181,17 @@
     + '</div>'
     + '<p class="gomna-email-status" id="gomnaEmailStatus" role="status" aria-live="polite" hidden></p>';
 
+  var NAME_CONFIRM_HTML = ''
+    + '<div class="gomna-acc-box" role="document" tabindex="-1">'
+    + '<div class="gomna-acc-title" id="gomnaNameConfirmTitle">이름 확인</div>'
+    + '<p class="gomna-name-confirm-desc">은혜의말씀에서 사용할 이름을 입력해 주세요.</p>'
+    + '<label class="gomna-pe-field" for="gomnaNameConfirmInput">표시 이름'
+    + '<input type="text" id="gomnaNameConfirmInput" maxlength="30" autocomplete="nickname" spellcheck="false"></label>'
+    + '<p class="gomna-acc-status" id="gomnaNameConfirmStatus" role="status" aria-live="polite" hidden></p>'
+    + '<div class="gomna-pe-actions">'
+    + '<button type="button" class="gomna-pe-btn gomna-pe-save" id="gomnaNameConfirmSave" data-gomna-name="save">저장하고 계속</button>'
+    + '</div></div>';
+
   var sharedReady = false;
   var emailMode = 'signin';
 
@@ -1304,6 +1237,26 @@
       });
       var picker = document.getElementById('gomnaPeFile');
       if (picker) picker.addEventListener('change', function () { onAvatarChosen(picker); });
+
+      var nameConfirm = document.createElement('div');
+      nameConfirm.className = 'gomna-acc-overlay';
+      nameConfirm.id = 'gomnaNameConfirmSheet';
+      nameConfirm.setAttribute('role', 'dialog');
+      nameConfirm.setAttribute('aria-modal', 'true');
+      nameConfirm.setAttribute('aria-labelledby', 'gomnaNameConfirmTitle');
+      nameConfirm.hidden = true;
+      nameConfirm.innerHTML = NAME_CONFIRM_HTML;
+      document.body.appendChild(nameConfirm);
+      bindDirect(nameConfirm, '[data-gomna-name]', function () { saveNameConfirm(); });
+      var nameFormInput = document.getElementById('gomnaNameConfirmInput');
+      if (nameFormInput) {
+        nameFormInput.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            saveNameConfirm();
+          }
+        });
+      }
 
       var box = document.querySelector('.login-box');
       if (box) {
@@ -1676,7 +1629,10 @@
     var client = getClient();
     if (!client || !currentUser) return Promise.resolve(null);
     var uid = currentUser.id;
-    if (!force && profileRowFor === uid) return Promise.resolve(profileRow);
+    if (!force && profileRowFor === uid) {
+      maybeCompleteKakaoName();
+      return Promise.resolve(profileRow);
+    }
     profileRowFor = uid;
     try {
       return client.from(PROFILES_TABLE).select('display_name,avatar_url').eq('user_id', uid).limit(1)
@@ -1691,6 +1647,9 @@
           profileRow = row ? { display_name: text(row.display_name), avatar_url: text(row.avatar_url) } : null;
           applyAccountDisplay();
           return profileRow;
+        }).then(function (row) {
+          maybeCompleteKakaoName();
+          return row;
         })['catch'](function (e) { reportProfileError('불러오기', e); return null; });
     } catch (e) {
       reportProfileError('불러오기', e);
@@ -1713,6 +1672,114 @@
         });
       } catch (e) {}
     }
+  }
+
+  /* 카카오 닉네임만 gomna_profiles.display_name과 표시용 메타데이터에 넣는다.
+     이미 이름이 있으면 덮어쓰지 않고, avatar_url은 읽거나 쓰지 않는다. */
+  function persistDisplayName(uid, rawName) {
+    var name = normalizeDisplayName(rawName);
+    var client = getClient();
+    if (!uid || !name || !client) return Promise.resolve(false);
+    if (profileRow && profileRowFor === uid && normalizeDisplayName(profileRow.display_name)) {
+      return Promise.resolve(true);
+    }
+    var row = { user_id: uid, display_name: name, updated_at: new Date().toISOString() };
+    try {
+      return client.from(PROFILES_TABLE).upsert(row, { onConflict: 'user_id' }).then(function (res) {
+        if (res && res.error) {
+          reportProfileError('표시 이름 저장', res.error);
+          return false;
+        }
+        if (currentUser && currentUser.id === uid) {
+          profileRow = {
+            display_name: name,
+            avatar_url: (profileRow && text(profileRow.avatar_url)) || ''
+          };
+          profileRowFor = uid;
+        }
+        dropStore(KAKAO_NICK_KEY);
+        return client.auth.updateUser({ data: { display_name: name } }).then(function (up) {
+          if (up && up.error) reportProfileError('표시 이름 메타데이터', up.error);
+          if (up && up.data && up.data.user && currentUser && currentUser.id === uid) {
+            currentUser = up.data.user;
+          }
+          applyAccountDisplay();
+          return true;
+        });
+      })['catch'](function (e) {
+        reportProfileError('표시 이름 저장', e);
+        return false;
+      });
+    } catch (e) {
+      reportProfileError('표시 이름 저장', e);
+      return Promise.resolve(false);
+    }
+  }
+
+  function maybeCompleteKakaoName() {
+    if (!currentUser || pickProvider(currentUser) !== 'kakao') return;
+    if (profileRow && normalizeDisplayName(profileRow.display_name)) {
+      pendingKakaoNickname = '';
+      dropStore(KAKAO_NICK_KEY);
+      return;
+    }
+    if (!normalizeDisplayName(pendingKakaoNickname)) {
+      pendingKakaoNickname = normalizeDisplayName(readStore(KAKAO_NICK_KEY));
+    }
+    var name = normalizeDisplayName(pendingKakaoNickname) || metaDisplayName(currentUser);
+    if (name) {
+      persistDisplayName(currentUser.id, name);
+      pendingKakaoNickname = '';
+      return;
+    }
+    if (isCallbackPage() || nameConfirmShown) return;
+    openNameConfirm();
+  }
+
+  function openNameConfirm() {
+    if (!currentUser || nameConfirmShown) return;
+    injectShared();
+    var sheet = document.getElementById('gomnaNameConfirmSheet');
+    if (!sheet) return;
+    nameConfirmShown = true;
+    var input = document.getElementById('gomnaNameConfirmInput');
+    var status = document.getElementById('gomnaNameConfirmStatus');
+    if (input) input.value = '';
+    if (status) { status.textContent = ''; status.hidden = true; }
+    sheet.hidden = false;
+    document.documentElement.style.overflow = 'hidden';
+    if (input) { try { input.focus(); } catch (e) {} }
+  }
+
+  function closeNameConfirm() {
+    var sheet = document.getElementById('gomnaNameConfirmSheet');
+    if (!sheet || sheet.hidden) return;
+    sheet.hidden = true;
+    document.documentElement.style.overflow = '';
+  }
+
+  function saveNameConfirm() {
+    if (!currentUser) return;
+    var input = document.getElementById('gomnaNameConfirmInput');
+    var status = document.getElementById('gomnaNameConfirmStatus');
+    var name = normalizeDisplayName(input ? input.value : '');
+    if (!name) {
+      if (status) { status.textContent = '표시 이름을 입력해 주세요.'; status.hidden = false; }
+      if (input) { try { input.focus(); } catch (e) {} }
+      return;
+    }
+    if (input) input.value = name;
+    var save = document.getElementById('gomnaNameConfirmSave');
+    if (save) save.disabled = true;
+    persistDisplayName(currentUser.id, name).then(function (ok) {
+      if (save) save.disabled = false;
+      if (!ok) {
+        if (status) { status.textContent = '이름을 저장할 수 없습니다.\n잠시 후 다시 시도해 주세요.'; status.hidden = false; }
+        return;
+      }
+      pendingKakaoNickname = '';
+      closeNameConfirm();
+    });
   }
 
   function peStatus(message) {
@@ -2405,7 +2472,7 @@
     notify(text);
   }
 
-  /* ── 콜백: PKCE 코드 교환 ───────────────────────────────── */
+  /* ── 콜백: detectSessionInUrl이 PKCE code를 처리한 뒤 세션만 확인 ── */
 
   function isCallbackPage() {
     var path = window.location.pathname || '';
@@ -2557,109 +2624,25 @@
   }
   /* ── [임시 조사용] 끝 ── */
 
-  /* 카카오 SDK 로그인에서 돌아온 경우.
-     인가 코드는 브라우저에서 교환할 수 없으므로(비밀값 필요) Edge Function이 서버에서만 교환하고,
-     받은 ID 토큰으로 지금까지와 똑같은 Supabase 세션을 만든다. 계정 체계는 하나 그대로다. */
-  function handleKakaoSdkCallback(code, errorCode, errorDetail, note) {
-    cleanCallbackUrl(); /* 인가 코드가 주소창에 남지 않게 먼저 지운다 */
-
-    function giveUp(message, stage, error) {
-      markKakaoSdkUnavailable(); /* 다음 시도는 기존 카카오 계정 로그인으로 간다 */
-      var d = safeErr(error) || {};
-      d.stage = stage;
-      d.note = note;
-      callbackFailed(message, d);
-    }
-
-    if (errorCode) {
-      var cancelled = /access_denied|user_cancel|cancel/i.test(String(errorCode) + ' ' + String(errorDetail));
-      if (cancelled) { callbackFailed(MSG.cancelled, { stage: '카카오 로그인 취소', note: note }); return; }
-      giveUp(MSG.failed, '카카오 응답 오류: ' + String(errorCode));
-      return;
-    }
-    if (!text(code)) { giveUp(MSG.failed, '카카오 응답에 code 없음'); return; }
-    if (!isConfigured()) { callbackFailed(MSG.notConfigured, { stage: '키 설정 미완료', note: note }); return; }
-    var supabaseClient = getClient();
-    if (!supabaseClient) { callbackFailed(MSG.libMissing, { stage: 'Supabase 라이브러리 없음', note: note }); return; }
-
-    var endpoint = SUPABASE_URL + KAKAO_EXCHANGE_PATH;
-    window.fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: SUPABASE_PUBLISHABLE_KEY,
-        Authorization: 'Bearer ' + SUPABASE_PUBLISHABLE_KEY
-      },
-      body: JSON.stringify({ code: code, redirect_uri: window.location.origin + CALLBACK_PATH })
-    }).then(function (res) {
-      return res.json()['catch'](function () { return null; }).then(function (data) {
-        return { ok: res.ok, status: res.status, data: data };
-      });
-    }).then(function (out) {
-      var idToken = (out && out.data) ? text(out.data.id_token) : '';
-      if (!out.ok || !idToken) {
-        giveUp(MSG.failed, '카카오 토큰 교환 실패(status ' + (out ? out.status : '?') + ')');
-        return null;
-      }
-      return supabaseClient.auth.signInWithIdToken({ provider: 'kakao', token: idToken });
-    }).then(function (result) {
-      if (!result) return;
-      if (result.error) { giveUp(MSG.failed, 'ID 토큰 로그인 응답 오류', result.error); return; }
-      var session = (result.data) ? result.data.session : null;
-      if (!session) { giveUp(MSG.failed, 'ID 토큰 로그인 후 세션 없음'); return; }
-      callbackSucceeded(session);
-    })['catch'](function (e) {
-      giveUp(navigator.onLine === false ? MSG.network : MSG.failed, '카카오 로그인 처리 중 예외', e);
-    });
-  }
-
   function handleCallback() {
     var params;
     try { params = new URLSearchParams(window.location.search); } catch (e) { params = null; }
-    var code = params ? params.get('code') : null;
     var errorCode = params ? params.get('error') : null;
     var errorDetail = params ? (params.get('error_description') || '') : '';
-
     var searchKeys = paramNames(window.location.search);
     var hashKeys = paramNames(window.location.hash);
-    var sbKeys = storageKeyNames();
-    /* 2.112.0의 exchangeCodeForSession은 주소의 sb_flow_id로 PKCE 검증값을 찾는다.
-       그래서 sb_flow_id 유무와 검증값 키 개수를 실패 화면에 함께 남긴다. */
-    var note = 'params: ' + (searchKeys.join(',') || '없음')
-      + ' / hash: ' + (hashKeys.join(',') || '없음')
-      + ' / sb_flow_id: ' + (searchKeys.indexOf('sb_flow_id') === -1 ? '없음' : '있음')
-      + ' / 검증값키: ' + sbKeys.length + '개';
+    var note = 'params: ' + (searchKeys.join(',') || '없음') + ' / hash: ' + (hashKeys.join(',') || '없음');
 
     debugNote('callback-start', {
       origin: window.location.origin,
       pathname: window.location.pathname,
       searchKeys: searchKeys,
       hashKeys: hashKeys,
-      hasCode: !!text(code),
-      codeLength: text(code).length,
       errorParam: errorCode || null,
-      errorDetail: String(errorDetail).slice(0, 120),
-      sbKeys: sbKeys,
-      codeAlreadyUsed: readStore(CODE_USED_KEY) === code,
       returnToPresent: !!readStore(RETURN_TO_KEY),
       configured: isConfigured(),
       libReady: libReady()
     });
-
-    /* 카카오 SDK 로그인으로 시작한 흐름인지 state 값으로 확인한다(요청과 복귀가 서로 맞는지 검증). */
-    var kakaoState = readStore(KAKAO_STATE_KEY);
-    if (text(kakaoState)) {
-      dropStore(KAKAO_STATE_KEY);
-      var stateParam = params ? params.get('state') : null;
-      if (text(stateParam) === kakaoState) {
-        handleKakaoSdkCallback(code, errorCode, errorDetail, note);
-        return;
-      }
-      /* 값이 맞지 않으면 이 복귀를 신뢰하지 않는다. 다음 시도는 기존 카카오 로그인으로 간다. */
-      markKakaoSdkUnavailable();
-      callbackFailed(MSG.failed, { stage: '카카오 state 불일치', note: note });
-      return;
-    }
 
     if (errorCode) {
       var cancelled = /access_denied|user_cancel|cancel/i.test(String(errorCode) + ' ' + String(errorDetail));
@@ -2667,45 +2650,23 @@
         { stage: '주소에 error 파라미터', code: String(errorCode), message: String(errorDetail).slice(0, 160), note: note });
       return;
     }
-    if (!text(code)) { callbackFailed(MSG.failed, { stage: 'code 파라미터 없음', note: note }); return; }
-
     if (!isConfigured()) { callbackFailed(MSG.notConfigured, { stage: '키 설정 미완료', note: note }); return; }
     var supabaseClient = getClient();
     if (!supabaseClient) { callbackFailed(MSG.libMissing, { stage: 'Supabase 라이브러리 없음', note: note }); return; }
 
-    /* 새로고침으로 같은 코드를 두 번 교환하지 않는다. 이미 쓴 코드면 세션만 확인한다. */
-    if (readStore(CODE_USED_KEY) === code) {
-      supabaseClient.auth.getSession().then(function (result) {
-        var session = (result && result.data) ? result.data.session : null;
-        if (session) callbackSucceeded(session);
-        else callbackFailed(MSG.failed, { stage: '이미 사용한 code, 세션 없음', note: note });
-      })['catch'](function () {
-        callbackFailed(MSG.failed, { stage: '이미 사용한 code, 세션 조회 실패', note: note });
+    /* detectSessionInUrl: true 가 초기화 때 PKCE code를 처리한다. 여기서는 세션만 확인한다. */
+    supabaseClient.auth.getSession().then(function (result) {
+      var session = (result && result.data) ? result.data.session : null;
+      debugNote('callback-session', { hasSession: !!session });
+      if (session) { callbackSucceeded(session); return; }
+      callbackFailed(MSG.failed, { stage: '세션을 만들지 못함', note: note });
+    })['catch'](function (e) {
+      callbackFailed(navigator.onLine === false ? MSG.network : MSG.failed, {
+        stage: '세션 확인 중 예외',
+        note: note,
+        name: e && e.name ? String(e.name) : ''
       });
-      return;
-    }
-    writeStore(CODE_USED_KEY, code);
-
-    function withNote(stage, error) {
-      var d = safeErr(error) || {};
-      d.stage = stage;
-      d.note = note;
-      return d;
-    }
-
-    try {
-      supabaseClient.auth.exchangeCodeForSession(code).then(function (result) {
-        var session = (result && result.data) ? result.data.session : null;
-        debugNote('exchange-result', { error: safeErr(result && result.error), hasSession: !!session });
-        if (result && result.error) { callbackFailed(MSG.failed, withNote('코드 교환 응답 오류', result.error)); return; }
-        if (!session) { callbackFailed(MSG.failed, withNote('코드 교환 성공했으나 세션 없음', null)); return; }
-        callbackSucceeded(session);
-      })['catch'](function (e) {
-        callbackFailed(navigator.onLine === false ? MSG.network : MSG.failed, withNote('코드 교환 중 예외', e));
-      });
-    } catch (e) {
-      callbackFailed(MSG.failed, withNote('코드 교환 호출 실패', e));
-    }
+    });
   }
 
   /* ── 시작 ───────────────────────────────────────────────── */

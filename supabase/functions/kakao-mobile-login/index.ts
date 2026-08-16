@@ -1,9 +1,10 @@
 /* 은혜의말씀 — 카카오톡 간편로그인(모바일) 전용 인가 코드 교환
-   하는 일은 딱 하나다: 인가 코드를 카카오 토큰 엔드포인트와 서버에서 교환해 id_token만 돌려준다.
-   브라우저는 그 id_token으로 supabase.auth.signInWithIdToken({ provider:'kakao' })만 부른다.
+   인가 코드를 카카오 토큰 엔드포인트와 서버에서 교환해 id_token을 받는다.
+   access_token은 닉네임 조회에만 쓰고 브라우저로 돌려주지 않는다.
+   브라우저는 id_token으로 supabase.auth.signInWithIdToken({ provider:'kakao' })를 부른다.
    비밀값은 코드에 두지 않고 환경변수로만 읽는다: KAKAO_REST_API_KEY, KAKAO_CLIENT_SECRET
    (Client Secret은 카카오 앱에서 사용하도록 설정한 경우에만 필요하다.)
-   access_token·refresh_token은 돌려주지 않고, account_email 같은 동의 항목도 요청하지 않는다. */
+   refresh_token·프로필 사진 URL·사용자 정보 원문은 돌려주지 않는다. */
 
 const DEFAULT_ORIGINS = [
   'https://gomnastudio.com',
@@ -50,6 +51,38 @@ function redirectAllowed(redirectUri: string): boolean {
   }
 }
 
+function readNickname(data: unknown): string {
+  if (!data || typeof data !== 'object') return '';
+  const account = (data as { kakao_account?: { profile?: { nickname?: unknown; is_default_nickname?: unknown } } }).kakao_account;
+  const profile = account && account.profile;
+  if (profile && profile.is_default_nickname === true) return '';
+  const nick = profile && typeof profile.nickname === 'string' ? profile.nickname.trim() : '';
+  if (nick === '' || nick === '이름 없음') return '';
+  return nick.length > 30 ? nick.slice(0, 30) : nick;
+}
+
+/* 닉네임만 요청한다. 프로필 사진 키는 넣지 않는다. 실패해도 로그인을 막지 않는다. */
+async function fetchKakaoNickname(accessToken: string): Promise<string> {
+  if (accessToken === '') return '';
+  try {
+    const res = await fetch('https://kapi.kakao.com/v2/user/me', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + accessToken,
+        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+      },
+      body: new URLSearchParams({
+        property_keys: JSON.stringify(['kakao_account.profile.nickname'])
+      })
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) return '';
+    return readNickname(data);
+  } catch {
+    return '';
+  }
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get('origin') ?? '';
 
@@ -83,20 +116,65 @@ Deno.serve(async (req) => {
   if (clientSecret !== '') form.set('client_secret', clientSecret);
 
   let idToken = '';
+  let accessToken = '';
+  let kakaoStatus = 0;
+  let kakaoError = '';
+  let kakaoErrorCode = '';
   try {
     const res = await fetch('https://kauth.kakao.com/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
       body: form
     });
+    kakaoStatus = res.status;
     const data = await res.json().catch(() => null);
-    if (res.ok && typeof data?.id_token === 'string') idToken = data.id_token;
+    if (data && typeof data === 'object') {
+      if (typeof data.id_token === 'string') idToken = data.id_token;
+      if (typeof data.access_token === 'string') accessToken = data.access_token;
+      if (typeof data.error === 'string') kakaoError = data.error;
+      if (typeof data.error_code === 'string') kakaoErrorCode = data.error_code;
+    }
   } catch {
     idToken = '';
+    accessToken = '';
   }
 
-  /* 카카오 원문 오류는 그대로 흘리지 않는다(비밀값·내부 정보 노출 방지). */
-  if (idToken === '') return json(400, { error: 'kakao_token_failed' }, origin);
+  try {
+    const redirect = new URL(redirectUri);
+    console.log(JSON.stringify({
+      stage: 'kakao_token',
+      kakao_status: kakaoStatus,
+      kakao_error: kakaoError,
+      kakao_error_code: kakaoErrorCode,
+      has_client_secret: clientSecret !== '',
+      redirect_origin: redirect.origin,
+      redirect_path: redirect.pathname
+    }));
+  } catch {
+    console.log(JSON.stringify({
+      stage: 'kakao_token',
+      kakao_status: kakaoStatus,
+      kakao_error: kakaoError,
+      kakao_error_code: kakaoErrorCode,
+      has_client_secret: clientSecret !== ''
+    }));
+  }
 
-  return json(200, { id_token: idToken }, origin);
+  /* 비밀값·토큰·인가 코드는 로그와 응답에 넣지 않는다. */
+  if (idToken === '') {
+    if (accessToken !== '') {
+      accessToken = '';
+      return json(400, { error: 'kakao_id_token_missing' }, origin);
+    }
+    return json(400, {
+      error: 'kakao_token_failed',
+      kakao_error: kakaoError,
+      kakao_error_code: kakaoErrorCode
+    }, origin);
+  }
+
+  const nickname = await fetchKakaoNickname(accessToken);
+  accessToken = '';
+
+  return json(200, { id_token: idToken, nickname: nickname }, origin);
 });
