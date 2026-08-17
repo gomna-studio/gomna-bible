@@ -33,6 +33,7 @@
   var bodyBound = false;
   var moveTag = null;
   var chromeBound = false;
+  var moveBusy = false;
 
   function onReady(fn){
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
@@ -242,6 +243,351 @@
     return html + '</div>';
   }
 
+  var VERSE_COUNT_MAP = {"창세기":[31,25,24,26,32,22,24,22,29,32,32,20,18,24,21,16,27,33,38,18,34,24,20,67,34,35,46,22,35,43,55,32,20,31,29,43,36,30,23,23,57,38,34,34,28,34,31,22,33,26],"출애굽기":[22,25,22,31,23,30,25,32,35,29,10,51,22,31,27,36,16,27,25,26,36,31,33,18,40,37,21,43,46,38,18,35,23,35,35,38,29,31,43,38],"레위기":[17,16,17,35,19,30,38,36,24,20,47,8,59,57,33,34,16,30,37,27,24,33,44,23,55,46,34],"민수기":[54,34,51,49,31,27,89,26,23,36,35,16,33,45,41,50,13,32,22,29,35,41,30,25,18,65,23,31,40,16,54,42,56,29,34,13],"신명기":[46,37,29,49,33,25,26,20,29,22,32,32,18,29,23,22,20,22,21,20,23,30,25,22,19,19,26,68,29,20,30,52,29,12],"여호수아":[18,24,17,24,15,27,26,35,27,43,23,24,33,15,63,10,18,28,51,9,45,34,16,33],"사사기":[36,23,31,24,31,40,25,35,57,18,40,15,25,20,20,31,13,31,30,48,25],"룻기":[22,23,18,22],"사무엘상":[28,36,21,22,12,21,17,22,27,27,15,25,23,52,35,23,58,30,24,42,15,23,29,22,44,25,12,25,11,31,13],"사무엘하":[27,32,39,12,25,23,29,18,13,19,27,31,39,33,37,23,29,33,43,26,22,51,39,25],"열왕기상":[53,46,28,34,18,38,51,66,28,29,43,33,34,31,34,34,24,46,21,43,29,53],"열왕기하":[18,25,27,44,27,33,20,29,37,36,21,21,25,29,38,20,41,37,37,21,26,20,37,20,30],"역대상":[54,55,24,43,26,81,40,40,44,14,47,40,14,17,29,43,27,17,19,8,30,19,32,31,31,32,34,21,30],"역대하":[17,18,17,22,14,42,22,18,31,19,23,16,22,15,19,14,19,34,11,37,20,12,21,27,28,23,9,27,36,27,21,33,25,33,27,23],"에스라":[11,70,13,24,17,22,28,36,15,44],"느헤미야":[11,20,32,23,19,19,73,18,38,39,36,47,31],"에스더":[22,23,15,17,14,14,10,17,32,3],"욥기":[22,13,26,21,27,30,21,22,35,22,20,25,28,22,35,22,16,21,29,29,34,30,17,25,6,14,23,28,25,31,40,22,33,37,16,33,24,41,30,24,34,17],"시편":[6,12,8,8,12,10,17,9,20,18,7,8,6,7,5,11,15,50,14,9,13,31,6,10,22,12,14,9,11,12,24,11,22,22,28,12,40,22,13,17,13,11,5,26,17,11,9,14,20,23,19,9,6,7,23,13,11,11,17,12,8,12,11,10,13,20,7,35,36,5,24,0,28,23,10,12,20,72,13,19,16,8,18,12,13,17,7,18,52,17,16,15,5,23,11,13,12,9,9,5,8,28,22,35,45,48,43,13,31,7,10,10,9,8,18,19,2,29,176,7,8,9,4,8,5,6,5,6,8,8,3,18,3,3,21,26,9,8,24,13,10,7,12,15,21,10,20,14,9,6],"잠언":[33,22,35,27,23,35,27,36,18,32,31,28,25,35,33,33,28,24,29,30,31,29,35,34,28,28,27,28,27,33,31],"전도서":[18,26,22,16,20,12,29,17,18,20,10,14],"아가":[17,17,11,16,16,13,13,14],"이사야":[31,22,26,6,30,13,25,22,21,34,16,6,22,32,9,14,14,7,25,6,17,25,18,23,12,21,13,29,24,33,9,20,24,17,10,22,38,22,8,31,29,25,28,28,25,13,15,22,26,11,23,15,12,17,13,12,21,14,21,22,11,12,19,12,25,24],"예레미야":[19,37,25,31,31,30,34,22,26,25,23,17,27,22,21,21,27,23,15,18,14,30,40,10,38,24,22,17,32,24,40,44,26,22,19,32,21,28,18,16,18,22,13,30,5,28,7,47,39,46,64,34],"예레미야애가":[22,22,66,22,22],"에스겔":[28,10,27,17,17,14,27,18,11,22,25,28,23,23,8,63,24,32,14,49,32,31,49,27,17,21,36,26,21,26,18,32,33,31,15,38,28,23,29,49,26,20,27,31,25,24,23,35],"다니엘":[21,49,30,37,31,28,28,27,27,21,45,13],"호세아":[11,23,5,19,15,11,16,14,17,15,12,14,16,9],"요엘":[20,32,21],"아모스":[15,16,15,13,27,14,17,14,15],"오바댜":[21],"요나":[17,10,10,11],"미가":[16,13,12,13,15,16,20],"나훔":[15,13,19],"하박국":[17,20,19],"스바냐":[18,15,20],"학개":[15,23],"스가랴":[21,13,10,14,11,15,14,23,17,12,17,14,9,21],"말라기":[14,17,18,6],"마태복음":[25,23,17,25,48,34,29,34,38,42,30,50,58,36,39,28,27,36,30,34,46,46,39,51,46,75,66,20],"마가복음":[45,28,35,41,43,56,37,38,50,52,34,44,37,72,48,20],"누가복음":[80,52,38,44,39,49,50,56,62,42,54,59,35,35,32,31,37,43,48,47,38,71,57,53],"요한복음":[51,25,36,54,47,71,53,59,41,42,57,50,38,31,27,33,26,40,42,31,25],"사도행전":[26,47,26,37,42,15,60,40,43,48,30,25,52,28,43,40,34,28,41,38,40,30,35,27,27,32,44,32],"로마서":[32,29,31,25,21,23,25,39,33,21,36,21,14,23,33,28],"고린도전서":[31,16,23,21,13,20,40,13,27,33,34,31,13,40,58,24],"고린도후서":[24,17,18,18,21,18,16,24,15,18,33,21,13],"갈라디아서":[24,21,29,31,26,18],"에베소서":[23,22,21,32,33,24],"빌립보서":[30,30,21,23],"골로새서":[29,23,25,18],"데살로니가전서":[10,20,13,18,28],"데살로니가후서":[12,17,18],"디모데전서":[20,15,16,16,25,21],"디모데후서":[18,26,17,22],"디도서":[16,15,15],"빌레몬서":[25],"히브리서":[14,18,19,16,14,20,28,13,28,39,40,29,25],"야고보서":[27,26,18,17,20],"베드로전서":[25,25,22,19,14],"베드로후서":[21,22,18],"요한일서":[10,29,24,21,21],"요한이서":[13],"요한삼서":[15],"유다서":[25],"요한계시록":[20,29,22,11,14,17,17,13,21,11,19,17,18,20,8,21,18,24,21,15,27,21]};
+  var QM_RANGE_START_HINT = '시작 절을 선택하세요';
+  var QM_RANGE_END_HINT = '끝 절을 선택하세요';
+  var qmRange = { max: 0, start: 0, end: 0 };
+
+  function verseCountOf(bookName, chapter, testament){
+    if (!bookName || !chapter) return 0;
+    try {
+      if (typeof currentVerseCount === 'number' && currentVerseCount > 0
+        && window.currentBook && window.currentBook.name === bookName
+        && Number(window.currentChapter) === Number(chapter)) {
+        return currentVerseCount;
+      }
+    } catch (eCur) { /* ignore */ }
+    try {
+      var bd = typeof findBook === 'function' ? findBook(testamentData(testament), bookName) : null;
+      if (bd && bd.chapters) {
+        for (var i = 0; i < bd.chapters.length; i++) {
+          if (bd.chapters[i] && Number(bd.chapters[i].chapter) === Number(chapter) && bd.chapters[i].verses) {
+            return bd.chapters[i].verses.length;
+          }
+        }
+      }
+    } catch (eBook) { /* use catalog map */ }
+    var row = VERSE_COUNT_MAP[bookName];
+    if (!row) return 0;
+    return Number(row[chapter - 1]) || 0;
+  }
+
+  function qmRangeRoot(from){
+    if (from && from.querySelector) return from;
+    return document.getElementById('scriptureQuickMoveBody');
+  }
+  function qmRangeEl(id, from){
+    var root = qmRangeRoot(from);
+    return root ? root.querySelector('#' + id) : null;
+  }
+
+  function qmRangeClass(v){
+    var s = qmRange.start, e = qmRange.end;
+    if (s <= 0) return '';
+    if (e > 0 && e >= s) {
+      if (v < s || v > e) return '';
+      return (v === s || v === e) ? ' verse-cell--range-end' : ' verse-cell--range-mid';
+    }
+    return (v === s) ? ' verse-cell--range-end' : '';
+  }
+
+  function qmRangeFillGrids(root){
+    var startHost = qmRangeEl('verseRangeStartGrid', root);
+    var endHost = qmRangeEl('verseRangeEndGrid', root);
+    if (!startHost || !endHost) return false;
+    var startHtml = '';
+    var endHtml = '';
+    var v;
+    for (v = 1; v <= qmRange.max; v++) {
+      startHtml += '<button type="button" class="verse-cell' + qmRangeClass(v) + '" data-v="' + v + '">' + v + '</button>';
+    }
+    for (v = 1; v <= qmRange.max; v++) {
+      var isDis = qmRange.start <= 0 || v < qmRange.start;
+      var dis = isDis ? ' disabled' : '';
+      var rc = (!isDis && qmRange.end > 0) ? qmRangeClass(v) : '';
+      var disAttr = isDis ? ' disabled' : '';
+      endHtml += '<div class="verse-range-end-cell-wrap" data-v="' + v + '"><button type="button" class="verse-cell' + dis + rc + '"' + disAttr + ' data-v="' + v + '">' + v + '</button></div>';
+    }
+    startHost.innerHTML = startHtml;
+    endHost.innerHTML = endHtml;
+    return startHost.querySelectorAll('.verse-cell').length === qmRange.max
+      && endHost.querySelectorAll('.verse-cell').length === qmRange.max;
+  }
+
+  function qmRangeSetHint(el, text, visible){
+    if (!el) return;
+    el.textContent = text;
+    el.classList.toggle('is-hint-hidden', !visible);
+    el.setAttribute('aria-hidden', visible ? 'false' : 'true');
+  }
+
+  function qmRangeSyncHints(root, startVisible, endVisible){
+    qmRangeSetHint(qmRangeEl('verseRangeStartHint', root), QM_RANGE_START_HINT, !!startVisible);
+    qmRangeSetHint(qmRangeEl('verseRangeEndHint', root), QM_RANGE_END_HINT, !!endVisible);
+  }
+
+  function qmRangeSyncClasses(root){
+    var startHost = qmRangeEl('verseRangeStartGrid', root);
+    var endHost = qmRangeEl('verseRangeEndGrid', root);
+    var cells, i, cell, v, rc, isEnd, isMid, isDis;
+    if (startHost) {
+      cells = startHost.querySelectorAll('.verse-cell');
+      for (i = 0; i < cells.length; i++) {
+        cell = cells[i];
+        v = parseInt(cell.getAttribute('data-v'), 10);
+        rc = qmRangeClass(v);
+        isEnd = rc.indexOf('range-end') !== -1;
+        isMid = rc.indexOf('range-mid') !== -1;
+        cell.classList.toggle('verse-cell--range-end', isEnd);
+        cell.classList.toggle('verse-cell--range-mid', isMid);
+        cell.setAttribute('aria-selected', (isEnd || isMid) ? 'true' : 'false');
+      }
+    }
+    if (endHost) {
+      cells = endHost.querySelectorAll('.verse-cell');
+      for (i = 0; i < cells.length; i++) {
+        cell = cells[i];
+        v = parseInt(cell.getAttribute('data-v'), 10);
+        isDis = qmRange.start <= 0 || v < qmRange.start;
+        cell.disabled = isDis;
+        cell.classList.toggle('disabled', isDis);
+        rc = (!isDis && qmRange.end > 0) ? qmRangeClass(v) : '';
+        isEnd = rc.indexOf('range-end') !== -1;
+        isMid = rc.indexOf('range-mid') !== -1;
+        cell.classList.toggle('verse-cell--range-end', isEnd);
+        cell.classList.toggle('verse-cell--range-mid', isMid);
+        cell.setAttribute('aria-selected', (isEnd || isMid) ? 'true' : 'false');
+      }
+    }
+  }
+
+  function qmRangeSyncMove(root){
+    var button = qmRangeEl('rangeEndMoveAction', root);
+    var endArea = qmRangeEl('verseRangeEndArea', root);
+    if (!button || !endArea) return;
+    var ready = qmRange.start > 0 && qmRange.end > 0 && qmRange.end >= qmRange.start;
+    if (!ready) {
+      button.hidden = true;
+      button.disabled = true;
+      button.setAttribute('aria-hidden', 'true');
+      return;
+    }
+    var wrapper = (qmRangeRoot(root) || document).querySelector('#verseRangeEndGrid .verse-range-end-cell-wrap[data-v="' + qmRange.end + '"]');
+    if (!wrapper) return;
+    var wrapperRect = wrapper.getBoundingClientRect();
+    var areaRect = endArea.getBoundingClientRect();
+    button.style.top = (wrapperRect.bottom - areaRect.top + 4) + 'px';
+    button.hidden = false;
+    button.disabled = false;
+    button.setAttribute('aria-hidden', 'false');
+  }
+
+  function isHomeDocument(){
+    try {
+      if (document.body && document.body.getAttribute('data-gomna-page') === 'home') return true;
+    } catch (eHome) {}
+    return typeof goToVerse !== 'function';
+  }
+
+  function unlockMoveBusy(){
+    moveBusy = false;
+    var moveTagEl = qmRangeEl('rangeEndMoveAction');
+    if (moveTagEl && !moveTagEl.hidden && qmRange.start > 0 && qmRange.end >= qmRange.start) {
+      moveTagEl.disabled = false;
+    }
+  }
+
+  function keepHomeRangeVisible(){
+    var overlay = document.getElementById('scriptureQuickMoveOverlay');
+    if (!overlay) return;
+    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+    overlay.hidden = false;
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('scripture-quick-move-lock');
+  }
+
+  function verseBodyReady(bookName, chapter){
+    if (!window.currentBook || window.currentBook.name !== bookName) return false;
+    if (Number(window.currentChapter) !== Number(chapter)) return false;
+    return !!document.querySelector('#verseView.active #verseList .verse-item');
+  }
+
+  function qmRangeConfirmMove(){
+    if (moveBusy) return;
+    if (qmRange.start <= 0 || qmRange.end <= 0 || qmRange.end < qmRange.start) return;
+    var bookName = staged.bookName;
+    var chapter = staged.chapter;
+    var testament = staged.testament;
+    var start = qmRange.start;
+    var end = qmRange.end;
+    moveBusy = true;
+    var moveTagEl = qmRangeEl('rangeEndMoveAction');
+    if (moveTagEl) moveTagEl.disabled = true;
+    if (typeof goToVerse === 'function') {
+      try {
+        goToVerse(bookName, chapter, start, testament);
+        if (typeof resetVerseViewScroll === 'function') resetVerseViewScroll();
+        if (typeof applyVerseRangeSelection === 'function') applyVerseRangeSelection(start, end);
+      } catch (eMove) {
+        unlockMoveBusy();
+        return;
+      }
+      if (!verseBodyReady(bookName, chapter)) {
+        unlockMoveBusy();
+        return;
+      }
+      close();
+      moveBusy = false;
+      return;
+    }
+    keepHomeRangeVisible();
+    window.location.href = readerHref(bookName, chapter, start);
+  }
+
+  function bindQmRangeEvents(root){
+    var startHost = qmRangeEl('verseRangeStartGrid', root);
+    var endHost = qmRangeEl('verseRangeEndGrid', root);
+    var moveButton = qmRangeEl('rangeEndMoveAction', root);
+    var backBtn = root.querySelector('.verse-range-back-to-text');
+    if (startHost && startHost.getAttribute('data-range-bound') !== '1') {
+      startHost.setAttribute('data-range-bound', '1');
+      startHost.addEventListener('click', function(ev){
+        var t = ev.target && ev.target.closest ? ev.target.closest('.verse-cell') : null;
+        if (!t || t.disabled) return;
+        var v = parseInt(t.getAttribute('data-v'), 10);
+        if (v === qmRange.start) return;
+        qmRangeSyncHints(null, false, true);
+        qmRange.start = v;
+        qmRange.end = 0;
+        qmRangeSyncClasses(null);
+        qmRangeSyncMove(null);
+      });
+    }
+    if (endHost && endHost.getAttribute('data-range-bound') !== '1') {
+      endHost.setAttribute('data-range-bound', '1');
+      endHost.addEventListener('click', function(ev){
+        var t = ev.target && ev.target.closest ? ev.target.closest('.verse-cell') : null;
+        if (!t || t.disabled) return;
+        var v = parseInt(t.getAttribute('data-v'), 10);
+        if (qmRange.start <= 0 || v < qmRange.start) return;
+        if (v === qmRange.end) return;
+        qmRangeSyncHints(null, false, false);
+        qmRange.end = v;
+        qmRangeSyncClasses(null);
+        qmRangeSyncMove(null);
+      });
+    }
+    if (moveButton && moveButton.getAttribute('data-move-bound') !== '1') {
+      moveButton.setAttribute('data-move-bound', '1');
+      var onMoveTap = function(ev){
+        if (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          if (ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+        }
+        qmRangeConfirmMove();
+      };
+      moveButton.addEventListener('click', onMoveTap);
+      moveButton.addEventListener('touchend', onMoveTap, { passive: false });
+    }
+    if (backBtn && backBtn.getAttribute('data-qm-back-bound') !== '1') {
+      backBtn.setAttribute('data-qm-back-bound', '1');
+      backBtn.addEventListener('click', function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        setStage('chapter');
+      });
+    }
+  }
+
+  function buildQmRangeFragment(){
+    var moveText = typeof VERSE_MOVE_ACTION_TEXT === 'string' ? VERSE_MOVE_ACTION_TEXT : '이동 →';
+    var hold = document.createElement('div');
+    hold.innerHTML = ''
+      + '<div class="reader-verse-range-actions">'
+      +   '<div class="verse-range-split">'
+      +     '<div class="verse-range-column">'
+      +       '<p class="verse-range-column-label">시작 절</p>'
+      +       '<p class="verse-range-column-hint" id="verseRangeStartHint">시작 절을 선택하세요</p>'
+      +       '<div class="verse-range-column-scroll">'
+      +         '<div class="verse-grid" id="verseRangeStartGrid"></div>'
+      +       '</div>'
+      +     '</div>'
+      +     '<div class="verse-range-column" id="verseRangeEndArea">'
+      +       '<p class="verse-range-column-label">끝 절</p>'
+      +       '<p class="verse-range-column-hint" id="verseRangeEndHint">끝 절을 선택하세요</p>'
+      +       '<div class="verse-range-column-scroll">'
+      +         '<div class="verse-grid" id="verseRangeEndGrid"></div>'
+      +       '</div>'
+      +       '<button type="button" id="rangeEndMoveAction" class="verse-range-move-action" data-range-move-action hidden disabled aria-hidden="true">' + moveText + '</button>'
+      +     '</div>'
+      +   '</div>'
+      +   '<div class="verse-range-back-wrap">'
+      +     '<button type="button" class="verse-range-back-to-text" aria-label="본문으로 돌아가기">← 본문으로</button>'
+      +   '</div>'
+      + '</div>';
+    if (!qmRangeFillGrids(hold)) return null;
+    qmRangeSyncHints(hold, true, false);
+    bindQmRangeEvents(hold);
+    var startHint = qmRangeEl('verseRangeStartHint', hold);
+    var endHint = qmRangeEl('verseRangeEndHint', hold);
+    var startN = hold.querySelectorAll('#verseRangeStartGrid .verse-cell').length;
+    var endN = hold.querySelectorAll('#verseRangeEndGrid .verse-cell').length;
+    if (!startHint || startHint.textContent !== QM_RANGE_START_HINT) return null;
+    if (!endHint || endHint.textContent !== QM_RANGE_END_HINT) return null;
+    if (startN !== qmRange.max || endN !== qmRange.max || startN < 1) return null;
+    var frag = document.createDocumentFragment();
+    while (hold.firstChild) frag.appendChild(hold.firstChild);
+    return frag;
+  }
+
+  function swapQuickMoveBody(frag){
+    var body = document.getElementById('scriptureQuickMoveBody');
+    if (!body || !frag) return null;
+    if (typeof body.replaceChildren === 'function') {
+      body.replaceChildren(frag);
+      return body;
+    }
+    var wrap = document.createElement('div');
+    wrap.setAttribute('data-qm-swap', '1');
+    wrap.appendChild(frag);
+    body.appendChild(wrap);
+    var n = body.firstChild;
+    while (n && n !== wrap) {
+      var rm = n;
+      n = n.nextSibling;
+      body.removeChild(rm);
+    }
+    while (wrap.firstChild) body.insertBefore(wrap.firstChild, wrap);
+    body.removeChild(wrap);
+    return body;
+  }
+
+  function showStagedVerseRange(){
+    if (!staged.bookName || !staged.chapter) return;
+    var max = verseCountOf(staged.bookName, staged.chapter, staged.testament);
+    if (max < 1) return;
+    qmRange.max = max;
+    qmRange.start = 0;
+    qmRange.end = 0;
+    var frag = buildQmRangeFragment();
+    if (!frag) return;
+    var lang = nativeUi(langCode()) ? langCode() : 'ko';
+    var t = labels(lang);
+    stage = 'verse';
+    syncSheetChrome();
+    renderAddress(lang, t);
+    var seg = document.getElementById('scriptureQuickMoveSeg');
+    if (seg) seg.hidden = false;
+    var body = swapQuickMoveBody(frag);
+    if (body) body.scrollTop = 0;
+    if (body && !bodyBound) {
+      body.addEventListener('click', onBodyClick);
+      bodyBound = true;
+    }
+  }
+
   function ensureMoveTag(){
     if (moveTag) return moveTag;
     moveTag = document.createElement('button');
@@ -313,6 +659,10 @@
   function render(){
     var body = document.getElementById('scriptureQuickMoveBody');
     if (!body) return;
+    if (stage === 'verse') {
+      showStagedVerseRange();
+      return;
+    }
     var lang = nativeUi(langCode()) ? langCode() : 'ko';
     var t = labels(lang);
     if (!staged.bookName) stage = 'book';
@@ -371,22 +721,7 @@
   }
 
   function openStagedVerseRange(){
-    if (!staged.bookName || !staged.chapter) return;
-    var bookName = staged.bookName;
-    var chapter = staged.chapter;
-    var testament = staged.testament;
-    if (typeof chooseVerseListenTargetMode === 'function' && typeof goToVerse === 'function') {
-      var sameChapter = !!(window.currentBook && window.currentBook.name === bookName
-        && Number(window.currentChapter) === Number(chapter));
-      close();
-      if (sameChapter) { chooseVerseListenTargetMode('range'); return; }
-      goToVerse(bookName, chapter, 1, testament);
-      if (typeof resetVerseViewScroll === 'function') resetVerseViewScroll();
-      requestAnimationFrame(function(){ chooseVerseListenTargetMode('range'); });
-      return;
-    }
-    close();
-    window.location.href = readerHref(bookName, chapter, 1) + '#verse-range';
+    showStagedVerseRange();
   }
 
   function goToToolbarPlace(){
@@ -502,6 +837,7 @@
   }
 
   function close(){
+    if (moveBusy && isHomeDocument()) return;
     var overlay = document.getElementById('scriptureQuickMoveOverlay');
     if (!overlay || overlay.hidden) return;
     overlay.classList.remove('is-open');
@@ -526,7 +862,10 @@
     var overlay = ensureOverlay();
     if (!overlay) return;
     chromeBound = true;
-    overlay.addEventListener('click', function(e){ if (e.target === overlay) close(); });
+    overlay.addEventListener('click', function(e){
+      if (moveBusy) return;
+      if (e.target === overlay) close();
+    });
     var closeBtn = document.getElementById('scriptureQuickMoveClose');
     if (closeBtn) closeBtn.addEventListener('click', close);
     var seg = document.getElementById('scriptureQuickMoveSeg');
@@ -549,6 +888,7 @@
     });
     var bottomBar = document.getElementById('opt4BottomBar');
     if (bottomBar) bottomBar.addEventListener('click', onBooksToolbarClick, true);
+    window.addEventListener('pageshow', unlockMoveBusy);
     syncLocationButton();
   }
 

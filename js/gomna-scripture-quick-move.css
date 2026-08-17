@@ -6,7 +6,7 @@ html.scripture-quick-move-lock,html.scripture-quick-move-lock body{overflow:hidd
 .scripture-quick-move-sheet:focus{outline:none}
 .scripture-quick-move-sheet{width:100%;max-width:var(--reader-frame-width,420px);max-height:min(86dvh,calc(100dvh - env(safe-area-inset-bottom,0px) - 8px),760px);display:flex;flex-direction:column;box-sizing:border-box;background:#FFFCF6;border-radius:22px 22px 0 0;box-shadow:0 -12px 44px rgba(90,60,30,.14);overflow:hidden;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1)}
 .scripture-quick-move-overlay.is-open .scripture-quick-move-sheet{transform:translateY(0)}
-@media (prefers-reduced-motion:reduce){.scripture-quick-move-sheet{transition:none}}
+@media (prefers-reduced-motion:reduce){.scripture-quick-move-sheet{transition:none}#scriptureQuickMoveBody .verse-range-column-hint,#scriptureQuickMoveBody #verseRangeEndGrid .verse-cell{transition:none}}
 .scripture-quick-move-head{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:8px 12px 4px 18px;flex-shrink:0}
 .scripture-quick-move-title{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .scripture-quick-move-close{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:none;border-radius:12px;background:transparent;color:#7A5A38;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .14s ease,transform .12s ease}
@@ -48,6 +48,42 @@ html.gomna-reader-ui-ja .scripture-quick-move-books .scripture-quick-move-item{f
 @media (hover:hover) and (pointer:fine) {
   .verse-range-move-action:hover{background:#DCC184}
 }
+#scriptureQuickMoveBody .reader-verse-range-actions{display:flex;flex-direction:column;gap:10px;min-height:0}
+#scriptureQuickMoveBody .verse-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:10px 0 16px}
+#scriptureQuickMoveBody .verse-cell{aspect-ratio:1;min-height:38px;background:#fff;border:0.5px solid rgba(180,140,90,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#5a3818;cursor:pointer;font-family:inherit;padding:0;box-sizing:border-box;transition:background-color .08s ease,border-color .08s ease,box-shadow .08s ease,transform .08s ease}
+#scriptureQuickMoveBody .verse-cell:active{transform:scale(0.92)}
+#scriptureQuickMoveBody .verse-cell.disabled{opacity:0.4;pointer-events:none}
+#scriptureQuickMoveBody .verse-range-split{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:8px 0 10px;align-items:stretch;touch-action:pan-x pan-y pinch-zoom}
+#scriptureQuickMoveBody .verse-range-back-wrap{display:flex;justify-content:center;margin-top:18px;padding-top:4px;flex-shrink:0}
+#scriptureQuickMoveBody .verse-range-back-to-text{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;background:rgba(255,250,244,.92);border:1px solid rgba(184,134,11,.42);border-radius:10px;font-size:14px;font-weight:700;color:#5a3818;font-family:inherit;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;box-sizing:border-box;transition:transform .15s ease,background-color .15s ease}
+#scriptureQuickMoveBody .verse-range-back-to-text:active{background:rgba(255,245,225,1);transform:scale(0.99)}
+#scriptureQuickMoveBody .verse-range-column{display:flex;flex-direction:column;min-width:0;touch-action:pan-x pan-y pinch-zoom}
+#scriptureQuickMoveBody .verse-range-column:first-child{padding-right:8px;border-right:2px solid #c89849}
+#scriptureQuickMoveBody .verse-range-column:last-child{padding-left:8px;position:relative}
+#scriptureQuickMoveBody .verse-range-column-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+#scriptureQuickMoveBody .verse-range-column-hint{margin:0 0 10px;padding:0 2px;text-align:center;font-size:13px;font-weight:700;color:#4A2D1C;opacity:1;line-height:1.3;min-height:1.3em;white-space:nowrap;overflow:visible;text-overflow:clip;box-sizing:border-box;transition:opacity .15s ease,color .15s ease,border-color .15s ease}
+#scriptureQuickMoveBody .verse-range-column-hint.is-hint-hidden{visibility:hidden}
+#scriptureQuickMoveBody #verseRangeEndArea:not(:has(#verseRangeEndGrid .verse-cell:not(:disabled))) #verseRangeEndHint.is-hint-hidden{visibility:visible;opacity:.58}
+#scriptureQuickMoveBody .verse-range-column-scroll{max-height:none;overflow:visible;min-height:0;touch-action:pan-x pan-y pinch-zoom}
+#scriptureQuickMoveBody .verse-range-split .verse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:0;touch-action:pan-x pan-y pinch-zoom}
+#scriptureQuickMoveBody .verse-range-split .verse-cell{min-height:38px;font-size:17px;font-weight:700;color:#24170F;-webkit-text-fill-color:#24170F;opacity:1;touch-action:pan-x pan-y pinch-zoom}
+#scriptureQuickMoveBody .verse-range-split .verse-cell:disabled,
+#scriptureQuickMoveBody .verse-range-split .verse-cell.disabled{opacity:0.55;color:#24170F;-webkit-text-fill-color:#24170F;font-weight:700}
+#scriptureQuickMoveBody #verseRangeEndGrid .verse-cell{transition:background-color .08s ease,border-color .15s ease,box-shadow .08s ease,transform .08s ease,opacity .15s ease,color .15s ease,-webkit-text-fill-color .15s ease}
+#scriptureQuickMoveBody #verseRangeEndGrid .verse-cell:disabled,
+#scriptureQuickMoveBody #verseRangeEndGrid .verse-cell.disabled{opacity:1;pointer-events:none;color:rgba(36,23,15,.33);-webkit-text-fill-color:rgba(36,23,15,.33);border-color:rgba(180,140,90,.08)}
+#scriptureQuickMoveBody #verseRangeEndGrid:has(.verse-cell:not(:disabled)) .verse-cell:disabled,
+#scriptureQuickMoveBody #verseRangeEndGrid:has(.verse-cell:not(:disabled)) .verse-cell.disabled{color:rgba(36,23,15,.22);-webkit-text-fill-color:rgba(36,23,15,.22);border-color:rgba(180,140,90,.055)}
+#scriptureQuickMoveBody #verseRangeEndGrid .verse-cell:not(:disabled):not(.disabled){opacity:1;color:#24170F;-webkit-text-fill-color:#24170F}
+#scriptureQuickMoveBody .verse-range-split .verse-cell.verse-cell--range-end,
+#scriptureQuickMoveBody .verse-range-split .verse-cell.verse-cell--range-mid{background:#F7EEDC;color:#24170F;-webkit-text-fill-color:#24170F;border:2px solid #C9A96A;font-weight:700;opacity:1;box-shadow:0 0 0 1px rgba(201,169,106,.22)}
+@media (max-width:360px){
+  #scriptureQuickMoveBody .verse-range-column-hint{font-size:12px}
+  #scriptureQuickMoveBody .verse-range-split .verse-cell{font-size:17px}
+}
+#scriptureQuickMoveBody .verse-range-end-cell-wrap{position:relative;min-width:0;aspect-ratio:1}
+#scriptureQuickMoveBody .verse-range-end-cell-wrap .verse-cell{width:100%;height:100%}
+#scriptureQuickMoveBody #rangeEndMoveAction{position:absolute;left:8px;right:auto;top:0;bottom:auto}
 /* 홈 데스크톱: 시트 폭 = min(100vw, 홈 .container max-width) − 좌우 padding.
    고정 px width/좌표를 쓰지 않고 홈 카드와 같은 공식으로 맞춘다. 모바일 규칙은 그대로 둔다. */
 @media (min-width:700px){
