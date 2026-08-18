@@ -772,7 +772,8 @@
     syncHomeTstPopForStage();
     if (stage === 'chapter') body.innerHTML = renderChapterStage(lang, t);
     else body.innerHTML = renderBookStage(lang, t);
-    syncMoveTag();
+    if (stage === 'chapter') syncMoveTag();
+    else if (moveTag && moveTag.parentNode) moveTag.parentNode.removeChild(moveTag);
     if (!bodyBound) {
       body.addEventListener('click', onBodyClick);
       bodyBound = true;
@@ -792,8 +793,8 @@
     var bookName = target.getAttribute('data-qm-book');
     if (bookName) {
       closeHomeTstPop();
-      if (bookName !== staged.bookName) staged.chapter = 0;
       staged.bookName = bookName;
+      staged.chapter = 0;
       setStage('chapter');
       return;
     }
