@@ -416,7 +416,6 @@
       'html[data-gomna-theme="dark"] .phone-frame{background:var(--gomna-bg)!important;box-shadow:none}' +
       'html[data-gomna-theme="dark"] .container{background:transparent}' +
       /* 사진 위에 얹힌 글자는 라이트와 같게 둔다(사진은 그대로이므로) */
-      'html[data-gomna-theme="dark"] .verse-card .gm-btn-today-open{color:#111;border-color:rgba(0,0,0,.7)}' +
       'html[data-gomna-theme="dark"] .verse-card .verse-date-btn{color:#5a4632;border-color:rgba(180,140,90,.42)}' +
       'html[data-gomna-theme="dark"] .verse-card .verse-date-btn svg{stroke:#6a5542}' +
       /* 입력칸은 라이트 색이 남지 않게 한 번 더 맞춘다 */

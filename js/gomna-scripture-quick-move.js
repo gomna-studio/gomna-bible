@@ -17,11 +17,17 @@
     +     '<button type="button" class="scripture-quick-move-seg-btn" role="tab" data-qm-testament="new" aria-selected="false">신약</button>'
     +   '</div>'
     +   '<div class="scripture-quick-move-address" id="scriptureQuickMoveAddress">'
-    +     '<button type="button" class="scripture-quick-move-addr-btn" id="scriptureQuickMoveAddrBook" data-qm-stage="book"><span class="scripture-quick-move-addr-text" id="scriptureQuickMoveAddrBookText">책 선택</span></button>'
+    +     '<div class="scripture-quick-move-addr-book-wrap" id="scriptureQuickMoveAddrBookWrap">'
+    +       '<button type="button" class="scripture-quick-move-addr-btn" id="scriptureQuickMoveAddrBook" data-qm-stage="book" aria-haspopup="true" aria-expanded="false"><span class="scripture-quick-move-addr-text" id="scriptureQuickMoveAddrBookText">책 선택</span></button>'
+    +     '</div>'
     +     '<span class="scripture-quick-move-addr-sep" aria-hidden="true">›</span>'
     +     '<button type="button" class="scripture-quick-move-addr-btn" id="scriptureQuickMoveAddrChapter" data-qm-stage="chapter"><span class="scripture-quick-move-addr-text" id="scriptureQuickMoveAddrChapterText">장 선택</span></button>'
     +     '<span class="scripture-quick-move-addr-sep" aria-hidden="true">›</span>'
     +     '<button type="button" class="scripture-quick-move-addr-btn" id="scriptureQuickMoveAddrVerse" data-qm-stage="verse"><span class="scripture-quick-move-addr-text" id="scriptureQuickMoveAddrVerseText">절 선택</span></button>'
+    +   '</div>'
+    +   '<div class="scripture-quick-move-tst-pop" id="scriptureQuickMoveTstPop" hidden role="group" aria-label="구약 신약 선택">'
+    +     '<button type="button" class="scripture-quick-move-tst-pop-btn" data-qm-testament-pick="old">구약</button>'
+    +     '<button type="button" class="scripture-quick-move-tst-pop-btn" data-qm-testament-pick="new">신약</button>'
     +   '</div>'
     +   '<div class="scripture-quick-move-body" id="scriptureQuickMoveBody"></div>'
     + '</div>';
@@ -191,6 +197,7 @@
       btn.classList.toggle('is-active', on);
       btn.setAttribute('aria-selected', on ? 'true' : 'false');
     });
+    syncHomeTstPopChrome(t);
   }
 
   function chapterAddrLabel(t, lang){
@@ -209,7 +216,9 @@
       var btn = document.getElementById('scriptureQuickMoveAddr' + slot.id);
       var txt = document.getElementById('scriptureQuickMoveAddr' + slot.id + 'Text');
       if (!btn || !txt) return;
-      txt.textContent = slot.text;
+      txt.textContent = isHomeDocument()
+        ? (slot.stage === 'chapter' ? t.chapterSlot : slot.stage === 'verse' ? t.verseSlot : t.bookSlot)
+        : slot.text;
       btn.classList.toggle('is-current', stage === slot.stage);
       btn.classList.toggle('is-empty', !slot.filled && stage !== slot.stage);
       btn.setAttribute('aria-current', stage === slot.stage ? 'step' : 'false');
@@ -223,7 +232,8 @@
   }
 
   function renderBookStage(lang, t){
-    var html = '<p class="scripture-quick-move-stage-title">' + esc(t.bookSlot) + '</p><div class="scripture-quick-move-books">';
+    var html = (isHomeDocument() ? '' : '<p class="scripture-quick-move-stage-title">' + esc(t.bookSlot) + '</p>')
+      + '<div class="scripture-quick-move-books">';
     booksOf(staged.testament).forEach(function(b){
       var sel = b.name === staged.bookName ? ' is-selected' : '';
       html += '<button type="button" class="scripture-quick-move-item' + sel + '" data-qm-book="' + esc(b.name) + '"'
@@ -387,6 +397,59 @@
       if (document.body && document.body.getAttribute('data-gomna-page') === 'home') return true;
     } catch (eHome) {}
     return typeof goToVerse !== 'function';
+  }
+
+  function homeTstPopEl(){
+    return document.getElementById('scriptureQuickMoveTstPop');
+  }
+
+  function isHomeTstPopOpen(){
+    var pop = homeTstPopEl();
+    return !!(pop && !pop.hidden && pop.classList.contains('is-open'));
+  }
+
+  function syncHomeTstPopChrome(t){
+    var pop = homeTstPopEl();
+    if (!pop) return;
+    pop.querySelectorAll('[data-qm-testament-pick]').forEach(function(btn){
+      var tst = btn.getAttribute('data-qm-testament-pick');
+      btn.textContent = tst === 'old' ? t.old : t.neo;
+      btn.classList.toggle('is-active', tst === staged.testament);
+    });
+  }
+
+  function setHomeTstPopSheetOpen(on){
+    var sheet = document.getElementById('scriptureQuickMoveSheet');
+    if (sheet) sheet.classList.toggle('is-home-tst-pop-open', !!on);
+  }
+
+  function closeHomeTstPop(){
+    var pop = homeTstPopEl();
+    if (!pop) return;
+    pop.hidden = true;
+    pop.classList.remove('is-open');
+    setHomeTstPopSheetOpen(false);
+    var bookBtn = document.getElementById('scriptureQuickMoveAddrBook');
+    if (bookBtn) bookBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  function openHomeTstPop(){
+    if (!isHomeDocument()) return;
+    var pop = homeTstPopEl();
+    var bookBtn = document.getElementById('scriptureQuickMoveAddrBook');
+    if (!pop) return;
+    var lang = nativeUi(langCode()) ? langCode() : 'ko';
+    syncHomeTstPopChrome(labels(lang));
+    pop.hidden = false;
+    pop.classList.add('is-open');
+    setHomeTstPopSheetOpen(true);
+    if (bookBtn) bookBtn.setAttribute('aria-expanded', 'true');
+  }
+
+  function hideHomeTestamentRow(){
+    var seg = document.getElementById('scriptureQuickMoveSeg');
+    if (!seg) return;
+    seg.hidden = isHomeDocument();
   }
 
   function unlockMoveBusy(){
@@ -578,8 +641,7 @@
     stage = 'verse';
     syncSheetChrome();
     renderAddress(lang, t);
-    var seg = document.getElementById('scriptureQuickMoveSeg');
-    if (seg) seg.hidden = false;
+    hideHomeTestamentRow();
     var body = swapQuickMoveBody(frag);
     if (body) body.scrollTop = 0;
     if (body && !bodyBound) {
@@ -668,8 +730,7 @@
     if (!staged.bookName) stage = 'book';
     syncSheetChrome();
     renderAddress(lang, t);
-    var seg = document.getElementById('scriptureQuickMoveSeg');
-    if (seg) seg.hidden = false;
+    hideHomeTestamentRow();
     if (stage === 'chapter') body.innerHTML = renderChapterStage(lang, t);
     else body.innerHTML = renderBookStage(lang, t);
     syncMoveTag();
@@ -691,6 +752,7 @@
     if (!target) return;
     var bookName = target.getAttribute('data-qm-book');
     if (bookName) {
+      closeHomeTstPop();
       if (bookName !== staged.bookName) staged.chapter = 0;
       staged.bookName = bookName;
       setStage('chapter');
@@ -712,11 +774,19 @@
     if (!btn) return;
     var want = btn.getAttribute('data-qm-stage');
     if (want === 'verse') {
-      if (staged.bookName && staged.chapter) { openStagedVerseRange(); return; }
+      if (staged.bookName && staged.chapter) { closeHomeTstPop(); openStagedVerseRange(); return; }
       want = staged.bookName ? 'chapter' : 'book';
     } else if (want === 'chapter' && !staged.bookName) {
       want = 'book';
     }
+    if (isHomeDocument() && want === 'book') {
+      var shouldOpen = !(isHomeTstPopOpen() && stage === 'book');
+      setStage('book');
+      if (shouldOpen) openHomeTstPop();
+      else closeHomeTstPop();
+      return;
+    }
+    closeHomeTstPop();
     setStage(want);
   }
 
@@ -766,6 +836,10 @@
     if (e.key === 'Escape' || e.key === 'Esc') {
       e.preventDefault();
       e.stopPropagation();
+      if (isHomeDocument() && isHomeTstPopOpen()) {
+        closeHomeTstPop();
+        return;
+      }
       close();
       return;
     }
@@ -798,6 +872,7 @@
     if (typeof closeUnifiedBookChapterModal === 'function') closeUnifiedBookChapterModal();
     if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
     lastFocusEl = document.activeElement;
+    closeHomeTstPop();
     var book = window.currentBook;
     var wantTestament = (opts.testament === 'old' || opts.testament === 'new') ? opts.testament : '';
     if (wantTestament) {
@@ -842,6 +917,7 @@
     if (!overlay || overlay.hidden) return;
     overlay.classList.remove('is-open');
     overlay.setAttribute('aria-hidden', 'true');
+    closeHomeTstPop();
     document.documentElement.classList.remove('scripture-quick-move-lock');
     document.removeEventListener('keydown', onKeydown, true);
     var locBtn = document.getElementById('verseReadTitleBtn');
@@ -865,6 +941,11 @@
     overlay.addEventListener('click', function(e){
       if (moveBusy) return;
       if (e.target === overlay) close();
+      else if (isHomeDocument() && isHomeTstPopOpen()) {
+        if (e.target.closest && e.target.closest('#scriptureQuickMoveTstPop')) return;
+        if (e.target.closest && e.target.closest('#scriptureQuickMoveAddrBook')) return;
+        closeHomeTstPop();
+      }
     });
     var closeBtn = document.getElementById('scriptureQuickMoveClose');
     if (closeBtn) closeBtn.addEventListener('click', close);
@@ -879,6 +960,19 @@
         staged.bookName = '';
         staged.chapter = 0;
         setStage('book');
+      });
+    }
+    var pop = homeTstPopEl();
+    if (pop) {
+      pop.addEventListener('click', function(e){
+        var pick = e.target && e.target.closest ? e.target.closest('[data-qm-testament-pick]') : null;
+        if (!pick) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var tst = pick.getAttribute('data-qm-testament-pick');
+        var hiddenBtn = document.querySelector('#scriptureQuickMoveSeg [data-qm-testament="' + tst + '"]');
+        if (hiddenBtn && tst !== staged.testament) hiddenBtn.click();
+        closeHomeTstPop();
       });
     }
     var address = document.getElementById('scriptureQuickMoveAddress');

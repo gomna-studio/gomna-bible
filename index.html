@@ -638,7 +638,7 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .chip:hover{background:var(--gm-hover-chip)}
 .chip:active{transform:scale(.95)}
 .verse-card{background-color:#D8C8A8;border-radius:var(--gm-radius-card);padding:0;margin-bottom:6px;border:var(--gm-card-border-slim);box-shadow:var(--gm-card-shadow);position:relative;overflow:hidden;transition:box-shadow .22s ease;aspect-ratio:3/2;width:100%}
-#today-word-card{scroll-margin-top:14px}
+#today-word-card{scroll-margin-top:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;border:none}
 .verse-card:hover{box-shadow:0 3px 14px rgba(90,58,20,.14)}
 .verse-card-photo-layer{position:absolute;inset:0;z-index:0;opacity:1;visibility:visible;pointer-events:none;will-change:opacity}
 /* 첫 장면 전용: 하늘만 은은히 푸르고 맑게 — 하단 인물·들판은 거의 미적용 */
@@ -650,28 +650,17 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .verse-card-verse-layer{position:absolute;inset:0;z-index:1;display:grid;grid-template-rows:auto 1fr;min-height:100%;padding:10px 12px 11px;box-sizing:border-box;gap:0;background-color:#D8C8A8;background-image:url('today-verse-slide-2-bg-v3.png');background-size:cover;background-position:center;background-repeat:no-repeat;opacity:0;visibility:hidden;pointer-events:none;will-change:opacity}
 .verse-card-verse-layer .verse-center{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:0;padding:8px 10px 10px;text-align:center}
 .verse-card-verse-layer .verse-tag{font-family:inherit;font-size:clamp(15px,3.6vw,16px);font-weight:600;font-style:normal;letter-spacing:.02em;color:#3d2818;-webkit-text-fill-color:#3d2818;text-transform:none;opacity:0;padding-top:0;line-height:1.2;text-shadow:0 1px 1px rgba(255,255,255,.28)}
-.verse-card-verse-layer .verse-text{font-size:clamp(12.5px,3.1vw,14.5px);color:#3d2818;-webkit-text-fill-color:#3d2818;line-height:1.42;letter-spacing:-0.1px;margin-bottom:5px;padding:0;opacity:0;font-weight:600;display:block;overflow:visible;white-space:normal;word-break:keep-all;overflow-wrap:break-word;text-align:center;text-shadow:0 1px 1px rgba(255,255,255,.28)}
-/* 구절이 실제로 보이는 동안에만 누를 수 있게 한다(사진 장면에서는 빈 곳을 눌러도 반응하지 않는다). */
-.verse-card.is-verse-active .verse-card-verse-layer .verse-text{pointer-events:auto;cursor:pointer}
+.verse-card-verse-layer .verse-text{font-size:clamp(12.5px,3.1vw,14.5px);color:#3d2818;-webkit-text-fill-color:#3d2818;line-height:1.42;letter-spacing:-0.1px;margin-bottom:5px;padding:0;opacity:0;font-weight:600;display:block;overflow:visible;white-space:normal;word-break:keep-all;overflow-wrap:break-word;text-align:center;text-shadow:0 1px 1px rgba(255,255,255,.28);transform-origin:center center;max-width:calc(100% / 1.15)}
 .verse-card-verse-layer .verse-ref{font-size:clamp(12px,2.8vw,13px);color:#3d2818;-webkit-text-fill-color:#3d2818;font-style:normal;text-align:center;font-family:inherit;opacity:0;margin-top:0;margin-bottom:0;line-height:1.32;font-weight:600;text-shadow:0 1px 1px rgba(255,255,255,.28)}
-.verse-card-controls{position:absolute;inset:0;z-index:2;display:grid;grid-template-rows:auto 1fr auto;min-height:100%;padding:10px 12px 11px;box-sizing:border-box;gap:0;pointer-events:none}
-.verse-card-controls .verse-footer{grid-row:3;align-self:end;width:100%;height:0;padding:0;overflow:visible;pointer-events:none}
-.verse-card.is-verse-active .verse-open-note{color:#5a4632;-webkit-text-fill-color:#5a4632;text-shadow:none}
 .verse-glow{display:none}
-.verse-card .verse-open-row{display:block;margin:0}
-.verse-card .verse-open-note{display:none!important}
-.verse-card .gm-btn-today-open{--gm-btn-text-inset:14px;position:absolute;left:calc(100% - var(--gm-right-text-inset) + 1px - var(--gm-btn-text-inset));right:auto;top:5px;bottom:auto;transform:none;z-index:3;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:14px;font-weight:600;letter-spacing:-.1px;padding:5px 13px;border-radius:14px;cursor:pointer;transition:all .2s;white-space:nowrap;background:transparent;color:#111;border:1px solid rgba(0,0,0,0.7);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:auto}
-.verse-card .gm-btn-today-open:hover{filter:none;background:rgba(255,255,255,0.18);color:#000;border-color:#000}
-.verse-card .gm-btn-today-open:active{background:rgba(255,255,255,0.18);color:#000;border-color:#000}
-.verse-card .gm-btn-today-open:focus-visible{outline:2px solid rgba(0,0,0,0.35);outline-offset:2px}
-@media (max-width:520px){
-  .verse-card .gm-btn-today-open{--gm-btn-text-inset:13px;padding:5px 12px}
+#today-word-card:focus-visible{outline:2px solid rgba(122,78,29,.45);outline-offset:2px}
+@media (hover:none){
+  #today-word-card:active{filter:brightness(0.97)}
 }
 @media (max-width:375px){
-  .verse-card-verse-layer,.verse-card-controls{padding:9px 11px 10px}
+  .verse-card-verse-layer{padding:9px 11px 10px}
   .verse-card-verse-layer .verse-center{padding:4px 1px 6px}
   .verse-card-verse-layer .verse-tag{font-size:15px}
-  .verse-card .gm-btn-today-open{--gm-btn-text-inset:12px;font-size:13.5px;padding:5px 11px}
 }
 /* 오늘의 말씀 카드 — 메인/보조 버튼 */
 .gm-btn{flex:1;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-family:inherit;font-size:13.5px;font-weight:600;letter-spacing:-.2px;padding:11px 8px;border-radius:var(--gm-radius-btn);cursor:pointer;transition:all .2s;white-space:nowrap}
@@ -700,8 +689,6 @@ html[data-gomna-ui-lang]:not([data-gomna-ui-lang="ko"]) .home-continue-action,
 html.translated-ltr .home-continue-action,html.translated-rtl .home-continue-action{position:static;flex-shrink:0;align-self:flex-start}
 html[data-gomna-ui-lang]:not([data-gomna-ui-lang="ko"]) .home-continue-info,
 html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{padding-right:0}
-html[data-gomna-ui-lang]:not([data-gomna-ui-lang="ko"]) .verse-card .gm-btn-today-open,
-html.translated-ltr .verse-card .gm-btn-today-open,html.translated-rtl .verse-card .gm-btn-today-open{left:auto;right:12px}
 .home-continue-action-text{font-size:13px;font-weight:700;color:inherit;letter-spacing:-.15px;line-height:1.25;white-space:nowrap}
 .home-continue-action-mark{flex-shrink:0;display:inline-flex;align-items:center;color:inherit}
 .home-continue-arrow{display:inline-block;position:relative;width:1.08em;height:.64em;flex-shrink:0;color:currentColor}
@@ -727,8 +714,11 @@ html.translated-ltr .verse-card .gm-btn-today-open,html.translated-rtl .verse-ca
 .quick-desc{font-size:9px;color:#000;opacity:.65;letter-spacing:-.2px;line-height:1.2;white-space:nowrap}
 @media (max-width:340px){.quick-menu{grid-template-columns:repeat(2,1fr)}}
 @keyframes verseRise{from{opacity:0;transform:translate3d(0,8px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
-.home-brand-blurb{margin:14px 8px 0;padding:0 4px;text-align:center;font-size:12px;line-height:1.55;font-weight:400;letter-spacing:-0.01em;color:rgba(74,62,50,.70);word-break:keep-all;overflow-wrap:break-word}
-.home-brand-line{display:block}
+@keyframes verseRiseText{0%{opacity:0;transform:translate3d(0,8px,0) scale(1)}18%{opacity:1;transform:translate3d(0,0,0) scale(1)}40%{opacity:1;transform:translate3d(0,0,0) scale(1)}100%{opacity:1;transform:translate3d(0,0,0) scale(1.15)}}
+.home-brand-blurb{margin:14px 8px 22px;padding:0 4px;text-align:center;font-size:12px;line-height:1.4;font-weight:400;letter-spacing:-0.01em;color:rgba(74,62,50,.70);word-break:keep-all;overflow-wrap:normal}
+.home-brand-line{display:block;white-space:nowrap}
+@media (max-width:390px){.home-brand-blurb{margin-left:6px;margin-right:6px;padding-left:2px;padding-right:2px;letter-spacing:-0.02em}}
+@media (max-width:360px){.home-brand-blurb{margin-left:4px;margin-right:4px;font-size:11.5px}}
 .imprint-bottom{margin-top:10px;padding-top:14px;padding-bottom:30px;border-top:.5px solid rgba(255,255,255,.18);text-align:center}
 .gs-link{font-family:inherit;font-size:10.5px;font-weight:400;letter-spacing:normal;display:inline-flex;align-items:center;justify-content:center;max-width:100%;min-height:32px;padding:7px 10px;margin:-4px 0;text-decoration:none;color:rgba(74,62,50,.70);opacity:.74;box-sizing:border-box;-webkit-tap-highlight-color:transparent;transition:opacity .3s ease}
 @media (hover:hover){.gs-link:hover{opacity:.92}}
@@ -1071,10 +1061,6 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 .home-cookie-button-accept{background:#B8751F;color:#fff}
 .home-cookie-button-reject{background:#fff;color:#5D4516;border:1px solid rgba(184,134,11,.35)}
 /* ── HOME COLOR TEST 20260715 (local only, revert via index-before-home-color-test-20260715.html) ── */
-.container .verse-card .gm-btn-today-open{background:transparent;color:#111;border:1px solid rgba(0,0,0,0.7);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
-.container .verse-card .gm-btn-today-open:hover{background:rgba(255,255,255,0.18);border-color:#000;color:#000}
-.container .verse-card .gm-btn-today-open:active{background:rgba(255,255,255,0.18);border-color:#000;color:#000}
-.container .verse-card .gm-btn-today-open:focus-visible{outline:2px solid rgba(0,0,0,0.35);outline-offset:2px}
 .container .continue-label,.container .continue-arrow{color:#9A6A24}
 .container .card,.container .quick-menu{background:#FFF6E4;border-color:#E3CFAB}
 .container button.card,.container a.card{border-color:#E3CFAB}
@@ -1183,7 +1169,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 <script src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
 <script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
-<link rel="stylesheet" href="js/gomna-scripture-quick-move.css?v=20260817-range-hierarchy-v1">
+<link rel="stylesheet" href="js/gomna-scripture-quick-move.css?v=20260818-home-tst-pop-v7">
 </head>
 <body data-gomna-page="home">
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
@@ -1306,7 +1292,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
       </span>
     </button>
   </section>
-  <div class="verse-card" id="today-word-card">
+  <div class="verse-card" id="today-word-card" role="button" tabindex="0" aria-label="묵상하기" data-i18n-aria-label="home.todayWord.open" ontouchstart="">
     <div class="verse-card-photo-layer" aria-hidden="true">
       <div class="verse-card-hero">
         <img src="assets/images/today-word-shepherd-tree-final.webp" alt="" width="2062" height="1310" decoding="async" loading="eager">
@@ -1316,16 +1302,8 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
     <div class="verse-card-verse-layer" aria-hidden="true">
       <div class="verse-tag" id="verse-tag" data-i18n-key="home.todayWord.tag">오늘의 말씀</div>
       <div class="verse-center">
-        <div class="verse-text" id="verse-text" onclick="openDailyVerse('read')">"수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라"</div>
+        <div class="verse-text" id="verse-text">"수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라"</div>
         <div class="verse-ref" id="verse-ref">— 마태복음 11:28</div>
-      </div>
-    </div>
-    <div class="verse-card-controls">
-      <div class="verse-footer">
-        <div class="verse-open-row">
-          <button type="button" class="gm-btn-today-open" onclick="openDailyVerse('read')" aria-label="묵상하기" data-i18n-key="home.todayWord.open" data-i18n-aria-label="home.todayWord.open">묵상하기</button>
-          <span class="verse-open-note" aria-hidden="true" data-i18n-key="home.todayWord.openNote">오늘 말씀 기준으로 읽고 묵상하기</span>
-        </div>
       </div>
     </div>
   </div>
@@ -1387,8 +1365,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
   </div>
   </div>
   <p class="home-brand-blurb">
-    <span class="home-brand-line">성경을 읽고 듣고,</span>
-    <span class="home-brand-line">말씀풀이와 함께 깊이 묵상하는 은혜의말씀</span>
+    <span class="home-brand-line">성경을 읽고 듣고, 말씀풀이로 깊이 묵상하세요</span>
   </p>
   <div class="imprint-bottom">
     <a class="gs-link" href="/studio" aria-label="Gomna Studio, Inc. 회사 소개"><span class="gs-copy" translate="no">© 2026 Gomna Studio, Inc.</span></a>
@@ -1533,7 +1510,9 @@ function _homeT(key){
 var _fd=document.getElementById('fontDisplay');
 if(_fd) _fd.textContent=fontSize+'px';
 var _VERSE_EASE='cubic-bezier(0.4, 0, 0.2, 1)';
+var _VERSE_IN_EASE='ease-in-out';
 var _VERSE_CROSSFADE_MS=2500;
+var _VERSE_IN_CROSSFADE_MS=2400;
 var _verseCycleGen=0;var _verseCycleTimers=[];
 function _clearVerseCycle(){_verseCycleTimers.forEach(function(id){clearTimeout(id);});_verseCycleTimers=[];_verseCycleGen++;}
 function _verseSchedule(ms,fn){var gen=_verseCycleGen;var id=setTimeout(function(){if(gen!==_verseCycleGen)return;fn();},ms);_verseCycleTimers.push(id);return id;}
@@ -1543,10 +1522,12 @@ function _resetVerseTextHidden(){_verseTextEls().forEach(function(el){if(!el)ret
 /* opacity 전환 중에는 visibility를 유지하고, 페이드아웃 완료 뒤에만 hidden 처리 */
 function _setLayerOpacity(layer,opacity,durationMs){if(!layer)return;var d=_verseMotionMs(durationMs);var ease=_VERSE_EASE;layer.style.transition=d>0?'opacity '+d+'ms '+ease+', visibility 0ms linear '+(opacity>0?0:d)+'ms':'none';if(opacity>0){layer.style.visibility='visible';layer.setAttribute('aria-hidden','false');}layer.style.opacity=String(opacity);if(opacity<=0){if(d>0){_verseSchedule(d,function(){layer.style.visibility='hidden';layer.setAttribute('aria-hidden','true');});}else{layer.style.visibility='hidden';layer.setAttribute('aria-hidden','true');}}}
 function _fadeVerseTextOut(durationMs){var d=_verseMotionMs(durationMs);_verseTextEls().forEach(function(el){if(!el)return;el.style.animation='none';el.style.transition='opacity '+d+'ms '+_VERSE_EASE+', transform '+d+'ms '+_VERSE_EASE;el.style.visibility='visible';el.style.opacity='0';el.style.transform='translate3d(0,4px,0)';});_verseSchedule(d,function(){_resetVerseTextHidden();});}
-function _playVerseTextIn(){var els=_verseTextEls();var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;var ease=_VERSE_EASE;var dTag=reduced?150:700,dText=reduced?150:900,dRef=reduced?150:700;void els[0].offsetWidth;_verseSchedule(250,function(){if(!els[0])return;els[0].style.visibility='visible';if(reduced){els[0].style.transition='opacity '+dTag+'ms '+ease;els[0].style.opacity='1';els[0].style.transform='none';return;}els[0].style.animation='verseRise '+dTag+'ms '+ease+' forwards';});_verseSchedule(1250,function(){if(!els[1])return;els[1].style.visibility='visible';if(reduced){els[1].style.transition='opacity '+dText+'ms '+ease;els[1].style.opacity='1';els[1].style.transform='none';return;}els[1].style.animation='verseRise '+dText+'ms '+ease+' forwards';});_verseSchedule(2600,function(){if(!els[2])return;els[2].style.visibility='visible';if(reduced){els[2].style.transition='opacity '+dRef+'ms '+ease;els[2].style.opacity='1';els[2].style.transform='none';return;}els[2].style.animation='verseRise '+dRef+'ms '+ease+' forwards';});}
+function _playVerseTextIn(){var els=_verseTextEls();var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;var ease=_VERSE_EASE;var dTag=reduced?150:700,dText=reduced?150:900,dRef=reduced?150:700;void els[0].offsetWidth;_verseSchedule(250,function(){if(!els[0])return;els[0].style.visibility='visible';if(reduced){els[0].style.transition='opacity '+dTag+'ms '+ease;els[0].style.opacity='1';els[0].style.transform='none';return;}els[0].style.animation='verseRise '+dTag+'ms '+ease+' forwards';});_verseSchedule(1250,function(){if(!els[1])return;els[1].style.visibility='visible';if(reduced){els[1].style.transition='opacity '+dText+'ms '+ease;els[1].style.opacity='1';els[1].style.transform='none';return;}els[1].style.animation='none';void els[1].offsetWidth;els[1].style.animation='verseRiseText 5s ease-in-out forwards';});_verseSchedule(2600,function(){if(!els[2])return;els[2].style.visibility='visible';if(reduced){els[2].style.transition='opacity '+dRef+'ms '+ease;els[2].style.opacity='1';els[2].style.transform='none';return;}els[2].style.animation='verseRise '+dRef+'ms '+ease+' forwards';});}
+/* 사진→말씀: 교차 페이드와 같은 순간에 원래 제목→구절→출처 순차 표시를 시작한다 */
+function _fadePhotoToVerse(photo,verse,card){var d=_verseMotionMs(_VERSE_IN_CROSSFADE_MS);var ease=_VERSE_IN_EASE;_playVerseTextIn();if(card)card.classList.add('is-verse-active');if(photo){photo.style.transition='none';photo.style.opacity='1';photo.style.visibility='visible';photo.setAttribute('aria-hidden','false');}if(verse){verse.style.transition='none';verse.style.opacity='0';verse.style.visibility='visible';verse.setAttribute('aria-hidden','false');}if(photo)void photo.offsetWidth;else if(verse)void verse.offsetWidth;if(photo){photo.style.transition='opacity '+d+'ms '+ease;photo.style.opacity='0';_verseSchedule(d,function(){photo.style.visibility='hidden';photo.setAttribute('aria-hidden','true');});}if(verse){verse.style.transition='opacity '+d+'ms '+ease;verse.style.opacity='1';}}
 /* 말씀→사진: 양방향 opacity를 같은 프레임에서 동시에 겹쳐 잔상 크로스페이드 */
 function _fadeVerseToPhoto(photo,verse,card){var d=_verseMotionMs(_VERSE_CROSSFADE_MS);var ease=_VERSE_EASE;_fadeVerseTextOut(d);if(photo){photo.style.transition='none';photo.style.opacity='0';photo.style.visibility='visible';photo.setAttribute('aria-hidden','false');}if(verse){verse.style.transition='none';verse.style.opacity='1';verse.style.visibility='visible';verse.setAttribute('aria-hidden','false');}if(photo)void photo.offsetWidth;else if(verse)void verse.offsetWidth;if(photo){photo.style.transition='opacity '+d+'ms '+ease;photo.style.opacity='1';}if(verse){verse.style.transition='opacity '+d+'ms '+ease+', visibility 0ms linear '+d+'ms';verse.style.opacity='0';_verseSchedule(d,function(){verse.style.visibility='hidden';verse.setAttribute('aria-hidden','true');});}_verseSchedule(d,function(){if(card)card.classList.remove('is-verse-active');});}
-function startVerseCycle(){_clearVerseCycle();var card=document.querySelector('.verse-card');var photo=document.querySelector('.verse-card-photo-layer');var verse=document.querySelector('.verse-card-verse-layer');var xfade=_VERSE_CROSSFADE_MS;if(card)card.classList.remove('is-verse-active');_resetVerseTextHidden();_setLayerOpacity(photo,1,0);_setLayerOpacity(verse,0,0);/* 0–8500 첫 장면 완전 표시(+4s) → 8500 크로스페이드 시작(2500ms) → 11000 글씨 → 23000 복귀 시작 → 25700 다음 사이클 */_verseSchedule(8500,function(){if(card)card.classList.add('is-verse-active');_setLayerOpacity(photo,0,_verseMotionMs(xfade));_setLayerOpacity(verse,1,_verseMotionMs(xfade));});_verseSchedule(11000,function(){_playVerseTextIn();});_verseSchedule(23000,function(){_fadeVerseToPhoto(photo,verse,card);});_verseSchedule(25700,startVerseCycle);}
+function startVerseCycle(){_clearVerseCycle();var card=document.querySelector('.verse-card');var photo=document.querySelector('.verse-card-photo-layer');var verse=document.querySelector('.verse-card-verse-layer');if(card)card.classList.remove('is-verse-active');_resetVerseTextHidden();_setLayerOpacity(photo,1,0);_setLayerOpacity(verse,0,0);/* 0–4500 첫 장면 완전 표시 → 4500 사진→말씀 2400ms 교차와 제목→구절→출처 순차 표시 → 17000 복귀 시작 → 19700 다음 사이클 */_verseSchedule(4500,function(){_fadePhotoToVerse(photo,verse,card);});_verseSchedule(17000,function(){_fadeVerseToPhoto(photo,verse,card);});_verseSchedule(19700,startVerseCycle);}
 
 // ─── 오늘의 말씀: 30개 데이터 + 오늘 날짜 기준 1~30일 순환 ───
 // Daily verses multilingual sources (home native i18n; no runtime fetch)
@@ -1798,6 +1779,23 @@ function openDailyVerse(mode){
   params.set('source','home-daily-read');
   window.location.href='reader.html?'+params.toString();
 }
+var _todayWordOpenLock=false;
+function bindTodayWordCardOpen(){
+  var card=document.getElementById('today-word-card');
+  if(!card||card.getAttribute('data-today-open-bound')==='1')return;
+  card.setAttribute('data-today-open-bound','1');
+  function go(ev){
+    if(_todayWordOpenLock){if(ev)ev.preventDefault();return;}
+    _todayWordOpenLock=true;
+    if(ev)ev.preventDefault();
+    openDailyVerse('read');
+  }
+  card.addEventListener('click',go);
+  card.addEventListener('keydown',function(ev){
+    if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go(ev);}
+  });
+}
+bindTodayWordCardOpen();
 let topicSearchCloseTimer=null;
 function closeInlineTopics(){
   const shell=document.getElementById('homeSearchShell');
@@ -2226,7 +2224,7 @@ document.addEventListener('keydown',function(e){
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
 <script src="js/gomna-home-resume.js?v=20260812-resume-clock-v1"></script>
-<script src="js/gomna-scripture-quick-move.js?v=20260817-final-move-v2"></script>
+<script src="js/gomna-scripture-quick-move.js?v=20260818-home-tst-pop-v4"></script>
 <script src="settings_guide.js?v=20260807-settings-v3" defer></script>
 <script src="translate_feature.js?v=20260809-lang-suggest-v1" defer></script>
 <script>

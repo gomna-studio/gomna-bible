@@ -1610,7 +1610,6 @@
       '.sub',
       '#greeting',
       '.home-resume-loc',
-      '.gm-btn-today-open',
       '#verse-tag',
       '.card.old .card-name',
       '.card.old .card-desc',
