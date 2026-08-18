@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-08-18-installed-app-auto-update-v1';
+const CACHE_VERSION = '2026-08-18-installed-app-client-refresh-v1';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE = 'gomna-data-v1';
@@ -179,6 +179,58 @@ self.addEventListener('install', event => {
   );
 });
 
+function isInstalledAppHtmlClient(client) {
+  if (!client || !client.url) return false;
+  try {
+    const url = new URL(client.url);
+    if (url.origin !== self.location.origin) return false;
+    const path = url.pathname || '/';
+    if (path.indexOf('/auth/') === 0) return false;
+    if (/callback/i.test(path)) return false;
+    return path === '/'
+      || path === '/index.html'
+      || path === '/reader.html';
+  } catch (eUrl) {
+    return false;
+  }
+}
+
+function refreshUrlForClient(clientUrl) {
+  const url = new URL(clientUrl);
+  // Same-URL and hash-only navigations do not reload the document.
+  // Flip a reserved flag so path plus book/chapter/source stay in place.
+  if (url.searchParams.get('swr') === '1') url.searchParams.delete('swr');
+  else url.searchParams.set('swr', '1');
+  url.hash = '';
+  return url.href;
+}
+
+let refreshedInstalledAppClients = false;
+
+function refreshInstalledAppClients() {
+  if (refreshedInstalledAppClients) return Promise.resolve();
+  refreshedInstalledAppClients = true;
+  return new Promise((resolve) => { setTimeout(resolve, 50); })
+    .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
+    .then((list) => {
+      const jobs = [];
+      for (let i = 0; i < list.length; i++) {
+        const client = list[i];
+        if (!isInstalledAppHtmlClient(client)) continue;
+        if (typeof client.navigate !== 'function') continue;
+        jobs.push(
+          Promise.resolve(client.navigate(refreshUrlForClient(client.url))).catch((eNav) => {
+            console.warn('[sw] client.navigate failed', client.url, eNav);
+          })
+        );
+      }
+      return Promise.all(jobs);
+    })
+    .catch((err) => {
+      console.warn('[sw] installed app client refresh failed', err);
+    });
+}
+
 self.addEventListener('activate', event => {
   event.waitUntil(
     migrateAudioManifestFromStaticCaches()
@@ -192,6 +244,11 @@ self.addEventListener('activate', event => {
         );
       })
       .then(() => self.clients.claim())
+      .then(() => {
+        // Do not wait on client.navigate here. A navigation fetch is
+        // blocked until activate finishes, so awaiting it deadlocks.
+        void refreshInstalledAppClients();
+      })
   );
 });
 
