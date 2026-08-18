@@ -48,7 +48,12 @@
 
   function ensureOverlay(){
     var overlay = document.getElementById('scriptureQuickMoveOverlay');
-    if (overlay) return overlay;
+    if (overlay) {
+      if (!document.getElementById('scriptureQuickMoveTstPop') || !document.getElementById('scriptureQuickMoveAddrBookWrap')) {
+        overlay.innerHTML = OVERLAY_HTML;
+      }
+      return overlay;
+    }
     overlay = document.createElement('div');
     overlay.id = 'scriptureQuickMoveOverlay';
     overlay.className = 'scripture-quick-move-overlay';
@@ -216,7 +221,7 @@
       var btn = document.getElementById('scriptureQuickMoveAddr' + slot.id);
       var txt = document.getElementById('scriptureQuickMoveAddr' + slot.id + 'Text');
       if (!btn || !txt) return;
-      txt.textContent = isHomeDocument()
+      txt.textContent = usesSharedPickerChrome()
         ? (slot.stage === 'chapter' ? t.chapterSlot : slot.stage === 'verse' ? t.verseSlot : t.bookSlot)
         : slot.text;
       btn.classList.toggle('is-current', stage === slot.stage);
@@ -232,7 +237,7 @@
   }
 
   function renderBookStage(lang, t){
-    var html = (isHomeDocument() ? '' : '<p class="scripture-quick-move-stage-title">' + esc(t.bookSlot) + '</p>')
+    var html = (usesSharedPickerChrome() ? '' : '<p class="scripture-quick-move-stage-title">' + esc(t.bookSlot) + '</p>')
       + '<div class="scripture-quick-move-books">';
     booksOf(staged.testament).forEach(function(b){
       var sel = b.name === staged.bookName ? ' is-selected' : '';
@@ -399,6 +404,14 @@
     return typeof goToVerse !== 'function';
   }
 
+  function usesSharedPickerChrome(){
+    try {
+      var page = document.body && document.body.getAttribute('data-gomna-page');
+      if (page === 'home' || page === 'reader') return true;
+    } catch (eChrome) {}
+    return typeof goToVerse !== 'function';
+  }
+
   function homeTstPopEl(){
     return document.getElementById('scriptureQuickMoveTstPop');
   }
@@ -434,7 +447,7 @@
   }
 
   function openHomeTstPop(){
-    if (!isHomeDocument()) return;
+    if (!usesSharedPickerChrome()) return;
     var pop = homeTstPopEl();
     var bookBtn = document.getElementById('scriptureQuickMoveAddrBook');
     if (!pop) return;
@@ -449,7 +462,12 @@
   function hideHomeTestamentRow(){
     var seg = document.getElementById('scriptureQuickMoveSeg');
     if (!seg) return;
-    seg.hidden = isHomeDocument();
+    seg.hidden = usesSharedPickerChrome();
+  }
+
+  function syncHomeTstPopForStage(){
+    if (usesSharedPickerChrome() && stage === 'book') openHomeTstPop();
+    else closeHomeTstPop();
   }
 
   function unlockMoveBusy(){
@@ -642,6 +660,7 @@
     syncSheetChrome();
     renderAddress(lang, t);
     hideHomeTestamentRow();
+    syncHomeTstPopForStage();
     var body = swapQuickMoveBody(frag);
     if (body) body.scrollTop = 0;
     if (body && !bodyBound) {
@@ -731,6 +750,7 @@
     syncSheetChrome();
     renderAddress(lang, t);
     hideHomeTestamentRow();
+    syncHomeTstPopForStage();
     if (stage === 'chapter') body.innerHTML = renderChapterStage(lang, t);
     else body.innerHTML = renderBookStage(lang, t);
     syncMoveTag();
@@ -779,11 +799,8 @@
     } else if (want === 'chapter' && !staged.bookName) {
       want = 'book';
     }
-    if (isHomeDocument() && want === 'book') {
-      var shouldOpen = !(isHomeTstPopOpen() && stage === 'book');
+    if (usesSharedPickerChrome() && want === 'book') {
       setStage('book');
-      if (shouldOpen) openHomeTstPop();
-      else closeHomeTstPop();
       return;
     }
     closeHomeTstPop();
@@ -836,7 +853,7 @@
     if (e.key === 'Escape' || e.key === 'Esc') {
       e.preventDefault();
       e.stopPropagation();
-      if (isHomeDocument() && isHomeTstPopOpen()) {
+      if (usesSharedPickerChrome() && isHomeTstPopOpen()) {
         closeHomeTstPop();
         return;
       }
@@ -941,7 +958,7 @@
     overlay.addEventListener('click', function(e){
       if (moveBusy) return;
       if (e.target === overlay) close();
-      else if (isHomeDocument() && isHomeTstPopOpen()) {
+      else if (usesSharedPickerChrome() && isHomeTstPopOpen() && stage !== 'book') {
         if (e.target.closest && e.target.closest('#scriptureQuickMoveTstPop')) return;
         if (e.target.closest && e.target.closest('#scriptureQuickMoveAddrBook')) return;
         closeHomeTstPop();
@@ -972,7 +989,6 @@
         var tst = pick.getAttribute('data-qm-testament-pick');
         var hiddenBtn = document.querySelector('#scriptureQuickMoveSeg [data-qm-testament="' + tst + '"]');
         if (hiddenBtn && tst !== staged.testament) hiddenBtn.click();
-        closeHomeTstPop();
       });
     }
     var address = document.getElementById('scriptureQuickMoveAddress');
