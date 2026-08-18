@@ -4,7 +4,7 @@ html.scripture-quick-move-lock,html.scripture-quick-move-lock body{overflow:hidd
 .scripture-quick-move-overlay.is-open{display:flex}
 .scripture-quick-move-overlay[hidden]{display:none}
 .scripture-quick-move-sheet:focus{outline:none}
-.scripture-quick-move-sheet{width:100%;max-width:100%;max-height:calc(100dvh - var(--qm-overlay-pad-top) - var(--qm-overlay-pad-bottom));min-width:0;min-height:0;display:flex;flex-direction:column;box-sizing:border-box;background:#FFFCF6;border-radius:22px;box-shadow:0 -12px 44px rgba(90,60,30,.14);overflow:hidden;overflow-x:hidden;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1)}
+.scripture-quick-move-sheet{width:100%;max-width:100%;max-height:calc(100dvh - var(--qm-overlay-pad-top) - var(--qm-overlay-pad-bottom));min-width:0;min-height:0;display:flex;flex-direction:column;box-sizing:border-box;background:#FFFCF6;border-radius:22px;box-shadow:0 -12px 44px rgba(90,60,30,.14);overflow:hidden;overflow-x:hidden;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-size:16px;font-weight:400;line-height:normal;letter-spacing:normal;color:#000}
 .scripture-quick-move-overlay.is-open .scripture-quick-move-sheet{transform:translateY(0)}
 @media (prefers-reduced-motion:reduce){.scripture-quick-move-sheet{transition:none}#scriptureQuickMoveBody .verse-range-column-hint,#scriptureQuickMoveBody #verseRangeEndGrid .verse-cell{transition:none}}
 .scripture-quick-move-head{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:8px 12px 4px 18px;flex-shrink:0}
@@ -44,8 +44,10 @@ html.gomna-reader-ui-ja .scripture-quick-move-books .scripture-quick-move-item{f
 .scripture-quick-move-item:focus-visible{outline:2px solid rgba(139,106,50,.55);outline-offset:1px}
 .scripture-quick-move-item.is-selected{background:#F7EEDC;border-color:rgba(139,106,50,.62);color:#5A321C;font-weight:700}
 .scripture-quick-move-nums .scripture-quick-move-item{padding:4px 2px;font-size:14px;font-variant-numeric:tabular-nums}
-.scripture-quick-move-nums .verse-range-move-action{position:static;left:auto;top:auto;grid-column:1/-1;justify-self:start}
-.verse-range-move-action{position:absolute;left:8px;right:auto;top:0;bottom:auto;width:96px;height:44px;min-width:96px;padding:0 12px;border:1px solid #B8944F;border-radius:18px;background:#E2C98F;color:#4A3524;font-size:16px;font-weight:800;line-height:1;letter-spacing:-0.2px;box-sizing:border-box;box-shadow:0 8px 22px rgba(74,53,36,.18);z-index:8;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;transition:background-color .08s ease,transform .08s ease,box-shadow .08s ease}
+#scriptureQuickMoveOverlay .scripture-quick-move-nums .verse-range-move-action,
+#scriptureQuickMoveOverlay #verseRangeEndGrid .verse-range-move-action{position:static;left:auto;top:auto;right:auto;bottom:auto;transform:none;grid-column:1/-1;justify-self:start}
+#scriptureQuickMoveOverlay .verse-range-move-action{width:auto;min-width:0;max-width:fit-content;height:34px;padding:0 12px}
+.verse-range-move-action{position:absolute;left:8px;right:auto;top:0;bottom:auto;width:auto;min-width:0;max-width:fit-content;height:34px;padding:0 12px;border:1px solid #B8944F;border-radius:18px;background:#E2C98F;color:#4A3524;font-size:16px;font-weight:800;line-height:1;letter-spacing:-0.2px;box-sizing:border-box;box-shadow:0 8px 22px rgba(74,53,36,.18);z-index:8;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;transition:background-color .08s ease,transform .08s ease,box-shadow .08s ease}
 .verse-range-move-action[hidden]{display:none}
 .verse-range-move-action:active{background:#D7B873;transform:translateY(1px);box-shadow:0 4px 12px rgba(74,53,36,.16)}
 @media (hover:hover) and (pointer:fine) {
@@ -86,22 +88,26 @@ html.gomna-reader-ui-ja .scripture-quick-move-books .scripture-quick-move-item{f
 }
 #scriptureQuickMoveBody .verse-range-end-cell-wrap{position:relative;min-width:0;aspect-ratio:1}
 #scriptureQuickMoveBody .verse-range-end-cell-wrap .verse-cell{width:100%;height:100%}
-#scriptureQuickMoveBody #rangeEndMoveAction{position:absolute;left:8px;right:auto;top:0;bottom:auto}
-/* 홈·Reader 데스크톱: 카드 폭은 Reader 본문 프레임을 넘지 않고 가운데 둔다. */
+/* 홈·Reader 데스크톱: 카드 폭은 각 페이지 본문 카드와 같은 좌우선을 쓰고, 세로 여백만 줄인다. */
 @media (min-width:700px) and (min-height:600px){
   :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]){
     --qm-desktop-inset:16px;
-    --qm-desktop-v-gap:32px;
-    --qm-desktop-card-max:min(100%,var(--reader-frame-width,420px));
+    --qm-desktop-v-gap:16px;
+    --qm-desktop-card-max:min(100%,var(--qm-content-card-max));
   }
+  body[data-gomna-page="home"]{--qm-content-card-max:calc(520px - 32px)}
+  body[data-gomna-page="reader"]{--qm-content-card-max:var(--reader-frame-width,420px)}
   :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-overlay{--qm-overlay-pad-top:var(--qm-desktop-v-gap);--qm-overlay-pad-bottom:var(--qm-desktop-v-gap)}
   :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-overlay.is-open{align-items:center;justify-content:center}
-  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-sheet{width:var(--qm-desktop-card-max);max-width:var(--qm-desktop-card-max);height:auto;max-height:calc(100dvh - var(--qm-overlay-pad-top) - var(--qm-overlay-pad-bottom));border-radius:22px;transform:none}
+  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-sheet{width:var(--qm-desktop-card-max);max-width:var(--qm-desktop-card-max);height:auto;min-height:0;max-height:calc(100dvh - var(--qm-overlay-pad-top) - var(--qm-overlay-pad-bottom));border-radius:22px;transform:none}
   :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-overlay.is-open .scripture-quick-move-sheet{transform:none}
+  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-head{padding:2px 8px 0 12px}
   :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-seg,
-  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-address{margin-left:var(--qm-desktop-inset);margin-right:var(--qm-desktop-inset)}
-  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-body{padding-left:var(--qm-desktop-inset);padding-right:var(--qm-desktop-inset)}
-  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-books{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-address{margin-left:var(--qm-desktop-inset);margin-right:var(--qm-desktop-inset);margin-bottom:4px}
+  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-sheet.is-home-tst-pop-open .scripture-quick-move-address{margin-bottom:0}
+  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-tst-pop.is-open{margin:4px 0 8px}
+  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-body{padding-left:var(--qm-desktop-inset);padding-right:var(--qm-desktop-inset);padding-bottom:10px}
+  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-books{grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
   :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-books .scripture-quick-move-item{min-width:0;overflow:hidden;overflow-wrap:break-word;white-space:normal}
 }
 /* 홈·Reader 공용 선택창: 구약·신약 줄을 숨기고, 세 단계 버튼 아래 가운데에 작은 문자 선택줄을 연다. */
@@ -134,3 +140,8 @@ html.gomna-reader-ui-ja .scripture-quick-move-books .scripture-quick-move-item{f
 :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-tst-pop-btn:hover,
 :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-tst-pop-btn:active{background:transparent;box-shadow:none;transform:none;opacity:1;filter:none}
 :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-tst-pop-btn:focus-visible{outline:2px solid rgba(139,106,50,.55);outline-offset:2px}
+@media (min-width:700px) and (min-height:600px){
+  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-address{margin-bottom:4px}
+  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-sheet.is-home-tst-pop-open .scripture-quick-move-address{margin-bottom:0}
+  :is(body[data-gomna-page="home"],body[data-gomna-page="reader"]) .scripture-quick-move-tst-pop.is-open{margin:4px 0 8px}
+}
