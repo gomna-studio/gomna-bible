@@ -249,7 +249,8 @@
 
   function renderChapterStage(lang, t){
     var chCount = chapterCountOf(staged.bookName, staged.testament);
-    var html = '<p class="scripture-quick-move-stage-title">' + esc(t.chapterSlot) + '</p><div class="scripture-quick-move-nums">';
+    var html = (usesSharedPickerChrome() ? '' : '<p class="scripture-quick-move-stage-title">' + esc(t.chapterSlot) + '</p>')
+      + '<div class="scripture-quick-move-nums">';
     for (var c = 1; c <= chCount; c++) {
       var sel = c === staged.chapter ? ' is-selected' : '';
       html += '<button type="button" class="scripture-quick-move-item' + sel + '" data-qm-chapter="' + c + '"'
@@ -376,6 +377,12 @@
     }
   }
 
+  function parkRangeMoveTag(button, root){
+    var area = qmRangeEl('verseRangeEndArea', root);
+    if (!button || !area || button.parentNode === area) return;
+    area.appendChild(button);
+  }
+
   function qmRangeSyncMove(root){
     var button = qmRangeEl('rangeEndMoveAction', root);
     var endArea = qmRangeEl('verseRangeEndArea', root);
@@ -385,16 +392,16 @@
       button.hidden = true;
       button.disabled = true;
       button.setAttribute('aria-hidden', 'true');
+      parkRangeMoveTag(button, root);
       return;
     }
     var wrapper = (qmRangeRoot(root) || document).querySelector('#verseRangeEndGrid .verse-range-end-cell-wrap[data-v="' + qmRange.end + '"]');
-    if (!wrapper) return;
-    var wrapperRect = wrapper.getBoundingClientRect();
-    var areaRect = endArea.getBoundingClientRect();
-    button.style.top = (wrapperRect.bottom - areaRect.top + 4) + 'px';
+    var grid = wrapper && wrapper.parentNode;
+    if (!wrapper || !grid) return;
     button.hidden = false;
     button.disabled = false;
     button.setAttribute('aria-hidden', 'false');
+    placeMoveTagBelowSelected(grid, wrapper, button);
   }
 
   function isHomeDocument(){
@@ -605,7 +612,7 @@
       +     '</div>'
       +   '</div>'
       +   '<div class="verse-range-back-wrap">'
-      +     '<button type="button" class="verse-range-back-to-text" aria-label="본문으로 돌아가기">← 본문으로</button>'
+      +     '<button type="button" class="verse-range-back-to-text" aria-label="← 이전" title="← 이전">← 이전</button>'
       +   '</div>'
       + '</div>';
     if (!qmRangeFillGrids(hold)) return null;
@@ -669,6 +676,29 @@
     }
   }
 
+  function placeMoveTagBelowSelected(grid, selected, tag){
+    if (!grid || !selected || !tag) return;
+    tag.style.position = '';
+    tag.style.top = '';
+    tag.style.left = '';
+    tag.style.right = '';
+    tag.style.bottom = '';
+    tag.style.transform = '';
+    var rowLast = selected;
+    var next = selected.nextElementSibling;
+    while (next && next !== tag && next.offsetTop === selected.offsetTop) {
+      rowLast = next;
+      next = next.nextElementSibling;
+    }
+    if (rowLast.nextSibling !== tag) grid.insertBefore(tag, rowLast.nextSibling);
+    var gridRect = grid.getBoundingClientRect();
+    var selRect = selected.getBoundingClientRect();
+    var tagW = tag.offsetWidth;
+    var max = Math.max(0, gridRect.width - tagW);
+    var left = selRect.left - gridRect.left + (selRect.width - tagW) / 2;
+    tag.style.marginLeft = Math.round(Math.min(Math.max(left, 0), max)) + 'px';
+  }
+
   function ensureMoveTag(){
     if (moveTag) return moveTag;
     moveTag = document.createElement('button');
@@ -692,18 +722,7 @@
       if (moveTag && moveTag.parentNode) moveTag.parentNode.removeChild(moveTag);
       return;
     }
-    var tag = ensureMoveTag();
-    var rowLast = selected;
-    var next = selected.nextElementSibling;
-    while (next && next !== tag && next.offsetTop === selected.offsetTop) {
-      rowLast = next;
-      next = next.nextElementSibling;
-    }
-    if (rowLast.nextSibling !== tag) grid.insertBefore(tag, rowLast.nextSibling);
-    var gridRect = grid.getBoundingClientRect();
-    var selRect = selected.getBoundingClientRect();
-    var max = Math.max(0, gridRect.width - tag.offsetWidth);
-    tag.style.marginLeft = Math.round(Math.min(Math.max(selRect.left - gridRect.left, 0), max)) + 'px';
+    placeMoveTagBelowSelected(grid, selected, ensureMoveTag());
   }
 
   function revealMoveTag(){
@@ -853,7 +872,7 @@
     if (e.key === 'Escape' || e.key === 'Esc') {
       e.preventDefault();
       e.stopPropagation();
-      if (usesSharedPickerChrome() && isHomeTstPopOpen()) {
+      if (usesSharedPickerChrome() && isHomeTstPopOpen() && stage !== 'book') {
         closeHomeTstPop();
         return;
       }
@@ -881,6 +900,23 @@
     return !!(overlay && overlay.classList.contains('is-open'));
   }
 
+  function clearStagedPick(){
+    staged.bookName = '';
+    staged.chapter = 0;
+    qmRange.max = 0;
+    qmRange.start = 0;
+    qmRange.end = 0;
+    if (moveTag && moveTag.parentNode) moveTag.parentNode.removeChild(moveTag);
+  }
+
+  function pickerTestament(opts){
+    if (opts.testament === 'old' || opts.testament === 'new') return opts.testament;
+    var book = window.currentBook;
+    if (book && book.name) return book.testament === 'new' ? 'new' : 'old';
+    if (typeof currentTab === 'string' && currentTab === 'new') return 'new';
+    return 'old';
+  }
+
   function open(opts){
     if (!opts || typeof opts !== 'object' || typeof opts.preventDefault === 'function') opts = {};
     var overlay = ensureOverlay();
@@ -890,27 +926,9 @@
     if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
     lastFocusEl = document.activeElement;
     closeHomeTstPop();
-    var book = window.currentBook;
-    var wantTestament = (opts.testament === 'old' || opts.testament === 'new') ? opts.testament : '';
-    if (wantTestament) {
-      staged.testament = wantTestament;
-      if (opts.resetPlace || !book || !book.name || ((book.testament === 'new' ? 'new' : 'old') !== wantTestament)) {
-        staged.bookName = '';
-        staged.chapter = 0;
-      } else {
-        staged.bookName = book.name;
-        staged.chapter = window.currentChapter ? Number(window.currentChapter) : 0;
-      }
-    } else if (book && book.name) {
-      staged.testament = book.testament === 'new' ? 'new' : 'old';
-      staged.bookName = book.name;
-      staged.chapter = window.currentChapter ? Number(window.currentChapter) : 0;
-    } else {
-      staged.testament = (typeof currentTab === 'string' && currentTab === 'new') ? 'new' : 'old';
-      staged.bookName = '';
-      staged.chapter = 0;
-    }
-    stage = (!staged.bookName || opts.stage === 'book') ? 'book' : (opts.stage === 'chapter' ? 'chapter' : 'book');
+    staged.testament = pickerTestament(opts);
+    clearStagedPick();
+    stage = 'book';
     overlay.hidden = false;
     overlay.setAttribute('aria-hidden', 'false');
     render();
@@ -935,6 +953,8 @@
     overlay.classList.remove('is-open');
     overlay.setAttribute('aria-hidden', 'true');
     closeHomeTstPop();
+    clearStagedPick();
+    stage = 'book';
     document.documentElement.classList.remove('scripture-quick-move-lock');
     document.removeEventListener('keydown', onKeydown, true);
     var locBtn = document.getElementById('verseReadTitleBtn');
@@ -994,7 +1014,9 @@
     var address = document.getElementById('scriptureQuickMoveAddress');
     if (address) address.addEventListener('click', onAddressClick);
     window.addEventListener('resize', function(){
-      if (isOpen() && stage === 'chapter') syncMoveTag();
+      if (!isOpen()) return;
+      if (stage === 'verse') qmRangeSyncMove(null);
+      else if (stage === 'chapter') syncMoveTag();
     });
     var bottomBar = document.getElementById('opt4BottomBar');
     if (bottomBar) bottomBar.addEventListener('click', onBooksToolbarClick, true);
