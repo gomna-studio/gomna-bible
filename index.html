@@ -294,7 +294,27 @@ html.gt-translation-pending body::after{
 <script>
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js?v=" + window.GOMNA_ASSET_VERSION, { scope: "/" });
+  var hadSwController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" })
+    .then(function(reg){ try { reg.update(); } catch (eUp) {} })
+    .catch(function(){});
+  if (!window.__gomnaSwUpdateBound) {
+    window.__gomnaSwUpdateBound = true;
+    navigator.serviceWorker.addEventListener("controllerchange", function(){
+      if (!hadSwController) return;
+      try {
+        if (sessionStorage.getItem("gomna-sw-reloaded") === "1") return;
+        sessionStorage.setItem("gomna-sw-reloaded", "1");
+      } catch (eLock) {}
+      location.reload();
+    });
+    document.addEventListener("visibilitychange", function(){
+      if (document.visibilityState !== "visible") return;
+      navigator.serviceWorker.getRegistration("/").then(function(reg){
+        if (reg) try { reg.update(); } catch (eVis) {}
+      });
+    });
+  }
 }
 </script>
 <style>
