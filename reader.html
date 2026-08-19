@@ -248,8 +248,8 @@ html.gomna-reader-ui-ja .chapter-btn > span{display:-webkit-box;-webkit-box-orie
 html.reader-hide-chrome .verse-item.verse-item--selected,html.reader-hide-chrome .verse-item.verse-item--chapter-selected,html.reader-hide-chrome .verse-item.verse-item--entry-focus{background:linear-gradient(90deg,rgba(210,168,87,0.28) 0%,rgba(248,236,207,0.72) 45%,rgba(255,252,246,0.96) 100%);box-shadow:inset 4px 0 0 #A86F16;border-top:1px solid rgba(168,111,22,0.38);border-bottom:1px solid rgba(168,111,22,0.38)}
 .verse-item:focus-visible{outline:2px solid rgba(184,134,11,.45);outline-offset:-2px}
 .verse-item .verse-text.gomna-audio-reading{box-shadow:none}
-.verse-top{display:grid;grid-template-columns:48px minmax(0,1fr);column-gap:16px;align-items:start}
-.verse-num{box-sizing:border-box;width:48px;min-width:48px;max-width:48px;height:auto;min-height:0;margin:0;padding:5px 0 0;background:transparent;border:none;border-radius:0;box-shadow:none;color:#2B211A;font-size:16px;font-weight:700;line-height:1.4;text-align:right;display:inline-block;transition:color .08s ease}
+.verse-top{display:grid;grid-template-columns:3ch minmax(0,1fr);column-gap:16px;align-items:start}
+.verse-num{box-sizing:border-box;width:3ch;min-width:3ch;max-width:3ch;height:auto;min-height:0;margin:0;padding:0.32em 0 0;justify-self:end;background:transparent;border:none;border-radius:0;box-shadow:none;color:#5C534C;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:0.84em;font-weight:600;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1,"lnum" 1;line-height:1.4;text-align:right;display:inline-block;transition:color .08s ease}
 .verse-item--selected .verse-num,.verse-item--chapter-selected .verse-num,.verse-item--entry-focus .verse-num{background:transparent;box-shadow:none;color:#8B6A32}
 html.reader-hide-chrome .verse-item.verse-item--selected .verse-num,html.reader-hide-chrome .verse-item.verse-item--chapter-selected .verse-num,html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{background:transparent;box-shadow:none;color:#A86F16}
 .verse-text{flex:1;font-size:var(--font-size);line-height:1.75}
@@ -2787,19 +2787,21 @@ body.gomna-commentary-popup-open #commentaryPopupBox > .gomna-commentary-inline-
 }
 </style>
 <style id="verse-ui-arrow-num-v1">
-/* 오디오 CSS보다 나중에 적용: 원형 제거·48px 2열 정렬·본문 첫 줄 기준선 맞춤 */
+/* 오디오 CSS보다 나중에 적용: 원형 제거·3ch 2열 정렬·본문 첫 줄 기준선 맞춤 */
 .verse-top{
   display:grid!important;
-  grid-template-columns:48px minmax(0,1fr)!important;
+  grid-template-columns:3ch minmax(0,1fr)!important;
   column-gap:16px!important;
   align-items:start;
 }
 .verse-num{
-  width:48px!important;min-width:48px!important;max-width:48px!important;
+  width:3ch!important;min-width:3ch!important;max-width:3ch!important;
   height:auto!important;min-height:0!important;line-height:1.4!important;
-  margin-top:0!important;padding:5px 0 0!important;display:inline-block;
+  margin-top:0!important;padding:0.32em 0 0!important;display:inline-block;justify-self:end;
   background:transparent!important;border:none!important;border-radius:0!important;box-shadow:none!important;
-  color:#2B211A;font-size:16px!important;font-weight:700;text-align:right;
+  color:#5C534C;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:0.84em!important;font-weight:600;font-variant-numeric:tabular-nums lining-nums;
+  font-feature-settings:"tnum" 1,"lnum" 1;text-align:right;
 }
 .verse-item--selected .verse-num,
 .verse-item--chapter-selected .verse-num,
@@ -2808,8 +2810,8 @@ html.reader-hide-chrome .verse-item.verse-item--chapter-selected .verse-num{
   background:transparent!important;box-shadow:none!important;color:#A86F16;
 }
 @media (max-width:420px){
-  .verse-top{grid-template-columns:48px minmax(0,1fr)!important;column-gap:16px!important}
-  .verse-num{width:48px!important;min-width:48px!important;max-width:48px!important;height:auto!important;font-size:16px!important;padding:5px 0 0!important}
+  .verse-top{grid-template-columns:3ch minmax(0,1fr)!important;column-gap:16px!important}
+  .verse-num{width:3ch!important;min-width:3ch!important;max-width:3ch!important;height:auto!important;font-size:0.84em!important;padding:0.32em 0 0!important}
 }
 </style>
 <script src="gomna_category_feature.js?v=20260815-all-guides-v1" defer></script>
@@ -6040,7 +6042,7 @@ function renderVerses(highlightVerse) {
     var occurrence = (verseOccurrenceCounts[v.verse] || 0) + 1;
     verseOccurrenceCounts[v.verse] = occurrence;
     var occurrenceAttr = occurrence > 1 ? ' data-audio-occurrence="' + occurrence + '"' : '';
-    html += '<div class="verse-item" role="button" tabindex="0" aria-selected="false" data-verse="' + v.verse + '"' + occurrenceAttr + '><div class="verse-top"><span class="verse-num">' + v.verse + '절</span><span class="verse-text">' + v.text + '</span></div></div>';
+    html += '<div class="verse-item" role="button" tabindex="0" aria-selected="false" data-verse="' + v.verse + '"' + occurrenceAttr + '><div class="verse-top"><span class="verse-num" aria-label="' + v.verse + '절">' + v.verse + '</span><span class="verse-text">' + v.text + '</span></div></div>';
   });
   html += '</div>';
   document.getElementById('verseView').innerHTML = html;
