@@ -2815,6 +2815,8 @@ html.reader-hide-chrome .verse-item.verse-item--chapter-selected .verse-num{
 <script src="gomna_category_feature.js?v=20260815-all-guides-v1" defer></script>
 <script src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
 <script src="/js/gomna-bible-ref.js?v=20260725-multilang-structured-refs-v1"></script>
+<link rel="stylesheet" href="js/gomna-easy-find.css?v=20260819-easy-find-v3">
+<script src="js/gomna-easy-find.js?v=20260819-easy-find-v3"></script>
 <script src="/js/gomna-commentary-multilang-policy.js?v=20260725-multilang-structured-refs-v1"></script>
 <script>
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
@@ -3163,7 +3165,7 @@ if ("serviceWorker" in navigator) {
       <div class="scripture-quick-move-body" id="scriptureQuickMoveBody"></div>
     </div>
   </div>
-  <script src="js/gomna-scripture-quick-move.js?v=20260818-no-book-move-hotfix-v1"></script>
+  <script src="js/gomna-scripture-quick-move.js?v=20260819-easy-find-v1"></script>
   <div id="verseRangeModal" class="verse-range-modal-overlay" role="dialog" aria-modal="true" aria-hidden="true" onclick="if(event.target===this)closeVerseRangeModal()">
     <div id="verseRangeModalBox" class="verse-range-modal-box" onclick="event.stopPropagation()">
       <div id="verseRangeModalScroll" class="verse-range-modal-scroll">
@@ -3788,7 +3790,7 @@ function updateReaderDockTop() {
     if (titleEl) titleEl.textContent = title;
     var allBooksBtn = document.getElementById('readerDockTopAllBooks');
     if (allBooksBtn) {
-      var showAllBooksBtn = viewId === 'easyView';
+      var showAllBooksBtn = false;
       allBooksBtn.hidden = !showAllBooksBtn;
       if (!showAllBooksBtn) allBooksBtn.classList.remove('is-active');
     }
@@ -3914,7 +3916,7 @@ function handleScriptureDock(action) {
     }
     if (action === 'find') {
       switchTab('easy');
-      if (typeof renderEasyRecentBooks === 'function') renderEasyRecentBooks();
+      if (typeof renderEasyFind === 'function') renderEasyFind();
       var easyView = document.getElementById('easyView');
       if (easyView) easyView.scrollIntoView({ behavior: 'smooth', block: 'start' });
       syncScriptureDockActive('find');
@@ -5384,6 +5386,10 @@ function _escR(s) {
 }
 
 function renderEasyFind() {
+  if (typeof window.renderGomnaEasyFind === 'function') {
+    window.renderGomnaEasyFind();
+    return;
+  }
   var cats = (window.GomnaBibleCategories && window.GomnaBibleCategories.list) || null;
   if(!cats) {
     var consonants = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅎ'];

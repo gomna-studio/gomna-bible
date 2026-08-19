@@ -1,0 +1,375 @@
+/* 쉬운찾기 1차 시안 — 카드형 첫 화면. 홈·Reader 공용 선택창 스타일은 건드리지 않는다. */
+#easyView.easy-find-ready{
+  padding:0;
+  box-sizing:border-box;
+}
+.easy-find-shell{
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
+  padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+}
+.easy-find-card{
+  width:100%;
+  max-width:720px;
+  max-height:88dvh;
+  box-sizing:border-box;
+  margin:0 auto;
+  padding:16px 16px 14px;
+  background:#FBF6EC;
+  border:1px solid rgba(184,134,11,.28);
+  border-radius:16px;
+  box-shadow:0 1px 0 rgba(255,255,255,.55) inset;
+  overflow-x:hidden;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+}
+.easy-find-card *{box-sizing:border-box}
+.easy-find-search{
+  margin:0 0 8px;
+}
+.easy-find-search-input{
+  width:100%;
+  min-height:46px;
+  padding:10px 14px;
+  border:1px solid rgba(184,134,11,.38);
+  border-radius:12px;
+  background:#fff;
+  color:#3D2817;
+  font-family:inherit;
+  font-size:15px;
+  font-weight:500;
+  line-height:1.3;
+  outline:none;
+  -webkit-appearance:none;
+  appearance:none;
+}
+.easy-find-search-input:focus{
+  border-color:#8B5E2C;
+  box-shadow:0 0 0 2px rgba(139,94,44,.12);
+}
+.easy-find-search-hint{
+  margin:8px 2px 0;
+  font-size:12px;
+  font-weight:500;
+  line-height:1.4;
+  color:#8A6A48;
+  text-align:left;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+  max-width:100%;
+}
+.easy-find-search-jamo{
+  margin:5px 2px 0;
+  font-size:11px;
+  font-weight:500;
+  line-height:1.4;
+  color:#9A8874;
+  text-align:left;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+  max-width:100%;
+}
+.easy-find-section{margin:18px 0 0}
+.easy-find-section-title{
+  margin:0 0 8px;
+  font-size:14px;
+  font-weight:700;
+  color:#5A3818;
+  letter-spacing:-.01em;
+}
+.easy-find-section-sub{
+  margin:-2px 0 10px;
+  font-size:12px;
+  font-weight:500;
+  color:#8A6A48;
+  line-height:1.4;
+}
+.easy-find-resume[hidden],
+.easy-find-panel[hidden]{display:none!important}
+.easy-find-resume-card{
+  background:#fff;
+  border:1px solid rgba(184,134,11,.22);
+  border-radius:12px;
+  overflow:hidden;
+}
+.easy-find-resume-row{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:start;
+  column-gap:8px;
+  width:100%;
+  min-height:52px;
+  margin:0;
+  padding:10px 12px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:#3D2817;
+  font-family:inherit;
+  text-align:left;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.easy-find-resume-row + .easy-find-resume-row{
+  border-top:1px solid rgba(184,134,11,.16);
+}
+.easy-find-resume-row:active{background:#F8F4EF}
+@media (hover:hover){
+  .easy-find-resume-row:hover{background:#FFFCF5}
+}
+.easy-find-resume-kind{
+  padding-top:2px;
+  font-size:11px;
+  font-weight:600;
+  line-height:1.3;
+  color:#8A6A48;
+  white-space:nowrap;
+}
+.easy-find-resume-main{
+  min-width:0;
+}
+.easy-find-resume-place{
+  display:block;
+  font-size:14px;
+  font-weight:700;
+  line-height:1.35;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+}
+.easy-find-resume-when{
+  display:block;
+  margin-top:3px;
+  font-size:11px;
+  font-weight:500;
+  line-height:1.3;
+  color:#9A8874;
+}
+.easy-find-resume-cta{
+  padding-top:2px;
+  font-size:12px;
+  font-weight:600;
+  line-height:1.3;
+  color:#8A6A48;
+  white-space:nowrap;
+}
+.easy-find-two{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.easy-find-choice,
+.easy-find-group,
+.easy-find-all-btn,
+.easy-find-back,
+.easy-find-sort-btn,
+.easy-find-book,
+.easy-find-hit{
+  background:#fff;
+  border:1px solid rgba(184,134,11,.22);
+  border-radius:12px;
+  color:#3D2817;
+  font-family:inherit;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.easy-find-choice{
+  min-height:56px;
+  padding:10px 8px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+}
+.easy-find-choice-title{
+  font-size:14px;
+  font-weight:700;
+  line-height:1.25;
+  word-break:keep-all;
+}
+.easy-find-choice-sub{
+  font-size:11px;
+  font-weight:500;
+  color:#8A6A48;
+}
+.easy-find-choice.is-on,
+.easy-find-group.is-on,
+.easy-find-sort-btn.is-on,
+.easy-find-book.is-on{
+  border-color:#C4A15A;
+  box-shadow:0 0 0 1px rgba(196,161,90,.35);
+  background:#FFFCF5;
+}
+.easy-find-groups{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.easy-find-group{
+  min-height:64px;
+  padding:10px 8px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:2px;
+  text-align:left;
+  min-width:0;
+}
+.easy-find-group-title{
+  font-size:13px;
+  font-weight:700;
+  line-height:1.25;
+  word-break:keep-all;
+}
+.easy-find-group-sub{
+  font-size:11px;
+  font-weight:500;
+  color:#8A6A48;
+  word-break:keep-all;
+}
+.easy-find-all-wrap{
+  margin-top:18px;
+  text-align:center;
+}
+.easy-find-all-btn{
+  min-height:40px;
+  padding:8px 14px;
+  font-size:13px;
+  font-weight:600;
+  color:#6B4E32;
+  background:transparent;
+  border-color:rgba(184,134,11,.2);
+}
+.easy-find-list-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:0 0 12px;
+}
+.easy-find-back{
+  min-width:72px;
+  min-height:40px;
+  padding:8px 10px;
+  font-size:13px;
+  font-weight:700;
+  color:#5A3818;
+  flex:0 0 auto;
+}
+.easy-find-list-title{
+  flex:1 1 auto;
+  min-width:0;
+  font-size:14px;
+  font-weight:700;
+  color:#5A3818;
+  word-break:keep-all;
+}
+.easy-find-books{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+.easy-find-book{
+  min-height:52px;
+  min-width:0;
+  padding:8px 6px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+}
+.easy-find-book-name{
+  font-size:13px;
+  font-weight:700;
+  line-height:1.25;
+  text-align:center;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+  max-width:100%;
+}
+.easy-find-book-meta{
+  font-size:11px;
+  font-weight:500;
+  color:#8A6A48;
+}
+.easy-find-sort{
+  display:flex;
+  width:min(100%,220px);
+  margin:0 auto 12px;
+  padding:3px;
+  background:rgba(139,94,44,.08);
+  border:1px solid rgba(139,94,44,.16);
+  border-radius:12px;
+}
+.easy-find-sort-btn{
+  flex:1 1 0;
+  min-height:40px;
+  border:1px solid transparent;
+  background:transparent;
+  font-size:13px;
+  font-weight:700;
+  color:#5A3818;
+}
+.easy-find-ganada-group{margin:0 0 14px}
+.easy-find-ganada-h{
+  margin:0 0 8px;
+  font-size:13px;
+  font-weight:700;
+  color:#8A6A48;
+}
+.easy-find-hits{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:10px;
+}
+.easy-find-hit{
+  width:100%;
+  min-height:48px;
+  padding:10px 12px;
+  text-align:left;
+  font-size:14px;
+  font-weight:600;
+}
+.easy-find-hit-k{
+  display:block;
+  font-size:11px;
+  font-weight:600;
+  color:#8A6A48;
+  margin-bottom:2px;
+}
+.easy-find-empty{
+  margin:16px 2px 0;
+  font-size:13px;
+  color:#8A6A48;
+}
+.easy-find-choice:active,
+.easy-find-group:active,
+.easy-find-back:active,
+.easy-find-book:active,
+.easy-find-hit:active,
+.easy-find-all-btn:active{background:#F8F4EF}
+
+@media (max-width:420px){
+  .easy-find-shell{padding:14px 14px calc(16px + env(safe-area-inset-bottom,0px))}
+  .easy-find-card{padding:14px 12px 12px}
+  .easy-find-books{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .easy-find-book-name{font-size:12px}
+}
+@media (min-width:700px) and (min-height:600px){
+  .easy-find-shell{
+    padding:20px 18px 24px;
+    min-height:calc(88dvh - 8px);
+    align-items:flex-start;
+  }
+  .easy-find-card{
+    width:min(720px,100%);
+    max-height:88dvh;
+  }
+}
