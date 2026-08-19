@@ -930,6 +930,13 @@
     staged.testament = pickerTestament(opts);
     clearStagedPick();
     stage = 'book';
+    if (opts.bookName) {
+      staged.bookName = String(opts.bookName);
+      staged.chapter = 0;
+      var bookTst = testamentOf(staged.bookName);
+      if (bookTst) staged.testament = bookTst;
+      if (opts.stage === 'chapter') stage = 'chapter';
+    }
     overlay.hidden = false;
     overlay.setAttribute('aria-hidden', 'false');
     render();

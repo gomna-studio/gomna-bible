@@ -36,18 +36,31 @@
     '.cat-section--scripture-guide .section-title{display:inline-flex;align-items:center;gap:10px;flex-wrap:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;font-size:18px;font-weight:800;line-height:1.3;color:var(--primary)}' +
     '.scripture-guide-info-btn{display:inline-flex;align-items:center;justify-content:center;height:36px;min-height:36px;margin-left:0;padding:0 12px;border:1px solid rgba(184,134,11,0.42);border-radius:999px;background:rgba(255,250,244,0.95);color:#5a3818;font-size:15px;font-weight:700;line-height:1;cursor:pointer;flex-shrink:0;font-family:inherit;vertical-align:middle;-webkit-tap-highlight-color:transparent;box-sizing:border-box}' +
     '.scripture-guide-info-btn:active{transform:scale(0.97);opacity:0.88;background:rgba(255,245,225,1)}' +
-    '.scripture-guide-overlay{position:fixed;inset:0;z-index:320;display:none;align-items:flex-end;justify-content:center;background:rgba(26,15,10,0.38);box-sizing:border-box;padding:0}' +
+    '.scripture-guide-overlay{position:fixed;inset:0;z-index:320;display:none;align-items:stretch;justify-content:center;background:rgba(26,15,10,0.38);box-sizing:border-box;padding:0}' +
     '.scripture-guide-overlay.is-open{display:flex}' +
-    '.scripture-guide-sheet{width:100%;max-width:420px;max-height:min(85vh,760px);background:linear-gradient(180deg,#F7F0E4 0%,#F3EBDD 100%);border-radius:18px 18px 0 0;box-shadow:0 -4px 24px rgba(74,37,17,0.12);display:flex;flex-direction:column;overflow:hidden;transform:translateY(100%);transition:transform 0.28s ease;box-sizing:border-box;min-height:0}' +
-    '.scripture-guide-overlay.is-open .scripture-guide-sheet{transform:translateY(0)}' +
+    '.scripture-guide-sheet{width:100%;max-width:760px;height:100%;max-height:100%;background:linear-gradient(180deg,#F7F0E4 0%,#F3EBDD 100%);border-radius:0;box-shadow:none;display:flex;flex-direction:column;overflow:hidden;transform:translateY(0);transition:none;box-sizing:border-box;min-height:0}' +
+    '.scripture-guide-overlay.is-open .scripture-guide-sheet{transform:none}' +
     '.scripture-guide-handle{width:36px;height:4px;border-radius:999px;background:rgba(139,94,44,0.35);margin:10px auto 6px;flex:0 0 auto}' +
     '.scripture-guide-panel{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden}' +
     '.scripture-guide-panel[hidden]{display:none!important}' +
-    '.scripture-guide-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:4px 18px calc(24px + env(safe-area-inset-bottom,0))}' +
+    '.scripture-guide-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:8px 16px calc(28px + env(safe-area-inset-bottom,0));box-sizing:border-box}' +
     '.scripture-guide-eyebrow{font-size:13px;font-weight:700;color:#9a7209;margin:0 0 8px;letter-spacing:0.02em}' +
-    '.scripture-guide-cat{font-size:20px;font-weight:800;color:#4a2511;margin:0 0 4px}' +
-    '.scripture-guide-alt{font-size:13px;font-weight:600;color:#7a5a3a;margin:0 0 14px}' +
-    '.scripture-guide-p{font-size:14px;line-height:1.55;font-weight:500;color:#3d2818;margin:0 0 10px}' +
+    '.scripture-guide-crumb{font-size:13px;font-weight:700;color:#8b5e2c;margin:0 0 12px;letter-spacing:0.01em;line-height:1.4}' +
+    '.scripture-guide-crumb-sep{display:inline-block;margin:0 6px;font-weight:600;color:#b08a4a}' +
+    '.scripture-guide-cat{font-size:22px;font-weight:800;color:#4a2511;margin:0 0 4px;line-height:1.3}' +
+    '.scripture-guide-alt{font-size:14px;font-weight:600;color:#7a5a3a;margin:0 0 10px;line-height:1.45}' +
+    '.scripture-guide-range{font-size:14px;font-weight:600;color:#6b4e38;margin:0 0 10px;line-height:1.5}' +
+    '.scripture-guide-p{font-size:15px;line-height:1.65;font-weight:500;color:#3d2818;margin:0}' +
+    '.scripture-guide-summary{background:rgba(255,252,247,0.55);border:1px solid rgba(184,134,11,0.14);border-radius:14px;padding:16px;margin:0 0 16px;box-sizing:border-box}' +
+    '.scripture-guide-card{background:#FFFCF7;border:1px solid rgba(184,134,11,0.22);border-radius:14px;padding:18px 16px;margin:0 0 14px;box-sizing:border-box}' +
+    '.scripture-guide-card-title{font-size:16px;font-weight:800;color:#4a2511;margin:0 0 12px;line-height:1.35}' +
+    '.scripture-guide-qa{margin:0}' +
+    '.scripture-guide-qa--divided{margin-top:14px;padding-top:14px;border-top:1px solid rgba(139,94,44,0.14)}' +
+    '.scripture-guide-book-list{list-style:none;margin:0;padding:0}' +
+    '.scripture-guide-book-row{display:grid;grid-template-columns:minmax(5.8em,max-content) minmax(0,1fr);column-gap:16px;row-gap:2px;align-items:baseline;padding:10px 0;border-bottom:1px solid rgba(139,94,44,0.10)}' +
+    '.scripture-guide-book-row:last-child{border-bottom:none;padding-bottom:0}' +
+    '.scripture-guide-book-row:first-child{padding-top:0}' +
+    '.scripture-guide-read-chevron{display:block;flex:0 0 auto;width:16px;height:16px;color:inherit}' +
     '.scripture-guide-divider{height:1px;background:rgba(139,94,44,0.16);margin:14px 0;border:none}' +
     '.scripture-guide-label{font-size:12px;font-weight:700;color:#8b5e2c;margin:0 0 6px;letter-spacing:0.02em}' +
     '.scripture-guide-books{font-size:13px;line-height:1.5;font-weight:500;color:#4a3728;margin:0 0 16px}' +
@@ -59,14 +72,15 @@
     '.scripture-guide-head-title{flex:1;text-align:center;font-size:14px;font-weight:700;color:#9a7209}' +
     '.scripture-guide-head-close{width:36px;height:36px;min-width:36px;padding:0;border:none;background:rgba(139,94,44,0.1);border-radius:50%;color:#5a3818;font-size:16px;cursor:pointer;font-family:inherit;line-height:1}' +
     '.scripture-guide-detail-h{font-size:17px;font-weight:800;color:#4a2511;margin:0 0 14px}' +
-    '.scripture-guide-q{font-size:14px;font-weight:700;color:#5a3818;margin:16px 0 6px}' +
-    '.scripture-guide-a{font-size:13px;line-height:1.6;font-weight:500;color:#3d2818;margin:0 0 4px}' +
+    '.scripture-guide-q{font-size:14px;font-weight:700;color:#4a2511;margin:0 0 6px;line-height:1.45}' +
+    '.scripture-guide-a{font-size:14px;line-height:1.65;font-weight:500;color:#3d2818;margin:0}' +
+    '.scripture-guide-a + .scripture-guide-a{margin-top:8px}' +
     '.scripture-guide-book-item{margin:10px 0 0}' +
-    '.scripture-guide-book-name{font-size:14px;font-weight:700;color:#4a2511;margin:0 0 2px}' +
-    '.scripture-guide-book-desc{font-size:13px;line-height:1.5;font-weight:500;color:#5a4638;margin:0}' +
-    '.scripture-guide-tags{font-size:13px;line-height:1.55;font-weight:600;color:#6b4e38;margin:8px 0 0}' +
-    '.scripture-guide-read-btn{width:100%;margin-top:18px;padding:14px 16px;border-radius:12px;border:none;background:#c89849;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}' +
-    '.scripture-guide-read-btn:active{opacity:0.9}' +
+    '.scripture-guide-book-name{font-size:14px;font-weight:700;color:#4a2511;margin:0;line-height:1.45;white-space:nowrap}' +
+    '.scripture-guide-book-desc{font-size:14px;line-height:1.55;font-weight:500;color:#5a4638;margin:0;min-width:0}' +
+    '.scripture-guide-tags{font-size:14px;line-height:1.7;font-weight:600;color:#6b4e38;margin:0;word-break:keep-all}' +
+    '.scripture-guide-read-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;width:100%;margin-top:4px;padding:14px 16px;border-radius:12px;border:1px solid rgba(184,134,11,0.42);background:rgba(255,250,244,0.96);color:#5a3818;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent}' +
+    '.scripture-guide-read-btn:active{opacity:0.88}' +
     '.scripture-guide-detail-body{flex:1 1 auto;min-height:0}' +
     '.scripture-guide-verse-list{display:flex;flex-direction:column;gap:8px;margin:4px 0 0}' +
     '.scripture-guide-verse-link{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;padding:12px 14px;border:1px solid rgba(184,134,11,0.38);border-radius:12px;background:rgba(255,250,244,0.95);color:#5a3818;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent;transition:transform 0.15s ease,opacity 0.15s ease,background 0.15s ease}' +
@@ -79,23 +93,24 @@
     '.verse-item.gomna-guide-verse-highlight.gomna-guide-verse-highlight-fade{background:transparent!important;box-shadow:none!important}' +
     '.scripture-guide-return-tag{display:block;width:calc(100% - 4px);max-width:100%;margin:-1px auto 10px;padding:10px 14px;min-height:44px;border:0.5px solid rgba(184,134,11,0.42);border-top:0.5px solid rgba(184,134,11,0.2);border-radius:0 0 10px 10px;background:rgba(255,250,244,0.96);color:#5a3818;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;box-sizing:border-box;-webkit-tap-highlight-color:transparent;transition:transform 0.15s ease,opacity 0.15s ease,background 0.15s ease}' +
     '.scripture-guide-return-tag:active{transform:scale(0.99);opacity:0.9;background:rgba(255,245,225,1)}' +
-    '@media(min-width:769px){.scripture-guide-overlay{align-items:flex-end;padding-bottom:24px}.scripture-guide-sheet{border-radius:18px;max-height:min(85vh,760px)}}' +
-    /* v72: 성경 길잡이 한 손 조작. 평소/데스크톱은 숨김 → 기존 동작 그대로 */
-    '.scripture-guide-pull-spacer{display:none}' +
-    /* 모바일에서만: 패널을 스크롤러로 삼아 헤더+본문을 한 흐름으로 끌어내린다. 헤더 앞 투명 스페이서로 여유 공간 확보 */
-    '@media(max-width:480px){' +
-      '.scripture-guide-sheet{height:min(85vh,760px)}' +
-      '.scripture-guide-panel{overflow-y:auto;-webkit-overflow-scrolling:touch;scroll-behavior:auto;overscroll-behavior:contain;touch-action:pan-y}' +
-      '.scripture-guide-body{overflow:visible;flex:0 0 auto;min-height:100%;touch-action:auto}' +
-      '.scripture-guide-pull-spacer{display:block;flex:0 0 auto;width:100%;height:min(48vh,380px);pointer-events:none;background:transparent}' +
+    '@media(max-width:420px){.scripture-guide-book-row{grid-template-columns:1fr}.scripture-guide-book-name{white-space:normal}}' +
+    '@media(min-width:769px){' +
+      '.scripture-guide-overlay{align-items:center;justify-content:center;padding:24px}' +
+      '.scripture-guide-sheet{border-radius:18px;max-width:760px;width:100%;height:min(90vh,900px);max-height:min(90vh,900px);box-shadow:0 8px 28px rgba(74,37,17,0.10)}' +
+      '.scripture-guide-body{padding:10px 22px 28px}' +
+      '.scripture-all-guides-body{padding:12px 24px calc(32px + env(safe-area-inset-bottom,0))}' +
+      '.scripture-all-guides-inner{max-width:760px;margin:0 auto}' +
     '}' +
+    '.scripture-guide-pull-spacer{display:none}' +
     'html.scripture-all-guides-lock,html.scripture-all-guides-lock body{overflow:hidden!important}' +
     '.scripture-all-guides-overlay{position:fixed;inset:0;z-index:330;display:none;flex-direction:column;background:linear-gradient(180deg,#F7F0E4 0%,#F3EBDD 100%);box-sizing:border-box}' +
     '.scripture-all-guides-overlay.is-open{display:flex}' +
     '.scripture-all-guides-overlay[hidden]{display:none}' +
-    '.scripture-all-guides-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:8px 18px calc(28px + env(safe-area-inset-bottom,0));box-sizing:border-box}' +
-    '.scripture-all-guides-testament{font-size:13px;font-weight:700;color:#9a7209;margin:22px 0 10px;letter-spacing:0.02em}' +
-    '.scripture-all-guides-article+.scripture-all-guides-article{margin-top:28px;padding-top:22px;border-top:1px solid rgba(139,94,44,0.16)}';
+    '.scripture-all-guides-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:8px 16px calc(28px + env(safe-area-inset-bottom,0));box-sizing:border-box}' +
+    '.scripture-all-guides-inner{width:100%;max-width:760px;margin:0 auto;box-sizing:border-box}' +
+    '.scripture-all-guides-testament{font-size:13px;font-weight:700;color:#9a7209;margin:8px 0 12px;letter-spacing:0.02em}' +
+    '.scripture-all-guides-article{margin:0 0 22px}' +
+    '.scripture-all-guides-article+.scripture-all-guides-article{margin-top:8px;padding-top:8px;border-top:none}';
   document.head.appendChild(styleEl);
 
   // === 2. 카테고리 정보 ===
@@ -505,49 +520,131 @@
     }
   };
 
-  function buildGuideDetailHtml(guide, opts) {
+  var GUIDE_READ_CHEVRON =
+    '<svg class="scripture-guide-read-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"></path></svg>';
+
+  function getGuideTestamentLabel(guide) {
+    return guide && guide.testament === 'new' ? '신약' : '구약';
+  }
+
+  function getGuideBookRangeText(guide) {
+    var books = (guide && guide.bookSummaries) || [];
+    if (!books.length) return '';
+    if (books.length === 1) return books[0].name + ' · 1권';
+    return books[0].name + '부터 ' + books[books.length - 1].name + '까지 · ' + books.length + '권';
+  }
+
+  function getGuideGlanceTitle(guide) {
+    var n = ((guide && guide.bookSummaries) || []).length;
+    if (n === 5) return '다섯 권 한눈에 보기';
+    if (n === 4) return '네 권 한눈에 보기';
+    return '포함된 성경 한눈에 보기';
+  }
+
+  function getGuideFirstBookName(guide) {
+    var books = (guide && guide.bookSummaries) || [];
+    if (books.length && books[0].name) return books[0].name;
+    if (guide && guide.books) {
+      var first = String(guide.books).split('·')[0];
+      return first ? first.trim() : '';
+    }
+    return '';
+  }
+
+  function buildGuidePageHtml(guide, opts) {
+    opts = opts || {};
     var c = guide;
-    var html = '<h3 class="scripture-guide-detail-h">' + escGuideHtml(c.detailTitle) + '</h3>';
+    var html = '';
+    var crumbId = opts.crumbId ? ' id="' + opts.crumbId + '"' : '';
+    html += '<section class="scripture-guide-summary">';
+    html += '<p class="scripture-guide-crumb"' + crumbId + '>' + escGuideHtml(getGuideTestamentLabel(c)) + ' <span class="scripture-guide-crumb-sep" aria-hidden="true">〉</span> ' + escGuideHtml(c.categoryName) + '</p>';
+    html += '<h2 class="scripture-guide-cat">' + escGuideHtml(c.categoryName) + '</h2>';
+    html += '<p class="scripture-guide-alt">' + escGuideHtml(c.altNames) + '</p>';
+    var range = getGuideBookRangeText(c);
+    if (range) html += '<p class="scripture-guide-range">' + escGuideHtml(range) + '</p>';
+    if (c.summaryLine2) html += '<p class="scripture-guide-p">' + escGuideHtml(c.summaryLine2) + '</p>';
+    html += '</section>';
+
     var sections = c.sections || [];
-    for (var i = 0; i < sections.length; i++) {
-      html += '<p class="scripture-guide-q">' + escGuideHtml(sections[i].q) + '</p>';
-      html += '<p class="scripture-guide-a">' + escGuideHtml(sections[i].a) + '</p>';
-    }
-    if (c.bookGroups && c.bookGroups.length) {
-      html += '<p class="scripture-guide-q">바울서신 내부 분류</p>';
-      for (var g = 0; g < c.bookGroups.length; g++) {
-        html += '<p class="scripture-guide-a"><strong>' + escGuideHtml(c.bookGroups[g].title) + '</strong><br>' + escGuideHtml(c.bookGroups[g].books) + '</p>';
+    var hasGroups = !!(c.bookGroups && c.bookGroups.length);
+    if (sections.length || hasGroups) {
+      html += '<section class="scripture-guide-card">';
+      html += '<h3 class="scripture-guide-card-title">이름과 의미</h3>';
+      for (var i = 0; i < sections.length; i++) {
+        html += '<div class="scripture-guide-qa' + (i ? ' scripture-guide-qa--divided' : '') + '">';
+        html += '<p class="scripture-guide-q">' + escGuideHtml(sections[i].q) + '</p>';
+        html += '<p class="scripture-guide-a">' + escGuideHtml(sections[i].a) + '</p>';
+        html += '</div>';
       }
+      if (hasGroups) {
+        html += '<div class="scripture-guide-qa' + (sections.length ? ' scripture-guide-qa--divided' : '') + '">';
+        html += '<p class="scripture-guide-q">바울서신 내부 분류</p>';
+        for (var g = 0; g < c.bookGroups.length; g++) {
+          html += '<p class="scripture-guide-a"><strong>' + escGuideHtml(c.bookGroups[g].title) + '</strong> · ' + escGuideHtml(c.bookGroups[g].books) + '</p>';
+        }
+        html += '</div>';
+      }
+      html += '</section>';
     }
-    var bookListTitle = c.bookListTitle || '포함된 성경';
+
     var books = c.bookSummaries || [];
     if (books.length) {
-      html += '<p class="scripture-guide-q">' + escGuideHtml(bookListTitle) + '</p>';
+      html += '<section class="scripture-guide-card">';
+      html += '<h3 class="scripture-guide-card-title">' + escGuideHtml(getGuideGlanceTitle(c)) + '</h3>';
+      html += '<ul class="scripture-guide-book-list">';
       for (var b = 0; b < books.length; b++) {
-        html += '<div class="scripture-guide-book-item"><p class="scripture-guide-book-name">' + escGuideHtml(books[b].name) + '</p>';
-        html += '<p class="scripture-guide-book-desc">' + escGuideHtml(books[b].desc) + '</p></div>';
+        html += '<li class="scripture-guide-book-row">';
+        html += '<span class="scripture-guide-book-name">' + escGuideHtml(books[b].name) + '</span>';
+        html += '<span class="scripture-guide-book-desc">' + escGuideHtml(books[b].desc) + '</span>';
+        html += '</li>';
       }
+      html += '</ul></section>';
     }
-    html += '<p class="scripture-guide-q">핵심 주제</p>';
-    html += '<p class="scripture-guide-tags">' + escGuideHtml(c.themes) + '</p>';
-    html += '<p class="scripture-guide-q">예수님과의 연결</p>';
-    html += '<p class="scripture-guide-a">' + escGuideHtml(c.jesusLink) + '</p>';
-    html += '<p class="scripture-guide-q" data-guide-related-verses>관련 말씀</p>';
-    html += '<div class="scripture-guide-verse-list">';
+
+    if (c.themes) {
+      html += '<section class="scripture-guide-card">';
+      html += '<h3 class="scripture-guide-card-title">핵심 주제</h3>';
+      html += '<p class="scripture-guide-tags">' + escGuideHtml(c.themes) + '</p>';
+      html += '</section>';
+    }
+
+    if (c.jesusLink) {
+      html += '<section class="scripture-guide-card">';
+      html += '<h3 class="scripture-guide-card-title">예수님과의 연결</h3>';
+      html += '<p class="scripture-guide-a">' + escGuideHtml(c.jesusLink) + '</p>';
+      html += '</section>';
+    }
+
     var verses = c.relatedVerses || [];
-    for (var rv = 0; rv < verses.length; rv++) {
-      var v = verses[rv];
-      var vLabel = v.label || (v.book + ' ' + v.chapter + '장 ' + v.verse + '절');
-      html += '<button type="button" class="scripture-guide-verse-link" data-guide-verse data-book="' + escGuideHtml(v.book) + '" data-chapter="' + v.chapter + '" data-verse="' + v.verse + '" data-testament="' + escGuideHtml(v.testament) + '">';
-      html += '<span class="scripture-guide-verse-link-label"><span class="scripture-guide-verse-link-icon" aria-hidden="true">📖</span><span>' + escGuideHtml(vLabel) + '</span></span>';
-      html += '<span class="scripture-guide-verse-link-arrow" aria-hidden="true">→</span>';
-      html += '</button>';
+    if (verses.length) {
+      html += '<section class="scripture-guide-card">';
+      html += '<h3 class="scripture-guide-card-title" data-guide-related-verses>관련 말씀</h3>';
+      html += '<div class="scripture-guide-verse-list">';
+      for (var rv = 0; rv < verses.length; rv++) {
+        var v = verses[rv];
+        var vLabel = v.label || (v.book + ' ' + v.chapter + '장 ' + v.verse + '절');
+        html += '<button type="button" class="scripture-guide-verse-link" data-guide-verse data-book="' + escGuideHtml(v.book) + '" data-chapter="' + v.chapter + '" data-verse="' + v.verse + '" data-testament="' + escGuideHtml(v.testament) + '">';
+        html += '<span class="scripture-guide-verse-link-label"><span class="scripture-guide-verse-link-icon" aria-hidden="true">📖</span><span>' + escGuideHtml(vLabel) + '</span></span>';
+        html += GUIDE_READ_CHEVRON;
+        html += '</button>';
+      }
+      html += '</div></section>';
     }
-    html += '</div>';
-    if (!opts || !opts.omitReadButton) {
-      html += '<button type="button" class="scripture-guide-read-btn" data-guide-read-testament="' + escGuideHtml(c.testament) + '" data-guide-read-cat="' + escGuideHtml(c.categoryName) + '">' + escGuideHtml(c.readButtonLabel) + '</button>';
+
+    if (!opts.omitReadButton) {
+      var firstBook = getGuideFirstBookName(c);
+      html += '<section class="scripture-guide-card scripture-guide-card--read">';
+      html += '<h3 class="scripture-guide-card-title">' + escGuideHtml(c.categoryName) + ' 읽기</h3>';
+      html += '<button type="button" class="scripture-guide-read-btn" data-guide-read-testament="' + escGuideHtml(c.testament) + '" data-guide-read-cat="' + escGuideHtml(c.categoryName) + '">';
+      html += '<span>' + escGuideHtml(firstBook ? firstBook + ' 1장부터 읽기' : '1장부터 읽기') + '</span>';
+      html += GUIDE_READ_CHEVRON;
+      html += '</button></section>';
     }
     return html;
+  }
+
+  function buildGuideDetailHtml(guide, opts) {
+    return buildGuidePageHtml(guide, opts);
   }
 
   function populateGuideSummary(overlay, guide) {
@@ -570,7 +667,7 @@
   function populateGuideDetail(overlay, guide) {
     var detailBody = overlay.querySelector('.scripture-guide-detail-body');
     if (!detailBody) return;
-    detailBody.innerHTML = buildGuideDetailHtml(guide);
+    detailBody.innerHTML = buildGuidePageHtml(guide, { crumbId: 'scriptureGuideDialogTitle' });
   }
 
   function ensureScriptureGuideOverlay() {
@@ -889,18 +986,17 @@
     var guide = getScriptureGuide(testament, catName);
     if (!guide) return;
     var overlay = ensureScriptureGuideOverlay();
-    populateGuideSummary(overlay, guide);
     populateGuideDetail(overlay, guide);
     scriptureGuideState.triggerEl = triggerEl || null;
     scriptureGuideState.activeTestament = testament;
     scriptureGuideState.activeCat = catName;
     scriptureGuideState.open = true;
     resetGuidePinchZoom();
-    showScriptureGuideSummary();
+    showScriptureGuideDetail();
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     lockGuideScroll();
-    var focusEl = overlay.querySelector('.scripture-guide-more-btn');
+    var focusEl = overlay.querySelector('[data-guide-panel="detail"] [data-guide-close]');
     if (focusEl) {
       try { focusEl.focus(); } catch (err) {}
     }
@@ -1181,7 +1277,16 @@
   }
 
   function navigateToGuideCategory(testament, catName) {
+    var guide = getScriptureGuide(testament, catName);
+    var book = getGuideFirstBookName(guide);
     closeScriptureGuide();
+    if (typeof closeAllScriptureGuides === 'function') {
+      try { closeAllScriptureGuides(); } catch (err) {}
+    }
+    if (book && typeof goToVerse === 'function') {
+      goToVerse(book, 1, 1, testament);
+      return;
+    }
     returnToGuideCategoryList(testament, catName);
   }
 
@@ -1191,7 +1296,7 @@
     infoBtn.type = 'button';
     infoBtn.className = 'scripture-guide-info-btn';
     infoBtn.setAttribute('aria-label', catName + ' 길잡이 열기');
-    infoBtn.textContent = 'Guide';
+    infoBtn.textContent = '알아보기';
 
     function openGuide(e) {
       if (e) {
@@ -1393,20 +1498,11 @@
   };
 
   function buildGuideReadingArticleHtml(guide) {
-    return ''
-      + '<article class="scripture-all-guides-article">'
-      +   '<h2 class="scripture-guide-cat">' + escGuideHtml(guide.categoryName) + '</h2>'
-      +   '<p class="scripture-guide-alt">' + escGuideHtml(guide.altNames) + '</p>'
-      +   '<p class="scripture-guide-p">' + escGuideHtml(guide.summaryLine1) + '</p>'
-      +   '<p class="scripture-guide-p">' + escGuideHtml(guide.summaryLine2) + '</p>'
-      +   '<p class="scripture-guide-label">포함된 성경</p>'
-      +   '<p class="scripture-guide-books">' + escGuideHtml(guide.books) + '</p>'
-      +   buildGuideDetailHtml(guide, { omitReadButton: true })
-      + '</article>';
+    return '<article class="scripture-all-guides-article">' + buildGuidePageHtml(guide) + '</article>';
   }
 
   function buildAllGuidesHtml() {
-    var html = '';
+    var html = '<div class="scripture-all-guides-inner">';
     var groups = [
       { label: '구약', testament: 'old' },
       { label: '신약', testament: 'new' }
@@ -1419,6 +1515,7 @@
         if (guide) html += buildGuideReadingArticleHtml(guide);
       }
     }
+    html += '</div>';
     return html;
   }
 
@@ -1459,7 +1556,7 @@
     overlay.innerHTML =
       '<div class="scripture-guide-head">' +
         '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
-        '<h1 class="scripture-guide-head-title" id="scriptureAllGuidesTitle">가이드</h1>' +
+        '<h1 class="scripture-guide-head-title" id="scriptureAllGuidesTitle">성경 길잡이</h1>' +
         '<button type="button" class="scripture-guide-head-close" data-all-guides-close aria-label="닫기">✕</button>' +
       '</div>' +
       '<div class="scripture-all-guides-body" id="scriptureAllGuidesBody"></div>';
@@ -1467,15 +1564,25 @@
     overlay.querySelector('[data-all-guides-close]').addEventListener('click', closeAllScriptureGuides);
     overlay.querySelector('#scriptureAllGuidesBody').addEventListener('click', function(e) {
       var verseBtn = e.target.closest('[data-guide-verse]');
-      if (!verseBtn) return;
-      e.preventDefault();
-      closeAllScriptureGuides();
-      navigateToGuideRelatedVerse({
-        book: verseBtn.getAttribute('data-book'),
-        chapter: parseInt(verseBtn.getAttribute('data-chapter'), 10),
-        verse: parseInt(verseBtn.getAttribute('data-verse'), 10),
-        testament: verseBtn.getAttribute('data-testament') || undefined
-      });
+      if (verseBtn) {
+        e.preventDefault();
+        closeAllScriptureGuides();
+        navigateToGuideRelatedVerse({
+          book: verseBtn.getAttribute('data-book'),
+          chapter: parseInt(verseBtn.getAttribute('data-chapter'), 10),
+          verse: parseInt(verseBtn.getAttribute('data-verse'), 10),
+          testament: verseBtn.getAttribute('data-testament') || undefined
+        });
+        return;
+      }
+      var readBtn = e.target.closest('[data-guide-read-testament]');
+      if (readBtn) {
+        e.preventDefault();
+        navigateToGuideCategory(
+          readBtn.getAttribute('data-guide-read-testament'),
+          readBtn.getAttribute('data-guide-read-cat')
+        );
+      }
     });
     if (!allGuidesBound) {
       document.addEventListener('keydown', onAllGuidesKeydown);
