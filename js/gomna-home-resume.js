@@ -557,7 +557,14 @@
   }
 
   function readerUrl(entry, source) {
-    if (!entry) return 'reader.html?book=' + encodeURIComponent('창세기') + '&chapter=1&verse=1';
+    if (!entry) {
+      var empty =
+        'reader.html?book=' +
+        encodeURIComponent('창세기') +
+        '&chapter=1&verse=1';
+      if (source) empty += '&source=' + encodeURIComponent(source);
+      return empty;
+    }
     var url =
       'reader.html?book=' +
       encodeURIComponent(entry.bookName) +
@@ -677,7 +684,7 @@
       mainMark.innerHTML =
         mainMode === 'listen'
           ? '<span class="home-continue-play">\u25B6</span>'
-          : '<span class="home-continue-arrow"></span>';
+          : '<svg class="home-resume-read-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"></path></svg>';
     }
     if (mainBtn) {
       mainBtn.setAttribute('aria-label', actionText + ' · ' + formatLocation(mainEntry));
@@ -687,6 +694,11 @@
   function openRead() {
     var read = getRead();
     window.location.href = readerUrl(read || null, 'home-resume-read');
+  }
+
+  function openBibleTab() {
+    var read = getRead();
+    window.location.href = readerUrl(read || null, 'bible-tab');
   }
 
   function openListen() {
@@ -783,6 +795,7 @@
     bookNameFromAudioId: bookNameFromAudioId,
     renderHomeCard: renderHomeCard,
     openRead: openRead,
+    openBibleTab: openBibleTab,
     openListen: openListen,
     openRecent: openRecent,
     initHome: initHome
