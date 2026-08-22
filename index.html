@@ -1639,6 +1639,14 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
 <script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
 <link rel="stylesheet" href="js/gomna-scripture-quick-move.css?v=20260818-shared-picker-v10">
+<style>
+/* 홈 데스크톱 선택창 폭 = 홈 메인 카드 폭. .container max-width 390 - padding 18+18. Reader 프레임 폭은 쓰지 않는다. */
+@media (min-width:700px) and (min-height:600px){
+  body[data-gomna-page="home"]{
+    --qm-content-card-max:calc(390px - 18px - 18px);
+  }
+}
+</style>
 </head>
 <body data-gomna-page="home">
 <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
