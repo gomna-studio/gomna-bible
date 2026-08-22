@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>은혜의말씀 · 오늘의 말씀</title>
+<style>
+  :root{
+    --listen:#426B73;
+    --comment:#8B5E2C;
+    --archive:#2A2A2A;
+    --cta:#2F67C7;
+    --gold:#8B5E2C;
+    --page:#FFF9F1;
+    --card:#FFFcf7;
+    --side:20px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;min-height:100%;background:#EDE6DA}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+    color:#1A1A1A;
+    -webkit-font-smoothing:antialiased;
+  }
+  .phone{
+    width:min(100%,390px);
+    min-height:100dvh;
+    min-height:100svh;
+    height:100dvh;
+    height:100svh;
+    max-height:100dvh;
+    max-height:100svh;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    background:var(--page);
+  }
+  .inner{
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    padding:clamp(12px,2svh,18px) var(--side) calc(12px + env(safe-area-inset-bottom,0px));
+  }
+  .top{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:2px 2px 0;
+  }
+  .app-icon-frame{
+    width:52px;
+    height:52px;
+    overflow:hidden;
+    flex:0 0 auto;
+    clip-path:url(#appIconSquircle);
+    -webkit-clip-path:url(#appIconSquircle);
+  }
+  .app-icon-frame img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .brand h1{
+    margin:0;
+    font-size:20px;
+    font-weight:750;
+    letter-spacing:-.35px;
+    line-height:1.15;
+    color:#1A1A1A;
+  }
+  .brand p{
+    margin:3px 0 0;
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:12.5px;
+    font-style:italic;
+    letter-spacing:.35px;
+    color:#8A8A8A;
+  }
+  .mid{
+    flex:0 0 auto;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+  }
+  .lift{
+    flex:1 1 0;
+    width:100%;
+    min-height:clamp(20px,3svh,32px);
+  }
+  .tail{
+    flex:1.25 1 0;
+    width:100%;
+    min-height:clamp(48px,18svh,160px);
+  }
+  .today-card{
+    position:relative;
+    flex:0 0 auto;
+    width:100%;
+    height:clamp(220px,34svh,320px);
+    margin:clamp(8px,1.6svh,14px) 0 0;
+    border-radius:20px;
+    overflow:hidden;
+    background:#d7e4c8;
+  }
+  .today-photo{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center 72%;
+    display:block;
+  }
+  .today-wash{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(180deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.05) 38%, transparent 58%);
+    pointer-events:none;
+  }
+  .today-copy{
+    position:relative;
+    z-index:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:clamp(18px,3svh,28px) 22px 0;
+    text-align:center;
+  }
+  .today-copy h2{
+    margin:0 0 14px;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:.2px;
+    color:var(--gold);
+    text-shadow:0 1px 4px rgba(255,255,255,.35);
+  }
+  .verse{
+    margin:0;
+    font-family:'AppleMyungjo','Nanum Myeongjo','Noto Serif KR',Georgia,serif;
+    font-size:16.5px;
+    font-weight:500;
+    line-height:1.65;
+    letter-spacing:-.2px;
+    color:#2A241C;
+    text-shadow:0 1px 4px rgba(255,255,255,.32);
+  }
+  .ref{
+    margin:12px 0 0;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:-.05px;
+    color:#3A332C;
+    text-shadow:0 1px 4px rgba(255,255,255,.3);
+  }
+  .actions{
+    flex:0 0 auto;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    align-items:stretch;
+    width:100%;
+    margin:clamp(10px,1.8svh,16px) 0 0;
+    background:var(--card);
+    border:1px solid rgba(180,160,130,.12);
+    border-radius:18px;
+    box-shadow:0 4px 14px rgba(90,70,40,.05);
+  }
+  .action{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(6px,1svh,9px);
+    min-height:clamp(68px,9.5svh,84px);
+    padding:clamp(8px,1.2svh,12px) 4px;
+    border:0;
+    background:transparent;
+    font:inherit;
+    cursor:default;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .action + .action{border-left:1px solid rgba(180,160,130,.16)}
+  .action svg{
+    width:24px;
+    height:24px;
+    display:block;
+    fill:none;
+    stroke-width:1.7;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .action.listen svg{stroke:var(--listen)}
+  .action.comment svg{stroke:var(--comment)}
+  .action.save svg{stroke:var(--archive);fill:none}
+  .action span{
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:-.2px;
+    color:#2A241C;
+  }
+  .cta{
+    flex:0 0 auto;
+    width:100%;
+    min-height:52px;
+    margin:0;
+    border:0;
+    border-radius:14px;
+    background:var(--cta);
+    color:#fff;
+    font:inherit;
+    font-size:16.5px;
+    font-weight:700;
+    letter-spacing:-.2px;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+</style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+    <defs>
+      <clipPath id="appIconSquircle" clipPathUnits="objectBoundingBox">
+        <path d="M0.26,0 H0.74 C0.862,0 0.910,0.026 0.942,0.058 C0.974,0.090 1,0.138 1,0.26 V0.74 C1,0.862 0.974,0.910 0.942,0.942 C0.910,0.974 0.862,1 0.74,1 H0.26 C0.138,1 0.090,0.974 0.058,0.942 C0.026,0.910 0,0.862 0,0.74 V0.26 C0,0.138 0.026,0.090 0.058,0.058 C0.090,0.026 0.138,0 0.26,0 Z"></path>
+      </clipPath>
+    </defs>
+  </svg>
+  <div class="phone">
+    <div class="inner">
+      <header class="top">
+        <span class="app-icon-frame"><img src="../assets/login/login-visual-blue.png?v=1" alt="은혜의말씀" width="52" height="52"></span>
+        <div class="brand">
+          <h1>은혜의말씀</h1>
+          <p>Words of Grace</p>
+        </div>
+      </header>
+      <div class="mid">
+      <section class="today-card" aria-label="오늘의 말씀">
+        <img class="today-photo" src="../today-verse-slide-2-bg-v3.png" alt="">
+        <div class="today-wash" aria-hidden="true"></div>
+        <div class="today-copy">
+          <h2>오늘의 말씀</h2>
+          <p class="verse">두려워 말라 내가 너와 함께 함이라<br>놀라지 말라 나는 네 하나님이 됨이니라</p>
+          <p class="ref">이사야 41:10</p>
+        </div>
+      </section>
+      <div class="actions">
+        <button type="button" class="action listen" id="listenBtn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"></path><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"></path></svg>
+          <span>말씀 듣기</span>
+        </button>
+        <button type="button" class="action comment" id="commentBtn">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none"><path d="M7 3.8h8.2L18.2 6.8V20.2H7V3.8z"></path><path d="M15.2 3.8v3h3"></path><path d="M9.6 11.4h5.3"></path><path d="M9.6 15.1h3.7"></path></svg>
+          <span>말씀풀이 보기</span>
+        </button>
+        <button type="button" class="action save" id="saveBtn">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"></path></svg>
+          <span>보관하기</span>
+        </button>
+      </div>
+      </div>
+      <div class="lift" aria-hidden="true"></div>
+      <button type="button" class="cta" id="nextBtn">다음</button>
+      <div class="tail" aria-hidden="true"></div>
+    </div>
+  </div>
+  <script>
+    function dummy(e){ e.preventDefault(); }
+    ['listenBtn','commentBtn','saveBtn'].forEach(function(id){
+      document.getElementById(id).addEventListener('click', dummy);
+    });
+    document.getElementById('nextBtn').addEventListener('click', function(){
+      location.href = 'journey.html';
+    });
+  </script>
+</body>
+</html>
