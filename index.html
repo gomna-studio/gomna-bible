@@ -1098,6 +1098,458 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 .container .search-icon,.container .search-submit{background:none;border:0;box-shadow:none}
 .container .search-icon:hover,.container .search-submit:hover{background:none;opacity:.78}
 .container .search-icon:active,.container .search-submit:active{background:none;background-color:transparent;border:0;filter:none;transform:none;opacity:.6}
+
+/* home-preview first-paint port 20260822 — static CSS only, existing ids unchanged */
+html,body{
+  background:linear-gradient(180deg, #FCFAF4 0%, #FAF6EC 24%, #F8F1E4 50%, #FAF6EC 76%, #FCFAF4 100%);
+}
+body[data-gomna-page="home"]{
+  background:linear-gradient(180deg, #FCFAF4 0%, #FAF6EC 24%, #F8F1E4 50%, #FAF6EC 76%, #FCFAF4 100%);
+}
+.container{
+  max-width:390px;
+  margin:0 auto;
+  padding:18px 18px calc(28px + env(safe-area-inset-bottom, 0px));
+  background:transparent;
+}
+@media (max-width:480px){
+  .container{padding:18px 18px calc(28px + env(safe-area-inset-bottom, 0px))}
+}
+.header{gap:10px;margin-bottom:0}
+.app-icon-frame{
+  width:52px;
+  height:52px;
+  flex:0 0 52px;
+  overflow:hidden;
+  -webkit-clip-path:url(#appIconSquircle);
+  clip-path:url(#appIconSquircle);
+  background:#d8e4f4;
+}
+.app-icon-frame .logo-img,
+.container .logo-img{
+  width:52px;
+  height:52px;
+  border-radius:0;
+  object-fit:cover;
+  display:block;
+}
+.container .title{
+  font-size:20px;
+  font-weight:750;
+  letter-spacing:-.35px;
+  line-height:1.15;
+  color:#1A2332;
+}
+.container .sub{
+  margin-top:3px;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:12.5px;
+  font-style:italic;
+  letter-spacing:.35px;
+  color:#8A8A8A;
+  opacity:1;
+}
+.container .home-account-btn{
+  min-width:44px;
+  min-height:44px;
+  padding:0;
+  gap:2px;
+  color:#2A2A2A;
+}
+.container .home-account-avatar{
+  width:22px;
+  height:22px;
+}
+.container .home-account-avatar-icon{
+  width:22px;
+  height:22px;
+  stroke:#2A2A2A;
+  stroke-width:1.8;
+}
+.container .home-account-label{
+  min-width:44px;
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:-.15px;
+  color:#2A2A2A;
+  text-align:center;
+  white-space:nowrap;
+}
+@media (max-width:380px){
+  .container .home-account-avatar{width:22px;height:22px}
+  .container .home-account-avatar-icon{width:22px;height:22px}
+  .container .home-account-label{font-size:10.5px}
+}
+.container .home-continue{
+  margin:22px 0 0;
+  background:transparent;
+  border:0;
+  box-shadow:none;
+}
+.container .home-continue-main{
+  align-items:center;
+  gap:12px;
+  min-height:0;
+  padding:8px 14px 8px 12px;
+  border:1px solid rgba(180,168,148,.12);
+  border-radius:16px;
+  background:rgba(255,252,247,.88);
+  box-shadow:0 2px 8px rgba(80,70,50,.04);
+}
+.container .home-continue-info{padding-right:0}
+.container .home-continue-loc{
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:-.25px;
+  color:#1A2332;
+}
+.container .home-continue-time{
+  margin-top:1px;
+  font-size:12.5px;
+  font-weight:500;
+  color:#7A746C;
+}
+.container .home-continue-action{
+  position:static;
+  left:auto;
+  top:auto;
+  height:auto;
+  flex:0 0 auto;
+  color:#2F67C7;
+}
+.container .home-continue-action-text{
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:-.15px;
+  color:#2F67C7;
+}
+.container .verse-card{
+  height:228px;
+  min-height:228px;
+  aspect-ratio:auto;
+  margin:16px 0 0;
+  border:0;
+  border-radius:20px;
+  box-shadow:none;
+  background:#d7e4c8;
+}
+.container .verse-card-photo-layer::after{display:none;content:none;background:none}
+.container .verse-card-shade{
+  background:linear-gradient(180deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.04) 42%, rgba(20,24,16,.10) 100%);
+}
+#today-word-card > .verse-tag{
+  position:absolute;
+  top:12px;
+  left:14px;
+  z-index:2;
+  margin:0;
+  padding:0;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:-.15px;
+  line-height:1.2;
+  color:#3A332C;
+  -webkit-text-fill-color:#3A332C;
+  text-shadow:0 1px 4px rgba(255,255,255,.4);
+  opacity:1!important;
+  visibility:visible!important;
+  transform:none!important;
+  pointer-events:none;
+}
+.container .verse-card-verse-layer{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px 22px 36px;
+  background-color:transparent;
+}
+.container .verse-card-verse-layer .verse-center{
+  padding:0;
+}
+.container .verse-card-verse-layer .verse-text{
+  font-family:'AppleMyungjo','Nanum Myeongjo','Noto Serif KR',Georgia,serif;
+  font-size:16.5px;
+  font-weight:500;
+  line-height:1.65;
+  letter-spacing:-.2px;
+  color:#2A241C;
+  -webkit-text-fill-color:#2A241C;
+  text-shadow:0 1px 4px rgba(255,255,255,.32);
+  max-width:none;
+}
+.container .verse-card-verse-layer .verse-ref{
+  margin-top:10px;
+  font-size:13px;
+  font-weight:600;
+  color:#3A332C;
+  -webkit-text-fill-color:#3A332C;
+  text-shadow:0 1px 4px rgba(255,255,255,.3);
+}
+.container .quick-menu{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  width:100%;
+  margin:17px 0 0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  overflow:visible;
+}
+.container .quick-item{
+  min-height:0;
+  padding:6px 4px;
+  border:1px solid rgba(180,168,148,.12);
+  border-radius:16px;
+  box-shadow:0 2px 8px rgba(80,70,50,.04);
+  gap:4px;
+}
+.container .quick-item:not(:last-child){border-right:1px solid rgba(180,168,148,.12)}
+.container .quick-item.q-read{background:#FFFDF9}
+.container .quick-item.q-listen{background:#FDFEFE}
+.container .quick-item.q-topic{background:#FCFDFB}
+.container .quick-item.q-archive{background:#FEFCFB}
+.container .quick-item.q-read:hover{background:#FFFDF9}
+.container .quick-item.q-listen:hover{background:#FDFEFE}
+.container .quick-item.q-topic:hover{background:#FCFDFB}
+.container .quick-item.q-archive:hover{background:#FEFCFB}
+.container .quick-item svg{
+  width:22px;
+  height:22px;
+  stroke-width:1.7;
+}
+.container .quick-item.q-read svg{stroke:#6C4B2E}
+.container .quick-item.q-listen svg{stroke:#426B73}
+.container .quick-item.q-topic svg{stroke:#55703F}
+.container .quick-item.q-archive svg{stroke:#70483C}
+.container .quick-name{
+  font-size:12.5px;
+  font-weight:700;
+  letter-spacing:-.2px;
+  color:#2A241C;
+}
+@media (max-width:340px){
+  .container .quick-menu{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+.container .cards.home-menu-card{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  margin:16px 0 0;
+  padding:0;
+  border:1px solid rgba(180,168,148,.12);
+  border-radius:18px;
+  background:rgba(255,252,247,.88);
+  box-shadow:0 2px 8px rgba(80,70,50,.04);
+  overflow:hidden;
+}
+.container .cards.home-menu-card > .card,
+.container .cards.home-menu-card > button.card,
+.container .cards.home-menu-card > a.card{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  min-height:0;
+  margin:0;
+  padding:6px 14px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  text-align:left;
+}
+.container .cards.home-menu-card > .search-shell{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:0;
+  width:100%;
+  min-height:0;
+  margin:0;
+  padding:6px 14px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  text-align:left;
+}
+.container .cards.home-menu-card > .card + .card,
+.container .cards.home-menu-card > .card + .search-shell{
+  border-top:1px solid rgba(180,168,148,.16);
+}
+.container .cards.home-menu-card > .card:hover,
+.container .cards.home-menu-card > .card.old:hover,
+.container .cards.home-menu-card > .card.new:hover,
+.container .cards.home-menu-card > .card.easy:hover,
+.container .cards.home-menu-card > button.card:hover,
+.container .cards.home-menu-card > a.card:hover{
+  background:transparent;
+}
+.container .cards.home-menu-card .card-visual,
+.container .cards.home-menu-card .menu-icon-slot{
+  flex:0 0 40px;
+  width:40px;
+  min-width:40px;
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.container .cards.home-menu-card .easy-find-icon-wrap,
+.container .cards.home-menu-card .word-search-icon-wrap{
+  height:40px;
+  border-radius:50%;
+}
+.container .cards.home-menu-card .easy-find-icon-wrap{background:#F2F5F8}
+.container .cards.home-menu-card .word-search-icon-wrap{background:#FBF5EA}
+.container .cards.home-menu-card .book,
+.container .cards.home-menu-card #book-old,
+.container .cards.home-menu-card #book-new{
+  width:32px;
+  height:46px;
+  filter:none;
+}
+.container .cards.home-menu-card .home-bible-cover,
+.container .cards.home-menu-card .testament-book-icon{
+  width:32px;
+  height:46px;
+  max-height:46px;
+  margin:0;
+  object-fit:contain;
+  border-radius:0;
+  box-shadow:none;
+}
+.container .cards.home-menu-card .card-search-icon{
+  width:22px;
+  height:22px;
+  background:transparent;
+}
+.container .cards.home-menu-card .card-search-icon svg,
+.container .cards.home-menu-card .easy-find-icon-wrap svg{
+  width:22px;
+  height:22px;
+  stroke:#60758A;
+  stroke-width:1.7;
+}
+.container .cards.home-menu-card .word-search-icon-wrap svg{
+  width:22px;
+  height:22px;
+  stroke:#9A6A2F;
+  stroke-width:1.7;
+}
+.container .cards.home-menu-card .card-label{
+  flex:1 1 auto;
+  width:auto;
+  margin:0;
+  padding:0;
+  text-align:left;
+}
+.container .cards.home-menu-card .card-name,
+html[data-gomna-ui-lang="en"] .cards.home-menu-card .card-name,
+html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
+  margin:0;
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:-.2px;
+  line-height:1.2;
+  color:#1A2332;
+  text-align:left;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  min-height:0;
+}
+.container .menu-chevron{
+  flex:0 0 auto;
+  margin-left:auto;
+  color:#B0AAA2;
+  font-size:18px;
+  font-weight:400;
+  line-height:1;
+}
+.container .cards.home-menu-card .search-shell{
+  position:relative;
+  margin:0;
+}
+.container .cards.home-menu-card .search{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.container .cards.home-menu-card .search:hover:not(.search-attention){background:transparent}
+.container .cards.home-menu-card .search-input{
+  min-width:0;
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:-.2px;
+  color:#1A2332;
+}
+.container .cards.home-menu-card .search-input::placeholder{
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:-.2px;
+  color:#1A2332;
+  opacity:1;
+}
+.container .cards.home-menu-card.home-menu-card .search-icon{
+  width:22px;
+  height:22px;
+  margin:0;
+}
+.container .cards.home-menu-card .search-icon svg{
+  width:22px;
+  height:22px;
+  stroke:#9A6A2F;
+  stroke-width:1.7;
+}
+.container .cards.home-menu-card.topic-search-open,
+.container .cards.home-menu-card .search-shell.topic-search-open{
+  box-shadow:none;
+  border-radius:0;
+}
+.container .cards.home-menu-card .search-shell.topic-search-open .search{
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+}
+.container .cards.home-menu-card .search-inline-topics{
+  background:transparent;
+  border:0;
+  box-shadow:none;
+  border-radius:0;
+}
+.container .search-shell.topic-search-open .search-inline-topics{
+  background:transparent;
+  border-color:transparent;
+}
+.container .home-brand-blurb{display:none}
+.container .imprint-bottom{
+  margin:10px 0 0;
+  padding:0;
+  border:0;
+  text-align:center;
+}
+.container .imprint-bottom .gs-link{
+  min-height:0;
+  padding:0;
+  margin:0;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:-.1px;
+  color:#B0AAA2;
+  opacity:1;
+}
 </style>
 <script>
 (function(){
@@ -1189,10 +1641,17 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 <link rel="stylesheet" href="js/gomna-scripture-quick-move.css?v=20260818-shared-picker-v10">
 </head>
 <body data-gomna-page="home">
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <defs>
+    <clipPath id="appIconSquircle" clipPathUnits="objectBoundingBox">
+      <path d="M0.26,0 H0.74 C0.862,0 0.910,0.026 0.942,0.058 C0.974,0.090 1,0.138 1,0.26 V0.74 C1,0.862 0.974,0.910 0.942,0.942 C0.910,0.974 0.862,1 0.74,1 H0.26 C0.138,1 0.090,0.974 0.058,0.942 C0.026,0.910 0,0.862 0,0.74 V0.26 C0,0.138 0.026,0.090 0.058,0.058 C0.090,0.026 0.138,0 0.26,0 Z"></path>
+    </clipPath>
+  </defs>
+</svg>
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
 <div class="container">
   <div class="header">
-    <img src="apple-touch-icon.png?v=5" alt="은혜의말씀" class="logo-img" data-i18n-key="brand.logoAlt">
+    <span class="app-icon-frame" aria-hidden="true"><img src="assets/login/login-visual-blue.png?v=1" alt="은혜의말씀" class="logo-img" width="52" height="52" data-i18n-key="brand.logoAlt"></span>
     <div class="title-block">
       <h1 class="title" data-i18n-key="brand.title">은혜의말씀</h1>
       <div class="sub" data-i18n-key="brand.subtitle">Words of Grace</div>
@@ -1206,7 +1665,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
           <img class="home-account-avatar-img" id="homeAccountAvatarImg" alt="" hidden>
           <svg class="home-account-avatar-icon" id="homeAccountAvatarIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg>
         </span>
-        <span class="home-account-label" id="homeAccountLabel">로그인</span>
+        <span class="home-account-label" id="homeAccountLabel" translate="no">로그인</span>
       </button>
       <!-- 모바일 시트일 때만 보이는 가림막. 데스크톱에서는 CSS로 숨긴다. -->
       <div class="home-account-scrim" id="homeAccountScrim" onclick="closeHomeAccountPanel()" hidden></div>
@@ -1316,8 +1775,8 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
       </div>
       <div class="verse-card-shade" aria-hidden="true"></div>
     </div>
+    <div class="verse-tag" id="verse-tag" data-i18n-key="home.todayWord.tag">오늘의 말씀</div>
     <div class="verse-card-verse-layer" aria-hidden="true">
-      <div class="verse-tag" id="verse-tag" data-i18n-key="home.todayWord.tag">오늘의 말씀</div>
       <div class="verse-center">
         <div class="verse-text" id="verse-text">"수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라"</div>
         <div class="verse-ref" id="verse-ref">— 마태복음 11:28</div>
@@ -1325,61 +1784,66 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
     </div>
   </div>
   <div class="quick-menu">
-    <button type="button" class="quick-item" onclick="openReadResume()" aria-label="읽기" data-i18n-aria-label="home.quick.read">
-      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:1.8"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg>
+    <button type="button" class="quick-item q-read" onclick="openReadResume()" aria-label="읽기" data-i18n-aria-label="home.quick.read">
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg>
       <span class="quick-name" data-i18n-key="home.quick.read">읽기</span>
     </button>
-    <button type="button" class="quick-item" onclick="location.href='reader.html?book=%EC%B0%BD%EC%84%B8%EA%B8%B0&chapter=1'" aria-label="듣기" data-i18n-aria-label="home.quick.audio">
+    <button type="button" class="quick-item q-listen" onclick="location.href='reader.html?book=%EC%B0%BD%EC%84%B8%EA%B8%B0&chapter=1'" aria-label="듣기" data-i18n-aria-label="home.quick.audio">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
       <span class="quick-name" data-i18n-key="home.quick.audio">듣기</span>
     </button>
-    <button type="button" class="quick-item" onclick="scrollToTopics()" aria-label="주제별" data-i18n-aria-label="home.quick.topics">
+    <button type="button" class="quick-item q-topic" onclick="scrollToTopics()" aria-label="주제별" data-i18n-aria-label="home.quick.topics">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
       <span class="quick-name" data-i18n-key="home.quick.topics">주제별</span>
     </button>
-    <button type="button" class="quick-item" onclick="location.href='reader.html?favorites'" aria-label="보관함" data-i18n-aria-label="home.quick.archive">
+    <button type="button" class="quick-item q-archive" onclick="location.href='reader.html?favorites'" aria-label="보관함" data-i18n-aria-label="home.quick.archive">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
       <span class="quick-name" data-i18n-key="home.quick.archive">보관함</span>
     </button>
   </div>
-  <div class="cards">
+  <div class="cards home-menu-card" role="navigation" aria-label="성경과 찾기">
     <button type="button" class="card old" onclick="openBible('old')" ontouchstart="" aria-label="구약 39권 장·절로 읽기" data-i18n-aria-label="home.oldTestament.title">
-      <div class="card-visual">
+      <div class="card-visual menu-icon-slot">
         <div class="book" id="book-old">
-          <img class="home-bible-cover" src="images/home/bible-old.png" alt="" aria-hidden="true" decoding="async">
+          <img class="home-bible-cover testament-book-icon" src="assets/preview/old-testament-book.png" alt="" aria-hidden="true" decoding="async" width="32" height="46">
         </div>
       </div>
       <div class="card-label"><div class="card-name" data-i18n-key="home.sheet.oldTestament">구약</div></div>
+      <span class="menu-chevron" aria-hidden="true">&gt;</span>
     </button>
     <button type="button" class="card new" onclick="openBible('new')" ontouchstart="" aria-label="신약 27권 장·절로 읽기" data-i18n-aria-label="home.newTestament.title">
-      <div class="card-visual">
+      <div class="card-visual menu-icon-slot">
         <div class="book" id="book-new">
-          <img class="home-bible-cover" src="images/home/bible-new.png" alt="" aria-hidden="true" decoding="async">
+          <img class="home-bible-cover testament-book-icon" src="assets/preview/new-testament-book.png" alt="" aria-hidden="true" decoding="async" width="32" height="46">
         </div>
       </div>
       <div class="card-label"><div class="card-name" data-i18n-key="home.sheet.newTestament">신약</div></div>
+      <span class="menu-chevron" aria-hidden="true">&gt;</span>
     </button>
     <a class="card easy" id="homeEasyFindBtn" href="./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3" role="link" aria-label="쉬운 찾기" data-i18n-aria-label="home.easyFind.title">
-      <div class="card-visual">
+      <div class="card-visual menu-icon-slot easy-find-icon-wrap">
         <div class="card-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
       </div>
       <div class="card-label"><div class="card-name" data-i18n-ui="find_word" data-i18n-key="home.easyFind.title" translate="no">쉬운 찾기</div></div>
+      <span class="menu-chevron" aria-hidden="true">&gt;</span>
     </a>
-  </div>
-  <div class="search-shell" id="homeSearchShell">
-  <form class="search" id="homeSearchForm" onsubmit="submitSearch(event)" onclick="activateSearch()">
-    <input id="homeSearchInput" class="search-input" type="search" placeholder="말씀 찾기 (예: 사랑, 믿음, 요한복음 3장 16절)" aria-label="성경 검색어 입력" autocomplete="off" data-i18n-placeholder="search.placeholder.home" data-i18n-aria-label="search.inputAria">
-    <button type="submit" class="search-icon search-submit" aria-label="검색 실행" data-i18n-aria-label="search.submitAria"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
-  </form>
-  <div class="search-inline-topics" id="searchInlineTopics" aria-label="검색창 안 주제별 검색" data-i18n-aria-label="search.topicsAria">
-    <button type="button" class="search-inline-chip" onclick="topic('사랑')" data-i18n-key="search.chip.love">#사랑</button>
-    <button type="button" class="search-inline-chip" onclick="topic('믿음')" data-i18n-key="search.chip.faith">#믿음</button>
-    <button type="button" class="search-inline-chip" onclick="topic('소망')" data-i18n-key="search.chip.hope">#소망</button>
-    <button type="button" class="search-inline-chip" onclick="topic('평안')" data-i18n-key="search.chip.peace">#평안</button>
-    <button type="button" class="search-inline-chip" onclick="topic('위로')" data-i18n-key="search.chip.comfort">#위로</button>
-    <button type="button" class="search-inline-chip" onclick="topic('감사')" data-i18n-key="search.chip.gratitude">#감사</button>
-    <button type="button" class="search-inline-chip" onclick="topic('기도')" data-i18n-key="search.chip.prayer">#기도</button>
-  </div>
+    <div class="search-shell" id="homeSearchShell">
+      <form class="search" id="homeSearchForm" onsubmit="submitSearch(event)" onclick="activateSearch()">
+        <span class="menu-icon-slot word-search-icon-wrap" aria-hidden="true">
+          <button type="submit" class="search-icon search-submit" aria-label="검색 실행" data-i18n-aria-label="search.submitAria"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+        </span>
+        <input id="homeSearchInput" class="search-input" type="search" placeholder="말씀 찾기 (예: 사랑, 믿음, 요한복음 3장 16절)" aria-label="성경 검색어 입력" autocomplete="off" data-i18n-placeholder="search.placeholder.home" data-i18n-aria-label="search.inputAria">
+      </form>
+      <div class="search-inline-topics" id="searchInlineTopics" aria-label="검색창 안 주제별 검색" data-i18n-aria-label="search.topicsAria">
+        <button type="button" class="search-inline-chip" onclick="topic('사랑')" data-i18n-key="search.chip.love">#사랑</button>
+        <button type="button" class="search-inline-chip" onclick="topic('믿음')" data-i18n-key="search.chip.faith">#믿음</button>
+        <button type="button" class="search-inline-chip" onclick="topic('소망')" data-i18n-key="search.chip.hope">#소망</button>
+        <button type="button" class="search-inline-chip" onclick="topic('평안')" data-i18n-key="search.chip.peace">#평안</button>
+        <button type="button" class="search-inline-chip" onclick="topic('위로')" data-i18n-key="search.chip.comfort">#위로</button>
+        <button type="button" class="search-inline-chip" onclick="topic('감사')" data-i18n-key="search.chip.gratitude">#감사</button>
+        <button type="button" class="search-inline-chip" onclick="topic('기도')" data-i18n-key="search.chip.prayer">#기도</button>
+      </div>
+    </div>
   </div>
   <p class="home-brand-blurb">
     <span class="home-brand-line">성경을 읽고 듣고, 말씀풀이로 깊이 묵상하세요</span>
@@ -2123,7 +2587,7 @@ function setHomeAccountState(state,profile){
     group.hidden=forSignedIn?!signedIn:signedIn;
   });
   var label=document.getElementById('homeAccountLabel');
-  if(label)label.textContent=signedIn?'내 정보':'로그인';
+  if(label)label.textContent=signedIn?'내정보':'로그인';
   var name=document.getElementById('homeAccountPanelName');
   if(name)name.textContent=signedIn?(info.name||'내 정보'):'계정 연결 전';
   var email=document.getElementById('homeAccountPanelEmail');
@@ -2143,15 +2607,37 @@ function setHomeAccountState(state,profile){
   if(idArrow)idArrow.hidden=!signedIn;
   var btn=document.getElementById('homeAccountBtn');
   if(btn){
-    btn.setAttribute('aria-label',signedIn?'내 정보':'로그인');
-    btn.setAttribute('title',signedIn?'내 정보':'로그인');
+    btn.setAttribute('aria-label',signedIn?'내정보':'로그인');
+    btn.setAttribute('title',signedIn?'내정보':'로그인');
     /* 로그인 전에는 이 버튼이 로그인 선택창을 직접 열므로 가리키는 대상도 함께 맞춘다. */
     btn.setAttribute('aria-controls',signedIn?'homeAccountPanel':'loginModal');
   }
   homeAccountSignedIn=signedIn;
   setHomeAccountAvatar(signedIn?(info.avatar||''):'');
+  syncPreviewLoginFlow(signedIn);
 }
 window.GomnaHomeAccount={setAvatar:setHomeAccountAvatar,setState:setHomeAccountState};
+
+/* 기존 GomnaAuth 세션만 읽어 헤더 문구를 맞춘다. 새 세션 저장소를 만들지 않는다. */
+function syncHomeAccountLabelFromAuth(){
+  if(!window.GomnaAuth||typeof window.GomnaAuth.isSignedIn!=='function')return false;
+  var signedIn=false;
+  var profile=null;
+  try{signedIn=!!window.GomnaAuth.isSignedIn();}catch(e){return false;}
+  try{
+    if(typeof window.GomnaAuth.getAccount==='function')profile=window.GomnaAuth.getAccount();
+  }catch(e){}
+  setHomeAccountState(signedIn?'signed-in':'signed-out', profile||{});
+  return true;
+}
+(function bindHomeAccountLabelAuthSync(){
+  if(syncHomeAccountLabelFromAuth())return;
+  var n=0;
+  var timer=setInterval(function(){
+    if(syncHomeAccountLabelFromAuth()||++n>=80)clearInterval(timer);
+  },50);
+  window.addEventListener('pageshow',function(){syncHomeAccountLabelFromAuth();});
+})();
 
 /* 바깥 클릭으로 닫기. 모바일 가림막은 자체 onclick으로 닫는다. */
 document.addEventListener('click',function(e){
@@ -2159,6 +2645,31 @@ document.addEventListener('click',function(e){
     closeHomeAccountPanel(false);
   }
 });
+
+/* Preview 첫 사용자 흐름만. 일반 index 로그인에는 키가 없어 기존 동작을 그대로 둔다. */
+var PREVIEW_FLOW_KEY='gomna.preview.flow';
+var previewLoginOpened=false;
+function isPreviewFlow(){
+  try{return sessionStorage.getItem(PREVIEW_FLOW_KEY)==='1';}catch(e){return false;}
+}
+function clearPreviewFlow(){
+  try{sessionStorage.removeItem(PREVIEW_FLOW_KEY);}catch(e){}
+}
+function leavePreviewFlowToHome(){
+  if(!isPreviewFlow())return false;
+  clearPreviewFlow();
+  return true;
+}
+function syncPreviewLoginFlow(signedIn){
+  if(!isPreviewFlow())return;
+  if(signedIn){
+    leavePreviewFlowToHome();
+    return;
+  }
+  if(previewLoginOpened||isLoginModalOpen())return;
+  previewLoginOpened=true;
+  openLoginModal('preview-flow');
+}
 
 /* v73: 로그인 안내창 — 첫 방문에 자동으로 열지 않고, 계정 메뉴에서만 연다.
    실제 인증 연결은 다음 단계에서 붙인다. */
@@ -2227,7 +2738,15 @@ function closeLoginModal(){
     if(back)back.focus();
   }catch(e){}
   loginModalLastFocus=null;
+  leavePreviewFlowToHome();
+  syncHomeAccountLabelFromAuth();
 }
+window.addEventListener('load',function(){
+  if(!isPreviewFlow()||previewLoginOpened||isLoginModalOpen())return;
+  if(window.GomnaAuth)return;
+  previewLoginOpened=true;
+  openLoginModal('preview-flow');
+});
 
 document.addEventListener('keydown',function(e){
   if(e.key!=='Escape')return;
