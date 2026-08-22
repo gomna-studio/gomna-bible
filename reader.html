@@ -2566,6 +2566,29 @@ html.reader-hide-chrome .scripture-dock{
     background:var(--scripture-dock-active-color);
     opacity:1;
   }
+  /* MY 로그인 표시. 성경 active와 별개. 원형은 기존 22px 아이콘 칸 안에서만 그린다. */
+  html.reader-hide-chrome .scripture-dock-item[data-dock="my"].is-signed-in,
+  html.reader-hide-chrome .scripture-dock-item[data-dock="my"].is-signed-in .scripture-dock-icon,
+  html.reader-hide-chrome .scripture-dock-item[data-dock="my"].is-signed-in .scripture-dock-label{
+    color:#2F67C7;
+  }
+  html.reader-hide-chrome .scripture-dock-item[data-dock="my"].is-signed-in .scripture-dock-icon::before{
+    content:'';
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    background:#E8F0FC;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+  }
+  html.reader-hide-chrome .scripture-dock-item[data-dock="my"].is-signed-in .scripture-dock-icon svg{
+    position:relative;
+    z-index:1;
+    stroke:#2F67C7;
+  }
   html.reader-hide-chrome.reader-verse-active .opt4-bottom-bar,
   html.reader-hide-chrome.reader-books-toolbar .opt4-bottom-bar{
     width:min(100%,var(--reader-frame-width));
@@ -3498,13 +3521,13 @@ if ("serviceWorker" in navigator) {
       <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m18 18-3.5-3.5"/></svg></span>
       <span class="scripture-dock-label">쉬운찾기</span>
     </button>
-    <button type="button" class="scripture-dock-item" data-dock="listen" onclick="handleScriptureDock('listen')" aria-label="듣기">
-      <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 14v3a2 2 0 0 0 2 2h1v-7H5a1 1 0 0 0-1 1zm15 0v3a2 2 0 0 1-2 2h-1v-7h2a1 1 0 0 1 1 1z"/><path d="M4 14a8 8 0 0 1 16 0"/></svg></span>
-      <span class="scripture-dock-label">듣기</span>
-    </button>
     <button type="button" class="scripture-dock-item" data-dock="archive" onclick="handleScriptureDock('archive')" aria-label="보관함">
       <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></span>
       <span class="scripture-dock-label">보관함</span>
+    </button>
+    <button type="button" class="scripture-dock-item" data-dock="my" onclick="handleScriptureDock('my')" aria-label="MY">
+      <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg></span>
+      <span class="scripture-dock-label">MY</span>
     </button>
   </nav>
   <nav id="opt4BottomBar" class="opt4-bottom-bar" aria-label="장 이동 및 절 도구">
@@ -3515,7 +3538,7 @@ if ("serviceWorker" in navigator) {
     </div>
     <div id="opt4VerseToolbar" class="opt4-bar-mode">
       <button type="button" class="verse-toolbar-location-btn" id="verseToolbarLocationButton" onclick="onVerseToolbarLocationClick()" aria-haspopup="dialog" aria-expanded="false" aria-label="성경 찾기"><span class="verse-toolbar-location-text" id="verseToolbarLocationText">성경 찾기</span><span class="verse-toolbar-location-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></span><span class="verse-toolbar-location-clear" hidden aria-hidden="true">×</span></button>
-      <button type="button" class="opt4-verse-listen" id="opt4VerseListen" data-gomna-chapter-listen="1" aria-haspopup="dialog" aria-expanded="false" aria-label="현재 성경 듣기 방식 선택"><span class="opt4-bar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M8 5.2v13.6L20 12z"></path></svg></span><span class="opt4-bar-label" id="opt4VerseListenLabel">듣기</span></button>
+      <button type="button" class="opt4-verse-listen" id="opt4VerseListen" data-gomna-chapter-listen="1" aria-haspopup="dialog" aria-expanded="false" aria-label="현재 성경 듣기 방식 선택"><span class="opt4-bar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v3a2 2 0 0 0 2 2h1v-7H5a1 1 0 0 0-1 1zm15 0v3a2 2 0 0 1-2 2h-1v-7h2a1 1 0 0 1 1 1z"></path><path d="M4 14a8 8 0 0 1 16 0"></path></svg></span><span class="opt4-bar-label" id="opt4VerseListenLabel">듣기</span></button>
       <div id="opt4VerseListenChoice" class="opt4-verse-listen-choice" hidden>
         <button type="button" class="opt4-verse-listen" id="opt4VerseListenOnly">이 절만</button>
         <button type="button" class="opt4-verse-listen" id="opt4VerseListenFromHere">여기부터</button>
@@ -4387,6 +4410,10 @@ function handleScriptureDock(action) {
       var favView = document.getElementById('favView');
       if (favView) favView.scrollIntoView({ behavior: 'smooth', block: 'start' });
       syncScriptureDockActive('archive');
+      return;
+    }
+    if (action === 'my') {
+      if (typeof window.openReaderAccountView === 'function') window.openReaderAccountView();
       return;
     }
     if (action === 'listen') {
@@ -16037,7 +16064,7 @@ function loadAds() {
 <script src="/js/gomna-card-highlight-test.js?v=20260803-bible-follow-prod-v1"></script>
 <script>
 /* 로그인 상태를 Reader에 반영하는 얇은 연결. 새 계정 UI를 만들지 않고
-   설정창에 이미 있는 계정 입구의 안내 줄과 보관함 안내 영역만 갱신한다. */
+   설정창 계정 문구, 보관함 안내, 하단 MY 표시만 기존 Auth setState에서 갱신한다. */
 (function () {
   var defaultSub = null;
   var signedInNow = false;
@@ -16087,6 +16114,9 @@ function loadAds() {
        영역 전체를 감춰 보관함 목록이 자연스럽게 위로 올라오게 한다. */
     var notice = document.getElementById('favLoginNotice');
     if (notice) notice.hidden = signedIn;
+
+    var myBtn = document.querySelector('#scriptureDock .scripture-dock-item[data-dock="my"]');
+    if (myBtn) myBtn.classList.toggle('is-signed-in', signedIn);
 
     /* 로그인 상태에서는 별도 안내 없이 보관함 목록만 보여준다.
        계정 입구는 설정창의 "내 정보" 줄이 담당한다. */
