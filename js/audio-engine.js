@@ -27,10 +27,16 @@
       queueSoftFailStreak: 0,
       queueEpoch: 0,
       restoreStartTime: 0,
-      timerId: null
+      timerId: null,
+      stallWatchTimer: null,
+      stallRecoveryCount: 0
     },
 
     _MAX_QUEUE_SOFT_FAIL_STREAK: 12,
+    _STALL_GRACE_MS: 2000,
+    _STALL_TIME_EPS: 0.2,
+    _MAX_STALL_RECOVERY: 2,
+    _STALL_RECOVER_WAIT_MS: 6000,
 
     _bumpQueueEpoch: function() {
       var state = window.GOMNA_AUDIO_ENGINE._state;
@@ -85,8 +91,163 @@
       }));
     },
 
-    _cleanupCurrentAudio: function() {
+    _clearStallWatch: function() {
       var state = window.GOMNA_AUDIO_ENGINE._state;
+
+      if (state.stallWatchTimer) {
+        clearTimeout(state.stallWatchTimer);
+        state.stallWatchTimer = null;
+      }
+    },
+
+    _isStallSessionCurrent: function(audio, audioId, playEpoch) {
+      var state = window.GOMNA_AUDIO_ENGINE._state;
+
+      if (!audio || !audioId) return false;
+      if (audio !== state.currentAudio) return false;
+      if (audioId !== state.currentAudioId) return false;
+      if (state.queueEpoch !== playEpoch) return false;
+      if (!state.queueActive) return false;
+      if (!state.isPlaying) return false;
+      if (state.isPaused) return false;
+      if (state.playbackCancelled) return false;
+      if (!state.queueAudioIds || state.queueAudioIds[state.queueIndex] !== audioId) {
+        return false;
+      }
+
+      return true;
+    },
+
+    _armStallWatch: function(audio, audioId, playEpoch) {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+      var stallStartTime;
+
+      if (!engine._isStallSessionCurrent(audio, audioId, playEpoch)) return;
+      if (state.stallWatchTimer) return;
+      if ((state.stallRecoveryCount || 0) >= engine._MAX_STALL_RECOVERY) return;
+      if (audio.paused || audio.ended || audio.error) return;
+
+      stallStartTime = audio.currentTime || 0;
+
+      state.stallWatchTimer = setTimeout(function() {
+        var nowTime;
+
+        state.stallWatchTimer = null;
+
+        if (!engine._isStallSessionCurrent(audio, audioId, playEpoch)) return;
+        if (audio.paused || audio.ended || audio.error) return;
+
+        nowTime = audio.currentTime || 0;
+        if (Math.abs(nowTime - stallStartTime) >= engine._STALL_TIME_EPS) return;
+
+        try {
+          if (audio.buffered && audio.buffered.length) {
+            if (audio.buffered.end(audio.buffered.length - 1) - nowTime > 1) return;
+          }
+        } catch (bufferedErr) { /* Safari buffered access can throw */ }
+
+        engine._recoverStalledCurrentAudio(audio, audioId, playEpoch);
+      }, engine._STALL_GRACE_MS);
+    },
+
+    _recoverStalledCurrentAudio: function(audio, audioId, playEpoch) {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+      var savedTime;
+      var settled = false;
+      var onReady;
+
+      if (!engine._isStallSessionCurrent(audio, audioId, playEpoch)) return;
+      if (audio.paused || audio.ended || audio.error) return;
+      if ((state.stallRecoveryCount || 0) >= engine._MAX_STALL_RECOVERY) return;
+
+      savedTime = audio.currentTime || 0;
+      state.stallRecoveryCount = (state.stallRecoveryCount || 0) + 1;
+      engine._clearStallWatch();
+
+      try {
+        audio.load();
+      } catch (e) {
+        console.warn('[GOMNA_AUDIO] stall recovery load warning:', e);
+        return;
+      }
+
+      function finishRecover() {
+        var playPromise;
+
+        if (settled) return;
+        settled = true;
+        engine._clearStallWatch();
+
+        if (onReady) {
+          audio.removeEventListener('loadedmetadata', onReady);
+          audio.removeEventListener('canplay', onReady);
+        }
+
+        if (!engine._isStallSessionCurrent(audio, audioId, playEpoch)) return;
+
+        try {
+          audio.currentTime = savedTime;
+        } catch (seekErr) {
+          console.warn('[GOMNA_AUDIO] stall recovery seek warning:', seekErr);
+        }
+
+        playPromise = audio.play();
+        if (playPromise && typeof playPromise.then === 'function') {
+          playPromise.catch(function() {
+            /* This recovery attempt failed. Do not skip the verse. */
+          });
+        }
+      }
+
+      onReady = function() {
+        finishRecover();
+      };
+
+      audio.addEventListener('loadedmetadata', onReady);
+      audio.addEventListener('canplay', onReady);
+
+      if (!settled) {
+        state.stallWatchTimer = setTimeout(function() {
+          state.stallWatchTimer = null;
+          if (settled) return;
+          finishRecover();
+        }, engine._STALL_RECOVER_WAIT_MS);
+      }
+    },
+
+    _bindStallRecovery: function(audio, audioId, playEpoch) {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var hasPlayed = false;
+
+      if (!audio) return;
+
+      audio.addEventListener('playing', function() {
+        if (audio !== engine._state.currentAudio || audioId !== engine._state.currentAudioId) {
+          return;
+        }
+        if (engine._state.queueEpoch !== playEpoch) return;
+
+        hasPlayed = true;
+        engine._state.stallRecoveryCount = 0;
+        engine._clearStallWatch();
+      });
+
+      function onStarve() {
+        if (!hasPlayed) return;
+        engine._armStallWatch(audio, audioId, playEpoch);
+      }
+
+      audio.addEventListener('waiting', onStarve);
+      audio.addEventListener('stalled', onStarve);
+    },
+
+    _cleanupCurrentAudio: function() {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+
+      engine._clearStallWatch();
 
       if (state.currentAudio) {
         try {
@@ -99,6 +260,8 @@
 
         state.currentAudio = null;
       }
+
+      engine._clearStallWatch();
     },
 
     _cleanupNextAudio: function() {
@@ -412,6 +575,8 @@
         if (state.queueEpoch !== playEpoch) return;
         if (audio !== state.currentAudio || audioId !== state.currentAudioId) return;
 
+        engine._clearStallWatch();
+        state.stallRecoveryCount = 0;
         state.isPlaying = false;
         state.isPaused = false;
         state.restoreStartTime = 0;
@@ -455,6 +620,7 @@
           return;
         }
 
+        engine._clearStallWatch();
         console.error('[GOMNA_AUDIO] audio error:', e, errorDetail);
 
         state.isPlaying = false;
@@ -509,6 +675,9 @@
         if (audio !== state.currentAudio || audioId !== state.currentAudioId) return;
         engine._resetQueueSoftFailStreak();
       }, { once: true });
+
+      state.stallRecoveryCount = 0;
+      engine._bindStallRecovery(audio, audioId, playEpoch);
 
       engine._emit('audio:start', {
         audioId: audioId,
@@ -731,6 +900,8 @@
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
 
+      engine._clearStallWatch();
+
       if (state.currentAudio && state.isPlaying) {
         state.currentAudio.pause();
         state.isPlaying = false;
@@ -785,6 +956,7 @@
       var hadPlayback = !!(state.currentAudio || state.queueActive);
 
       /* Explicit user/system stop — do not soft-retry or continue chapters. */
+      engine._clearStallWatch();
       state.playbackCancelled = true;
       engine._bumpQueueEpoch();
       engine._clearQueue();
