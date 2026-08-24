@@ -963,26 +963,45 @@
     updateMiniProgressFromState();
   }
 
+  function formatExpandedLocationTitle(entry, audioId) {
+    if (entry && entry.book && entry.chapter != null && entry.verse != null) {
+      return entry.book + ' ' + entry.chapter + '장 ' + entry.verse + '절';
+    }
+    return audioId || '';
+  }
+
   function updateCurrentText(entry, audioId) {
     var title = '';
     var preview = '';
+    var expandedTitle = '';
+    var titleEls;
+    var expandedTitleEls;
+    var previewEls;
+    var i;
 
     if (entry) {
       title = entry.book + ' ' + entry.chapter + '장 ' + entry.verse + '절 · ' + entry.typeKr;
       preview = entry.preview || '';
+      expandedTitle = formatExpandedLocationTitle(entry, audioId);
     } else if (audioId) {
       title = audioId;
+      expandedTitle = audioId;
     }
 
-    var titleEls = document.querySelectorAll('[data-audio-current-title], [data-audio-current-title-expanded]');
-    var previewEls = document.querySelectorAll('[data-audio-current-preview], [data-audio-current-preview-expanded]');
+    titleEls = document.querySelectorAll('[data-audio-current-title]');
+    expandedTitleEls = document.querySelectorAll('[data-audio-current-title-expanded]');
+    previewEls = document.querySelectorAll('[data-audio-current-preview], [data-audio-current-preview-expanded]');
 
-    for (var i = 0; i < titleEls.length; i++) {
+    for (i = 0; i < titleEls.length; i++) {
       titleEls[i].textContent = title;
     }
 
-    for (var j = 0; j < previewEls.length; j++) {
-      previewEls[j].textContent = preview;
+    for (i = 0; i < expandedTitleEls.length; i++) {
+      expandedTitleEls[i].textContent = expandedTitle;
+    }
+
+    for (i = 0; i < previewEls.length; i++) {
+      previewEls[i].textContent = preview;
     }
   }
 

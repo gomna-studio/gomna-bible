@@ -389,13 +389,17 @@
     return html || '<div class="easy-find-empty">해당하는 책이 없습니다</div>';
   }
 
+  var READ_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg>';
+  var LISTEN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>';
+
   function resumeRowHtml(kind, entry) {
     var when = formatResumeWhen(entry && entry.timestamp, kind);
     var isListen = kind === 'listen';
-    return '<button type="button" class="easy-find-resume-row" data-easy-resume="' + (isListen ? 'listen' : 'read') + '">'
-      + '<span class="easy-find-resume-kind">' + (isListen ? '듣기' : '읽기') + '</span>'
+    var place = formatPlace(entry);
+    return '<button type="button" class="easy-find-resume-row" data-easy-resume="' + (isListen ? 'listen' : 'read') + '" aria-label="' + esc(place) + (isListen ? ' 이어서 듣기' : ' 이어서 읽기') + '">'
+      + '<span class="easy-find-resume-kind" aria-hidden="true">' + (isListen ? LISTEN_ICON : READ_ICON) + '</span>'
       + '<span class="easy-find-resume-main">'
-      + '<span class="easy-find-resume-place">' + esc(formatPlace(entry)) + '</span>'
+      + '<span class="easy-find-resume-place">' + esc(place) + '</span>'
       + (when ? '<span class="easy-find-resume-when">' + esc(when) + '</span>' : '')
       + '</span>'
       + '<span class="easy-find-resume-cta">' + (isListen ? '계속 듣기 ▶' : '계속 읽기 →') + '</span>'
@@ -429,8 +433,8 @@
       + '<section class="easy-find-section">'
       + '<h3 class="easy-find-section-title">어디에서 찾으시나요?</h3>'
       + '<div class="easy-find-two">'
-      + '<button type="button" class="easy-find-choice" data-easy-tst="old"><span class="easy-find-choice-title">구약에서 찾기</span><span class="easy-find-choice-sub">39권</span></button>'
-      + '<button type="button" class="easy-find-choice" data-easy-tst="new"><span class="easy-find-choice-title">신약에서 찾기</span><span class="easy-find-choice-sub">27권</span></button>'
+      + '<button type="button" class="easy-find-choice" data-easy-tst="old"><img class="easy-find-choice-icon" src="assets/preview/old-testament-book.png" alt="" width="32" height="46" decoding="async" aria-hidden="true"><span class="easy-find-choice-title">구약에서 찾기</span><span class="easy-find-choice-sub">39권</span></button>'
+      + '<button type="button" class="easy-find-choice" data-easy-tst="new"><img class="easy-find-choice-icon" src="assets/preview/new-testament-book.png" alt="" width="32" height="46" decoding="async" aria-hidden="true"><span class="easy-find-choice-title">신약에서 찾기</span><span class="easy-find-choice-sub">27권</span></button>'
       + '</div></section>'
       + '<section class="easy-find-section">'
       + '<h3 class="easy-find-section-title">책 이름을 잘 모르시나요?</h3>'
