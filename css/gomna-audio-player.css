@@ -1554,7 +1554,7 @@ body.gomna-audio-body-padding .opt4-bottom-bar {
   border-radius: 0;
   box-shadow: none;
   margin: 0;
-  padding: 16px;
+  padding: 11px 16px;
 }
 
 .verse-item:last-child {
@@ -1568,8 +1568,13 @@ body.gomna-audio-body-padding .opt4-bottom-bar {
   }
 
   .verse-item {
-    padding: 15px 14px;
+    padding: 11px 14px;
   }
+}
+
+/* Playing verse row: same gold family as JS highlight, one step softer */
+html #verseList .verse-item.gomna-commentary-card-active {
+  background-color: #D8C18A !important;
 }
 
 /* =========================================================
@@ -5680,8 +5685,8 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
 #gomna-audio-expanded-player .gomna-audio-expanded-info {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) !important;
-  grid-template-rows: auto auto !important;
-  gap: 4px !important;
+  grid-template-rows: auto !important;
+  gap: 0 !important;
   padding: 10px 12px !important;
   border-radius: 12px !important;
   background: var(--gomna-exp-card) !important;
@@ -5691,9 +5696,9 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
 
 #gomna-audio-expanded-player .gomna-audio-expanded-title {
   margin: 0 !important;
-  color: var(--gomna-exp-muted) !important;
-  font-size: 12px !important;
-  line-height: 1.25 !important;
+  color: var(--gomna-exp-text) !important;
+  font-size: 14px !important;
+  line-height: 1.35 !important;
   font-weight: 700 !important;
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -5701,15 +5706,7 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
 }
 
 #gomna-audio-expanded-player .gomna-audio-expanded-preview {
-  display: -webkit-box !important;
-  line-clamp: 2 !important;
-  -webkit-line-clamp: 2 !important;
-  -webkit-box-orient: vertical !important;
-  overflow: hidden !important;
-  color: var(--gomna-exp-text) !important;
-  font-size: 14px !important;
-  line-height: 1.4 !important;
-  font-weight: 650 !important;
+  display: none !important;
 }
 
 #gomna-audio-expanded-player .gomna-audio-expanded-hero {
@@ -5740,8 +5737,8 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
 #gomna-audio-expanded-player [data-audio-hero-caption] {
   left: 22px !important;
   right: 22px !important;
-  bottom: 36px !important;
-  top: auto !important;
+  top: 50% !important;
+  bottom: auto !important;
   font-size: 17px !important;
   line-height: 1.45 !important;
   color: #111 !important;
@@ -5762,10 +5759,10 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
 
 #gomna-audio-expanded-player .gomna-audio-hero-caption {
   position: absolute !important;
-  transform: none !important;
+  transform: translateY(-50%) !important;
   display: flex !important;
   justify-content: center !important;
-  align-items: flex-end !important;
+  align-items: center !important;
   padding: 0 !important;
   box-shadow: none !important;
   filter: none !important;

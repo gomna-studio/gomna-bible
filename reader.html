@@ -13588,7 +13588,7 @@ function syncChapterListenStatusTitle() {
   var i;
   if (!mode || !place) return;
   title = mode === 'continuous' ? place + '부터 · 연속 재생' : place + ' · 현재 장';
-  els = document.querySelectorAll('[data-audio-current-title], [data-audio-current-title-expanded]');
+  els = document.querySelectorAll('[data-audio-current-title]');
   for (i = 0; i < els.length; i++) {
     els[i].textContent = title;
   }
