@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>애널리틱스 제외 확인 - 은혜의말씀</title>
+<script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: #f8f3e8;
+    color: #2d2925;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  }
+  main {
+    width: min(100%, 440px);
+    padding: 32px 24px;
+    border: 1px solid rgba(71, 61, 48, .12);
+    border-radius: 22px;
+    background: rgba(255, 253, 248, .96);
+    box-shadow: 0 16px 40px rgba(61, 51, 38, .10);
+    text-align: center;
+  }
+  .mark {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    font-size: 34px;
+    font-weight: 800;
+  }
+  .mark.ok { color: #fff; background: #287a4a; }
+  .mark.off { color: #fff; background: #b4533c; }
+  h1 { margin: 0; font-size: 22px; line-height: 1.45; letter-spacing: -.4px; }
+  p { margin: 14px 0 0; color: #6b6258; font-size: 15px; line-height: 1.7; }
+  .actions { display: grid; gap: 10px; margin-top: 26px; }
+  a {
+    display: block;
+    min-height: 48px;
+    padding: 13px 16px;
+    border-radius: 13px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .primary { color: #fff; background: #2f67c7; }
+  .secondary { color: #4f493f; background: #eee8dc; }
+</style>
+</head>
+<body>
+<main aria-live="polite">
+  <div id="statusMark" class="mark">…</div>
+  <h1 id="statusTitle">확인 중입니다</h1>
+  <p id="statusDescription">이 기기의 애널리틱스 제외 상태를 확인하고 있습니다.</p>
+  <div id="statusActions" class="actions"></div>
+</main>
+<script>
+(function () {
+  'use strict';
+
+  var control = window.GomnaAnalyticsControl;
+  var blocked = !!(control && control.isInternal && control.isInternal());
+  var gaBlocked = window['ga-disable-G-1K6DBVER5W'] === true;
+  var confirmed = blocked && gaBlocked;
+  var mark = document.getElementById('statusMark');
+  var title = document.getElementById('statusTitle');
+  var description = document.getElementById('statusDescription');
+  var actions = document.getElementById('statusActions');
+
+  if (confirmed) {
+    mark.className = 'mark ok';
+    mark.textContent = '✓';
+    title.textContent = '이 기기는 애널리틱스 제외 중입니다';
+    description.textContent = '이 기기에서 앱을 사용하거나 성경을 넘겨도 GA4와 PostHog로 기록을 보내지 않습니다.';
+    actions.innerHTML = '<a class="primary" href="/">은혜의말씀으로 돌아가기</a>';
+    return;
+  }
+
+  mark.className = 'mark off';
+  mark.textContent = '!';
+  title.textContent = '이 기기는 아직 등록되지 않았습니다';
+  description.textContent = '아래 버튼을 누르면 이 기기의 대표님 사용 기록을 애널리틱스에서 제외합니다.';
+  actions.innerHTML = '<a class="primary" href="/analytics-status.html?gomna_internal=1">이 기기 제외 등록</a>' +
+    '<a class="secondary" href="/">홈으로 돌아가기</a>';
+})();
+</script>
+</body>
+</html>
