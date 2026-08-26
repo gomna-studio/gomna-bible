@@ -2,6 +2,7 @@
 <html lang="ko" class="reader-hide-chrome">
 <head>
 <meta charset="UTF-8">
+<script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script>
 /* Reader boot: show beige reading skeleton until Google Translate finishes (non-ko only). */
 (function () {
@@ -15203,6 +15204,7 @@ function applyConsent(consent) {
 }
 
 function loadAnalytics() {
+  if (window.GomnaAnalyticsControl && window.GomnaAnalyticsControl.isInternal()) return;
   if (window.analyticsLoaded) return;
   window.analyticsLoaded = true;
   var script = document.createElement('script');
