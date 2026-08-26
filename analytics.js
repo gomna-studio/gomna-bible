@@ -29,6 +29,7 @@
   }
 
   function track(eventName, params) {
+    if (window.GomnaAnalyticsControl && window.GomnaAnalyticsControl.isInternal()) return;
     if (!hasAnalyticsConsent()) return;
     if (typeof window.gtag !== 'function') return;
     window.gtag('event', eventName, params || {});

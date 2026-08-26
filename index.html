@@ -15,6 +15,7 @@
 })();
 </script>
 <meta charset="UTF-8">
+<script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script>
 (function () {
   try {
@@ -1573,7 +1574,12 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
         return !!(consent && consent.analytics === true);
     }
 
+    function isInternalAnalytics() {
+        return !!(window.GomnaAnalyticsControl && window.GomnaAnalyticsControl.isInternal());
+    }
+
     function loadGa4() {
+        if (isInternalAnalytics()) return;
         if (window.__gomnaHomeGa4Loaded) return;
         window.__gomnaHomeGa4Loaded = true;
         window.dataLayer = window.dataLayer || [];
@@ -1598,6 +1604,7 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
     }
 
     function trackViewHomeOnce() {
+        if (isInternalAnalytics()) return;
         try {
             if (sessionStorage.getItem(VIEW_HOME_KEY)) return;
             sessionStorage.setItem(VIEW_HOME_KEY, '1');
@@ -1615,6 +1622,7 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
     }
 
     function initHomeAnalytics() {
+        if (isInternalAnalytics()) return;
         if (!hasAnalyticsConsent()) return;
 
         loadGa4();
