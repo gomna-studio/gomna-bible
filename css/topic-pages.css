@@ -31,11 +31,12 @@ a { color: var(--topic-blue); text-underline-offset: 3px; }
   gap: .65rem;
   margin-bottom: .9rem;
   color: var(--topic-ink);
-  font-size: .96rem;
-  font-weight: 750;
   text-decoration: none;
 }
-.topic-brand img { width: 38px; height: 38px; display: block; border-radius: 50%; object-fit: cover; }
+.topic-brand img { width: 48px; height: 48px; display: block; border-radius: 22.5%; object-fit: contain; }
+.topic-brand-copy { display: flex; flex-direction: column; line-height: 1.1; }
+.topic-brand-copy strong { color: var(--topic-ink); font-size: 1.05rem; font-weight: 750; letter-spacing: -.02em; }
+.topic-brand-copy em { margin-top: .25rem; color: #73767c; font-family: Georgia, serif; font-size: .78rem; font-weight: 400; letter-spacing: .02em; }
 .topic-breadcrumb {
   display: flex;
   flex-wrap: wrap;

@@ -29,6 +29,9 @@ for (const slug of SLUGS) {
   if (!html.includes('"@type": "WebPage"')) fail(`${slug} WebPage schema`);
   if (!html.includes('/analytics-control.js?')) fail(`${slug} analytics exclusion control`);
   if (!html.includes('/js/gomna-entry-analytics.js?')) fail(`${slug} entry analytics`);
+  if (!html.includes('assets/login/login-visual-blue.png?v=1')) fail(`${slug} official home icon`);
+  if (!html.includes('Words of Grace')) fail(`${slug} brand subtitle`);
+  if (html.includes('logo-home.png')) fail(`${slug} legacy logo`);
   const verseCards = (html.match(/class="verse-card"/g) || []).length;
   if (verseCards !== 5) fail(`${slug} verse cards ${verseCards}`);
   const readerLinks = (html.match(/source=topic-/g) || []).length;
