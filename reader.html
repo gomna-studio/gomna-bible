@@ -15628,6 +15628,12 @@ function loadAds() {
     return true;
   };
 
+  function revealScriptureEntry(){
+    document.documentElement.classList.remove('scripture-entry-pending');
+  }
+  window.__gomnaRevealScriptureEntry=revealScriptureEntry;
+  window.__gomnaRevealHomeDailyRead=revealScriptureEntry;
+
   if(!pending)return;
 
   window.returnToTodayWordCard=function(){
@@ -15655,12 +15661,6 @@ function loadAds() {
     revealScriptureEntry();
   };
   window.exitDailyWordView=window.exitScriptureEntryView;
-
-  function revealScriptureEntry(){
-    document.documentElement.classList.remove('scripture-entry-pending');
-  }
-  window.__gomnaRevealScriptureEntry=revealScriptureEntry;
-  window.__gomnaRevealHomeDailyRead=revealScriptureEntry;
 
   /* 아래 도구 막대와 dock은 position:fixed라 offsetParent가 늘 null이다.
      그것만 보면 높이가 0으로 잡혀 강조 절이 막대 뒤로 숨는다. 실제 표시 여부와 높이로 판단한다. */
