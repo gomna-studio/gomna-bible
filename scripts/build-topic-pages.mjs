@@ -205,7 +205,10 @@ function shell({ depth, title, description, canonicalPath, h1, body, breadcrumbs
 </head>
 <body data-topic-slug="${escapeHtml(topicSlug)}">
 <main class="topic-page">
-  <a class="topic-brand" href="/"><img src="${prefix}logo-home.png" alt="" width="38" height="38"><span>은혜의말씀</span></a>
+  <a class="topic-brand" href="/">
+    <img src="${prefix}assets/login/login-visual-blue.png?v=1" alt="" width="48" height="48">
+    <span class="topic-brand-copy"><strong>은혜의말씀</strong><em>Words of Grace</em></span>
+  </a>
   <nav aria-label="현재 위치"><ol class="topic-breadcrumb">${crumbHtml}</ol></nav>
   <h1>${escapeHtml(h1)}</h1>${body}
 </main>
