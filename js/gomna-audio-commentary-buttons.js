@@ -14,9 +14,11 @@
   var CONTROLS_FOOTER_CLASS = 'gomna-audio-commentary-controls-footer';
   var INLINE_CONTROLS_ID = 'gomnaCommentaryInlineControls';
   var LISTEN_BTN_ID = 'gomnaCommentaryListenBtn';
-  var REPLAY_BTN_ID = 'gomnaCommentaryReplayBtn';
-  var SEQUENCE_BTN_ID = 'gomnaCommentarySequenceBtn';
   var INLINE_CLOSE_BTN_ID = 'gomnaCommentaryInlineCloseBtn';
+  var INLINE_LABEL_CLASS = 'gomna-commentary-inline-label';
+  var ACTION_BAR_HIDDEN_CLASS = 'gomna-commentary-inline-controls--hidden';
+  var BAR_SCROLL_BOUND_ATTR = 'data-gomna-commentary-bar-scroll-bound';
+  var BAR_SCROLL_THRESHOLD_PX = 24;
   var INLINE_BOUND_ATTR = 'data-gomna-inline-controls-bound';
   var CONTAINED_AUDIO_HIDDEN_ATTR = 'data-gomna-contained-audio-hidden';
   var CONTAINED_AUDIO_HIDDEN_CLASS = 'gomna-contained-audio-control-hidden';
@@ -39,8 +41,14 @@
   var currentSelectedType = 'original-language';
   var lastFollowedPlaybackAudioId = null;
   var manualCueLoads = {};
-  var verseChainType = null;
+  /* 절 우선 이어재생: 세대 번호로 진행 중인 체인을 식별한다(타입은 쓰지 않는다). */
+  var verseChainGeneration = 0;
+  var verseChainActive = false;
   var verseChainTimer = null;
+  var actionBarHidden = false;
+  var commentaryPopupWasOpen = false;
+  var barScrollLastTop = 0;
+  var barScrollAccumPx = 0;
 
   // Future Matthew Henry audio option:
   // English originals can later be generated with a separate en-US voice,
@@ -93,7 +101,59 @@
   }
 
   function sequenceIdleLabel() {
-    return '▶ ' + commentaryUiT('commentary.audio.listenAll', '전체듣기');
+    return '▶ ' + commentaryUiT('commentary.audio.listenAll', '전체 듣기');
+  }
+
+  /* 하단 액션 바 라벨은 재생 상태와 무관하게 고정이다.
+   * 재생·일시정지·구간 이동·속도는 미니 플레이어가 담당한다.
+   * 닫기는 아이콘 없이 글자만 쓴다 — 미니 플레이어의 X(재생기 닫기)와 혼동되지 않게 한다.
+   */
+  var INLINE_ACTION_ICONS = {
+    listen:
+      '<path d="M4 14v3a2 2 0 0 0 2 2h1v-7H5a1 1 0 0 0-1 1zm15 0v3a2 2 0 0 1-2 2h-1v-7h2a1 1 0 0 1 1 1z"></path>' +
+      '<path d="M4 14a8 8 0 0 1 16 0"></path>',
+    sequence:
+      '<path d="M4 6.5h10"></path><path d="M4 12h10"></path><path d="M4 17.5h6"></path>' +
+      '<path d="M16.6 9.6l4.4 2.4-4.4 2.4z"></path>'
+  };
+
+  function buildInlineActionButton(id, variant, iconName, i18nKey, fallbackLabel) {
+    var button = document.createElement('button');
+    var icon;
+    var label = document.createElement('span');
+
+    button.type = 'button';
+    button.id = id;
+    button.className = 'gomna-commentary-inline-button gomna-commentary-inline-' + variant;
+
+    if (iconName && INLINE_ACTION_ICONS[iconName]) {
+      icon = document.createElement('span');
+      icon.className = 'gomna-commentary-inline-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.innerHTML =
+        '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+        INLINE_ACTION_ICONS[iconName] +
+        '</svg>';
+      button.appendChild(icon);
+    }
+
+    label.className = INLINE_LABEL_CLASS;
+    button.appendChild(label);
+    setCommentaryUiText(label, i18nKey, commentaryUiT(i18nKey, fallbackLabel));
+
+    return button;
+  }
+
+  function getInlineButtonLabel(button) {
+    if (!button) return null;
+    return button.querySelector('.' + INLINE_LABEL_CLASS) || button;
+  }
+
+  function setInlineButtonLabel(button, i18nKey, fallbackLabel, ariaLabel) {
+    if (!button) return;
+    setCommentaryUiText(getInlineButtonLabel(button), i18nKey, commentaryUiT(i18nKey, fallbackLabel));
+    if (ariaLabel) button.setAttribute('aria-label', ariaLabel);
   }
 
   function sequencePlayingLabel() {
@@ -921,13 +981,7 @@
     if (popup) {
       pushAll(
         popup.querySelectorAll(
-          '#' +
-            INLINE_CONTROLS_ID +
-            ' .gomna-commentary-inline-listen, #' +
-            INLINE_CONTROLS_ID +
-            ' .gomna-commentary-inline-replay, #' +
-            INLINE_CONTROLS_ID +
-            ' .gomna-commentary-inline-sequence'
+          '#' + INLINE_CONTROLS_ID + ' .gomna-commentary-inline-listen'
         )
       );
       pushAll(
@@ -1025,11 +1079,17 @@
 
   function syncCommentaryPopupLock() {
     var open = isCommentaryPopupOpen();
+    var freshOpen = open && !commentaryPopupWasOpen;
 
+    commentaryPopupWasOpen = open;
     document.body.classList.toggle(MODAL_OPEN_CLASS, open);
 
     if (open) {
       resetCommentaryPopupBoxDragStyles();
+      /* 팝업을 새로 열면 하단 바는 항상 초기 상태(표시)로 되돌린다. */
+      if (freshOpen && !isCommentaryPlaybackActive()) {
+        setActionBarHidden(false);
+      }
       ensureInlineControls();
       syncContainedMultilangAudioControlsVisibility();
     }
@@ -1099,14 +1159,6 @@
     return document.getElementById(LISTEN_BTN_ID);
   }
 
-  function getInlineReplayButton() {
-    return document.getElementById(REPLAY_BTN_ID);
-  }
-
-  function getInlineSequenceButton() {
-    return document.getElementById(SEQUENCE_BTN_ID);
-  }
-
   function getInlineCloseButton() {
     return document.getElementById(INLINE_CLOSE_BTN_ID);
   }
@@ -1135,28 +1187,13 @@
     }
   }
 
-  function bindInlineControlsDirect(listenBtn, replayBtn, seqBtn, closeBtn) {
-    if (!listenBtn) return;
-
-    if (listenBtn.getAttribute(INLINE_BOUND_ATTR) !== '1') {
+  function bindInlineControlsDirect(listenBtn, closeBtn) {
+    if (listenBtn && listenBtn.getAttribute(INLINE_BOUND_ATTR) !== '1') {
       listenBtn.setAttribute(INLINE_BOUND_ATTR, '1');
-      replayBtn.setAttribute(INLINE_BOUND_ATTR, '1');
-      seqBtn.setAttribute(INLINE_BOUND_ATTR, '1');
-
       listenBtn.addEventListener('click', function() {
         var item = getActiveCommentaryItem(getContent());
         if (!item || !item.published) return;
-        CommentaryAudioController.playSingle(item.audioId);
-      });
-
-      replayBtn.addEventListener('click', function() {
-        var item = getActiveCommentaryItem(getContent());
-        if (!item || !item.published) return;
-        CommentaryAudioController.replaySingle(item.audioId);
-      });
-
-      seqBtn.addEventListener('click', function() {
-        CommentaryAudioController.playFullSequence();
+        CommentaryAudioController.listenFromHere(item.audioId);
       });
     }
 
@@ -1170,13 +1207,12 @@
     }
   }
 
+  /* 하단 액션 바는 듣기 / 닫기 2개로 고정한다. */
   function ensureInlineControls() {
     var box = getPopupBox();
     var content = getContent();
     var controls;
     var listenBtn;
-    var replayBtn;
-    var seqBtn;
     var closeBtn;
 
     if (!box || !content) return null;
@@ -1191,35 +1227,22 @@
       controls.setAttribute('role', 'group');
       controls.setAttribute('aria-label', commentaryUiT('commentary.audio.controlsAria', '말씀풀이 오디오 컨트롤'));
 
-      listenBtn = document.createElement('button');
-      listenBtn.type = 'button';
-      listenBtn.id = LISTEN_BTN_ID;
-      listenBtn.className = 'gomna-commentary-inline-button gomna-commentary-inline-listen';
-      setCommentaryUiText(listenBtn, 'commentary.audio.listen', '▶ ' + commentaryUiT('commentary.audio.listen', '듣기'));
-
-      replayBtn = document.createElement('button');
-      replayBtn.type = 'button';
-      replayBtn.id = REPLAY_BTN_ID;
-      replayBtn.className = 'gomna-commentary-inline-button gomna-commentary-inline-replay';
-      setCommentaryUiText(replayBtn, 'commentary.audio.replay', '↻ ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
-
-      seqBtn = document.createElement('button');
-      seqBtn.type = 'button';
-      seqBtn.id = SEQUENCE_BTN_ID;
-      seqBtn.className = 'gomna-commentary-inline-button gomna-commentary-inline-sequence';
-      setCommentaryUiText(seqBtn, 'commentary.audio.listenAll', sequenceIdleLabel());
-
-      closeBtn = document.createElement('button');
-      closeBtn.type = 'button';
-      closeBtn.id = INLINE_CLOSE_BTN_ID;
-      closeBtn.className = 'gomna-commentary-inline-close';
-      closeBtn.setAttribute('aria-label', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
-      closeBtn.setAttribute('title', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
-      setCommentaryUiText(closeBtn, 'commentary.close', commentaryUiT('commentary.close', '닫기'));
+      listenBtn = buildInlineActionButton(
+        LISTEN_BTN_ID,
+        'listen',
+        'listen',
+        'commentary.audio.listen',
+        '듣기'
+      );
+      closeBtn = buildInlineActionButton(
+        INLINE_CLOSE_BTN_ID,
+        'close',
+        null,
+        'commentary.close',
+        '닫기'
+      );
 
       controls.appendChild(listenBtn);
-      controls.appendChild(seqBtn);
-      controls.appendChild(replayBtn);
       controls.appendChild(closeBtn);
       box.insertBefore(controls, content.nextSibling);
       if (typeof window.ensureCommentaryScrollShell === 'function') {
@@ -1228,31 +1251,30 @@
 
     } else {
       listenBtn = document.getElementById(LISTEN_BTN_ID);
-      replayBtn = document.getElementById(REPLAY_BTN_ID);
-      seqBtn = document.getElementById(SEQUENCE_BTN_ID);
       closeBtn = document.getElementById(INLINE_CLOSE_BTN_ID);
-
-      if (!closeBtn) {
-        closeBtn = document.createElement('button');
-        closeBtn.type = 'button';
-        closeBtn.id = INLINE_CLOSE_BTN_ID;
-        closeBtn.className = 'gomna-commentary-inline-close';
-        closeBtn.setAttribute('aria-label', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
-        closeBtn.setAttribute('title', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
-        setCommentaryUiText(closeBtn, 'commentary.close', commentaryUiT('commentary.close', '닫기'));
-        controls.appendChild(closeBtn);
-      }
+      removeLegacyInlineSequenceButton(controls);
     }
 
     if (closeBtn) {
       closeBtn.setAttribute('aria-label', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
       closeBtn.setAttribute('title', commentaryUiT('commentary.closeAria', '말씀풀이 닫기'));
-      setCommentaryUiText(closeBtn, 'commentary.close', commentaryUiT('commentary.close', '닫기'));
+      setInlineButtonLabel(closeBtn, 'commentary.close', '닫기');
     }
 
-    bindInlineControlsDirect(listenBtn, replayBtn, seqBtn, closeBtn);
+    bindInlineControlsDirect(listenBtn, closeBtn);
+    bindActionBarScrollWatch();
+    syncActionBarVisibility();
     syncContainedMultilangAudioControlsVisibility();
     return controls;
+  }
+
+  /* 캐시된 이전 버전이 만들어 둔 '전체 듣기' 버튼이 남아 있으면 걷어낸다. */
+  function removeLegacyInlineSequenceButton(controls) {
+    var legacy = controls && controls.querySelector('.gomna-commentary-inline-sequence');
+
+    if (legacy && legacy.parentNode) {
+      legacy.parentNode.removeChild(legacy);
+    }
   }
 
   function removeCommentarySectionTitleIcons() {
@@ -1911,101 +1933,178 @@
     });
   }
 
+  /* 하단 액션 바 동기화.
+   * 라벨은 항상 듣기 / 닫기로 고정하고, 재생 상태는 활성 표시(클래스)로만 알린다.
+   * 일시정지·이어듣기·다시듣기는 미니 플레이어에서만 조작한다.
+   */
   function syncInlineControls(content) {
     var item = getActiveCommentaryItem(content);
-    var listenBtn = getInlineListenButton();
-    var replayBtn = getInlineReplayButton();
-    var seqBtn = getInlineSequenceButton();
-    var publishedIds = getPublishedSequenceAudioIds();
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
     var activeAudioId = hasActiveCommentaryPlayback(state) ? state.currentAudioId : null;
+    var listenBtn;
 
     ensureInlineControls();
 
-    if (!item || !listenBtn || !replayBtn || !seqBtn) {
+    listenBtn = getInlineListenButton();
+
+    if (!item || !listenBtn) {
       syncContainedMultilangAudioControlsVisibility();
       return;
     }
 
     listenBtn.setAttribute('data-audio-id', item.audioId);
     listenBtn.setAttribute('data-gomna-commentary-type', item.type);
-    replayBtn.setAttribute('data-audio-replay-id', item.audioId);
-    replayBtn.setAttribute('data-gomna-commentary-type', item.type);
 
     if (!item.published) {
       listenBtn.disabled = true;
-      replayBtn.disabled = true;
       listenBtn.classList.add('gomna-commentary-inline-button--pending');
-      replayBtn.classList.add('gomna-commentary-inline-button--pending');
-      setCommentaryUiText(listenBtn, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
-      setCommentaryUiText(replayBtn, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
-      listenBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.preparing', '준비 중'));
-      replayBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.preparing', '준비 중'));
+      listenBtn.classList.remove(ACTIVE_BUTTON_CLASS);
+      listenBtn.setAttribute('aria-pressed', 'false');
+      setInlineButtonLabel(
+        listenBtn,
+        'commentary.audio.preparing',
+        '준비 중',
+        commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.preparing', '준비 중')
+      );
     } else {
       listenBtn.disabled = false;
-      replayBtn.disabled = false;
       listenBtn.classList.remove('gomna-commentary-inline-button--pending');
-      replayBtn.classList.remove('gomna-commentary-inline-button--pending');
-      setCommentaryUiText(replayBtn, 'commentary.audio.replay', '↻ ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
-      replayBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
+      setInlineButtonLabel(
+        listenBtn,
+        'commentary.audio.listen',
+        '듣기',
+        commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.listen', '듣기')
+      );
 
       if (activeAudioId === item.audioId) {
-        if (state && state.isPaused) {
-          setCommentaryUiText(listenBtn, 'commentary.audio.resume', '▶ ' + commentaryUiT('commentary.audio.resume', '이어듣기'));
-          listenBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.resume', '이어듣기'));
-        } else {
-          setCommentaryUiText(listenBtn, 'commentary.audio.pause', '⏸ ' + commentaryUiT('commentary.audio.pause', '일시정지'));
-          listenBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.pause', '일시정지'));
-        }
         listenBtn.classList.add(ACTIVE_BUTTON_CLASS);
         listenBtn.setAttribute('aria-pressed', 'true');
-      } else if (isCommentaryCompleted(item.audioId)) {
-        setCommentaryUiText(listenBtn, 'commentary.audio.replay', '↻ ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
-        listenBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.replay', '다시듣기'));
-        listenBtn.classList.remove(ACTIVE_BUTTON_CLASS);
-        listenBtn.setAttribute('aria-pressed', 'false');
       } else {
-        setCommentaryUiText(listenBtn, 'commentary.audio.listen', '▶ ' + commentaryUiT('commentary.audio.listen', '듣기'));
-        listenBtn.setAttribute('aria-label', commentaryItemLabel(item) + ' ' + commentaryUiT('commentary.audio.listen', '듣기'));
         listenBtn.classList.remove(ACTIVE_BUTTON_CLASS);
         listenBtn.setAttribute('aria-pressed', 'false');
       }
     }
 
-    if (!publishedIds.length) {
-      seqBtn.disabled = true;
-      seqBtn.classList.add('gomna-commentary-inline-button--pending');
-      setCommentaryUiText(seqBtn, 'commentary.audio.preparing', commentaryUiT('commentary.audio.preparing', '준비 중'));
-      seqBtn.setAttribute('aria-label', commentaryUiT('commentary.audio.preparing', '준비 중'));
-      syncContainedMultilangAudioControlsVisibility();
+    syncContainedMultilangAudioControlsVisibility();
+  }
+
+  /* ---- 하단 액션 바 표시/숨김 ---------------------------------------------
+   * 재생 중에는 아래 미니 플레이어가 화면을 차지하므로 액션 바를 숨긴다.
+   * 사용자가 위로 스크롤하면 다시 꺼내 볼 수 있다.
+   */
+  function isCommentaryPlaybackActive() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+
+    if (!state) return false;
+
+    return hasActiveCommentaryPlayback(state) || hasActiveCommentarySequence(state);
+  }
+
+  function syncActionBarVisibility() {
+    var controls = document.getElementById(INLINE_CONTROLS_ID);
+
+    if (!controls) return;
+
+    controls.classList.toggle(ACTION_BAR_HIDDEN_CLASS, actionBarHidden);
+    controls.setAttribute('aria-hidden', actionBarHidden ? 'true' : 'false');
+  }
+
+  function setActionBarHidden(hidden) {
+    var next = !!hidden;
+
+    barScrollAccumPx = 0;
+
+    if (actionBarHidden === next) return;
+
+    actionBarHidden = next;
+    syncActionBarVisibility();
+  }
+
+  /* 모바일은 #commentaryScrollArea, 데스크톱 와이드는 #commentaryContent가 실제 스크롤러다. */
+  function getCommentaryScrollHost() {
+    return document.getElementById('commentaryScrollArea') || getContent();
+  }
+
+  function bindActionBarScrollWatch() {
+    var host = getCommentaryScrollHost();
+
+    if (!host || host.getAttribute(BAR_SCROLL_BOUND_ATTR) === '1') return;
+
+    host.setAttribute(BAR_SCROLL_BOUND_ATTR, '1');
+    barScrollLastTop = host.scrollTop || 0;
+    host.addEventListener('scroll', function() {
+      handleActionBarScroll(host);
+    }, { passive: true });
+  }
+
+  /* 카드 자동 추종(centerActiveCard)이 만든 스크롤인지 기존 보호장치에 물어본다.
+   * 자동 스크롤을 사용자 스크롤로 오인하면 액션 바가 혼자 나타났다 사라진다.
+   */
+  function isProgrammaticCommentaryScroll() {
+    var autoCenter = window.GOMNA_COMMENTARY_AUTO_CENTER;
+
+    if (!autoCenter || typeof autoCenter.isProgrammaticScroll !== 'function') {
+      return false;
+    }
+
+    try {
+      return !!autoCenter.isProgrammaticScroll();
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function isRecentUserScrollInput() {
+    var autoCenter = window.GOMNA_COMMENTARY_AUTO_CENTER;
+
+    /* 신호를 못 얻으면 기존처럼 scroll 이벤트만 보고 판단한다. */
+    if (!autoCenter || typeof autoCenter.hasRecentUserInput !== 'function') {
+      return true;
+    }
+
+    try {
+      return !!autoCenter.hasRecentUserInput();
+    } catch (e) {
+      return true;
+    }
+  }
+
+  function handleActionBarScroll(host) {
+    var top = host.scrollTop || 0;
+    var delta = top - barScrollLastTop;
+
+    barScrollLastTop = top;
+
+    if (!isCommentaryPlaybackActive()) {
+      barScrollAccumPx = 0;
       return;
     }
 
-    seqBtn.disabled = false;
-    seqBtn.classList.remove('gomna-commentary-inline-button--pending');
-
-    if (hasActiveCommentarySequence(state)) {
-      setCommentaryUiText(
-        seqBtn,
-        state.isPaused ? 'commentary.audio.listenAllResume' : 'commentary.audio.listenAllPause',
-        state.isPaused ? sequencePausedLabel() : sequencePlayingLabel()
-      );
-      seqBtn.setAttribute(
-        'aria-label',
-        state.isPaused
-          ? commentaryUiT('commentary.audio.listenAllResumeAria', '전체 말씀풀이 이어듣기')
-          : commentaryUiT('commentary.audio.listenAllPauseAria', '전체 말씀풀이 일시정지')
-      );
-      seqBtn.classList.add(ACTIVE_TAB_CLASS);
-      seqBtn.setAttribute('aria-pressed', state.isPaused ? 'false' : 'true');
-    } else {
-      setCommentaryUiText(seqBtn, 'commentary.audio.listenAll', sequenceIdleLabel());
-      seqBtn.setAttribute('aria-label', commentaryUiT('commentary.audio.listenAllAria', '전체 말씀풀이 듣기'));
-      seqBtn.classList.remove(ACTIVE_TAB_CLASS);
-      seqBtn.setAttribute('aria-pressed', 'false');
+    /* 프로그램이 만든 스크롤은 사용자 의도가 아니므로 판단 근거로 쓰지 않는다. */
+    if (isProgrammaticCommentaryScroll()) {
+      barScrollAccumPx = 0;
+      return;
     }
-    syncContainedMultilangAudioControlsVisibility();
+
+    /* 손가락·마우스·휠 입력이 최근에 없었으면 사용자 스크롤로 보지 않는다. */
+    if (!isRecentUserScrollInput()) {
+      barScrollAccumPx = 0;
+      return;
+    }
+
+    /* 방향이 바뀌면 누적을 버려 손떨림 수준의 왕복에 반응하지 않게 한다. */
+    if ((delta < 0) !== (barScrollAccumPx < 0)) {
+      barScrollAccumPx = 0;
+    }
+    barScrollAccumPx += delta;
+
+    if (barScrollAccumPx <= -BAR_SCROLL_THRESHOLD_PX) {
+      setActionBarHidden(false);
+    } else if (barScrollAccumPx >= BAR_SCROLL_THRESHOLD_PX) {
+      setActionBarHidden(true);
+    }
   }
 
   function getItemByType(type) {
@@ -2493,7 +2592,47 @@
       return this.startSingleFromBeginning(item.baseAudioId || audioId);
     },
 
-    /* 번호 카드 클릭: 그 카드 cue부터 재생하고, 같은 주제로 다음 절까지 이어 읽는다. */
+    /* 하단 바 '듣기': 현재 선택한 풀이부터 그 절의 교차참조까지 재생하고,
+     * 절이 끝나면 다음 절의 원어분석부터 이어 읽는다(절 우선 재생).
+     * 재생·재개만 하며 일시정지는 미니 플레이어 몫이다.
+     */
+    listenFromHere: function(audioId) {
+      var engine = this.getEngine();
+      var state = this.getState();
+      var item = getItemByAudioId(audioId);
+      var target;
+      var started;
+
+      if (!engine || !item) return false;
+
+      target = applyResolvedCommentaryTarget(item);
+
+      if (state && state.currentAudioId === target.audioId) {
+        if (state.isPlaying) return true;
+
+        if (state.isPaused && engine.resumeAudio) {
+          engine.resumeAudio();
+          updateCommentaryButtonLabels();
+          return true;
+        }
+      }
+
+      started = this.playSequenceFrom(target.audioId);
+
+      /* 큐가 없으면(공개 오디오 미포함) 단일 재생으로 물러난다. */
+      if (!started) {
+        started = this.startSingleFromBeginning(item.baseAudioId || audioId);
+      }
+
+      if (started) {
+        armVerseChain();
+        setActionBarHidden(true);
+      }
+
+      return started;
+    },
+
+    /* 번호 카드 클릭: 그 카드 cue부터 재생하고, 절 순서대로 이어 읽는다. */
     playCardRow: function(item, row) {
       var self = this;
       var highlight = window.GOMNA_CARD_HIGHLIGHT;
@@ -2550,7 +2689,7 @@
       currentCueKey = null;
       lastSequenceQueueIndex = -1;
       currentSelectedType = item.type;
-      verseChainType = item.type;
+      armVerseChain();
       this.stopForTransition(engine, state);
       engine.playAudioById(item.audioId, { startTime: startTime });
       updateCommentaryButtonLabels();
@@ -2704,6 +2843,7 @@
         lastSequenceQueueIndex = -1;
         currentCueKey = null;
         this.stopForTransition(engine, state);
+        setActionBarHidden(false);
         updateCommentaryButtonLabels();
         return true;
       }
@@ -2713,12 +2853,19 @@
   };
 
   function clearVerseChain() {
-    verseChainType = null;
+    verseChainActive = false;
+    verseChainGeneration += 1;
 
     if (verseChainTimer) {
       clearTimeout(verseChainTimer);
       verseChainTimer = null;
     }
+  }
+
+  function armVerseChain() {
+    verseChainActive = true;
+    verseChainGeneration += 1;
+    return verseChainGeneration;
   }
 
   function totalVersesForChain(ctx) {
@@ -2731,24 +2878,67 @@
     }
   }
 
-  /* 카드 클릭으로 시작한 재생이 끝나면 같은 주제로 다음 절(장 끝이면 다음 장 1절)로
-   * 이동한다. 이동·카드 렌더는 기존 goToVerseCommentary / goToChapterCommentary 경로를
-   * 그대로 쓰고, 재생만 이어 붙인다.
+  /* 방금 끝난 풀이 다음에 같은 절에서 재생할 공개 오디오를 찾는다.
+   * 순서는 COMMENTARY_TYPE_TEMPLATES(원어분석 → … → 교차참조)를 그대로 따르고,
+   * 오디오가 없는 타입은 getPublishedSequenceAudioIds가 이미 걸러 준다.
+   */
+  function nextPublishedAudioIdInVerse(endedItem) {
+    var ids = getPublishedSequenceAudioIds();
+    var idx;
+    var item;
+    var i;
+
+    if (!endedItem || !ids.length) return null;
+
+    idx = ids.indexOf(endedItem.audioId);
+
+    /* 언어 해석으로 audioId가 달라졌을 수 있으니 타입으로도 되짚는다. */
+    if (idx < 0) {
+      for (i = 0; i < ids.length; i++) {
+        item = getItemByAudioId(ids[i]);
+        if (item && item.type === endedItem.type) {
+          idx = i;
+          break;
+        }
+      }
+    }
+
+    if (idx < 0 || idx + 1 >= ids.length) return null;
+
+    return ids[idx + 1];
+  }
+
+  /* 절 우선 이어재생: 현재 절의 남은 풀이를 교차참조까지 먼저 다 읽고,
+   * 교차참조가 끝났을 때만 다음 절(장 끝이면 다음 장 1절)로 넘어가 항상 원어분석부터
+   * 다시 9개 순서로 읽는다. 이동·카드 렌더는 기존 goToVerseCommentary /
+   * goToChapterCommentary 경로를 그대로 쓰고, 재생만 이어 붙인다.
    */
   function advanceVerseChain(endedItem) {
     var ctx = currentContext;
-    var type = verseChainType;
     var chapterCount;
     var target;
+    var generation;
+    var nextInVerse;
 
-    if (!ctx || !type || !endedItem || endedItem.type !== type) return;
+    if (!ctx || !verseChainActive) return;
 
+    /* 1) 같은 절에 다음 풀이가 남아 있으면 절을 넘기지 않는다. */
+    nextInVerse = nextPublishedAudioIdInVerse(endedItem);
+    if (nextInVerse && CommentaryAudioController.playSequenceFrom(nextInVerse)) {
+      /* playSequenceFrom이 체인을 지우므로 다시 걸어 교차참조 뒤까지 이어지게 한다. */
+      armVerseChain();
+      setActionBarHidden(true);
+      return;
+    }
+
+    /* 2) 현재 절의 마지막 풀이까지 끝났으므로 다음 절로 넘어간다. */
     if (ctx.verse + 1 <= totalVersesForChain(ctx)) {
       if (typeof window.goToVerseCommentary !== 'function') {
         clearVerseChain();
         return;
       }
       target = { chapter: ctx.chapter, verse: ctx.verse + 1 };
+      generation = armVerseChain();
       window.goToVerseCommentary(target.verse);
     } else {
       chapterCount = window.currentBook && window.currentBook.chapters;
@@ -2761,18 +2951,20 @@
         return;
       }
       target = { chapter: ctx.chapter + 1, verse: 1 };
+      generation = armVerseChain();
       window.goToChapterCommentary(target.chapter);
     }
 
-    waitForVerseChainTarget(target, type, 0);
+    waitForVerseChainTarget(target, generation, 0);
   }
 
-  function waitForVerseChainTarget(target, type, attempt) {
+  /* 다음 절 렌더가 끝날 때까지 기다린 뒤 그 절 전체를 원어분석부터 재생한다. */
+  function waitForVerseChainTarget(target, generation, attempt) {
     var content = getContent();
     var ctx = getCommentaryContext();
-    var item;
+    var ids;
 
-    if (verseChainType !== type) return;
+    if (!verseChainActive || verseChainGeneration !== generation) return;
 
     if (attempt > 40) {
       clearVerseChain();
@@ -2788,24 +2980,30 @@
     ) {
       syncCommentaryItemsForContext(ctx);
       refreshPublishedFlags();
-      item = getItemByType(type);
+      ids = getPublishedSequenceAudioIds();
 
-      if (item && item.published) {
-        currentSelectedType = type;
-        CommentaryAudioController.startSingleFromBeginning(item.baseAudioId || item.audioId);
-        verseChainType = type;
-        prewarmCardCues(item);
+      if (ids.length) {
+        currentSelectedType = COMMENTARY_TYPE_TEMPLATES[0].type;
+
+        if (!CommentaryAudioController.playFullSequence()) {
+          clearVerseChain();
+          return;
+        }
+
+        /* playFullSequence가 체인을 지우므로 다시 걸어 다음 절까지 이어지게 한다. */
+        armVerseChain();
+        prewarmCardCues(getItemByAudioId(ids[0]));
+        setActionBarHidden(true);
         return;
       }
 
-      if (item && !item.published) {
-        clearVerseChain();
-        return;
-      }
+      /* 절 전체에 공개 오디오가 없으면 기존 정책대로 이어재생을 멈춘다. */
+      clearVerseChain();
+      return;
     }
 
     verseChainTimer = setTimeout(function() {
-      waitForVerseChainTarget(target, type, attempt + 1);
+      waitForVerseChainTarget(target, generation, attempt + 1);
     }, 150);
   }
 
@@ -3552,13 +3750,19 @@
     updateCommentaryButtonLabels();
 
     // 자연 종료만 다음 절로 이어 읽는다 (정지·오류는 제외).
-    if (detail.reason === 'queue_completed') {
+    if (detail.reason === 'queue_completed' && verseChainActive) {
       advanceVerseChain(getItemByAudioId(detail.audioId));
+      return;
     }
+
+    /* 미니 플레이어 X(user_stop) 또는 이어재생 완전 종료 → 하단 바를 되돌린다. */
+    clearVerseChain();
+    setActionBarHidden(false);
   });
 
   window.addEventListener('audio:error', function() {
     clearVerseChain();
+    setActionBarHidden(false);
     updateCommentaryButtonLabels();
   });
 

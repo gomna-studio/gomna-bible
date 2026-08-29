@@ -839,11 +839,19 @@
 
     lastFollowedKey = followKey;
     lastFollowedAudioId = audioId || '';
-    centerActiveCard(element, scrollContainer);
 
+    /*
+     * 새 오디오는 방금 탭 내용을 바꿔 놓았으므로 지금 재는 위치는 reflow 전 값이다.
+     * 여기서 한 번 스크롤하고 320ms 뒤 또 교정하면 화면이 두 번 크게 튄다.
+     * 전환 순간에는 레이아웃이 반영된 뒤 한 번만 중앙정렬한다.
+     * 같은 오디오 안에서 cue 카드가 바뀌는 정상 추종은 아래 즉시 경로를 그대로 쓴다.
+     */
     if (audioChanged) {
       centerActiveCardAfterLayout(audioId);
+      return;
     }
+
+    centerActiveCard(element, scrollContainer);
   }
 
   function isCommentaryControlInteractionTarget(target) {
@@ -919,6 +927,20 @@
     onHeaderPullStart: onHeaderPullStart,
     onHeaderPullEnd: onHeaderPullEnd,
     shouldAutoCenter: shouldAutoCenterActiveCommentaryCard,
+    /* 자동 중앙정렬이 만든 스크롤인지 알려 준다. 하단 액션 바처럼 scroll 이벤트로
+     * 사용자 의도를 읽는 쪽이 프로그램 스크롤에 반응하지 않도록 이 신호를 쓴다.
+     */
+    isProgrammaticScroll: function () {
+      return isAutoCentering || Date.now() < ignoreProgrammaticScrollUntil;
+    },
+    /* 최근에 실제 손가락·마우스·휠 입력이 있었는지. 이미 touchstart/pointerdown/wheel을
+     * 잡아 두고 있으므로 그 기록을 그대로 알려 준다.
+     */
+    hasRecentUserInput: function (withinMs) {
+      var span = Number(withinMs) || USER_IDLE_RESUME_MS;
+      if (isUserInteracting) return true;
+      return lastUserInputAt > 0 && Date.now() - lastUserInputAt <= span;
+    },
     setSeekUiActive: function (active) {
       isSeekUiActive = !!active;
       if (active) noteUserInteraction('seek-ui');

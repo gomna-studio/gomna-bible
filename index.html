@@ -785,8 +785,11 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
 .popup-box{background:#fff;border-radius:20px;padding:28px 24px;width:90%;max-width:420px;max-height:90vh;overflow-y:auto;text-align:center;color:#4A2511}
 /* v75: 로그인 안내창 — index.html과 reader.html이 같은 마크업·같은 값을 쓴다.
    .popup-box 뒤에 두어 두 페이지에서 같은 규칙이 이기게 한다.
-   데스크톱은 가운데 대화상자, 600px 이하는 아래에서 올라오는 시트. */
-.login-overlay{z-index:10000;padding:16px;box-sizing:border-box;background:rgba(58,38,20,.44)}
+   데스크톱은 가운데 대화상자, 600px 이하는 화면 전체를 채우는 로그인 화면. */
+/* 배경을 반투명으로 두면 홈·Reader의 로고와 카드가 그대로 비쳐서
+   로그인 화면이 독립된 화면으로 보이지 않았다. 불투명 아이보리로 완전히 덮는다.
+   position:fixed·inset:0은 위 .popup-overlay 규칙에서 이미 온다. */
+.login-overlay{z-index:10000;padding:16px;box-sizing:border-box;background:#F6F2EA;overscroll-behavior:contain}
 .login-box{
   position:relative;
   width:100%;
@@ -799,6 +802,9 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
   border-radius:22px;
   box-shadow:0 18px 44px rgba(92,64,32,.22);
   color:#3D2818;
+  /* 제목·설명·버튼 묶음이 함께 쓰는 좌우 기준선. 한 값에서 나오므로 세 요소의
+     왼쪽 끝이 어긋날 수 없다. 모바일은 아래 600px 규칙에서 26px로 바뀐다. */
+  --login-inset:23px;
   text-align:left;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
@@ -806,7 +812,6 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
   animation:loginBoxIn 180ms ease-out;
 }
 @keyframes loginBoxIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@keyframes loginSheetUp{from{transform:translateY(24px)}to{transform:none}}
 .login-sheet-handle{display:none}
 .login-close{
   position:absolute;
@@ -833,19 +838,42 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
 }
 .login-close:hover{background:rgba(139,94,44,.16)}
 .login-close:active{background:rgba(139,94,44,.22)}
+/* 카드 위 큰 문구 — 로그인 화면에 들어와 가장 먼저 읽는 핵심 메시지다.
+   카드 번호와 1:1로 짝을 이루고, 카드가 바뀌어도 자리는 움직이지 않는다.
+   min-height를 두 줄(2.8em = line-height 1.4 x 2)로 잡아 두어 글줄 수가 달라도
+   아래 카드가 밀리지 않는다. 세 문구 모두 이 폭에서 두 줄이라 빈 줄이 남지 않는다.
+   max-width는 한 줄이 너무 길게 늘어나지 않게 하는 제한이고, 아이폰에서 두 줄로
+   자연스럽게 나뉘는 폭이다. word-break:keep-all로 낱말 중간에서 끊기지 않는다. */
+.login-brand-lead{
+  /* 폭을 em으로 잡는다. 세 문구를 재 보면 첫 줄은 최대 13.7em, 문구 전체는 최소 15.9em이라
+     그 사이 값이면 글자 크기가 바뀌어도 줄바꿈이 지금 자리에서 움직이지 않는다.
+     14.8em은 양쪽으로 20px 이상 여유가 있어 기기별 글꼴 차이도 견딘다.
+     MacBook 패널에서 오른쪽 위 닫기 X와 첫 줄이 나란히 붙지 않는 폭이기도 하다. */
+  max-width:14.8em;
+  margin:0 auto 38px;
+  min-height:2.8em;
+  font-size:18.5px;
+  font-weight:700;
+  line-height:1.4;
+  letter-spacing:-.2px;
+  color:#1A2332;
+  text-align:center;
+  word-break:keep-all;
+  transition:opacity 130ms ease;
+}
 /* 중앙 브랜드 비주얼 — 대표가 준 이미지 3장을 각각 그대로 두고
    위치·크기·회전·그림자만 CSS로 얹어 한 상징물처럼 겹친다. */
 .login-brand-visual{
   --lv-w:206px;
   --lv-h:130px;
   --lv-front:96px;
-  --lv-gold:78px;
-  --lv-gomna:70px;
   position:relative;
   width:var(--lv-w);
   max-width:100%;
   height:var(--lv-h);
-  margin:6px auto 16px;
+  /* 아래 여백이 곧 「보이는 카드 밑변 → dot」 간격이다. 가운데 카드가 bottom:0이라
+     상자 밑변과 카드 밑변이 같은 선에 있다. */
+  margin:0 auto 30px;
   animation:loginBrandIn 200ms ease-out both;
 }
 @keyframes loginBrandIn{from{opacity:0}to{opacity:1}}
@@ -863,94 +891,176 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
   position:absolute;
   left:50%;
   bottom:0;
+  /* 상자 크기는 세 카드가 같다. 이건 보이는 크기가 아니라 자리를 계산하는 공통 좌표계다.
+     보이는 크기는 「카드 고유 배율 x 자리 배율」이 정하므로 세 카드가 서로 다르게 보인다.
+     원본처럼 카드마다 width를 달리 두면 자리를 바꿀 때 크기를 이어서 바꿀 수 없다. */
+  width:var(--lv-front);
+  height:var(--lv-front);
   overflow:hidden;
   border-radius:18px;
   border:1px solid rgba(255,255,255,.62);
   box-shadow:0 8px 18px rgba(74,46,24,.16),0 3px 9px rgba(28,38,78,.13);
   background:#FFFDF8;
   box-sizing:border-box;
+  transition:transform 800ms cubic-bezier(.4,.03,.28,1);
 }
 .login-brand-card[hidden]{display:none}
 .login-brand-card img{width:100%;height:100%;object-fit:cover;display:block}
-.login-brand-card--blue{
-  width:var(--lv-front);
-  height:var(--lv-front);
+/* 카드마다 자기 고유 크기를 갖는다. 자리 보정과 곱해지므로 세 카드가 한 크기로
+   통일되지 않고, 어느 자리에 있든 카드끼리 크기가 조금씩 다르다. */
+.login-brand-card{--card-base:1}
+.login-brand-card--gold{--card-base:.98}
+.login-brand-card--gomna{--card-base:.96}
+/* 교차 셔플의 세 자리. 위치·기울기·깊이·앞뒤 순서를 카드가 아니라 자리가 갖는다.
+   그래서 클래스만 바꿔 끼우면 세 카드가 서로 자리를 옮기고, transform 하나만
+   바뀌므로 사라졌다 나타나는 깜빡임 없이 이어서 움직인다.
+
+   자리 값은 원본 정적 디자인을 그대로 환산한 것이다. 원본은 카드마다 크기가
+   달랐다(96 / 78 / 70 = 1 / .8125 / .7292, 아이폰 폭에서는 85 / 68 / 61).
+   그 비대칭이 자리에 실려 있어야 어느 카드가 가운데로 와도 원본과 같은 모습이 된다.
+   그래서 뒤 자리 두 개는 서로 다른 배율(.8224 / .7542)·기울기(-8deg / +8deg)를 갖고,
+   카드 고유 배율과 곱해져 첫 화면이 원본 비율과 1% 안에서 일치한다.
+   translateY는 원본이 상자 기준(gold는 top:0, gomna는 top:7%)이라 상자 높이 --lv-h와
+   카드 크기 --lv-front로 환산했다. 덕분에 폭·높이 분기마다 원본 겹침이 유지된다.
+   네 함수의 순서를 세 자리에서 똑같이 맞춰 두었다. 순서가 다르면 브라우저가
+   행렬로 바꿔 보간해서 중간 프레임이 미끄러진다.
+   z-index는 자리와 함께 바로 바뀐다. 뒤에서 나오는 카드가 처음부터 위에 있어야
+   앞 카드 위로 뽑혀 나오는 것처럼 보이고, 끝에서 앞뒤가 튀는 일이 없다. */
+.login-brand-card--slot-center{
   z-index:3;
-  transform:translateX(-50%);
-  animation:loginBrandBlueIn 220ms ease-out both;
+  transform:translateX(-50%) translateY(0) rotate(0deg) scale(var(--card-base));
 }
-.login-brand-card--gold{
-  width:var(--lv-gold);
-  height:var(--lv-gold);
-  top:0;
-  bottom:auto;
+.login-brand-card--slot-left{
   z-index:1;
-  transform:translateX(calc(-50% - var(--lv-front) * .62)) rotate(-8deg);
-  animation:loginBrandGoldIn 220ms ease-out 30ms both;
+  transform:
+    translateX(calc(-50% - var(--lv-front) * .62))
+    translateY(calc(var(--lv-front) * .903 - var(--lv-h)))
+    rotate(-8deg)
+    scale(calc(.8224 * var(--card-base)));
 }
-.login-brand-card--gomna{
-  width:var(--lv-gomna);
-  height:var(--lv-gomna);
-  top:7%;
-  bottom:auto;
+.login-brand-card--slot-right{
   z-index:2;
-  transform:translateX(calc(-50% + var(--lv-front) * .60)) rotate(8deg);
-  animation:loginBrandGomnaIn 220ms ease-out 50ms both;
+  transform:
+    translateX(calc(-50% + var(--lv-front) * .60))
+    translateY(calc(var(--lv-front) * .862 - var(--lv-h) * .93))
+    rotate(8deg)
+    scale(calc(.7542 * var(--card-base)));
 }
-@keyframes loginBrandBlueIn{from{opacity:0;transform:translateX(-50%) translateY(7px)}to{opacity:1;transform:translateX(-50%)}}
-@keyframes loginBrandGoldIn{from{opacity:0;transform:translateX(calc(-50% - var(--lv-front) * .62)) translateY(6px) rotate(-8deg)}to{opacity:1;transform:translateX(calc(-50% - var(--lv-front) * .62)) rotate(-8deg)}}
-@keyframes loginBrandGomnaIn{from{opacity:0;transform:translateX(calc(-50% + var(--lv-front) * .60)) translateY(6px) rotate(8deg)}to{opacity:1;transform:translateX(calc(-50% + var(--lv-front) * .60)) rotate(8deg)}}
-.login-title{margin:0 44px 10px 0;font-size:21px;font-weight:700;color:#3D2818;line-height:1.4;letter-spacing:-.3px;text-align:left}
-.login-desc{margin:0 0 20px;font-size:15.5px;line-height:1.65;color:#765B3D}
-.login-providers{display:flex;flex-direction:column;gap:10px}
+/* 창을 다시 열어 1번 카드로 되돌리는 순간에만 움직임을 끈다 */
+.login-brand-visual.is-instant .login-brand-card{transition:none}
+/* 점 세 개는 현재 카드를 알려 주는 표시일 뿐이다. 새 디자인을 만들지 않고
+   지금 카드만 진하게 둔다. 화면 읽기 도구에는 장식이라 알리지 않으며(aria-hidden),
+   탭 순서에도 넣지 않아 키보드로 로그인 버튼에 가는 길이 길어지지 않게 한다.
+   점 자체는 6px이지만 가상 요소로 손가락이 닿는 영역만 넓힌다. */
+.login-brand-dots{display:flex;justify-content:center;gap:7px;margin:0 0 22px}
+.login-brand-dot{
+  position:relative;
+  width:6px;
+  height:6px;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:rgba(107,96,82,.26);
+  cursor:pointer;
+  -webkit-appearance:none;
+  appearance:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:background 200ms ease;
+}
+.login-brand-dot::after{content:'';position:absolute;left:-9px;right:-9px;top:-9px;bottom:-9px}
+.login-brand-dot.is-on{background:rgba(107,96,82,.7)}
+/* 제목·설명은 버튼 묶음과 같은 기준선에서 시작한다. 예전에는 상자 padding에만 붙어
+   버튼보다 26px 왼쪽에서 시작해 글과 버튼이 서로 다른 덩어리처럼 보였다.
+   오른쪽 여백도 같은 값이라 설명문이 감싸지는 폭이 버튼 폭과 정확히 같다.
+   제목의 예전 오른쪽 여백 44px은 닫기 X 자리를 비우려던 것인데, 지금은 제목 위에
+   상단 비주얼이 있어 X와 만나지 않으므로 기준선 값으로 바꾼다.
+   간격은 제목·설명을 한 덩어리로 묶고(5px), 그 덩어리와 버튼 세트 사이만
+   버튼 간 간격 18px보다 넓게(22px) 벌려 위아래 위계를 만든다. */
+.login-title{margin:0 0 5px;padding:0 var(--login-inset);font-size:21px;font-weight:700;color:#3D2818;line-height:1.4;letter-spacing:-.3px;text-align:left}
+/* 설명문은 제목보다 한 단계 가벼운 톤. 예전 #765B3D보다 채도를 낮춰 뉴트럴 그레이
+   테두리의 버튼과 나란히 두어도 갈색만 튀어 보이지 않게 한다. */
+.login-desc{margin:0 0 22px;padding:0 var(--login-inset);font-size:15.5px;line-height:1.65;color:#7B6E62}
+/* 네 버튼은 하나의 세트다. 폭·높이·간격·테두리를 이 두 규칙에서만 정하고 버튼별 예외를 두지 않는다.
+   좌우 바깥 여백은 버튼 내부 padding이 아니라 묶음 상자의 안쪽 여백으로 만든다.
+   그래야 네 버튼의 전체 폭이 똑같이 줄고 시작·종료선이 정확히 일치한다.
+   여백값은 .login-box의 --login-inset이며 제목·설명도 같은 값을 쓴다.
+   데스크톱: .login-box padding 22px + 23px = 패널 안쪽에서 45px, 버튼 320px.
+   모바일: 아래 600px 규칙에서 18px + 26px = 화면 끝에서 44px, 버튼 302px(390px 화면).
+   둘 다 담는 폭의 11% 남짓이라 좌우 여백의 비율감이 같다.
+   gap 18px은 버튼 높이 44px의 약 41%로, 네 버튼이 한 덩어리로 붙지 않고 각각 독립돼 보인다.
+   Google 버튼은 이 상자 안 wrapper가 width:100%라 함께 줄어들고, 공식 버튼 폭은
+   wrapper를 실측해 다시 그리므로 GIS 구조를 손대지 않는다. */
+.login-providers{display:flex;flex-direction:column;gap:18px;padding:0 var(--login-inset)}
+/* 네 버튼(카카오·네이버·Google·이메일)은 높이·폭·모서리·간격·배경을 하나로 통일한 슬림 pill이다.
+   브랜드 원색은 버튼 배경이 아니라 왼쪽 24px 아이콘 칸에만 남긴다.
+   grid 3열(24px | 1fr | 24px)은 그대로 둔다. 오른쪽 .login-provider-balance가
+   왼쪽 아이콘과 같은 24px을 차지해서, 아이콘이 있어도 가운데 열의 문구가
+   버튼 전체 기준 중앙에 놓인다. */
 .login-provider{
   display:grid;
   grid-template-columns:24px minmax(0,1fr) 24px;
   align-items:center;
   gap:8px;
   width:100%;
-  height:56px;
-  min-height:56px;
+  /* 44px은 GIS 공식 버튼과 맞물리는 값이다. size:'large'가 그리는 버튼은 40px 고정인데
+     운영에서 그 버튼을 담는 iframe이 44px이라, pill을 44px로 두면 위에 겹친 공식 버튼이
+     보이는 pill과 정확히 같은 면적을 덮는다. (gomna-auth.js의 slot이 wrapper보다
+     위아래 2px 넓고 자식을 가운데 정렬하므로 44px 자식이 pill 경계에 딱 맞는다.)
+     이보다 높이면 iframe이 닿지 않는 띠가 생겨 구글 버튼만 눌리지 않는 자리가 남는다.
+     iOS 권장 최소 터치 높이 44px도 이 값으로 함께 만족해 별도 터치 확장이 필요 없다. */
+  height:44px;
+  min-height:44px;
   margin:0;
   padding:0 16px;
-  border:1px solid transparent;
-  border-radius:13px;
+  /* 얇지만 또렷한 뉴트럴 그레이. 카카오·네이버도 같은 색·같은 두께를 쓴다. */
+  border:1px solid #B9BEC4;
+  border-radius:999px;
+  background:#FCFBF8;
+  color:#2F3439;
   font-family:inherit;
-  font-size:17px;
-  font-weight:700;
+  font-size:16.5px;
+  font-weight:600;
   line-height:1.3;
   cursor:pointer;
   box-sizing:border-box;
-  overflow:hidden;
+  position:relative;
+  box-shadow:0 1px 4px rgba(0,0,0,.025);
   -webkit-appearance:none;
   appearance:none;
   -webkit-tap-highlight-color:transparent;
-  transition:background 160ms ease,filter 160ms ease;
+  transition:background 160ms ease,border-color 160ms ease;
 }
 .login-provider-icon{display:flex;width:24px;height:24px;align-items:center;justify-content:center}
 .login-provider-icon img{width:21px;height:21px;object-fit:contain;display:block}
 .login-provider svg{width:21px;height:21px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .login-provider-label{min-width:0;text-align:center}
 .login-provider-balance{display:block;width:24px;height:1px}
-/* 카카오·네이버는 각 사 공식 완성 버튼 이미지를 그대로 버튼 전체로 쓴다.
-   심볼·레이블·비율·색상을 손대지 않고, 컨테이너만 좌우로 넓힌다. */
-.login-provider--official{display:block;padding:0;border:none}
-.login-provider--official .login-provider-official-img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
-.login-provider-fallback{display:none}
-.login-provider--mark-failed .login-provider-official-img{display:none}
-.login-provider--mark-failed .login-provider-fallback{display:flex;width:100%;height:100%;align-items:center;justify-content:center;font-size:17px;font-weight:700}
-.login-provider--kakao{background:#FEE500}
-.login-provider--kakao .login-provider-fallback{color:rgba(0,0,0,.85)}
-.login-provider--naver{background:#03A94D}
-.login-provider--naver .login-provider-fallback{color:#FFFFFF}
-.login-provider--official:hover{filter:brightness(.97)}
-.login-provider--official:active{filter:brightness(.94)}
-.login-provider--google{background:#FFFFFF;border-color:#DCCDB8;color:#3C2A1A}
-.login-provider--google:hover{background:#FBF6EF}
-.login-provider--google:active{background:#F5EFE6}
-.login-provider--email{background:linear-gradient(180deg,#FFF9F0 0%,#F5E8D8 100%);border-color:#D9BE94;color:#56351F}
-.login-provider--email:hover{background:linear-gradient(180deg,#F8EDDF 0%,#F0E0CC 100%)}
-.login-provider--email:active{background:#EEDDC7}
+/* 카카오·네이버는 심볼만 따로 있는 파일이 없어 각 사 공식 완성 버튼 이미지를 그대로 쓴다.
+   두 이미지 모두 왼쪽 정사각 영역 한가운데에 심볼이 있다.
+   (카카오 600x90: 심볼 y 28~61, 중심 44.5 = 높이의 절반
+    네이버 1472x224: 심볼 y 72~151, 중심 111.5 = 높이의 절반)
+   그래서 object-fit:cover + object-position:left center 로 왼쪽 정사각형만 잘라내면
+   심볼이 아이콘 칸 정중앙에 온다. 새 이미지 파일을 만들지 않고 브랜드 원색을
+   이 22px 칩 안으로 가둘 수 있다. 원본의 둥근 모서리는 투명인데, 그 투명 영역은
+   칩의 border-radius 밖으로 밀려나 잘린다. */
+.login-provider--official .login-provider-official-img{
+  display:block;
+  width:22px;
+  height:22px;
+  border-radius:6px;
+  object-fit:cover;
+  object-position:left center;
+}
+/* 네 버튼 모두 같은 배경이므로 hover/active도 한 곳에서만 정한다. */
+.login-provider:hover{background:#F6F4EF;border-color:#A5ABB2}
+.login-provider:active{background:#EFECE5}
+/* 구글 버튼 위에는 공식 버튼이 겹쳐 있어 포인터가 그 위에 있으면 pill 자신은 hover가 아니다.
+   그래서 gomna-auth.js가 wrapper 기준 규칙으로 되짚음을 대신 그린다.
+   그 규칙의 테두리 색이 위 값보다 흐려 구글만 hover 테두리가 달라 보이므로,
+   특이도를 한 단계 높여 색만 네 버튼과 같게 맞춘다. 배경값은 이미 같아 덮지 않는다.
+   GIS·wrapper 구조나 스크립트는 손대지 않는다. */
+.login-box .gomna-gis-wrap:hover .login-provider--google{border-color:#A5ABB2}
 .login-next-step-notice{
   margin:14px 0 0;
   padding:13px 15px;
@@ -985,49 +1095,93 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
 }
 .login-skip:hover{background:rgba(151,105,53,.07);color:#5A3A1C}
 .login-skip:active{background:rgba(151,105,53,.12)}
-/* 키보드 초점에서만 금색 outline. 마우스·터치 뒤에는 테두리가 남지 않는다. */
+/* 키보드 초점에서만 보이는 아주 얇은 뉴트럴 테두리. 마우스·터치 뒤에는 남지 않는다.
+   예전에는 금색 2px이었는데, 창이 열릴 때 첫 버튼에 초점이 가면서
+   카카오 버튼만 주황색 띠를 두른 것처럼 보였다. 네 버튼이 같아 보이도록 색과 두께를 낮춘다. */
 .login-close:focus-visible,
 .login-provider:focus-visible,
-.login-skip:focus-visible{outline:2px solid #B8751F;outline-offset:2px}
+.login-skip:focus-visible{outline:1.5px solid #A29D95;outline-offset:2px}
+/* 창이 열릴 때 초점을 받는 상자 자체에는 테두리를 그리지 않는다. */
+.login-box:focus{outline:none}
 /* 창이 열린 동안 배경 스크롤 차단 */
 html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-behavior:none}
-/* 모바일: 화면 아래에서 올라오는 로그인 시트 */
+/* 모바일: 화면 전체를 채우는 독립 로그인 화면.
+   배경과 상자를 같은 아이보리로 두고 테두리·모서리·그림자를 없애 이음선을 지운다.
+   상자를 viewport 높이로 늘리고 내용을 세로 가운데에 두어 시트가 아니라 한 화면으로 보이게 한다.
+   내용이 화면보다 길어지는 짧은 기기에서는 상자의 overflow-y:auto로 스크롤된다.
+   시트가 아니게 되었으므로 위쪽 .login-sheet-handle{display:none}이 그대로 적용된다. */
 @media (max-width:600px){
-  .login-overlay{padding:0;align-items:flex-end}
+  .login-overlay{padding:0;align-items:stretch;background:#FFFDF8}
   .login-box{
     max-width:none;
-    padding:6px 18px calc(16px + env(safe-area-inset-bottom,0px));
-    border-width:1px 0 0;
-    border-radius:22px 22px 0 0;
-    max-height:calc(100vh - 24px);
-    max-height:calc(100dvh - 24px);
-    animation:loginSheetUp 200ms ease-out;
+    /* 위 여백을 아래 여백보다 크게 두어 세로 가운데 정렬의 기준점을 아래로 내린다.
+       비주얼과 폼이 한 덩어리로 함께 내려가므로 둘의 간격은 유지된다.
+       두 값 모두 vh 비례다. 고정 px으로 아래로 밀면 짧은 화면에서 내용이 남는 높이를
+       넘어 스크롤이 생기는데, 비례값은 화면이 짧아질 때 함께 줄어 그 문제가 없다.
+       390x844에서 위 약 76px / 아래 약 40px이고, 아래 여백은 safe-area를 더해
+       홈 인디케이터·Safari 하단 바 위로 남는다. 위 여백이 아래보다 큰 만큼
+       두 덩어리가 함께 아래로 내려가, 카드 비주얼이 화면 상단에 붙지 않고
+       중앙보다 위쪽에 자리 잡는다. 닫기 X(위에서 10~50px)와는 만나지 않는다. */
+    padding:calc(env(safe-area-inset-top,0px) + 9vh) 18px calc(4.75vh + env(safe-area-inset-bottom,0px));
+    border:none;
+    border-radius:0;
+    box-shadow:none;
+    max-height:none;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    animation:loginBoxIn 180ms ease-out;
   }
-  .login-sheet-handle{display:block;width:44px;height:5px;margin:8px auto 12px;border-radius:3px;background:rgba(151,105,53,.26)}
-  .login-close{top:10px;right:10px}
-  .login-brand-visual{margin-top:2px}
-  .login-title{font-size:20px}
+  /* 닫기는 화면 오른쪽 위에 둔다. 노치 아래로 내려오도록 안전 여백을 더한다. */
+  .login-close{top:calc(env(safe-area-inset-top,0px) + 10px);right:10px}
+  .login-box{--login-inset:26px}
+  /* 아이폰에서는 한 단계 크게 두고 폭도 넓힌다. 닫기 X가 화면 모서리로 나가 있어
+     문구와 나란히 서지 않으므로 320px까지 쓸 수 있다. 세 문구 모두 두 줄이 된다. */
+  .login-brand-lead{font-size:19.5px}
+  /* 제목은 데스크톱과 같은 21px로 둔다. 버튼 문구 16.5px과 차이가 벌어져 위계가 또렷해진다.
+     margin-top은 「제목 + 설명 + 네 버튼」을 한 덩어리로 아래로 내리는 값이다.
+     세 요소가 흐름상 이어져 있어 제목 위 여백만 늘리면 덩어리째 내려간다.
+     상자가 세로 가운데 정렬이라 늘어난 만큼 상단 비주얼은 위로 올라가고,
+     그 결과 아이콘과 폼 사이에 넓은 빈 공간이 생긴다.
+     px 대신 14vh를 쓴 이유가 있다. 고정값을 쓰면 특정 높이를 넘는 순간에만 적용되는
+     기준선이 필요해지고, iOS Safari는 주소창 표시 여부로 뷰포트 높이가 오가서
+     같은 기기가 두 배치를 왔다 갔다 한다. vh는 큰 뷰포트 기준으로 일정하고
+     화면이 짧아지면 함께 줄어 별도 예외 없이 짧은 아이폰에서도 스크롤이 생기지 않는다.
+     이 값은 위 padding과 한 쌍이다. 상자가 가운데 정렬이라 이 여백을 줄이면 폼이 올라가는데,
+     위 padding을 그만큼 키워 폼은 제자리에 두고 카드만 아래로 내려오게 맞췄다.
+     상단 hero(큰 문구 + 카드 + 점)가 커진 뒤에도 폼은 같은 자리(390x844에서
+     「로그인」 위 420px, 마지막 버튼 아래 112px)에 있다. 늘어난 hero 높이만큼
+     위 padding을 9vh로 줄여, 폼은 그대로 두고 hero만 자리를 넓히게 맞춘 값이다.
+     이 여백은 hero와 하단 로그인 영역을 갈라 보이게 하는 값도 겸한다(점 아래 32px).
+     이 규칙은 max-width:600px 안에만 있어 MacBook 패널에는 적용되지 않는다. */
+  .login-title{margin-top:10px}
   .login-provider{font-size:16.5px}
 }
 /* 일반 아이폰 폭 */
 @media (max-width:430px){
-  .login-brand-visual{--lv-w:180px;--lv-h:112px;--lv-front:85px;--lv-gold:68px;--lv-gomna:61px}
+  .login-brand-visual{--lv-w:180px;--lv-h:112px;--lv-front:85px}
 }
 /* 작은 아이폰 폭 */
 @media (max-width:374px){
-  .login-brand-visual{--lv-w:158px;--lv-h:96px;--lv-front:76px;--lv-gold:61px;--lv-gomna:55px}
+  .login-brand-visual{--lv-w:158px;--lv-h:96px;--lv-front:76px}
   .login-provider{padding:0 12px;font-size:16px}
 }
 /* 세로가 짧은 화면: 비주얼을 먼저 줄여 로그인 버튼을 화면 안에 남긴다. */
 @media (max-height:740px){
-  .login-brand-visual{--lv-w:170px;--lv-h:88px;--lv-front:73px;--lv-gold:59px;--lv-gomna:53px;margin:2px auto 12px}
-  .login-title{margin-bottom:8px}
-  .login-desc{margin-bottom:14px}
-  .login-providers{gap:8px}
-  .login-provider{height:52px;min-height:52px}
+  .login-brand-visual{--lv-w:170px;--lv-h:88px;--lv-front:73px;margin:0 auto 24px}
+  .login-brand-lead{font-size:18.5px;margin-bottom:30px}
+  .login-title{margin-bottom:4px}
+  .login-desc{margin-bottom:16px}
+  /* 세로가 짧은 화면에서도 높이 44px은 그대로 둔다. GIS 공식 버튼과 맞물리는 값이고
+     터치 최소 높이라서 여기서 줄이면 구글 버튼에 눌리지 않는 띠가 생긴다.
+     대신 버튼 사이 간격만 좁혀 네 버튼을 화면 안에 남긴다. */
+  .login-providers{gap:14px}
 }
 @media (max-height:650px){
-  .login-brand-visual{--lv-w:152px;--lv-h:76px;--lv-front:65px;--lv-gold:52px;--lv-gomna:47px;margin:0 auto 10px}
+  .login-brand-visual{--lv-w:152px;--lv-h:76px;--lv-front:65px;margin:0 auto 20px}
+  .login-brand-lead{font-size:17px;margin-bottom:24px}
   .login-box{padding-top:20px}
   .login-desc{margin-bottom:12px;font-size:15px}
 }
@@ -1035,6 +1189,10 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
   .login-box,
   .login-brand-visual,
   .login-brand-card{animation:none}
+  /* 교차 이동과 문구 페이드도 멈춘다. 카드·문구·점 내용은 그대로 보이고
+     자동 넘김은 스크립트가 하지 않는다. 점을 눌러 바꾸는 것만 남는다. */
+  .login-brand-card,
+  .login-brand-lead{transition:none}
 }
 .popup-title{font-size:18px;font-weight:700;margin-bottom:16px;color:#4A2511}
 .font-control{display:flex;justify-content:center;align-items:center;gap:24px;margin-bottom:28px}
@@ -1148,6 +1306,20 @@ body[data-gomna-page="home"]{
   color:#8A8A8A;
   opacity:1;
 }
+/* 로그인 영역(아이콘 + 「로그인」 + 계정 패널)을 통째로 오른쪽으로 8px 옮긴다.
+   .title-block{flex:1}이 이 래퍼를 헤더 오른쪽에 붙여 두므로 음수 마진이 그대로 오른쪽 이동이 된다.
+   .container의 오른쪽 패딩 18px 중 8px을 먹으므로 래퍼 오른쪽 끝은 화면에서 10px 남는다.
+   단 「로그인」 라벨은 min-width:44px 상자가 글자(약 26px)보다 넓어 래퍼 밖으로 조금 넘치므로,
+   390px 화면에서 실측한 글자 오른쪽 끝은 화면 끝에서 약 4px이다.
+   transform을 쓰지 않은 이유가 있다. 자식 #homeAccountScrim이 모바일에서
+   position:fixed; inset:0인데, 래퍼에 transform이 걸리면 고정 위치의 기준이 래퍼로 바뀌어
+   전체 화면 가림막이 깨진다.
+   버튼만 옮기지 않고 래퍼를 옮기는 이유도 있다. #homeAccountPanel이 이 래퍼 기준
+   position:absolute; right:0이므로, 래퍼를 옮기면 패널도 함께 따라와 버튼과 계속 정렬된다.
+   flex 구조, 헤더 높이, align-items:center 세로 정렬, 44px 터치 영역은 건드리지 않는다. */
+.container #homeHeaderActions{
+  margin-right:-8px;
+}
 .container .home-account-btn{
   min-width:44px;
   min-height:44px;
@@ -1155,15 +1327,34 @@ body[data-gomna-page="home"]{
   gap:2px;
   color:#2A2A2A;
 }
+/* 선형 사람 아이콘 둘레의 얇은 원형 테두리. 배경은 채우지 않는다.
+   base(.home-account-avatar)가 이미 border-radius:50%, box-shadow:none,
+   box-sizing:border-box를 갖고 있으므로 크기와 테두리만 얹는다.
+   아이콘(22px)은 그대로 두고 원만 38px로 키워 둘레에 8px 여백을 만든다.
+   .home-account-btn이 세로 flex(원 + gap 2px + 라벨 10.5px*1.15≈12.07px)라
+   총 높이가 38+2+12.07≈52.07px인데 헤더 높이를 정하는 로고가 52px이므로
+   헤더가 커지지 않는다. 원 38px < 버튼 min-width 44px이라 가로 폭도 그대로여서
+   #homeHeaderActions의 오른쪽 8px 이동에도 영향이 없다.
+   #6E7378은 중성 회색이다. 회색으로 채운 원과 그림자는 쓰지 않는다.
+   .home-account-avatar는 헤더 버튼에서만 쓰인다. 계정 패널과 계정 전환 행은
+   .home-account-panel-avatar / .home-account-switch-avatar라는 별도 클래스다. */
 .container .home-account-avatar{
-  width:22px;
-  height:22px;
+  width:38px;
+  height:38px;
+  border:1px solid #6E7378;
+  background:transparent;
 }
 .container .home-account-avatar-icon{
   width:22px;
   height:22px;
   stroke:#2A2A2A;
   stroke-width:1.8;
+}
+/* 헤더 로그인 아이콘만 순검정에 가까운 #2A2A2A 대신 짙은 차콜로 둔다.
+   위 클래스 규칙은 계정 패널·계정 전환 행의 같은 선 아이콘에도 걸리므로,
+   그쪽 색을 건드리지 않으려고 헤더에만 있는 id로 범위를 좁혔다. */
+.container #homeAccountAvatarIcon{
+  stroke:#3D4348;
 }
 .container .home-account-label{
   min-width:44px;
@@ -1175,7 +1366,10 @@ body[data-gomna-page="home"]{
   white-space:nowrap;
 }
 @media (max-width:380px){
-  .container .home-account-avatar{width:22px;height:22px}
+  /* 위 .container .home-account-avatar와 특이도가 같아 여기서 22px로 두면 좁은 화면에서
+     원이 아이콘에 딱 붙어 테두리가 사라져 보인다. 원 크기를 함께 38px로 맞춘다.
+     테두리·배경은 위 규칙에서 그대로 상속된다. */
+  .container .home-account-avatar{width:38px;height:38px}
   .container .home-account-avatar-icon{width:22px;height:22px}
   .container .home-account-label{font-size:10.5px}
 }
@@ -1208,19 +1402,42 @@ body[data-gomna-page="home"]{
   font-weight:500;
   color:#7A746C;
 }
+/* 「계속 읽기」는 홈의 1차 CTA다. 짙은 차콜(#26313B) 채움 + 흰 글자로 가장 강하게
+   두고, 아래 열기(#E7E2DA)와 기능 버튼(#F6F3EE)이 순서대로 약해진다.
+   파란 기운을 억제한 차콜이라 크림 배경 위에서 튀지 않는다.
+   글자색은 .home-continue-action-text가 따로 지정하므로 부모만 바꾸면 덮여 버린다.
+   두 곳을 함께 흰색으로 맞춰야 어두운 알약 위에서 글자가 읽힌다.
+   부모가 align-items:center인 flex이고 .home-continue-info가 flex:1이라 폭은 정보 쪽이
+   흡수한다. 알약 높이(13px 글자 + 위아래 7px ≈ 30px)가 두 줄 정보 높이(≈36px)보다
+   작아서 카드 높이는 그대로다. 테두리는 생략하고 그림자는 약한 값만 유지한다. */
 .container .home-continue-action{
   position:static;
   left:auto;
   top:auto;
   height:auto;
   flex:0 0 auto;
-  color:#2F67C7;
+  padding:7px 13px;
+  border-radius:999px;
+  background:#26313B;
+  box-shadow:0 2px 6px rgba(0,0,0,.06);
+  color:#FFFFFF;
 }
 .container .home-continue-action-text{
   font-size:13px;
   font-weight:700;
   letter-spacing:-.15px;
-  color:#2F67C7;
+  color:#FFFFFF;
+}
+/* 「계속 읽기」는 화살표 없이 글자만 남긴다. 마크는 js/gomna-home-resume.js가 채우는데,
+   읽기 모드에서만 .home-resume-read-chevron(› SVG)을 넣고 듣기 모드에서는 ▶를 넣는다.
+   그래서 읽기 화살표만 감추고 「계속 듣기 ▶」의 재생 표시는 그대로 둔다.
+   :has()로 비어 버린 마크 래퍼까지 접어 부모의 gap 5px이 남지 않게 한다.
+   :has() 미지원 브라우저에서는 래퍼만 남고 화살표는 이미 안 보이므로 결과는 안전하다. */
+.container .home-resume-read-chevron{
+  display:none;
+}
+.container .home-continue-action-mark:has(.home-resume-read-chevron){
+  display:none;
 }
 .container .verse-card{
   height:228px;
@@ -1300,20 +1517,28 @@ body[data-gomna-page="home"]{
 .container .quick-item{
   min-height:0;
   padding:6px 4px;
-  border:1px solid rgba(180,168,148,.12);
+  border:1px solid #E7E0D6;
   border-radius:16px;
-  box-shadow:0 2px 8px rgba(80,70,50,.04);
+  box-shadow:0 3px 10px rgba(36,31,25,0.04);
   gap:4px;
 }
-.container .quick-item:not(:last-child){border-right:1px solid rgba(180,168,148,.12)}
-.container .quick-item.q-read{background:#FFFDF9}
-.container .quick-item.q-listen{background:#FDFEFE}
-.container .quick-item.q-topic{background:#FCFDFB}
-.container .quick-item.q-archive{background:#FEFCFB}
-.container .quick-item.q-read:hover{background:#FFFDF9}
-.container .quick-item.q-listen:hover{background:#FDFEFE}
-.container .quick-item.q-topic:hover{background:#FCFDFB}
-.container .quick-item.q-archive:hover{background:#FEFCFB}
+/* 4개 기능 버튼은 배경을 하나로 통일한다. 예전의 베이지/민트/그린/핑크 개별 틴트는
+   색이 여러 개 섞여 알록달록해 보였다. 아이콘 고유 색(아래 svg stroke)과 글자색은
+   그대로 두고 배경만 중성 아이보리로 묶는다.
+   위계는 「계속 읽기」(#26313B) > 「열기」(#E7E2DA) > 이 카드들(#F6F3EE) 순이다.
+   .q-* 클래스별로 나눠 쓰는 이유는 특이도다. 앞쪽 .container .quick-item:hover가
+   #F8EBCF를 지정하므로 같은 (0,3,0) 특이도를 유지해야 hover에서 색이 튀지 않는다.
+   따라서 hover 값도 기본값과 같게 두는 기존 방식을 그대로 지킨다.
+   각 버튼이 border-radius:16px + gap:8px로 떨어져 있어 예전 joined-strip 시절의
+   border-right 구분선 규칙은 필요 없으므로 위 border 한 줄로 합쳤다. */
+.container .quick-item.q-read,
+.container .quick-item.q-listen,
+.container .quick-item.q-topic,
+.container .quick-item.q-archive{background:#F6F3EE}
+.container .quick-item.q-read:hover,
+.container .quick-item.q-listen:hover,
+.container .quick-item.q-topic:hover,
+.container .quick-item.q-archive:hover{background:#F6F3EE}
 .container .quick-item svg{
   width:22px;
   height:22px;
@@ -1462,13 +1687,29 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
   text-overflow:ellipsis;
   min-height:0;
 }
-.container .menu-chevron{
+/* 구약·신약·쉬운 찾기 행 오른쪽의 `>` 대신 쓰는 작은 「열기」 알약.
+   장식용 span이다. 부모 행이 이미 button(onclick) 또는 a(href)이므로 알약을 눌러도
+   이벤트가 그대로 부모로 버블링돼 기존 이동 로직을 그대로 탄다. 중첩 버튼을 만들면
+   button 안 button이 되어 무효 HTML이 되므로 span을 쓴다.
+   높이 26px은 행 높이를 정하는 아이콘(구약·신약 46px, 쉬운 찾기 40px)보다 작아서
+   줄 높이와 정렬에 영향이 없다. 말씀 찾기 행에는 적용하지 않는다. */
+.container .menu-open-pill{
   flex:0 0 auto;
   margin-left:auto;
-  color:#B0AAA2;
-  font-size:18px;
-  font-weight:400;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:26px;
+  padding:0 11px;
+  border:1px solid #D8D1C7;
+  border-radius:999px;
+  background:#E7E2DA;
+  color:#26313B;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:-.15px;
   line-height:1;
+  white-space:nowrap;
 }
 .container .cards.home-menu-card .search-shell{
   position:relative;
@@ -1485,6 +1726,8 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
   border-radius:0;
   background:transparent;
   box-shadow:none;
+  /* .search-hint 오버레이의 기준 박스. */
+  position:relative;
 }
 .container .cards.home-menu-card .search:hover:not(.search-attention){background:transparent}
 .container .cards.home-menu-card .search-input{
@@ -1494,12 +1737,55 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
   letter-spacing:-.2px;
   color:#1A2332;
 }
+/* 「말씀 찾기 (예: …)」는 placeholder 한 덩어리여서 제목과 예시에 서로 다른 톤을
+   줄 수 없고, placeholder는 줄바꿈·축소가 안 돼 폭이 넘치면 오른쪽이 그냥 잘렸다.
+   (390px 컨테이너에서 입력칸 가용폭은 274px인데 15px/700 한 줄은 약 287px였다.)
+   그래서 실제 placeholder는 투명하게 두고 — 접근성과 data-i18n-placeholder 원본은
+   그대로 유지된다 — 같은 자리에 제목/예시를 나눈 오버레이를 겹쳐 그린다.
+   예시를 13px/400으로 낮춰 폭을 줄이므로 제목 크기는 건드리지 않는다. */
 .container .cards.home-menu-card .search-input::placeholder{
+  color:transparent;
+  opacity:1;
+}
+.container .cards.home-menu-card .search-hint{
+  position:absolute;
+  /* 아이콘 슬롯 40px + .search의 gap 12px. 둘 다 고정값이라 안전하다. */
+  left:52px;
+  right:0;
+  top:50%;
+  transform:translateY(-50%);
+  display:flex;
+  align-items:baseline;
+  gap:4px;
+  min-width:0;
+  overflow:hidden;
+  white-space:nowrap;
+  /* 클릭·포커스는 아래 input과 form이 그대로 받는다. */
+  pointer-events:none;
+}
+/* 글자를 입력하면 오버레이를 감춘다. placeholder는 투명해도 살아 있으므로
+   :placeholder-shown 판정은 정상이다. */
+.container .cards.home-menu-card .search-input:not(:placeholder-shown) ~ .search-hint{
+  opacity:0;
+}
+.container .cards.home-menu-card .search-hint-title{
+  flex:0 0 auto;
   font-size:15px;
   font-weight:700;
   letter-spacing:-.2px;
   color:#1A2332;
-  opacity:1;
+}
+/* 예시 문구는 한 단계 흐린 회색 + 낮은 굵기. #9A8A78은 이 앱이 이미 쓰는
+   placeholder 보조 텍스트 색이라 새 색을 만들지 않는다.
+   글자 크기 설정을 크게 올린 경우에만 말줄임으로 안전하게 접힌다. */
+.container .cards.home-menu-card .search-hint-example{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size:13px;
+  font-weight:400;
+  letter-spacing:-.2px;
+  color:#9A8A78;
 }
 .container .cards.home-menu-card.home-menu-card .search-icon{
   width:22px;
@@ -1822,7 +2108,7 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
         </div>
       </div>
       <div class="card-label"><div class="card-name" data-i18n-key="home.sheet.oldTestament">구약</div></div>
-      <span class="menu-chevron" aria-hidden="true">&gt;</span>
+      <span class="menu-open-pill" aria-hidden="true" data-i18n-key="home.menu.openCta">열기</span>
     </button>
     <button type="button" class="card new" onclick="openBible('new')" ontouchstart="" aria-label="신약 27권 장·절로 읽기" data-i18n-aria-label="home.newTestament.title">
       <div class="card-visual menu-icon-slot">
@@ -1831,14 +2117,14 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
         </div>
       </div>
       <div class="card-label"><div class="card-name" data-i18n-key="home.sheet.newTestament">신약</div></div>
-      <span class="menu-chevron" aria-hidden="true">&gt;</span>
+      <span class="menu-open-pill" aria-hidden="true" data-i18n-key="home.menu.openCta">열기</span>
     </button>
     <a class="card easy" id="homeEasyFindBtn" href="./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3" role="link" aria-label="쉬운 찾기" data-i18n-aria-label="home.easyFind.title">
       <div class="card-visual menu-icon-slot easy-find-icon-wrap">
         <div class="card-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
       </div>
       <div class="card-label"><div class="card-name" data-i18n-ui="find_word" data-i18n-key="home.easyFind.title" translate="no">쉬운 찾기</div></div>
-      <span class="menu-chevron" aria-hidden="true">&gt;</span>
+      <span class="menu-open-pill" aria-hidden="true" data-i18n-key="home.menu.openCta">열기</span>
     </a>
     <div class="search-shell" id="homeSearchShell">
       <form class="search" id="homeSearchForm" onsubmit="submitSearch(event)" onclick="activateSearch()">
@@ -1846,6 +2132,7 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
           <button type="submit" class="search-icon search-submit" aria-label="검색 실행" data-i18n-aria-label="search.submitAria"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
         </span>
         <input id="homeSearchInput" class="search-input" type="search" placeholder="말씀 찾기 (예: 사랑, 믿음, 요한복음 3장 16절)" aria-label="성경 검색어 입력" autocomplete="off" data-i18n-placeholder="search.placeholder.home" data-i18n-aria-label="search.inputAria">
+        <span class="search-hint" id="homeSearchHint" aria-hidden="true"></span>
       </form>
       <div class="search-inline-topics" id="searchInlineTopics" aria-label="검색창 안 주제별 검색" data-i18n-aria-label="search.topicsAria">
         <button type="button" class="search-inline-chip" onclick="topic('사랑')" data-i18n-key="search.chip.love">#사랑</button>
@@ -1889,22 +2176,30 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
   </div>
 </div>
 <div class="popup-overlay login-overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" aria-describedby="loginModalDesc" aria-hidden="true" onclick="if(event.target===this)closeLoginModal()">
-  <div class="popup-box login-box" onclick="event.stopPropagation()">
+  <div class="popup-box login-box" tabindex="-1" onclick="event.stopPropagation()">
     <span class="login-sheet-handle" aria-hidden="true"></span>
     <button type="button" class="login-close" id="loginModalCloseBtn" onclick="closeLoginModal()" aria-label="닫기">✕</button>
-    <div class="login-brand-visual" aria-hidden="true">
+    <p class="login-brand-lead" id="loginBrandLead">말씀과 함께한 시간을 어디서든 이어가세요.</p>
+    <!-- 카드 번호(data-brand-card)와 문구(data-brand-caption)는 1:1이다.
+         자리 클래스를 마크업에도 적어 두어 스크립트가 없어도 지금 배치가 그대로 보인다. -->
+    <div class="login-brand-visual" id="loginBrandVisual" aria-hidden="true">
       <span class="login-brand-glow"></span>
-      <span class="login-brand-card login-brand-card--gold"><img src="assets/login/login-visual-gold.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
-      <span class="login-brand-card login-brand-card--gomna"><img src="assets/login/login-visual-gomna.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
-      <span class="login-brand-card login-brand-card--blue"><img src="assets/login/login-visual-blue.png?v=1" alt="" decoding="async" onerror="if(this.getAttribute('data-fallback-used')){var c=this.closest('.login-brand-card');if(c)c.hidden=true;return;}this.setAttribute('data-fallback-used','1');this.src='logo-home.png?v=1';"></span>
+      <span class="login-brand-card login-brand-card--gold login-brand-card--slot-left" data-brand-card="2" data-brand-caption="오늘 필요한 말씀을 더 가까이 만나보세요."><img src="assets/login/login-visual-gold.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
+      <span class="login-brand-card login-brand-card--gomna login-brand-card--slot-right" data-brand-card="3" data-brand-caption="읽고, 듣고, 묵상하며 말씀을 더 깊이 알아가세요."><img src="assets/login/login-visual-gomna.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
+      <span class="login-brand-card login-brand-card--blue login-brand-card--slot-center" data-brand-card="1" data-brand-caption="말씀과 함께한 시간을 어디서든 이어가세요."><img src="assets/login/login-visual-blue.png?v=1" alt="" decoding="async" onerror="if(this.getAttribute('data-fallback-used')){var c=this.closest('.login-brand-card');if(c)c.hidden=true;return;}this.setAttribute('data-fallback-used','1');this.src='logo-home.png?v=1';"></span>
+    </div>
+    <div class="login-brand-dots" id="loginBrandDots" aria-hidden="true">
+      <button type="button" class="login-brand-dot is-on" tabindex="-1"></button>
+      <button type="button" class="login-brand-dot" tabindex="-1"></button>
+      <button type="button" class="login-brand-dot" tabindex="-1"></button>
     </div>
     <div class="login-title" id="loginModalTitle">로그인</div>
     <p class="login-desc" id="loginModalDesc">로그인 방법을 선택하세요.</p>
     <div class="login-providers">
-      <button type="button" class="login-provider login-provider--official login-provider--kakao" id="loginKakaoBtn" data-auth-provider="kakao"><img class="login-provider-official-img" src="assets/auth/kakao-login-button-ko-wide.png?v=1" alt="카카오 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">카카오 로그인</span></button>
-      <button type="button" class="login-provider login-provider--official login-provider--naver" data-auth-provider="custom:naver"><img class="login-provider-official-img" src="assets/auth/naver-login-button-ko-wide.png?v=1" alt="네이버 로그인" decoding="async" onerror="var b=this.closest('.login-provider');if(b)b.classList.add('login-provider--mark-failed');"><span class="login-provider-fallback">네이버 로그인</span></button>
-      <button type="button" class="login-provider login-provider--google" data-auth-provider="google"><span class="login-provider-icon" aria-hidden="true"><img src="assets/auth/google-g-logo.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">Google 계정으로 로그인</span><span class="login-provider-balance" aria-hidden="true"></span></button>
-      <button type="button" class="login-provider login-provider--email" onclick="if(window.GomnaAuth)window.GomnaAuth.openEmailLogin();else showLoginNextStepNotice();"><span class="login-provider-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m4 7.5 8 5.2 8-5.2"/></svg></span><span class="login-provider-label">이메일로 로그인</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--official login-provider--kakao" id="loginKakaoBtn" data-auth-provider="kakao"><span class="login-provider-icon" aria-hidden="true"><img class="login-provider-official-img" src="assets/auth/kakao-login-button-ko-wide.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">카카오톡 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--official login-provider--naver" data-auth-provider="custom:naver"><span class="login-provider-icon" aria-hidden="true"><img class="login-provider-official-img" src="assets/auth/naver-login-button-ko-wide.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">네이버 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--google" data-auth-provider="google"><span class="login-provider-icon" aria-hidden="true"><img src="assets/auth/google-g-logo.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">구글 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--email" onclick="if(window.GomnaAuth)window.GomnaAuth.openEmailLogin();else showLoginNextStepNotice();"><span class="login-provider-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m4 7.5 8 5.2 8-5.2"/></svg></span><span class="login-provider-label">이메일 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
     </div>
     <div class="login-next-step-notice" id="loginNextStepNotice" role="status" aria-live="polite" hidden>로그인 연결은 다음 단계에서 작동합니다.</div>
   </div>
@@ -2481,6 +2776,34 @@ function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,function(m){retur
 function clickBook(name){window.location.href='reader.html?book='+encodeURIComponent(name);}
 function activateSearch(){const i=document.getElementById('homeSearchInput');if(i)i.focus();}
 function submitSearch(e){if(e)e.preventDefault();const i=document.getElementById('homeSearchInput');const q=i?i.value.trim():'';if(!q){activateSearch();return;}window.location.href='reader.html?q='+encodeURIComponent(q);}
+/* 검색 행 안내 문구를 「말씀 찾기」 + 「(예: …)」 두 조각으로 나눠 오버레이에 채운다.
+   원본은 여전히 input의 placeholder이므로 data-i18n-placeholder가 언어를 바꾸면
+   MutationObserver가 다시 그린다. 일본어는 전각 괄호（를 쓰므로 두 괄호를 모두 본다.
+   여는 괄호가 없는 문구면 전체를 제목으로 두고 예시 조각은 만들지 않는다. */
+(function(){
+  var input=document.getElementById('homeSearchInput');
+  var hint=document.getElementById('homeSearchHint');
+  if(!input||!hint)return;
+  function part(cls,text){
+    var el=document.createElement('span');
+    el.className=cls;
+    el.textContent=text;
+    return el;
+  }
+  function paint(){
+    var raw=input.getAttribute('placeholder')||'';
+    var cut=raw.search(/[(（]/);
+    var title=cut>0?raw.slice(0,cut).trim():raw.trim();
+    var example=cut>0?raw.slice(cut).trim():'';
+    hint.textContent='';
+    if(title)hint.appendChild(part('search-hint-title',title));
+    if(example)hint.appendChild(part('search-hint-example',example));
+  }
+  paint();
+  try{
+    new MutationObserver(paint).observe(input,{attributes:true,attributeFilter:['placeholder']});
+  }catch(err){}
+})();
 function topic(keyword){
   closeInlineTopics();
   const input=document.getElementById('homeSearchInput');
@@ -2731,8 +3054,10 @@ function openLoginModal(source){
   document.documentElement.classList.add('login-modal-open');
   try{
     loginModalLastFocus=document.activeElement;
-    var first=document.getElementById('loginKakaoBtn');
-    if(first&&typeof first.focus==='function')first.focus();
+    /* 첫 버튼에 초점을 주면 그 버튼만 focus 테두리가 남아 카카오만 달라 보였다.
+       읽기 도구가 창을 알리도록 버튼 대신 상자 자체에 초점을 준다. */
+    var box=overlay.querySelector('.login-box');
+    if(box&&typeof box.focus==='function')box.focus({preventScroll:true});
   }catch(e){}
 }
 
@@ -2938,8 +3263,10 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 </script>
 <!-- 로그인 연결: Supabase 공식 CDN이 먼저, 그 뒤에 gomna-auth.js. 순서를 바꾸지 않는다. -->
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="js/gomna-auth.js?v=20260816-kakao-detect-url-v1"></script>
+<script defer src="js/gomna-auth.js?v=20260829-gis-hit-44-v1"></script>
 <!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
 <script defer src="js/gomna-help.js?v=20260808-help-v8"></script>
+<!-- 로컬 미리보기: 로그인 상단 카드 3장 교차 셔플(표시 전용). 되돌릴 때는 이 줄과 파일만 지운다. -->
+<script defer src="js/gomna-login-brand-shuffle.js?v=20260829-shuffle-v1"></script>
 </body>
 </html>
