@@ -3803,11 +3803,14 @@ body.gomna-audio-expanded-open #verseList {
   border-bottom: 1px solid rgba(122, 88, 48, 0.10) !important;
 }
 
+/* 9개 카테고리 탭 — 평상시는 아이보리. 테두리 알파만 0.16에서 0.26으로 한 단계
+ * 올려 윤곽이 보이게 한다.
+ */
 #commentaryContent .commentary-tab {
   min-width: 0 !important;
   min-height: 36px !important;
   padding: 0 13px !important;
-  border: 1px solid rgba(122, 88, 48, 0.16) !important;
+  border: 1px solid rgba(122, 88, 48, 0.26) !important;
   border-radius: 999px !important;
   background: rgba(255, 250, 242, 0.72) !important;
   color: #33261d !important;
@@ -3816,21 +3819,43 @@ body.gomna-audio-expanded-open #verseList {
   line-height: 1 !important;
   font-weight: 760 !important;
   letter-spacing: -0.015em !important;
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease,
+    color 0.14s ease !important;
 }
 
 #commentaryContent .commentary-tab:hover,
 #commentaryContent .commentary-tab:focus {
   background: rgba(239, 225, 202, 0.72) !important;
-  border-color: rgba(122, 88, 48, 0.24) !important;
+  border-color: rgba(122, 88, 48, 0.34) !important;
   color: #1f1a17 !important;
 }
 
-#commentaryContent .commentary-tab.active,
-#commentaryContent .commentary-tab.gomna-audio-commentary-tab--active {
-  border-color: rgba(95, 58, 25, 0.24) !important;
-  background: rgba(211, 184, 126, 0.34) !important;
+/* 단순히 열려 있는 탭 — 배경은 평상시와 같은 아이보리로 두고 테두리만 약간 더
+ * 또렷하게 해서 구별한다. 강조 색은 재생 중 탭 몫이다.
+ */
+#commentaryContent .commentary-tab.active {
+  background: rgba(255, 250, 242, 0.72) !important;
+  border-color: rgba(122, 88, 48, 0.42) !important;
   color: #1f1a17 !important;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.38) !important;
+  box-shadow: inset 0 0 0 1px rgba(122, 88, 48, 0.08) !important;
+}
+
+/* 지금 실제로 오디오가 재생(또는 일시정지) 중인 카테고리 하나만 블루.
+ * gomna-audio-commentary-tab--active는 updateCommentaryButtonLabels()가
+ * 재생 중인 audioId에만 붙이고 나머지에서는 떼므로, 재생이 넘어가면 블루도
+ * 따라 이동하고 재생이 끝나면 9개 모두 아이보리로 돌아온다.
+ * #397FC4는 하단 듣기 알약(#gomnaCommentaryListenBtn::before)과
+ * 미니 플레이어 재생 버튼(.gomna-audio-btn-play-pause)과 같은 값이므로
+ * 바꿀 때는 함께 맞춰야 한다.
+ */
+#commentaryContent
+  .commentary-tab.gomna-audio-commentary-tab--active:not([data-gomna-commentary-sequence-button='true']) {
+  background: #397fc4 !important;
+  border-color: #397fc4 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
 }
 
 #commentaryContent .tab-content {
@@ -5441,78 +5466,241 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
   display: none !important;
 }
 
+/* 말씀풀이 하단 액션 바: 듣기 / 닫기 두 칸을 하나의 가벼운 아이보리 바로 보여 준다.
+ * 아래 미니 플레이어가 시각적 주인공이므로 여기서는 색 면을 강하게 나누지 않고,
+ * 배경은 이 컨테이너의 아이보리 하나로 통일한다(세그먼트는 투명 또는 옅은 틴트).
+ * DOM은 컨테이너 + 버튼 2개뿐이므로, 두 버튼을 gap 없이 붙여 좌우 세그먼트로 쓰고
+ * 바깥쪽 모서리에만 라운드를 준다. 통합 테두리는 컨테이너 ::before가 그린다.
+ * 재생 중에는 아래 미니 플레이어와 겹치지 않게 시각적으로만 감춘다.
+ */
 #commentaryPopup #gomnaCommentaryInlineControls.gomna-commentary-inline-controls {
   display: flex !important;
-  flex-wrap: wrap !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  gap: 0 !important;
   position: relative !important;
   flex: 0 0 auto !important;
   flex-shrink: 0 !important;
-  padding: 12px 16px 16px !important;
+  padding: 7px 8px calc(7px + env(safe-area-inset-bottom, 0px)) !important;
   margin: 0 !important;
-  border-top: 1px solid rgba(122, 88, 48, 0.10) !important;
+  border-top: 1px solid rgba(122, 88, 48, 0.14) !important;
   background: rgba(255, 253, 248, 0.98) !important;
   box-sizing: border-box !important;
   pointer-events: auto !important;
   touch-action: manipulation !important;
   z-index: 1 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  /* 나타날 때 — visibility는 지연 없이 즉시 visible로 바꿔서 opacity 0→1 페이드가
+   * 실제로 보이게 한다. 지연을 주면 fade 앞부분이 잘려 툭 켜지는 느낌이 난다.
+   * 위치가 흔들리면 카드 자동 중앙정렬 기준점이 함께 움직이므로 transform은 쓰지 않는다.
+   */
+  transition:
+    opacity 0.22s ease-out,
+    border-top-color 0.22s ease-out,
+    visibility 0s linear 0s !important;
 }
 
-#commentaryPopup #gomnaCommentaryInlineControls::before,
-#commentaryPopup #gomnaCommentaryInlineControls::after {
-  content: none !important;
+/* 숨길 때 높이·padding·위치를 하나도 건드리지 않는다. 카드 자동 중앙정렬은
+ * getVisibleCenterY()에서 이 바의 위쪽 좌표를 화면 하단 기준으로 삼으므로,
+ * 접거나 밀면 중심점이 함께 움직여 재정렬이 반복되고 화면이 흔들린다.
+ * 공간과 좌표는 그대로 두고 시각적으로만 감춘다.
+ */
+#commentaryPopup
+  #gomnaCommentaryInlineControls.gomna-commentary-inline-controls.gomna-commentary-inline-controls--hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  border-top-color: transparent !important;
   pointer-events: none !important;
+  /* 사라질 때 — visibility:hidden은 opacity 페이드(0.18s)가 끝난 뒤에 걸리도록
+   * 0.2s 지연을 준다. 지연이 페이드보다 짧으면 도중에 요소가 사라져 fade가 끊긴다.
+   */
+  transition:
+    opacity 0.18s ease-in,
+    border-top-color 0.18s ease-in,
+    visibility 0s linear 0.2s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #commentaryPopup #gomnaCommentaryInlineControls.gomna-commentary-inline-controls,
+  #commentaryPopup
+    #gomnaCommentaryInlineControls.gomna-commentary-inline-controls.gomna-commentary-inline-controls--hidden {
+    transition: none !important;
+  }
+}
+
+/* 두 세그먼트를 하나의 바로 묶어 보이게 하는 아주 옅은 외곽선.
+ * 컨테이너 padding 안쪽에 absolute로 겹쳐 그리므로 레이아웃 높이에는 영향이 없다
+ * (액션 바 높이가 변하면 카드 자동 중앙정렬의 기준점이 흔들린다).
+ */
+#commentaryPopup #gomnaCommentaryInlineControls.gomna-commentary-inline-controls::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 7px !important;
+  left: 8px !important;
+  right: 8px !important;
+  bottom: calc(7px + env(safe-area-inset-bottom, 0px)) !important;
+  border: 1px solid rgba(122, 88, 48, 0.16) !important;
+  border-radius: 14px !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}
+
+/* 정확히 가운데(50%)에 놓이는 아주 연한 세로 구분선.
+ * 버튼이 아니라 컨테이너가 그리므로 버튼 폭과 무관하게 항상 중앙이다.
+ */
+#commentaryPopup #gomnaCommentaryInlineControls.gomna-commentary-inline-controls::after {
+  content: '' !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 17px !important;
+  bottom: calc(17px + env(safe-area-inset-bottom, 0px)) !important;
+  width: 1px !important;
+  background: rgba(122, 88, 48, 0.12) !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
 }
 
 #commentaryPopup #gomnaCommentaryListenBtn,
-#commentaryPopup #gomnaCommentaryReplayBtn,
-#commentaryPopup #gomnaCommentarySequenceBtn,
 #commentaryPopup #gomnaCommentaryInlineCloseBtn {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
   position: relative !important;
+  width: auto !important;
   min-width: 0 !important;
-  min-height: 44px !important;
-  height: 44px !important;
-  padding: 0 12px !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 8px !important;
   margin: 0 !important;
   pointer-events: auto !important;
   touch-action: manipulation !important;
   cursor: pointer !important;
-  border: 1px solid rgba(122, 88, 48, 0.18) !important;
-  border-radius: 999px !important;
-  background: rgba(255, 250, 241, 0.96) !important;
-  color: #2b2118 !important;
-  font-size: 12.5px !important;
-  font-weight: 850 !important;
-  line-height: 1 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #4a2a16 !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
   white-space: nowrap !important;
   box-sizing: border-box !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
+/* 좌우 영역은 정확히 50:50. 영역 자체는 투명해서 버튼처럼 보이지 않는다.
+ * 보이는 작은 알약은 각 버튼의 ::before가 영역 중앙에 그린다.
+ */
 #commentaryPopup #gomnaCommentaryListenBtn,
-#commentaryPopup #gomnaCommentaryReplayBtn,
-#commentaryPopup #gomnaCommentarySequenceBtn {
-  flex: 1 1 0 !important;
-}
-
 #commentaryPopup #gomnaCommentaryInlineCloseBtn {
-  flex: 0 0 44px !important;
-  width: 44px !important;
-  min-width: 44px !important;
-  padding: 0 !important;
-  border-radius: 999px !important;
-  font-size: 18px !important;
-  font-weight: 760 !important;
+  flex: 0 0 50% !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
+/* 두 영역 중앙의 작은 알약. 크기를 같게 잡아 시각적 균형을 맞추고,
+ * 아래 미니 플레이어의 원형 컨트롤과 이어지도록 완전 라운드를 쓴다.
+ */
+#commentaryPopup #gomnaCommentaryListenBtn::before,
+#commentaryPopup #gomnaCommentaryInlineCloseBtn::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 118px !important;
+  max-width: calc(100% - 10px) !important;
+  height: 40px !important;
+  border-radius: 999px !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  transition: background 0.14s ease, box-shadow 0.14s ease !important;
+}
+
+/* 아이콘·글자는 알약 위에 올린다. */
+#commentaryPopup #gomnaCommentaryInlineControls .gomna-commentary-inline-icon,
+#commentaryPopup #gomnaCommentaryInlineControls .gomna-commentary-inline-label {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* 듣기 알약 — 미니 플레이어 메인 ▶ 버튼과 같은 #397FC4 채움.
+ * 값이 바뀌면 .gomna-audio-btn-play-pause 쪽과 함께 맞춰야 한다.
+ */
+#commentaryPopup #gomnaCommentaryListenBtn {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+#commentaryPopup #gomnaCommentaryListenBtn::before {
+  background: #397fc4 !important;
+}
+
+/* 닫기 알약 — 중성 아이보리. 듣기보다 시각적 우선순위를 낮춘다. */
+#commentaryPopup #gomnaCommentaryInlineCloseBtn {
+  color: #7b6552 !important;
+  font-weight: 700 !important;
+}
+
+#commentaryPopup #gomnaCommentaryInlineCloseBtn::before {
+  background: #f4ede1 !important;
+  box-shadow: inset 0 0 0 1px rgba(122, 88, 48, 0.16) !important;
+}
+
+/* hover는 포인터 기기에서만. 터치에서 hover가 눌린 채 남는 것을 막는다. */
+@media (hover: hover) {
+  #commentaryPopup #gomnaCommentaryListenBtn:hover::before {
+    background: #3273b4 !important;
+  }
+
+  #commentaryPopup #gomnaCommentaryInlineCloseBtn:hover::before {
+    background: #efe6d8 !important;
+  }
+}
+
+/* 누름 피드백은 알약만 한 단계 진해진다. */
+#commentaryPopup #gomnaCommentaryListenBtn:active::before {
+  background: #2667a4 !important;
+}
+
+#commentaryPopup #gomnaCommentaryInlineCloseBtn:active::before {
+  background: #e9dfcd !important;
+}
+
+/* 키보드 포커스 링도 알약 모양에 맞춘다. */
+#commentaryPopup #gomnaCommentaryListenBtn:focus-visible,
+#commentaryPopup #gomnaCommentaryInlineCloseBtn:focus-visible {
+  outline: none !important;
+}
+
+#commentaryPopup #gomnaCommentaryListenBtn:focus-visible::before,
+#commentaryPopup #gomnaCommentaryInlineCloseBtn:focus-visible::before {
+  outline: 2px solid rgba(57, 127, 196, 0.36) !important;
+  outline-offset: 2px !important;
+}
+
+#commentaryPopup #gomnaCommentaryInlineControls .gomna-commentary-inline-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+}
+
+#commentaryPopup #gomnaCommentaryInlineControls .gomna-commentary-inline-label {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* 재생 상태는 미니 플레이어가 표현한다. 이 바는 라벨도 색도 바꾸지 않는다. */
 #commentaryPopup #gomnaCommentaryListenBtn.gomna-commentary-inline-button--pending,
-#commentaryPopup #gomnaCommentaryReplayBtn.gomna-commentary-inline-button--pending,
-#commentaryPopup #gomnaCommentarySequenceBtn.gomna-commentary-inline-button--pending,
-#commentaryPopup #gomnaCommentaryListenBtn:disabled,
-#commentaryPopup #gomnaCommentaryReplayBtn:disabled,
-#commentaryPopup #gomnaCommentarySequenceBtn:disabled {
-  opacity: 0.58 !important;
+#commentaryPopup #gomnaCommentaryListenBtn:disabled {
+  opacity: 0.42 !important;
+  box-shadow: none !important;
   cursor: not-allowed !important;
   pointer-events: none !important;
 }
@@ -5533,24 +5721,37 @@ body.gomna-commentary-popup-open #commentaryContent {
   }
 
   #commentaryPopup #gomnaCommentaryInlineControls.gomna-commentary-inline-controls {
-    padding: 10px 12px 14px !important;
-    gap: 7px !important;
+    padding: 6px 7px calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+    gap: 0 !important;
+  }
+
+  /* 통합 외곽선은 좁아진 padding에 맞춘다. */
+  #commentaryPopup #gomnaCommentaryInlineControls.gomna-commentary-inline-controls::before {
+    top: 6px !important;
+    left: 7px !important;
+    right: 7px !important;
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+    border-radius: 13px !important;
+  }
+
+  #commentaryPopup #gomnaCommentaryInlineControls.gomna-commentary-inline-controls::after {
+    top: 15px !important;
+    bottom: calc(15px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   #commentaryPopup #gomnaCommentaryListenBtn,
-  #commentaryPopup #gomnaCommentaryReplayBtn,
-  #commentaryPopup #gomnaCommentarySequenceBtn,
   #commentaryPopup #gomnaCommentaryInlineCloseBtn {
-    min-height: 42px !important;
-    height: 42px !important;
-    font-size: 12px !important;
+    min-height: 45px !important;
+    height: 45px !important;
+    gap: 4px !important;
+    padding: 0 5px !important;
+    font-size: 13px !important;
   }
 
-  #commentaryPopup #gomnaCommentaryInlineCloseBtn {
-    flex-basis: 42px !important;
-    width: 42px !important;
-    min-width: 42px !important;
-    font-size: 17px !important;
+  #commentaryPopup #gomnaCommentaryListenBtn::before,
+  #commentaryPopup #gomnaCommentaryInlineCloseBtn::before {
+    width: 110px !important;
+    height: 39px !important;
   }
 }
 

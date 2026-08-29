@@ -406,6 +406,7 @@
      Supabase OAuth 리다이렉트를 거치지 않으므로 Google 계정 선택 화면에
      Supabase 주소가 나타나지 않는다. 카카오·네이버·이메일 경로는 그대로 둔다. */
   var GIS_SLOT_CLASS = 'gomna-gis-slot';
+  var GIS_WRAP_CLASS = 'gomna-gis-wrap';
   var gisState = 'idle'; /* idle | loading | ready | failed */
   var gisWaiters = [];
   var gisInited = false;
@@ -472,18 +473,43 @@
     return gisInited;
   }
 
-  /* 공식 버튼 자리만 잡아 주는 최소 스타일. 기존 로그인 버튼 CSS는 건드리지 않는다. */
+  /* 공식 버튼 자리만 잡아 주는 최소 스타일. 기존 로그인 버튼 CSS는 건드리지 않는다.
+     보이는 것은 나머지 세 개와 같은 우리 pill 버튼이고, 그 위에 공식 버튼을 투명하게 겹친다.
+     실제 눌리는 것은 공식 버튼이라 ID 토큰 발급 경로가 그대로 유지된다.
+     공식 버튼 안쪽 CSS·문구·로고는 손대지 않는다. */
   function ensureGisSlotStyle() {
     if (document.getElementById('gomnaGisSlotStyle')) return;
     try {
       var style = document.createElement('style');
       style.id = 'gomnaGisSlotStyle';
-      /* 로그인 버튼은 display:grid라 hidden만으로는 감춰지지 않는다. 이 규칙은 Google 버튼에만 닿는다. */
-      style.textContent = '.' + GIS_SLOT_CLASS
-        + '{display:flex;width:100%;min-height:56px;align-items:center;justify-content:center}'
-        + '.login-provider--google[hidden]{display:none}';
+      style.textContent = '.' + GIS_WRAP_CLASS + '{position:relative;display:block;width:100%}'
+        + '.' + GIS_SLOT_CLASS
+        /* 보이는 pill은 40px이지만 터치 영역은 다른 세 버튼과 같은 44px이라
+           위아래로 2px씩 넓혀 공식 버튼이 그 44px을 그대로 덮게 한다.
+           운영에서 GIS가 그리는 iframe이 정확히 44px이라 빈틈 없이 맞물린다. */
+        + '{position:absolute;left:0;top:-2px;right:0;bottom:-2px;z-index:2;display:flex;'
+        + 'align-items:center;justify-content:center;opacity:0;pointer-events:none}'
+        /* 공식 버튼이 차지하지 않은 자리가 남아도 상자가 클릭을 가로채지 않게 한다.
+           그 자리는 아래 pill의 44px 터치 영역이 받는다. */
+        + '.' + GIS_SLOT_CLASS + '>*{pointer-events:auto}'
+        /* 겹친 공식 버튼이 위에 있어 아래 pill에는 :hover가 걸리지 않는다.
+           눌리는 느낌이 사라지지 않게 겉 버튼의 되짚음만 바깥 상자에서 되살린다. */
+        + '.' + GIS_WRAP_CLASS + ':hover .login-provider--google{background:#F6F4EF;border-color:#DCD8D1}'
+        + '.' + GIS_WRAP_CLASS + ':active .login-provider--google{background:#EFECE5}';
       document.head.appendChild(style);
     } catch (e) {}
+  }
+
+  /* 우리 pill과 공식 버튼을 같은 자리에 겹치기 위한 바깥 상자. 버튼 자체는 그대로 둔다. */
+  function ensureGisWrap(legacy) {
+    var parent = legacy.parentElement;
+    if (!parent) return null;
+    if (parent.classList && parent.classList.contains(GIS_WRAP_CLASS)) return parent;
+    var wrap = document.createElement('div');
+    wrap.className = GIS_WRAP_CLASS;
+    parent.insertBefore(wrap, legacy);
+    wrap.appendChild(legacy);
+    return wrap;
   }
 
   /* Google 공식 버튼은 200~400px만 허용한다. 기존 버튼이 차지하던 폭에 맞춘다. */
@@ -503,25 +529,27 @@
     var api = gisApi();
     if (!api || !legacy || !legacy.parentElement) return false;
     ensureGisSlotStyle();
-    var slot = legacy.previousElementSibling;
-    if (!slot || !slot.classList || !slot.classList.contains(GIS_SLOT_CLASS)) {
+    var wrap = ensureGisWrap(legacy);
+    if (!wrap) return false;
+    var slot = wrap.querySelector('.' + GIS_SLOT_CLASS);
+    if (!slot) {
       slot = document.createElement('div');
       slot.className = GIS_SLOT_CLASS;
-      legacy.parentElement.insertBefore(slot, legacy);
+      wrap.appendChild(slot);
     }
-    var width = gisButtonWidth(slot);
+    var width = gisButtonWidth(wrap);
     if (!width) return false; /* 창이 닫혀 있어 폭을 못 재면 열릴 때 다시 그린다 */
-    if (slot.getAttribute('data-gis-width') === String(width) && slot.firstChild) {
-      legacy.hidden = true;
-      return true;
-    }
+    if (slot.getAttribute('data-gis-width') === String(width) && slot.firstChild) return true;
     try {
       slot.innerHTML = '';
       api.renderButton(slot, {
         type: 'standard',
         theme: 'outline',
         size: 'large',
-        shape: 'rectangular',
+        shape: 'pill',
+        /* 겹쳐 놓는 쪽이라 화면에는 보이지 않지만, 실제 눌리는 버튼은 이쪽이다.
+           GIS가 공식 지원하는 설정값만 쓰고 버튼 안쪽 CSS·문구·로고는 덮어쓰지 않는다.
+           높이는 size가 정하며 large=40px로 고정이라 임의 지정이 불가능하다. */
         text: 'signin_with',
         logo_alignment: 'left',
         locale: 'ko',
@@ -531,7 +559,6 @@
     } catch (e) {
       return false;
     }
-    legacy.hidden = true;
     return true;
   }
 
@@ -550,7 +577,8 @@
     window.setTimeout(refreshGoogleButtons, 300);
   }
 
-  /* 공식 버튼이 아직 자리 잡지 못했을 때만 기존 버튼이 눌린다.
+  /* 공식 버튼이 아직 자리 잡지 못했을 때만 이 처리기가 쓰인다.
+     자리를 잡은 뒤에는 겹친 공식 버튼이 pill 전체를 덮으므로 여기까지 오지 않는다.
      실패해도 예전 Supabase OAuth로 되돌아가지 않는다. */
   function onGoogleButtonClick(button) {
     setButtonBusy(button, true);

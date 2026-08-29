@@ -1077,7 +1077,15 @@
       staged.chapter = 0;
       var bookTst = testamentOf(staged.bookName);
       if (bookTst) staged.testament = bookTst;
+      /* opts.chapter + stage:'verse' 는 책·장을 이미 아는 호출자가 절 단계로 바로
+       * 들어오는 길이다. 본문 「더보기 → 구절 범위 선택」이 이 경로를 쓴다.
+       * render()가 stage==='verse' && !staged.chapter 를 chapter 로 되돌리므로
+       * 장이 없으면 자동으로 장 선택 화면이 된다.
+       */
+      var wantChapter = parseInt(opts.chapter, 10);
+      if (wantChapter > 0) staged.chapter = wantChapter;
       if (opts.stage === 'chapter') stage = 'chapter';
+      else if (opts.stage === 'verse' && staged.chapter > 0) stage = 'verse';
     }
     overlay.hidden = false;
     overlay.setAttribute('aria-hidden', 'false');
