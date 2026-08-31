@@ -154,7 +154,7 @@ body[data-gomna-page="reader"] #gomnaReaderBootOverlay .gomna-reader-boot-btn{
 <meta name="description" content="개역한글 성경 본문을 장·절로 읽고 들으며, 각 절의 원어·역사·신학·예표·매튜헨리·설교·찬송·상담·교차참조 말씀풀이를 함께 살펴보세요.">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if(((src==='home-daily-read'||src==='search-related'||src==='guide-related'||src==='bible-tab')&&p.get('book'))||(!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&!(p.get('q')||'').trim()&&p.get('focus')!=='search'&&p.get('testament')!=='old'&&p.get('testament')!=='new'))document.documentElement.classList.add('scripture-entry-pending');var qEarly=(p.get('q')||'').trim();if(qEarly){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
+<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if(((src==='home-daily-read'||src==='search-related'||src==='guide-related'||src==='bible-tab'||src==='home-resume-read'||src==='home-resume-listen'||src==='home-resume-recent')&&p.get('book'))||(!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&!(p.get('q')||'').trim()&&p.get('focus')!=='search'&&p.get('testament')!=='old'&&p.get('testament')!=='new'))document.documentElement.classList.add('scripture-entry-pending');var qEarly=(p.get('q')||'').trim();if(qEarly){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
 <meta name="theme-color" content="#a87a35">
 <link rel="canonical" href="https://gomnastudio.com/reader.html">
 <!-- Open Graph 메타 태그 (공유용) -->
@@ -168,12 +168,14 @@ body[data-gomna-page="reader"] #gomnaReaderBootOverlay .gomna-reader-boot-btn{
 <meta name="twitter:description" content="개역한글 성경 본문을 장·절로 읽고 들으며, 각 절의 원어·역사·신학·예표·매튜헨리·설교·찬송·상담·교차참조 말씀풀이를 함께 살펴보세요.">
 <title>성경 읽기·듣기·말씀풀이 | 은혜의말씀</title>
 <style>
-:root{--primary:#4A2511;--primary-dark:#3A1D0D;--gold:#B8751F;--gold-light:#D4A056;--cream:#FDF8F3;--text:#1A0F0A;--text-light:#3D2817;--border:#D5C8BB;--font-size:17px}
+:root{--primary:#4A2511;--primary-dark:#3A1D0D;--gold:#B8751F;--gold-light:#D4A056;--cream:#F7F8FA;--text:#1A0F0A;--text-light:#3D2817;--border:#E5E7EB;--font-size:17px}
+/* 성경본문 카드 전용 중성 톤(바깥 배경 #F7F8FA 기준). 말씀풀이·다른 화면은 이 토큰을 쓰지 않는다. */
+:root{--gm-scripture-surface:#FBFBFC;--gm-scripture-border:#EEF0F2;--gm-scripture-divider:#ECEEF1}
 /* touch feedback: iOS scale + opacity */
-.card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,.gs-link:active,button:active:not(.scripture-quick-move-close):not(.scripture-quick-move-addr-btn):not(.scripture-quick-move-tst-pop-btn):not(.scripture-quick-move-item):not(.scripture-quick-move-seg-btn):not(.verse-range-move-action):not(.verse-cell):not(.verse-range-back-to-text){transform: scale(0.90); opacity: 0.65; filter: brightness(0.85) saturate(1.3); background-color: rgba(200, 152, 73, 0.15); transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease, background-color 0.15s ease}
+.card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,.gs-link:active,button:active:not(.scripture-quick-move-close):not(.scripture-quick-move-addr-btn):not(.scripture-quick-move-tst-pop-btn):not(.scripture-quick-move-item):not(.scripture-quick-move-seg-btn):not(.verse-range-move-action):not(.verse-cell):not(.verse-range-back-to-text):not(.ubc-drawer-ttab){transform: scale(0.90); opacity: 0.65; filter: brightness(0.85) saturate(1.3); background-color: rgba(200, 152, 73, 0.15); transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease, background-color 0.15s ease}
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
-body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-serif;background:#f5f5f5;color:var(--text);font-size:var(--font-size);line-height:1.6;font-weight:500}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-serif;background:#F7F8FA;color:var(--text);font-size:var(--font-size);line-height:1.6;font-weight:500}
 .phone-frame{max-width:420px;margin:0 auto 0;min-height:100vh;background:#fff;box-shadow:0 0 30px rgba(0,0,0,0.15);position:relative;overflow:hidden}
 .header{background:linear-gradient(180deg,#B8860B 0%,#9A7209 100%);color:#fff;padding:12px 16px 14px;position:sticky;top:0;z-index:100}
 .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
@@ -213,21 +215,21 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-seri
 .view.active{display:block}
 .section-title{font-size:14px;font-weight:800;color:var(--primary);padding:10px 0 8px;display:flex;align-items:center;gap:6px}
 .book-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
-.book-btn{background:#fff;border:1px solid #E8E0D8;border-radius:10px;padding:14px 6px;text-align:center;font-family:inherit;cursor:pointer;transition:all 0.15s;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
-.book-btn:active{background:#FDF8F3;border-color:var(--gold);transform:scale(0.97)}
+.book-btn{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:14px 6px;text-align:center;font-family:inherit;cursor:pointer;transition:all 0.15s;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.book-btn:active{background:#F7F8FA;border-color:var(--gold);transform:scale(0.97)}
 .book-btn .name{font-size:14px;font-weight:700;color:#000}
 .book-btn .chapters{font-size:11px;color:#2D1810;margin-top:3px;font-weight:600}
 #chapterView{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
 #chapterView .back-bar{margin-left:0;margin-right:0;width:100%;max-width:100%;box-sizing:border-box}
 .chapter-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;width:100%;max-width:100%;min-width:0;box-sizing:border-box;justify-content:stretch}
-.chapter-btn{width:100%;min-width:0;max-width:100%;margin:0;background:#fff;border:1px solid #E8E0D8;border-radius:12px;padding:18px 4px;text-align:center;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;white-space:normal;color:#111111;-webkit-text-fill-color:#111111;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;box-sizing:border-box;line-height:1.15}
+.chapter-btn{width:100%;min-width:0;max-width:100%;margin:0;background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:18px 4px;text-align:center;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;white-space:normal;color:#111111;-webkit-text-fill-color:#111111;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;box-sizing:border-box;line-height:1.15}
 .chapter-btn > span{display:block;min-width:0;max-width:100%;box-sizing:border-box;text-align:center;line-height:1.15;white-space:normal;overflow-wrap:normal;word-break:keep-all}
 html.gomna-reader-ui-en .chapter-btn,
 html.gomna-reader-ui-ja .chapter-btn{font-size:12px;padding:10px 2px}
 html.gomna-reader-ui-en .chapter-btn > span,
 html.gomna-reader-ui-ja .chapter-btn > span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 .chapter-btn:link,.chapter-btn:visited,.chapter-btn:hover,.chapter-btn:active,.chapter-btn:focus{color:#111111;-webkit-text-fill-color:#111111}
-.chapter-btn:active{background:#FDF8F3;border-color:var(--gold)}
+.chapter-btn:active{background:#F7F8FA;border-color:var(--gold)}
 .verse-header{background:#fff;margin:-16px -16px 0;padding:14px 16px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
 .verse-title{font-size:17px;font-weight:700;color:var(--primary)}
 .verse-nav{display:flex;gap:6px}
@@ -235,7 +237,7 @@ html.gomna-reader-ui-ja .chapter-btn > span{display:-webkit-box;-webkit-box-orie
 .nav-btn:active{background:#9A7209;transform:scale(0.95)}
 .nav-btn:disabled{background:#ccc}
 .back-bar{background:#fff;margin:0 -16px;padding:12px 16px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:center;position:relative}
-.list-btn{position:absolute;left:16px;background:#fff;color:#3D2817;border:0.5px solid #E0D6CC;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer}
+.list-btn{position:absolute;left:16px;background:#fff;color:#3D2817;border:0.5px solid #E5E7EB;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer}
 .range-selector{background:#fff;padding:12px 16px;margin:0 -16px 16px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .range-selector select{padding:8px 12px;border:2px solid #B8860B;border-radius:8px;font-size:14px;font-family:inherit;background:#FFFCF7;font-weight:600;color:#3D2817}
 .range-selector select option{background:#FFFCF7;color:#3D2817;padding:8px}
@@ -243,6 +245,29 @@ html.gomna-reader-ui-ja .chapter-btn > span{display:-webkit-box;-webkit-box-orie
 .range-btn{background:#B8860B;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.15s}
 .range-btn:active{background:#9A7209;transform:scale(0.95)}
 .verse-list{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+/* 성경본문 카드 surface — 구약·신약 66권이 쓰는 본문 컨테이너(#verseView #verseList) 하나에만 적용한다.
+   바깥 배경(#F7F8FA premium light gray)보다 살짝만 밝은 중성 화이트로 낮춰 순백색으로 튀지 않게 하고,
+   그림자·외곽선·절 구분선도 중성 톤으로 맞춘다. 공용 .verse-list/.verse-item 규칙은 그대로 두므로
+   말씀풀이·홈·검색·보관함 등 다른 화면 surface는 바뀌지 않는다. */
+#verseView #verseList.verse-list{
+  background:var(--gm-scripture-surface,#FBFBFC);
+  border:1px solid var(--gm-scripture-border,#ECEEF1);
+  box-shadow:0 1px 2px rgba(16,18,22,.028),0 4px 14px rgba(16,18,22,.032);
+}
+#verseView #verseList.verse-list .verse-item{border-bottom-color:var(--gm-scripture-divider,#ECEEF1)}
+/* 데스크톱(MacBook)에서는 본문 카드가 프레임 가운데 뜬 흰 판처럼 보였다. 좌우 여백을 8px만 남겨
+   Reader 폭을 거의 다 쓰게 하고, 그림자·모서리·외곽선 존재감을 낮춰 바깥 배경과 한 덩어리로 만든다.
+   여백은 본문 화면(reader-verse-active)에서만 줄이고, 카드는 성경본문 컨테이너만 넓힌다.
+   iPhone은 이미 좌우 여백이 없으므로 이 구간(≥481px)에서만 적용한다. */
+@media (min-width:481px){
+  html.reader-verse-active main.content{padding-left:8px;padding-right:8px}
+  #verseView #verseList.verse-list{
+    max-width:none;
+    border-radius:14px;
+    box-shadow:0 1px 2px rgba(15,23,42,.02),0 2px 8px rgba(15,23,42,.022);
+  }
+  #verseView #verseList.verse-list .verse-item{max-width:none}
+}
 .verse-item{padding:14px 16px;border-bottom:1px solid rgba(245,240,235,.85);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background-color .08s ease,box-shadow .08s ease}
 .verse-item:last-child{border-bottom:none}
 .verse-item--selected,.verse-item--chapter-selected,.verse-item--entry-focus{background:rgba(200,145,45,0.10);box-shadow:inset 4px 0 0 #B8860B}
@@ -315,7 +340,7 @@ html.search-entry-pending::before{content:'';position:fixed;inset:0;z-index:2000
   padding:0;
   overflow:visible;
 }
-.consonant-btn{background:#fff;border:0.5px solid #E0D6CC;border-radius:14px;padding:18px 8px;text-align:center;font-size:20px;font-weight:600;color:#3D2817;font-family:inherit;cursor:pointer}
+.consonant-btn{background:#fff;border:0.5px solid #E5E7EB;border-radius:14px;padding:18px 8px;text-align:center;font-size:20px;font-weight:600;color:#3D2817;font-family:inherit;cursor:pointer}
 .consonant-btn.cat-btn{
   padding:6px 4px;
   font-size:clamp(11px,3.2vw,14px);
@@ -332,7 +357,7 @@ html.search-entry-pending::before{content:'';position:fixed;inset:0;z-index:2000
   min-height:44px;
   box-sizing:border-box;
 }
-.consonant-btn.cat-btn.cat-all{min-height:50px;padding:9px 12px;background:#FFFFFF;color:#3D2817;border:0.5px solid #E0D6CC;flex-direction:column-reverse;gap:1px}
+.consonant-btn.cat-btn.cat-all{min-height:50px;padding:9px 12px;background:#FFFFFF;color:#3D2817;border:0.5px solid #E5E7EB;flex-direction:column-reverse;gap:1px}
 .consonant-btn.cat-btn .cat-foreign-line{display:none}
 .consonant-btn.cat-btn.cat-all .cat-foreign-line{display:block;font-size:11px;font-weight:500;line-height:1.15;letter-spacing:-0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;opacity:0.78}
 .consonant-btn.cat-btn .cat-label{
@@ -716,7 +741,7 @@ html.gomna-home-commentary-loading body{overflow:hidden}
   padding:0 1px!important;
   margin:0!important;
   box-sizing:border-box!important;
-  background:rgba(255,250,241,.96)!important;
+  background:rgba(255, 255, 255, .96)!important;
   border:1px solid #D9B77D!important;
   border-radius:8px;
   box-shadow:none;
@@ -882,11 +907,11 @@ html.gomna-home-commentary-loading body{overflow:hidden}
 .commentary-table{width:100%;display:block;border-collapse:separate;border-spacing:0;font-size:15px;margin-bottom:12px;counter-reset:commentary-card}
 .commentary-table tbody{display:block}
 .commentary-table tr:first-child{display:none}
-.commentary-table tr:not(:first-child){display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.2fr) minmax(0,1.62fr);position:relative;margin:0 0 12px;border:1px solid #e8d8bd;border-radius:18px;overflow:hidden;background:#fffefa;box-shadow:0 8px 24px rgba(92,58,25,.08);counter-increment:commentary-card}
-.commentary-table tr:not(:first-child)::before{content:counter(commentary-card,decimal-leading-zero);grid-column:1/-1;display:block;padding:9px 130px 9px 15px;background:linear-gradient(180deg,#fbf2e2,#f8ead4);border-bottom:1px solid #e8d8bd;color:#93602c;font-size:12px;font-weight:850;line-height:1.3}
+.commentary-table tr:not(:first-child){display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.2fr) minmax(0,1.62fr);position:relative;margin:0 0 12px;border:1px solid #E5E7EB;border-radius:18px;overflow:hidden;background:#FFFFFF;box-shadow:0 8px 24px rgba(15,23,42,.06);counter-increment:commentary-card}
+.commentary-table tr:not(:first-child)::before{content:counter(commentary-card,decimal-leading-zero);grid-column:1/-1;display:block;padding:9px 130px 9px 15px;background:linear-gradient(180deg,#FBFBFC,#F7F8FA);border-bottom:1px solid #ECEEF1;color:#93602c;font-size:12px;font-weight:850;line-height:1.3}
 .commentary-table tr:not(:first-child)::after{content:attr(data-verse-ref);position:absolute;top:6px;right:12px;padding:2px 8px;border:1px solid rgba(71,111,99,.18);border-radius:999px;background:rgba(71,111,99,.08);color:#476f63;font-size:10.5px;font-weight:800;line-height:1.4}
-.commentary-table tr:not(:first-child) td{display:block;width:auto!important;min-width:0;background:#fffefa!important;color:#3d2818;padding:14px 15px;border:0;vertical-align:top;line-height:1.65;font-size:15px;overflow-wrap:anywhere}
-.commentary-table tr:not(:first-child) td+td{border-left:1px solid #e8d8bd}
+.commentary-table tr:not(:first-child) td{display:block;width:auto!important;min-width:0;background:#FFFFFF!important;color:#3d2818;padding:14px 15px;border:0;vertical-align:top;line-height:1.65;font-size:15px;overflow-wrap:anywhere}
+.commentary-table tr:not(:first-child) td+td{border-left:1px solid #E5E7EB}
 .commentary-table tr:not(:first-child) td::before{display:block;margin-bottom:6px;color:#765f4b;font-size:12px;font-weight:800;line-height:1.3}
 
 #tab-원어분석 td:nth-child(1)::before{content:var(--c-col-original-word,"원어")}
@@ -932,7 +957,7 @@ html.gomna-home-commentary-loading body{overflow:hidden}
 
 @media(max-width:720px){
   .commentary-table tr:not(:first-child){grid-template-columns:1fr}
-  .commentary-table tr:not(:first-child) td+td{border-left:0;border-top:1px solid #e8d8bd}
+  .commentary-table tr:not(:first-child) td+td{border-left:0;border-top:1px solid #E5E7EB}
 }
 .tab-content{display:none}
 .tab-content.active{display:block}
@@ -988,7 +1013,7 @@ html.gomna-home-commentary-loading body{overflow:hidden}
 .commentary-related-back{width:100%;min-height:46px;margin:0 0 14px;padding:10px 14px;border:1px solid #e0c99f;border-radius:13px;background:#fff6e5;color:#6a431d;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;text-align:left}
 .commentary-related-back:active{background:#f6e4c3}
 html.reader-hide-chrome #appTopChrome{display:none!important}
-.reader-sheet-tabs{display:none;flex-wrap:nowrap;align-items:flex-end;gap:14px;padding:12px 14px 0;background:#faf6ed;border-bottom:0.5px solid rgba(180,140,90,.3);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;position:sticky;top:0;z-index:90;box-sizing:border-box}
+.reader-sheet-tabs{display:none;flex-wrap:nowrap;align-items:flex-end;gap:14px;padding:12px 14px 0;background:#FBFBFC;border-bottom:0.5px solid #ECEEF1;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;position:sticky;top:0;z-index:90;box-sizing:border-box}
 .reader-sheet-tabs::-webkit-scrollbar{display:none}
 html.reader-hide-chrome .reader-sheet-tabs{display:none!important}
 .reader-sheet-tabs .reader-tab{font-size:17px;font-weight:600;color:#5a3818;padding:8px 2px 12px;background:none;border:none;font-family:inherit;cursor:pointer;white-space:nowrap;position:relative;flex-shrink:0;min-height:44px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .15s ease, opacity .15s ease, background-color .15s ease;border-radius:8px}
@@ -997,7 +1022,6 @@ html.reader-hide-chrome .reader-sheet-tabs{display:none!important}
 .reader-sheet-tabs .reader-tab.reader-home{color:#8b5e2c;font-weight:500}
 .reader-sheet-tabs .reader-tab:active{transform:scale(0.95);opacity:0.7;background-color:rgba(139,94,44,0.14)}
 .reader-sheet-tabs .reader-close:active{transform:scale(0.95);opacity:0.7;background-color:rgba(139,94,44,0.28)}
-.verse-read-nav-btn:active{transform:scale(0.92)}
 .reader-sheet-tabs .reader-nav-end{margin-left:auto;display:flex;align-items:flex-end;gap:16px;flex-shrink:0}
 .reader-sheet-tabs .reader-close{background:rgba(139, 94, 44, 0.18);border:none;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:18px;line-height:1;color:#3d2818;padding:0;flex-shrink:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .15s ease, opacity .15s ease, background-color .15s ease}
 
@@ -1058,7 +1082,7 @@ html.gomna-lang-bridge-in-commentary .gomna-reader-lang-bridge-host:not(.gomna-r
   min-height:var(--gomna-lang-bridge-visual-height);
   padding:0 1px;
   box-sizing:border-box;
-  background:rgba(253,250,245,.92);
+  background:rgba(255,255,255,.94);
   border:1px solid rgba(200,152,73,.55);
   border-radius:8px;
   box-shadow:none;
@@ -1118,18 +1142,29 @@ html.gomna-lang-bridge-in-commentary .gomna-reader-lang-bridge-host:not(.gomna-r
 }
 .gomna-lang-bridge-btn:active{opacity:.82}
 /* 오른쪽 50%: 기존 KO ⇄ EN 🌐 버튼을 그대로 두고 폭만 영역에 맞춘다. */
-#gomnaReaderLangBridge{justify-self:stretch;padding-left:8px;margin-right:24px}
+/* 카드 오른쪽 끝은 서랍의 신약 버튼 오른쪽 세로선(--reader-rail-right)에서
+   --gomna-lang-card-shift(8px, 약 2mm)만큼 왼쪽으로 물러난다. 헤더 오른쪽 padding 6px을
+   상쇄해 그 선까지 밀고, min-width로 카드 자체 폭(안쪽 여백 8px + 카드 157px)은 줄어들지 않게 잡아 둔다.
+   카드만 움직이므로 책·장 제목과 이전 장 화살표 위치는 그대로다. */
+#gomnaReaderLangBridge{--gomna-lang-card-shift:8px;justify-self:stretch;padding-left:8px;margin-right:calc(var(--reader-rail-right) - 6px + var(--gomna-lang-card-shift));min-width:165px}
+/* KO 활성 배경은 말씀풀이 카드와 같게 맞춘다(테두리·radius·clip 손대지 않고 기본값 그대로).
+   성경본문 카드는 폭이 넓어 space-evenly로 버튼을 벌리기 때문에 KO 왼쪽에 빈 틈이 남는데,
+   같은 색을 왼쪽으로만 늘리고 카드에서 잘라 안쪽을 꽉 채운다. 버튼 상자와 ⇄·EN·🌐 위치는 그대로다. */
+#gomnaReaderLangBridge .gomna-lang-bridge{overflow:hidden}
+#gomnaReaderLangBridge .gomna-lang-bridge-ko.is-active{box-shadow:-10px 0 0 0 rgba(200,152,73,.22)}
+/* 서랍이 열린 동안에는 같은 자리를 구약/신약 줄이 쓰므로 카드만 감춘다.
+   자리는 그대로 두어(visibility) 열고 닫을 때 헤더가 좌우로 튀지 않는다. */
+html.ubc-rail-drawer #gomnaReaderLangBridge{visibility:hidden;pointer-events:none}
 #gomnaReaderLangBridge .gomna-lang-bridge{width:100%;justify-content:space-evenly}
 @media (max-width:360px){
   .verse-read-title{padding:8px 4px;font-size:14px}
-  .verse-read-caret{margin-left:2px;font-size:12px}
+  .verse-read-version{height:26px;padding:0 8px;font-size:12px}
   .gomna-lang-bridge-btn{min-width:34px;padding:0 3px;font-size:10px}
   .gomna-lang-bridge-swap{min-width:22px;font-size:11px}
   .gomna-lang-bridge-globe{min-width:28px;font-size:12px}
 }
 @media (max-width:320px){
   .verse-read-header{column-gap:0;padding:6px 6px}
-  .verse-read-nav-btn{width:40px;min-width:40px}
   .gomna-lang-bridge-btn{min-width:30px;padding:0 2px}
 }
 .opt4-bar-mode{display:flex;width:100%;max-width:100%;gap:0;align-items:center;min-height:44px;flex-wrap:nowrap;box-sizing:border-box;min-width:0}
@@ -1431,9 +1466,9 @@ html.gomna-lang-bridge-in-commentary .gomna-reader-lang-bridge-host:not(.gomna-r
 .verse-toolbar-location-btn:focus-visible{outline:2px solid rgba(139,106,50,.45);outline-offset:2px}
 #opt4VerseToolbar .verse-toolbar-location-btn{opacity:1!important;color:var(--gomna-segmented-text,#4A2A16)!important;filter:none!important;pointer-events:auto!important;cursor:pointer!important}
 #opt4BottomBar.opt4-bottom-bar{
-  --gomna-segmented-bar-bg:#FFFDF8;
-  --gomna-segmented-bar-border:#E2D2B8;
-  --gomna-segmented-divider:#E7DCCB;
+  --gomna-segmented-bar-bg:#FBFBFC;
+  --gomna-segmented-bar-border:#E5E7EB;
+  --gomna-segmented-divider:#ECEEF1;
   --gomna-segmented-text:#4A2A16;
   --gomna-segmented-pressed:#F3E5C8;
 }
@@ -1700,7 +1735,7 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 .verse-toolbar-more-item.is-saved{color:#8b5e2c}
 .verse-range-modal-overlay{display:none;position:fixed;inset:0;z-index:10200;background:rgba(0,0,0,.4);align-items:stretch;justify-content:center;box-sizing:border-box;padding:0;touch-action:pan-x pan-y pinch-zoom}
 .verse-range-modal-overlay.active{display:flex}
-.verse-range-modal-box{position:relative;background:#faf6ed;border-radius:0;width:100%;max-width:var(--reader-frame-width,420px);height:100vh;height:100dvh;max-height:none;overflow:hidden;display:flex;flex-direction:column;margin:0 auto;box-sizing:border-box;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);touch-action:pan-x pan-y pinch-zoom}
+.verse-range-modal-box{position:relative;background:#FFFFFF;border-radius:0;width:100%;max-width:var(--reader-frame-width,420px);height:100vh;height:100dvh;max-height:none;overflow:hidden;display:flex;flex-direction:column;margin:0 auto;box-sizing:border-box;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);touch-action:pan-x pan-y pinch-zoom}
 .verse-range-modal-overlay.active .verse-range-modal-box{transform:translateY(0)}
 .verse-range-modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(180,140,90,.25);font-weight:700;font-size:16px;color:#3d2818;flex-shrink:0;cursor:grab;-webkit-user-select:none;user-select:none;touch-action:none}
 .verse-range-modal-head:active{cursor:grabbing}
@@ -1729,7 +1764,7 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 .verse-range-modal-footer{flex-shrink:0;padding:12px 14px calc(14px + env(safe-area-inset-bottom,0));margin:0 -14px 0;background:#faf6ed;border-top:1px solid rgba(180,140,90,.22);box-sizing:content-box;position:relative;z-index:2;pointer-events:auto}
 .verse-range-all-note{margin:0;font-size:13px;color:#5a3818;line-height:1.5;opacity:0.92}
 .verse-range-mode-tabs{display:flex;gap:8px;margin-bottom:0;flex-shrink:0}
-.verse-range-mode-tabs button{flex:1;padding:12px;border-radius:12px;border:1px solid #E8E0D8;background:#fff;font-weight:600;cursor:pointer;font-family:inherit;color:#5C4A3A;font-size:14px}
+.verse-range-mode-tabs button{flex:1;padding:12px;border-radius:12px;border:1px solid #E5E7EB;background:#fff;font-weight:600;cursor:pointer;font-family:inherit;color:#5C4A3A;font-size:14px}
 .verse-range-mode-tabs button.active{background:var(--gold);color:#fff;border-color:var(--gold)}
 .verse-range-range-label{margin:0 0 6px;font-size:14px;font-weight:600;color:#5C4A3A}
 .verse-range-preview{margin:4px 0 8px;text-align:center;font-size:14px;font-weight:600;color:#5a3818;min-height:22px}
@@ -1781,7 +1816,7 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 
 .unified-bc-overlay{display:none;position:fixed;inset:0;z-index:10200;background:rgba(0,0,0,.45);align-items:stretch;justify-content:center;padding:0;box-sizing:border-box}
 .unified-bc-overlay.active{display:flex}
-.unified-bc-box{position:relative;width:100%;max-width:var(--reader-frame-width,480px);height:100vh;height:100dvh;max-height:none;margin:0 auto;background:#faf6ed;border-radius:0;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif}
+.unified-bc-box{position:relative;width:100%;max-width:var(--reader-frame-width,480px);height:100vh;height:100dvh;max-height:none;margin:0 auto;background:#FFFFFF;border-radius:0;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif}
 .unified-bc-overlay.active .unified-bc-box{transform:translateY(0)}
 .unified-bc-head{flex:0 0 auto;display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;min-height:60px;padding:8px 10px;border-bottom:0.5px solid rgba(180,140,90,.35);background:#faf6ed;box-sizing:border-box}
 .unified-bc-head-btn{width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:none;background:transparent;font-size:20px;color:#17120F;cursor:pointer;font-family:inherit;line-height:1;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
@@ -1789,7 +1824,7 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 .unified-bc-head-title{min-width:0;text-align:center;font-size:16px;font-weight:700;color:#17120F;padding:0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .unified-bc-head-spacer{width:44px;min-width:44px}
 .unified-move-tabs{display:flex;gap:8px;margin-bottom:14px}
-.unified-move-tab{flex:1;min-height:44px;padding:10px 8px;border-radius:12px;border:1px solid #E8E0D8;background:#fff;font-size:14px;font-weight:700;color:#888;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.unified-move-tab{flex:1;min-height:44px;padding:10px 8px;border-radius:12px;border:1px solid #E5E7EB;background:#fff;font-size:14px;font-weight:700;color:#888;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
 .unified-move-tab.active{background:#c89849;color:#fff;border-color:#c89849}
 .unified-bc-cur-book{text-align:center;font-size:19px;font-weight:700;color:#3d2818;margin-bottom:4px}
 .unified-bc-cur-cat{text-align:center;font-size:13px;font-weight:600;color:#6b5a44;margin-bottom:16px}
@@ -1799,7 +1834,7 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 .unified-bc-cat-btn{width:100%;padding:14px;font-size:14px;font-weight:600;border-radius:12px;border:1px solid #c89849;background:#fff5e0;color:#8b5e2c;cursor:pointer;font-family:inherit;margin-bottom:12px;-webkit-tap-highlight-color:transparent}
 .unified-bc-cat-btn:active{opacity:0.9}
 .unified-bc-ttabs{display:flex;gap:8px;margin-bottom:18px}
-.unified-bc-ttab{flex:1;height:42px;min-height:42px;padding:0 8px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid #E8E0D8;background:#fff;font-size:13px;font-weight:600;color:#888;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.unified-bc-ttab{flex:1;height:42px;min-height:42px;padding:0 8px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid #E5E7EB;background:#fff;font-size:13px;font-weight:600;color:#888;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
 .unified-bc-ttab.active{background:#E8F0FC;color:#2F67C7;border-color:#2F67C7}
 .unified-bc-sec{font-size:13px;font-weight:700;color:#5a3818;text-align:left;margin:22px 0 11px}
 .unified-bc-sec:first-of-type{margin-top:4px}
@@ -1808,7 +1843,7 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 .unified-bc-book:active{transform:scale(0.98)}
 .unified-bc-book--sel{background:#EAD7AF;border:1.5px solid #8B5E2C}
 .unified-bc-book--sel::after{content:'';position:absolute;left:7px;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:#8B5E2C}
-.unified-bc-back-books{width:100%;padding:12px;margin-bottom:10px;border-radius:10px;border:1px solid #E8E0D8;background:#fff;font-size:14px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit}
+.unified-bc-back-books{width:100%;padding:12px;margin-bottom:10px;border-radius:10px;border:1px solid #E5E7EB;background:#fff;font-size:14px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit}
 /* 장·책 선택 = Reader 프레임 오른쪽 세로 서랍. 장 다이얼 스크롤 코드는 그대로 쓴다. */
 .unified-bc-head--dial{display:flex;justify-content:flex-start;align-items:center;gap:0;min-height:44px}
 .unified-bc-dial-book{min-width:0;width:100%;max-width:100%;min-height:44px;padding:0 2px;border:none;background:transparent;font-family:inherit;font-size:14px;font-weight:700;color:#17120F;display:block;text-align:left;line-height:1.25;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -1829,12 +1864,23 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 .ubc-dial-rail,.ubc-dial-rail-dot{display:none}
 .ubc-dial-pos{margin-top:8px;text-align:center;font-size:13px;font-weight:600;color:#6b5a44}
 /* 책·장 서랍: 본문은 그대로 두고, 오른쪽만 밝은 유리 카드로 겹친다. */
-.unified-bc-overlay.unified-bc-overlay--drawer{--ubc-frame-w:min(100vw,var(--reader-frame-width,420px));--ubc-drawer-w:88px;align-items:stretch;justify-content:flex-start;background:transparent}
-.unified-bc-overlay.unified-bc-overlay--drawer.unified-bc-overlay--dial{--ubc-drawer-w:88px}
-.unified-bc-overlay.unified-bc-overlay--drawer.unified-bc-overlay--books{--ubc-drawer-w:88px}
-.unified-bc-overlay.unified-bc-overlay--drawer .unified-bc-box{position:absolute;top:0;bottom:0;left:calc(50% + (var(--ubc-frame-w)/2) - var(--ubc-drawer-w));width:var(--ubc-drawer-w);min-width:0;max-width:88px;height:100%;height:100dvh;max-height:none;margin:0;border-radius:0;background:rgba(250,246,237,.90);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:none;border-left:none;box-shadow:none;transform:translateX(100%);padding-top:env(safe-area-inset-top,0px);padding-right:env(safe-area-inset-right,0px)}
-.unified-bc-overlay.unified-bc-overlay--drawer.unified-bc-overlay--dial .unified-bc-box{min-width:88px;max-width:88px;width:88px}
-.unified-bc-overlay.unified-bc-overlay--drawer.unified-bc-overlay--books .unified-bc-box{min-width:88px;max-width:88px;width:88px}
+/* 책·장 서랍 폭은 공용 세로 기준선 --reader-rail-w(104px)를 그대로 쓴다.
+   오른쪽은 프레임 오른쪽 끝(--ubc-drawer-gap-right 0px)에 붙고 왼쪽만 기준선까지 넓어지며,
+   같은 값으로 상단 다국어 카드의 오른쪽 끝을 맞춰 위아래가 한 세로선에 선다.
+   폭 72px에서는 여섯 글자 이상(예레미야애가·고린도전서)이 두 줄로 접혔고,
+   104px(안쪽 84px)에서 구약 39권과 신약 다섯 글자 이름이 모두 한 줄에 든다.
+   일곱 글자(데살로니가전서 97px)는 이 폭에서도 두 줄이며, 글자 크기는 줄이지 않는다.
+   글자 배율을 키우면 기준선이 책 이름(네 글자)이 한 줄에 들어가는 폭
+   (글자폭 60px x 배율 + 목록·행 좌우 padding 12px)까지 함께 넓어진다.
+   세로로는 서랍이 상단 다국어 카드와 같은 기준선(--reader-rail-top)에서 시작한다.
+   서랍 상단 = 기준선 - 8px(본문 위 padding 6px + 탭 줄 44px 안에서 버튼 40px 중앙 2px)
+   이라야 구약/신약 버튼 윗선이 다국어 카드 윗선과 같은 수평선에 놓인다.
+   서랍이 헤더 오른쪽 구역을 덮으므로 열려 있는 동안 다국어 카드는 감춘다.
+   --ubc-drawer-bottom 0px = 서랍은 하단 기능바·내비 높이를 빼지 않고 화면 맨 아래까지
+   내려간다. 마지막 책이 홈 인디케이터에 가리지 않게 하는 여백은 서랍 안쪽
+   목록의 padding-bottom(env(safe-area-inset-bottom))만 담당한다. */
+.unified-bc-overlay.unified-bc-overlay--drawer{--ubc-frame-w:min(100vw,var(--reader-frame-width,420px));--ubc-drawer-gap-right:0px;--ubc-drawer-w:var(--reader-rail-w);--ubc-drawer-top:calc(var(--reader-rail-top) - 8px);--ubc-drawer-bottom:0px;align-items:stretch;justify-content:flex-start;background:transparent}
+.unified-bc-overlay.unified-bc-overlay--drawer .unified-bc-box{position:absolute;top:var(--ubc-drawer-top);bottom:var(--ubc-drawer-bottom);left:calc(50% + (var(--ubc-frame-w)/2) - var(--ubc-drawer-gap-right) - var(--ubc-drawer-w));width:var(--ubc-drawer-w);min-width:var(--ubc-drawer-w);max-width:var(--ubc-drawer-w);height:auto;max-height:none;margin:0;border-radius:0;background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:none;border-left:none;box-shadow:-10px 0 24px rgba(15,23,42,.07);transform:translateX(100%);padding-top:0;padding-right:0}
 .unified-bc-overlay.unified-bc-overlay--drawer.active .unified-bc-box{transform:translateX(0)}
 .unified-bc-overlay.unified-bc-overlay--drawer.unified-bc-overlay--peek .unified-bc-box{transform:translateX(100%);transition:none}
 .unified-bc-overlay--drawer .unified-bc-head,.unified-bc-overlay--drawer .unified-bc-body,.unified-bc-overlay--drawer .unified-bc-footer{background:transparent;border:none}
@@ -1849,8 +1895,11 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 .unified-bc-overlay--drawer .unified-bc-body::-webkit-scrollbar{width:0;height:0;display:none}
 .unified-bc-overlay--drawer .unified-bc-box:has(.unified-bc-footer[hidden]) .unified-bc-body{padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
 .unified-bc-overlay--drawer .unified-bc-body:has(.ubc-book-list){display:flex;flex-direction:column;overflow:hidden;padding:6px 2px calc(12px + env(safe-area-inset-bottom,0px))}
-.unified-bc-overlay--drawer .unified-bc-body:has(.ubc-dial){overflow:hidden;display:flex;flex-direction:column;padding:4px 4px calc(10px + env(safe-area-inset-bottom,0px))}
-.unified-bc-overlay--drawer .ubc-dial{flex:0 0 auto;height:calc(100dvh - 100px);--ubc-dial-h:calc(100dvh - 100px);border:none;box-shadow:none;background:transparent}
+.unified-bc-overlay--drawer .unified-bc-body:has(.ubc-dial){overflow:hidden;display:flex;flex-direction:column;padding:4px 4px calc(20px + env(safe-area-inset-bottom,0px))}
+/* 다이얼은 서랍 안에서 위 책 이름과 아래 현재/전체 표시를 고정으로 남기고,
+   그 사이(서랍 높이 - 110px: 머리 56px + 본문 위 4px + 표시 8+21px + 아래 20px)만 차지한다.
+   .ubc-dial-scroll 의 위아래 여백이 --ubc-dial-h 로 계산되므로 두 값을 같이 둔다. */
+.unified-bc-overlay--drawer .ubc-dial{flex:0 0 auto;--ubc-dial-h:calc(100dvh - var(--ubc-drawer-top) - var(--ubc-drawer-bottom) - 110px);height:var(--ubc-dial-h);border:none;box-shadow:none;background:transparent}
 .unified-bc-overlay--drawer .ubc-dial-line{width:92%;max-width:92%}
 .unified-bc-overlay--drawer .ubc-dial-line > span{width:10px;background:#D9AA3E}
 .unified-bc-overlay--drawer .ubc-dial-item{color:rgba(31,31,31,.38);background:transparent;border:none;box-shadow:none}
@@ -1864,26 +1913,79 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 .unified-bc-overlay--drawer .ubc-dial-scroll,.unified-bc-overlay--drawer .ubc-dial-scroll:focus,.unified-bc-overlay--drawer .ubc-dial-scroll:focus-visible{outline:none;border:none;box-shadow:none;scrollbar-width:none}
 .unified-bc-overlay--drawer .ubc-dial-scroll::-webkit-scrollbar{width:0;height:0;display:none}
 .unified-bc-overlay--drawer .ubc-dial-pos{color:#1F1F1F}
-.ubc-drawer-ttabs{display:flex;flex-direction:row;flex:0 0 auto;align-items:center;justify-content:flex-start;gap:0;margin:0 0 6px;width:100%;height:auto;min-height:44px;padding:0;box-sizing:border-box;background:transparent;border:none;border-radius:0;overflow:visible;box-shadow:none}
-.ubc-drawer-ttab{flex:0 0 auto;width:auto;min-width:36px;height:auto;min-height:44px;margin:0;padding:0 3px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid transparent;background-color:#FFF9F0;background-image:none;color:#2F2F2F;font-family:inherit;font-size:14px;font-weight:500;line-height:1;text-align:center;white-space:nowrap;overflow:visible;cursor:pointer;opacity:1;-webkit-tap-highlight-color:transparent;-webkit-appearance:none;appearance:none;box-shadow:none}
-.ubc-drawer-ttab.active{background:#F4E8D6;background-image:none;border:1px solid #4A4A4A;color:#2F2F2F;font-weight:600;box-shadow:none}
-.ubc-drawer-ttab:hover,.ubc-drawer-ttab:focus-visible{background-color:#FFF9F0;border-color:transparent;color:#2F2F2F}
-.ubc-drawer-ttab.active:hover,.ubc-drawer-ttab.active:focus-visible{background:#F4E8D6;border:1px solid #4A4A4A;color:#2F2F2F}
+/* 구약·신약은 서랍 맨 위의 강한 컨트롤이다. 두 버튼이 같은 크기로 가용폭을 거의 꽉 채우는
+   캡슐형이고, 선택은 배경·글자색만으로 나타내 글자 크기/굵기는 두 쪽이 항상 같다. */
+.ubc-drawer-ttabs{display:flex;flex-direction:row;flex:0 0 auto;align-items:center;justify-content:flex-start;gap:6px;margin:0 0 6px;width:100%;height:auto;min-height:44px;padding:0;box-sizing:border-box;background:transparent;border:none;border-radius:0;overflow:visible;box-shadow:none}
+/* 넓어진 서랍 폭(--ubc-drawer-w 104px)을 절반씩 나눠 47x40px 가로 직사각형이 된다.
+   캡슐(999px)이 아니라 모서리만 12px 둥근 프리미엄 사각 버튼이다.
+   안쪽 45px에 두 글자 17px(29.4px)가 좌우 7.8px 여유로 들어간다.
+   줄 높이 44px는 그대로 두어 책 목록 시작 위치를 지킨다. */
+.ubc-drawer-ttab{flex:1 1 0;width:auto;min-width:0;height:40px;min-height:40px;margin:0;padding:0;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid #D6DAE0;background-color:#FFFFFF;background-image:none;color:#1F2933;font-family:inherit;font-size:17px;font-weight:700;line-height:1;text-align:center;white-space:nowrap;overflow:hidden;cursor:pointer;opacity:1;touch-action:pan-y;-webkit-tap-highlight-color:transparent;-webkit-appearance:none;appearance:none;box-shadow:none}
+.ubc-drawer-ttab.active{background:#2B2B2B;background-image:none;border:1px solid #2B2B2B;color:#FFFFFF;font-weight:700;box-shadow:0 1px 2px rgba(15,23,42,.10)}
+.ubc-drawer-ttab:hover,.ubc-drawer-ttab:focus-visible{background-color:#FFFFFF;border-color:#C9CFD6;color:#1F2933}
+.ubc-drawer-ttab.active:hover,.ubc-drawer-ttab.active:focus-visible{background:#2B2B2B;border:1px solid #2B2B2B;color:#FFFFFF}
 .ubc-drawer-ttab:focus-visible{outline:1px solid #2F67C7;outline-offset:0}
-.ubc-drawer-ttab:active,.ubc-drawer-ttab.active:active{transform:none;opacity:1;filter:none;background:#F4E8D6;border:1px solid #4A4A4A;color:#2F2F2F}
-.ubc-drawer-ttab:not(.active):active,.ubc-drawer-ttab:not(.active):hover:active{transform:none;opacity:1;filter:none;background-color:#FFF9F0;border:1px solid transparent;color:#2F2F2F}
+.ubc-drawer-ttab:active,.ubc-drawer-ttab.active:active{transform:none;opacity:1;filter:none;background:#2B2B2B;border:1px solid #2B2B2B;color:#FFFFFF}
+.ubc-drawer-ttab:not(.active):active,.ubc-drawer-ttab:not(.active):hover:active{transform:none;opacity:1;filter:none;background-color:#F6F7F9;border:1px solid #C9CFD6;color:#1F2933}
 .unified-bc-ttab:active{transform:none;opacity:1;filter:none;background-color:#E8F0FC}
 .unified-bc-ttab:not(.active):active{background-color:#fff;border-color:rgba(61,40,24,.16);color:#3d2818}
 .ubc-book-list{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;gap:4px;width:100%;margin:0;padding:0;border:none;background:transparent;outline:none;overflow-x:hidden;overflow-y:auto;touch-action:pan-y;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
 .ubc-book-list:focus,.ubc-book-list:focus-visible{outline:none;box-shadow:none;border:none}
 .ubc-book-list::-webkit-scrollbar{width:0;height:0;display:none}
-.ubc-book-row{width:100%;min-height:44px;padding:8px 4px;box-sizing:border-box;border:1px solid transparent;border-radius:0;background:transparent;color:#1F1F1F;font-family:inherit;font-size:14px;font-weight:600;text-align:left;white-space:normal;overflow:visible;text-overflow:clip;word-break:keep-all;overflow-wrap:break-word;line-height:1.25;cursor:pointer;box-shadow:none;-webkit-tap-highlight-color:transparent}
-.ubc-book-row.is-cur{background:rgba(228,208,168,.62);border:1px solid rgba(217,170,62,.28);border-radius:6px;color:#1F1F1F;font-weight:700;box-shadow:none}
+/* 책 이름은 66권 전부 같은 16px을 쓴다. 긴 이름만 줄이는 예외는 두지 않는다.
+   목록이 잘리는 한계선은 목록칸 오른쪽 끝 388px이고 글자는 카드 왼쪽 테두리·padding
+   뒤 328px에서 시작하므로 한 줄에 쓸 수 있는 폭은 60px = 16px 기준 네 글자(55.4px)다.
+   그래서 다섯 글자 이상 붙어 있는 이름은 표시용 이름 쪽에서 네 글자마다 줄바꿈 지점을
+   넣어 줄을 나눈다(글자 크기는 그대로).
+   좌우 7px = 테두리까지 합쳐 글자 앞 8px.
+   overflow-wrap:normal = 줄바꿈은 표시용 이름에 넣은 \u200B 자리에서만 일어난다.
+   display:flex 중앙 정렬 = 두 줄 이름이 44px 행 아래로 흘러내리지 않게만 잡아주고
+   행 높이(44px)와 카드 사이 간격(4px)은 그대로 둔다. */
+.ubc-book-row{width:100%;min-height:44px;padding:8px 7px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-start;border:1px solid transparent;border-radius:0;background:transparent;color:#1F1F1F;font-family:inherit;font-size:16px;font-weight:600;text-align:left;white-space:normal;overflow:visible;text-overflow:clip;word-break:keep-all;overflow-wrap:normal;line-height:1.25;cursor:pointer;box-shadow:none;-webkit-tap-highlight-color:transparent}
+.ubc-book-row.is-cur{position:relative;isolation:isolate;background:var(--gm-select-base);border:1px solid #D5D7DA;border-radius:6px;color:#252525;font-weight:700;box-shadow:var(--gm-select-edge-fade)}
+/* 강조는 row 카드 외곽이 담당한다. 제목 span에는 어떤 배경·테두리·그림자도 주지 않는다. */
+.ubc-book-name{display:inline-block;max-width:100%}
+.ubc-book-row.is-cur .ubc-book-name{background:none;border:0;border-radius:0;box-shadow:none;padding:0}
+/* 장 선택 카드는 누른 책 이름 바로 아래에 흐름대로 들어가서 아래 책 이름들을 밀어내고,
+   좁은 서랍 폭에 갇히지 않도록 본문 쪽(왼쪽)으로만 넓어진다.
+   서랍 안 스크롤 상자가 잘라내지 못하게 상자 자체를 왼쪽으로 넓히고(--ubc-ch-ext),
+   흰 서랍 면은 ::before 로 원래 폭(--ubc-drawer-w)만 그려서 책 목록 모습은 그대로 둔다.
+   카드가 펼쳐져 있을 때만(.unified-bc-overlay--chexpand) 적용된다. */
+/* --ubc-ch-left-gap 14px = 본문 틀 왼쪽에서 카드 테두리까지. 본문 절 카드가 틀 왼쪽에서
+   16px(마우스 환경 기준선)에 서므로 상자 padding 2px를 더해 카드 왼쪽선이 본문 카드
+   왼쪽선과 맞고, 화면이 틀보다 좁은 iPhone에서도 바깥 여백 16px가 남는다. */
+.unified-bc-overlay.unified-bc-overlay--drawer.unified-bc-overlay--chexpand{--ubc-ch-left-gap:14px;--ubc-ch-ext:max(0px, calc(var(--ubc-frame-w) - var(--ubc-drawer-gap-right) - var(--ubc-ch-left-gap) - var(--ubc-drawer-w)))}
+.unified-bc-overlay.unified-bc-overlay--drawer.unified-bc-overlay--chexpand .unified-bc-box{left:calc(50% + (var(--ubc-frame-w)/2) - var(--ubc-drawer-gap-right) - var(--ubc-drawer-w) - var(--ubc-ch-ext));width:calc(var(--ubc-drawer-w) + var(--ubc-ch-ext));min-width:calc(var(--ubc-drawer-w) + var(--ubc-ch-ext));max-width:calc(var(--ubc-drawer-w) + var(--ubc-ch-ext));background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;pointer-events:none!important}
+.unified-bc-overlay--chexpand .unified-bc-box::before{content:'';position:absolute;top:0;right:0;bottom:0;z-index:0;width:var(--ubc-drawer-w);background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:-10px 0 24px rgba(15,23,42,.07);pointer-events:none}
+/* 서랍 면은 배경으로만 깔리고 책 이름·장 카드가 그 위에 온다. */
+.unified-bc-overlay--chexpand .unified-bc-body{position:relative;z-index:1}
+/* 스크롤 상자는 손가락이 어디에 닿아도 받아야 한다(책 이름 사이 빈 줄 포함).
+   포인터 이벤트를 끄면 그 자리에서 시작한 터치가 목록을 찾지 못해 스크롤이 막힌다.
+   넓어진 상자의 빈 왼쪽은 본문 자리이므로 '탭'만 unifiedBcOnDrawerBlankClick 이 바깥 탭으로 처리한다. */
+.unified-bc-overlay--chexpand .unified-bc-body,.unified-bc-overlay--chexpand .ubc-book-list{pointer-events:auto}
+/* 책 이름·구약/신약 탭은 원래 서랍 폭 안에 오른쪽으로 붙여 위치를 그대로 지킨다. */
+.unified-bc-overlay--chexpand .ubc-drawer-ttabs{width:calc(var(--ubc-drawer-w) - 4px);margin:0 0 6px auto}
+.unified-bc-overlay--chexpand .ubc-book-row{width:calc(var(--ubc-drawer-w) - 4px);margin-left:auto}
+/* 카드는 머리줄(작은 절 선택·장으로 버튼)과 숫자 판으로 나뉜다.
+   카드 안에는 따로 스크롤을 두지 않는다: 책 이름·카드·다음 책이 책 목록이라는
+   하나의 세로 스크롤 안에서 같이 움직여야 손가락으로 카드 위를 밀 때도 목록이 따라온다. */
+.ubc-book-chapters{flex:0 0 auto;display:flex;flex-direction:column;gap:6px;width:100%;margin:2px 0 4px;padding:8px;box-sizing:border-box;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:12px;box-shadow:-10px 0 24px rgba(15,23,42,.07);overflow:visible;touch-action:pan-y}
+.ubc-chcard-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:26px}
+.ubc-chcard-label{flex:1 1 auto;min-width:0;color:#6B7280;font-family:inherit;font-size:12px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ubc-chcard-btn{flex:0 0 auto;height:26px;padding:0 10px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;border:1px solid #D8DCE2;border-radius:999px;background:#FFFFFF;color:#4B5563;font-family:inherit;font-size:12px;font-weight:600;line-height:1;white-space:nowrap;cursor:pointer;box-shadow:none;touch-action:pan-y;-webkit-tap-highlight-color:transparent}
+.ubc-chcard-btn:hover,.ubc-chcard-btn:focus-visible{background:#F6F7F9;border-color:#C9CFD6;color:#374151}
+.ubc-chcard-btn:active{transform:none;opacity:1;filter:none;background:#F1F2F5;border-color:#C9CFD6;color:#374151}
+.ubc-chcard-grid{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:9px;overflow:visible;touch-action:pan-y}
+.ubc-book-chapter{min-width:0;height:46px;padding:0 2px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border:1px solid #D6DAE0;border-radius:10px;background:#FFFFFF;color:#1F1F1F;font-family:inherit;font-size:15px;font-weight:600;line-height:1;cursor:pointer;box-shadow:none;touch-action:pan-y;-webkit-tap-highlight-color:transparent}
+.ubc-book-chapter.is-cur{background:rgba(228,208,168,.62);border-color:rgba(217,170,62,.28);font-weight:700}
+.ubc-book-chapter:hover,.ubc-book-chapter:focus-visible{background:#FFFFFF;border-color:#C9CFD6;color:#1F1F1F}
+.ubc-book-chapter.is-cur:hover,.ubc-book-chapter.is-cur:focus-visible{background:rgba(228,208,168,.62);border-color:rgba(217,170,62,.28)}
+.ubc-book-chapter:active,.ubc-book-chapter.is-cur:active{transform:none;opacity:1;filter:none;background:rgba(228,208,168,.62);border-color:rgba(217,170,62,.28);color:#1F1F1F}
 .ubc-book-row:hover{background:transparent;border-color:transparent;color:#1F1F1F}
-.ubc-book-row.is-cur:hover{background:rgba(228,208,168,.62);border-color:rgba(217,170,62,.28);color:#1F1F1F}
+.ubc-book-row.is-cur:hover{background:var(--gm-select-base);border-color:#D5D7DA;color:#252525}
 .ubc-book-row:focus,.ubc-book-row:focus-visible{outline:1px solid rgba(217,170,62,.28);outline-offset:1px;color:#1F1F1F;background:transparent}
-.ubc-book-row.is-cur:focus,.ubc-book-row.is-cur:focus-visible{background:rgba(228,208,168,.62);border-color:rgba(217,170,62,.28);color:#1F1F1F}
-.ubc-book-row:active,.ubc-book-row.is-cur:active{transform:none;opacity:1;filter:none;background:rgba(228,208,168,.62);border-color:rgba(217,170,62,.28);color:#1F1F1F}
+.ubc-book-row.is-cur:focus,.ubc-book-row.is-cur:focus-visible{background:var(--gm-select-base);border-color:#D5D7DA;color:#252525}
+.ubc-book-row:active,.ubc-book-row.is-cur:active{transform:none;opacity:1;filter:none;background:var(--gm-select-base);border-color:#D5D7DA;color:#252525}
 .ubc-book-row:not(.is-cur):active{background:transparent;border-color:transparent;color:#1F1F1F}
 .unified-bc-all-testament-title{font-size:15px;font-weight:700;color:#3d2818;text-align:left;margin:4px 0 12px}
 .unified-bc-all-testament-title:not(:first-child){margin-top:26px}
@@ -1932,27 +2034,27 @@ html.unified-bc-lock-scroll body{overflow:hidden;height:100%}
   .unified-bc-all-book-name{font-size:12px}
   .unified-bc-all-book-ch{font-size:10px}
 }
-/* verse-read-header — single row, 정확히 반반: 〈 title ▼ 〉 | KO ⇄ EN 🌐 */
-.verse-read-header{display:none;grid-template-columns:1fr 1fr;align-items:center;column-gap:0;background:#faf6ed;padding:8px 6px;border-bottom:0.5px solid rgba(180,140,90,.35);box-sizing:border-box;width:100%;position:sticky;top:0;z-index:90}
-/* 왼쪽 50%: 이전 장·현재 권장·다음 장을 서로 가깝게 둔다. 공용 외곽 상자·배경은 두지 않는다. */
-.verse-read-nav-group{display:flex;align-items:center;gap:2px;min-width:0;position:relative;z-index:2}
-/* 가장 긴 이름(데살로니가전서 5장)까지 16px 그대로 다 보이도록 화살표의 보이는 폭과
-   제목 좌우 여백을 최소로 줄인다. 터치 영역은 ::after로 44x44를 유지한다. */
-.verse-read-nav-group .verse-read-nav-btn{position:relative;width:22px;min-width:22px}
-.verse-read-nav-group .verse-read-nav-btn::after{content:"";position:absolute;top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%)}
-/* 제목이 화살표의 넓힌 터치 영역보다 위에 오게 해 이름·▼ 탭이 장 이동으로 새지 않게 한다. */
+/* verse-read-header — single row: 책이름 장:절 [KRV] | KO ⇄ EN 🌐
+   오른쪽 칸은 다국어 카드 폭 + 오른쪽 기준선 여백만 차지하고, 남은 폭이 제목 칸이다.
+   덕분에 카드 오른쪽 끝이 책 서랍 왼쪽선과 같은 세로선에 서고 제목은 그 앞에서 멈춘다. */
+.verse-read-header{display:none;grid-template-columns:1fr auto;align-items:center;column-gap:0;background:#FBFBFC;padding:8px 6px;border-bottom:0.5px solid #ECEEF1;box-sizing:border-box;width:100%;position:sticky;top:0;z-index:90}
+/* 왼쪽 칸: 현재 위치(책이름 장:절)와 번역본 배지를 하나의 inline group으로 둔다.
+   화살표·▼는 두지 않고, 공용 외곽 상자·배경도 없다. */
+.verse-read-nav-group{display:flex;align-items:center;gap:7px;min-width:0;position:relative;z-index:2}
+/* 현재 위치 그룹(책이름 장:절 + KRV)만 오른쪽으로 약 3mm 물러난다. 그룹 오른쪽 끝은 그리드 칸
+   그대로이므로 다국어 카드는 움직이지 않고, margin이라 세로 위치도 그대로다. */
+#verseReadNavGroup{--gm-reader-loc-shift:12px;margin-left:var(--gm-reader-loc-shift)}
+/* 가장 긴 이름(데살로니가전서 1:1)까지 16px 그대로 다 보이도록 제목 좌우 여백을 최소로 줄인다. */
 .verse-read-nav-group .verse-read-title{position:relative;z-index:1;min-height:44px;padding-left:0;padding-right:0;flex:0 1 auto}
-.verse-read-nav-btn{width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:none;background:transparent;color:#5a3818;cursor:pointer;font-family:inherit;border-radius:8px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .15s ease, opacity .15s ease}
-/* 아이콘만 약 30% 축소(12px→8px). 버튼 터치 영역 44×44는 유지 */
-.verse-read-nav-btn::before{content:"";display:block;width:8px;height:8px;border-style:solid;border-color:currentColor;border-width:0 2px 2px 0;flex-shrink:0}
-.verse-read-prev::before{transform:rotate(135deg)}
-.verse-read-next::before{transform:rotate(-45deg)}
-.verse-read-nav-btn:disabled{opacity:0.35;cursor:default}
 .verse-read-title{min-width:0;border:none;background:transparent;font-size:16px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit;padding:8px 6px;display:flex;align-items:center;justify-content:flex-start;gap:0;border-radius:8px;-webkit-tap-highlight-color:transparent}
 .verse-read-title:hover{background:rgba(200,152,73,.15)}
 .verse-read-title:active{background:rgba(200,152,73,.22)}
 .verse-read-title-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.verse-read-caret{font-size:14px;color:#B8860B;margin-left:4px;flex-shrink:0;font-weight:600}
+/* 번역본 배지: 제목과 같은 줄 가운데 정렬. 제목보다 작은 보조 정보이므로 연한 중성 회색 사각 카드다. */
+.verse-read-version{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 10px;box-sizing:border-box;border:1px solid #E1E3E7;border-radius:9px;background:#F1F2F4;color:#2B2B2B;font-size:13px;font-weight:700;line-height:1;letter-spacing:.02em;white-space:nowrap;flex:0 0 auto}
+.verse-read-version:empty{display:none}
+/* 다국어 카드 오른쪽 끝 = 책 서랍 왼쪽선(--reader-rail-w). 헤더 오른쪽 padding 6px을 뺀 만큼 당긴다. */
+.verse-read-header .gomna-reader-lang-bridge-host{justify-self:end;margin-right:calc(var(--reader-rail-w) - 6px)}
 .verse-read-more-overlay{display:none;position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.4);align-items:flex-end;justify-content:center;box-sizing:border-box}
 .verse-read-more-overlay.active{display:flex}
 .verse-read-more-sheet{background:#faf6ed;border-radius:16px 16px 0 0;width:100%;max-width:480px;margin:0 auto;box-shadow:0 -4px 24px rgba(0,0,0,.12);overflow:hidden}
@@ -1994,7 +2096,7 @@ html.plain-verse-gesture-active body{
 }
 #verseGestureSurface > #verseReadHeader.verse-read-header{
   display:grid!important;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr auto;
   grid-template-rows:auto;
   position:relative!important;
   top:auto!important;
@@ -2189,21 +2291,41 @@ html.unified-bc-gesture-engine-active #unifiedBcGestureSurface [onclick]{
   --gm-ink:#3d2818;
   --gm-gold:#8b5e2c;
   --gm-gold-deep:#6e4a1f;
-  --gm-cream:#F6EBD2;
+  --gm-cream:#F7F8FA;
   --gm-champagne:rgba(246,235,210,.94);
   --reader-frame-width:420px;
+  /* 오른쪽 세로 기준선: 프레임 오른쪽 끝에서 이만큼 안쪽이 책 서랍의 왼쪽선이고,
+     상단 다국어 카드의 오른쪽 끝도 같은 선에 선다. 글자 배율이 커지면 서랍이
+     넓어져야 하므로 기준선도 같은 식으로 함께 움직인다. */
+  --reader-rail-w:max(104px, calc(60px * var(--gomna-text-scale, 1) + 12px));
+  /* 상단 다국어 카드와 책 서랍의 구약/신약 줄은 같은 자리를 번갈아 쓰는 교대 UI다.
+     둘의 윗선(--reader-rail-top)과 오른쪽선(프레임 오른쪽에서 --reader-rail-right 안쪽)을
+     한 기준으로 묶어 열고 닫을 때 자리가 튀지 않게 한다.
+     top 13px = 헤더 위 padding 8px + 줄 높이 44px 안에서 카드 34px 중앙 5px.
+     right 2px = 서랍 본문 좌우 padding 2px(= 신약 버튼 오른쪽 끝). */
+  --reader-rail-top:13px;
+  --reader-rail-right:2px;
   --scripture-dock-height:68px;
   --scripture-dock-gap:10px;
   --reader-dock-top-height:54px;
   --opt4-bottom-bar-height:60px;
   --scripture-dock-inactive:#6A4A2E;
   --scripture-dock-active-color:#8A5A22;
+  /* 선택 강조는 카드 전체를 기준으로 한다. 중앙 대부분은 원바탕색이고, 네 변과 모서리에서
+     안쪽 약 3mm(12px)만 어두운 중성 회색이 되며 안쪽으로 갈수록 부드럽게 밝아진다.
+     inset box-shadow를 겹치면 border-radius를 그대로 따라가므로 모서리도 같은 두께로 페이드된다. */
+  --gm-select-base:#FBFBFC;
+  --gm-select-edge:#BEC3C8;
+  /* 같은 회색 하나를 불투명도만 낮춰 겹치므로 색 단계가 생기지 않는다. 제 색이 나오는 진한 띠는
+     가장자리 2mm(7~8px) 안쪽까지만이고, 그 뒤로는 10% 수준까지 길게 풀려 중앙 원바탕색으로 이어진다. */
+  --gm-select-edge-rgb:190,195,200;
+  --gm-select-edge-fade:inset 0 0 4px 2px rgba(var(--gm-select-edge-rgb),.92),inset 0 0 8px 5px rgba(var(--gm-select-edge-rgb),.5),inset 0 0 11px 9px rgba(var(--gm-select-edge-rgb),.22),inset 0 0 13px 12px rgba(var(--gm-select-edge-rgb),.08);
 }
 /* Premium Scripture Dock — v72 official UI on all reader.html viewports */
 .scripture-dock{display:none}
 .reader-dock-top{display:none}
   html.reader-hide-chrome .phone-frame{
-    background:linear-gradient(180deg,#F0E4CD 0%,#EBDDC2 100%);
+    background:#F7F8FA;
     min-height:0;
     overflow:visible;
   }
@@ -2261,11 +2383,11 @@ html.unified-bc-gesture-engine-active #unifiedBcGestureSurface [onclick]{
     gap:2px;
     padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));
     box-sizing:border-box;
-    background:rgba(244,232,205,.88);
+    background:rgba(251,251,252,.94);
     backdrop-filter:blur(18px) saturate(125%);
     -webkit-backdrop-filter:blur(18px) saturate(125%);
-    border-top:.5px solid rgba(200,170,120,.38);
-    box-shadow:0 -1px 0 rgba(255,252,245,.55) inset;
+    border-top:.5px solid #E5E7EB;
+    box-shadow:0 -1px 0 rgba(15,23,42,.04) inset;
   }
   html.reader-hide-chrome .scripture-dock-item{
     flex:1;
@@ -2321,7 +2443,8 @@ html.unified-bc-gesture-engine-active #unifiedBcGestureSurface [onclick]{
   }
   html.reader-hide-chrome .scripture-dock-item.active{
     color:var(--gm-gold-deep);
-    background:rgba(234,216,176,.52);
+    background:var(--gm-select-base);
+    box-shadow:var(--gm-select-edge-fade);
   }
   html.reader-hide-chrome .scripture-dock-item.active .scripture-dock-label{
     font-weight:600;
@@ -2344,8 +2467,8 @@ html.unified-bc-gesture-engine-active #unifiedBcGestureSurface [onclick]{
     justify-content:space-between;
     gap:12px;
     padding:10px 12px 8px;
-    background:rgba(244,232,205,.72);
-    border-bottom:.5px solid rgba(200,170,120,.28);
+    background:rgba(251,251,252,.92);
+    border-bottom:.5px solid #ECEEF1;
     position:sticky;
     top:0;
     z-index:89;
@@ -2379,9 +2502,9 @@ html.unified-bc-gesture-engine-active #unifiedBcGestureSurface [onclick]{
     min-height:44px;
     min-width:44px;
     margin:0;
-    padding:0 12px;
+    padding:0 7px;
     border-radius:999px;
-    border:0.5px solid #E0D6CC;
+    border:0.5px solid #E5E7EB;
     background:#FFFFFF;
     color:#3D2817;
     font-family:inherit;
@@ -2437,7 +2560,7 @@ html.unified-bc-gesture-engine-active #unifiedBcGestureSurface [onclick]{
     height:100%;
     min-height:34px;
     margin:0;
-    padding:0 12px;
+    padding:0 7px;
     border:1px solid transparent;
     border-radius:14px;
     background:#F3E6CE;
@@ -2540,7 +2663,33 @@ html.reader-hide-chrome .scripture-dock{
   }
   html.reader-hide-chrome .scripture-dock-item.active{
     color:var(--scripture-dock-active-color);
-    background:rgba(228,208,168,.62);
+    position:relative;
+    isolation:isolate;
+    background:var(--gm-select-base);
+    box-shadow:var(--gm-select-edge-fade);
+    border:1px solid #D5D7DA;
+    /* 테두리 1px만큼 padding을 줄여 항목 높이(46px)와 아이콘·글씨 위치를 그대로 둔다. */
+    padding:5px 3px 3px;
+  }
+  /* 강조는 버튼 카드 외곽이 담당한다. 아이콘·글씨 묶음에는 배경·테두리·그림자를 주지 않는다. */
+  html.reader-hide-chrome .scripture-dock-surface{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+    min-width:0;
+  }
+  html.reader-hide-chrome .scripture-dock-item.active .scripture-dock-surface{
+    background:none;
+    border:0;
+    border-radius:0;
+    padding:0;
+    box-shadow:none;
+  }
+  html.reader-hide-chrome .scripture-dock-item.active:active{
+    background:var(--gm-select-base);
+    box-shadow:var(--gm-select-edge-fade);
   }
   html.reader-hide-chrome .scripture-dock-item.active .scripture-dock-icon,
   html.reader-hide-chrome .scripture-dock-item.active .scripture-dock-label{
@@ -2590,11 +2739,15 @@ html.reader-hide-chrome .scripture-dock{
     box-shadow:none;
     border-bottom:none;
   }
-html.reader-verse-active #opt4BottomBar.opt4-bottom-bar{
-  transition:transform 220ms ease,opacity 220ms ease;
+html.reader-verse-active #opt4BottomBar.opt4-bottom-bar,
+html.ubc-rail-drawer #opt4BottomBar.opt4-bottom-bar,
+html.reader-hide-chrome .scripture-dock{
+  transition:transform 200ms ease,opacity 190ms ease;
 }
 @media (prefers-reduced-motion:reduce){
-  html.reader-verse-active #opt4BottomBar.opt4-bottom-bar{transition:none}
+  html.reader-verse-active #opt4BottomBar.opt4-bottom-bar,
+  html.ubc-rail-drawer #opt4BottomBar.opt4-bottom-bar,
+  html.reader-hide-chrome .scripture-dock{transition:none}
 }
 #opt4BottomBar.is-scroll-hidden{
   transform:translate3d(0,100%,0)!important;
@@ -2604,6 +2757,27 @@ html.reader-verse-active #opt4BottomBar.opt4-bottom-bar{
 @media (min-width:481px){
   html.reader-hide-chrome.reader-verse-active #opt4BottomBar.is-scroll-hidden{
     transform:translate3d(-50%,100%,0)!important;
+  }
+}
+/* 책·장 서랍이 열려 있는 동안(html.ubc-rail-drawer)에는 성경 버튼이 있는 하단 내비(#scriptureDock)와
+   그 위 기능 바(#opt4BottomBar)를 하단 카드 한 덩어리로 함께 아래로 내려 보낸다.
+   둘 다 position:fixed 레이어라 본문 높이·스크롤에는 영향이 없고,
+   서랍이 닫히면 클래스가 빠지며 같은 transition으로 제자리로 올라온다.
+   #scriptureDock은 항상 translateX(-50%)로 가운데 정렬돼 있어 X값을 유지한다. */
+html.ubc-rail-drawer #opt4BottomBar.opt4-bottom-bar,
+html.ubc-rail-drawer #scriptureDock.scripture-dock{
+  opacity:0!important;
+  pointer-events:none!important;
+}
+html.ubc-rail-drawer #opt4BottomBar.opt4-bottom-bar{
+  transform:translate3d(0,110%,0)!important;
+}
+html.ubc-rail-drawer #scriptureDock.scripture-dock{
+  transform:translate3d(-50%,110%,0)!important;
+}
+@media (min-width:481px){
+  html.reader-hide-chrome.ubc-rail-drawer #opt4BottomBar.opt4-bottom-bar{
+    transform:translate3d(-50%,110%,0)!important;
   }
 }
   html.reader-hide-chrome.reader-verse-active main.content{
@@ -2826,7 +3000,7 @@ html.reader-hide-chrome #favView.active #favResultsArea{
 /* 배경을 반투명으로 두면 홈·Reader의 로고와 카드가 그대로 비쳐서
    로그인 화면이 독립된 화면으로 보이지 않았다. 불투명 아이보리로 완전히 덮는다.
    position:fixed·inset:0은 위 .popup-overlay 규칙에서 이미 온다. */
-.login-overlay{z-index:10000;padding:16px;box-sizing:border-box;background:#F6F2EA;overscroll-behavior:contain}
+.login-overlay{z-index:10000;padding:16px;box-sizing:border-box;background:#F7F8FA;overscroll-behavior:contain}
 .login-box{
   position:relative;
   width:100%;
@@ -2834,7 +3008,7 @@ html.reader-hide-chrome #favView.active #favResultsArea{
   max-height:calc(100vh - 32px);
   max-height:calc(100dvh - 32px);
   padding:26px 22px 18px;
-  background:#FFFDF8;
+  background:#F7F8FA;
   border:1px solid rgba(151,105,53,.18);
   border-radius:22px;
   box-shadow:0 18px 44px rgba(92,64,32,.22);
@@ -3148,7 +3322,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
    내용이 화면보다 길어지는 짧은 기기에서는 상자의 overflow-y:auto로 스크롤된다.
    시트가 아니게 되었으므로 위쪽 .login-sheet-handle{display:none}이 그대로 적용된다. */
 @media (max-width:600px){
-  .login-overlay{padding:0;align-items:stretch;background:#FFFDF8}
+  .login-overlay{padding:0;align-items:stretch;background:#F7F8FA}
   .login-box{
     max-width:none;
     /* 위 여백을 아래 여백보다 크게 두어 세로 가운데 정렬의 기준점을 아래로 내린다.
@@ -3597,11 +3771,10 @@ if ("serviceWorker" in navigator) {
   </header>
   <nav id="verseReadHeader" class="verse-read-header" style="display:none" aria-label="읽기 헤더">
     <div class="verse-read-nav-group" id="verseReadNavGroup">
-      <button type="button" class="verse-read-nav-btn verse-read-prev" id="verseReadPrevBtn" onclick="prevChapter()" aria-label="이전 장"></button>
       <button type="button" class="verse-read-title" id="verseReadTitleBtn" onclick="openScriptureQuickMove()" aria-label="책·장 선택">
-        <span class="verse-read-title-text" id="verseReadTitleText"></span><span class="verse-read-caret" aria-hidden="true">▼</span>
+        <span class="verse-read-title-text" id="verseReadTitleText"></span>
       </button>
-      <button type="button" class="verse-read-nav-btn verse-read-next" id="verseReadNextBtn" onclick="nextChapter()" aria-label="다음 장"></button>
+      <span class="verse-read-version notranslate" id="verseReadVersionBadge" translate="no"></span>
     </div>
     <div id="gomnaReaderLangBridge" class="gomna-reader-lang-bridge-host notranslate" translate="no" hidden></div>
   </nav>
@@ -3617,7 +3790,7 @@ if ("serviceWorker" in navigator) {
   <div id="unifiedBookChapterModal" class="unified-bc-overlay" aria-hidden="true" role="dialog" aria-modal="true" onclick="if(event.target===this)unifiedBcOnOverlayClick()">
     <div class="unified-bc-box" onclick="event.stopPropagation()">
       <div class="unified-bc-head" id="unifiedBcHead"></div>
-      <div class="unified-bc-body" id="unifiedBcBody"></div>
+      <div class="unified-bc-body" id="unifiedBcBody" onclick="unifiedBcOnDrawerBlankClick(event)"></div>
       <div class="unified-bc-footer" id="unifiedBcFooter"></div>
       <div class="unified-bc-cat-sheet" id="unifiedBcCatSheet" aria-hidden="true" onclick="if(event.target===this)unifiedBcCloseCatSheet()">
         <div class="unified-bc-cat-sheet-box" onclick="event.stopPropagation()">
@@ -3654,26 +3827,11 @@ if ("serviceWorker" in navigator) {
     <div class="view" id="verseView"></div>
   </main>
   <nav id="scriptureDock" class="scripture-dock" aria-label="주 메뉴">
-    <button type="button" class="scripture-dock-item" data-dock="home" onclick="handleScriptureDock('home')" aria-label="홈">
-      <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg></span>
-      <span class="scripture-dock-label">홈</span>
-    </button>
-    <button type="button" class="scripture-dock-item active" data-dock="bible" onclick="handleScriptureDock('bible')" aria-label="성경">
-      <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:1.8"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg></span>
-      <span class="scripture-dock-label">성경</span>
-    </button>
-    <button type="button" class="scripture-dock-item" data-dock="find" onclick="handleScriptureDock('find')" aria-label="쉬운찾기" title="쉬운찾기">
-      <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m18 18-3.5-3.5"/></svg></span>
-      <span class="scripture-dock-label">쉬운찾기</span>
-    </button>
-    <button type="button" class="scripture-dock-item" data-dock="archive" onclick="handleScriptureDock('archive')" aria-label="보관함">
-      <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></span>
-      <span class="scripture-dock-label">보관함</span>
-    </button>
-    <button type="button" class="scripture-dock-item" data-dock="my" onclick="handleScriptureDock('my')" aria-label="MY">
-      <span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg></span>
-      <span class="scripture-dock-label">MY</span>
-    </button>
+    <button type="button" class="scripture-dock-item" data-dock="home" onclick="handleScriptureDock('home')" aria-label="홈"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg></span><span class="scripture-dock-label">홈</span></span></button>
+    <button type="button" class="scripture-dock-item active" data-dock="bible" onclick="handleScriptureDock('bible')" aria-label="성경"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:1.8"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg></span><span class="scripture-dock-label">성경</span></span></button>
+    <button type="button" class="scripture-dock-item" data-dock="find" onclick="handleScriptureDock('find')" aria-label="쉬운찾기" title="쉬운찾기"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m18 18-3.5-3.5"/></svg></span><span class="scripture-dock-label">쉬운찾기</span></span></button>
+    <button type="button" class="scripture-dock-item" data-dock="archive" onclick="handleScriptureDock('archive')" aria-label="보관함"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></span><span class="scripture-dock-label">보관함</span></span></button>
+    <button type="button" class="scripture-dock-item" data-dock="my" onclick="handleScriptureDock('my')" aria-label="MY"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg></span><span class="scripture-dock-label">MY</span></span></button>
   </nav>
   <nav id="opt4BottomBar" class="opt4-bottom-bar" aria-label="장 이동 및 절 도구">
     <div id="opt4ChapterBar" class="opt4-bar-mode">
@@ -4536,9 +4694,12 @@ function showBibleTabPassage(place) {
   syncScriptureDockActive('bible');
 }
 
+/* 하단 '성경' 버튼은 책 선택 입구다. 본문이 이미 떠 있으면 오른쪽 서랍을 책 목록으로 열고,
+   본문이 없으면 먼저 읽던 자리를 복구한다(장·절 찾기는 하단 현재 위치 버튼이 담당). */
 function openBibleTabInReader() {
   if (isBibleTextReady()) {
     syncScriptureDockActive('bible');
+    openUnifiedBookChapterModal({ step: 'books' });
     return;
   }
   showBibleTabPassage(resolveBibleTabPlace());
@@ -4814,12 +4975,34 @@ function applyNavigationFromQuery() {
   showBibleTabPassage(resolveBibleTabPlace());
 }
 
+/* 홈 이어보기(읽기·듣기·최근) 진입은 본문을 감춘 채 그려지므로, 드러내는 프레임에서
+   터치 이동 엔진과 시작 절 위치를 확정한다. 감춰진 동안에는 pending 때문에
+   제스처 엔진이 꺼져 있어, 그대로 두면 나중에 켜지면서 본문 위치가 튄다. */
+function settleHomeResumeEntryOnReveal() {
+  var p;
+  var verse;
+  try { p = new URLSearchParams(location.search); } catch (e) { return; }
+  if (!/^home-resume-(read|listen|recent)$/.test(p.get('source') || '')) return;
+  if (typeof window.syncPlainVerseGestureMode === 'function') {
+    try { window.syncPlainVerseGestureMode(); } catch (eGesture) { /* ignore */ }
+  }
+  /* 기록이 잘못돼 창세기 1장으로 폴백한 경우에는 URL의 절을 다시 적용하지 않는다. */
+  if (!currentBook || currentBook.name !== (p.get('book') || '').trim()) return;
+  if (Number(currentChapter) !== parseInt(p.get('chapter'), 10)) return;
+  verse = parseInt(p.get('verse') || p.get('verseStart') || '', 10);
+  if (isNaN(verse) || verse <= 1) return;
+  if (!document.querySelector('#verseList .verse-item[data-verse="' + verse + '"]')) return;
+  try { scrollVerseIntoView(verse); } catch (eScroll) { /* ignore */ }
+}
+
 function runDeferredUrlNavigation() {
   function run() {
     try { applyNavigationFromQuery(); } catch (e) { document.documentElement.classList.remove('search-entry-pending'); }
     function finishRun() {
       if (document.documentElement.classList.contains('scripture-entry-pending') && typeof window.__gomnaRevealScriptureEntry === 'function') {
         window.__gomnaRevealScriptureEntry();
+        /* 같은 프레임 안에서 끝내야 중간 상태가 그려지지 않는다. */
+        try { settleHomeResumeEntryOnReveal(); } catch (eSettle) { /* ignore */ }
       }
       syncReaderNavActive();
     }
@@ -5183,6 +5366,45 @@ function formatReaderChapterLabel(n, lang, bookName) {
   if (code === 'ja') return '第' + n + '章';
   var unit = bookName ? getChapterUnit(bookName) : '장';
   return n + unit;
+}
+
+/* 상단 현재 위치는 "책이름 장:절"만 쓴다(장/절 글자·▼ 없음). */
+function formatReaderLocationLabel(bookLabel, chapter, verse) {
+  return bookLabel + ' ' + chapter + ':' + verse;
+}
+
+/* 현재 절은 새 state를 만들지 않고 기존 것을 그대로 읽는다.
+   1) 본문에서 고른 절(selectedVerseNum) 2) 절 범위 선택의 시작 절(opt4RangeStart)
+   3) 같은 책·장으로 들어온 딥링크의 verse/verseStart 4) 폴백 1절 */
+function getReaderCurrentVerseNum() {
+  var sel = parseInt(selectedVerseNum, 10);
+  if (sel >= 1) return sel;
+  var start = parseInt(opt4RangeStart, 10);
+  var end = parseInt(opt4RangeEnd, 10);
+  var partialRange = start >= 1 && (start > 1 || (end >= 1 && currentVerseCount && end < currentVerseCount));
+  if (partialRange) return start;
+  try {
+    var p = new URLSearchParams(location.search);
+    var sameBook = currentBook && currentBook.name === String(p.get('book') || '').trim();
+    var sameChapter = Number(currentChapter) === parseInt(p.get('chapter'), 10);
+    if (sameBook && sameChapter) {
+      var fromUrl = parseInt(p.get('verse') || p.get('verseStart') || '', 10);
+      if (fromUrl >= 1) return fromUrl;
+    }
+  } catch (eUrl) { /* ignore */ }
+  return start >= 1 ? start : 1;
+}
+
+/* 본문 데이터의 metadata를 읽어 실제 번역본을 표시한다(개역한글 = KRV 고정 소스). */
+function getReaderBibleVersionLabel() {
+  var meta = null;
+  try {
+    var src = (currentBook && currentBook.testament === 'old') ? oldTestamentData : newTestamentData;
+    meta = src && src.metadata ? src.metadata : null;
+  } catch (eMeta) { meta = null; }
+  if (!meta) return 'KRV';
+  if (meta.version === '개역한글' || /Korean Revised Version/i.test(String(meta.description || ''))) return 'KRV';
+  return String(meta.version || 'KRV');
 }
 
 function buildReaderChapterButtonHtml(n, opts) {
@@ -8686,7 +8908,10 @@ function updateVerseRangeBoxLabel() {
 }
 
 
-var unifiedBcState = { step: 'chapters', testament: 'old', selectedBook: null, displayChapters: 0, bookListCategory: null, dialChapter: 0, bookListTestament: 'old', bookDialIndex: 0 };
+/* 서랍은 책 목록(books)과 현재 위치 버튼용 장 다이얼(chapters) 두 화면만 쓴다.
+   openBook은 책 목록에서 장 카드를 펼쳐 둔 책 하나다(한 번에 하나만).
+   versePick은 그 카드가 절 판으로 바뀐 상태({book, chapter, stage, start})다. */
+var unifiedBcState = { step: 'chapters', testament: 'old', selectedBook: null, displayChapters: 0, bookListCategory: null, dialChapter: 0, bookListTestament: 'old', bookDialIndex: 0, openBook: null, versePick: null };
 
 function getUnifiedOldSections() {
   return [
@@ -8894,24 +9119,122 @@ function buildUnifiedBookDialHtml() {
       + pair[1] + '</button>';
   });
   html += '</div>';
-  html += '<div class="ubc-book-list" id="unifiedBcBookList" role="listbox" tabindex="0" aria-label="'
+  html += '<div class="ubc-book-list" id="unifiedBcBookList" tabindex="0" aria-label="'
     + (t === 'old' ? '구약' : '신약') + ' 책 선택">';
-  books.forEach(function(book) {
-    var isCur = ref.name === book.name && ref.testament === t;
-    html += '<button type="button" class="ubc-book-row' + (isCur ? ' is-cur' : '') + '" role="option"'
-      + ' aria-selected="' + (isCur ? 'true' : 'false') + '" aria-label="' + book.name + '"'
-      + ' data-ubc-book-name="' + book.name + '"'
-      + ' onclick="unifiedBcPickBook(\'' + book.name + '\',' + book.chapters + ',\'' + t + '\')">'
-      + unifiedBcDialBookDisplayName(book.name) + '</button>';
-  });
+  html += buildUnifiedBookListItemsHtml(t);
   html += '</div>';
   return html;
+}
+
+/* 책 목록은 그대로 두고, 펼친 책 이름 바로 다음에만 그 책의 장 버튼을 끼워 넣는다. */
+function buildUnifiedBookListItemsHtml(testament) {
+  var t = testament === 'new' ? 'new' : 'old';
+  var books = getUnifiedTestamentBooks(t);
+  var ref = unifiedBcRefBook();
+  var openBook = unifiedBcState.openBook;
+  var html = '';
+  books.forEach(function(book) {
+    var isCur = ref.name === book.name && ref.testament === t;
+    var isOpen = openBook === book.name;
+    var label = unifiedBcDialBookDisplayName(book.name);
+    html += '<button type="button" class="ubc-book-row' + (isCur ? ' is-cur' : '') + '"'
+      + ' aria-expanded="' + (isOpen ? 'true' : 'false') + '" aria-label="' + book.name + ' 장 선택"'
+      + ' data-ubc-book-name="' + book.name + '"'
+      + ' onclick="unifiedBcToggleBookChapters(\'' + book.name + '\',' + book.chapters + ',\'' + t + '\')">'
+      + '<span class="ubc-book-name">' + label + '</span></button>';
+    if (isOpen) html += buildUnifiedBookChaptersHtml(book, t);
+  });
+  return html;
+}
+
+/* 펼친 카드는 두 모습을 같은 자리에서 갈아 쓴다:
+   기본은 장 숫자 판(숫자 탭 = 그 장으로 즉시 이동)이고,
+   머리줄의 작은 '절 선택'을 누르면 같은 카드가 절 판으로 바뀐다. */
+function buildUnifiedBookChaptersHtml(book, testament) {
+  var pick = unifiedBcState.versePick;
+  if (pick && pick.book === book.name) return buildUnifiedCardVerseHtml(book, testament, pick);
+  var total = isPsalmsBook(book.name) ? Math.min(book.chapters, 150) : book.chapters;
+  /* 활성 표시는 지금 읽고 있는 책일 때만 그 장에 준다. */
+  var isReading = !!(currentBook && currentBook.name === book.name);
+  var baseCh = unifiedBcVersePickChapter(book.name, total);
+  var html = '<div class="ubc-book-chapters" role="group" data-ubc-chapters-of="' + book.name + '"'
+    + ' aria-label="' + book.name + ' 장 선택">';
+  html += '<div class="ubc-chcard-head">'
+    + '<span class="ubc-chcard-label">장 선택</span>'
+    + '<button type="button" class="ubc-chcard-btn" id="unifiedBcVersePickBtn"'
+    + ' aria-label="' + book.name + ' ' + formatReaderChapterLabel(baseCh, getReaderUiLangCode(), book.name) + ' 절 선택"'
+    + ' onclick="unifiedBcOpenVersePick()">절 선택</button>'
+    + '</div>';
+  html += '<div class="ubc-chcard-grid">';
+  for (var n = 1; n <= total; n++) {
+    var isCurCh = isReading && Number(currentChapter) === n;
+    html += '<button type="button" class="ubc-book-chapter' + (isCurCh ? ' is-cur' : '') + '"'
+      + ' data-ubc-chapter="' + n + '"'
+      + ' aria-label="' + book.name + ' ' + formatReaderChapterLabel(n, getReaderUiLangCode(), book.name) + '"'
+      + ' onclick="unifiedBcGoChapter(' + n + ')">' + n + '</button>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+/* 절 선택 기준 장: 읽고 있는 책이면 지금 장, 아니면 첫 장. */
+function unifiedBcVersePickChapter(bookName, total) {
+  var ch = 1;
+  if (currentBook && currentBook.name === bookName && Number(currentChapter) > 0) ch = Number(currentChapter);
+  if (ch > total) ch = total;
+  return ch < 1 ? 1 : ch;
+}
+
+/* 절 판은 장 판과 같은 카드·같은 버튼 크기를 쓰고 시작 절 → 끝 절만 차례로 받는다. */
+function buildUnifiedCardVerseHtml(book, testament, pick) {
+  var chLabel = formatReaderChapterLabel(pick.chapter, getReaderUiLangCode(), book.name);
+  var count = unifiedBcChapterVerseCount(book.name, pick.chapter, testament);
+  var isEnd = pick.stage === 'end' && pick.start > 0;
+  var first = isEnd ? pick.start : 1;
+  var html = '<div class="ubc-book-chapters" role="group" data-ubc-verses-of="' + book.name + '"'
+    + ' data-ubc-verse-chapter="' + pick.chapter + '" data-ubc-verse-stage="' + (isEnd ? 'end' : 'start') + '"'
+    + ' aria-label="' + book.name + ' ' + chLabel + (isEnd ? ' 끝 절 선택' : ' 시작 절 선택') + '">';
+  html += '<div class="ubc-chcard-head">'
+    + '<span class="ubc-chcard-label">' + chLabel + ' · ' + (isEnd ? '끝 절 선택' : '시작 절 선택') + '</span>'
+    + '<button type="button" class="ubc-chcard-btn" id="unifiedBcVerseBackBtn"'
+    + ' aria-label="장 선택으로 돌아가기" onclick="unifiedBcCloseVersePick()">장으로</button>'
+    + '</div>';
+  html += '<div class="ubc-chcard-grid">';
+  for (var v = first; v <= count; v++) {
+    var isCurV = isEnd && v === pick.start;
+    html += '<button type="button" class="ubc-book-chapter' + (isCurV ? ' is-cur' : '') + '"'
+      + ' data-ubc-verse="' + v + '"'
+      + ' aria-label="' + book.name + ' ' + chLabel + ' ' + v + '절 ' + (isEnd ? '끝 절' : '시작 절') + '"'
+      + ' onclick="unifiedBcPickCardVerse(' + v + ')">' + v + '</button>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+/* 읽고 있는 장이면 화면의 절 수를, 아니면 이미 불러온 성경 데이터에서 절 수를 센다
+   (절 선택 카드의 verseCountOf와 같은 자료를 본다). */
+function unifiedBcChapterVerseCount(bookName, chapter, testament) {
+  if (!bookName || !chapter) return 0;
+  if (currentBook && currentBook.name === bookName && Number(currentChapter) === Number(chapter) && currentVerseCount > 0) {
+    return currentVerseCount;
+  }
+  var data = testament === 'new' ? newTestamentData : oldTestamentData;
+  var bd = findBook(data, bookName);
+  if (!bd || !bd.chapters) return 0;
+  for (var i = 0; i < bd.chapters.length; i++) {
+    if (bd.chapters[i] && Number(bd.chapters[i].chapter) === Number(chapter) && bd.chapters[i].verses) {
+      return bd.chapters[i].verses.length;
+    }
+  }
+  return 0;
 }
 
 function unifiedBcSwitchBookTestament(testament) {
   var t = testament === 'new' ? 'new' : 'old';
   if (unifiedBcState.bookListTestament === t) return;
   unifiedBcState.bookListTestament = t;
+  unifiedBcState.openBook = null;
+  unifiedBcState.versePick = null;
   renderUnifiedModalBody();
   unifiedBcFocusBookControl('#unifiedBookChapterModal .ubc-drawer-ttab.active');
 }
@@ -8938,6 +9261,19 @@ function unifiedBcReaderFrameRight() {
 }
 
 function unifiedBcOnOverlayClick() {
+  closeUnifiedBookChapterModal();
+}
+
+/* 장 카드를 펼치면 서랍 상자가 본문 쪽으로 넓어진다. 그 왼쪽 빈 자리는 본문 자리이므로
+   탭은 바깥 탭(서랍 닫기)으로 넘기고, 스크롤은 목록이 그대로 받게 둔다. */
+function unifiedBcOnDrawerBlankClick(e) {
+  var overlay = document.getElementById('unifiedBookChapterModal');
+  if (!overlay || !overlay.classList.contains('unified-bc-overlay--chexpand')) return;
+  var t = e.target;
+  var isBlank = t === e.currentTarget || (t && t.classList && t.classList.contains('ubc-book-list'));
+  if (!isBlank) return;
+  var strip = overlay.querySelector('.ubc-book-row');
+  if (strip && e.clientX >= strip.getBoundingClientRect().left) return;
   closeUnifiedBookChapterModal();
 }
 
@@ -9125,6 +9461,7 @@ function bindUnifiedBcEdgeOpen() {
         box.style.transition = unifiedBcDrawerReduceMotion() ? 'none' : 'transform .2s ease-out';
         box.style.transform = 'translateX(0)';
       }
+      unifiedBcSyncRailState();
     } else {
       unifiedBcSwipeClose(box);
     }
@@ -9158,14 +9495,132 @@ function setupUnifiedBookDrawer() {
   unifiedBcScrollCurrentBookIntoView();
 }
 
+/* 책 이름을 누르면 그 책 아래에만 장 버튼을 펼친다. 한 번에 한 책만 펼치고,
+   같은 책을 다시 누르면 접는다. 책 목록은 사라지지 않고 아래로 밀린다. */
+function unifiedBcToggleBookChapters(name, chCount, testament) {
+  var wasOpen = unifiedBcState.openBook === name;
+  unifiedBcState.openBook = wasOpen ? null : name;
+  unifiedBcState.versePick = null;
+  unifiedBcState.selectedBook = name;
+  unifiedBcState.displayChapters = isPsalmsBook(name) ? Math.min(chCount, 150) : chCount;
+  unifiedBcState.testament = testament === 'new' ? 'new' : 'old';
+  unifiedBcRenderBookList(wasOpen ? null : name);
+}
+
+/* 목록만 다시 그려서 서랍의 스크롤 위치를 지킨다. */
+function unifiedBcRenderBookList(scrollToBook) {
+  var list = document.getElementById('unifiedBcBookList');
+  if (!list) {
+    renderUnifiedModalBody();
+    return;
+  }
+  var keep = list.scrollTop;
+  list.innerHTML = buildUnifiedBookListItemsHtml(unifiedBcState.bookListTestament);
+  list.scrollTop = keep;
+  unifiedBcSyncChapterExpandClass();
+  if (scrollToBook) unifiedBcRevealOpenChapters(list, scrollToBook);
+}
+
+/* 장 카드가 펼쳐진 동안만 서랍 상자를 왼쪽으로 넓힌다(책 목록 자리는 그대로). */
+function unifiedBcSyncChapterExpandClass() {
+  var overlay = document.getElementById('unifiedBookChapterModal');
+  if (!overlay) return;
+  var on = unifiedBcState.step === 'books' && !!unifiedBcState.openBook;
+  overlay.classList.toggle('unified-bc-overlay--chexpand', on);
+}
+
+/* 펼친 장 버튼이 목록 아래로 잘려 나가면, 책 이름이 화면에 남는 만큼만 위로 올린다. */
+function unifiedBcRevealOpenChapters(list, bookName) {
+  var row = list.querySelector('.ubc-book-row[data-ubc-book-name="' + bookName + '"]');
+  var grid = list.querySelector('.ubc-book-chapters[data-ubc-chapters-of="' + bookName + '"],'
+    + '.ubc-book-chapters[data-ubc-verses-of="' + bookName + '"]');
+  if (!row || !grid) return;
+  var listRect = list.getBoundingClientRect();
+  var over = grid.getBoundingClientRect().bottom - listRect.bottom;
+  if (over <= 0) return;
+  var room = row.getBoundingClientRect().top - listRect.top;
+  var delta = Math.min(over + 4, room);
+  if (delta > 0) list.scrollTop += delta;
+}
+
+/* 장 숫자를 누르면 그 장으로 바로 간다(기존 장 이동 함수 그대로). */
+function unifiedBcGoChapter(ch) {
+  if (!unifiedBcState.selectedBook) return;
+  unifiedBcCollapseCard();
+  unifiedBcApplyChapter(parseInt(ch, 10) || 1);
+}
+
+/* 본문으로 나가기 전에 펼친 카드를 걷어내고 서랍 폭도 원래대로 돌린다. */
+function unifiedBcCollapseCard() {
+  unifiedBcState.openBook = null;
+  unifiedBcState.versePick = null;
+  unifiedBcRenderBookList();
+}
+
+/* 절 선택은 선택 기능이다: 같은 카드 자리를 절 판으로 바꾼다. */
+function unifiedBcOpenVersePick() {
+  var name = unifiedBcState.openBook;
+  var total = unifiedBcState.displayChapters || 1;
+  if (!name) return;
+  var ch = unifiedBcVersePickChapter(name, total);
+  if (unifiedBcChapterVerseCount(name, ch, unifiedBcState.testament) < 1) return;
+  unifiedBcState.versePick = { book: name, chapter: ch, stage: 'start', start: 0 };
+  /* 같은 틀에서 내용만 바뀌게: 목록 스크롤을 건드리지 않아 카드 자리가 그대로 남는다. */
+  unifiedBcRenderBookList();
+  unifiedBcFocusBookControl('#unifiedBcVerseBackBtn');
+}
+
+/* 절 판에서 장 판으로 되돌린다(패널의 기존 되돌리기 자리). */
+function unifiedBcCloseVersePick() {
+  unifiedBcState.versePick = null;
+  unifiedBcRenderBookList();
+  unifiedBcFocusBookControl('#unifiedBcVersePickBtn');
+}
+
+/* 시작 절을 고르면 끝 절 단계로 바뀌고, 끝 절을 누르는 순간 이동한다('이동' 버튼 없음). */
+function unifiedBcPickCardVerse(v) {
+  var pick = unifiedBcState.versePick;
+  var n = parseInt(v, 10) || 1;
+  if (!pick) return;
+  if (pick.stage !== 'end' || pick.start < 1) {
+    unifiedBcState.versePick = { book: pick.book, chapter: pick.chapter, stage: 'end', start: n };
+    unifiedBcRenderBookList();
+    return;
+  }
+  unifiedBcApplyVerseRange(pick.chapter, pick.start, n < pick.start ? pick.start : n);
+}
+
+/* 장 이동 뒤 기존 절 범위 적용 함수를 그대로 이어 쓴다(절 선택 카드와 같은 순서). */
+function unifiedBcApplyVerseRange(ch, start, end) {
+  if (!unifiedBcState.selectedBook) return;
+  unifiedBcCollapseCard();
+  unifiedBcApplyChapter(parseInt(ch, 10) || 1);
+  if (typeof resetVerseViewScroll === 'function') resetVerseViewScroll();
+  if (typeof applyVerseRangeSelection === 'function') applyVerseRangeSelection(start, end);
+}
+
 function unifiedBcDialBookDisplayName(name) {
   var n = String(name || '');
+  var shown = n;
   if (n.length > 2 && (n.slice(-2) === '전서' || n.slice(-2) === '후서')) {
-    return n.slice(0, -2) + '\u200B' + n.slice(-2);
-  }
-  if (n === '예레미야애가') return '예레미야\u200B애가';
-  if (n === '요한계시록') return '요한\u200B계시록';
-  return n;
+    shown = n.slice(0, -2) + '\u200B' + n.slice(-2);
+  } else if (n === '예레미야애가') shown = '예레미야\u200B애가';
+  else if (n === '요한계시록') shown = '요한\u200B계시록';
+  else if (n === '갈라디아서') shown = '갈라디아\u200B서';
+  return unifiedBcChunkLongRuns(shown);
+}
+
+/* 서랍 한 줄에는 책 이름 네 글자까지만 들어간다(폭 60px, 글자 16px).
+   그보다 길게 붙어 있는 덩어리(데살로니가)는 네 글자마다 줄바꿈 지점을 넣어
+   줄을 나눈다. 글자 크기는 66권 모두 같게 두고 줄바꿈만 늘린다.
+   검색·이동에 쓰는 책 이름은 그대로고 화면에 보이는 이름만 나뉜다. */
+function unifiedBcChunkLongRuns(displayName) {
+  return String(displayName || '').split('\u200B').map(function (part) {
+    if (part.length <= 4) return part;
+    var chunks = [];
+    for (var i = 0; i < part.length; i += 4) chunks.push(part.slice(i, i + 4));
+    return chunks.join('\u200B');
+  }).join('\u200B');
 }
 
 function renderUnifiedModalHead() {
@@ -9208,6 +9663,7 @@ function renderUnifiedModalBody() {
     overlay.classList.add('unified-bc-overlay--drawer');
     overlay.classList.toggle('unified-bc-overlay--dial', isDial);
     overlay.classList.toggle('unified-bc-overlay--books', !isDial);
+    unifiedBcSyncChapterExpandClass();
     if (unifiedBcState.step === 'books') {
       overlay.setAttribute('aria-label', '책 선택');
       overlay.setAttribute('aria-labelledby', 'unifiedBcBookDrawerTitle');
@@ -9238,6 +9694,17 @@ function renderUnifiedModalBody() {
   bindUnifiedBcDrawerEsc();
   bindUnifiedBcEdgeOpen();
   syncUnifiedBcGestureEngine();
+  unifiedBcSyncRailState();
+}
+
+/* 서랍이 실제로 보이는 동안(peek 대기 상태 제외)에만 상단 다국어 카드를 감춘다.
+   구약/신약 줄과 카드가 같은 윗선·오른쪽선을 쓰는 교대 UI이므로 둘이 겹쳐 보이지 않게 한다. */
+function unifiedBcSyncRailState() {
+  var ov = document.getElementById('unifiedBookChapterModal');
+  var visible = !!(ov && ov.classList.contains('active')
+    && ov.classList.contains('unified-bc-overlay--drawer')
+    && !ov.classList.contains('unified-bc-overlay--peek'));
+  document.documentElement.classList.toggle('ubc-rail-drawer', visible);
 }
 
 /* 두 다이얼 모두 네이티브 스크롤로 움직이므로 모달의 pinch/pan 엔진은 쓰지 않는다. */
@@ -9261,15 +9728,6 @@ function unifiedBcGoBookList() {
   }
   if (typeof switchTab === 'function') {
     switchTab(currentBook && currentBook.testament === 'new' ? 'new' : 'old');
-  }
-}
-
-function unifiedBcBackToChapters() {
-  unifiedBcState.step = 'chapters';
-  renderUnifiedModalBody();
-  var bookBtn = document.querySelector('#unifiedBookChapterModal .unified-bc-dial-book');
-  if (bookBtn) {
-    try { bookBtn.focus({ preventScroll: true }); } catch (e) { bookBtn.focus(); }
   }
 }
 
@@ -9766,6 +10224,9 @@ function openUnifiedBookChapterModal(opts) {
   unifiedBcState.selectedBook = currentBook.name;
   unifiedBcState.displayChapters = bd ? getDisplayedChapterCount(bd) : (currentBook.chapters || 0);
   unifiedBcState.dialChapter = ubcDialClampChapter(currentChapter);
+  /* 새로 열 때는 지난 펼침·절 선택 흔적을 남기지 않는다. */
+  unifiedBcState.openBook = null;
+  unifiedBcState.versePick = null;
   if (unifiedBcState.step === 'books') unifiedBcSyncBookDialState();
   unifiedBcCloseCatSheet();
   var el = document.getElementById('unifiedBookChapterModal');
@@ -9829,6 +10290,7 @@ function closeUnifiedBookChapterModal() {
     unifiedBcCloseCatSheet();
   }
   document.documentElement.classList.remove('unified-bc-lock-scroll');
+  unifiedBcSyncRailState();
   if (restoreFocus) {
     var titleBtn = document.getElementById('verseReadTitleBtn');
     if (titleBtn && titleBtn.offsetParent !== null) {
@@ -9908,17 +10370,16 @@ function updateOpt4BottomBar() {
     var txt = document.getElementById('verseReadTitleText');
     if (txt) {
       var titleLang = typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko';
-      var u = getChapterUnit(currentBook.name);
       var bookLabel = currentBook.name;
       if ((titleLang === 'en' || titleLang === 'ja') && window.GomnaTranslateBookName) {
         try { bookLabel = window.GomnaTranslateBookName(currentBook.name, titleLang) || currentBook.name; } catch (eTitle) { /* ignore */ }
       }
-      if (titleLang === 'en') {
-        txt.textContent = bookLabel + ' ' + currentChapter;
-      } else if (titleLang === 'ja') {
-        txt.textContent = bookLabel + currentChapter + '章';
-      } else {
-        txt.textContent = currentBook.name + ' ' + currentChapter + u;
+      txt.textContent = formatReaderLocationLabel(bookLabel, currentChapter, getReaderCurrentVerseNum());
+      var badge = document.getElementById('verseReadVersionBadge');
+      if (badge) {
+        var versionLabel = getReaderBibleVersionLabel();
+        badge.textContent = versionLabel;
+        badge.setAttribute('aria-label', versionLabel === 'KRV' ? '개역한글 성경 본문' : versionLabel);
       }
       var titleBtn = document.getElementById('verseReadTitleBtn');
       if (titleBtn && (titleLang === 'en' || titleLang === 'ja')) {
@@ -9940,15 +10401,11 @@ function updateOpt4BottomBar() {
   }
   var prev = document.getElementById('opt4BottomPrev');
   var next = document.getElementById('opt4BottomNext');
-  var headerPrev = document.getElementById('verseReadPrevBtn');
-  var headerNext = document.getElementById('verseReadNextBtn');
   var data = currentBook.testament === 'old' ? oldTestamentData : newTestamentData;
   var bookData = findBook(data, currentBook.name);
   var chCount = bookData ? getDisplayedChapterCount(bookData) : (currentBook.chapters || 999);
   if (prev) prev.disabled = currentChapter <= 1;
   if (next) next.disabled = currentChapter >= chCount;
-  if (headerPrev) headerPrev.disabled = currentChapter <= 1;
-  if (headerNext) headerNext.disabled = currentChapter >= chCount;
   updateVerseToolbar();
   syncScriptureDockActive();
   if (typeof window.syncPlainVerseGestureMode === 'function') window.syncPlainVerseGestureMode();
@@ -15264,14 +15721,14 @@ right:20px;
 left:auto;
 width:340px;
 max-width:calc(100vw - 40px);
-background:rgba(255,251,240,0.96);
+background:rgba(255,255,255,0.96);
 backdrop-filter:blur(12px);
 -webkit-backdrop-filter:blur(12px);
 color:#5D4516;
 padding:18px;
 border-radius:16px;
-box-shadow:0 10px 30px rgba(139,105,20,0.25);
-border:0.5px solid rgba(184,134,11,0.3);
+box-shadow:0 10px 30px rgba(15, 23, 42, 0.16);
+border:0.5px solid #E5E7EB;
 display:none;
 z-index:9999;
 font-size:13px;
@@ -15331,8 +15788,8 @@ box-sizing:border-box;
     border-radius: 16px 16px 0 0 !important;
   }
 }
-.reader-search-bar{display:flex;gap:8px;padding:12px;align-items:center;background:#fff;border-bottom:1px solid #f0e8d8}
-.reader-search-input{flex:1;height:44px;padding:0 12px;font-size:16px;border:2px solid #B8860B;border-radius:8px;outline:none;color:#5a4a1a;background:#fffef7;-webkit-appearance:none;appearance:none}
+.reader-search-bar{display:flex;gap:8px;padding:12px;align-items:center;background:#fff;border-bottom:1px solid #ECEEF1}
+.reader-search-input{flex:1;height:44px;padding:0 12px;font-size:16px;border:2px solid #B8860B;border-radius:8px;outline:none;color:#5a4a1a;background:#FFFFFF;-webkit-appearance:none;appearance:none}
 .reader-search-input::placeholder{color:#c9b27a}
 .reader-search-input:focus{border-color:#8b6508;box-shadow:0 0 0 2px rgba(184,134,11,0.15)}
 .reader-search-btn{width:44px;height:44px;border:none;border-radius:8px;background:#B8860B;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 44px;padding:0}
