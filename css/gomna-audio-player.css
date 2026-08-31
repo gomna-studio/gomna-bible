@@ -26,7 +26,7 @@
   -webkit-backdrop-filter: blur(22px) saturate(140%);
   color: var(--cream, #faf6ed);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(250, 246, 237, 0.20);
+  border: 1px solid rgba(247, 248, 250, 0.20);
   border-radius: 18px;
   padding: 6px 9px;
   display: flex;
@@ -233,8 +233,8 @@
 .gomna-audio-commentary-header .gomna-audio-commentary-button.gomna-audio-commentary-button--active {
   color: var(--cream, #faf6ed);
   background: rgba(201, 169, 97, 0.34);
-  border-color: rgba(250, 246, 237, 0.24);
-  box-shadow: inset 0 0 0 1px rgba(250, 246, 237, 0.16);
+  border-color: rgba(247, 248, 250, 0.24);
+  box-shadow: inset 0 0 0 1px rgba(247, 248, 250, 0.16);
   opacity: 1;
 }
 
@@ -339,7 +339,7 @@ body.gomna-audio-body-padding {
   border-radius: 999px;
   font-size: 14px;
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(250, 246, 237, 0.28);
+  border: 1px solid rgba(247, 248, 250, 0.28);
   color: var(--cream, #faf6ed);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
   cursor: pointer;
@@ -383,7 +383,7 @@ body.gomna-audio-body-padding {
   border-radius: 999px;
   font-size: 11px;
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(250, 246, 237, 0.28);
+  border: 1px solid rgba(247, 248, 250, 0.28);
   color: var(--cream, #faf6ed);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
   cursor: pointer;
@@ -572,14 +572,14 @@ body.gomna-audio-body-padding {
 
 [data-theme="light"] .gomna-audio-mini-player-pc,
 [data-theme="light"] .gomna-audio-expanded-player {
-  background: #faf6ed;
+  background: #FBFBFC;
   color: #1a2a4a;
 }
 
 [data-theme="light"] .gomna-audio-mini-player {
   background: rgba(42, 26, 18, 0.54);
   color: var(--cream, #faf6ed);
-  border-color: rgba(250, 246, 237, 0.20);
+  border-color: rgba(247, 248, 250, 0.20);
   backdrop-filter: blur(22px) saturate(140%);
   -webkit-backdrop-filter: blur(22px) saturate(140%);
 }
@@ -594,7 +594,7 @@ body.gomna-audio-body-padding {
 [data-theme="dark"] .gomna-audio-mini-player {
   background: rgba(12, 18, 32, 0.58);
   color: var(--cream, #faf6ed);
-  border-color: rgba(250, 246, 237, 0.18);
+  border-color: rgba(247, 248, 250, 0.18);
   backdrop-filter: blur(22px) saturate(140%);
   -webkit-backdrop-filter: blur(22px) saturate(140%);
 }
@@ -612,7 +612,7 @@ body.gomna-audio-body-padding {
 [data-theme="dark"] .gomna-audio-btn-speed,
 [data-theme="dark"] .gomna-audio-btn-expand {
   background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(250, 246, 237, 0.28);
+  border-color: rgba(247, 248, 250, 0.28);
   color: var(--cream, #faf6ed);
 }
 
@@ -632,12 +632,12 @@ body.gomna-audio-body-padding {
 [data-theme="dark"] .gomna-audio-btn-speed,
 [data-theme="dark"] .gomna-audio-btn-expand {
   background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(250, 246, 237, 0.28);
+  border-color: rgba(247, 248, 250, 0.28);
   color: var(--cream, #faf6ed);
 }
 
 [data-theme="dark"] .gomna-audio-btn-play-pause-big {
-  background: #faf6ed;
+  background: #FBFBFC;
   color: #1a2a4a;
 }
 
@@ -938,10 +938,10 @@ body.gomna-audio-body-padding::after {
   background:
     linear-gradient(
       to top,
-      rgba(250, 246, 237, 0.98) 0%,
-      rgba(250, 246, 237, 0.94) 52%,
-      rgba(250, 246, 237, 0.72) 78%,
-      rgba(250, 246, 237, 0) 100%
+      rgba(247, 248, 250, 0.98) 0%,
+      rgba(247, 248, 250, 0.94) 52%,
+      rgba(247, 248, 250, 0.72) 78%,
+      rgba(247, 248, 250, 0) 100%
     );
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -972,10 +972,10 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
 .gomna-audio-mini-player {
   background: rgba(74, 67, 61, 0.88);
   color: #fff8ef;
-  border: 1px solid rgba(255, 248, 239, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   box-shadow:
     0 18px 42px rgba(20, 14, 10, 0.24),
-    inset 0 1px 0 rgba(255, 248, 239, 0.10);
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
   backdrop-filter: blur(18px) saturate(130%);
   -webkit-backdrop-filter: blur(18px) saturate(130%);
 }
@@ -999,9 +999,9 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
 .gomna-audio-btn-seek-forward,
 .gomna-audio-btn-speed,
 .gomna-audio-btn-expand {
-  background: rgba(255, 248, 239, 0.82);
+  background: rgba(255, 255, 255, 0.82);
   color: #4a2a1b;
-  border: 1px solid rgba(255, 248, 239, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.72);
   box-shadow:
     0 2px 8px rgba(20, 14, 10, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.45);
@@ -1016,7 +1016,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
 .gomna-audio-btn-seek-forward:focus,
 .gomna-audio-btn-speed:focus,
 .gomna-audio-btn-expand:focus {
-  background: rgba(255, 248, 239, 0.94);
+  background: rgba(255, 255, 255, 0.94);
   color: #3b2115;
 }
 
@@ -1024,10 +1024,10 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
 .gomna-audio-btn-play-pause {
   background: linear-gradient(180deg, #7a3a20 0%, #5b2a16 100%);
   color: #fff8ef;
-  border: 1px solid rgba(255, 248, 239, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow:
     0 8px 22px rgba(45, 20, 10, 0.34),
-    inset 0 1px 0 rgba(255, 248, 239, 0.14);
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
   font-weight: 800;
 }
 
@@ -1036,10 +1036,10 @@ body.gomna-audio-body-padding::after {
   background:
     linear-gradient(
       to top,
-      rgba(250, 246, 237, 1) 0%,
-      rgba(250, 246, 237, 0.98) 46%,
-      rgba(250, 246, 237, 0.82) 74%,
-      rgba(250, 246, 237, 0) 100%
+      rgba(247, 248, 250, 1) 0%,
+      rgba(247, 248, 250, 0.98) 46%,
+      rgba(247, 248, 250, 0.82) 74%,
+      rgba(247, 248, 250, 0) 100%
     );
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -1047,7 +1047,7 @@ body.gomna-audio-body-padding::after {
 
 /* 6. 하단 기본 바: 오디오 OFF 상태에서 본문 폭 기준 premium navigation */
 .opt4-bottom-bar {
-  background: rgba(255, 252, 246, 0.96);
+  background: rgba(255, 255, 255, 0.96);
   border: 1px solid rgba(201, 169, 97, 0.20);
   border-bottom: none;
   box-shadow:
@@ -1082,7 +1082,7 @@ body.gomna-audio-body-padding::after {
   border: 1px solid rgba(120, 76, 24, 0.18);
   box-shadow:
     0 6px 14px rgba(154, 105, 35, 0.16),
-    inset 0 1px 0 rgba(255, 248, 239, 0.22);
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
   text-shadow: 0 1px 1px rgba(76, 48, 18, 0.20);
 }
 
@@ -1119,7 +1119,7 @@ body[data-theme="dark"].gomna-audio-body-padding::after,
 body[data-theme="dark"] .gomna-audio-mini-player {
   background: rgba(34, 38, 46, 0.90);
   color: #fff8ef;
-  border-color: rgba(255, 248, 239, 0.20);
+  border-color: rgba(255, 255, 255, 0.20);
 }
 
 [data-theme="dark"] .gomna-audio-mini-title,
@@ -1140,9 +1140,9 @@ body[data-theme="dark"] .gomna-audio-btn-seek-back,
 body[data-theme="dark"] .gomna-audio-btn-seek-forward,
 body[data-theme="dark"] .gomna-audio-btn-speed,
 body[data-theme="dark"] .gomna-audio-btn-expand {
-  background: rgba(255, 248, 239, 0.84);
+  background: rgba(255, 255, 255, 0.84);
   color: #2b211c;
-  border-color: rgba(255, 248, 239, 0.66);
+  border-color: rgba(255, 255, 255, 0.66);
 }
 
 /* 11. 모바일에서도 버튼이 읽히도록 대비 유지 */
@@ -1156,13 +1156,13 @@ body[data-theme="dark"] .gomna-audio-btn-expand {
   .gomna-audio-btn-seek-forward,
   .gomna-audio-btn-speed,
   .gomna-audio-btn-expand {
-    background: rgba(255, 248, 239, 0.86);
+    background: rgba(255, 255, 255, 0.86);
     color: #4a2a1b;
-    border-color: rgba(255, 248, 239, 0.70);
+    border-color: rgba(255, 255, 255, 0.70);
   }
 
   .opt4-bottom-bar {
-    background: rgba(255, 252, 246, 0.97);
+    background: rgba(255, 255, 255, 0.97);
   }
 
   .opt4-bottom-bar button {
@@ -1178,10 +1178,10 @@ body[data-theme="dark"] .gomna-audio-btn-expand {
 /* 1. 미니 플레이어: 더 조용한 dark dock */
 .gomna-audio-mini-player {
   background: rgba(70, 64, 58, 0.84);
-  border-color: rgba(255, 248, 239, 0.18);
+  border-color: rgba(255, 255, 255, 0.18);
   box-shadow:
     0 12px 28px rgba(20, 14, 10, 0.18),
-    inset 0 1px 0 rgba(255, 248, 239, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(16px) saturate(118%);
   -webkit-backdrop-filter: blur(16px) saturate(118%);
 }
@@ -1201,9 +1201,9 @@ body[data-theme="dark"] .gomna-audio-btn-expand {
 .gomna-audio-btn-seek-forward,
 .gomna-audio-btn-speed,
 .gomna-audio-btn-expand {
-  background: rgba(255, 248, 239, 0.70);
+  background: rgba(255, 255, 255, 0.70);
   color: #4a2a1b;
-  border-color: rgba(255, 248, 239, 0.48);
+  border-color: rgba(255, 255, 255, 0.48);
   box-shadow:
     0 1px 4px rgba(20, 14, 10, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.28);
@@ -1217,7 +1217,7 @@ body[data-theme="dark"] .gomna-audio-btn-expand {
 .gomna-audio-btn-seek-forward:focus,
 .gomna-audio-btn-speed:focus,
 .gomna-audio-btn-expand:focus {
-  background: rgba(255, 248, 239, 0.82);
+  background: rgba(255, 255, 255, 0.82);
   color: #3b2115;
 }
 
@@ -1225,10 +1225,10 @@ body[data-theme="dark"] .gomna-audio-btn-expand {
 .gomna-audio-btn-play-pause {
   background: linear-gradient(180deg, #6f351e 0%, #572815 100%);
   color: #fff8ef;
-  border-color: rgba(255, 248, 239, 0.14);
+  border-color: rgba(255, 255, 255, 0.14);
   box-shadow:
     0 6px 16px rgba(45, 20, 10, 0.26),
-    inset 0 1px 0 rgba(255, 248, 239, 0.10);
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 /* 5. dock backdrop: 흰 영역을 줄이고 더 자연스럽게 */
@@ -1237,10 +1237,10 @@ body.gomna-audio-body-padding::after {
   background:
     linear-gradient(
       to top,
-      rgba(250, 246, 237, 0.96) 0%,
-      rgba(250, 246, 237, 0.90) 44%,
-      rgba(250, 246, 237, 0.56) 72%,
-      rgba(250, 246, 237, 0) 100%
+      rgba(247, 248, 250, 0.96) 0%,
+      rgba(247, 248, 250, 0.90) 44%,
+      rgba(247, 248, 250, 0.56) 72%,
+      rgba(247, 248, 250, 0) 100%
     );
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -1248,7 +1248,7 @@ body.gomna-audio-body-padding::after {
 
 /* 6. 하단 기본 바: 오디오 OFF 상태도 조금 더 담백하게 */
 .opt4-bottom-bar {
-  background: rgba(255, 252, 246, 0.94);
+  background: rgba(255, 255, 255, 0.94);
   border-color: rgba(201, 169, 97, 0.16);
   box-shadow:
     0 -8px 20px rgba(48, 32, 20, 0.06),
@@ -1267,7 +1267,7 @@ body.gomna-audio-body-padding::after {
   color: #fff8ef;
   box-shadow:
     0 4px 10px rgba(154, 105, 35, 0.12),
-    inset 0 1px 0 rgba(255, 248, 239, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 /* 7. 오디오 ON 상태에서는 하단 바 후퇴 계속 유지 */
@@ -1294,7 +1294,7 @@ body[data-theme="dark"].gomna-audio-body-padding::after,
 [data-theme="dark"] .gomna-audio-mini-player,
 body[data-theme="dark"] .gomna-audio-mini-player {
   background: rgba(32, 36, 44, 0.86);
-  border-color: rgba(255, 248, 239, 0.16);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 [data-theme="dark"] .gomna-audio-btn-seek-back,
@@ -1305,9 +1305,9 @@ body[data-theme="dark"] .gomna-audio-btn-seek-back,
 body[data-theme="dark"] .gomna-audio-btn-seek-forward,
 body[data-theme="dark"] .gomna-audio-btn-speed,
 body[data-theme="dark"] .gomna-audio-btn-expand {
-  background: rgba(255, 248, 239, 0.72);
+  background: rgba(255, 255, 255, 0.72);
   color: #2b211c;
-  border-color: rgba(255, 248, 239, 0.44);
+  border-color: rgba(255, 255, 255, 0.44);
 }
 
 /* =========================================================
@@ -1329,14 +1329,14 @@ body[data-theme="dark"] .gomna-audio-btn-expand {
   width: 100%;
   padding: 16px 16px 14px;
   background: #fff;
-  border: 1px solid rgba(213, 200, 187, 0.52);
+  border: 1px solid rgba(229, 231, 235, 0.52);
   border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(61, 40, 24, 0.04);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
   box-sizing: border-box;
 }
 
 .verse-item:last-child {
-  border-bottom: 1px solid rgba(213, 200, 187, 0.52);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.52);
 }
 
 .verse-top {
@@ -1399,7 +1399,7 @@ body[data-theme="dark"] .gomna-audio-btn-expand {
 
 .action-btn {
   background: #fbf7f1;
-  border: 1px solid rgba(213, 200, 187, 0.72);
+  border: 1px solid rgba(229, 231, 235, 0.72);
   color: #3d2817;
 }
 
@@ -1541,16 +1541,16 @@ body.gomna-audio-body-padding .opt4-bottom-bar {
   display: block;
   gap: 0;
   background: #fff;
-  border: 1px solid rgba(213, 200, 187, 0.52);
+  border: 1px solid rgba(229, 231, 235, 0.52);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(61, 40, 24, 0.04);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
 }
 
 .verse-item {
   background: transparent;
   border: 0;
-  border-bottom: 1px solid rgba(245, 240, 235, 0.95);
+  border-bottom: 1px solid rgba(236, 238, 241, 0.95);
   border-radius: 0;
   box-shadow: none;
   margin: 0;
@@ -1651,9 +1651,9 @@ body.gomna-audio-body-padding .verse-list::after {
   background:
     linear-gradient(
       to bottom,
-      rgba(255, 253, 248, 0) 0%,
-      rgba(255, 253, 248, 0.78) 62%,
-      rgba(255, 253, 248, 1) 100%
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.78) 62%,
+      rgba(255, 255, 255, 1) 100%
     );
 }
 
@@ -1663,10 +1663,10 @@ body.gomna-audio-body-padding::after {
   background:
     linear-gradient(
       to top,
-      rgba(250, 246, 237, 0.98) 0%,
-      rgba(250, 246, 237, 0.92) 46%,
-      rgba(250, 246, 237, 0.46) 76%,
-      rgba(250, 246, 237, 0) 100%
+      rgba(247, 248, 250, 0.98) 0%,
+      rgba(247, 248, 250, 0.92) 46%,
+      rgba(247, 248, 250, 0.46) 76%,
+      rgba(247, 248, 250, 0) 100%
     );
 }
 
@@ -1730,9 +1730,9 @@ body.gomna-audio-body-padding::after {
   background:
     linear-gradient(
       to top,
-      rgba(250, 246, 237, 0.82) 0%,
-      rgba(250, 246, 237, 0.48) 48%,
-      rgba(250, 246, 237, 0) 100%
+      rgba(247, 248, 250, 0.82) 0%,
+      rgba(247, 248, 250, 0.48) 48%,
+      rgba(247, 248, 250, 0) 100%
     );
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
@@ -1770,9 +1770,9 @@ body.gomna-audio-body-padding .opt4-bottom-bar {
     background:
       linear-gradient(
         to top,
-        rgba(250, 246, 237, 0.78) 0%,
-        rgba(250, 246, 237, 0.42) 48%,
-        rgba(250, 246, 237, 0) 100%
+        rgba(247, 248, 250, 0.78) 0%,
+        rgba(247, 248, 250, 0.42) 48%,
+        rgba(247, 248, 250, 0) 100%
       );
   }
 }
@@ -2140,7 +2140,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   border-radius: 26px;
   border: 1px solid rgba(201, 169, 97, 0.28);
   background:
-    linear-gradient(180deg, rgba(255, 253, 248, 0.98) 0%, rgba(250, 246, 237, 0.98) 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 248, 250, 0.98) 100%);
   color: #3d2818;
   box-shadow:
     0 -18px 44px rgba(42, 26, 18, 0.18),
@@ -2185,7 +2185,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   padding: 0;
   border: 1px solid rgba(201, 169, 97, 0.24);
   border-radius: 999px;
-  background: rgba(255, 250, 242, 0.86);
+  background: rgba(255, 255, 255, 0.86);
   color: #6d4424;
   font-size: 18px;
   line-height: 1;
@@ -2198,7 +2198,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   border: 1px solid rgba(201, 169, 97, 0.18);
   border-radius: 20px;
   background:
-    linear-gradient(180deg, rgba(255, 250, 242, 0.88) 0%, rgba(246, 236, 219, 0.62) 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(246, 236, 219, 0.62) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68);
 }
 
@@ -2235,7 +2235,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   min-height: 44px;
   border: 1px solid rgba(201, 169, 97, 0.22);
   border-radius: 999px;
-  background: rgba(255, 250, 242, 0.86);
+  background: rgba(255, 255, 255, 0.86);
   color: #56341d;
   font-family: inherit;
   font-size: 14px;
@@ -2243,7 +2243,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   font-weight: 800;
   letter-spacing: -0.01em;
   box-shadow:
-    0 2px 8px rgba(61, 40, 24, 0.05),
+    0 2px 8px rgba(15, 23, 42, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.72);
   cursor: pointer;
 }
@@ -2265,14 +2265,14 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   align-items: center;
   justify-content: center;
   justify-self: center;
-  border: 1px solid rgba(255, 248, 239, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
   background: linear-gradient(180deg, #7a3f24 0%, #5b2b18 100%) !important;
   color: #fff8ef !important;
   font-size: 28px;
   box-shadow:
     0 10px 22px rgba(83, 42, 22, 0.28),
-    inset 0 1px 0 rgba(255, 248, 239, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .gomna-audio-expanded-options {
@@ -2285,7 +2285,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   padding: 13px;
   border: 1px solid rgba(201, 169, 97, 0.16);
   border-radius: 20px;
-  background: rgba(255, 252, 246, 0.62);
+  background: rgba(255, 255, 255, 0.62);
 }
 
 .gomna-audio-option-group label {
@@ -2309,7 +2309,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   gap: 6px;
   padding: 4px;
   border-radius: 999px;
-  background: rgba(239, 225, 202, 0.62);
+  background: rgba(236, 238, 241, 0.62);
 }
 
 .gomna-audio-option-buttons button {
@@ -2334,11 +2334,11 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   color: #fff8ef;
   box-shadow:
     0 5px 12px rgba(154, 105, 35, 0.18),
-    inset 0 1px 0 rgba(255, 248, 239, 0.26);
+    inset 0 1px 0 rgba(255, 255, 255, 0.26);
 }
 
 .gomna-audio-mini-player {
-  border-color: rgba(255, 248, 239, 0.22);
+  border-color: rgba(255, 255, 255, 0.22);
   background: rgba(66, 52, 42, 0.88);
 }
 
@@ -2424,7 +2424,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   color: #fff8ef !important;
   box-shadow:
     0 4px 10px rgba(154, 105, 35, 0.16),
-    inset 0 1px 0 rgba(255, 248, 239, 0.24) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
 }
 
 @media (max-width: 480px) {
@@ -2687,7 +2687,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   color: #fff8ef !important;
   box-shadow:
     0 4px 10px rgba(154, 105, 35, 0.16),
-    inset 0 1px 0 rgba(255, 248, 239, 0.24) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
 }
 
 @media (max-width: 480px) {
@@ -2946,7 +2946,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
 
 .gomna-audio-expanded-player {
   background:
-    linear-gradient(180deg, rgba(255, 253, 248, 0.995) 0%, rgba(250, 246, 237, 0.995) 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.995) 0%, rgba(247, 248, 250, 0.995) 100%);
   backdrop-filter: blur(18px) saturate(112%);
   -webkit-backdrop-filter: blur(18px) saturate(112%);
 }
@@ -2955,7 +2955,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   padding: 15px;
   border-color: rgba(184, 134, 11, 0.22);
   background:
-    linear-gradient(180deg, rgba(255, 250, 242, 0.92) 0%, rgba(246, 236, 219, 0.78) 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(246, 236, 219, 0.78) 100%);
 }
 
 .gomna-audio-option-group:first-child label {
@@ -2983,21 +2983,21 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   gap: 8px;
   padding: 8px;
   border-radius: 22px;
-  background: rgba(239, 225, 202, 0.72);
+  background: rgba(236, 238, 241, 0.72);
   box-shadow:
-    inset 0 1px 2px rgba(61, 40, 24, 0.06),
+    inset 0 1px 2px rgba(15, 23, 42, 0.06),
     inset 0 -1px 0 rgba(255, 255, 255, 0.58);
 }
 
 .gomna-audio-option-group:first-child .gomna-audio-option-buttons button {
   min-height: 46px;
   border: 1px solid rgba(201, 169, 97, 0.18);
-  background: rgba(255, 252, 246, 0.86);
+  background: rgba(255, 255, 255, 0.86);
   color: #5f3a21;
   font-size: 14px;
   font-weight: 850;
   box-shadow:
-    0 1px 5px rgba(61, 40, 24, 0.04),
+    0 1px 5px rgba(15, 23, 42, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
@@ -3019,7 +3019,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   letter-spacing: -0.02em;
   box-shadow:
     0 8px 18px rgba(154, 105, 35, 0.20),
-    inset 0 1px 0 rgba(255, 248, 239, 0.30);
+    inset 0 1px 0 rgba(255, 255, 255, 0.30);
 }
 
 .gomna-audio-option-group:first-child .gomna-audio-option-buttons button[data-active="true"]::before,
@@ -3141,7 +3141,7 @@ body.gomna-audio-body-padding .gomna-audio-mini-player {
   color: #fff8ef !important;
   box-shadow:
     0 4px 10px rgba(154, 105, 35, 0.16),
-    inset 0 1px 0 rgba(255, 248, 239, 0.24) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
 }
 
 @media (max-width: 480px) {
@@ -3546,8 +3546,8 @@ body.gomna-audio-expanded-open #verseList {
   height: 34px;
   padding: 0 12px;
   border-radius: 999px;
-  border: 1px solid rgba(122, 88, 48, 0.22);
-  background: rgba(255, 250, 242, 0.84);
+  border: 1px solid rgba(100, 116, 139, 0.22);
+  background: rgba(255, 255, 255, 0.84);
   color: #2b2118;
   box-shadow: none;
   opacity: 1;
@@ -3561,8 +3561,8 @@ body.gomna-audio-expanded-open #verseList {
 .gomna-audio-commentary-header .gomna-audio-commentary-button:focus,
 .gomna-audio-commentary-header .gomna-audio-commentary-sequence-button:hover,
 .gomna-audio-commentary-header .gomna-audio-commentary-sequence-button:focus {
-  background: rgba(239, 225, 202, 0.92);
-  border-color: rgba(122, 88, 48, 0.32);
+  background: rgba(236, 238, 241, 0.92);
+  border-color: rgba(100, 116, 139, 0.32);
   color: #2b2118;
   box-shadow: none;
 }
@@ -3583,7 +3583,7 @@ body.gomna-audio-expanded-open #verseList {
 .commentary-tab.gomna-audio-commentary-tab--active {
   background: rgba(216, 184, 102, 0.22);
   color: #2b2118;
-  border-color: rgba(122, 88, 48, 0.22);
+  border-color: rgba(100, 116, 139, 0.22);
   box-shadow: none;
 }
 
@@ -3601,22 +3601,22 @@ body.gomna-audio-expanded-open #verseList {
 
 #commentaryPopup {
   background:
-    radial-gradient(circle at 50% 8%, rgba(250, 242, 226, 0.18), transparent 42%),
-    rgba(31, 24, 18, 0.42) !important;
+    radial-gradient(circle at 50% 8%, rgba(255, 255, 255, 0.18), transparent 42%),
+    rgba(15, 23, 42, 0.42) !important;
   backdrop-filter: blur(18px) saturate(108%);
   -webkit-backdrop-filter: blur(18px) saturate(108%);
 }
 
 #commentaryPopupBox {
   max-width: min(92vw, 760px) !important;
-  border: 1px solid rgba(122, 88, 48, 0.16) !important;
+  border: 1px solid rgba(100, 116, 139, 0.16) !important;
   border-radius: 26px !important;
   background:
-    linear-gradient(180deg, rgba(255, 253, 248, 0.99) 0%, rgba(248, 241, 230, 0.99) 100%) !important;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(251, 251, 252, 0.99) 100%) !important;
   color: #2b2118 !important;
   box-shadow:
-    0 24px 58px rgba(31, 24, 18, 0.18),
-    0 2px 12px rgba(31, 24, 18, 0.06),
+    0 24px 58px rgba(15, 23, 42, 0.18),
+    0 2px 12px rgba(15, 23, 42, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
   overflow: hidden !important;
 }
@@ -3624,8 +3624,8 @@ body.gomna-audio-expanded-open #verseList {
 #commentaryPopup .popup-drag-header {
   padding: 20px 22px 18px !important;
   background:
-    linear-gradient(180deg, rgba(253, 248, 239, 0.98), rgba(244, 234, 218, 0.96)) !important;
-  border-bottom: 1px solid rgba(122, 88, 48, 0.12) !important;
+    linear-gradient(180deg, rgba(251, 251, 252, 0.98), rgba(247, 248, 250, 0.96)) !important;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.12) !important;
   border-radius: 26px 26px 0 0 !important;
   box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.52) !important;
 }
@@ -3716,9 +3716,9 @@ body.gomna-audio-expanded-open #verseList {
   min-width: 36px !important;
   height: 36px !important;
   min-height: 36px !important;
-  border: 1px solid rgba(122, 88, 48, 0.16) !important;
+  border: 1px solid rgba(100, 116, 139, 0.16) !important;
   border-radius: 999px !important;
-  background: rgba(255, 250, 242, 0.82) !important;
+  background: rgba(255, 255, 255, 0.82) !important;
   color: #33261d !important;
   font-size: 16px !important;
   font-weight: 750 !important;
@@ -3729,8 +3729,8 @@ body.gomna-audio-expanded-open #verseList {
 
 #commentaryPopup .popup-drag-header button[onclick*="closeCommentary"]:hover,
 #commentaryPopup .popup-drag-header button[onclick*="closeCommentary"]:focus {
-  background: rgba(239, 225, 202, 0.78) !important;
-  border-color: rgba(122, 88, 48, 0.24) !important;
+  background: rgba(236, 238, 241, 0.78) !important;
+  border-color: rgba(100, 116, 139, 0.24) !important;
 }
 
 #commentaryContent {
@@ -3742,12 +3742,12 @@ body.gomna-audio-expanded-open #verseList {
 #commentaryContent .commentary-verse-ref {
   margin-bottom: 16px !important;
   padding: 7px !important;
-  border: 1px solid rgba(122, 88, 48, 0.14) !important;
+  border: 1px solid rgba(100, 116, 139, 0.14) !important;
   border-radius: 18px !important;
-  background: rgba(255, 250, 242, 0.82) !important;
+  background: rgba(255, 255, 255, 0.82) !important;
   color: #2b2118 !important;
   box-shadow:
-    0 3px 12px rgba(61, 40, 24, 0.045),
+    0 3px 12px rgba(15, 23, 42, 0.045),
     inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
 }
 
@@ -3784,8 +3784,8 @@ body.gomna-audio-expanded-open #verseList {
 #commentaryContent .commentary-nav-arrow:focus:not(:disabled),
 #commentaryContent .commentary-nav-pick:focus,
 #commentaryContent .commentary-nav-btn:focus:not(:disabled) {
-  background: rgba(239, 225, 202, 0.56) !important;
-  border-color: rgba(122, 88, 48, 0.12) !important;
+  background: rgba(236, 238, 241, 0.56) !important;
+  border-color: rgba(100, 116, 139, 0.12) !important;
   color: #1f1a17 !important;
 }
 
@@ -3800,7 +3800,7 @@ body.gomna-audio-expanded-open #verseList {
   gap: 7px !important;
   margin: 0 0 16px !important;
   padding: 0 0 16px !important;
-  border-bottom: 1px solid rgba(122, 88, 48, 0.10) !important;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.10) !important;
 }
 
 /* 9개 카테고리 탭 — 평상시는 아이보리. 테두리 알파만 0.16에서 0.26으로 한 단계
@@ -3810,9 +3810,9 @@ body.gomna-audio-expanded-open #verseList {
   min-width: 0 !important;
   min-height: 36px !important;
   padding: 0 13px !important;
-  border: 1px solid rgba(122, 88, 48, 0.26) !important;
+  border: 1px solid rgba(100, 116, 139, 0.26) !important;
   border-radius: 999px !important;
-  background: rgba(255, 250, 242, 0.72) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
   color: #33261d !important;
   box-shadow: none !important;
   font-size: 12px !important;
@@ -3827,8 +3827,8 @@ body.gomna-audio-expanded-open #verseList {
 
 #commentaryContent .commentary-tab:hover,
 #commentaryContent .commentary-tab:focus {
-  background: rgba(239, 225, 202, 0.72) !important;
-  border-color: rgba(122, 88, 48, 0.34) !important;
+  background: rgba(236, 238, 241, 0.72) !important;
+  border-color: rgba(100, 116, 139, 0.34) !important;
   color: #1f1a17 !important;
 }
 
@@ -3836,10 +3836,10 @@ body.gomna-audio-expanded-open #verseList {
  * 또렷하게 해서 구별한다. 강조 색은 재생 중 탭 몫이다.
  */
 #commentaryContent .commentary-tab.active {
-  background: rgba(255, 250, 242, 0.72) !important;
-  border-color: rgba(122, 88, 48, 0.42) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-color: rgba(100, 116, 139, 0.42) !important;
   color: #1f1a17 !important;
-  box-shadow: inset 0 0 0 1px rgba(122, 88, 48, 0.08) !important;
+  box-shadow: inset 0 0 0 1px rgba(100, 116, 139, 0.08) !important;
 }
 
 /* 지금 실제로 오디오가 재생(또는 일시정지) 중인 카테고리 하나만 블루.
@@ -3869,10 +3869,10 @@ body.gomna-audio-expanded-open #verseList {
   min-height: 38px !important;
   margin: 0 !important;
   padding: 0 13px !important;
-  border: 1px solid rgba(122, 88, 48, 0.13) !important;
+  border: 1px solid rgba(100, 116, 139, 0.13) !important;
   border-bottom: 0 !important;
   border-radius: 16px 16px 0 0 !important;
-  background: rgba(244, 234, 218, 0.72) !important;
+  background: rgba(247, 248, 250, 0.72) !important;
   color: #2b2118 !important;
   font-size: 12px !important;
   line-height: 1 !important;
@@ -3884,19 +3884,19 @@ body.gomna-audio-expanded-open #verseList {
   margin: 0 0 14px !important;
   border-collapse: separate !important;
   border-spacing: 0 !important;
-  border: 1px solid rgba(122, 88, 48, 0.13) !important;
+  border: 1px solid rgba(100, 116, 139, 0.13) !important;
   border-radius: 0 0 16px 16px !important;
   overflow: hidden !important;
-  background: rgba(255, 253, 248, 0.92) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
   color: #2b2118 !important;
   font-size: 14px !important;
-  box-shadow: 0 3px 14px rgba(61, 40, 24, 0.035) !important;
+  box-shadow: 0 3px 14px rgba(15, 23, 42, 0.035) !important;
 }
 
 #commentaryContent .commentary-table th {
   padding: 12px 12px !important;
-  border-bottom: 1px solid rgba(122, 88, 48, 0.11) !important;
-  background: rgba(250, 246, 237, 0.88) !important;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.11) !important;
+  background: rgba(247, 248, 250, 0.88) !important;
   color: #33261d !important;
   font-size: 12px !important;
   line-height: 1.25 !important;
@@ -3906,8 +3906,8 @@ body.gomna-audio-expanded-open #verseList {
 
 #commentaryContent .commentary-table td {
   padding: 14px 12px !important;
-  border-bottom: 1px solid rgba(122, 88, 48, 0.09) !important;
-  background: rgba(255, 253, 248, 0.95) !important;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.09) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
   color: #2b2118 !important;
   font-size: 14px !important;
   line-height: 1.72 !important;
@@ -3917,7 +3917,7 @@ body.gomna-audio-expanded-open #verseList {
 
 #commentaryContent .commentary-table tr:nth-child(odd) td,
 #commentaryContent .commentary-table tr:nth-child(even) td {
-  background: rgba(255, 253, 248, 0.95) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
 }
 
 #commentaryContent .commentary-table tr:last-child td {
@@ -3942,14 +3942,14 @@ body.gomna-audio-expanded-open #verseList {
   gap: 8px !important;
   margin-top: 16px !important;
   padding: 12px 0 0 !important;
-  border-top: 1px solid rgba(122, 88, 48, 0.10) !important;
+  border-top: 1px solid rgba(100, 116, 139, 0.10) !important;
 }
 
 #commentaryContent .commentary-bottom-nav .commentary-nav-btn {
   margin: 0 !important;
   min-height: 40px !important;
-  border-color: rgba(122, 88, 48, 0.14) !important;
-  background: rgba(255, 250, 242, 0.72) !important;
+  border-color: rgba(100, 116, 139, 0.14) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
   color: #33261d !important;
 }
 
@@ -3964,11 +3964,11 @@ body.gomna-audio-expanded-open #verseList {
   min-height: 36px !important;
   height: 36px !important;
   padding: 0 13px !important;
-  border: 1px solid rgba(122, 88, 48, 0.17) !important;
+  border: 1px solid rgba(100, 116, 139, 0.17) !important;
   border-radius: 999px !important;
-  background: rgba(255, 250, 242, 0.78) !important;
+  background: rgba(255, 255, 255, 0.78) !important;
   color: #2b2118 !important;
-  box-shadow: 0 2px 9px rgba(61, 40, 24, 0.035) !important;
+  box-shadow: 0 2px 9px rgba(15, 23, 42, 0.035) !important;
   font-size: 12px !important;
   line-height: 1 !important;
   font-weight: 850 !important;
@@ -3979,8 +3979,8 @@ body.gomna-audio-expanded-open #verseList {
 #commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-button:focus,
 #commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-sequence-button:hover,
 #commentaryContent .gomna-audio-commentary-header .gomna-audio-commentary-sequence-button:focus {
-  background: rgba(239, 225, 202, 0.76) !important;
-  border-color: rgba(122, 88, 48, 0.28) !important;
+  background: rgba(236, 238, 241, 0.76) !important;
+  border-color: rgba(100, 116, 139, 0.28) !important;
   color: #1f1a17 !important;
 }
 
@@ -3997,12 +3997,12 @@ body.gomna-audio-expanded-open #verseList {
 #commentaryContent .gomna-audio-commentary-section--active {
   border: 1px solid rgba(201, 169, 97, 0.38) !important;
   border-radius: 18px !important;
-  background: rgba(250, 246, 237, 0.48) !important;
+  background: rgba(247, 248, 250, 0.48) !important;
   box-shadow: 0 0 0 2px rgba(201, 169, 97, 0.07) !important;
 }
 
 #commentaryContent .gomna-commentary-cue {
-  border-bottom: 1px solid rgba(122, 88, 48, 0.34) !important;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.34) !important;
   border-radius: 6px !important;
   background: rgba(211, 184, 126, 0.16) !important;
   color: #2b2118 !important;
@@ -4020,20 +4020,20 @@ body.gomna-audio-expanded-open #verseList {
 
 #commentaryPopup .popup-close {
   min-height: 46px !important;
-  border: 1px solid rgba(122, 88, 48, 0.18) !important;
+  border: 1px solid rgba(100, 116, 139, 0.18) !important;
   border-radius: 999px !important;
-  background: rgba(255, 250, 242, 0.86) !important;
+  background: rgba(255, 255, 255, 0.86) !important;
   color: #2b2118 !important;
   box-shadow:
-    0 2px 10px rgba(61, 40, 24, 0.04),
+    0 2px 10px rgba(15, 23, 42, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
   font-weight: 850 !important;
 }
 
 #commentaryPopup .popup-close:hover,
 #commentaryPopup .popup-close:focus {
-  background: rgba(239, 225, 202, 0.78) !important;
-  border-color: rgba(122, 88, 48, 0.28) !important;
+  background: rgba(236, 238, 241, 0.78) !important;
+  border-color: rgba(100, 116, 139, 0.28) !important;
   color: #1f1a17 !important;
 }
 
@@ -4166,8 +4166,8 @@ body.gomna-audio-expanded-open #verseList {
   margin-top: auto !important;
   padding:
     10px 20px calc(14px + env(safe-area-inset-bottom)) !important;
-  border-top: 1px solid rgba(122, 88, 48, 0.08) !important;
-  background: rgba(255, 253, 248, 0.96) !important;
+  border-top: 1px solid rgba(100, 116, 139, 0.08) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
   box-sizing: border-box !important;
 }
 
@@ -4315,10 +4315,10 @@ body.gomna-audio-expanded-open #verseList {
   gap: 9px !important;
   padding:
     13px 20px calc(16px + env(safe-area-inset-bottom)) !important;
-  border-top: 1px solid rgba(122, 88, 48, 0.10) !important;
+  border-top: 1px solid rgba(100, 116, 139, 0.10) !important;
   background:
-    linear-gradient(180deg, rgba(255, 253, 248, 0.88), rgba(247, 243, 235, 0.98)) !important;
-  box-shadow: 0 -8px 20px rgba(61, 40, 24, 0.035) !important;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(247, 243, 235, 0.98)) !important;
+  box-shadow: 0 -8px 20px rgba(15, 23, 42, 0.035) !important;
 }
 
 #commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-button,
@@ -4329,12 +4329,12 @@ body.gomna-audio-expanded-open #verseList {
   min-height: 44px !important;
   height: 44px !important;
   padding: 0 13px !important;
-  border: 1px solid rgba(122, 88, 48, 0.18) !important;
+  border: 1px solid rgba(100, 116, 139, 0.18) !important;
   border-radius: 999px !important;
-  background: rgba(255, 250, 241, 0.92) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
   color: #2b2118 !important;
   box-shadow:
-    0 2px 8px rgba(61, 40, 24, 0.035),
+    0 2px 8px rgba(15, 23, 42, 0.035),
     inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
   font-size: 12.5px !important;
   line-height: 1 !important;
@@ -4349,8 +4349,8 @@ body.gomna-audio-expanded-open #verseList {
 #commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-replay-button:focus,
 #commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-sequence-button:hover,
 #commentaryPopup .gomna-audio-commentary-controls-footer .gomna-audio-commentary-sequence-button:focus {
-  border-color: rgba(122, 88, 48, 0.28) !important;
-  background: rgba(239, 225, 202, 0.76) !important;
+  border-color: rgba(100, 116, 139, 0.28) !important;
+  background: rgba(236, 238, 241, 0.76) !important;
   color: #1f1a17 !important;
   outline: none !important;
 }
@@ -4382,10 +4382,10 @@ body.gomna-audio-expanded-open #verseList {
   padding: 0 !important;
   border: 1px solid #dccfbc !important;
   border-radius: 50% !important;
-  background: #fffaf1 !important;
+  background: #FFFFFF !important;
   color: #1f1a17 !important;
   box-shadow:
-    0 2px 9px rgba(61, 40, 24, 0.055),
+    0 2px 9px rgba(15, 23, 42, 0.055),
     inset 0 1px 0 rgba(255, 255, 255, 0.78) !important;
   font-size: 28px !important;
   line-height: 1 !important;
@@ -4396,7 +4396,7 @@ body.gomna-audio-expanded-open #verseList {
 #commentaryPopup .gomna-audio-commentary-close-button.popup-close:hover,
 #commentaryPopup .gomna-audio-commentary-close-button.popup-close:focus {
   border-color: #cdbda7 !important;
-  background: #f7f3eb !important;
+  background: #FBFBFC !important;
   color: #1f1a17 !important;
   outline: none !important;
 }
@@ -4545,8 +4545,8 @@ body.gomna-audio-expanded-open #verseList {
   min-height: 42px !important;
   margin: 0 !important;
   border-radius: 999px !important;
-  background: rgba(255, 248, 239, 0.74) !important;
-  border: 1px solid rgba(255, 248, 239, 0.54) !important;
+  background: rgba(255, 255, 255, 0.74) !important;
+  border: 1px solid rgba(255, 255, 255, 0.54) !important;
   color: #4a2a1b !important;
   box-shadow:
     0 1px 4px rgba(20, 14, 10, 0.08),
@@ -4560,7 +4560,7 @@ body.gomna-audio-expanded-open #verseList {
 
 #gomna-audio-mini-player .gomna-audio-btn-expand[data-audio-action="expand"]:hover,
 #gomna-audio-mini-player .gomna-audio-btn-expand[data-audio-action="expand"]:focus {
-  background: rgba(255, 248, 239, 0.86) !important;
+  background: rgba(255, 255, 255, 0.86) !important;
   color: #3b2115 !important;
   outline: none !important;
 }
@@ -5295,8 +5295,8 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopup.show:
   background:
     linear-gradient(
       180deg,
-      rgba(255, 253, 248, 0) 0%,
-      rgba(255, 253, 248, 0.94) 18%,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.94) 18%,
       var(--gomna-commentary-stack-bg) 100%
     );
 }
@@ -5347,7 +5347,7 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #gomna-audio-mini-play
 
 body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopup.show {
   background:
-    radial-gradient(circle at 50% 8%, rgba(255, 250, 241, 0.82), transparent 44%),
+    radial-gradient(circle at 50% 8%, rgba(255, 255, 255, 0.82), transparent 44%),
     linear-gradient(
       180deg,
       rgba(247, 243, 235, 0.96) 0%,
@@ -5484,8 +5484,8 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
   flex-shrink: 0 !important;
   padding: 7px 8px calc(7px + env(safe-area-inset-bottom, 0px)) !important;
   margin: 0 !important;
-  border-top: 1px solid rgba(122, 88, 48, 0.14) !important;
-  background: rgba(255, 253, 248, 0.98) !important;
+  border-top: 1px solid rgba(100, 116, 139, 0.14) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
   box-sizing: border-box !important;
   pointer-events: auto !important;
   touch-action: manipulation !important;
@@ -5541,7 +5541,7 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
   left: 8px !important;
   right: 8px !important;
   bottom: calc(7px + env(safe-area-inset-bottom, 0px)) !important;
-  border: 1px solid rgba(122, 88, 48, 0.16) !important;
+  border: 1px solid rgba(100, 116, 139, 0.16) !important;
   border-radius: 14px !important;
   pointer-events: none !important;
   z-index: 2 !important;
@@ -5557,7 +5557,7 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
   top: 17px !important;
   bottom: calc(17px + env(safe-area-inset-bottom, 0px)) !important;
   width: 1px !important;
-  background: rgba(122, 88, 48, 0.12) !important;
+  background: rgba(100, 116, 139, 0.12) !important;
   pointer-events: none !important;
   z-index: 2 !important;
 }
@@ -5648,7 +5648,7 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
 
 #commentaryPopup #gomnaCommentaryInlineCloseBtn::before {
   background: #f4ede1 !important;
-  box-shadow: inset 0 0 0 1px rgba(122, 88, 48, 0.16) !important;
+  box-shadow: inset 0 0 0 1px rgba(100, 116, 139, 0.16) !important;
 }
 
 /* hover는 포인터 기기에서만. 터치에서 hover가 눌린 채 남는 것을 막는다. */
@@ -5806,11 +5806,11 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   gap: 8px !important;
   padding: 8px 14px 12px !important;
   border-radius: 20px !important;
-  border: 1px solid rgba(122, 88, 48, 0.1) !important;
+  border: 1px solid rgba(100, 116, 139, 0.1) !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   max-height: min(calc(100dvh - 24px), 720px) !important;
-  background: linear-gradient(180deg, #fffdf8 0%, var(--gomna-exp-bg) 100%) !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, var(--gomna-exp-bg) 100%) !important;
   box-shadow: 0 10px 28px rgba(43, 28, 18, 0.1) !important;
   color: var(--gomna-exp-text) !important;
 }
@@ -5839,7 +5839,7 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   width: 36px !important;
   height: 4px !important;
   border-radius: 999px !important;
-  background: rgba(61, 40, 24, 0.18) !important;
+  background: rgba(15, 23, 42, 0.18) !important;
 }
 
 #gomna-audio-expanded-player .gomna-audio-expanded-header {
@@ -5873,7 +5873,7 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   padding: 0 !important;
   justify-self: end !important;
   border-radius: 999px !important;
-  border: 1px solid rgba(122, 88, 48, 0.14) !important;
+  border: 1px solid rgba(100, 116, 139, 0.14) !important;
   background: rgba(255, 252, 245, 0.92) !important;
   color: var(--gomna-exp-text) !important;
   font-size: 14px !important;
@@ -5891,7 +5891,7 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   padding: 10px 12px !important;
   border-radius: 12px !important;
   background: var(--gomna-exp-card) !important;
-  border: 1px solid rgba(122, 88, 48, 0.08) !important;
+  border: 1px solid rgba(100, 116, 139, 0.08) !important;
   box-shadow: none !important;
 }
 
@@ -6169,12 +6169,12 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
 #gomna-audio-expanded-player .gomna-audio-btn-play-pause-big:hover,
 #gomna-audio-expanded-player .gomna-audio-btn-play-pause-big:active,
 #gomna-audio-expanded-player .gomna-audio-btn-play-pause-big:focus {
-  background: #f3eadf !important;
-  background-color: #f3eadf !important;
+  background: #ECEEF1 !important;
+  background-color: #ECEEF1 !important;
   color: #3a2b1e !important;
   fill: #3a2b1e !important;
   stroke: #3a2b1e !important;
-  border: 1px solid #dfd1bf !important;
+  border: 1px solid #E5E7EB !important;
   box-shadow: none !important;
   transform: none !important;
   outline: none !important;
@@ -6182,12 +6182,12 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
 
 #gomna-audio-expanded-player .gomna-audio-btn-seek-circle:focus-visible,
 #gomna-audio-expanded-player .gomna-audio-btn-play-pause-big:focus-visible {
-  background: #f3eadf !important;
-  background-color: #f3eadf !important;
+  background: #ECEEF1 !important;
+  background-color: #ECEEF1 !important;
   color: #3a2b1e !important;
   fill: #3a2b1e !important;
   stroke: #3a2b1e !important;
-  border: 1px solid #dfd1bf !important;
+  border: 1px solid #E5E7EB !important;
   box-shadow: none !important;
   transform: none !important;
   outline: 1px solid #c9b69f !important;
@@ -6275,7 +6275,7 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   padding: 0 !important;
   border-radius: 12px !important;
   background: var(--gomna-exp-card) !important;
-  border: 1px solid rgba(122, 88, 48, 0.08) !important;
+  border: 1px solid rgba(100, 116, 139, 0.08) !important;
   overflow: hidden !important;
   box-shadow: none !important;
 }
@@ -6359,7 +6359,7 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   padding: 8px !important;
   border-radius: 12px !important;
   background: rgba(251, 244, 230, 0.72) !important;
-  border: 1px solid rgba(122, 88, 48, 0.08) !important;
+  border: 1px solid rgba(100, 116, 139, 0.08) !important;
   box-shadow: none !important;
 }
 
@@ -6402,7 +6402,7 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
   padding: 8px 12px !important;
   border-radius: 12px !important;
   background: var(--gomna-exp-card) !important;
-  border: 1px solid rgba(122, 88, 48, 0.08) !important;
+  border: 1px solid rgba(100, 116, 139, 0.08) !important;
   box-shadow: none !important;
 }
 
@@ -6493,7 +6493,7 @@ body.gomna-audio-expanded-open #gomna-audio-mini-player.gomna-audio-visible {
 
 body.gomna-audio-expanded-open #commentaryPopup.show {
   background:
-    radial-gradient(circle at 50% 8%, rgba(255, 250, 241, 0.96), transparent 48%),
+    radial-gradient(circle at 50% 8%, rgba(255, 255, 255, 0.96), transparent 48%),
     linear-gradient(180deg, rgba(247, 243, 235, 0.985), rgba(242, 234, 221, 0.985)) !important;
   backdrop-filter: blur(14px) saturate(106%) !important;
   -webkit-backdrop-filter: blur(14px) saturate(106%) !important;

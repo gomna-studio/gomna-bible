@@ -172,7 +172,7 @@ body[data-gomna-page="reader"] #gomnaReaderBootOverlay .gomna-reader-boot-btn{
 /* 성경본문 카드 전용 중성 톤(바깥 배경 #F7F8FA 기준). 말씀풀이·다른 화면은 이 토큰을 쓰지 않는다. */
 :root{--gm-scripture-surface:#FBFBFC;--gm-scripture-border:#EEF0F2;--gm-scripture-divider:#ECEEF1}
 /* touch feedback: iOS scale + opacity */
-.card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,.gs-link:active,button:active:not(.scripture-quick-move-close):not(.scripture-quick-move-addr-btn):not(.scripture-quick-move-tst-pop-btn):not(.scripture-quick-move-item):not(.scripture-quick-move-seg-btn):not(.verse-range-move-action):not(.verse-cell):not(.verse-range-back-to-text):not(.ubc-drawer-ttab){transform: scale(0.90); opacity: 0.65; filter: brightness(0.85) saturate(1.3); background-color: rgba(200, 152, 73, 0.15); transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease, background-color 0.15s ease}
+.card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,.gs-link:active,button:active:not(.verse-range-move-action):not(.verse-cell):not(.verse-range-back-to-text):not(.ubc-drawer-ttab){transform: scale(0.90); opacity: 0.65; filter: brightness(0.85) saturate(1.3); background-color: rgba(200, 152, 73, 0.15); transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease, background-color 0.15s ease}
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-serif;background:#F7F8FA;color:var(--text);font-size:var(--font-size);line-height:1.6;font-weight:500}
@@ -3776,8 +3776,10 @@ html.reader-hide-chrome .verse-item.verse-item--chapter-selected .verse-num{
 <script src="gomna_category_feature.js?v=20260819-guide-cards-v1" defer></script>
 <script src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
 <script src="/js/gomna-bible-ref.js?v=20260725-multilang-structured-refs-v1"></script>
-<link rel="stylesheet" href="js/gomna-easy-find.css?v=20260819-easy-find-v3">
-<script src="js/gomna-easy-find.js?v=20260819-easy-find-v3"></script>
+<link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260831-stair-book-v3">
+<script src="js/gomna-bible-stair-picker.js?v=20260901-stair-easy-v1"></script>
+<link rel="stylesheet" href="js/gomna-easy-find.css?v=20260901-stair-easy-v2">
+<script src="js/gomna-easy-find.js?v=20260901-stair-easy-v2"></script>
 <script src="/js/gomna-commentary-multilang-policy.js?v=20260725-multilang-structured-refs-v1"></script>
 <script>
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
@@ -3810,7 +3812,6 @@ if ("serviceWorker" in navigator) {
 <script src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
 <script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
-<link rel="stylesheet" href="js/gomna-scripture-quick-move.css?v=20260824-split-gold-v16">
 </head>
 <body data-gomna-page="reader">
 <div id="gomnaReaderBootOverlay" class="gomna-reader-boot-overlay" aria-hidden="true">
@@ -4048,6 +4049,9 @@ if ("serviceWorker" in navigator) {
       <button type="button" id="readerBackToTextBtn" class="reader-back-to-text" onclick="returnToReader()" style="display:none">← 본문으로</button>
       <div class="reader-search-bar">
         <input type="text" id="searchInputReader" class="reader-search-input" placeholder="성경 말씀 찾기 (예: 사랑, 믿음, 소망)" onkeypress="if(event.key==='Enter'){doSearchFromReader();return false;}">
+        <button type="button" class="reader-search-clear" aria-label="검색어 지우기" onclick="var n=document.getElementById('searchInputReader');var o=document.getElementById('searchInput');if(n)n.value='';if(o)o.value='';">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
+        </button>
         <button type="button" class="reader-search-btn" onclick="doSearchFromReader()" aria-label="검색">🔍</button>
       </div>
       <div id="searchResultsArea"><div class="empty-state"><div class="icon">🔍</div><div class="msg">검색어를 입력하세요</div></div></div>
@@ -4105,35 +4109,6 @@ if ("serviceWorker" in navigator) {
       <button type="button" class="verse-toolbar-more-item" id="verseToolbarGuideBtn" onclick="opt4ToolbarGuide()">성경 길잡이</button>
     </div>
   </div>
-  <div id="scriptureQuickMoveOverlay" class="scripture-quick-move-overlay" role="dialog" aria-modal="true" aria-labelledby="scriptureQuickMoveTitle" aria-hidden="true" hidden>
-    <div class="scripture-quick-move-sheet" id="scriptureQuickMoveSheet" tabindex="-1">
-      <div class="scripture-quick-move-head">
-        <h2 class="scripture-quick-move-title" id="scriptureQuickMoveTitle">성경 빠른 이동</h2>
-        <button type="button" class="scripture-quick-move-close" id="scriptureQuickMoveClose" aria-label="닫기">
-          <svg viewBox="0 0 18 18" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 4l10 10M14 4L4 14"/></svg>
-        </button>
-      </div>
-      <div class="scripture-quick-move-seg" id="scriptureQuickMoveSeg" role="tablist" aria-label="구약 신약 선택">
-        <button type="button" class="scripture-quick-move-seg-btn" role="tab" data-qm-testament="old" aria-selected="true">구약</button>
-        <button type="button" class="scripture-quick-move-seg-btn" role="tab" data-qm-testament="new" aria-selected="false">신약</button>
-      </div>
-      <div class="scripture-quick-move-address" id="scriptureQuickMoveAddress">
-        <div class="scripture-quick-move-addr-book-wrap" id="scriptureQuickMoveAddrBookWrap">
-          <button type="button" class="scripture-quick-move-addr-btn" id="scriptureQuickMoveAddrBook" data-qm-stage="book" aria-haspopup="true" aria-expanded="false"><span class="scripture-quick-move-addr-text" id="scriptureQuickMoveAddrBookText">책 선택</span></button>
-        </div>
-        <span class="scripture-quick-move-addr-sep" aria-hidden="true">›</span>
-        <button type="button" class="scripture-quick-move-addr-btn" id="scriptureQuickMoveAddrChapter" data-qm-stage="chapter"><span class="scripture-quick-move-addr-text" id="scriptureQuickMoveAddrChapterText">장 선택</span></button>
-        <span class="scripture-quick-move-addr-sep" aria-hidden="true">›</span>
-        <button type="button" class="scripture-quick-move-addr-btn" id="scriptureQuickMoveAddrVerse" data-qm-stage="verse"><span class="scripture-quick-move-addr-text" id="scriptureQuickMoveAddrVerseText">절 선택</span></button>
-      </div>
-      <div class="scripture-quick-move-tst-pop" id="scriptureQuickMoveTstPop" hidden role="group" aria-label="구약 신약 선택">
-        <button type="button" class="scripture-quick-move-tst-pop-btn" data-qm-testament-pick="old">구약</button>
-        <button type="button" class="scripture-quick-move-tst-pop-btn" data-qm-testament-pick="new">신약</button>
-      </div>
-      <div class="scripture-quick-move-body" id="scriptureQuickMoveBody"></div>
-    </div>
-  </div>
-  <script src="js/gomna-scripture-quick-move.js?v=20260829-range-verse-stage-v1"></script>
   <div id="verseRangeModal" class="verse-range-modal-overlay" role="dialog" aria-modal="true" aria-hidden="true" onclick="if(event.target===this)closeVerseRangeModal()">
     <div id="verseRangeModalBox" class="verse-range-modal-box" onclick="event.stopPropagation()">
       <div id="verseRangeModalScroll" class="verse-range-modal-scroll">
@@ -5039,8 +5014,9 @@ function consumeHomeBiblePickHash() {
 
 function openHomeBibleQuickMove(testament) {
   if (testament !== 'old' && testament !== 'new') return;
-  if (typeof openScriptureQuickMove !== 'function') return;
-  openScriptureQuickMove({ testament: testament, stage: 'book', resetPlace: true });
+  if (typeof openBibleStairPicker === 'function') {
+    openBibleStairPicker(testament);
+  }
   consumeHomeBiblePickHash();
 }
 
@@ -9632,8 +9608,6 @@ function bindUnifiedBcEdgeOpen() {
     if (more && more.classList.contains('active')) return true;
     var toolbarMore = document.getElementById('verseToolbarMoreOverlay');
     if (toolbarMore && toolbarMore.classList.contains('active')) return true;
-    var qm = document.getElementById('scriptureQuickMoveOverlay');
-    if (qm && (qm.classList.contains('active') || qm.classList.contains('show') || qm.getAttribute('aria-hidden') === 'false')) return true;
     return false;
   }
   function onDown(e) {
@@ -10860,7 +10834,7 @@ function readerChapterFabsBlocked() {
 function isReaderChapterFabForeignScrollTarget(t) {
   if (!t || !t.closest) return false;
   if (t === document || t === document.documentElement || t === document.body) return false;
-  return !!t.closest('#readerLocationPopover, #unifiedBookChapterModal, #commentaryPopup, #verseReadMoreOverlay, #opt4VerseListenModeMenu, #scriptureQuickMoveOverlay, .ubc-chcard-grid');
+  return !!t.closest('#readerLocationPopover, #unifiedBookChapterModal, #commentaryPopup, #verseReadMoreOverlay, #opt4VerseListenModeMenu, .ubc-chcard-grid');
 }
 
 function setReaderChapterFabsVisible(on) {
@@ -15959,30 +15933,8 @@ function attachVerseRangeModalListeners() {
   }
 }
 
-/* 더보기 → 구절 범위 선택의 UI 진입점.
- * 홈에서 구약/신약 → 책 → 장 → 절로 들어갈 때 쓰는 절 선택 카드
- * (#scriptureQuickMoveOverlay, js/gomna-scripture-quick-move.js)의 절 단계를 그대로
- * 재사용한다. 그 카드에는 이미 시작 절·끝 절 그리드와 「이동 →」이 있고, 확정하면
- * qmRangeConfirmMove()가 여기 레거시 모달과 똑같이 applyVerseRangeSelection(start, end)를
- * 호출하므로 범위 커밋 로직은 한 곳으로 유지된다.
- * 카드는 position:fixed 오버레이 + 내부 overflow-y 본문 구조이고 pull 스페이서나 드래그가
- * 없어서, 옛 #verseRangeModal의 #verseRangePullSpacer(모바일 min(48vh,380px))가 만들던
- * "카드 전체가 아래로 내려가고 위에 빈 공간" 문제가 생기지 않는다.
- * 모듈이 없는 환경에서만 옛 모달로 되돌아간다.
- */
+/* 더보기 → 구절 범위 선택. 현재 Reader #verseRangeModal을 연다. */
 function openVerseRangePicker() {
-  if (
-    typeof window.openScriptureQuickMove === 'function' &&
-    currentBook && currentBook.name && currentChapter
-  ) {
-    window.openScriptureQuickMove({
-      bookName: currentBook.name,
-      chapter: currentChapter,
-      testament: currentBook.testament === 'new' ? 'new' : 'old',
-      stage: 'verse'
-    });
-    return;
-  }
   openVerseRangeModal();
 }
 
@@ -16841,12 +16793,17 @@ box-sizing:border-box;
     border-radius: 16px 16px 0 0 !important;
   }
 }
-.reader-search-bar{display:flex;gap:8px;padding:12px;align-items:center;background:#fff;border-bottom:1px solid #ECEEF1}
-.reader-search-input{flex:1;height:44px;padding:0 12px;font-size:16px;border:2px solid #B8860B;border-radius:8px;outline:none;color:#5a4a1a;background:#FFFFFF;-webkit-appearance:none;appearance:none}
-.reader-search-input::placeholder{color:#c9b27a}
-.reader-search-input:focus{border-color:#8b6508;box-shadow:0 0 0 2px rgba(184,134,11,0.15)}
-.reader-search-btn{width:44px;height:44px;border:none;border-radius:8px;background:#B8860B;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 44px;padding:0}
-.reader-search-btn:active{background:#8b6508}
+#searchView .reader-search-bar{position:relative;display:flex;align-items:center;gap:10px;width:auto;max-width:100%;margin:12px;padding:0 12px 0 14px;min-height:50px;height:50px;box-sizing:border-box;background:var(--gm-select-base,#FBFBFC);border:1px solid transparent;border-radius:16px;box-shadow:var(--gm-select-edge-fade);color:#6B6B6B}
+#searchView .reader-search-bar::before{content:"";flex:0 0 18px;width:18px;height:18px;pointer-events:none;background:#6B6B6B;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m18 18-3.5-3.5'/%3E%3C/svg%3E") center / 18px 18px no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m18 18-3.5-3.5'/%3E%3C/svg%3E") center / 18px 18px no-repeat}
+#searchView .reader-search-input{flex:1 1 auto;width:100%;min-width:0;height:44px;min-height:44px;padding:0;border:none;border-radius:0;outline:none;background:transparent;color:#1F1F1F;font-size:16px;font-weight:500;font-family:inherit;box-shadow:none;-webkit-appearance:none;appearance:none}
+#searchView .reader-search-input::placeholder{color:#8A8A8A}
+#searchView .reader-search-input:focus{border:none;outline:none;box-shadow:none;background:transparent}
+#searchView .reader-search-bar:focus-within{border-color:transparent;box-shadow:inset 0 0 4px 2px rgba(70,70,70,.55),inset 0 0 8px 5px rgba(70,70,70,.22)}
+#searchView .reader-search-clear{flex:0 0 28px;width:28px;height:28px;margin:0;padding:0;border:none;border-radius:50%;background:transparent;color:#6B6B6B;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#searchView .reader-search-clear svg{width:16px;height:16px;display:block;margin:auto;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round}
+#searchView .reader-search-input:placeholder-shown + .reader-search-clear{display:none}
+#searchView .reader-search-clear:active{color:#1F1F1F;background:transparent;transform:none;filter:none;opacity:1}
+#searchView .reader-search-btn{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .reader-back-to-text{display:flex;align-items:center;justify-content:center;width:calc(100% - 24px);min-height:44px;margin:12px 12px 0;padding:0 16px;background:#fff;color:#B8860B;border:2px solid #B8860B;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-appearance:none;appearance:none}
 .reader-back-to-text:active{background:#B8860B;color:#fff}
 </style>

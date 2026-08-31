@@ -12,7 +12,7 @@
     { id: 'prophet', title: '예언과 계시', hint: '선지서·계시록', keys: ['major_prophets', 'minor_prophets', 'revelation'] }
   ];
 
-  var state = { panel: 'home', query: '', allMode: 'bible' };
+  var state = { panel: 'home', query: '', bodyVisible: 30 };
 
   function esc(s) {
     return String(s || '').replace(/[&<>"']/g, function (m) {
@@ -302,10 +302,6 @@
     return out;
   }
 
-  function booksByTestament(tst) {
-    return books().filter(function (b) { return b.testament === tst; });
-  }
-
   function booksByGroup(id) {
     var group = null;
     var names = [];
@@ -330,13 +326,22 @@
 
   function openChapterPicker(book) {
     if (!book || !book.name) return;
-    if (typeof global.openScriptureQuickMove !== 'function') return;
-    global.openScriptureQuickMove({
+    if (typeof global.openBibleStairPicker !== 'function') return;
+    global.openBibleStairPicker({
+      mode: book.testament === 'new' ? 'new' : 'old',
       bookName: book.name,
-      testament: book.testament === 'new' ? 'new' : 'old',
-      stage: 'chapter',
-      resetPlace: true
+      stage: 'chapter'
     });
+  }
+
+  function openStairBookList(mode) {
+    if (typeof global.openBibleStairPicker !== 'function') return;
+    global.openBibleStairPicker(mode === 'new' ? 'new' : 'old');
+  }
+
+  function openStairAllBooks() {
+    if (typeof global.openBibleStairPicker !== 'function') return;
+    global.openBibleStairPicker({ catalog: 'all', stage: 'book' });
   }
 
   function openPlace(entry) {
@@ -351,14 +356,83 @@
     }
   }
 
-  function openWordSearch(query) {
-    var q = String(query || '').trim();
+  function syncLegacySearchInputs(query) {
     var oldInput = document.getElementById('searchInput');
     var newInput = document.getElementById('searchInputReader');
+    if (oldInput) oldInput.value = query;
+    if (newInput) newInput.value = query;
+  }
+
+  function collectWordHits(query) {
+    var topic = [];
+    var faith = [];
+    var body = [];
+    if (typeof searchTopicResults === 'function') {
+      try { topic = searchTopicResults(query) || []; } catch (e) { topic = []; }
+    }
+    if (global.GomnaBibleSearch) {
+      if (typeof global.GomnaBibleSearch.buildIndex === 'function'
+        && typeof oldTestamentData !== 'undefined'
+        && typeof newTestamentData !== 'undefined') {
+        try { global.GomnaBibleSearch.buildIndex(oldTestamentData, newTestamentData); } catch (e2) {}
+      }
+      if (typeof global.GomnaBibleSearch.searchFaithResources === 'function') {
+        try { faith = global.GomnaBibleSearch.searchFaithResources(query) || []; } catch (e3) { faith = []; }
+      }
+      if (typeof global.GomnaBibleSearch.searchBody === 'function') {
+        try {
+          body = global.GomnaBibleSearch.shouldUseLordPrayerBodyResults
+            && global.GomnaBibleSearch.shouldUseLordPrayerBodyResults(query)
+            ? (global.GomnaBibleSearch.getLordPrayerBodyResults() || [])
+            : (global.GomnaBibleSearch.searchBody(query) || []);
+        } catch (e4) { body = []; }
+      }
+    }
+    return { topic: topic, faith: faith, body: body };
+  }
+
+  function mergeVerseHits(topic, body) {
+    var seen = {};
+    var out = [];
+    function add(r) {
+      var key;
+      if (!r || !r.book || !r.chapter) return;
+      key = r.book + '|' + r.chapter + '|' + (r.verse || 1);
+      if (seen[key]) return;
+      seen[key] = 1;
+      out.push(r);
+    }
+    (body || []).forEach(add);
+    (topic || []).forEach(add);
+    return out;
+  }
+
+  function verseCardHtml(r, query) {
+    var highlighted = '';
+    if (global.GomnaBibleSearch && typeof global.GomnaBibleSearch.highlightText === 'function') {
+      highlighted = global.GomnaBibleSearch.highlightText(r.text, query, r.matchType);
+    } else {
+      highlighted = esc(r.text || '');
+    }
+    return '<button type="button" class="easy-find-verse" data-easy-go="1" data-book="' + esc(r.book) + '" data-chapter="' + esc(String(r.chapter)) + '" data-verse="' + esc(String(r.verse || 1)) + '" data-testament="' + esc(r.testament || 'old') + '">'
+      + '<span class="easy-find-verse-ref">' + esc(r.ref || (r.book + ' ' + r.chapter + ':' + (r.verse || 1))) + '</span>'
+      + '<span class="easy-find-verse-text">' + highlighted + '</span>'
+      + '</button>';
+  }
+
+  function setSearchActive(on) {
+    var view = document.getElementById('easyView');
+    if (view) view.classList.toggle('easy-find-search-active', !!on);
+  }
+
+  function openWordSearch(query) {
+    var q = String(query || '').trim();
+    var input = document.getElementById('easyFindSearchInput');
     if (!q) return;
-    if (oldInput) oldInput.value = q;
-    if (newInput) newInput.value = q;
-    if (typeof doSearch === 'function') doSearch();
+    syncLegacySearchInputs(q);
+    if (input) input.value = q;
+    state.query = q;
+    renderSearchResults(q);
   }
 
   function bookButtons(list) {
@@ -371,26 +445,9 @@
     }).join('') + '</div>';
   }
 
-  function ganadaHtml(list) {
-    var order = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
-    var groups = {};
-    var html = '';
-    order.forEach(function (c) { groups[c] = []; });
-    list.forEach(function (b) {
-      var c = initialOf(b.name.charAt(0));
-      if (groups[c]) groups[c].push(b);
-    });
-    order.forEach(function (c) {
-      if (!groups[c].length) return;
-      html += '<section class="easy-find-ganada-group"><h3 class="easy-find-ganada-h">' + c + '</h3>';
-      html += bookButtons(groups[c]);
-      html += '</section>';
-    });
-    return html || '<div class="easy-find-empty">해당하는 책이 없습니다</div>';
-  }
-
   var READ_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg>';
   var LISTEN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>';
+  var SEARCH_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none"><circle cx="11" cy="11" r="6.5"/><path d="m18 18-3.5-3.5"/></svg>';
 
   function resumeRowHtml(kind, entry) {
     var when = formatResumeWhen(entry && entry.timestamp, kind);
@@ -422,19 +479,25 @@
   function homeHtml() {
     var recent = resumeHtml();
     return '<div class="easy-find-panel" data-easy-panel="home">'
+      + '<div class="easy-find-fixed" id="easyFindFixed">'
       + '<div class="easy-find-search">'
+      + '<label class="easy-find-search-field" for="easyFindSearchInput">'
+      + '<span class="easy-find-search-icon" aria-hidden="true">' + SEARCH_ICON + '</span>'
       + '<input id="easyFindSearchInput" class="easy-find-search-input" type="search" placeholder="무엇을 찾고 계세요?" aria-label="무엇을 찾고 계세요?" autocomplete="off" spellcheck="false">'
+      + '<button type="button" class="easy-find-search-clear" data-easy-clear="1" hidden aria-label="검색어 지우기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>'
+      + '</label>'
       + '<p class="easy-find-search-hint">예: 요한복음 · 요 3:16 · 사랑</p>'
-      + '<p class="easy-find-search-jamo">초성으로도 찾을 수 있어요: ㅊ → 창세기·출애굽기</p>'
-      + '</div>'
+      + '<p class="easy-find-search-jamo">초성 검색도 가능해요 · ㅊ → 창세기 · 출애굽기</p>'
+      + '</div></div>'
+      + '<div class="easy-find-scroll" id="easyFindScroll">'
       + '<div id="easyFindSearchResults" class="easy-find-hits" hidden></div>'
       + '<div id="easyFindHomeBody">'
       + recent
       + '<section class="easy-find-section">'
       + '<h3 class="easy-find-section-title">어디에서 찾으시나요?</h3>'
       + '<div class="easy-find-two">'
-      + '<button type="button" class="easy-find-choice" data-easy-tst="old"><img class="easy-find-choice-icon" src="assets/preview/old-testament-book.png" alt="" width="32" height="46" decoding="async" aria-hidden="true"><span class="easy-find-choice-title">구약에서 찾기</span><span class="easy-find-choice-sub">39권</span></button>'
-      + '<button type="button" class="easy-find-choice" data-easy-tst="new"><img class="easy-find-choice-icon" src="assets/preview/new-testament-book.png" alt="" width="32" height="46" decoding="async" aria-hidden="true"><span class="easy-find-choice-title">신약에서 찾기</span><span class="easy-find-choice-sub">27권</span></button>'
+      + '<button type="button" class="easy-find-choice" data-easy-tst="old"><span class="easy-find-choice-icon" aria-hidden="true">' + READ_ICON + '</span><span class="easy-find-choice-title">구약에서 찾기</span><span class="easy-find-choice-sub">39권</span></button>'
+      + '<button type="button" class="easy-find-choice" data-easy-tst="new"><span class="easy-find-choice-icon" aria-hidden="true">' + READ_ICON + '</span><span class="easy-find-choice-title">신약에서 찾기</span><span class="easy-find-choice-sub">27권</span></button>'
       + '</div></section>'
       + '<section class="easy-find-section">'
       + '<h3 class="easy-find-section-title">책 이름을 잘 모르시나요?</h3>'
@@ -450,34 +513,47 @@
       + '<div class="easy-find-all-wrap">'
       + '<button type="button" class="easy-find-all-btn" data-easy-all="1">전체 66권 보기</button>'
       + '</div>'
-      + '</div></div>';
+      + '</div></div></div>';
   }
 
   function listHtml(title, list, extra) {
     return '<div class="easy-find-panel" data-easy-panel="list">'
+      + '<div class="easy-find-fixed">'
       + '<div class="easy-find-list-head">'
       + '<button type="button" class="easy-find-back" data-easy-back="1">← 이전</button>'
       + '<div class="easy-find-list-title">' + esc(title) + '</div>'
       + '</div>'
       + (extra || '')
-      + list
+      + '</div>'
+      + '<div class="easy-find-scroll">' + list + '</div>'
       + '</div>';
   }
 
-  function renderSearchResults(query) {
+  function renderSearchResults(query, opts) {
     var host = document.getElementById('easyFindSearchResults');
     var body = document.getElementById('easyFindHomeBody');
+    var clearBtn = document.querySelector('#easyView .easy-find-search-clear');
+    var scroll = document.getElementById('easyFindScroll');
     var q = String(query || '').trim();
     var html = '';
     var ref;
     var found;
+    var word;
+    var verses;
+    var visible;
+    var count;
     if (!host || !body) return;
+    if (clearBtn) clearBtn.hidden = !q;
     if (!q) {
       host.hidden = true;
       host.innerHTML = '';
       body.hidden = false;
+      state.bodyVisible = 30;
+      setSearchActive(false);
+      if (scroll && !(opts && opts.keepScroll)) scroll.scrollTop = 0;
       return;
     }
+    setSearchActive(true);
     ref = parseRef(q);
     found = matchBooks(q);
     if (ref && ref.book) {
@@ -491,52 +567,55 @@
         + '<span class="easy-find-hit-k">성경책</span>' + esc(b.name)
         + '</button>';
     });
-    if (!isJamoQuery(q) && !ref) {
-      html += '<button type="button" class="easy-find-hit" data-easy-word="1">'
-        + '<span class="easy-find-hit-k">말씀 찾기</span>'
-        + '‘' + esc(q) + '’ 검색 결과 보기'
-        + '</button>';
+    if (!isJamoQuery(q)) {
+      word = collectWordHits(q);
+      verses = mergeVerseHits(word.topic, word.body);
+      count = verses.length + (word.faith ? word.faith.length : 0);
+      if (count) {
+        html += '<div class="easy-find-result-title">‘' + esc(q) + '’ 검색 결과 · ' + count + '개</div>';
+      } else if (!html) {
+        html += '<div class="easy-find-result-title">‘' + esc(q) + '’ 검색 결과</div>';
+      }
+      visible = Math.min(state.bodyVisible || 30, verses.length);
+      verses.slice(0, visible).forEach(function (r) {
+        html += verseCardHtml(r, q);
+      });
+      if (verses.length > visible) {
+        html += '<button type="button" class="easy-find-more" data-easy-more="1">결과 더 보기</button>';
+      }
+      if (word.faith && word.faith.length && typeof _renderFaithResourceCard === 'function') {
+        word.faith.forEach(function (card) {
+          html += '<div class="easy-find-faith">' + _renderFaithResourceCard(card) + '</div>';
+        });
+      }
     }
     if (!html) html = '<div class="easy-find-empty">찾는 내용이 없습니다</div>';
     host.innerHTML = html;
     host.hidden = false;
     body.hidden = true;
+    if (scroll && !(opts && opts.keepScroll)) scroll.scrollTop = 0;
   }
 
   function paint() {
     var view = document.getElementById('easyView');
     var inner;
     var group;
-    var list;
     var title;
     if (!view) return;
     view.classList.add('easy-find-ready');
     view.classList.remove('easy-view--ganada', 'easy-view--filtered');
-    if (state.panel === 'old') {
-      inner = listHtml('구약 39권', bookButtons(booksByTestament('old')));
-    } else if (state.panel === 'new') {
-      inner = listHtml('신약 27권', bookButtons(booksByTestament('new')));
-    } else if (state.panel.indexOf('group:') === 0) {
+    if (state.panel.indexOf('group:') === 0) {
       group = null;
       GROUPS.forEach(function (g) { if (g.id === state.panel.slice(6)) group = g; });
       title = group ? group.title : '분류';
       inner = listHtml(title, bookButtons(booksByGroup(group && group.id)));
-    } else if (state.panel === 'all') {
-      list = books();
-      inner = listHtml(
-        '전체 66권',
-        state.allMode === 'ganada' ? ganadaHtml(list) : bookButtons(list),
-        '<div class="easy-find-sort" role="tablist" aria-label="전체 목록 정렬">'
-          + '<button type="button" class="easy-find-sort-btn' + (state.allMode === 'bible' ? ' is-on' : '') + '" data-easy-sort="bible">성경순</button>'
-          + '<button type="button" class="easy-find-sort-btn' + (state.allMode === 'ganada' ? ' is-on' : '') + '" data-easy-sort="ganada">가나다순</button>'
-          + '</div>'
-      );
     } else {
       state.panel = 'home';
       inner = homeHtml();
     }
     view.innerHTML = '<div class="easy-find-shell"><div class="easy-find-card" id="easyFindCard">' + inner + '</div></div>';
     bind(view);
+    setSearchActive(state.panel === 'home' && !!String(state.query || '').trim());
     if (state.panel === 'home' && state.query) {
       var input = document.getElementById('easyFindSearchInput');
       if (input) input.value = state.query;
@@ -574,15 +653,40 @@
       var book;
       var ref;
       if (!btn || !view.contains(btn)) return;
+      if (btn.getAttribute('data-easy-clear')) {
+        var clearInput = document.getElementById('easyFindSearchInput');
+        if (clearInput) clearInput.value = '';
+        state.query = '';
+        state.bodyVisible = 30;
+        renderSearchResults('');
+        if (clearInput) clearInput.focus();
+        return;
+      }
+      if (btn.getAttribute('data-easy-more')) {
+        state.bodyVisible = (state.bodyVisible || 30) + 30;
+        renderSearchResults(state.query, { keepScroll: true });
+        return;
+      }
+      if (btn.getAttribute('data-easy-go')) {
+        if (typeof goToVerse === 'function') {
+          goToVerse(
+            btn.getAttribute('data-book'),
+            parseInt(btn.getAttribute('data-chapter'), 10),
+            parseInt(btn.getAttribute('data-verse'), 10) || 1,
+            btn.getAttribute('data-testament') || 'old'
+          );
+        }
+        return;
+      }
       if (btn.getAttribute('data-easy-back')) {
         state.panel = 'home';
         state.query = '';
+        state.bodyVisible = 30;
         paint();
         return;
       }
       if (btn.getAttribute('data-easy-tst')) {
-        state.panel = btn.getAttribute('data-easy-tst');
-        paint();
+        openStairBookList(btn.getAttribute('data-easy-tst'));
         return;
       }
       if (btn.getAttribute('data-easy-group')) {
@@ -591,14 +695,7 @@
         return;
       }
       if (btn.getAttribute('data-easy-all')) {
-        state.panel = 'all';
-        state.allMode = 'bible';
-        paint();
-        return;
-      }
-      if (btn.getAttribute('data-easy-sort')) {
-        state.allMode = btn.getAttribute('data-easy-sort') === 'ganada' ? 'ganada' : 'bible';
-        paint();
+        openStairAllBooks();
         return;
       }
       resumeKind = btn.getAttribute('data-easy-resume');
@@ -628,6 +725,7 @@
       var input = e.target && e.target.id === 'easyFindSearchInput' ? e.target : null;
       if (!input) return;
       state.query = input.value;
+      state.bodyVisible = 30;
       renderSearchResults(input.value);
     });
     view.addEventListener('keydown', function (e) {
@@ -641,7 +739,7 @@
   function render() {
     state.panel = 'home';
     state.query = '';
-    state.allMode = 'bible';
+    state.bodyVisible = 30;
     paint();
   }
 
