@@ -268,10 +268,296 @@ html.gomna-reader-ui-ja .chapter-btn > span{display:-webkit-box;-webkit-box-orie
   }
   #verseView #verseList.verse-list .verse-item{max-width:none}
 }
-.verse-item{padding:14px 16px;border-bottom:1px solid rgba(245,240,235,.85);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background-color .08s ease,box-shadow .08s ease}
+.verse-item{padding:14px 16px;border-bottom:1px solid rgba(245,240,235,.85);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background-color .08s ease,box-shadow .08s ease,opacity .18s ease}
+html.is-verse-focus-play #verseList .verse-item,
+html.is-verse-focus-select #verseList .verse-item{opacity:.5}
+html.is-verse-focus-play #verseList .verse-item.gomna-commentary-card-active,
+html.is-verse-focus-play #verseList .verse-item:has(.gomna-audio-reading),
+html.is-verse-focus-select #verseList .verse-item.verse-item--selected{opacity:1}
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item.verse-item--selected,
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item.verse-item--chapter-selected,
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item.verse-item--entry-focus{opacity:.5}
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item.gomna-commentary-card-active,
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item:has(.gomna-audio-reading){opacity:1}
+html.playback-style-focus #verseList .verse-item.gomna-commentary-card-active,
+html.playback-style-focus #verseList .verse-item.gomna-commentary-card-active.verse-item--selected,
+html.playback-style-focus #verseList .verse-item.gomna-commentary-card-active.verse-item--entry-focus{
+  background:var(--gm-scripture-surface,#FBFBFC)!important;
+  background-color:var(--gm-scripture-surface,#FBFBFC)!important;
+  background-image:none!important;
+  border-top-color:var(--gm-scripture-divider,#ECEEF1);
+  border-bottom-color:var(--gm-scripture-divider,#ECEEF1);
+  box-shadow:none;
+}
+html.playback-style-gold #verseList .verse-item,
+html.playback-style-focus #verseList .verse-item{
+  transition:background-color .18s ease,box-shadow .18s ease,opacity .18s ease;
+}
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item.gomna-commentary-card-active,
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item:has(.gomna-audio-reading){
+  box-shadow:inset 1px 0 0 #A86F16;
+}
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item.gomna-commentary-card-active .verse-num,
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item.gomna-commentary-card-active .verse-text,
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item:has(.gomna-audio-reading) .verse-num,
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item:has(.gomna-audio-reading) .verse-text{opacity:1}
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item.gomna-commentary-card-active .verse-text,
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item:has(.gomna-audio-reading) .verse-text{
+  color:#1F1F1F;
+  -webkit-text-fill-color:#1F1F1F;
+  font-weight:600;
+}
+@media (prefers-reduced-motion:reduce){
+  #verseList .verse-item{transition:background-color .08s ease,box-shadow .08s ease}
+}
+#readerPlaybackStyleBtn.reader-playback-style-btn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;box-sizing:border-box;border:1px solid #D5D7DA;border-radius:50%;background:var(--gm-select-base,#FBFBFC);box-shadow:var(--gm-select-edge-fade),0 2px 7px rgba(44,67,105,.05);color:#252525;font-family:inherit;font-size:12px;font-weight:700;line-height:1;letter-spacing:-.04em;cursor:pointer;-webkit-tap-highlight-color:transparent;visibility:visible;opacity:1;position:relative;z-index:2}
+#readerPlaybackStyleBtn.reader-playback-style-btn:hover,#readerPlaybackStyleBtn.reader-playback-style-btn:focus-visible,#readerPlaybackStyleBtn.reader-playback-style-btn:active{background:var(--gm-select-base,#FBFBFC);border-color:#D5D7DA;color:#252525;box-shadow:var(--gm-select-edge-fade),0 2px 7px rgba(44,67,105,.05)}
+#readerPlaybackStyleBtn.reader-playback-style-btn[hidden]{display:none!important}
+html.reader-bible-audio-on body.gomna-audio-body-padding::before,
+html.reader-bible-audio-on body.gomna-audio-body-padding::after,
+html.reader-bible-audio-on body[data-theme="dark"].gomna-audio-body-padding::after,
+html.reader-bible-audio-on[data-theme="dark"] body.gomna-audio-body-padding::after,
+html.reader-bible-audio-on #gomna-audio-mini-player::before,
+html.reader-bible-audio-on #gomna-audio-mini-player::after{
+  content:none!important;
+  display:none!important;
+  height:0!important;
+  min-height:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+html.reader-bible-audio-on body.gomna-audio-body-padding .verse-list{
+  margin-bottom:0!important;
+}
+html.reader-bible-audio-on body.gomna-audio-body-padding .verse-list::after{
+  content:none!important;
+  display:none!important;
+  height:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+html.reader-bible-audio-on #verseGestureViewport{
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+  border:0!important;
+  height:auto!important;
+  bottom:0!important;
+  padding-bottom:calc(0px + var(--reader-bible-player-clearance, 0px))!important;
+}
+html.reader-bible-audio-on,
+html.reader-hide-chrome.reader-verse-active.reader-bible-audio-on{
+  --gomna-audio-bottom-bar-height:env(safe-area-inset-bottom, 0px);
+}
+html.reader-bible-audio-on #scriptureDock.scripture-dock{
+  transform:translate(-50%, calc(100% + env(safe-area-inset-bottom, 0px) + 12px))!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  background:transparent!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  box-shadow:none!important;
+}
+html.reader-bible-audio-on body.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible,
+html.reader-bible-audio-on body.gomna-commentary-popup-open.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible{
+  bottom:max(8px, env(safe-area-inset-bottom, 0px))!important;
+  padding:2px 8px!important;
+  gap:0!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  border-radius:26px!important;
+  background:rgba(89, 89, 89, 0.27)!important;
+  background-color:rgba(89, 89, 89, 0.27)!important;
+  background-image:none!important;
+  border:0!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  overflow:visible!important;
+  opacity:1!important;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-info,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-progress,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-progress-track,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-progress-fill,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-progress-thumb,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-times{
+  display:none!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-progress-track::before{
+  content:none!important;
+  display:none!important;
+  height:0!important;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-controls{
+  justify-content:center!important;
+  align-items:center!important;
+  width:100%!important;
+  gap:4px!important;
+  overflow:visible!important;
+  padding:0!important;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-back,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-forward,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-speed,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-expand[data-audio-action="expand"],
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-back:hover,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-forward:hover,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-speed:hover,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-expand[data-audio-action="expand"]:hover{
+  background:rgba(89, 89, 89, 0.80)!important;
+  background-color:rgba(89, 89, 89, 0.80)!important;
+  background-image:none!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#FFFFFF!important;
+  box-shadow:none!important;
+  opacity:1!important;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-back,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-forward{
+  font-size:26px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  -webkit-text-stroke:.4px currentColor;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause:hover,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause:focus,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause:active,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause:focus-visible{
+  background:#464646!important;
+  background-color:#464646!important;
+  background-image:none!important;
+  color:#FFFFFF!important;
+  box-shadow:none!important;
+  opacity:1!important;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause [data-audio-play-icon],
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause [data-audio-pause-icon]{
+  font-size:28px!important;
+  font-weight:800!important;
+  line-height:1!important;
+  color:#FFFFFF!important;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-speed{
+  font-size:16px!important;
+  font-weight:800!important;
+  letter-spacing:-.03em!important;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-expand[data-audio-action="expand"]{
+  font-size:26px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  -webkit-text-stroke:.4px currentColor;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible #readerPlaybackStyleBtn.reader-playback-style-btn,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible #readerPlaybackStyleBtn.reader-playback-style-btn:hover,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible #readerPlaybackStyleBtn.reader-playback-style-btn:focus-visible,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible #readerPlaybackStyleBtn.reader-playback-style-btn:active{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 44px!important;
+  width:44px!important;
+  min-width:44px!important;
+  height:44px!important;
+  min-height:44px!important;
+  padding:0!important;
+  box-sizing:border-box!important;
+  --gm-select-edge-rgb:70,70,70;
+  --gm-select-edge-fade:inset 0 0 4px 2px rgba(var(--gm-select-edge-rgb),.92),inset 0 0 8px 5px rgba(var(--gm-select-edge-rgb),.5),inset 0 0 11px 9px rgba(var(--gm-select-edge-rgb),.22),inset 0 0 13px 12px rgba(var(--gm-select-edge-rgb),.08);
+  border:0!important;
+  border-radius:50%!important;
+  background:var(--gm-select-base,#FBFBFC)!important;
+  background-color:var(--gm-select-base,#FBFBFC)!important;
+  background-image:none!important;
+  box-shadow:var(--gm-select-edge-fade)!important;
+  color:#1F1F1F!important;
+  font-size:13px!important;
+  font-weight:800!important;
+  letter-spacing:-.04em!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  -webkit-text-stroke:0!important;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-stop-mini,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-stop-mini:hover,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-stop-mini:focus,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-stop-mini:active,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-stop-mini:focus-visible{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 44px!important;
+  width:44px!important;
+  min-width:44px!important;
+  height:44px!important;
+  min-height:44px!important;
+  padding:0!important;
+  margin-left:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  outline:none!important;
+  font-size:24px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  color:#000000!important;
+  -webkit-text-stroke:.6px #000000;
+  text-shadow:none!important;
+  transform:none!important;
+  opacity:1!important;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-expand[data-audio-action="expand"]{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible #readerPlaybackStyleBtn.reader-playback-style-btn[hidden]{display:none!important}
+@media (min-width:481px){
+  html.reader-bible-audio-on body.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible,
+  html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible{padding:2px 12px!important}
+  html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-controls{gap:6px!important}
+}
+@media (max-width:360px){
+  html.reader-bible-audio-on body.gomna-audio-body-padding #gomna-audio-mini-player.gomna-audio-visible,
+  html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible{padding:2px 4px!important}
+  html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-mini-controls{gap:2px!important}
+}
+.reader-anchor-popover{position:fixed;z-index:1200;width:auto;max-width:calc(100vw - 16px);box-sizing:border-box;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:8px;background:var(--gm-select-base,#FBFBFC);border:1px solid #D5D7DA;border-radius:14px;box-shadow:0 4px 12px rgba(15,23,42,.08);overflow:visible;pointer-events:auto}
+.reader-anchor-popover[hidden]{display:none!important}
+.reader-anchor-popover::before,.reader-anchor-popover::after{content:'';position:absolute;left:50%;width:0;height:0;pointer-events:none;border-style:solid}
+.reader-anchor-popover::before{bottom:-8px;margin-left:-5px;border-width:8px 5px 0 5px;border-color:#D5D7DA transparent transparent transparent}
+.reader-anchor-popover::after{bottom:-7px;margin-left:-4px;border-width:7px 4px 0 4px;border-color:var(--gm-select-base,#FBFBFC) transparent transparent transparent}
+.reader-anchor-popover .reader-playback-style-opt{width:auto;min-width:0;min-height:35px;height:35px;padding:0 16px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;border:1px solid #D5D7DA;border-radius:999px;background:var(--gm-select-base,#FBFBFC);box-shadow:none;color:#1F1F1F;font-family:inherit;font-size:15px;font-weight:700;letter-spacing:-.03em;line-height:1.2;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.reader-anchor-popover .reader-playback-style-opt + .reader-playback-style-opt{margin-top:0}
+.reader-anchor-popover .reader-playback-style-opt.is-cur{background:var(--gm-select-base,#FBFBFC);border-color:#D5D7DA;box-shadow:var(--gm-select-edge-fade);color:#1F1F1F;font-weight:700}
+#readerPlaybackStylePopover #readerPlaybackStyleFocus.reader-playback-style-opt{border-color:#D5D7DA;color:#1F1F1F;font-weight:700}
+#readerPlaybackStylePopover #readerPlaybackStyleFocus.reader-playback-style-opt.is-cur{background:var(--gm-select-base,#FBFBFC);border-color:#D5D7DA;box-shadow:var(--gm-select-edge-fade);color:#1F1F1F;font-weight:700}
 .verse-item:last-child{border-bottom:none}
-.verse-item--selected,.verse-item--chapter-selected,.verse-item--entry-focus{background:rgba(200,145,45,0.10);box-shadow:inset 4px 0 0 #B8860B}
-html.reader-hide-chrome .verse-item.verse-item--selected,html.reader-hide-chrome .verse-item.verse-item--chapter-selected,html.reader-hide-chrome .verse-item.verse-item--entry-focus{background:linear-gradient(90deg,rgba(210,168,87,0.28) 0%,rgba(248,236,207,0.72) 45%,rgba(255,252,246,0.96) 100%);box-shadow:inset 4px 0 0 #A86F16;border-top:1px solid rgba(168,111,22,0.38);border-bottom:1px solid rgba(168,111,22,0.38)}
+.verse-item--selected,.verse-item--chapter-selected,.verse-item--entry-focus{background:rgba(200,145,45,0.10);box-shadow:inset 1px 0 0 #B8860B}
+html.reader-hide-chrome .verse-item.verse-item--selected,html.reader-hide-chrome .verse-item.verse-item--chapter-selected,html.reader-hide-chrome .verse-item.verse-item--entry-focus{background:linear-gradient(90deg,rgba(210,168,87,0.28) 0%,rgba(248,236,207,0.72) 45%,rgba(255,252,246,0.96) 100%);box-shadow:inset 1px 0 0 #A86F16;border-top:1px solid rgba(168,111,22,0.38);border-bottom:1px solid rgba(168,111,22,0.38)}
 .verse-item:focus-visible{outline:2px solid rgba(184,134,11,.45);outline-offset:-2px}
 .verse-item .verse-text.gomna-audio-reading{box-shadow:none}
 .verse-top{display:grid;grid-template-columns:3ch minmax(0,1fr);column-gap:16px;align-items:start}
@@ -1158,7 +1444,7 @@ html.ubc-rail-drawer #gomnaReaderLangBridge{visibility:hidden;pointer-events:non
 #gomnaReaderLangBridge .gomna-lang-bridge{width:100%;justify-content:space-evenly}
 @media (max-width:360px){
   .verse-read-title{padding:8px 4px;font-size:14px}
-  .verse-read-version{height:26px;padding:0 8px;font-size:12px}
+  .verse-read-version{height:32px;min-height:32px;padding:0 8px;font-size:12px}
   .gomna-lang-bridge-btn{min-width:34px;padding:0 3px;font-size:10px}
   .gomna-lang-bridge-swap{min-width:22px;font-size:11px}
   .gomna-lang-bridge-globe{min-width:28px;font-size:12px}
@@ -1181,29 +1467,6 @@ html.ubc-rail-drawer #gomnaReaderLangBridge{visibility:hidden;pointer-events:non
 .opt4-verse-listen-choice{display:grid;grid-template-columns:1fr 1fr;gap:4px;min-width:0;width:100%;max-width:100%;align-items:stretch;box-sizing:border-box}
 .opt4-verse-listen-choice[hidden]{display:none!important}
 .opt4-verse-listen-choice .opt4-verse-listen{width:100%;min-width:0;flex-direction:row;padding:0 6px;font-size:13px;letter-spacing:-.2px;font-weight:600;border:1px solid rgba(184,134,11,.28);border-radius:8px;background:rgba(255,252,247,.9)}
-#opt4VerseListenModeMenu.opt4-verse-listen-mode-menu{
-  position:fixed;
-  z-index:230;
-  left:50%;
-  right:auto;
-  width:min(290px,calc(100vw - 32px));
-  max-width:min(290px,calc(100vw - 32px));
-  box-sizing:border-box;
-  padding:0 0 8px;
-  background:transparent;
-  border:0;
-  box-shadow:none;
-  overflow:visible;
-  opacity:0;
-  transform:translateX(-50%) translateY(8px);
-  pointer-events:none;
-  transition:opacity 180ms ease,transform 180ms ease;
-}
-#opt4VerseListenModeMenu.opt4-verse-listen-mode-menu.is-open{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
-  pointer-events:auto;
-}
 #opt4VerseListenModeMenu[hidden]{display:none!important}
 #opt4VerseListenModeBackdrop{
   position:fixed;
@@ -1213,95 +1476,13 @@ html.ubc-rail-drawer #gomnaReaderLangBridge{visibility:hidden;pointer-events:non
   pointer-events:none;
 }
 #opt4VerseListenModeBackdrop[hidden]{display:none!important}
-.opt4-verse-listen-mode-row{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:0;
-  align-items:stretch;
-  min-height:70px;
-  background:rgba(255,253,248,.98);
-  border:none;
-  outline:none;
-  border-radius:12px;
-  box-shadow:0 6px 18px rgba(60,48,35,.08);
-}
-.opt4-verse-listen-mode-option{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:2px;
-  min-height:70px;
-  width:100%;
-  margin:0;
-  padding:8px 12px;
-  box-sizing:border-box;
-  background:transparent;
-  border:0;
-  border-radius:0;
-  box-shadow:none;
-  color:#4A2A16;
-  font-family:inherit;
-  text-align:center;
-  cursor:pointer;
-  pointer-events:auto;
-  -webkit-tap-highlight-color:transparent;
-  transition:background-color 120ms ease;
-}
-.opt4-verse-listen-mode-option + .opt4-verse-listen-mode-option{
-  position:relative;
-  border-inline-start:0;
-}
-.opt4-verse-listen-mode-option + .opt4-verse-listen-mode-option::before{
-  content:"";
-  position:absolute;
-  left:0;
-  top:12px;
-  bottom:12px;
-  width:1px;
-  background:rgba(120,105,90,.14);
-  pointer-events:none;
-}
-.opt4-verse-listen-mode-option:hover,
-.opt4-verse-listen-mode-option:focus-visible{
-  background:transparent;
-  outline:none;
-}
-.opt4-verse-listen-mode-option:active{
-  background:rgba(243,229,200,.55);
-}
-.opt4-verse-listen-mode-option-title{
-  display:block;
-  font-size:14px;
-  font-weight:700;
-  line-height:1.2;
-  color:#4A2A16;
-  opacity:1;
-  white-space:nowrap;
-}
-.opt4-verse-listen-mode-option-desc{
-  display:block;
-  font-size:11px;
-  font-weight:500;
-  line-height:1.25;
-  color:#8B6A3A;
-  opacity:1;
-  white-space:nowrap;
-}
-.opt4-verse-listen-mode-caret{
-  position:absolute;
-  left:var(--listen-caret-x,50%);
-  bottom:0;
-  width:16px;
-  height:8px;
-  margin-left:-8px;
-  pointer-events:none;
-  background:rgba(255,253,248,.98);
-  clip-path:polygon(0 0,100% 0,50% 100%);
-}
+.opt4-verse-listen-mode-option-title,
+.opt4-verse-listen-mode-option-desc,
+.opt4-verse-listen-mode-caret,
 .opt4-verse-listen-mode-caret::before,
 .opt4-verse-listen-mode-caret::after{
-  content:none;
+  display:none!important;
+  content:none!important;
 }
 #opt4VerseToolbar.opt4-bar-mode:has(#opt4VerseListenChoice:not([hidden])){
   grid-template-columns:minmax(0,max-content) minmax(44px,max-content) minmax(0,1fr) minmax(44px,max-content) minmax(0,1fr) minmax(44px,max-content);
@@ -1966,21 +2147,25 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 /* 책 이름·구약/신약 탭은 원래 서랍 폭 안에 오른쪽으로 붙여 위치를 그대로 지킨다. */
 .unified-bc-overlay--chexpand .ubc-drawer-ttabs{width:calc(var(--ubc-drawer-w) - 4px);margin:0 0 6px auto}
 .unified-bc-overlay--chexpand .ubc-book-row{width:calc(var(--ubc-drawer-w) - 4px);margin-left:auto}
-/* 카드는 머리줄(작은 절 선택·장으로 버튼)과 숫자 판으로 나뉜다.
-   카드 안에는 따로 스크롤을 두지 않는다: 책 이름·카드·다음 책이 책 목록이라는
-   하나의 세로 스크롤 안에서 같이 움직여야 손가락으로 카드 위를 밀 때도 목록이 따라온다. */
-.ubc-book-chapters{flex:0 0 auto;display:flex;flex-direction:column;gap:6px;width:100%;margin:2px 0 4px;padding:8px;box-sizing:border-box;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:12px;box-shadow:-10px 0 24px rgba(15,23,42,.07);overflow:visible;touch-action:pan-y}
+/* 카드는 머리줄(장 선택·절 선택)을 고정하고, 숫자 판만 세로로 스크롤한다.
+   장 수가 적으면 max-height에 못 미치므로 내용 높이만큼만 열린다. */
+.ubc-book-chapters{--ubc-ch-btn-h:46px;--ubc-ch-gap:9px;--ubc-ch-grid-rows:6;--ubc-ch-grid-max:calc(var(--ubc-ch-grid-rows) * var(--ubc-ch-btn-h) + (var(--ubc-ch-grid-rows) - 1) * var(--ubc-ch-gap));flex:0 0 auto;display:flex;flex-direction:column;gap:6px;width:100%;margin:2px 0 4px;padding:8px;box-sizing:border-box;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:12px;box-shadow:-10px 0 24px rgba(15,23,42,.07);overflow:hidden;touch-action:pan-y}
 .ubc-chcard-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:26px}
 .ubc-chcard-label{flex:1 1 auto;min-width:0;color:#6B7280;font-family:inherit;font-size:12px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ubc-chcard-btn{flex:0 0 auto;height:26px;padding:0 10px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;border:1px solid #D8DCE2;border-radius:999px;background:#FFFFFF;color:#4B5563;font-family:inherit;font-size:12px;font-weight:600;line-height:1;white-space:nowrap;cursor:pointer;box-shadow:none;touch-action:pan-y;-webkit-tap-highlight-color:transparent}
 .ubc-chcard-btn:hover,.ubc-chcard-btn:focus-visible{background:#F6F7F9;border-color:#C9CFD6;color:#374151}
 .ubc-chcard-btn:active{transform:none;opacity:1;filter:none;background:#F1F2F5;border-color:#C9CFD6;color:#374151}
-.ubc-chcard-grid{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:9px;overflow:visible;touch-action:pan-y}
+.ubc-chcard-grid{flex:0 1 auto;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);gap:9px;max-height:var(--ubc-ch-grid-max);overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:auto;touch-action:pan-y;scrollbar-width:none}
+.ubc-chcard-grid::-webkit-scrollbar{width:0;height:0;display:none}
+@media (min-width:481px){
+  .ubc-book-chapters{--ubc-ch-grid-rows:8}
+}
 .ubc-book-chapter{min-width:0;height:46px;padding:0 2px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border:1px solid #D6DAE0;border-radius:10px;background:#FFFFFF;color:#1F1F1F;font-family:inherit;font-size:15px;font-weight:600;line-height:1;cursor:pointer;box-shadow:none;touch-action:pan-y;-webkit-tap-highlight-color:transparent}
-.ubc-book-chapter.is-cur{background:rgba(228,208,168,.62);border-color:rgba(217,170,62,.28);font-weight:700}
+.ubc-book-chapter.is-cur{background:var(--gm-select-base);border-color:#D5D7DA;color:#252525;font-weight:700;box-shadow:var(--gm-select-edge-fade)}
 .ubc-book-chapter:hover,.ubc-book-chapter:focus-visible{background:#FFFFFF;border-color:#C9CFD6;color:#1F1F1F}
-.ubc-book-chapter.is-cur:hover,.ubc-book-chapter.is-cur:focus-visible{background:rgba(228,208,168,.62);border-color:rgba(217,170,62,.28)}
-.ubc-book-chapter:active,.ubc-book-chapter.is-cur:active{transform:none;opacity:1;filter:none;background:rgba(228,208,168,.62);border-color:rgba(217,170,62,.28);color:#1F1F1F}
+.ubc-book-chapter.is-cur:hover,.ubc-book-chapter.is-cur:focus-visible{background:var(--gm-select-base);border-color:#D5D7DA;color:#252525;box-shadow:var(--gm-select-edge-fade)}
+.ubc-book-chapter:active{transform:none;opacity:1;filter:none;background:#FFFFFF;border-color:#C9CFD6;color:#1F1F1F}
+.ubc-book-chapter.is-cur:active{transform:none;opacity:1;filter:none;background:var(--gm-select-base);border-color:#D5D7DA;color:#252525;box-shadow:var(--gm-select-edge-fade)}
 .ubc-book-row:hover{background:transparent;border-color:transparent;color:#1F1F1F}
 .ubc-book-row.is-cur:hover{background:var(--gm-select-base);border-color:#D5D7DA;color:#252525}
 .ubc-book-row:focus,.ubc-book-row:focus-visible{outline:1px solid rgba(217,170,62,.28);outline-offset:1px;color:#1F1F1F;background:transparent}
@@ -2045,16 +2230,52 @@ html.unified-bc-lock-scroll body{overflow:hidden;height:100%}
    그대로이므로 다국어 카드는 움직이지 않고, margin이라 세로 위치도 그대로다. */
 #verseReadNavGroup{--gm-reader-loc-shift:12px;margin-left:var(--gm-reader-loc-shift)}
 /* 가장 긴 이름(데살로니가전서 1:1)까지 16px 그대로 다 보이도록 제목 좌우 여백을 최소로 줄인다. */
-.verse-read-nav-group .verse-read-title{position:relative;z-index:1;min-height:44px;padding-left:0;padding-right:0;flex:0 1 auto}
+.verse-read-nav-group .verse-read-title{position:relative;z-index:1;min-height:32px;height:32px;padding:0;flex:0 1 auto;box-sizing:border-box}
 .verse-read-title{min-width:0;border:none;background:transparent;font-size:16px;font-weight:600;color:#3d2818;cursor:pointer;font-family:inherit;padding:8px 6px;display:flex;align-items:center;justify-content:flex-start;gap:0;border-radius:8px;-webkit-tap-highlight-color:transparent}
+#verseReadTitleBtn.verse-read-title{min-height:32px;height:32px;padding:0 6px;box-sizing:border-box;border:1px solid #E1E3E7;border-radius:9px;background:#F1F2F4;box-shadow:none;color:#252525}
+#verseReadTitleBtn.verse-read-title:hover,#verseReadTitleBtn.verse-read-title:focus,#verseReadTitleBtn.verse-read-title:focus-visible,#verseReadTitleBtn.verse-read-title:active{background:#F1F2F4;border-color:#E1E3E7;color:#252525;box-shadow:none}
 .verse-read-title:hover{background:rgba(200,152,73,.15)}
 .verse-read-title:active{background:rgba(200,152,73,.22)}
 .verse-read-title-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 /* 번역본 배지: 제목과 같은 줄 가운데 정렬. 제목보다 작은 보조 정보이므로 연한 중성 회색 사각 카드다. */
-.verse-read-version{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 10px;box-sizing:border-box;border:1px solid #E1E3E7;border-radius:9px;background:#F1F2F4;color:#2B2B2B;font-size:13px;font-weight:700;line-height:1;letter-spacing:.02em;white-space:nowrap;flex:0 0 auto}
+.verse-read-version{display:inline-flex;align-items:center;justify-content:center;height:32px;min-height:32px;padding:0 10px;box-sizing:border-box;border:1px solid #E1E3E7;border-radius:9px;background:#F1F2F4;color:#2B2B2B;font-size:13px;font-weight:700;line-height:1;letter-spacing:.02em;white-space:nowrap;flex:0 0 auto;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .verse-read-version:empty{display:none}
+/* 상단 현재 위치 전용 compact 말풍선. 절 선택 버튼만 두고, 탭 시 같은 카드가 확장된다. */
+@property --reader-loc-caret-x{
+  syntax:'<length>';
+  inherits:true;
+  initial-value:28px;
+}
+#readerLocationPopover{position:fixed;z-index:140;display:flex;flex-direction:column;width:max-content;min-width:0;max-width:none;box-sizing:border-box;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none;transform-origin:top right;overflow:visible;--reader-loc-caret-x:28px}
+#readerLocationPopover[hidden]{display:none!important}
+#readerLocationPopover.is-verse-mode{min-width:0;max-width:560px;max-height:min(55vh,460px);padding:10px 8px 8px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:16px;box-shadow:0 8px 24px rgba(15,23,42,.08);overflow:hidden;transition:width .2s ease,left .2s ease,max-height .2s ease}
+#readerLocationPopover::before,#readerLocationPopover::after{content:'';position:absolute;left:var(--reader-loc-caret-x);width:0;height:0;pointer-events:none;border-style:solid}
+#readerLocationPopover::before{top:-8px;margin-left:-5px;border-width:0 5px 8px 5px;border-color:transparent transparent #D5D7DA transparent}
+#readerLocationPopover::after{top:-7px;margin-left:-4px;border-width:0 4px 7px 4px;border-color:transparent transparent var(--gm-select-base,#FBFBFC) transparent}
+#readerLocationPopover.is-verse-mode::before,#readerLocationPopover.is-verse-mode::after{content:none}
+#readerLocationPopover:not(.is-verse-mode) #readerLocationMenuPane{width:100%}
+#readerLocationPopover:not(.is-verse-mode) #readerLocationVersePickBtn.ubc-book-row.is-cur{width:100%;justify-content:center;text-align:center;white-space:nowrap}
+#readerLocationVersePane{display:none;flex-direction:column;min-height:0;flex:1 1 auto;overflow:hidden}
+#readerLocationPopover.is-verse-mode #readerLocationVersePane{display:flex}
+.reader-loc-verse-head{flex:0 0 auto;display:flex;align-items:flex-start;padding:2px 8px 8px}
+.reader-loc-verse-head-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.reader-loc-verse-book{color:#1F1F1F;font-size:15px;font-weight:700;line-height:1.25}
+#readerLocationPopover .reader-loc-verse-grid{flex:1 1 auto;min-height:0;max-height:none;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+#readerLocationPopover .ubc-book-chapter.is-loc-cur{background:var(--gm-select-base,#FBFBFC);border:1px solid #D5D7DA;box-shadow:var(--gm-select-edge-fade);font-weight:700}
+.reader-ch-fab{position:fixed;z-index:70;width:44px;height:44px;padding:0;border:1px solid #D5D7DA;border-radius:50%;background:var(--gm-select-base);box-shadow:var(--gm-select-edge-fade);color:#252525;font-family:inherit;font-size:24px;font-weight:400;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.reader-ch-fab.is-scroll-nav-visible{opacity:1;pointer-events:auto}
+.reader-ch-fab.is-scroll-nav-visible[disabled]{opacity:.28;pointer-events:none}
+.reader-ch-fab:hover,.reader-ch-fab:focus-visible{background:var(--gm-select-base);border-color:#D5D7DA;color:#252525}
+.reader-ch-fab:active{background:var(--gm-select-base);border-color:#D5D7DA;color:#252525}
+.reader-ch-fab[hidden]{display:none!important}
+html:not(.reader-verse-active) .reader-ch-fab,
+html.ubc-rail-drawer .reader-ch-fab,
+html.unified-bc-lock-scroll .reader-ch-fab,
+html.reader-loc-pop-open .reader-ch-fab,
+html.reader-loc-verse-open .reader-ch-fab,
+body.gomna-commentary-popup-open .reader-ch-fab{opacity:0!important;pointer-events:none!important}
 /* 다국어 카드 오른쪽 끝 = 책 서랍 왼쪽선(--reader-rail-w). 헤더 오른쪽 padding 6px을 뺀 만큼 당긴다. */
-.verse-read-header .gomna-reader-lang-bridge-host{justify-self:end;margin-right:calc(var(--reader-rail-w) - 6px)}
+.verse-read-header .gomna-reader-lang-bridge-host{justify-self:end;margin-right:calc(var(--reader-rail-w) - 6px);position:relative;z-index:2}
 .verse-read-more-overlay{display:none;position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.4);align-items:flex-end;justify-content:center;box-sizing:border-box}
 .verse-read-more-overlay.active{display:flex}
 .verse-read-more-sheet{background:#faf6ed;border-radius:16px 16px 0 0;width:100%;max-width:480px;margin:0 auto;box-shadow:0 -4px 24px rgba(0,0,0,.12);overflow:hidden}
@@ -3771,13 +3992,29 @@ if ("serviceWorker" in navigator) {
   </header>
   <nav id="verseReadHeader" class="verse-read-header" style="display:none" aria-label="읽기 헤더">
     <div class="verse-read-nav-group" id="verseReadNavGroup">
-      <button type="button" class="verse-read-title" id="verseReadTitleBtn" onclick="openScriptureQuickMove()" aria-label="책·장 선택">
+      <button type="button" class="verse-read-title" id="verseReadTitleBtn" onclick="toggleReaderLocationPopover()" aria-label="현재 위치" aria-expanded="false" aria-haspopup="dialog">
         <span class="verse-read-title-text" id="verseReadTitleText"></span>
       </button>
-      <span class="verse-read-version notranslate" id="verseReadVersionBadge" translate="no"></span>
+      <span class="verse-read-version notranslate" id="verseReadVersionBadge" translate="no" onclick="toggleReaderLocationPopover()"></span>
     </div>
     <div id="gomnaReaderLangBridge" class="gomna-reader-lang-bridge-host notranslate" translate="no" hidden></div>
   </nav>
+  <div id="readerLocationPopover" hidden role="dialog" aria-label="절 선택">
+    <div id="readerLocationMenuPane">
+      <button type="button" class="ubc-book-row is-cur" id="readerLocationVersePickBtn" onclick="readerLocationOpenVersePick()">절 선택</button>
+    </div>
+    <div id="readerLocationVersePane" hidden>
+      <div class="reader-loc-verse-head">
+        <div class="reader-loc-verse-head-txt">
+          <span class="ubc-chcard-label">절 선택</span>
+          <span class="reader-loc-verse-book" id="readerLocationVerseBook"></span>
+        </div>
+      </div>
+      <div class="ubc-chcard-grid reader-loc-verse-grid" id="readerLocationVerseGrid"></div>
+    </div>
+  </div>
+  <button type="button" class="reader-ch-fab reader-ch-fab--prev" id="readerChapterPrevFab" onclick="prevChapter()" aria-label="이전 장" hidden>‹</button>
+  <button type="button" class="reader-ch-fab reader-ch-fab--next" id="readerChapterNextFab" onclick="nextChapter()" aria-label="다음 장" hidden>›</button>
   <div id="verseReadMoreOverlay" class="verse-read-more-overlay" aria-hidden="true" onclick="if(event.target===this)closeVerseReadMoreMenu()">
     <div class="verse-read-more-sheet" onclick="event.stopPropagation()">
       <div class="verse-read-more-sheet-head"><span>더보기</span><button type="button" class="verse-range-modal-close" onclick="closeVerseReadMoreMenu()" aria-label="닫기">✕</button></div>
@@ -3851,18 +4088,11 @@ if ("serviceWorker" in navigator) {
     </div>
   </nav>
   <div id="opt4VerseListenModeBackdrop" hidden></div>
-  <div id="opt4VerseListenModeMenu" class="opt4-verse-listen-mode-menu" hidden role="dialog" aria-modal="false" aria-label="듣기 방식">
-    <div class="opt4-verse-listen-mode-row">
-      <button type="button" class="opt4-verse-listen-mode-option" id="opt4VerseListenModeChapter">
-        <span class="opt4-verse-listen-mode-option-title">현재 장</span>
-        <span class="opt4-verse-listen-mode-option-desc">이 장에서 종료</span>
-      </button>
-      <button type="button" class="opt4-verse-listen-mode-option" id="opt4VerseListenModeContinuous">
-        <span class="opt4-verse-listen-mode-option-title">연속 재생</span>
-        <span class="opt4-verse-listen-mode-option-desc">다음 장으로 계속</span>
-      </button>
-    </div>
-    <span class="opt4-verse-listen-mode-caret" aria-hidden="true"></span>
+  <div id="opt4VerseListenModeMenu" class="reader-anchor-popover" hidden role="dialog" aria-modal="false" aria-label="듣기 방식">
+    <button type="button" class="reader-playback-style-opt is-cur" id="opt4VerseListenModeChapter">
+      <span id="opt4VerseListenModeChapterLabel">1장 듣기</span>
+    </button>
+    <button type="button" class="reader-playback-style-opt is-cur" id="opt4VerseListenModeContinuous">장 연속듣기</button>
   </div>
   <div id="verseToolbarMoreOverlay" class="verse-toolbar-more-overlay" aria-hidden="true" onclick="if(event.target===this)closeVerseToolbarMoreMenu()">
     <div class="verse-toolbar-more-sheet" onclick="event.stopPropagation()">
@@ -5206,6 +5436,7 @@ window.addEventListener('resize', function() {
 });
 
 function switchTab(tab) {
+  if (typeof closeReaderLocationMenus === 'function') closeReaderLocationMenus();
   if (tab === 'search' || tab === 'fav') {
     var vvEl = document.getElementById('verseView');
     if (vvEl && vvEl.classList.contains('active') && currentBook && currentChapter) {
@@ -9493,6 +9724,7 @@ function setupUnifiedBookDrawer() {
   var list = document.getElementById('unifiedBcBookList');
   if (!list) return;
   unifiedBcScrollCurrentBookIntoView();
+  unifiedBcAfterChapterCardReady(list, unifiedBcState.openBook);
 }
 
 /* 책 이름을 누르면 그 책 아래에만 장 버튼을 펼친다. 한 번에 한 책만 펼치고,
@@ -9518,7 +9750,7 @@ function unifiedBcRenderBookList(scrollToBook) {
   list.innerHTML = buildUnifiedBookListItemsHtml(unifiedBcState.bookListTestament);
   list.scrollTop = keep;
   unifiedBcSyncChapterExpandClass();
-  if (scrollToBook) unifiedBcRevealOpenChapters(list, scrollToBook);
+  unifiedBcAfterChapterCardReady(list, scrollToBook || unifiedBcState.openBook);
 }
 
 /* 장 카드가 펼쳐진 동안만 서랍 상자를 왼쪽으로 넓힌다(책 목록 자리는 그대로). */
@@ -9543,8 +9775,47 @@ function unifiedBcRevealOpenChapters(list, bookName) {
   if (delta > 0) list.scrollTop += delta;
 }
 
+/* 장 카드가 열릴 때 현재 활성 장이 그리드 안쪽에 보이게 맞춘다(애니메이션 없음). */
+function unifiedBcScrollActiveChapterIntoView() {
+  var grid = document.querySelector('#unifiedBcBookList .ubc-chcard-grid');
+  if (!grid) return;
+  var cur = grid.querySelector('.ubc-book-chapter.is-cur');
+  if (!cur || typeof cur.scrollIntoView !== 'function') return;
+  try { cur.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+  catch (e) { cur.scrollIntoView(true); }
+}
+
+/* 그리드 안 세로 drag는 스크롤이고, 그 직후 click이 장 이동으로 새지 않게 한다. */
+function unifiedBcBindChapterGridScrollGuard() {
+  var grid = document.querySelector('#unifiedBcBookList .ubc-chcard-grid');
+  if (!grid || grid.getAttribute('data-ubc-scroll-guard') === '1') return;
+  grid.setAttribute('data-ubc-scroll-guard', '1');
+  var startX = 0;
+  var startY = 0;
+  grid.addEventListener('pointerdown', function(e) {
+    window.__ubcChGridDragged = false;
+    startX = e.clientX;
+    startY = e.clientY;
+  }, { passive: true });
+  grid.addEventListener('pointermove', function(e) {
+    if (Math.abs(e.clientY - startY) > 8 || Math.abs(e.clientX - startX) > 8) {
+      window.__ubcChGridDragged = true;
+    }
+  }, { passive: true });
+  grid.addEventListener('scroll', function() {
+    window.__ubcChGridDragged = true;
+  }, { passive: true });
+}
+
+function unifiedBcAfterChapterCardReady(list, bookName) {
+  unifiedBcBindChapterGridScrollGuard();
+  if (list && bookName) unifiedBcRevealOpenChapters(list, bookName);
+  unifiedBcScrollActiveChapterIntoView();
+}
+
 /* 장 숫자를 누르면 그 장으로 바로 간다(기존 장 이동 함수 그대로). */
 function unifiedBcGoChapter(ch) {
+  if (window.__ubcChGridDragged) { window.__ubcChGridDragged = false; return; }
   if (!unifiedBcState.selectedBook) return;
   unifiedBcCollapseCard();
   unifiedBcApplyChapter(parseInt(ch, 10) || 1);
@@ -9579,6 +9850,7 @@ function unifiedBcCloseVersePick() {
 
 /* 시작 절을 고르면 끝 절 단계로 바뀌고, 끝 절을 누르는 순간 이동한다('이동' 버튼 없음). */
 function unifiedBcPickCardVerse(v) {
+  if (window.__ubcChGridDragged) { window.__ubcChGridDragged = false; return; }
   var pick = unifiedBcState.versePick;
   var n = parseInt(v, 10) || 1;
   if (!pick) return;
@@ -10216,6 +10488,7 @@ function openUnifiedBookChapterModal(opts) {
   if (!opts || typeof opts !== 'object' || typeof opts.preventDefault === 'function') opts = {};
   if (!currentBook || !currentChapter) return;
   closeVerseReadMoreMenu();
+  if (typeof closeReaderLocationMenus === 'function') closeReaderLocationMenus();
   if (typeof closeScriptureQuickMove === 'function') closeScriptureQuickMove();
   var data = currentBook.testament === 'old' ? oldTestamentData : newTestamentData;
   var bd = findBook(data, currentBook.name);
@@ -10228,6 +10501,12 @@ function openUnifiedBookChapterModal(opts) {
   unifiedBcState.openBook = null;
   unifiedBcState.versePick = null;
   if (unifiedBcState.step === 'books') unifiedBcSyncBookDialState();
+  /* 상단 현재 위치로 들어오면 지금 읽는 책을 펼친 상태로 시작한다(장 활성 표시는 기존 규칙 그대로).
+     책 목록은 그대로 남아 다른 책으로 바꿀 수 있다. */
+  if (opts.expandCurrentBook && unifiedBcState.step === 'books') {
+    unifiedBcState.bookListTestament = currentBook.testament === 'new' ? 'new' : 'old';
+    unifiedBcState.openBook = currentBook.name;
+  }
   unifiedBcCloseCatSheet();
   var el = document.getElementById('unifiedBookChapterModal');
   if (!el) return;
@@ -10251,7 +10530,517 @@ function openUnifiedBookChapterModal(opts) {
   if (focusEl && !opts.peek) {
     try { focusEl.focus({ preventScroll: true }); } catch (e) { focusEl.focus(); }
   }
+  /* 지금 책을 펼친 채로 열면 장 카드가 목록 아래로 잘리지 않게 한 번 맞춘다. */
+  if (opts.expandCurrentBook && unifiedBcState.openBook && bookList) {
+    unifiedBcRevealOpenChapters(bookList, unifiedBcState.openBook);
+  }
 }
+
+/* 상단 현재 위치(책이름 장:절 + KRV) 탭 — 전체 성경 패널이 아니라 현재 장 전용 미니 팝오버. */
+function isReaderLocationPopoverOpen() {
+  var pop = document.getElementById('readerLocationPopover');
+  return !!(pop && !pop.hidden);
+}
+
+function readerLocationHostRect() {
+  var phone = document.querySelector('.phone-frame');
+  var vv = window.visualViewport;
+  var frame = phone ? phone.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, right: window.innerWidth };
+  var viewTop = vv ? vv.offsetTop : 0;
+  var viewLeft = vv ? vv.offsetLeft : 0;
+  var viewW = vv ? vv.width : window.innerWidth;
+  var viewH = vv ? vv.height : window.innerHeight;
+  return {
+    left: Math.max(frame.left, viewLeft),
+    top: Math.max(0, frame.top, viewTop),
+    width: Math.min(frame.width || viewW, viewW),
+    right: Math.min(frame.right || (viewLeft + viewW), viewLeft + viewW),
+    bottom: viewTop + viewH
+  };
+}
+
+/* 헤더가 제스처 팬으로 화면 밖이면, 읽기 영역 상단에 붙여 팝오버가 보이게 한다. */
+function readerLocationAnchorRect() {
+  var group = document.getElementById('verseReadNavGroup');
+  var host = readerLocationHostRect();
+  var vp = document.getElementById('verseGestureViewport');
+  var groupRect = group ? group.getBoundingClientRect() : null;
+  if (groupRect && groupRect.bottom > host.top + 4 && groupRect.top < host.bottom - 8) {
+    return { left: groupRect.left, bottom: groupRect.bottom, width: groupRect.width, height: groupRect.height, top: groupRect.top };
+  }
+  var top = vp ? Math.max(host.top, vp.getBoundingClientRect().top) : host.top;
+  return {
+    left: groupRect ? groupRect.left : (host.left + 18),
+    bottom: top,
+    width: groupRect ? groupRect.width : 80,
+    height: groupRect ? groupRect.height : 0,
+    top: top
+  };
+}
+
+function readerLocationCaretX(popLeft, popWidth, anchor) {
+  var center = (anchor && anchor.width)
+    ? (anchor.left + anchor.width / 2)
+    : (popLeft + 28);
+  var x = center - popLeft;
+  var min = 16;
+  var max = Math.max(min, popWidth - 16);
+  if (x < min) x = min;
+  if (x > max) x = max;
+  return x;
+}
+
+function positionReaderLocationPopover() {
+  var pop = document.getElementById('readerLocationPopover');
+  if (!pop || pop.hidden) return;
+  if (pop.parentNode !== document.body) document.body.appendChild(pop);
+  var host = readerLocationHostRect();
+  var anchor = readerLocationAnchorRect();
+  var verseMode = pop.classList.contains('is-verse-mode');
+  var margin = 16;
+  var badge = document.getElementById('verseReadVersionBadge');
+  var badgeRect = badge && badge.getBoundingClientRect ? badge.getBoundingClientRect() : null;
+  var w;
+  var left;
+  if (verseMode) {
+    w = Math.min(560, Math.max(240, host.width - margin * 2));
+    left = host.left + margin;
+    var maxLeft = host.right - w - 8;
+    if (left > maxLeft) left = Math.max(host.left + 8, maxLeft);
+    if (left < host.left + 8) left = host.left + 8;
+  } else {
+    var titleText = document.getElementById('verseReadTitleText');
+    var titleBtn = document.getElementById('verseReadTitleBtn');
+    var textRect = (titleText && titleText.getBoundingClientRect && titleText.getBoundingClientRect().width > 0)
+      ? titleText.getBoundingClientRect()
+      : ((titleBtn && titleBtn.getBoundingClientRect) ? titleBtn.getBoundingClientRect() : null);
+    var rightEdge = (badgeRect && badgeRect.width > 0)
+      ? badgeRect.right
+      : (anchor.left + anchor.width);
+    left = (textRect && textRect.width > 0) ? textRect.left : anchor.left;
+    var leftSnap = Math.round(left);
+    var rightSnap = Math.round(rightEdge);
+    left = leftSnap;
+    w = Math.max(1, rightSnap - leftSnap);
+  }
+  var top = (anchor.bottom > host.top) ? (anchor.bottom + 6) : (host.top + 8);
+  var h = pop.offsetHeight || (verseMode ? 320 : 44);
+  if (top + h > host.bottom - 12) top = Math.max(host.top + 8, host.bottom - h - 12);
+  if (top < host.top + 8) top = host.top + 8;
+  pop.style.top = Math.round(top) + 'px';
+  pop.style.left = Math.round(left) + 'px';
+  pop.style.removeProperty('--reader-loc-pad-top');
+  if (verseMode) pop.style.width = Math.round(w) + 'px';
+  else pop.style.width = Math.round(w) + 'px';
+  pop.style.setProperty('--reader-loc-caret-x', Math.round(readerLocationCaretX(left, w, anchor)) + 'px');
+}
+
+function readerLocationResetPopoverMode() {
+  var pop = document.getElementById('readerLocationPopover');
+  var menu = document.getElementById('readerLocationMenuPane');
+  var verse = document.getElementById('readerLocationVersePane');
+  var grid = document.getElementById('readerLocationVerseGrid');
+  if (pop) {
+    pop.classList.remove('is-verse-mode');
+    pop.style.width = '';
+  }
+  document.documentElement.classList.remove('reader-loc-verse-open');
+  if (menu) menu.hidden = false;
+  if (verse) verse.hidden = true;
+  if (grid) grid.innerHTML = '';
+}
+
+function closeReaderLocationPopover() {
+  var pop = document.getElementById('readerLocationPopover');
+  var titleBtn = document.getElementById('verseReadTitleBtn');
+  readerLocationResetPopoverMode();
+  if (pop) {
+    pop.hidden = true;
+    pop.style.left = '';
+    pop.style.top = '';
+    pop.style.removeProperty('--reader-loc-pad-top');
+    pop.style.removeProperty('--reader-loc-caret-x');
+  }
+  document.documentElement.classList.remove('reader-loc-pop-open', 'reader-loc-verse-open');
+  if (titleBtn) titleBtn.setAttribute('aria-expanded', 'false');
+}
+
+function closeReaderLocationVersePick() {
+  closeReaderLocationPopover();
+}
+
+function closeReaderLocationMenus() {
+  closeReaderLocationPopover();
+  if (typeof closeReaderPlaybackStylePopover === 'function') closeReaderPlaybackStylePopover();
+}
+
+function openReaderLocationPopover() {
+  if (!currentBook || !currentChapter) return;
+  var pop = document.getElementById('readerLocationPopover');
+  var titleBtn = document.getElementById('verseReadTitleBtn');
+  if (!pop) return;
+  readerLocationResetPopoverMode();
+  pop.hidden = false;
+  document.documentElement.classList.add('reader-loc-pop-open');
+  if (titleBtn) titleBtn.setAttribute('aria-expanded', 'true');
+  positionReaderLocationPopover();
+}
+
+function toggleReaderLocationPopover() {
+  if (isReaderLocationPopoverOpen()) closeReaderLocationPopover();
+  else openReaderLocationPopover();
+}
+
+function readerLocationGoVerse(n) {
+  if (window.__readerLocGridDragged) {
+    window.__readerLocGridDragged = false;
+    return;
+  }
+  var v = parseInt(n, 10) || 1;
+  closeReaderLocationMenus();
+  if (!currentBook || !currentChapter) return;
+  if (typeof restoreVerseSelection === 'function') restoreVerseSelection([v]);
+  else {
+    selectedVerseNum = v;
+    selectedVerseNums = [v];
+  }
+  if (typeof scrollVerseIntoView === 'function') scrollVerseIntoView(v);
+  if (typeof updateOpt4BottomBar === 'function') updateOpt4BottomBar();
+}
+
+function readerLocationGoNextChapter() {
+  if (typeof nextChapter === 'function') nextChapter();
+}
+
+function readerLocationBindVerseGridGuard(grid) {
+  if (!grid || grid.getAttribute('data-loc-scroll-guard') === '1') return;
+  grid.setAttribute('data-loc-scroll-guard', '1');
+  var startX = 0;
+  var startY = 0;
+  grid.addEventListener('pointerdown', function(e) {
+    window.__readerLocGridDragged = false;
+    startX = e.clientX;
+    startY = e.clientY;
+  }, { passive: true });
+  grid.addEventListener('pointermove', function(e) {
+    if (Math.abs(e.clientY - startY) > 8 || Math.abs(e.clientX - startX) > 8) {
+      window.__readerLocGridDragged = true;
+    }
+  }, { passive: true });
+  grid.addEventListener('scroll', function() {
+    window.__readerLocGridDragged = true;
+  }, { passive: true });
+}
+
+/* 같은 팝오버 카드 안에서 절 그리드로 확장한다. 새 overlay/modal을 만들지 않는다. */
+function readerLocationOpenVersePick() {
+  if (!currentBook || !currentChapter) return;
+  var pop = document.getElementById('readerLocationPopover');
+  var menu = document.getElementById('readerLocationMenuPane');
+  var verse = document.getElementById('readerLocationVersePane');
+  var grid = document.getElementById('readerLocationVerseGrid');
+  var bookEl = document.getElementById('readerLocationVerseBook');
+  if (!pop || !grid) return;
+  if (pop.hidden) openReaderLocationPopover();
+  var count = typeof unifiedBcChapterVerseCount === 'function'
+    ? unifiedBcChapterVerseCount(currentBook.name, currentChapter, currentBook.testament)
+    : (currentVerseCount || 1);
+  var curV = typeof getReaderCurrentVerseNum === 'function' ? getReaderCurrentVerseNum() : 1;
+  var unit = typeof getChapterUnit === 'function' ? getChapterUnit(currentBook.name) : '장';
+  var chLabel = typeof formatReaderChapterLabel === 'function'
+    ? formatReaderChapterLabel(currentChapter, typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko', currentBook.name)
+    : (currentChapter + unit);
+  if (bookEl) bookEl.textContent = currentBook.name + ' ' + chLabel;
+  var html = '';
+  var i;
+  for (i = 1; i <= count; i++) {
+    html += '<button type="button" class="ubc-book-chapter' + (i === curV ? ' is-loc-cur' : '') + '"'
+      + ' data-ubc-verse="' + i + '"'
+      + ' aria-label="' + currentBook.name + ' ' + currentChapter + unit + ' ' + i + '절"'
+      + ' onclick="readerLocationGoVerse(' + i + ')">' + i + '</button>';
+  }
+  grid.innerHTML = html;
+  readerLocationBindVerseGridGuard(grid);
+  if (menu) menu.hidden = true;
+  if (verse) verse.hidden = false;
+  pop.classList.add('is-verse-mode');
+  document.documentElement.classList.add('reader-loc-verse-open');
+  positionReaderLocationPopover();
+  var curBtn = grid.querySelector('.ubc-book-chapter.is-loc-cur');
+  if (curBtn && typeof curBtn.scrollIntoView === 'function') {
+    try { curBtn.scrollIntoView({ block: 'nearest' }); } catch (e) { curBtn.scrollIntoView(true); }
+  }
+}
+
+function bindReaderLocationPopoverChrome() {
+  if (window.__readerLocPopBound) return;
+  window.__readerLocPopBound = true;
+  document.addEventListener('pointerdown', function(e) {
+    if (!isReaderLocationPopoverOpen()) return;
+    var t = e.target;
+    if (t && t.closest && (t.closest('#readerLocationPopover') || t.closest('#verseReadTitleBtn') || t.closest('#verseReadVersionBadge'))) return;
+    closeReaderLocationPopover();
+  }, true);
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Escape') return;
+    if (isReaderLocationPopoverOpen()) {
+      closeReaderLocationPopover();
+      e.preventDefault();
+    }
+  });
+  window.addEventListener('resize', function() {
+    if (isReaderLocationPopoverOpen()) positionReaderLocationPopover();
+    if (typeof positionReaderChapterFabs === 'function') positionReaderChapterFabs();
+  });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindReaderLocationPopoverChrome);
+else bindReaderLocationPopoverChrome();
+
+function openReaderLocationPanel() {
+  toggleReaderLocationPopover();
+}
+window.openReaderLocationPanel = openReaderLocationPanel;
+window.toggleReaderLocationPopover = toggleReaderLocationPopover;
+window.readerLocationOpenVersePick = readerLocationOpenVersePick;
+window.readerLocationGoVerse = readerLocationGoVerse;
+window.readerLocationGoNextChapter = readerLocationGoNextChapter;
+window.closeReaderLocationVersePick = closeReaderLocationVersePick;
+
+function positionReaderChapterFabs() {
+  var prev = document.getElementById('readerChapterPrevFab');
+  var next = document.getElementById('readerChapterNextFab');
+  if (!prev || !next) return;
+  var host = typeof readerLocationHostRect === 'function'
+    ? readerLocationHostRect()
+    : { left: 0, right: window.innerWidth, top: 0, width: window.innerWidth };
+  var vv = window.visualViewport;
+  var viewTop = vv ? vv.offsetTop : 0;
+  var viewH = vv ? vv.height : window.innerHeight;
+  var top = Math.round(viewTop + viewH * 0.57 - 22);
+  var desktop = window.innerWidth >= 481 && host.left >= 36;
+  if (desktop) {
+    prev.style.left = Math.round(host.left - 22) + 'px';
+    next.style.left = Math.round(host.right - 22) + 'px';
+  } else {
+    prev.style.left = Math.round(host.left + 10) + 'px';
+    next.style.left = Math.round(host.right - 54) + 'px';
+  }
+  prev.style.top = top + 'px';
+  next.style.top = top + 'px';
+}
+
+var READER_CH_FAB_HIDE_MS = 3000;
+var READER_CH_FAB_SCROLL_PX = 2;
+var READER_CH_FAB_TOUCH_PX = 8;
+var readerChFabHideTimer = 0;
+var readerChFabHeld = false;
+var readerChFabLastY = null;
+var readerChFabTouchOrigin = null;
+var readerChFabPlace = '';
+var readerChFabIgnoreUntil = 0;
+var readerChFabBound = false;
+
+function readerChapterFabsBlocked() {
+  var root = document.documentElement;
+  var body = document.body;
+  if (!root.classList.contains('reader-verse-active')) return true;
+  if (root.classList.contains('ubc-rail-drawer')) return true;
+  if (root.classList.contains('unified-bc-lock-scroll')) return true;
+  if (root.classList.contains('reader-loc-pop-open')) return true;
+  if (root.classList.contains('reader-loc-verse-open')) return true;
+  if (body && body.classList.contains('gomna-commentary-popup-open')) return true;
+  var more = document.getElementById('verseToolbarMoreOverlay');
+  if (more && more.classList.contains('active')) return true;
+  if (typeof isVerseListenModeMenuOpen === 'function' && isVerseListenModeMenuOpen()) return true;
+  var popup = document.getElementById('commentaryPopup');
+  if (popup && popup.classList.contains('show')) return true;
+  return false;
+}
+
+function isReaderChapterFabForeignScrollTarget(t) {
+  if (!t || !t.closest) return false;
+  if (t === document || t === document.documentElement || t === document.body) return false;
+  return !!t.closest('#readerLocationPopover, #unifiedBookChapterModal, #commentaryPopup, #verseReadMoreOverlay, #opt4VerseListenModeMenu, #scriptureQuickMoveOverlay, .ubc-chcard-grid');
+}
+
+function setReaderChapterFabsVisible(on) {
+  var prev = document.getElementById('readerChapterPrevFab');
+  var next = document.getElementById('readerChapterNextFab');
+  var vis = !!on && !readerChapterFabsBlocked();
+  if (prev) prev.classList.toggle('is-scroll-nav-visible', vis);
+  if (next) next.classList.toggle('is-scroll-nav-visible', vis);
+}
+
+function clearReaderChapterFabHideTimer() {
+  if (readerChFabHideTimer) {
+    clearTimeout(readerChFabHideTimer);
+    readerChFabHideTimer = 0;
+  }
+}
+
+function scheduleReaderChapterFabHide() {
+  clearReaderChapterFabHideTimer();
+  if (readerChFabHeld) return;
+  readerChFabHideTimer = setTimeout(function() {
+    readerChFabHideTimer = 0;
+    if (readerChFabHeld) return;
+    setReaderChapterFabsVisible(false);
+  }, READER_CH_FAB_HIDE_MS);
+}
+
+function primeReaderChapterFabScrollY() {
+  if (typeof isOpt4BarAutoHideTouchMode === 'function' && isOpt4BarAutoHideTouchMode()) return;
+  if (typeof getOpt4BarAutoHideScrollTop === 'function') {
+    readerChFabLastY = getOpt4BarAutoHideScrollTop();
+  }
+}
+
+function hideReaderChapterFabsNow(opts) {
+  clearReaderChapterFabHideTimer();
+  if (!opts || !opts.keepHold) readerChFabHeld = false;
+  setReaderChapterFabsVisible(false);
+  if (opts && opts.resetY) {
+    readerChFabLastY = null;
+    readerChFabTouchOrigin = null;
+    readerChFabIgnoreUntil = Date.now() + 400;
+    primeReaderChapterFabScrollY();
+  }
+}
+
+function revealReaderChapterFabs() {
+  if (readerChapterFabsBlocked()) return;
+  setReaderChapterFabsVisible(true);
+  scheduleReaderChapterFabHide();
+}
+
+function onReaderChapterFabScrollSignal(y, minMove) {
+  var thresh = minMove == null ? READER_CH_FAB_SCROLL_PX : minMove;
+  if (y == null || isNaN(y)) return;
+  if (Date.now() < readerChFabIgnoreUntil) {
+    readerChFabLastY = y;
+    return;
+  }
+  if (readerChFabLastY == null) {
+    readerChFabLastY = y;
+    return;
+  }
+  if (Math.abs(y - readerChFabLastY) < thresh) return;
+  readerChFabLastY = y;
+  revealReaderChapterFabs();
+}
+
+function onReaderChapterFabWindowScroll(e) {
+  if (readerChapterFabsBlocked()) {
+    hideReaderChapterFabsNow();
+    return;
+  }
+  if (isReaderChapterFabForeignScrollTarget(e && e.target)) return;
+  if (typeof isOpt4BarAutoHideTouchMode === 'function' && isOpt4BarAutoHideTouchMode()) return;
+  onReaderChapterFabScrollSignal(getOpt4BarAutoHideScrollTop(), READER_CH_FAB_SCROLL_PX);
+}
+
+function onReaderChapterFabPointerY(ty) {
+  if (ty == null || isNaN(ty)) return;
+  if (typeof isOpt4BarAutoHideTouchMode === 'function' && !isOpt4BarAutoHideTouchMode()) return;
+  if (readerChapterFabsBlocked()) {
+    hideReaderChapterFabsNow();
+    readerChFabTouchOrigin = null;
+    return;
+  }
+  if (Date.now() < readerChFabIgnoreUntil) {
+    readerChFabTouchOrigin = ty;
+    return;
+  }
+  if (readerChFabTouchOrigin == null) {
+    readerChFabTouchOrigin = ty;
+    return;
+  }
+  if (Math.abs(ty - readerChFabTouchOrigin) < READER_CH_FAB_TOUCH_PX) return;
+  readerChFabTouchOrigin = ty;
+  revealReaderChapterFabs();
+}
+
+function onReaderChapterFabHoldStart() {
+  readerChFabHeld = true;
+  clearReaderChapterFabHideTimer();
+  if (!readerChapterFabsBlocked()) setReaderChapterFabsVisible(true);
+}
+
+function onReaderChapterFabHoldEnd() {
+  readerChFabHeld = false;
+  if (readerChapterFabsBlocked()) {
+    hideReaderChapterFabsNow();
+    return;
+  }
+  scheduleReaderChapterFabHide();
+}
+
+function bindReaderChapterFabChrome() {
+  var prev = document.getElementById('readerChapterPrevFab');
+  var next = document.getElementById('readerChapterNextFab');
+  var root = document.documentElement;
+  var body = document.body;
+  if (readerChFabBound) return;
+  readerChFabBound = true;
+  window.addEventListener('scroll', onReaderChapterFabWindowScroll, { passive: true });
+  document.addEventListener('scroll', onReaderChapterFabWindowScroll, { passive: true, capture: true });
+  primeReaderChapterFabScrollY();
+  [prev, next].forEach(function(el) {
+    if (!el) return;
+    el.addEventListener('pointerdown', onReaderChapterFabHoldStart);
+    el.addEventListener('pointerenter', onReaderChapterFabHoldStart);
+    el.addEventListener('pointerup', onReaderChapterFabHoldEnd);
+    el.addEventListener('pointerleave', onReaderChapterFabHoldEnd);
+    el.addEventListener('pointercancel', onReaderChapterFabHoldEnd);
+    el.addEventListener('touchstart', onReaderChapterFabHoldStart, { passive: true });
+    el.addEventListener('touchend', onReaderChapterFabHoldEnd);
+    el.addEventListener('touchcancel', onReaderChapterFabHoldEnd);
+  });
+  if (root && root.getAttribute('data-ch-fab-obs') !== '1') {
+    root.setAttribute('data-ch-fab-obs', '1');
+    var obs = new MutationObserver(function() {
+      if (readerChapterFabsBlocked()) hideReaderChapterFabsNow();
+    });
+    obs.observe(root, { attributes: true, attributeFilter: ['class'] });
+    if (body) obs.observe(body, { attributes: true, attributeFilter: ['class'] });
+  }
+}
+
+function syncReaderChapterFabs() {
+  var prev = document.getElementById('readerChapterPrevFab');
+  var next = document.getElementById('readerChapterNextFab');
+  var vv = document.getElementById('verseView');
+  var show = !!(vv && vv.classList.contains('active') && currentBook && currentChapter);
+  var place = show
+    ? ((currentBook && currentBook.name) || '') + ':' + String(currentChapter || '')
+    : '';
+  if (prev) {
+    prev.hidden = !show;
+    prev.disabled = !show || currentChapter <= 1;
+  }
+  if (next) {
+    var data = currentBook && currentBook.testament === 'old' ? oldTestamentData : newTestamentData;
+    var bookData = currentBook ? findBook(data, currentBook.name) : null;
+    var chCount = bookData ? getDisplayedChapterCount(bookData) : (currentBook && currentBook.chapters) || 0;
+    next.hidden = !show;
+    next.disabled = !show || currentChapter >= chCount;
+  }
+  if (place !== readerChFabPlace) {
+    readerChFabPlace = place;
+    hideReaderChapterFabsNow({ resetY: true });
+  }
+  if (show) {
+    positionReaderChapterFabs();
+    bindReaderChapterFabChrome();
+  }
+  if (!show || readerChapterFabsBlocked()) hideReaderChapterFabsNow();
+}
+window.positionReaderChapterFabs = positionReaderChapterFabs;
+window.syncReaderChapterFabs = syncReaderChapterFabs;
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindReaderChapterFabChrome);
+else bindReaderChapterFabChrome();
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindReaderVerseFocusMode);
+else bindReaderVerseFocusMode();
 
 /* 열린 동안 Tab 초점이 시트 밖으로 빠져나가지 않게 순환시킨다. */
 function bindUnifiedBcFocusLoop() {
@@ -10291,10 +11080,11 @@ function closeUnifiedBookChapterModal() {
   }
   document.documentElement.classList.remove('unified-bc-lock-scroll');
   unifiedBcSyncRailState();
+  var locBtn = document.getElementById('verseReadTitleBtn');
+  if (locBtn) locBtn.setAttribute('aria-expanded', 'false');
   if (restoreFocus) {
-    var titleBtn = document.getElementById('verseReadTitleBtn');
-    if (titleBtn && titleBtn.offsetParent !== null) {
-      try { titleBtn.focus({ preventScroll: true }); } catch (e) { titleBtn.focus(); }
+    if (locBtn && locBtn.offsetParent !== null) {
+      try { locBtn.focus({ preventScroll: true }); } catch (e) { locBtn.focus(); }
     }
   }
 }
@@ -10406,6 +11196,7 @@ function updateOpt4BottomBar() {
   var chCount = bookData ? getDisplayedChapterCount(bookData) : (currentBook.chapters || 999);
   if (prev) prev.disabled = currentChapter <= 1;
   if (next) next.disabled = currentChapter >= chCount;
+  if (typeof syncReaderChapterFabs === 'function') syncReaderChapterFabs();
   updateVerseToolbar();
   syncScriptureDockActive();
   if (typeof window.syncPlainVerseGestureMode === 'function') window.syncPlainVerseGestureMode();
@@ -10516,6 +11307,7 @@ function onOpt4BarAutoHideScroll() {
 function opt4BarAutoHideFromClientY(ty) {
   var tdy;
   if (!isOpt4BarAutoHideTouchMode() || ty == null || isNaN(ty)) return;
+  if (typeof onReaderChapterFabPointerY === 'function') onReaderChapterFabPointerY(ty);
   if (isOpt4BarAutoHideLocked()) {
     setOpt4BottomBarScrollHidden(false);
     opt4BarAutoHideTouchY = ty;
@@ -10553,6 +11345,7 @@ function onOpt4BarAutoHideTouchMove(e) {
 
 function onOpt4BarAutoHideTouchEnd() {
   opt4BarAutoHideTouchY = null;
+  readerChFabTouchOrigin = null;
 }
 
 function initOpt4BottomBarAutoHide() {
@@ -10601,6 +11394,38 @@ function getVerseAudioId(verseNum, occurrence) {
   return bookId + '.' + String(currentChapter).padStart(3, '0') + '.' + formatBibleVerseSegment(verseNum, occurrence) + '.bible';
 }
 
+/** 장 연속듣기 + 현재 장 마지막 절일 때, 다음 장 1절 audioId. 없으면 null. */
+function getContinuousNextChapterFirstAudioId() {
+  var bookId;
+  var audioId;
+  var audios;
+  var entry;
+
+  if (!window.__gomnaBibleContinuousChapterPlayback) return null;
+  if (window.__gomnaBibleChapterListenMode !== 'continuous') return null;
+  if (!currentBook || !currentChapter) return null;
+  if (currentChapter >= currentBook.chapters) return null;
+  if (!window.GOMNA_AUDIO_BOOK || !window.GOMNA_AUDIO_BOOK.getBookAudioId) return null;
+
+  bookId = GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name);
+  if (!bookId) return null;
+
+  audioId = bookId + '.' + String(currentChapter + 1).padStart(3, '0') + '.' + formatBibleVerseSegment(1) + '.bible';
+  audios = window.GOMNA_AUDIO_CONFIG && window.GOMNA_AUDIO_CONFIG.manifestData && window.GOMNA_AUDIO_CONFIG.manifestData.audios;
+  entry = audios && audios[audioId];
+  if (!entry || !entry.filePath || entry.type !== 'bible') return null;
+  if (entry.status !== 'published' && audioId !== 'genesis.001.001.bible') return null;
+  if (
+    window.GOMNA_AUDIO_ENGINE &&
+    typeof window.GOMNA_AUDIO_ENGINE._isEntryAvailableForCurrentVoice === 'function' &&
+    !window.GOMNA_AUDIO_ENGINE._isEntryAvailableForCurrentVoice(entry)
+  ) {
+    return null;
+  }
+  return audioId;
+}
+window.getContinuousNextChapterFirstAudioId = getContinuousNextChapterFirstAudioId;
+
 function getVerseAudioIdFromItem(item) {
   if (!item) return null;
   var verseNum = parseInt(item.getAttribute('data-verse'), 10);
@@ -10631,7 +11456,229 @@ function applyVerseSelectionHighlight() {
     item.classList.toggle('verse-item--selected', selected);
     item.setAttribute('aria-selected', selected ? 'true' : 'false');
   });
+  if (typeof syncReaderVerseFocusMode === 'function') syncReaderVerseFocusMode();
 }
+
+var READER_PLAYBACK_STYLE_KEY = 'gomna_reader_playback_focus_style';
+var readerPlaybackStyle = 'focus';
+
+function getReaderPlaybackStyle() {
+  return readerPlaybackStyle === 'gold' ? 'gold' : 'focus';
+}
+
+function loadReaderPlaybackStyle() {
+  var raw = '';
+  try { raw = String(localStorage.getItem(READER_PLAYBACK_STYLE_KEY) || ''); } catch (e) { raw = ''; }
+  readerPlaybackStyle = raw === 'gold' ? 'gold' : 'focus';
+  return readerPlaybackStyle;
+}
+
+function saveReaderPlaybackStyle(style) {
+  readerPlaybackStyle = style === 'gold' ? 'gold' : 'focus';
+  try { localStorage.setItem(READER_PLAYBACK_STYLE_KEY, readerPlaybackStyle); } catch (e) { /* ignore */ }
+}
+
+function isReaderBiblePlaybackFocus() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var state = engine && typeof engine.getState === 'function' ? engine.getState() : null;
+  if (!state || !state.isPlaying || state.isPaused || !state.currentAudioId) return false;
+  if (!/\.bible$/.test(String(state.currentAudioId))) return false;
+  return !!document.querySelector('#verseList .verse-item.gomna-commentary-card-active, #verseList .verse-item .gomna-audio-reading');
+}
+
+function isReaderBibleAudioCurrent() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var state = engine && typeof engine.getState === 'function' ? engine.getState() : null;
+  return !!(state && state.currentAudioId && /\.bible$/.test(String(state.currentAudioId)));
+}
+
+function isReaderBiblePlaybackPaused() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var state = engine && typeof engine.getState === 'function' ? engine.getState() : null;
+  if (!state || !state.isPaused || !state.currentAudioId) return false;
+  return /\.bible$/.test(String(state.currentAudioId));
+}
+
+function syncReaderVerseFocusMode() {
+  var root = document.documentElement;
+  var style = getReaderPlaybackStyle();
+  var play = isReaderBiblePlaybackFocus();
+  var focusPaused = style === 'focus' && isReaderBiblePlaybackPaused();
+  var sel = !!(typeof selectedVerseNums !== 'undefined' && selectedVerseNums && selectedVerseNums.length);
+  root.classList.toggle('playback-style-gold', style === 'gold');
+  root.classList.toggle('playback-style-focus', style === 'focus');
+  root.classList.toggle('is-verse-focus-play', play && style === 'focus');
+  root.classList.toggle('is-verse-focus-select', !play && !focusPaused && sel);
+  if (typeof syncReaderPlaybackStyleChrome === 'function') syncReaderPlaybackStyleChrome();
+}
+
+function isReaderMiniPlayerOpen() {
+  var mini = document.getElementById('gomna-audio-mini-player');
+  return !!(mini && !mini.hidden && mini.classList.contains('gomna-audio-visible'));
+}
+
+function closeReaderPlaybackStylePopover() {
+  var pop = document.getElementById('readerPlaybackStylePopover');
+  var btn = document.getElementById('readerPlaybackStyleBtn');
+  if (pop) pop.hidden = true;
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+function syncReaderPlaybackStyleChrome() {
+  var btn = document.getElementById('readerPlaybackStyleBtn');
+  var goldBtn = document.getElementById('readerPlaybackStyleGold');
+  var focusBtn = document.getElementById('readerPlaybackStyleFocus');
+  var style = getReaderPlaybackStyle();
+  var show = isReaderBibleAudioCurrent() && isReaderMiniPlayerOpen();
+  document.documentElement.classList.toggle('reader-bible-audio-on', show);
+  syncReaderBiblePlayerClearance();
+  if (btn) {
+    btn.hidden = !show;
+    btn.setAttribute('aria-hidden', show ? 'false' : 'true');
+  }
+  if (goldBtn) goldBtn.classList.toggle('is-cur', style === 'gold');
+  if (focusBtn) focusBtn.classList.toggle('is-cur', style === 'focus');
+  if (!show) closeReaderPlaybackStylePopover();
+  requestAnimationFrame(function() {
+    syncReaderBiblePlayerClearance();
+    if (typeof window.__gomnaPlainVerseGestureRemeasure === 'function') {
+      window.__gomnaPlainVerseGestureRemeasure();
+    }
+  });
+}
+
+function syncReaderBiblePlayerClearance() {
+  var root = document.documentElement;
+  var show = root.classList.contains('reader-bible-audio-on');
+  var mini = document.getElementById('gomna-audio-mini-player');
+  var px = 0;
+  if (show && mini && !mini.hidden && mini.classList.contains('gomna-audio-visible')) {
+    var r = mini.getBoundingClientRect();
+    var vv = window.visualViewport;
+    var viewBottom = vv ? (vv.offsetTop + vv.height) : window.innerHeight;
+    if (r.height > 1) px = Math.max(0, Math.ceil(viewBottom - r.top) + 12);
+  }
+  if (px > 0) root.style.setProperty('--reader-bible-player-clearance', px + 'px');
+  else root.style.removeProperty('--reader-bible-player-clearance');
+  return px;
+}
+
+function positionReaderAnchorPopover(pop, btn) {
+  if (!pop || !btn || pop.hidden) return;
+  var r = btn.getBoundingClientRect();
+  pop.style.width = 'auto';
+  var w = pop.offsetWidth || 160;
+  var h = pop.offsetHeight || 40;
+  var gap = 8;
+  var left = r.left + (r.width / 2) - (w / 2);
+  var top = r.top - h - gap;
+  pop.style.left = left + 'px';
+  pop.style.right = 'auto';
+  pop.style.bottom = 'auto';
+  pop.style.top = top + 'px';
+}
+
+function positionReaderPlaybackStylePopover() {
+  positionReaderAnchorPopover(
+    document.getElementById('readerPlaybackStylePopover'),
+    document.getElementById('readerPlaybackStyleBtn')
+  );
+}
+
+function openReaderPlaybackStylePopover() {
+  var pop = document.getElementById('readerPlaybackStylePopover');
+  var btn = document.getElementById('readerPlaybackStyleBtn');
+  if (!pop || !btn || btn.hidden) return;
+  if (typeof closeVerseListenModeMenu === 'function') closeVerseListenModeMenu();
+  if (pop.parentNode !== document.body) document.body.appendChild(pop);
+  pop.hidden = false;
+  btn.setAttribute('aria-expanded', 'true');
+  syncReaderPlaybackStyleChrome();
+  positionReaderPlaybackStylePopover();
+  requestAnimationFrame(positionReaderPlaybackStylePopover);
+}
+
+function setReaderPlaybackStyle(style) {
+  saveReaderPlaybackStyle(style);
+  closeReaderPlaybackStylePopover();
+  syncReaderVerseFocusMode();
+}
+
+function bindReaderPlaybackStyleChrome() {
+  var btn = document.getElementById('readerPlaybackStyleBtn');
+  var pop = document.getElementById('readerPlaybackStylePopover');
+  if (!btn || !pop || btn.dataset.bound === '1') return;
+  btn.dataset.bound = '1';
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (pop.hidden) openReaderPlaybackStylePopover();
+    else closeReaderPlaybackStylePopover();
+  });
+  pop.addEventListener('click', function (e) {
+    var opt = e.target.closest('.reader-playback-style-opt');
+    if (!opt) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setReaderPlaybackStyle(opt.getAttribute('data-style'));
+  });
+  document.addEventListener('click', function (e) {
+    if (pop.hidden) return;
+    if (btn.contains(e.target) || pop.contains(e.target)) return;
+    closeReaderPlaybackStylePopover();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeReaderPlaybackStylePopover();
+  });
+  window.addEventListener('resize', function () {
+    if (!pop.hidden) positionReaderPlaybackStylePopover();
+  });
+}
+
+function bindReaderVerseFocusMode() {
+  loadReaderPlaybackStyle();
+  bindReaderPlaybackStyleChrome();
+  var list = document.getElementById('verseList');
+  if (window.__gomnaVerseFocusBound) {
+    if (list && list.getAttribute('data-vf-obs') !== '1') {
+      list.setAttribute('data-vf-obs', '1');
+      new MutationObserver(function() { syncReaderVerseFocusMode(); }).observe(list, { attributes: true, attributeFilter: ['class'], subtree: true });
+    }
+    syncReaderVerseFocusMode();
+    return;
+  }
+  window.__gomnaVerseFocusBound = true;
+  ['audio:start', 'audio:pause', 'audio:resume', 'audio:end', 'audio:error'].forEach(function(name) {
+    window.addEventListener(name, function() {
+      bindReaderPlaybackStyleChrome();
+      syncReaderVerseFocusMode();
+      requestAnimationFrame(syncReaderVerseFocusMode);
+    });
+  });
+  window.addEventListener('gomna:verse_list_rendered', function() {
+    bindReaderVerseFocusMode();
+    requestAnimationFrame(syncReaderVerseFocusMode);
+  });
+  if (list) {
+    list.setAttribute('data-vf-obs', '1');
+    new MutationObserver(function() { syncReaderVerseFocusMode(); }).observe(list, { attributes: true, attributeFilter: ['class'], subtree: true });
+  }
+  var mini = document.getElementById('gomna-audio-mini-player');
+  if (mini && mini.getAttribute('data-ps-obs') !== '1' && typeof MutationObserver !== 'undefined') {
+    mini.setAttribute('data-ps-obs', '1');
+    new MutationObserver(function() { syncReaderPlaybackStyleChrome(); }).observe(mini, { attributes: true, attributeFilter: ['class', 'hidden'] });
+  }
+  if (!window.__gomnaBibleClearanceResizeBound) {
+    window.__gomnaBibleClearanceResizeBound = true;
+    var onBibleClearanceResize = function() {
+      if (typeof syncReaderBiblePlayerClearance === 'function') syncReaderBiblePlayerClearance();
+    };
+    window.addEventListener('resize', onBibleClearanceResize);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', onBibleClearanceResize);
+  }
+  syncReaderVerseFocusMode();
+}
+window.syncReaderVerseFocusMode = syncReaderVerseFocusMode;
 
 function syncChapterSelectionHighlight() {
   var items = document.querySelectorAll('#verseList .verse-item');
@@ -10745,6 +11792,7 @@ function clearVerseSelection() {
     item.setAttribute('aria-selected', 'false');
   });
   updateOpt4BottomBar();
+  if (typeof syncReaderVerseFocusMode === 'function') syncReaderVerseFocusMode();
 }
 
 function getSelectedVersesAudioQueueSource() {
@@ -11559,6 +12607,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
 
   var baseW = 0;
   var baseH = 0;
+  var lastVerseRestBottom = 0;
   var headerBaseH = 0;
   var viewportW = 0;
   var viewportH = 0;
@@ -11657,6 +12706,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     var r = el.getBoundingClientRect();
     var cs = window.getComputedStyle(el);
     if (cs.display === 'none' || cs.visibility === 'hidden' || r.height < 1) return null;
+    if (parseFloat(cs.opacity) === 0) return null;
     return r.top;
   }
   function getViewportBox() {
@@ -11698,7 +12748,9 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     if (barTop != null) bottom = Math.min(bottom, barTop);
     if (scriptureTop != null) bottom = Math.min(bottom, scriptureTop);
     if (cookieTop != null) bottom = Math.min(bottom, cookieTop);
-    if (miniTop != null) bottom = Math.min(bottom, miniTop);
+    if (miniTop != null && !document.documentElement.classList.contains('reader-bible-audio-on')) {
+      bottom = Math.min(bottom, miniTop);
+    }
     var left = pr.left;
     var width = pr.width || window.innerWidth;
     var height = Math.max(120, bottom - top);
@@ -11710,6 +12762,15 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     /* Full surface content (header + verseView + verseList) must drive the
        upward pan limit so long chapters can keep moving past the header. */
     minPanY = Math.min(0, viewportH - scaledH - 24);
+    if (document.documentElement.classList.contains('reader-bible-audio-on') && lastVerseRestBottom) {
+      var playerEl = document.getElementById('gomna-audio-mini-player');
+      if (playerEl && !playerEl.hidden && playerEl.classList.contains('gomna-audio-visible')) {
+        var playerRect = playerEl.getBoundingClientRect();
+        if (playerRect.height > 1) {
+          minPanY = Math.min(minPanY, (playerRect.top - 12) - lastVerseRestBottom);
+        }
+      }
+    }
     /* panY = 0 already puts #verseReadHeader at the top, so that is the whole
        downward allowance. A positive maxPanY let a finger-down drag push the
        passage below its own top and leave empty space above it. */
@@ -11903,14 +12964,19 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
       viewH = Math.max(viewH, (list.offsetTop || 0) + listH);
     }
     surfaceTop = surface.getBoundingClientRect().top;
+    lastVerseRestBottom = 0;
     if (lastItem) {
-      contentBottom = lastItem.getBoundingClientRect().bottom - surfaceTop;
+      lastVerseRestBottom = lastItem.getBoundingClientRect().bottom;
+      contentBottom = lastVerseRestBottom - surfaceTop;
     } else if (list) {
       contentBottom = list.getBoundingClientRect().bottom - surfaceTop;
     } else if (view) {
       contentBottom = view.getBoundingClientRect().bottom - surfaceTop;
     } else if (header) {
       contentBottom = header.getBoundingClientRect().bottom - surfaceTop;
+    }
+    if (list) {
+      contentBottom = Math.max(contentBottom, list.getBoundingClientRect().bottom - surfaceTop);
     }
     /* Prefer the tallest real content signal so iOS short scrollHeight cannot
        freeze panY while #verseReadHeader is still on screen. */
@@ -12006,6 +13072,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
       targetPanX = nextX;
       targetPanY = nextY;
       if (targetScale <= 1) targetPanX = 0;
+      if (typeof revealReaderChapterFabs === 'function') revealReaderChapterFabs();
       /* 관성 프레임도 동일 paint 경로로 transform 1회 */
       flushPaint();
       if (Math.abs(vx) < INERTIA_STOP_SPEED && Math.abs(vy) < INERTIA_STOP_SPEED) {
@@ -12207,6 +13274,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
       targetPanX = clampX(startPanX + dx);
       targetPanY = clampY(startPanY + dy);
     }
+    if (Math.abs(dy) >= 2 && typeof revealReaderChapterFabs === 'function') revealReaderChapterFabs();
     schedulePaint();
   }
   function onPointerUp(e) {
@@ -12450,6 +13518,13 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
   window.__gomnaPlainVerseGestureCancelAudioPan = cancelAudioPanAnimation;
   window.__gomnaPlainVerseGestureIsUserInteracting = isPlainVerseUserInteracting;
   window.__gomnaPlainVerseGestureSyncChrome = layoutViewportOnly;
+  window.__gomnaPlainVerseGestureRemeasure = function() {
+    if (!active) return;
+    measureBaseSizes();
+    targetPanX = clampX(targetPanX);
+    targetPanY = clampY(targetPanY);
+    flushPaint();
+  };
   window.addEventListener('gomna:verse_list_rendered', onVerseRendered);
   window.addEventListener('resize', onResize);
   if (window.visualViewport) {
@@ -14092,40 +15167,21 @@ function isVerseListenModeMenuOpen() {
 }
 
 function positionVerseListenModeMenu() {
-  var menu = document.getElementById('opt4VerseListenModeMenu');
-  var btn = document.getElementById('opt4VerseListen');
-  var bar = document.getElementById('opt4BottomBar');
-  var rect;
-  var barRect;
-  var caretX;
-  var viewH;
-  var menuRect;
-  var caretH = 8;
-  var vv = window.visualViewport;
-  if (!menu || menu.hidden || !btn) return;
-  rect = btn.getBoundingClientRect();
-  barRect = bar ? bar.getBoundingClientRect() : rect;
-  viewH = (vv && vv.height) ? vv.height : window.innerHeight;
-  menu.style.left = '50%';
-  menu.style.right = 'auto';
-  menu.style.top = 'auto';
-  menu.style.bottom = Math.max(0, viewH - barRect.top - caretH) + 'px';
-  menuRect = menu.getBoundingClientRect();
-  caretX = (rect.left + rect.width / 2) - menuRect.left;
-  caretX = Math.max(16, Math.min(caretX, menuRect.width - 16));
-  menu.style.setProperty('--listen-caret-x', caretX + 'px');
+  positionReaderAnchorPopover(
+    document.getElementById('opt4VerseListenModeMenu'),
+    document.getElementById('opt4VerseListen')
+  );
 }
 
 function syncVerseListenModeMenuLabels() {
-  var place = getCurrentScripturePlaceLabel();
   var chapterBtn = document.getElementById('opt4VerseListenModeChapter');
   var continuousBtn = document.getElementById('opt4VerseListenModeContinuous');
-  if (chapterBtn) {
-    chapterBtn.setAttribute('aria-label', place ? place + '만 듣기' : '현재 장만 듣기');
-  }
-  if (continuousBtn) {
-    continuousBtn.setAttribute('aria-label', place ? place + '부터 연속 재생' : '연속 재생');
-  }
+  var chapterLabel = document.getElementById('opt4VerseListenModeChapterLabel');
+  var n = parseInt(currentChapter, 10);
+  var chapterText = (!isNaN(n) && n > 0) ? (n + '장 듣기') : '1장 듣기';
+  if (chapterLabel) chapterLabel.textContent = chapterText;
+  if (chapterBtn) chapterBtn.setAttribute('aria-label', chapterText);
+  if (continuousBtn) continuousBtn.setAttribute('aria-label', '장 연속듣기');
 }
 
 function closeVerseListenModeMenu() {
@@ -14133,6 +15189,10 @@ function closeVerseListenModeMenu() {
   var backdrop = document.getElementById('opt4VerseListenModeBackdrop');
   var btn = document.getElementById('opt4VerseListen');
   verseListenModeOutsidePointer = null;
+  if (verseListenModeCloseTimer) {
+    clearTimeout(verseListenModeCloseTimer);
+    verseListenModeCloseTimer = 0;
+  }
   if (btn) {
     btn.classList.remove('is-listen-mode-open');
     btn.setAttribute('aria-expanded', 'false');
@@ -14141,24 +15201,19 @@ function closeVerseListenModeMenu() {
     backdrop.hidden = true;
     backdrop.style.display = 'none';
   }
-  if (!menu || menu.hidden) return;
+  if (!menu) return;
   menu.classList.remove('is-open');
   menu.setAttribute('aria-hidden', 'true');
-  if (verseListenModeCloseTimer) clearTimeout(verseListenModeCloseTimer);
-  verseListenModeCloseTimer = setTimeout(function() {
-    verseListenModeCloseTimer = 0;
-    if (menu.classList.contains('is-open')) return;
-    menu.hidden = true;
-    menu.style.display = 'none';
-  }, 180);
+  menu.hidden = true;
+  menu.style.display = '';
 }
 
 function openVerseListenModeMenu() {
   var menu = document.getElementById('opt4VerseListenModeMenu');
   var backdrop = document.getElementById('opt4VerseListenModeBackdrop');
   var btn = document.getElementById('opt4VerseListen');
-  var first;
   if (!menu || !btn) return;
+  if (typeof closeReaderPlaybackStylePopover === 'function') closeReaderPlaybackStylePopover();
   if (verseListenModeCloseTimer) {
     clearTimeout(verseListenModeCloseTimer);
     verseListenModeCloseTimer = 0;
@@ -14174,19 +15229,14 @@ function openVerseListenModeMenu() {
   syncVerseListenModeMenuLabels();
   menu.hidden = false;
   menu.setAttribute('aria-hidden', 'false');
-  menu.style.display = 'block';
-  menu.classList.remove('is-open');
+  menu.style.display = '';
+  menu.classList.add('is-open');
   btn.classList.add('is-listen-mode-open');
   btn.setAttribute('aria-expanded', 'true');
   positionVerseListenModeMenu();
   window.requestAnimationFrame(function() {
     positionVerseListenModeMenu();
-    menu.classList.add('is-open');
   });
-  first = document.getElementById('opt4VerseListenModeChapter');
-  if (first && typeof first.focus === 'function') {
-    try { first.focus(); } catch (err) {}
-  }
 }
 
 function syncChapterListenStatusTitle() {
@@ -15066,6 +16116,7 @@ function applyRange(startOpt, endOpt) {
 }
 
 function prevChapter() {
+  if (typeof closeReaderLocationMenus === 'function') closeReaderLocationMenus();
   if (currentChapter > 1) {
     if (typeof clearBibleContinuousChapterPlayback === 'function') {
       clearBibleContinuousChapterPlayback();
@@ -15080,6 +16131,7 @@ function prevChapter() {
   }
 }
 function nextChapter() {
+  if (typeof closeReaderLocationMenus === 'function') closeReaderLocationMenus();
   if (currentChapter < currentBook.chapters) {
     /* Auto continuous advance sets this flag; manual next-chapter must cancel it. */
     if (!window.__gomnaBibleContinuousChapterAdvancing &&
@@ -15531,6 +16583,7 @@ function _faithRelatedScriptureOnclick(rv, source, relatedLabel, faithCardId) {
 }
 
 function goToVerse(book, chapter, verse, testament) {
+  if (typeof closeReaderLocationMenus === 'function') closeReaderLocationMenus();
   if (typeof window.exitScriptureEntryView === 'function') window.exitScriptureEntryView();
   var data = testament === 'old' ? oldTestamentData : newTestamentData;
   var bookData = findBook(data, book);
@@ -15700,7 +16753,7 @@ function changeFont(delta) {
 </script>
 <script src="/js/audio-config.js?v=20260724-manifest-shard-v1" defer></script>
 <script src="/js/gomna-audio-manifest-shards.js?v=20260724-manifest-shard-v1" defer></script>
-<script src="/js/audio-engine.js?v=20260728-continuous-no-stop-v7" defer></script>
+<script src="/js/audio-engine.js?v=20260831-chapter-preload-v1" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260829-verse-first-chain-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
@@ -15917,6 +16970,15 @@ function loadAds() {
     </button>
 
     <button type="button"
+            class="reader-playback-style-btn"
+            id="readerPlaybackStyleBtn"
+            hidden
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            aria-controls="readerPlaybackStylePopover"
+            aria-label="모드">모드</button>
+
+    <button type="button"
             class="gomna-audio-btn-stop-mini"
             data-audio-action="stop"
             aria-label="듣기 종료"
@@ -15924,6 +16986,10 @@ function loadAds() {
       ×
     </button>
   </div>
+</div>
+<div id="readerPlaybackStylePopover" class="reader-anchor-popover" hidden role="dialog" aria-label="모드">
+  <button type="button" class="reader-playback-style-opt" id="readerPlaybackStyleGold" data-style="gold">카드형</button>
+  <button type="button" class="reader-playback-style-opt" id="readerPlaybackStyleFocus" data-style="focus">집중형</button>
 </div>
 <!-- 은혜의말씀 오디오 확장 플레이어 (평소 hidden, 확장 버튼 클릭 시 등장) -->
 <div id="gomna-audio-expanded-player" class="gomna-audio-expanded-player" hidden>

@@ -282,11 +282,14 @@
       state.nextAudioId = null;
     },
 
-    _clearQueue: function() {
+    _clearQueue: function(options) {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
+      var keepNext = !!(options && options.keepNext && state.nextAudio && state.nextAudioId);
 
-      engine._cleanupNextAudio();
+      if (!keepNext) {
+        engine._cleanupNextAudio();
+      }
 
       state.queueAudioIds = [];
       state.queueIndex = -1;
@@ -378,13 +381,17 @@
       }
 
       var nextIndex = engine._findNextPlayableIndex(state.queueIndex + 1);
+      var nextId = nextIndex === -1 ? null : state.queueAudioIds[nextIndex];
 
-      if (nextIndex === -1) {
+      /* Last verse of this queue: reuse the same nextAudio slot for next-chapter v1. */
+      if (!nextId && typeof window.getContinuousNextChapterFirstAudioId === 'function') {
+        nextId = window.getContinuousNextChapterFirstAudioId();
+      }
+
+      if (!nextId) {
         engine._cleanupNextAudio();
         return;
       }
-
-      var nextId = state.queueAudioIds[nextIndex];
 
       if (state.nextAudioId === nextId && state.nextAudio) {
         return;
@@ -444,7 +451,8 @@
         state.queueIndex += 1;
       }
 
-      engine._clearQueue();
+      /* Keep a cross-chapter nextAudio so playAudioQueue can reuse it. */
+      engine._clearQueue({ keepNext: true });
       return false;
     },
 
@@ -827,9 +835,13 @@
         }
       }
 
-      /* Invalidate stale soft-fail retries from a previous chapter/queue. */
+      /* Invalidate stale soft-fail retries from a previous chapter/queue.
+       * If nextAudio is already the first id of this queue (next-chapter v1
+       * preloaded during the previous last verse), keep that element. */
       engine.prepareFreshQueuePlayback();
-      engine._clearQueue();
+      engine._clearQueue({
+        keepNext: !!(state.nextAudio && state.nextAudioId === audioIds[startIndex])
+      });
       state.playbackCancelled = false;
 
       /* Drop current element without stopAudio/user_stop or audio:pause. */
