@@ -193,7 +193,7 @@ html.gomna-ui-i18n-boot [data-i18n-key]:not(img){visibility:hidden}
 <style id="gt-translation-pending-css">
 html.gt-translation-pending,
 html.gt-translation-pending body{
-  background:#F0E4CD!important;
+  background:#F7F8FA!important;
 }
 html.gt-translation-pending body{
   overflow:hidden!important;
@@ -207,7 +207,7 @@ html.gt-translation-pending body::before{
   position:fixed;
   inset:0;
   z-index:2147483000;
-  background:#F0E4CD;
+  background:#F7F8FA;
   visibility:visible!important;
   pointer-events:auto!important;
 }
@@ -323,10 +323,10 @@ if ("serviceWorker" in navigator) {
 <style>
 /* ── 첫페이지 공통 규격 (home-ui-v1) ── */
 /* ── 첫페이지 카드 스킨 (home-ui-v51) ── */
-:root{--gm-radius-card:8px;--gm-radius-btn:6px;--gm-radius-tag:20px;--gm-ink:#3d2818;--gm-gold:#8b5e2c;--gm-gold-deep:#6e4a1f;--gm-cream:#F6EBD2;--gm-card-bg:rgba(250,240,215,.94);--gm-btn-bg:rgba(252,243,223,.92);--gm-card-border:rgba(228,210,178,.78);--gm-card-border-slim:1px solid rgba(228,210,178,.78);--gm-card-divider:rgba(220,200,168,.82);--gm-card-shadow:0 1px 2px rgba(60,40,18,.02);--gm-hover-surface:rgba(238,221,182,.85);--gm-hover-btn:rgba(236,218,178,.88);--gm-hover-btn-strong:rgba(234,216,176,.92);--gm-hover-chip:rgba(238,221,182,.85);--gm-hover-active:rgba(230,210,170,.95)}
+:root{--gm-radius-card:8px;--gm-radius-btn:6px;--gm-radius-tag:20px;--gm-ink:#3d2818;--gm-gold:#8b5e2c;--gm-gold-deep:#6e4a1f;--gm-cream:#F7F8FA;--gm-card-bg:#FFFFFF;--gm-btn-bg:#FBFBFC;--gm-card-border:#E5E7EB;--gm-card-border-slim:1px solid #E5E7EB;--gm-card-divider:#ECEEF1;--gm-card-shadow:0 1px 2px rgba(15,23,42,.04);--gm-hover-surface:#F3F4F6;--gm-hover-btn:#F3F4F6;--gm-hover-btn-strong:#EEF0F3;--gm-hover-chip:#F3F4F6;--gm-hover-active:#E9EBEF}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#000}
-body{background:linear-gradient(180deg,#F0E4CD 0%,#EBDDC2 100%);min-height:100vh;overflow-x:hidden;position:relative}
+body{background:#F7F8FA;min-height:100vh;overflow-x:hidden;position:relative}
 .container{max-width:520px;margin:0 auto;padding:18px 16px 24px;position:relative;z-index:1;min-height:100vh}
 /* 헤더 "내 정보"의 첫 글자 x 좌표를 오른쪽 텍스트 정렬선으로 공유한다.
    값 = 콘텐츠 오른쪽 끝 → 그 글자까지의 거리
@@ -400,7 +400,7 @@ html[data-gomna-theme="dark"] .gomna-lang-suggest:hover{opacity:.92}
 /* 세로 점 3개 더보기 버튼 — 지구본·프로필 버튼과 같은 높이·무게 */
 
 /* 계정 패널 — 따뜻한 아이보리 바탕에 부드러운 갈색 그림자 */
-.home-account-panel{position:absolute;top:calc(100% + 12px);right:0;z-index:200;box-sizing:border-box;background:#FFFDF8;border:1px solid rgba(151,105,53,.20);border-radius:20px;box-shadow:0 16px 38px rgba(92,64,32,.20);text-align:left;max-width:calc(100vw - 32px);max-height:calc(100vh - 130px);max-height:calc(100dvh - 130px);overflow-y:auto;-webkit-overflow-scrolling:touch;animation:homePopIn 180ms ease-out}
+.home-account-panel{position:absolute;top:calc(100% + 12px);right:0;z-index:200;box-sizing:border-box;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:20px;box-shadow:0 16px 38px rgba(15,23,42,.14);text-align:left;max-width:calc(100vw - 32px);max-height:calc(100vh - 130px);max-height:calc(100dvh - 130px);overflow-y:auto;-webkit-overflow-scrolling:touch;animation:homePopIn 180ms ease-out}
 .home-account-panel[hidden]{display:none}
 .home-account-panel{width:332px;padding:18px 16px 14px}
 @keyframes homePopIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
@@ -503,7 +503,7 @@ button.card,a.card{border:var(--gm-card-border-slim);margin:0;font-family:inheri
 .stage{flex:none;width:100%;height:56px;display:flex;align-items:center;justify-content:center;perspective:900px;position:relative}
 .book{width:40px;height:52px;position:relative;transform-style:preserve-3d;filter:drop-shadow(0 2px 3px rgba(90,60,25,.2))}
 .b-closed{position:absolute;inset:0;border-radius:2px 6px 6px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .35s ease,transform .5s cubic-bezier(.4,0,.2,1);overflow:hidden;padding:0 6px}
-.b-closed.faded{background:linear-gradient(135deg,#b5965f 0%,#9a7a48 50%,#6e5028 100%);color:#3d2810;border:.5px solid rgba(80,55,20,.5);box-shadow:inset 0 0 10px rgba(60,40,15,.55),inset -3px 0 6px rgba(45,28,10,.45),inset 3px 0 5px rgba(200,170,120,.2),2px 2px 8px rgba(0,0,0,.2)}
+.b-closed.faded{background:linear-gradient(135deg,#b5965f 0%,#9a7a48 50%,#6e5028 100%);color:#3d2810;border:.5px solid rgba(31,24,18,.5);box-shadow:inset 0 0 10px rgba(60,40,15,.55),inset -3px 0 6px rgba(45,28,10,.45),inset 3px 0 5px rgba(200,170,120,.2),2px 2px 8px rgba(0,0,0,.2)}
 .b-closed.faded::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 75% 22%,rgba(70,48,20,.4) 0%,transparent 28%),radial-gradient(circle at 22% 78%,rgba(50,35,12,.35) 0%,transparent 25%);pointer-events:none}
 .b-closed.rose{background:linear-gradient(135deg,#e8c5b0 0%,#d4a594 50%,#a8745f 100%);color:#5a2818;border:.5px solid rgba(120,55,30,.45);box-shadow:inset 0 0 8px rgba(120,55,30,.3),inset -3px 0 5px rgba(100,45,25,.3),2px 2px 8px rgba(0,0,0,.2)}
 .b-closed.rose::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 70% 28%,rgba(150,80,55,.18) 0%,transparent 32%);pointer-events:none}
@@ -631,7 +631,7 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .search-inline-topics.topic-panel-reveal .search-inline-chip:nth-child(7){animation-delay:660ms}
 @keyframes searchTopicReveal{0%{opacity:0;transform:translateY(8px) scale(.96)}60%{opacity:1;transform:translateY(-1px) scale(1.01)}100%{opacity:1;transform:translateY(0) scale(1)}}
 .search.search-attention{border:1.5px solid rgba(210,40,40,.85);box-shadow:0 0 0 3px rgba(210,40,40,.14),0 2px 8px rgba(80,40,20,.08);animation:searchAttentionPulse 1.8s ease-out}
-@keyframes searchAttentionPulse{0%{border-color:rgba(220,30,30,.95);box-shadow:0 0 0 0 rgba(220,30,30,.28),0 2px 8px rgba(80,40,20,.08)}55%{border-color:rgba(210,40,40,.85);box-shadow:0 0 0 5px rgba(220,30,30,.10),0 2px 8px rgba(80,40,20,.08)}100%{border-color:rgba(228,210,178,.78);box-shadow:0 1px 2px rgba(60,40,18,.02)}}
+@keyframes searchAttentionPulse{0%{border-color:rgba(220,30,30,.95);box-shadow:0 0 0 0 rgba(220,30,30,.28),0 2px 8px rgba(80,40,20,.08)}55%{border-color:rgba(210,40,40,.85);box-shadow:0 0 0 5px rgba(220,30,30,.10),0 2px 8px rgba(80,40,20,.08)}100%{border-color:rgba(228,210,178,.78);box-shadow:0 1px 2px rgba(15, 23, 42, .02)}}
 .search-input{flex:1;border:none;outline:none;background:transparent;color:#5a3a18;font-size:16px;font-family:inherit}
 .search-input::placeholder{color:#9a8a78}
 /* 검색 실행 버튼도 찾기 카드와 같은 언어로 — 배경 없는 브라운 돋보기만 보이게 한다. */
@@ -666,7 +666,7 @@ html[data-gomna-ui-lang="ja"] .quick-desc{font-size:8.5px}
 .verse-card-photo-layer{position:absolute;inset:0;z-index:0;opacity:1;visibility:visible;pointer-events:none;will-change:opacity}
 /* 첫 장면 전용: 하늘만 은은히 푸르고 맑게 — 하단 인물·들판은 거의 미적용 */
 .verse-card-photo-layer::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(105,160,215,.22) 0%,rgba(120,172,220,.12) 16%,rgba(135,180,222,.05) 34%,transparent 52%);mix-blend-mode:soft-light}
-.verse-card-hero{position:absolute;inset:0;line-height:0;background-color:#D8C8A8}
+.verse-card-hero{position:absolute;inset:0;line-height:0;background-color:#EDEFF2}
 .verse-card-photo-layer .verse-card-hero img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 46%;transition:filter .22s ease;filter:saturate(1.06) brightness(1.02) contrast(1.015)}
 .verse-card:hover .verse-card-photo-layer .verse-card-hero img{filter:saturate(1.06) brightness(1.04) contrast(1.015)}
 .verse-card-shade{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(18,11,6,.32) 0%,rgba(18,11,6,.10) 52%,rgba(18,11,6,.02) 100%),linear-gradient(0deg,rgba(18,11,6,.34) 0%,rgba(18,11,6,.06) 48%,rgba(18,11,6,0) 75%)}
@@ -747,7 +747,7 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
 .overlay{position:fixed;inset:0;background:rgba(20,12,4,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:none;align-items:flex-end;z-index:100}
 .overlay.show{display:flex;animation:fadeIn .35s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.sheet{width:100%;max-width:520px;margin:0 auto;background:#faf6ed;border-radius:24px 24px 0 0;max-height:95vh;height:95vh;overflow:hidden;color:#3d2818;animation:slideUp .55s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column}
+.sheet{width:100%;max-width:520px;margin:0 auto;background:#FFFFFF;border-radius:24px 24px 0 0;max-height:95vh;height:95vh;overflow:hidden;color:#3d2818;animation:slideUp .55s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .sheet-handle{width:40px;height:4px;background:rgba(0,0,0,.15);border-radius:2px;margin:10px auto 0}
 .sheet-tabs{display:flex;border-bottom:.5px solid rgba(180,140,90,.3);padding:16px 18px 0;gap:18px;background:#faf6ed;position:relative;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;align-items:flex-end}
@@ -789,7 +789,7 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
 /* 배경을 반투명으로 두면 홈·Reader의 로고와 카드가 그대로 비쳐서
    로그인 화면이 독립된 화면으로 보이지 않았다. 불투명 아이보리로 완전히 덮는다.
    position:fixed·inset:0은 위 .popup-overlay 규칙에서 이미 온다. */
-.login-overlay{z-index:10000;padding:16px;box-sizing:border-box;background:#F6F2EA;overscroll-behavior:contain}
+.login-overlay{z-index:10000;padding:16px;box-sizing:border-box;background:#F7F8FA;overscroll-behavior:contain}
 .login-box{
   position:relative;
   width:100%;
@@ -797,7 +797,7 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
   max-height:calc(100vh - 32px);
   max-height:calc(100dvh - 32px);
   padding:26px 22px 18px;
-  background:#FFFDF8;
+  background:#F7F8FA;
   border:1px solid rgba(151,105,53,.18);
   border-radius:22px;
   box-shadow:0 18px 44px rgba(92,64,32,.22);
@@ -1111,7 +1111,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
    내용이 화면보다 길어지는 짧은 기기에서는 상자의 overflow-y:auto로 스크롤된다.
    시트가 아니게 되었으므로 위쪽 .login-sheet-handle{display:none}이 그대로 적용된다. */
 @media (max-width:600px){
-  .login-overlay{padding:0;align-items:stretch;background:#FFFDF8}
+  .login-overlay{padding:0;align-items:stretch;background:#F7F8FA}
   .login-box{
     max-width:none;
     /* 위 여백을 아래 여백보다 크게 두어 세로 가운데 정렬의 기준점을 아래로 내린다.
@@ -1227,7 +1227,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 }
 /* touch feedback: iOS scale + opacity (strong) */
 .card:active,.book-item:active,.tab:active,.chip:active,.easy-key:active,.cons:active,.settings-btn:active,.sheet-close:active,.font-btn:active,.popup-close:active,.search-icon:active,button:active{transform: scale(0.90); opacity: 0.65; filter: brightness(0.85) saturate(1.3); background-color: rgba(200, 152, 73, 0.15); transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease, background-color 0.15s ease}
-.home-cookie-banner{position:fixed;left:16px;right:16px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:90;max-width:520px;margin:0 auto;background:rgba(255,251,240,.96);color:#3d2818;border:1px solid rgba(184,134,11,.28);border-radius:16px;padding:12px 13px;box-shadow:0 8px 24px rgba(80,55,20,.18);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:12px;line-height:1.45}
+.home-cookie-banner{position:fixed;left:16px;right:16px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:90;max-width:520px;margin:0 auto;background:rgba(255,255,255,.96);color:#3d2818;border:1px solid #E5E7EB;border-radius:16px;padding:12px 13px;box-shadow:0 8px 24px rgba(15,23,42,.10);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:12px;line-height:1.45}
 .home-cookie-banner[hidden]{display:none}
 .home-cookie-text{margin:0 0 10px}
 .home-cookie-actions{display:flex;gap:8px;justify-content:flex-end}
@@ -1237,20 +1237,20 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 /* ── HOME COLOR TEST 20260715 (local only, revert via index-before-home-color-test-20260715.html) ── */
 .container .continue-label,.container .continue-arrow{color:#9A6A24}
 .container .card,.container .quick-menu{background:#FFF6E4;border-color:#E3CFAB}
-.container button.card,.container a.card{border-color:#E3CFAB}
-.container .card:hover,.container .card.old:hover,.container .card.new:hover,.container .card.easy:hover,.container button.card:hover,.container a.card:hover{background:#F8EBCF}
+.container button.card,.container a.card{border-color:#E5E7EB}
+.container .card:hover,.container .card.old:hover,.container .card.new:hover,.container .card.easy:hover,.container button.card:hover,.container a.card:hover{background:#F3F4F6}
 .container .card-name,.container .quick-name{color:#2F251D}
 .container .card-desc{color:#88745E}
 .container .quick-desc{color:#88745E;opacity:0.82}
 .container .card-arrow{color:#9A6A24}
-.container .quick-item{background:rgba(255,246,228,0.38)}
-.container .quick-item:hover{background:#F8EBCF}
+.container .quick-item{background:#FBFBFC}
+.container .quick-item:hover{background:#F3F4F6}
 .container .quick-item:nth-child(1) svg{stroke:#6C4B2E}
 .container .quick-item:nth-child(2) svg{stroke:#426B73}
 .container .quick-item:nth-child(3) svg{stroke:#55703F}
 .container .quick-item:nth-child(4) svg{stroke:#70483C}
-.container .search{background:#FFF9EF;border-color:#E3CFAB}
-.container .search-shell.topic-search-open .search-inline-topics{background:#FFF9EF;border-color:#E3CFAB}
+.container .search{background:#FFFFFF;border-color:#E5E7EB}
+.container .search-shell.topic-search-open .search-inline-topics{background:#FFFFFF;border-color:#E5E7EB}
 .container .search-input::placeholder{color:#9A8A78}
 .container .search-icon,.container .search-submit{background:none;border:0;box-shadow:none}
 .container .search-icon:hover,.container .search-submit:hover{background:none;opacity:.78}
@@ -1258,10 +1258,10 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 
 /* home-preview first-paint port 20260822 — static CSS only, existing ids unchanged */
 html,body{
-  background:linear-gradient(180deg, #FCFAF4 0%, #FAF6EC 24%, #F8F1E4 50%, #FAF6EC 76%, #FCFAF4 100%);
+  background:#F7F8FA;
 }
 body[data-gomna-page="home"]{
-  background:linear-gradient(180deg, #FCFAF4 0%, #FAF6EC 24%, #F8F1E4 50%, #FAF6EC 76%, #FCFAF4 100%);
+  background:#F7F8FA;
 }
 .container{
   max-width:390px;
@@ -1384,10 +1384,10 @@ body[data-gomna-page="home"]{
   gap:12px;
   min-height:0;
   padding:8px 14px 8px 12px;
-  border:1px solid rgba(180,168,148,.12);
+  border:1px solid #E5E7EB;
   border-radius:16px;
-  background:rgba(255,252,247,.88);
-  box-shadow:0 2px 8px rgba(80,70,50,.04);
+  background:#FFFFFF;
+  box-shadow:0 2px 8px rgba(15,23,42,.06);
 }
 .container .home-continue-info{padding-right:0}
 .container .home-continue-loc{
@@ -1517,9 +1517,9 @@ body[data-gomna-page="home"]{
 .container .quick-item{
   min-height:0;
   padding:6px 4px;
-  border:1px solid #E7E0D6;
+  border:1px solid #E5E7EB;
   border-radius:16px;
-  box-shadow:0 3px 10px rgba(36,31,25,0.04);
+  box-shadow:0 3px 10px rgba(15,23,42,0.05);
   gap:4px;
 }
 /* 4개 기능 버튼은 배경을 하나로 통일한다. 예전의 베이지/민트/그린/핑크 개별 틴트는
@@ -1534,11 +1534,11 @@ body[data-gomna-page="home"]{
 .container .quick-item.q-read,
 .container .quick-item.q-listen,
 .container .quick-item.q-topic,
-.container .quick-item.q-archive{background:#F6F3EE}
+.container .quick-item.q-archive{background:#FBFBFC}
 .container .quick-item.q-read:hover,
 .container .quick-item.q-listen:hover,
 .container .quick-item.q-topic:hover,
-.container .quick-item.q-archive:hover{background:#F6F3EE}
+.container .quick-item.q-archive:hover{background:#FBFBFC}
 .container .quick-item svg{
   width:22px;
   height:22px;
@@ -1563,10 +1563,10 @@ body[data-gomna-page="home"]{
   gap:0;
   margin:16px 0 0;
   padding:0;
-  border:1px solid rgba(180,168,148,.12);
+  border:1px solid #E5E7EB;
   border-radius:18px;
-  background:rgba(255,252,247,.88);
-  box-shadow:0 2px 8px rgba(80,70,50,.04);
+  background:#FFFFFF;
+  box-shadow:0 2px 8px rgba(15,23,42,.06);
   overflow:hidden;
 }
 .container .cards.home-menu-card > .card,
@@ -1603,7 +1603,7 @@ body[data-gomna-page="home"]{
 }
 .container .cards.home-menu-card > .card + .card,
 .container .cards.home-menu-card > .card + .search-shell{
-  border-top:1px solid rgba(180,168,148,.16);
+  border-top:1px solid #ECEEF1;
 }
 .container .cards.home-menu-card > .card:hover,
 .container .cards.home-menu-card > .card.old:hover,
@@ -1629,7 +1629,7 @@ body[data-gomna-page="home"]{
   border-radius:50%;
 }
 .container .cards.home-menu-card .easy-find-icon-wrap{background:#F2F5F8}
-.container .cards.home-menu-card .word-search-icon-wrap{background:#FBF5EA}
+.container .cards.home-menu-card .word-search-icon-wrap{background:#F3F4F6}
 .container .cards.home-menu-card .book,
 .container .cards.home-menu-card #book-old,
 .container .cards.home-menu-card #book-new{
@@ -1701,9 +1701,9 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
   justify-content:center;
   height:26px;
   padding:0 11px;
-  border:1px solid #D8D1C7;
+  border:1px solid #E5E7EB;
   border-radius:999px;
-  background:#E7E2DA;
+  background:#EEF0F3;
   color:#26313B;
   font-size:12px;
   font-weight:600;
@@ -1929,7 +1929,7 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
 <script src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
 <script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
-<link rel="stylesheet" href="js/gomna-scripture-quick-move.css?v=20260824-split-gold-v16">
+<link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260831-stair-book-v3">
 <style>
 /* 홈 데스크톱 선택창 폭 = 홈 메인 카드 폭. .container max-width 390 - padding 18+18. Reader 프레임 폭은 쓰지 않는다. */
 @media (min-width:700px) and (min-height:600px){
@@ -2635,8 +2635,8 @@ _verseSchedule(1000,startVerseCycle);
 document.addEventListener('visibilitychange',function(){if(document.hidden){_clearVerseCycle();}else{startVerseCycle();}});
 function openBible(testament){
   var t = testament === 'new' ? 'new' : 'old';
-  if (typeof window.openScriptureQuickMove === 'function') {
-    window.openScriptureQuickMove({ testament: t, stage: 'book', resetPlace: true });
+  if (typeof window.openBibleStairPicker === 'function') {
+    window.openBibleStairPicker(t);
     return;
   }
   window.location.href = 'reader.html?book=' + encodeURIComponent(t === 'new' ? '마태복음' : '창세기') + '&chapter=1&verse=1';
@@ -3103,7 +3103,7 @@ document.addEventListener('keydown',function(e){
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
 <script src="js/gomna-home-resume.js?v=20260819-resume-chevron-v1"></script>
-<script src="js/gomna-scripture-quick-move.js?v=20260818-no-book-move-hotfix-v1"></script>
+<script src="js/gomna-bible-stair-picker.js?v=20260901-stair-easy-v1"></script>
 <script src="settings_guide.js?v=20260807-settings-v3" defer></script>
 <script src="translate_feature.js?v=20260809-lang-suggest-v1" defer></script>
 <script>
