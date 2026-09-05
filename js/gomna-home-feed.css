@@ -1,0 +1,854 @@
+/* GOMNA HOME 3-CARD STACK 20260905
+   Light canvas, peeking independent cards, editorial media, tab bar. */
+
+html:has(body.gomna-home-deck-on){
+  height:100vh;
+  height:-webkit-fill-available;
+  height:100svh;
+  max-height:100vh;
+  max-height:-webkit-fill-available;
+  max-height:100svh;
+  overflow:hidden;
+  background:#FCFAF6;
+  touch-action:pan-x pan-y pinch-zoom;
+}
+html:has(body.gomna-home-deck-on) body,
+body[data-gomna-page="home"].gomna-home-deck-on{
+  background:#FCFAF6;
+  color:#1A2332;
+  height:100%;
+  max-height:100%;
+  min-height:0 !important;
+  overflow:hidden;
+  overflow-x:clip;
+  touch-action:pan-x pan-y pinch-zoom;
+}
+body[data-gomna-page="home"].gomna-home-deck-on .container{
+  width:min(100%,430px);
+  max-width:430px;
+  height:100%;
+  max-height:100%;
+  min-height:0 !important;
+  display:flex;
+  flex-direction:column;
+  background:#FCFAF6;
+  color:#1A2332;
+  padding:0 16px calc(58px + env(safe-area-inset-bottom,0px));
+  box-sizing:border-box;
+  overflow:hidden;
+}
+body.gomna-home-deck-on .container > .home-continue,
+body.gomna-home-deck-on .container > .quick-menu,
+body.gomna-home-deck-on .container > .home-menu-card,
+body.gomna-home-deck-on .container > .imprint-bottom,
+body.gomna-home-deck-on .container > .verse-card,
+body.gomna-home-deck-on #today-word-card,
+body.gomna-home-deck-on #homeResumeCard{
+  display:none !important;
+  visibility:hidden !important;
+  height:0 !important;
+  max-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  overflow:hidden !important;
+  pointer-events:none !important;
+  position:absolute !important;
+  width:1px !important;
+  clip:rect(0 0 0 0) !important;
+  clip-path:inset(50%) !important;
+}
+body.gomna-home-deck-on .header{
+  position:relative;
+  top:auto;
+  flex:0 0 auto;
+  z-index:30;
+  margin:0 -16px 0;
+  padding:calc(8px + env(safe-area-inset-top,0px)) 16px 10px;
+  align-items:center;
+  background:#FFFFFF;
+  border-bottom:1px solid rgba(26,35,50,.04);
+}
+body.gomna-home-deck-on .app-icon-frame,
+body.gomna-home-deck-on .app-icon-frame .logo-img{
+  display:none !important;
+}
+body.gomna-home-deck-on .title-block{flex:1;min-width:0}
+body.gomna-home-deck-on .container .title{
+  color:#152033;
+  font-size:20px;
+  font-weight:800;
+  letter-spacing:-.4px;
+}
+body.gomna-home-deck-on .container .sub{
+  color:#5b6573;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:12.5px;
+  font-style:italic;
+  opacity:1;
+}
+body.gomna-home-deck-on .header-actions{
+  align-items:center;
+  gap:0;
+}
+body.gomna-home-deck-on .container .home-account-btn{
+  min-width:44px;
+  min-height:44px;
+  margin-right:0;
+  color:#1A2332;
+  gap:0;
+}
+body.gomna-home-deck-on .container .home-account-label{display:none}
+body.gomna-home-deck-on .container .home-account-avatar{
+  width:22px;
+  height:22px;
+  border:0;
+  background:transparent;
+}
+body.gomna-home-deck-on .container .home-account-avatar-icon{
+  width:22px;
+  height:22px;
+  stroke:#1A2332;
+  stroke-width:1.7;
+}
+body.gomna-home-deck-on .home-cookie-banner{
+  background:#FFFFFF;
+  color:#1A2332;
+  border-color:rgba(26,35,50,.08);
+  bottom:calc(76px + env(safe-area-inset-bottom,0px));
+}
+
+html.gomna-home-card-open,
+html.gomna-home-card-open body,
+html.ghd-sheet-open,
+html.ghd-sheet-open body,
+html.gomna-home-viewer-open,
+html.gomna-home-viewer-open body{
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+
+.gomna-home-icon-btn{
+  position:relative;
+  flex:0 0 44px;
+  width:44px;
+  height:44px;
+  padding:0;
+  border:0;
+  border-radius:12px;
+  background:transparent;
+  color:#1A2332;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.gomna-home-icon-btn svg{
+  width:22px;
+  height:22px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.gomna-home-icon-btn:hover{opacity:.72}
+.header-actions .gomna-home-icon-btn{align-self:center}
+.gomna-home-icon-btn.is-live::after{
+  content:"";
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#C4A45C;
+}
+
+.gomna-home-hello{
+  flex:0 0 auto;
+  margin:14px 2px 10px;
+  font-size:15px;
+  font-weight:400;
+  line-height:1.4;
+  color:#3d4654;
+  letter-spacing:-.2px;
+}
+.gomna-home-hello b{
+  font-weight:650;
+  color:#152033;
+}
+
+.gomna-home-deck{
+  --ghd-sliver:0px;
+  --ghd-peek:0px;
+  --ghd-stage-h:100%;
+  --ghd-step-h:0px;
+  --ghd-radius:26px;
+  position:relative;
+  flex:1 1 auto;
+  width:100%;
+  min-height:0;
+  margin:0 0 8px;
+  display:flex;
+  flex-direction:column;
+}
+.gomna-home-deck-stage{
+  position:relative;
+  top:auto;
+  z-index:4;
+  flex:1 1 auto;
+  width:100%;
+  min-height:0;
+  height:auto;
+  overflow:hidden;
+  pointer-events:none;
+}
+.gomna-home-deck-track,
+.gomna-home-deck-step,
+.gomna-home-deck-end{
+  display:none !important;
+  height:0 !important;
+  margin:0 !important;
+  pointer-events:none;
+}
+
+.gomna-home-card[data-card="1"],
+.gomna-home-card[data-card="2"]{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  transform:translate3d(-50%,140%,0) !important;
+}
+.gomna-home-card{
+  position:absolute;
+  left:50%;
+  top:0;
+  width:100%;
+  height:100%;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:var(--ghd-radius);
+  overflow:hidden;
+  box-sizing:border-box;
+  color:#f4f7fb;
+  cursor:pointer;
+  pointer-events:none;
+  transform:translate3d(-50%,110%,0);
+  transform-origin:top center;
+  box-shadow:0 10px 24px rgba(21,32,51,.10);
+  will-change:transform,width;
+  -webkit-tap-highlight-color:transparent;
+  background:#1b2433;
+}
+.gomna-home-card.is-active{pointer-events:auto}
+.gomna-home-card.is-behind .gomna-home-card-inner,
+.gomna-home-card.is-behind .gomna-home-rail{
+  opacity:0;
+  pointer-events:none;
+}
+.gomna-home-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+}
+.gomna-home-card[data-card="0"]{
+  transform:translate3d(-50%,0,0);
+  background-color:#061018;
+  background-image:url("../assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1");
+  background-size:cover;
+  background-position:center 100%;
+  background-repeat:no-repeat;
+}
+.gomna-home-card[data-card="0"]::after{
+  background:linear-gradient(180deg,rgba(6,12,22,.38) 0%,rgba(6,12,22,.08) 28%,rgba(6,12,22,.08) 58%,rgba(6,12,22,.42) 100%);
+}
+.gomna-home-card[data-card="1"]{
+  background:
+    radial-gradient(120% 80% at 80% 0%, rgba(90,130,180,.22), transparent 56%),
+    linear-gradient(180deg,#1a2740 0%,#121c30 100%);
+}
+.gomna-home-card[data-card="2"]{
+  background:
+    radial-gradient(120% 80% at 18% 0%, rgba(90,150,120,.20), transparent 54%),
+    linear-gradient(180deg,#173028 0%,#10241e 100%);
+}
+.gomna-home-card.is-open::after{
+  background:linear-gradient(180deg,rgba(10,16,24,.62) 0%,rgba(10,16,24,.78) 100%);
+}
+
+.gomna-home-card-inner{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  padding:20px 18px 72px;
+  box-sizing:border-box;
+}
+.gomna-home-kicker{
+  margin:0;
+  font-size:13px;
+  font-weight:750;
+  letter-spacing:.12em;
+  color:rgba(244,247,251,.78);
+}
+.gomna-home-card[data-card="0"] .gomna-home-kicker{
+  font-size:16px;
+  letter-spacing:.08em;
+  font-weight:800;
+  color:#f4f7fb;
+}
+.gomna-home-sub{
+  margin:6px 0 0;
+  font-size:13px;
+  font-weight:500;
+  color:rgba(226,234,242,.78);
+}
+.gomna-home-ref-top{
+  margin:8px 0 0;
+  font-size:13px;
+  font-weight:650;
+  color:rgba(226,234,242,.86);
+}
+.gomna-home-card-face{
+  display:none;
+  flex:1;
+  min-height:0;
+  flex-direction:column;
+  justify-content:center;
+}
+.gomna-home-card:not(.is-behind) .gomna-home-card-face.is-shown{display:flex}
+.gomna-home-card[data-card="0"]:not(.is-open) .gomna-home-card-face[data-face="tease"]{
+  justify-content:center;
+  padding-top:28px;
+  padding-bottom:12px;
+}
+.gomna-home-lines{
+  list-style:none;
+  margin:0 auto;
+  padding:0;
+  max-width:15.6em;
+  text-align:center;
+}
+.gomna-home-card[data-card="0"]:not(.is-open) .gomna-home-lines{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.44em;
+}
+.gomna-home-lines li{
+  font-size:clamp(20px,5.6vw,26px);
+  font-weight:750;
+  line-height:1.38;
+  letter-spacing:-.035em;
+}
+.gomna-home-card[data-card="0"]:not(.is-open) .gomna-home-lines li{
+  font-size:clamp(17px,4.5vw,21px);
+  font-weight:650;
+  line-height:1.84;
+  letter-spacing:-.018em;
+}
+.gomna-home-lead{
+  margin:18px 0 0;
+  text-align:center;
+  font-size:clamp(22px,6vw,28px);
+  font-weight:750;
+  line-height:1.35;
+  letter-spacing:-.04em;
+}
+.gomna-home-prompt{
+  margin:14px 0 0;
+  text-align:center;
+  font-size:14px;
+  line-height:1.5;
+  color:rgba(226,234,242,.82);
+}
+
+.gomna-home-card.is-open .gomna-home-card-inner{padding:18px 16px 16px}
+.gomna-home-card.is-open .gomna-home-card-inner > .gomna-home-kicker,
+.gomna-home-card.is-open .gomna-home-card-inner > .gomna-home-ref-top,
+.gomna-home-card.is-open .gomna-home-card-inner > .gomna-home-sub{display:none}
+.gomna-home-card.is-open .gomna-home-card-face.is-shown{justify-content:flex-start}
+.gomna-home-card.is-open .gomna-home-card-face[data-face="open"]{
+  opacity:1;
+  transform:translate3d(0,0,0);
+}
+.gomna-home-detail-head .gomna-home-kicker{
+  font-size:13px;
+  letter-spacing:.12em;
+  color:rgba(226,234,242,.72);
+}
+.gomna-home-detail-head-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.gomna-home-back{
+  flex:0 0 44px;
+  width:44px;
+  height:44px;
+  margin:-10px -8px -10px 0;
+  padding:0;
+  border:0;
+  border-radius:12px;
+  background:transparent;
+  color:#f4f7fb;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.gomna-home-back svg{
+  width:22px;
+  height:22px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.gomna-home-detail-head .gomna-home-ref{
+  margin:4px 0 0;
+  font-size:14px;
+  font-weight:650;
+}
+.gomna-home-msg-title{
+  margin:14px 0 0;
+  font-size:clamp(20px,5.4vw,24px);
+  font-weight:750;
+  letter-spacing:-.03em;
+  line-height:1.3;
+}
+.gomna-home-related-ref{
+  margin:18px 0 0;
+  font-size:13px;
+  font-weight:550;
+  color:rgba(226,234,242,.72);
+}
+.gomna-home-detail-scroll{
+  flex:1;
+  min-height:0;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  margin:12px 0;
+  padding-right:2px;
+}
+.gomna-home-detail-scroll::-webkit-scrollbar{width:0;height:0;display:none}
+.gomna-home-detail-foot{flex:0 0 auto;margin-top:auto}
+.gomna-home-full{
+  margin:0;
+  font-size:clamp(17px,4.6vw,22px);
+  line-height:1.55;
+  font-weight:650;
+}
+.gomna-home-open-msg,
+.gomna-home-step{
+  margin:14px 0 0;
+  font-size:15px;
+  line-height:1.65;
+  color:rgba(226,234,242,.9);
+  white-space:pre-wrap;
+}
+.gomna-home-step b{
+  display:block;
+  margin-bottom:4px;
+  font-size:11px;
+  letter-spacing:.12em;
+  color:rgba(198,214,230,.78);
+}
+.gomna-home-note-input{
+  width:100%;
+  min-height:72px;
+  margin-top:10px;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:12px;
+  background:rgba(255,255,255,.06);
+  color:#f4f7fb;
+  font:inherit;
+  resize:none;
+}
+.gomna-home-note-save{
+  margin-top:8px;
+  padding:8px 12px;
+  border:0;
+  border-radius:10px;
+  background:rgba(255,255,255,.12);
+  color:#f4f7fb;
+  font:inherit;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.gomna-home-ctrl{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  width:100%;
+  min-height:52px;
+  border-radius:18px;
+  overflow:hidden;
+  background:#121c2c;
+  border:1px solid rgba(196,220,245,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+.gomna-home-ctrl-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  min-height:48px;
+  padding:8px 4px;
+  border:0;
+  background:transparent;
+  color:#f4f8fc;
+  font:inherit;
+  font-size:11px;
+  font-weight:700;
+  line-height:1.2;
+  text-align:center;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.gomna-home-ctrl-item + .gomna-home-ctrl-item{
+  box-shadow:inset 1px 0 0 rgba(196,220,245,.16);
+}
+.gomna-home-ctrl-item svg{
+  width:18px;
+  height:18px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.gomna-home-ctrl-item:active,
+.gomna-home-ctrl-item:focus-visible{
+  background:rgba(255,255,255,.06);
+}
+
+.gomna-home-rail{
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:10px;
+  z-index:3;
+  display:none;
+  align-items:center;
+  gap:2px;
+}
+.gomna-home-card.is-active:not(.is-open) .gomna-home-rail{display:flex}
+.gomna-home-card:not([data-card="0"]) .gomna-home-rail{display:none !important}
+.gomna-home-act{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  min-height:40px;
+  padding:0 6px;
+  border:0;
+  background:transparent;
+  color:#f4f7fb;
+  font:inherit;
+  font-size:12px;
+  font-weight:650;
+  cursor:pointer;
+}
+.gomna-home-act svg{
+  width:18px;
+  height:18px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.gomna-home-act[aria-pressed="true"] svg{fill:rgba(255,120,140,.92);stroke:#ffd0d6}
+.gomna-home-related{
+  margin-left:auto;
+  width:40px;
+  height:40px;
+  padding:0;
+  border:0;
+  border-radius:10px;
+  overflow:hidden;
+  background:rgba(255,255,255,.08);
+  cursor:pointer;
+}
+.gomna-home-related img{width:100%;height:100%;object-fit:cover;object-position:center bottom;display:block}
+
+.gomna-home-after{
+  display:none !important;
+  visibility:hidden !important;
+  height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:hidden !important;
+  pointer-events:none !important;
+}
+.gomna-home-media{
+  width:100%;
+  margin:0;
+  padding:0;
+  border:0;
+  background:transparent;
+  text-align:left;
+  cursor:pointer;
+}
+.gomna-home-media img{
+  display:block;
+  width:100%;
+  height:clamp(132px, 22vw, 168px);
+  object-fit:cover;
+  object-position:center bottom;
+  border-radius:4px;
+}
+.gomna-home-media-copy{padding:12px 2px 0}
+.gomna-home-goldline{
+  display:block;
+  width:28px;
+  height:1px;
+  margin:0 0 10px;
+  background:#C4A45C;
+}
+.gomna-home-media-kicker{
+  margin:0;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+  color:#8a7342;
+}
+.gomna-home-media-title{
+  margin:8px 0 0;
+  font-size:20px;
+  font-weight:750;
+  letter-spacing:-.35px;
+  color:#152033;
+}
+.gomna-home-media-desc{
+  margin:8px 0 0;
+  font-size:14px;
+  line-height:1.55;
+  color:#5b6573;
+}
+.gomna-home-media-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 16px;
+  margin:14px 0 0;
+}
+.gomna-home-media-actions a,
+.gomna-home-media-actions button{
+  padding:0;
+  border:0;
+  border-bottom:1px solid rgba(26,35,50,.22);
+  background:transparent;
+  color:#1A2332;
+  font:inherit;
+  font-size:14px;
+  font-weight:650;
+  text-decoration:none;
+  cursor:pointer;
+}
+
+.gomna-home-tabbar{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:25;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  height:calc(58px + env(safe-area-inset-bottom,0px));
+  padding:6px 8px calc(8px + env(safe-area-inset-bottom,0px));
+  background:#FFFFFF;
+  border-top:1px solid rgba(26,35,50,.06);
+  box-sizing:border-box;
+}
+html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
+.gomna-home-tab{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  min-height:44px;
+  border:0;
+  background:transparent;
+  color:#6b7380;
+  font:inherit;
+  font-size:10px;
+  font-weight:650;
+  text-decoration:none;
+  cursor:pointer;
+}
+.gomna-home-tab-icon{
+  width:23px;
+  height:23px;
+  flex:0 0 23px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.gomna-home-tab svg{
+  width:23px;
+  height:23px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.gomna-home-tab[data-ghd-nav="media"] svg{
+  width:23px;
+  height:23px;
+}
+.gomna-home-tab.is-on{color:#152033}
+
+.gomna-home-viewer{
+  position:fixed;
+  inset:0;
+  z-index:90;
+  display:none;
+  background:#070b12;
+}
+.gomna-home-viewer.is-open{display:block}
+.gomna-home-viewer img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center bottom;
+}
+.gomna-home-viewer-title{
+  position:absolute;
+  left:20px;
+  right:72px;
+  top:calc(16px + env(safe-area-inset-top,0px));
+  z-index:2;
+  margin:0;
+  color:#f4f7fb;
+  font-size:16px;
+  font-weight:750;
+  text-shadow:0 1px 8px rgba(0,0,0,.35);
+}
+.gomna-home-viewer-close{
+  position:absolute;
+  top:calc(10px + env(safe-area-inset-top,0px));
+  right:12px;
+  z-index:2;
+  width:44px;
+  height:44px;
+  border:0;
+  border-radius:22px;
+  background:rgba(8,12,18,.35);
+  color:#fff;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.ghd-sheet{
+  position:fixed;
+  inset:0;
+  z-index:80;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  background:rgba(8,12,18,.42);
+}
+.ghd-sheet.is-open{display:flex}
+.ghd-sheet-panel{
+  width:min(100%,430px);
+  margin:0;
+  padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));
+  border-radius:20px 20px 0 0;
+  background:#FFFFFF;
+  color:#152033;
+  box-sizing:border-box;
+}
+.ghd-sheet-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:8px;
+}
+.ghd-sheet-head h3{margin:0;font-size:17px}
+.ghd-sheet-close{
+  width:40px;
+  height:40px;
+  border:0;
+  border-radius:12px;
+  background:transparent;
+  color:#152033;
+  font-size:22px;
+  cursor:pointer;
+}
+.ghd-sheet p{margin:8px 0;font-size:14px;line-height:1.55}
+.ghd-sheet input[type="email"],
+.ghd-sheet input[type="text"]{
+  width:100%;
+  box-sizing:border-box;
+  margin:8px 0;
+  padding:12px;
+  border:1px solid rgba(26,35,50,.14);
+  border-radius:12px;
+  background:#FFFFFF;
+  color:#152033;
+  font:inherit;
+}
+.ghd-sheet-cta{
+  width:100%;
+  margin-top:10px;
+  min-height:46px;
+  border:0;
+  border-radius:14px;
+  background:#1A2332;
+  color:#fff;
+  font:inherit;
+  font-weight:750;
+  cursor:pointer;
+}
+.ghd-sheet ul{margin:8px 0;padding-left:18px}
+
+@media (min-width:700px){
+  .gomna-home-deck,
+  .gomna-home-after{max-width:430px;margin-left:auto;margin-right:auto}
+  .gomna-home-tabbar{left:50%;right:auto;width:430px;transform:translateX(-50%)}
+  .ghd-sheet{align-items:center}
+  .ghd-sheet-panel{border-radius:20px}
+}
+@media (prefers-reduced-motion:reduce){
+  .gomna-home-card{transition:none !important}
+}
+
+#homeBiblePickerOverlay{
+  position:fixed;
+  inset:0;
+  z-index:5000;
+  background:transparent;
+}
+#homeBiblePickerOverlay[hidden]{display:none!important}
+#homeBiblePickerOverlay.is-loading{background:rgba(15,23,42,.28)}
+#homeBiblePickerOverlay iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  background:transparent;
+  opacity:0;
+  color-scheme:light;
+}
+#homeBiblePickerOverlay.is-ready iframe{opacity:1}
+html.home-bible-picker-open,
+html.home-bible-picker-open body{
+  overflow:hidden;
+}

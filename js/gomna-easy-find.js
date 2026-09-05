@@ -4,12 +4,31 @@
 
   var CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
   var GROUPS = [
-    { id: 'begin', title: '성경의 시작', hint: '모세오경', keys: ['pentateuch'] },
-    { id: 'history', title: '역사 이야기', hint: '역사서', keys: ['history_ot'] },
-    { id: 'wisdom', title: '시와 지혜', hint: '시가서', keys: ['wisdom'] },
-    { id: 'gospel', title: '예수님의 생애', hint: '복음서', keys: ['gospels'] },
-    { id: 'church', title: '교회와 편지', hint: '사도행전·서신서', keys: ['acts', 'pauline', 'general_epistles'] },
-    { id: 'prophet', title: '예언과 계시', hint: '선지서·계시록', keys: ['major_prophets', 'minor_prophets', 'revelation'] }
+    { id: 'begin', title: '성경의 시작', hint: '모세오경', keys: ['pentateuch'], tile: 'wide' },
+    { id: 'history', title: '역사 이야기', hint: '역사서', keys: ['history_ot'], tile: 'mid' },
+    { id: 'wisdom', title: '시와 지혜', hint: '시가서', keys: ['wisdom'], tile: 'mid' },
+    { id: 'gospel', title: '예수님의 생애', hint: '복음서', keys: ['gospels'], tile: 'wide' },
+    { id: 'church', title: '교회와 편지', hint: '사도행전·서신서', keys: ['acts', 'pauline', 'general_epistles'], tile: 'tall' },
+    { id: 'prophet', title: '예언과 계시', hint: '선지서·계시록', keys: ['major_prophets', 'minor_prophets', 'revelation'], tile: 'tall' }
+  ];
+
+  /* 홈 검색 칩 + 상황별 주제 페이지 범위. 클릭은 기존 openWordSearch를 재사용한다.
+     face: ribbon | tall | inset | stack | bleed | split | quiet
+     순서는 CSS dense 그리드 리듬용: 와이드 → 세로강조+소형 → 쌍 → 와이드 → 쌍 → 일반+소형 → 와이드. */
+  var TOPICS = [
+    { id: 'love', title: '사랑', query: '사랑', face: 'ribbon' },
+    { id: 'prayer', title: '기도', query: '기도', face: 'tall' },
+    { id: 'peace', title: '평안', query: '평안', face: 'inset' },
+    { id: 'thanks', title: '감사', query: '감사', face: 'quiet' },
+    { id: 'heal', title: '치유', query: '고치', face: 'split' },
+    { id: 'comfort', title: '위로', query: '위로', face: 'inset' },
+    { id: 'family', title: '가족', query: '자녀', face: 'ribbon' },
+    { id: 'fear', title: '두려움', query: '두려워', face: 'stack' },
+    { id: 'grief', title: '상실', query: '상심', face: 'bleed' },
+    { id: 'wisdom', title: '지혜', query: '지혜', face: 'inset' },
+    { id: 'faith', title: '믿음', query: '믿음', face: 'quiet' },
+    { id: 'hope', title: '소망', query: '소망', face: 'quiet' },
+    { id: 'begin', title: '새출발', query: '새 일', face: 'ribbon' }
   ];
 
   var state = { panel: 'home', query: '', bodyVisible: 30 };
@@ -445,8 +464,8 @@
     }).join('') + '</div>';
   }
 
-  var READ_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg>';
-  var LISTEN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>';
+  var READ_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.8v13.6"/><path d="M12 5.8C10.5 4.9 8.6 4.4 6.7 4.4 5 4.4 3.4 4.9 2.2 5.7v12.8c1.2-.8 2.8-1.3 4.5-1.3 1.9 0 3.8.5 5.3 1.4"/><path d="M12 5.8C13.5 4.9 15.4 4.4 17.3 4.4c1.7 0 3.3.5 4.5 1.3v12.8c-1.2-.8-2.8-1.3-4.5-1.3-1.9 0-3.8.5-5.3 1.4"/></svg>';
+  var LISTEN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17.2v-5.4a8 8 0 0116 0v5.4"/><path d="M20 17.6a1.8 1.8 0 01-1.8 1.8h-.8A1.8 1.8 0 0115.6 17.6v-2.4A1.8 1.8 0 0117.4 13.4H20zM4 17.6A1.8 1.8 0 005.8 19.4h.8A1.8 1.8 0 008.4 17.6v-2.4A1.8 1.8 0 006.6 13.4H4z"/></svg>';
   var SEARCH_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none"><circle cx="11" cy="11" r="6.5"/><path d="m18 18-3.5-3.5"/></svg>';
 
   function resumeRowHtml(kind, entry) {
@@ -459,7 +478,7 @@
       + '<span class="easy-find-resume-place">' + esc(place) + '</span>'
       + (when ? '<span class="easy-find-resume-when">' + esc(when) + '</span>' : '')
       + '</span>'
-      + '<span class="easy-find-resume-cta">' + (isListen ? '계속 듣기 ▶' : '계속 읽기 →') + '</span>'
+      + '<span class="easy-find-resume-cta">' + (isListen ? '계속 듣기 →' : '계속 읽기 →') + '</span>'
       + '</button>';
   }
 
@@ -486,8 +505,6 @@
       + '<input id="easyFindSearchInput" class="easy-find-search-input" type="search" placeholder="무엇을 찾고 계세요?" aria-label="무엇을 찾고 계세요?" autocomplete="off" spellcheck="false">'
       + '<button type="button" class="easy-find-search-clear" data-easy-clear="1" hidden aria-label="검색어 지우기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>'
       + '</label>'
-      + '<p class="easy-find-search-hint">예: 요한복음 · 요 3:16 · 사랑</p>'
-      + '<p class="easy-find-search-jamo">초성 검색도 가능해요 · ㅊ → 창세기 · 출애굽기</p>'
       + '</div></div>'
       + '<div class="easy-find-scroll" id="easyFindScroll">'
       + '<div id="easyFindSearchResults" class="easy-find-hits" hidden></div>'
@@ -496,8 +513,24 @@
       + '<section class="easy-find-section">'
       + '<h3 class="easy-find-section-title">어디에서 찾으시나요?</h3>'
       + '<div class="easy-find-two">'
-      + '<button type="button" class="easy-find-choice" data-easy-tst="old"><span class="easy-find-choice-icon" aria-hidden="true">' + READ_ICON + '</span><span class="easy-find-choice-title">구약에서 찾기</span><span class="easy-find-choice-sub">39권</span></button>'
-      + '<button type="button" class="easy-find-choice" data-easy-tst="new"><span class="easy-find-choice-icon" aria-hidden="true">' + READ_ICON + '</span><span class="easy-find-choice-title">신약에서 찾기</span><span class="easy-find-choice-sub">27권</span></button>'
+      + '<button type="button" class="easy-find-choice" data-easy-tst="old">'
+      + '<span class="easy-find-choice-copy"><span class="easy-find-choice-title">구약에서 찾기</span><span class="easy-find-choice-sub">39권</span></span>'
+      + '<span class="easy-find-choice-visual" aria-hidden="true"><img class="easy-find-choice-book" src="assets/preview/old-testament-book.png" alt="" width="72" height="104" decoding="async"></span>'
+      + '</button>'
+      + '<button type="button" class="easy-find-choice" data-easy-tst="new">'
+      + '<span class="easy-find-choice-copy"><span class="easy-find-choice-title">신약에서 찾기</span><span class="easy-find-choice-sub">27권</span></span>'
+      + '<span class="easy-find-choice-visual" aria-hidden="true"><img class="easy-find-choice-book" src="assets/preview/new-testament-book.png" alt="" width="72" height="104" decoding="async"></span>'
+      + '</button>'
+      + '</div></section>'
+      + '<section class="easy-find-section">'
+      + '<h3 class="easy-find-section-title">어떤 말씀이 필요하세요?</h3>'
+      + '<div class="easy-find-topics" id="easyFindTopics">'
+      + TOPICS.map(function (t) {
+        return '<button type="button" class="easy-find-topic is-' + (t.face || 'inset') + ' is-' + t.id + '" data-easy-topic="' + esc(t.query) + '" aria-label="' + esc(t.title) + '">'
+          + '<span class="easy-find-topic-glow" aria-hidden="true"></span>'
+          + '<span class="easy-find-topic-copy"><span class="easy-find-topic-title">' + esc(t.title) + '</span></span>'
+          + '</button>';
+      }).join('')
       + '</div></section>'
       + '<section class="easy-find-section">'
       + '<h3 class="easy-find-section-title">책 이름을 잘 모르시나요?</h3>'
@@ -505,9 +538,11 @@
       + '<div class="easy-find-groups">'
       + GROUPS.map(function (g) {
         return '<button type="button" class="easy-find-group" data-easy-group="' + g.id + '">'
+          + '<span class="easy-find-group-mark easy-find-group-mark--' + g.id + '" aria-hidden="true"></span>'
+          + '<span class="easy-find-group-copy">'
           + '<span class="easy-find-group-title">' + esc(g.title) + '</span>'
           + '<span class="easy-find-group-sub">' + esc(g.hint) + '</span>'
-          + '</button>';
+          + '</span></button>';
       }).join('')
       + '</div></section>'
       + '<div class="easy-find-all-wrap">'
@@ -710,6 +745,10 @@
       if (btn.getAttribute('data-easy-ref')) {
         ref = parseRef((document.getElementById('easyFindSearchInput') || {}).value || state.query);
         openPlace(ref);
+        return;
+      }
+      if (btn.getAttribute('data-easy-topic')) {
+        openWordSearch(btn.getAttribute('data-easy-topic'));
         return;
       }
       if (btn.getAttribute('data-easy-word')) {

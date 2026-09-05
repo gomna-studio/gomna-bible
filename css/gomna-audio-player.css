@@ -267,10 +267,11 @@
 }
 
 .gomna-audio-reading {
-  border-left: 3px solid var(--gomna-audio-gold);
-  padding-left: 8px;
+  border-left: none;
+  padding-left: 0;
   background: rgba(201, 169, 97, 0.05);
-  transition: background 0.3s ease, border-color 0.3s ease, padding 0.3s ease;
+  box-shadow: none;
+  transition: background 0.3s ease;
 }
 
 .gomna-audio-commentary-section--active {
@@ -4715,7 +4716,7 @@ body.gomna-commentary-popup-open #commentaryContent {
   overflow-x: hidden !important;
   -webkit-overflow-scrolling: touch !important;
   overscroll-behavior-y: contain !important;
-  touch-action: pan-y !important;
+  touch-action: pan-y pinch-zoom !important;
 }
 
 /* =========================================================
@@ -4865,6 +4866,27 @@ body.gomna-commentary-popup-open #commentaryContent {
   pointer-events: auto !important;
 }
 
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-back,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-forward,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-speed,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-expand[data-audio-action="expand"] {
+  background: #7D8795 !important;
+  background-color: #7D8795 !important;
+  background-image: none !important;
+  border: 0 !important;
+  color: #FFFFFF !important;
+  box-shadow: none !important;
+}
+
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-back:active,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-seek-forward:active,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-speed:active,
+html.reader-bible-audio-on #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-expand[data-audio-action="expand"]:active {
+  background: #687381 !important;
+  background-color: #687381 !important;
+  color: #FFFFFF !important;
+}
+
 /* 확장 버튼 오른쪽 여섯 번째 컨트롤: 듣기 완전 종료(X), 다른 5개 버튼 묶음과 살짝 떨어진 단독 아이콘 */
 #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-stop-mini {
   order: 6 !important;
@@ -4927,20 +4949,26 @@ body.gomna-commentary-popup-open #commentaryContent {
   padding: 0 !important;
   border: none !important;
   border-radius: 50% !important;
-  background: #397FC4 !important;
+  background: #536F91 !important;
   color: #FFFFFF !important;
   box-shadow: 0 6px 16px rgba(38, 103, 164, 0.24) !important;
   font-size: 19px !important;
   line-height: 1 !important;
 }
 
-/* MacBook 등 데스크톱에서 hover·focus·active 시 나타나던 금색 링 제거, 청색 디자인만 유지 */
-#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause:hover,
-#gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause:focus,
+/* MacBook 등 데스크톱에서 hover·focus·active 시 나타나던 금색 링 제거, 회청색 디자인만 유지 */
+@media (hover: hover) {
+  #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause:hover {
+    outline: none !important;
+    border-color: transparent !important;
+    background: #4C6686 !important;
+    box-shadow: 0 6px 16px rgba(38, 103, 164, 0.24) !important;
+  }
+}
 #gomna-audio-mini-player.gomna-audio-visible .gomna-audio-btn-play-pause:active {
   outline: none !important;
   border-color: transparent !important;
-  background: #397FC4 !important;
+  background: #455F7D !important;
   box-shadow: 0 6px 16px rgba(38, 103, 164, 0.24) !important;
 }
 

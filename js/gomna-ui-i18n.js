@@ -51,7 +51,7 @@
       'home.oldTestament.title': '구약 39권',
       'home.newTestament.title': '신약 27권',
       'home.testament.readByChapter': '장·절로 읽기 ›',
-      'home.easyFind.title': '쉬운 찾기',
+      'home.easyFind.title': '찾기',
       'home.easyFind.desc': '분류별로 찾기 ›',
       'search.placeholder.home': '말씀 찾기 (예: 사랑, 믿음, 요한복음 3장 16절)',
       'search.inputAria': '성경 검색어 입력',
@@ -66,7 +66,7 @@
       'search.chip.prayer': '#기도',
       'home.sheet.oldTestament': '구약',
       'home.sheet.newTestament': '신약',
-      'home.sheet.easyFind': '쉬운찾기',
+      'home.sheet.easyFind': '찾기',
       'home.sheet.archive': '내 보관함',
       /* 홈 하단 메뉴 행 오른쪽의 작은 「열기」 알약 */
       'home.menu.openCta': '열기',

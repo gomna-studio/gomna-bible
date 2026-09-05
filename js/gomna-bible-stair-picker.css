@@ -28,7 +28,7 @@ html.bible-stair-lock,html.bible-stair-lock body{overflow:hidden!important}
   display:flex;
   flex-direction:column;
   box-sizing:border-box;
-  background:#F7F8FA;
+  background:#FCFAF6;
   border:1px solid #D5D7DA;
   border-bottom:none;
   border-radius:22px 22px 0 0;
@@ -116,8 +116,11 @@ html.bible-stair-lock,html.bible-stair-lock body{overflow:hidden!important}
   overflow-y:auto;
   overscroll-behavior:contain;
   -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
   padding:2px 0 4px;
 }
+#bibleStairBody::-webkit-scrollbar{width:0;height:0;display:none}
 #bibleStairBody.is-stage-in{animation:bible-stair-in 180ms ease}
 
 .bible-stair-books{

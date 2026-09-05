@@ -660,6 +660,11 @@
     var actionText;
 
     if (!root) return;
+    if (document.body.classList.contains('gomna-home-deck-on')) {
+      setHidden(mainBtn, true);
+      setHidden(root, true);
+      return;
+    }
 
     /* No real resume record → hide the whole area, never a fake card. */
     if (!mainMode) {
