@@ -33,6 +33,23 @@ const GENESIS_VERSE_COUNTS = {
   41: 57, 42: 38, 43: 34, 44: 34, 45: 28, 46: 34, 47: 31, 48: 22, 49: 33, 50: 26,
 };
 
+const EXODUS_VERSE_COUNTS = {
+  1: 22, 2: 25, 3: 22, 4: 31, 5: 23, 6: 30, 7: 25, 8: 32, 9: 35, 10: 29,
+  11: 10, 12: 51, 13: 22, 14: 31, 15: 27, 16: 36, 17: 16, 18: 27, 19: 25, 20: 26,
+  21: 36, 22: 31, 23: 33, 24: 18, 25: 40, 26: 37, 27: 21, 28: 43, 29: 46, 30: 38,
+  31: 18, 32: 35, 33: 23, 34: 35, 35: 35, 36: 38, 37: 29, 38: 31, 39: 43, 40: 38,
+};
+
+const EXODUS_VERSE_TOTAL = Object.values(EXODUS_VERSE_COUNTS).reduce((sum, n) => sum + n, 0);
+if (EXODUS_VERSE_TOTAL !== 1213) {
+  throw new Error(`EXODUS_VERSE_COUNTS 합이 1213이 아닙니다: ${EXODUS_VERSE_TOTAL}`);
+}
+
+const BOOK_VERSE_COUNTS = {
+  genesis: GENESIS_VERSE_COUNTS,
+  exodus: EXODUS_VERSE_COUNTS,
+};
+
 const COMMENTARY_TYPES = [
   {
     type: 'original-language',
@@ -99,10 +116,83 @@ const COMMENTARY_TYPES = [
   },
 ];
 
+// Actual Exodus production filenames on disk (audio/v1/ko-KR/exodus/001/001).
+const EXODUS_COMMENTARY_TYPES = [
+  {
+    type: 'original-language',
+    typeKr: '원어분석',
+    voicePreset: 'study',
+    fileName: 'original-language-study.mp3',
+    preview: '이 구절의 핵심 원어와 표현을 살펴봅니다.',
+  },
+  {
+    type: 'history',
+    typeKr: '역사적배경',
+    voicePreset: 'warm',
+    fileName: 'history-warm.mp3',
+    preview: '이 말씀이 기록되던 시대 배경을 살펴봅니다.',
+  },
+  {
+    type: 'theology',
+    typeKr: '신학적의미',
+    voicePreset: 'warm',
+    fileName: 'theology-warm.mp3',
+    preview: '이 말씀의 신학적 의미를 살펴봅니다.',
+  },
+  {
+    type: 'typology',
+    typeKr: '예표론',
+    voicePreset: 'study',
+    fileName: 'typology-study.mp3',
+    preview: '이 본문이 구속사와 어떻게 연결되는지 살펴봅니다.',
+  },
+  {
+    type: 'matthew-henry',
+    typeKr: '매튜헨리',
+    voicePreset: 'calm',
+    fileName: 'matthew-henry-calm.mp3',
+    preview: '이 구절에 대한 매튜 헨리의 고전적 해석을 살펴봅니다.',
+  },
+  {
+    type: 'sermon',
+    typeKr: '설교자료',
+    voicePreset: 'strong',
+    fileName: 'sermon-strong.mp3',
+    preview: '이 본문을 설교로 전할 때 강조할 내용을 살펴봅니다.',
+  },
+  {
+    type: 'hymn',
+    typeKr: '찬송가',
+    voicePreset: 'soft',
+    fileName: 'hymn-soft.mp3',
+    preview: '이 말씀과 함께 묵상할 수 있는 찬송을 살펴봅니다.',
+  },
+  {
+    type: 'counseling',
+    typeKr: '상담적용',
+    voicePreset: 'warm',
+    fileName: 'counseling-warm.mp3',
+    preview: '이 말씀이 오늘의 마음과 삶에 어떻게 적용되는지 살펴봅니다.',
+  },
+  {
+    type: 'cross-reference',
+    typeKr: '교차참조',
+    voicePreset: 'calm',
+    fileName: 'cross-reference-calm.mp3',
+    preview: '이 구절과 연결되는 다른 말씀들을 살펴봅니다.',
+  },
+];
+
+function commentaryTypesFor(bookId) {
+  if (bookId === 'exodus') return EXODUS_COMMENTARY_TYPES;
+  return COMMENTARY_TYPES;
+}
+
 function usage() {
   console.error('Usage:');
   console.error('  node scripts/sync-commentary-r2-manifest.mjs --locale ko-KR --book genesis --chapter 1 --verse 4 [--dry-run|--write]');
   console.error('  node scripts/sync-commentary-r2-manifest.mjs --locale ko-KR --book genesis --from-chapter 4 --to-chapter 50 [--dry-run|--write --confirm-create-count 13077]');
+  console.error('  node scripts/sync-commentary-r2-manifest.mjs --locale ko-KR --book exodus --from-chapter 1 --to-chapter 40 [--dry-run|--write --confirm-create-count N]');
   console.error('Default mode is --dry-run.');
 }
 
@@ -219,12 +309,27 @@ function isGenesis4to50Range(args) {
   );
 }
 
+function isExodus1to40Range(args) {
+  return (
+    args.rangeMode &&
+    args.locale === 'ko-KR' &&
+    args.bookId === 'exodus' &&
+    args.fromChapter === 1 &&
+    args.toChapter === 40
+  );
+}
+
 function assertTargetScope(args) {
-  if (isDefaultTarget(args) || isPipelineAllowedTarget(args) || isGenesis4to50Range(args)) {
+  if (
+    isDefaultTarget(args) ||
+    isPipelineAllowedTarget(args) ||
+    isGenesis4to50Range(args) ||
+    isExodus1to40Range(args)
+  ) {
     return;
   }
   throw new Error(
-    '이 스크립트는 ko-KR 창세기 단일 절(기본/파이프라인 허용) 또는 승인된 창세기 4~50장 범위 manifest 동기화에만 사용할 수 있습니다.',
+    '이 스크립트는 ko-KR 창세기 단일 절(기본/파이프라인 허용), 승인된 창세기 4~50장 범위, 또는 승인된 출애굽기 1~40장 범위 manifest 동기화에만 사용할 수 있습니다.',
   );
 }
 
@@ -232,7 +337,7 @@ function buildTarget(bookId, language, chapter, verse) {
   const chapter3 = pad3(chapter);
   const verse3 = pad3(verse);
   return {
-    book: bookId === 'genesis' ? '창세기' : bookId,
+    book: bookId === 'genesis' ? '창세기' : bookId === 'exodus' ? '출애굽기' : bookId,
     bookId,
     language,
     chapter,
@@ -379,9 +484,11 @@ function buildEntry(item, target, { duration = null } = {}) {
 }
 
 function listRangeTargets(args) {
+  const verseCounts = BOOK_VERSE_COUNTS[args.bookId];
+  if (!verseCounts) throw new Error(`unsupported book ${args.bookId}`);
   const targets = [];
   for (let chapter = args.fromChapter; chapter <= args.toChapter; chapter++) {
-    const maxVerse = GENESIS_VERSE_COUNTS[chapter];
+    const maxVerse = verseCounts[chapter];
     if (!maxVerse) throw new Error(`unknown chapter ${chapter}`);
     for (let verse = 1; verse <= maxVerse; verse++) {
       targets.push(buildTarget(args.bookId, args.locale, chapter, verse));
@@ -391,8 +498,9 @@ function listRangeTargets(args) {
 }
 
 function objectKeyFromEntry(entry) {
+  const types = commentaryTypesFor(entry.bookId);
   return `commentary/ko/gae/${entry.bookId}/${pad3(entry.chapter)}/${pad3(entry.verse)}/${
-    COMMENTARY_TYPES.find((t) => t.type === entry.type).fileName
+    types.find((t) => t.type === entry.type).fileName
   }`;
 }
 
@@ -405,6 +513,28 @@ function countGenesisCommentary(audios, fromChapter, toChapter) {
     if (!COMMENTARY_TYPES.some((item) => item.type === type)) continue;
     const chapter = Number(parts[1]);
     if (chapter >= fromChapter && chapter <= toChapter) count += 1;
+  }
+  return count;
+}
+
+function countExodusCommentary(audios, fromChapter, toChapter) {
+  let count = 0;
+  for (const id of Object.keys(audios || {})) {
+    const parts = id.split('.');
+    if (parts.length < 4 || parts[0] !== 'exodus') continue;
+    const type = parts[parts.length - 1];
+    if (!EXODUS_COMMENTARY_TYPES.some((item) => item.type === type)) continue;
+    const chapter = Number(parts[1]);
+    if (chapter >= fromChapter && chapter <= toChapter) count += 1;
+  }
+  return count;
+}
+
+function countOtherBookEntries(audios) {
+  let count = 0;
+  for (const id of Object.keys(audios || {})) {
+    const bookId = String(id).split('.')[0];
+    if (bookId !== 'genesis' && bookId !== 'exodus') count += 1;
   }
   return count;
 }
@@ -427,7 +557,8 @@ function readVerifyReportOrThrow() {
 }
 
 async function planRange(args, manifest) {
-  const verifyReport = readVerifyReportOrThrow();
+  const types = commentaryTypesFor(args.bookId);
+  const verifyReport = isGenesis4to50Range(args) ? readVerifyReportOrThrow() : null;
   const targets = listRangeTargets(args);
   const plannedEntries = [];
   const localMp3Missing = [];
@@ -436,7 +567,7 @@ async function planRange(args, manifest) {
   const plannedUrls = [];
 
   for (const target of targets) {
-    for (const item of COMMENTARY_TYPES) {
+    for (const item of types) {
       const localMp3 = localAudioPath(item.fileName, target);
       const cue = localCuePath(item.type, target);
       if (!fs.existsSync(localMp3) || fs.statSync(localMp3).size <= 0) {
@@ -459,18 +590,18 @@ async function planRange(args, manifest) {
   const createCount = plannedIds.length - alreadyPresent;
 
   const outOfScope = {
-    genesis1to3: plannedEntries.filter(({ target }) => target.chapter <= 3).length,
-    otherBooks: plannedEntries.filter(({ target }) => target.bookId !== 'genesis').length,
+    genesis1to3: plannedEntries.filter(({ target }) => target.bookId === 'genesis' && target.chapter <= 3).length,
+    otherBooks: plannedEntries.filter(({ target }) => target.bookId !== args.bookId).length,
     bibleAudio: 0,
   };
 
   return {
-    verifyReportOk: true,
-    verifyExpected: verifyReport.expected,
+    verifyReportOk: verifyReport ? true : null,
+    verifyExpected: verifyReport ? verifyReport.expected : null,
     chapterFrom: args.fromChapter,
     chapterTo: args.toChapter,
     verseCount: targets.length,
-    topicsPerVerse: COMMENTARY_TYPES.length,
+    topicsPerVerse: types.length,
     plannedCount: plannedEntries.length,
     uniqueIdCount: uniqueIds.size,
     uniqueUrlCount: uniqueUrls.size,
@@ -478,7 +609,7 @@ async function planRange(args, manifest) {
     duplicateUrlCount: plannedUrls.length - uniqueUrls.size,
     localMp3MissingCount: localMp3Missing.length,
     cueMissingCount: cueMissing.length,
-    verifyReportGapCount: verifyReport.all_ok ? 0 : plannedEntries.length,
+    verifyReportGapCount: verifyReport ? (verifyReport.all_ok ? 0 : plannedEntries.length) : 0,
     alreadyPresentCount: alreadyPresent,
     createCount,
     outOfScope,
@@ -556,9 +687,11 @@ async function mainRange(args) {
   const manifest = readManifest();
   const before1to3 = countGenesisCommentary(manifest.audios, 1, 3);
   const before4to50 = countGenesisCommentary(manifest.audios, 4, 50);
+  const beforeExodus = countExodusCommentary(manifest.audios, 1, 40);
+  const beforeOtherBooks = countOtherBookEntries(manifest.audios);
   const plan = await planRange(args, manifest);
 
-  const dryRunOk = (
+  const genesisDryRunOk = (
     plan.verseCount === 1453 &&
     plan.topicsPerVerse === 9 &&
     plan.plannedCount === 13077 &&
@@ -575,6 +708,22 @@ async function mainRange(args) {
     before1to3 === 720 &&
     before4to50 === 0
   );
+  const exodusDryRunOk = (
+    isExodus1to40Range(args) &&
+    plan.verseCount === 1213 &&
+    plan.topicsPerVerse === 9 &&
+    plan.plannedCount === 10917 &&
+    plan.uniqueIdCount === 10917 &&
+    plan.uniqueUrlCount === 10917 &&
+    plan.duplicateIdCount === 0 &&
+    plan.duplicateUrlCount === 0 &&
+    plan.localMp3MissingCount === 0 &&
+    plan.cueMissingCount === 0 &&
+    plan.outOfScope.genesis1to3 === 0 &&
+    plan.outOfScope.otherBooks === 0 &&
+    plan.createCount === 10917 - beforeExodus
+  );
+  const dryRunOk = isExodus1to40Range(args) ? exodusDryRunOk : genesisDryRunOk;
 
   if (!args.write) {
     console.log(JSON.stringify({
@@ -597,6 +746,8 @@ async function mainRange(args) {
       alreadyPresentCount: plan.alreadyPresentCount,
       beforeGenesis1to3: before1to3,
       beforeGenesis4to50: before4to50,
+      beforeExodus1to40: beforeExodus,
+      beforeOtherBooks: beforeOtherBooks,
       outOfScope: plan.outOfScope,
       firstEntry: plan.firstEntryMeta,
       lastEntry: plan.lastEntryMeta,
@@ -635,7 +786,19 @@ async function mainRange(args) {
 
   const after1to3 = countGenesisCommentary(nextManifest.audios, 1, 3);
   const after4to50 = countGenesisCommentary(nextManifest.audios, 4, 50);
-  if (after1to3 !== 720 || after4to50 !== 13077) {
+  const afterExodus = countExodusCommentary(nextManifest.audios, 1, 40);
+  const afterOtherBooks = countOtherBookEntries(nextManifest.audios);
+  if (isExodus1to40Range(args)) {
+    if (after1to3 !== before1to3 || after4to50 !== before4to50) {
+      throw new Error(`창세기 commentary가 변경되어 write를 중단합니다: 1-3=${after1to3} 4-50=${after4to50}`);
+    }
+    if (afterOtherBooks !== beforeOtherBooks) {
+      throw new Error(`다른 book 항목이 변경되어 write를 중단합니다: ${beforeOtherBooks} -> ${afterOtherBooks}`);
+    }
+    if (afterExodus !== beforeExodus + plan.createCount) {
+      throw new Error(`출애굽기 집계 불일치: ${afterExodus} != ${beforeExodus}+${plan.createCount}`);
+    }
+  } else if (after1to3 !== 720 || after4to50 !== 13077) {
     throw new Error(`집계 불일치 before write flush: 1-3=${after1to3} 4-50=${after4to50}`);
   }
 
@@ -653,6 +816,10 @@ async function mainRange(args) {
     beforeGenesis4to50: before4to50,
     afterGenesis4to50: after4to50,
     afterGenesis1to50: after1to3 + after4to50,
+    beforeExodus1to40: beforeExodus,
+    afterExodus1to40: afterExodus,
+    beforeOtherBooks,
+    afterOtherBooks,
     totalAudios: nextManifest.totalAudios,
     previousVersesChanged: watchedEntriesChanged,
     firstEntry: plan.firstEntryMeta,

@@ -1,33 +1,250 @@
 {
   "audioId": "genesis.001.007.typology",
-  "duration": 37.656,
-  "measuredDuration": 37.656,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/007/typology-study.mp3",
-  "finalMp3Duration": 37.656,
+  "duration": 29.4,
+  "measuredDuration": 29.4,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/007/typology-study.mp3",
+  "finalMp3Duration": 29.4,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 11.608708
+      "end": 3.376
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 11.608708,
-      "end": 19.417125
+      "start": 3.376,
+      "end": 10.848
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 19.417125,
-      "end": 28.083042
+      "start": 10.848,
+      "end": 18.898
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 28.083042,
-      "end": 37.656
+      "start": 18.898,
+      "end": 29.4
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.064,
+      "end": 1.349
+    },
+    {
+      "text": "1장",
+      "start": 1.402,
+      "end": 1.611
+    },
+    {
+      "text": "7절,",
+      "start": 2.06,
+      "end": 2.196
+    },
+    {
+      "text": "예표론입니다.",
+      "start": 2.273,
+      "end": 2.926
+    },
+    {
+      "text": "구약예표의",
+      "start": 3.375,
+      "end": 3.903
+    },
+    {
+      "text": "관점에서",
+      "start": 3.955,
+      "end": 4.192
+    },
+    {
+      "text": "보면,",
+      "start": 4.243,
+      "end": 4.797
+    },
+    {
+      "text": "노아",
+      "start": 4.834,
+      "end": 5.029
+    },
+    {
+      "text": "홍수",
+      "start": 5.029,
+      "end": 5.223
+    },
+    {
+      "text": "문",
+      "start": 5.597,
+      "end": 5.855
+    },
+    {
+      "text": "닫기와",
+      "start": 5.855,
+      "end": 6.629
+    },
+    {
+      "text": "연결됩니다.",
+      "start": 6.73,
+      "end": 7.588
+    },
+    {
+      "text": "이것은",
+      "start": 7.614,
+      "end": 7.735
+    },
+    {
+      "text": "종말",
+      "start": 8.292,
+      "end": 8.483
+    },
+    {
+      "text": "심판과",
+      "start": 8.483,
+      "end": 8.769
+    },
+    {
+      "text": "연결됩니다.",
+      "start": 8.818,
+      "end": 10.488
+    },
+    {
+      "text": "신약성취의",
+      "start": 10.846,
+      "end": 11.15
+    },
+    {
+      "text": "관점에서",
+      "start": 11.187,
+      "end": 11.501
+    },
+    {
+      "text": "보면,",
+      "start": 11.501,
+      "end": 11.737
+    },
+    {
+      "text": "성령",
+      "start": 11.781,
+      "end": 11.999
+    },
+    {
+      "text": "강림",
+      "start": 11.999,
+      "end": 12.216
+    },
+    {
+      "text": "시",
+      "start": 12.216,
+      "end": 12.325
+    },
+    {
+      "text": "하늘",
+      "start": 12.387,
+      "end": 12.529
+    },
+    {
+      "text": "열림과",
+      "start": 12.529,
+      "end": 12.741
+    },
+    {
+      "text": "연결됩니다.",
+      "start": 13.132,
+      "end": 15.794
+    },
+    {
+      "text": "이것은",
+      "start": 16.329,
+      "end": 16.374
+    },
+    {
+      "text": "행",
+      "start": 16.374,
+      "end": 16.389
+    },
+    {
+      "text": "2장",
+      "start": 16.417,
+      "end": 16.926
+    },
+    {
+      "text": "2절과도",
+      "start": 16.926,
+      "end": 17.944
+    },
+    {
+      "text": "이어집니다.",
+      "start": 17.974,
+      "end": 18.562
+    },
+    {
+      "text": "그리스도론의",
+      "start": 18.894,
+      "end": 19.239
+    },
+    {
+      "text": "관점에서",
+      "start": 19.307,
+      "end": 20.851
+    },
+    {
+      "text": "보면,",
+      "start": 21.2,
+      "end": 22.363
+    },
+    {
+      "text": "생수",
+      "start": 22.43,
+      "end": 22.735
+    },
+    {
+      "text": "주시는",
+      "start": 22.863,
+      "end": 23.607
+    },
+    {
+      "text": "그리스도와",
+      "start": 24.211,
+      "end": 24.681
+    },
+    {
+      "text": "연결됩니다.",
+      "start": 24.929,
+      "end": 25.802
+    },
+    {
+      "text": "이것은",
+      "start": 25.873,
+      "end": 26.483
+    },
+    {
+      "text": "요한복음",
+      "start": 26.548,
+      "end": 26.996
+    },
+    {
+      "text": "7장",
+      "start": 27.085,
+      "end": 27.283
+    },
+    {
+      "text": "37절부터",
+      "start": 27.406,
+      "end": 27.746
+    },
+    {
+      "text": "39절과도",
+      "start": 27.858,
+      "end": 28.484
+    },
+    {
+      "text": "이어집니다.",
+      "start": 28.607,
+      "end": 29.4
     }
   ]
 }

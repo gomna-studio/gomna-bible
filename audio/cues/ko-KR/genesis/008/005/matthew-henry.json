@@ -1,525 +1,460 @@
 {
   "audioId": "genesis.008.005.matthew-henry",
-  "duration": 53.016,
-  "measuredDuration": 53.016,
+  "duration": 45.6,
+  "measuredDuration": 45.6,
   "testAudioPath": "audio/v1/ko-KR/genesis/008/005/matthew-henry-calm.mp3",
-  "finalMp3Duration": 53.016,
+  "finalMp3Duration": 45.6,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 10.985
+      "end": 3.725
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 10.985,
-      "end": 26.95
+      "start": 3.725,
+      "end": 19.872
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 26.95,
-      "end": 39.814
+      "start": 19.872,
+      "end": 32.338
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 39.814,
-      "end": 53.016
+      "start": 32.338,
+      "end": 45.6
     }
   ],
   "words": [
     {
       "text": "창세기",
-      "start": 0.11,
-      "end": 0.736
+      "start": 0.07,
+      "end": 1.019
     },
     {
       "text": "8장",
-      "start": 0.827,
-      "end": 1.014
+      "start": 1.094,
+      "end": 1.811
     },
     {
       "text": "5절,",
-      "start": 1.108,
-      "end": 1.351
+      "start": 2.22,
+      "end": 2.396
     },
     {
       "text": "매튜헨리입니다.",
-      "start": 1.404,
-      "end": 1.865
-    },
-    {
-      "text": "본문은",
-      "start": 2.184,
-      "end": 2.344
-    },
-    {
-      "text": "'물이",
-      "start": 2.408,
-      "end": 3.174
-    },
-    {
-      "text": "점점",
-      "start": 3.77,
-      "end": 4.302
-    },
-    {
-      "text": "줄어들어",
-      "start": 4.582,
-      "end": 5.941
-    },
-    {
-      "text": "열째",
-      "start": 6.06,
-      "end": 6.25
-    },
-    {
-      "text": "달",
-      "start": 6.305,
-      "end": 6.443
-    },
-    {
-      "text": "곧",
-      "start": 6.547,
-      "end": 6.741
-    },
-    {
-      "text": "그",
-      "start": 7.142,
-      "end": 7.281
-    },
-    {
-      "text": "달",
-      "start": 7.412,
-      "end": 8.328
-    },
-    {
-      "text": "초하루에",
-      "start": 8.642,
-      "end": 9.154
-    },
-    {
-      "text": "산들의",
-      "start": 9.254,
-      "end": 9.756
-    },
-    {
-      "text": "봉우리가",
-      "start": 9.898,
-      "end": 10.078
-    },
-    {
-      "text": "보였더라'입니다.",
-      "start": 10.161,
-      "end": 10.711
+      "start": 2.484,
+      "end": 3.342
     },
     {
       "text": "매튜",
-      "start": 10.982,
-      "end": 11.189
+      "start": 3.722,
+      "end": 3.861
     },
     {
       "text": "헨리의",
-      "start": 11.259,
-      "end": 11.747
+      "start": 3.921,
+      "end": 4.582
     },
     {
       "text": "영어",
-      "start": 11.747,
-      "end": 12.073
+      "start": 4.642,
+      "end": 5.466
     },
     {
       "text": "원문입니다.",
-      "start": 12.266,
-      "end": 13.381
+      "start": 5.499,
+      "end": 5.666
     },
     {
       "text": "The",
-      "start": 14.078,
-      "end": 14.139
+      "start": 6.758,
+      "end": 6.819
     },
     {
       "text": "tops",
-      "start": 14.139,
-      "end": 14.221
+      "start": 6.819,
+      "end": 6.901
     },
     {
       "text": "of",
-      "start": 14.27,
-      "end": 14.355
+      "start": 6.95,
+      "end": 7.035
     },
     {
       "text": "the",
-      "start": 14.355,
-      "end": 14.483
+      "start": 7.035,
+      "end": 7.163
     },
     {
       "text": "mountains",
-      "start": 14.535,
-      "end": 15.419
+      "start": 7.215,
+      "end": 8.099
     },
     {
       "text": "were",
-      "start": 15.462,
-      "end": 16.007
+      "start": 8.142,
+      "end": 8.687
     },
     {
       "text": "seen,",
-      "start": 16.457,
-      "end": 16.527
+      "start": 9.137,
+      "end": 9.207
     },
     {
       "text": "like",
-      "start": 16.527,
-      "end": 16.583
+      "start": 9.207,
+      "end": 9.263
     },
     {
       "text": "little",
-      "start": 16.622,
-      "end": 16.926
+      "start": 9.302,
+      "end": 9.606
     },
     {
       "text": "islands.",
-      "start": 16.981,
-      "end": 17.563
+      "start": 9.661,
+      "end": 10.243
     },
     {
       "text": "산봉우리가",
-      "start": 17.852,
-      "end": 18.521
+      "start": 10.532,
+      "end": 11.201
     },
     {
       "text": "작은",
-      "start": 18.554,
-      "end": 18.839
+      "start": 11.234,
+      "end": 11.519
     },
     {
       "text": "섬들처럼",
-      "start": 18.942,
-      "end": 19.173
+      "start": 11.622,
+      "end": 11.853
     },
     {
       "text": "보였다.",
-      "start": 19.215,
-      "end": 20.117
+      "start": 11.895,
+      "end": 12.797
     },
     {
       "text": "여기서",
-      "start": 20.146,
-      "end": 20.357
+      "start": 12.826,
+      "end": 13.037
     },
     {
       "text": "핵심은",
-      "start": 20.482,
-      "end": 20.613
+      "start": 13.162,
+      "end": 13.293
     },
     {
       "text": "작은",
-      "start": 21.255,
-      "end": 21.715
+      "start": 13.935,
+      "end": 14.395
     },
     {
       "text": "희망의",
-      "start": 21.744,
-      "end": 22.146
+      "start": 14.424,
+      "end": 14.826
     },
     {
       "text": "신호도",
-      "start": 22.461,
-      "end": 22.677
+      "start": 15.141,
+      "end": 15.357
     },
     {
       "text": "귀하게",
-      "start": 22.715,
-      "end": 23.563
+      "start": 15.395,
+      "end": 16.243
     },
     {
       "text": "여김을",
-      "start": 23.595,
-      "end": 23.791
+      "start": 16.275,
+      "end": 16.471
     },
     {
       "text": "보여",
-      "start": 24.138,
-      "end": 24.784
+      "start": 16.818,
+      "end": 17.464
     },
     {
       "text": "준다는",
-      "start": 24.817,
-      "end": 25.085
+      "start": 17.497,
+      "end": 17.765
     },
     {
       "text": "점입니다.",
-      "start": 25.2,
-      "end": 26.377
+      "start": 17.88,
+      "end": 19.057
     },
     {
       "text": "두",
-      "start": 26.945,
-      "end": 27.247
+      "start": 19.872,
+      "end": 19.95
     },
     {
       "text": "번째",
-      "start": 27.275,
-      "end": 27.54
+      "start": 19.95,
+      "end": 20.107
     },
     {
       "text": "영어",
-      "start": 27.586,
-      "end": 27.815
+      "start": 20.107,
+      "end": 20.264
     },
     {
       "text": "원문입니다.",
-      "start": 28.039,
-      "end": 29.238
+      "start": 20.316,
+      "end": 21.566
     },
     {
       "text": "God's",
-      "start": 29.667,
-      "end": 30.089
+      "start": 22.203,
+      "end": 22.625
     },
     {
       "text": "time",
-      "start": 30.121,
-      "end": 30.618
+      "start": 22.657,
+      "end": 23.154
     },
     {
       "text": "is",
-      "start": 30.669,
-      "end": 30.716
+      "start": 23.205,
+      "end": 23.252
     },
     {
       "text": "the",
-      "start": 30.716,
-      "end": 30.787
+      "start": 23.252,
+      "end": 23.323
     },
     {
       "text": "best",
-      "start": 30.837,
-      "end": 31.072
+      "start": 23.373,
+      "end": 23.608
     },
     {
       "text": "time.",
-      "start": 31.302,
-      "end": 31.696
+      "start": 23.838,
+      "end": 24.232
     },
     {
       "text": "하나님의",
-      "start": 32.062,
-      "end": 32.623
+      "start": 24.598,
+      "end": 25.159
     },
     {
       "text": "때가",
-      "start": 32.735,
-      "end": 32.851
+      "start": 25.271,
+      "end": 25.387
     },
     {
       "text": "가장",
-      "start": 32.882,
-      "end": 32.965
+      "start": 25.418,
+      "end": 25.501
     },
     {
       "text": "좋은",
-      "start": 32.965,
-      "end": 33.049
+      "start": 25.501,
+      "end": 25.585
     },
     {
       "text": "때이다.",
-      "start": 33.113,
-      "end": 33.556
+      "start": 25.649,
+      "end": 26.092
     },
     {
       "text": "여기서",
-      "start": 33.587,
-      "end": 33.979
+      "start": 26.123,
+      "end": 26.515
     },
     {
       "text": "핵심은",
-      "start": 34.033,
-      "end": 34.256
+      "start": 26.569,
+      "end": 26.792
     },
     {
       "text": "인내",
-      "start": 34.282,
-      "end": 34.345
+      "start": 26.818,
+      "end": 26.881
     },
     {
       "text": "후에",
-      "start": 34.345,
-      "end": 34.409
+      "start": 26.881,
+      "end": 26.945
     },
     {
       "text": "오는",
-      "start": 35.158,
-      "end": 35.544
+      "start": 27.694,
+      "end": 28.08
     },
     {
       "text": "희망을",
-      "start": 35.544,
-      "end": 36.122
+      "start": 28.08,
+      "end": 28.658
     },
     {
       "text": "보여",
-      "start": 36.479,
-      "end": 37.089
+      "start": 29.015,
+      "end": 29.625
     },
     {
       "text": "준다는",
-      "start": 37.089,
-      "end": 38.004
+      "start": 29.625,
+      "end": 30.54
     },
     {
       "text": "점입니다.",
-      "start": 38.049,
-      "end": 39.317
+      "start": 30.585,
+      "end": 31.853
     },
     {
       "text": "마지막",
-      "start": 39.808,
-      "end": 40.089
+      "start": 32.335,
+      "end": 33.213
     },
     {
       "text": "영어",
-      "start": 40.089,
-      "end": 40.276
+      "start": 33.213,
+      "end": 33.799
     },
     {
       "text": "원문입니다.",
-      "start": 40.365,
-      "end": 41.407
+      "start": 33.832,
+      "end": 33.959
     },
     {
       "text": "Faith",
-      "start": 41.849,
-      "end": 42.131
+      "start": 34.433,
+      "end": 34.715
     },
     {
       "text": "sees",
-      "start": 42.32,
-      "end": 42.762
+      "start": 34.904,
+      "end": 35.346
     },
     {
       "text": "land",
-      "start": 42.762,
-      "end": 43.204
+      "start": 35.346,
+      "end": 35.788
     },
     {
       "text": "when",
-      "start": 43.554,
-      "end": 43.895
+      "start": 36.138,
+      "end": 36.479
     },
     {
       "text": "it",
-      "start": 43.895,
-      "end": 44.065
+      "start": 36.479,
+      "end": 36.649
     },
     {
       "text": "is",
-      "start": 44.065,
-      "end": 44.236
+      "start": 36.649,
+      "end": 36.82
     },
     {
       "text": "yet",
-      "start": 44.277,
-      "end": 44.291
+      "start": 36.861,
+      "end": 36.875
     },
     {
       "text": "under",
-      "start": 44.291,
-      "end": 44.316
+      "start": 36.875,
+      "end": 36.9
     },
     {
       "text": "water.",
-      "start": 44.463,
-      "end": 45.095
+      "start": 37.047,
+      "end": 37.679
     },
     {
       "text": "믿음은",
-      "start": 45.419,
-      "end": 45.918
+      "start": 38.003,
+      "end": 38.502
     },
     {
       "text": "아직",
-      "start": 46.261,
-      "end": 46.86
+      "start": 38.845,
+      "end": 39.444
     },
     {
       "text": "물",
-      "start": 46.898,
-      "end": 47.079
+      "start": 39.482,
+      "end": 39.663
     },
     {
       "text": "아래",
-      "start": 47.079,
-      "end": 47.441
+      "start": 39.663,
+      "end": 40.025
     },
     {
       "text": "있는",
-      "start": 47.473,
-      "end": 47.594
+      "start": 40.057,
+      "end": 40.178
     },
     {
       "text": "땅을",
-      "start": 47.594,
-      "end": 47.715
+      "start": 40.178,
+      "end": 40.299
     },
     {
       "text": "본다.",
-      "start": 47.755,
-      "end": 48.118
+      "start": 40.339,
+      "end": 40.702
     },
     {
       "text": "여기서",
-      "start": 48.736,
-      "end": 49.204
+      "start": 41.32,
+      "end": 41.788
     },
     {
       "text": "핵심은",
-      "start": 49.242,
-      "end": 49.653
+      "start": 41.826,
+      "end": 42.237
     },
     {
       "text": "보이지",
-      "start": 50.04,
-      "end": 50.242
+      "start": 42.624,
+      "end": 42.826
     },
     {
       "text": "않는",
-      "start": 50.27,
-      "end": 50.6
+      "start": 42.854,
+      "end": 43.184
     },
     {
       "text": "것을",
-      "start": 50.6,
-      "end": 50.929
+      "start": 43.184,
+      "end": 43.513
     },
     {
       "text": "보는",
-      "start": 51.015,
-      "end": 51.257
+      "start": 43.599,
+      "end": 43.841
     },
     {
       "text": "믿음을",
-      "start": 51.257,
-      "end": 51.62
+      "start": 43.841,
+      "end": 44.204
     },
     {
       "text": "보여",
-      "start": 51.732,
-      "end": 52.107
+      "start": 44.316,
+      "end": 44.691
     },
     {
       "text": "준다는",
-      "start": 52.107,
-      "end": 52.669
+      "start": 44.691,
+      "end": 45.253
     },
     {
       "text": "점입니다.",
-      "start": 52.699,
-      "end": 53.016
+      "start": 45.283,
+      "end": 45.6
     }
   ]
 }

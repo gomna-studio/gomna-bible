@@ -1,33 +1,305 @@
 {
   "audioId": "genesis.001.010.theology",
-  "duration": 39.648,
-  "measuredDuration": 39.648,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/010/theology-warm.mp3",
-  "finalMp3Duration": 39.648,
+  "duration": 33.552,
+  "measuredDuration": 33.552,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/010/theology-warm.mp3",
+  "finalMp3Duration": 33.552,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 12.117917
+      "end": 3.816
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 12.117917,
-      "end": 21.458792
+      "start": 3.816,
+      "end": 13.55
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 21.458792,
-      "end": 31.264208
+      "start": 13.55,
+      "end": 24.814
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 31.264208,
-      "end": 39.648
+      "start": 24.814,
+      "end": 33.552
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.131,
+      "end": 1.482
+    },
+    {
+      "text": "1장",
+      "start": 1.611,
+      "end": 1.808
+    },
+    {
+      "text": "10절,",
+      "start": 2.36,
+      "end": 2.659
+    },
+    {
+      "text": "신학적의미입니다.",
+      "start": 2.77,
+      "end": 3.546
+    },
+    {
+      "text": "창조",
+      "start": 3.782,
+      "end": 5.23
+    },
+    {
+      "text": "선함의",
+      "start": 5.274,
+      "end": 5.867
+    },
+    {
+      "text": "의미가",
+      "start": 6.428,
+      "end": 7.715
+    },
+    {
+      "text": "드러납니다.",
+      "start": 7.802,
+      "end": 8.365
+    },
+    {
+      "text": "토브",
+      "start": 8.965,
+      "end": 9.275
+    },
+    {
+      "text": "선언",
+      "start": 9.275,
+      "end": 9.586
+    },
+    {
+      "text": "반복을",
+      "start": 9.864,
+      "end": 9.993
+    },
+    {
+      "text": "보여",
+      "start": 10.097,
+      "end": 10.583
+    },
+    {
+      "text": "줍니다.",
+      "start": 10.609,
+      "end": 10.825
+    },
+    {
+      "text": "관련해서",
+      "start": 10.865,
+      "end": 11.057
+    },
+    {
+      "text": "시편",
+      "start": 11.095,
+      "end": 11.263
+    },
+    {
+      "text": "33편",
+      "start": 11.263,
+      "end": 11.515
+    },
+    {
+      "text": "5절을",
+      "start": 11.781,
+      "end": 11.957
+    },
+    {
+      "text": "함께",
+      "start": 12.028,
+      "end": 12.103
+    },
+    {
+      "text": "볼",
+      "start": 12.103,
+      "end": 12.14
+    },
+    {
+      "text": "수",
+      "start": 12.14,
+      "end": 12.178
+    },
+    {
+      "text": "있습니다.",
+      "start": 12.266,
+      "end": 13.053
+    },
+    {
+      "text": "명명",
+      "start": 13.545,
+      "end": 14.179
+    },
+    {
+      "text": "통치의",
+      "start": 14.564,
+      "end": 14.789
+    },
+    {
+      "text": "의미가",
+      "start": 14.829,
+      "end": 15.692
+    },
+    {
+      "text": "드러납니다.",
+      "start": 15.86,
+      "end": 16.48
+    },
+    {
+      "text": "에레츠·얌",
+      "start": 17.065,
+      "end": 17.303
+    },
+    {
+      "text": "이름",
+      "start": 17.383,
+      "end": 18.003
+    },
+    {
+      "text": "부여를",
+      "start": 18.15,
+      "end": 18.462
+    },
+    {
+      "text": "보여",
+      "start": 18.499,
+      "end": 18.933
+    },
+    {
+      "text": "줍니다.",
+      "start": 18.994,
+      "end": 19.631
+    },
+    {
+      "text": "관련해서",
+      "start": 20.322,
+      "end": 20.957
+    },
+    {
+      "text": "시편",
+      "start": 21.342,
+      "end": 21.489
+    },
+    {
+      "text": "29편",
+      "start": 21.575,
+      "end": 22.095
+    },
+    {
+      "text": "10절을",
+      "start": 22.202,
+      "end": 22.316
+    },
+    {
+      "text": "함께",
+      "start": 22.39,
+      "end": 22.738
+    },
+    {
+      "text": "볼",
+      "start": 22.846,
+      "end": 23.168
+    },
+    {
+      "text": "수",
+      "start": 23.429,
+      "end": 23.572
+    },
+    {
+      "text": "있습니다.",
+      "start": 23.631,
+      "end": 24.558
+    },
+    {
+      "text": "청지기론의",
+      "start": 24.812,
+      "end": 25.585
+    },
+    {
+      "text": "의미가",
+      "start": 25.639,
+      "end": 26.119
+    },
+    {
+      "text": "드러납니다.",
+      "start": 26.19,
+      "end": 26.839
+    },
+    {
+      "text": "땅",
+      "start": 27.463,
+      "end": 27.809
+    },
+    {
+      "text": "맡은",
+      "start": 27.902,
+      "end": 28.698
+    },
+    {
+      "text": "관리자를",
+      "start": 28.748,
+      "end": 29.391
+    },
+    {
+      "text": "보여",
+      "start": 30.079,
+      "end": 30.65
+    },
+    {
+      "text": "줍니다.",
+      "start": 30.704,
+      "end": 30.965
+    },
+    {
+      "text": "관련해서",
+      "start": 31.002,
+      "end": 31.117
+    },
+    {
+      "text": "창",
+      "start": 31.146,
+      "end": 31.258
+    },
+    {
+      "text": "2장",
+      "start": 31.258,
+      "end": 31.482
+    },
+    {
+      "text": "15절을",
+      "start": 31.517,
+      "end": 31.887
+    },
+    {
+      "text": "함께",
+      "start": 32.153,
+      "end": 32.321
+    },
+    {
+      "text": "볼",
+      "start": 32.378,
+      "end": 32.442
+    },
+    {
+      "text": "수",
+      "start": 32.442,
+      "end": 32.507
+    },
+    {
+      "text": "있습니다.",
+      "start": 32.537,
+      "end": 33.552
     }
   ]
 }

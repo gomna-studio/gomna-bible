@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import vm from 'vm';
 import { fileURLToPath } from 'url';
+import { TESTAMENT_SOURCES } from './bible-book-registry.mjs';
+import { normalizeCommentaryTableRows } from './lib/commentary-card-field-schema.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = process.env.GOMNA_ROOT || path.resolve(__dirname, '..');
@@ -12,6 +14,12 @@ const BOOKS = {
       'ko-KR': '창세기',
     },
     commentaryDataPath: path.join(ROOT, 'gomna_data_genesis.js'),
+  },
+  exodus: {
+    bookNameByLocale: {
+      'ko-KR': '출애굽기',
+    },
+    commentaryDataPath: path.join(ROOT, 'gomna_data_exodus.js'),
   },
 };
 
@@ -48,6 +56,11 @@ const COMMENTARY_TYPES = [
   { type: 'counseling', title: '상담적용', tableKey: '표8_상담적용' },
   { type: 'cross-reference', title: '교차참조', tableKey: '표9_교차참조' },
 ];
+
+// 같은 절의 성경 본문은 첫 유형에서만 1회 낭독하고, 나머지 8유형은 반복하지 않는다.
+const VERSE_TEXT_INTRO_TYPE = COMMENTARY_TYPES[0].type;
+
+const OLD_TESTAMENT_PATH = path.join(ROOT, TESTAMENT_SOURCES.oldTestamentData.fileName);
 
 function usage() {
   console.error('Usage: node scripts/build-commentary-tts-scripts.mjs --locale ko-KR --book genesis --chapter 1 --verse 2 --dry-run');
@@ -206,6 +219,50 @@ function topicParticle(value) {
   return `${value}${hasFinalConsonant(value) ? '은' : '는'}`;
 }
 
+// 서론·결론 원본이 완결 문장인 행이 있어, 목적격 조사를 붙이면 종결 뒤에 조사가 온다.
+// '자'로 끝나는 명사(여호와의 사자 등)는 조사가 정상이므로 문장 판정에서 뺀다.
+const SENTENCE_TAIL_PATTERN = /(입니다|습니다|니다|습니까|십니까|니까|나요|네요|지요|죠|시오|소서|다|라|는가|은가|인가|던가)$/;
+const NOUN_TAILS_ENDING_IN_JA = new Set([
+  '사자', '동반자', '상속자', '신자', '남자', '여자', '부자', '의자', '장자', '목자', '저자', '제자', '학자',
+]);
+
+function isCompleteSentence(value) {
+  const text = cleanText(value);
+  if (!text) return false;
+  if (/[.!?。！？]\s*$/.test(text)) return true;
+  if (/[.!?。！？]\s+\S/.test(text)) return true;
+  if (text.endsWith('자')) return !NOUN_TAILS_ENDING_IN_JA.has(text.split(/\s+/).pop());
+  return SENTENCE_TAIL_PATTERN.test(text);
+}
+
+// 부사격·보조사로 끝난 생략형 값에 목적격 조사를 붙이면 조사가 겹친다.
+// '통로'처럼 조사 글자가 명사 일부인 경우를 배제하려고 어간 음절 수로 가른다.
+function syllableCount(value) {
+  return (String(value || '').match(/[가-힣]/g) || []).length;
+}
+
+function endsWithAdverbialParticle(value) {
+  const token = cleanText(value).split(/\s+/).pop() || '';
+  if (/으로$/.test(token)) return syllableCount(token) >= 3;
+  if (/대로$/.test(token)) return syllableCount(token.slice(0, -2)) >= 2;
+  if (/(까지|부터|에게|처럼|같이|만큼|조차|밖에|에서)$/.test(token)) return syllableCount(token.slice(0, -2)) >= 1;
+  if (/로$/.test(token)) return syllableCount(token.slice(0, -1)) >= 2;
+  return false;
+}
+
+function withPeriod(value) {
+  const text = cleanText(value);
+  if (!text) return '';
+  return /[.!?。！？]$/.test(text) ? text : `${text}.`;
+}
+
+// 대지·제목 원본이 이미 '…합니다'처럼 종결형인 행이 있어 '입니다'를 덧붙이면 종결이 겹친다.
+function withDeclarativeEnding(value) {
+  const text = String(value ?? '');
+  if (!text) return text;
+  return /(입니다|습니다|합니다|됩니다|십니다)$/.test(text) ? `${text}.` : `${text}입니다.`;
+}
+
 function phraseAsPoint(value) {
   const text = cleanText(value);
   if (!text) return '';
@@ -219,6 +276,10 @@ function phraseAsConnection(value) {
   const text = connectionSubjectForSpeech(value);
   if (!text) return '';
   if (/[.!?。！？다요죠음함됨임니다라]$/.test(text)) return text;
+  // 값이 이미 '연결'로 끝나면 같은 뜻의 연결어를 덧붙이지 않고 종결만 맞춘다.
+  if (/연결$/.test(text)) {
+    return /(과|와|에게|께|으로|로)\s*연결$/.test(text) ? `${text}됩니다.` : `${text}입니다.`;
+  }
   return `${withAndParticle(text)} 연결됩니다.`;
 }
 
@@ -254,10 +315,17 @@ function christConnectionForSpeech(value) {
   return phraseAsConnection(text);
 }
 
-function matthewHenryEnglishIntro(index) {
+const MATTHEW_HENRY_ORDINALS = ['첫 번째', '두 번째', '세 번째', '네 번째', '다섯 번째', '여섯 번째', '일곱 번째', '여덟 번째', '아홉 번째', '열 번째'];
+
+function matthewHenryEnglishIntro(index, total) {
   if (index === 0) return '매튜 헨리의 영어 원문입니다.';
   if (index === 1) return '두 번째 영어 원문입니다.';
-  return '마지막 영어 원문입니다.';
+  if (index === total - 1) return '마지막 영어 원문입니다.';
+  const ordinal = MATTHEW_HENRY_ORDINALS[index];
+  if (!ordinal) {
+    throw new Error(`매튜헨리 영어 원문 순서를 ${index + 1}번째까지 읽을 수 없습니다.`);
+  }
+  return `${ordinal} 영어 원문입니다.`;
 }
 
 function meaningForSpeech(value) {
@@ -313,6 +381,37 @@ function connectionSubjectForSpeech(value) {
     .replace(/고센 땅 빛$/, '고센 땅의 빛');
 }
 
+// 창세기 일부 절은 같은 표를 전혀 다른 필드 구성으로 저장해 두었다.
+// 정규 슬롯에 억지로 끼워 넣으면 의미가 뒤틀리므로, 존재하는 필드를 그대로 낭독한다.
+function altRow(row, fields) {
+  const values = fields.map((field) => cleanText(row[field]));
+  if (values.some((value) => !value)) return null;
+  return values;
+}
+
+// 대체 스키마 값은 서술형·명령형·명사형이 섞여 있다. 값은 고치지 않고 종결만 붙인다.
+function altSentence(value) {
+  const text = cleanText(value);
+  if (!text) return '';
+  if (/[.!?。！？]$/.test(text)) return text;
+
+  const reference = text.match(/\s*\([^()]*\)$/);
+  const head = reference ? text.slice(0, text.length - reference[0].length) : text;
+  const tail = reference ? reference[0] : '';
+  const bare = head.replace(/['"’”\s]+$/, '');
+
+  // '통치자'처럼 명사로 끝나는 값과 겹치므로 청유형 '-자'는 종결로 보지 않는다.
+  if (/(다|라|오|요|죠|까|네|군|랴)$/.test(bare)) return `${head}${tail}.`;
+  // '~하셨듯이'처럼 연결어미로 끝나는 값에는 서술격을 붙일 수 없다.
+  if (/(듯이|처럼|같이|라도|면서|으며|하며|이며|든지|거나|다가)$/.test(bare)) return `${head}${tail}.`;
+  // 동사에서 파생된 명사형(-ㅁ/-음)은 서술격도 '합니다'도 붙일 수 없다.
+  if ((lastHangulSyllable(bare).charCodeAt(0) - 0xac00) % 28 === 16) return `${head}${tail}.`;
+  // '~을 강조'처럼 목적격·주격 뒤에 오는 서술성 명사는 서술격을 붙일 수 없다.
+  if (/[을를]\s+[가-힣]{2,3}$/.test(bare)) return `${head}${tail}합니다.`;
+  if (/[이가]\s+[가-힣]{2,3}$/.test(bare)) return `${head}${tail}.`;
+  return `${head}${tail}입니다.`;
+}
+
 function backgroundForSpeech(value) {
   const text = cleanText(value).replace(/^조로아스터 등과 구별$/, '조로아스터교 등과 구별');
   if (!text) return '';
@@ -320,18 +419,94 @@ function backgroundForSpeech(value) {
   return `${text}${hasFinalConsonant(text) ? '이라는' : '라는'} 배경이 있습니다.`;
 }
 
-function intro({ args, data, title, bookName }) {
-  return `${bookName} ${args.chapter}장 ${args.verse}절, ${title}입니다. 본문은 '${data.korean_text}'입니다.`;
+// 성경 본문 원천은 Reader와 동일한 개역한글(old_testament.js) 하나뿐이다.
+// gomna_data_*.js는 말씀풀이 body 전용이며 절 본문 낭독에 쓰지 않는다.
+const oldTestamentVerseIndexByBook = new Map();
+let oldTestamentBooks = null;
+
+function loadOldTestamentBooks() {
+  if (oldTestamentBooks) return oldTestamentBooks;
+
+  const source = fs.readFileSync(OLD_TESTAMENT_PATH, 'utf8');
+  const sandbox = {
+    window: {},
+    module: { exports: {} },
+    document: { addEventListener() {} },
+    console,
+  };
+  vm.runInNewContext(source, sandbox, {
+    filename: toRelativePath(OLD_TESTAMENT_PATH),
+  });
+
+  const books = sandbox.oldTestamentData?.books;
+  if (!Array.isArray(books) || books.length === 0) {
+    throw new Error(`${TESTAMENT_SOURCES.oldTestamentData.fileName}에서 oldTestamentData.books를 읽지 못했습니다.`);
+  }
+
+  oldTestamentBooks = books;
+  return books;
+}
+
+function loadOldTestamentVerseIndex(bookName) {
+  const cached = oldTestamentVerseIndexByBook.get(bookName);
+  if (cached) return cached;
+
+  const book = loadOldTestamentBooks().find((item) => item.name === bookName);
+  if (!book || !Array.isArray(book.chapters)) {
+    throw new Error(`${TESTAMENT_SOURCES.oldTestamentData.fileName}에 ${bookName} 본문이 없습니다.`);
+  }
+
+  const index = new Map();
+  for (const chapter of book.chapters) {
+    if (!Array.isArray(chapter.verses)) {
+      throw new Error(`${bookName} ${chapter.chapter}장의 verses 구조가 올바르지 않습니다.`);
+    }
+    for (const verse of chapter.verses) {
+      index.set(`${chapter.chapter}_${verse.verse}`, verse.text);
+    }
+  }
+
+  oldTestamentVerseIndexByBook.set(bookName, index);
+  return index;
+}
+
+function resolveVerseText({ args, bookName }) {
+  const verseKey = `${args.chapter}_${args.verse}`;
+  const verseText = loadOldTestamentVerseIndex(bookName).get(verseKey);
+
+  if (typeof verseText !== 'string' || !verseText.trim()) {
+    throw new Error(
+      `개역한글 본문을 찾지 못했습니다: ${TESTAMENT_SOURCES.oldTestamentData.fileName} ${bookName} ${verseKey}`,
+    );
+  }
+
+  // 개역한글 문구는 그대로 두고 공백만 정규화한다.
+  return verseText.replace(/\s+/g, ' ').trim();
+}
+
+function intro({ args, title, bookName, type }) {
+  const heading = `${bookName} ${args.chapter}장 ${args.verse}절, ${title}입니다.`;
+  if (type !== VERSE_TEXT_INTRO_TYPE) return heading;
+  return `${heading} 본문은 '${resolveVerseText({ args, bookName })}'입니다.`;
 }
 
 function renderOriginalLanguage(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
+    // 히브리어 글자는 정규 스키마에서도 낭독하지 않고 음역만 읽는다.
+    const alt = altRow(row, ['음역', '뜻', '문법', '설명']);
+    if (alt) {
+      const [transliteration, meaning, grammar, explanation] = alt;
+      lines.push(`${topicParticle(transliteration)} ${meaningPhrase(meaning)} 뜻이고, 문법으로는 ${altSentence(grammar)} ${altSentence(explanation)}`);
+      continue;
+    }
+
     const term = termForSpeech(row.원어);
     const meaning = meaningForSpeech(row.의미_문법);
     const point = phraseAsPoint(row.설교포인트);
-    lines.push(`${topicParticle(term)} ${meaning}. ${point}`);
+    // 음역이 없는 행은 낭독할 낱말이 없다. 없는 음역을 만들지 않고 조사만 뺀다.
+    lines.push(term ? `${topicParticle(term)} ${meaning}. ${point}` : `${meaning}. ${point}`);
   }
 
   const closingKey = `${ctx.args.chapter}:${ctx.args.verse}`;
@@ -347,6 +522,13 @@ function renderHistory(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
+    const alt = altRow(row, ['시대적상황', '지리적배경', '문화적맥락', '고고학적발견']);
+    if (alt) {
+      const [era, geography, culture, archaeology] = alt;
+      lines.push(`시대적으로는 ${altSentence(era)} 지리적으로는 ${altSentence(geography)} 문화적으로는 ${altSentence(culture)} 고고학적으로는 ${altSentence(archaeology)}`);
+      continue;
+    }
+
     lines.push(`${withObjectParticle(row.항목)} 생각해 볼 수 있습니다. ${backgroundForSpeech(row.내용)} 이 점은 ${withObjectParticle(row.목회적활용)} 생각하게 합니다.`);
   }
 
@@ -357,7 +539,19 @@ function renderTheology(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
-    lines.push(`${row.교리}의 의미가 드러납니다. ${phraseAsPoint(row.설명)} 관련해서 ${scriptureRefForSpeech(row.관련구절)}을 함께 볼 수 있습니다.`);
+    const alt = altRow(row, ['핵심주제', '하나님의속성', '구속사적의미', '교리적가르침']);
+    if (alt) {
+      const [topic, attribute, redemptive, doctrine] = alt;
+      lines.push(`핵심 주제는 ${altSentence(topic)} 여기서 하나님의 속성이 드러납니다. ${altSentence(attribute)} 구속사적으로는 ${altSentence(redemptive)} 교리적으로는 ${altSentence(doctrine)}`);
+      continue;
+    }
+
+    // 교리 값이 이미 '의미'·'뜻'으로 끝나는 행이 있어 고정 문구와 겹친다.
+    const doctrine = String(row.교리 ?? '');
+    const doctrineLead = /(의미|뜻)\s*$/.test(doctrine)
+      ? `${doctrine}${hasFinalConsonant(doctrine) ? '이' : '가'} 드러납니다.`
+      : `${doctrine}의 의미가 드러납니다.`;
+    lines.push(`${doctrineLead} ${phraseAsPoint(row.설명)} 관련해서 ${scriptureRefForSpeech(row.관련구절)}을 함께 볼 수 있습니다.`);
   }
 
   return lines.join('\n');
@@ -367,6 +561,13 @@ function renderTypology(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
+    const alt = altRow(row, ['구약예표', '신약성취', '그리스도연결', '적용']);
+    if (alt) {
+      const [shadow, fulfillment, connection, application] = alt;
+      lines.push(`구약의 예표로는 ${altSentence(shadow)} 신약의 성취는 ${altSentence(fulfillment)} 이것은 ${altSentence(connection)} 적용하면 이렇습니다. ${altSentence(application)}`);
+      continue;
+    }
+
     lines.push(`${row.구분}의 관점에서 보면, ${phraseAsConnection(row.내용)} 이것은 ${christConnectionForSpeech(row.그리스도연결)}`);
   }
 
@@ -378,6 +579,13 @@ function renderMatthewHenry(ctx, rows) {
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
+    const alt = altRow(row, ['핵심해석', '영적교훈', '실천적적용']);
+    if (alt) {
+      const [reading, lesson, practice] = alt;
+      lines.push(`매튜 헨리는 이 말씀을 이렇게 풀어 줍니다. ${altSentence(reading)} 영적 교훈은 이렇습니다. ${altSentence(lesson)} 실천적 적용은 이렇습니다. ${altSentence(practice)}`);
+      continue;
+    }
+
     const englishOriginal = cleanText(row.영어원문);
 
     if (!englishOriginal) {
@@ -386,7 +594,7 @@ function renderMatthewHenry(ctx, rows) {
       continue;
     }
 
-    lines.push(`${matthewHenryEnglishIntro(i)}
+    lines.push(`${matthewHenryEnglishIntro(i, rows.length)}
 ${englishOriginal}
 ${sentence(row.한국어번역)} 여기서 핵심은 ${withObjectParticle(row.핵심통찰)} 보여 준다는 점입니다.`);
   }
@@ -408,15 +616,31 @@ function renderSermon(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
+    const alt = altRow(row, ['설교제목', '설교포인트', '예화', '적용질문']);
+    if (alt) {
+      const [title, points, illustration, question] = alt;
+      lines.push(`설교 제목은 ${altSentence(title)} 설교 포인트는 이렇습니다. ${altSentence(points)} 예화로는 ${altSentence(illustration)} 적용 질문은 이렇습니다. ${altSentence(question)}`);
+      continue;
+    }
+
     const heading = cleanText(row.대지).replace(/^\d+대지:\s*/, '');
+    // 예화_적용 원본이 없는 행이 있어, 없는 값을 지어내지 않고 해당 절만 생략한다.
+    const example = cleanText(row.예화_적용)
+      ? ` 적용 예로는 ${withObjectParticle(row.예화_적용)} 들 수 있습니다.`
+      : '';
+
     if (heading === '제목') {
-      lines.push(`설교 제목은 ${sentence(row.내용).replace(/\.$/, '')}입니다. 적용 예로는 ${withObjectParticle(row.예화_적용)} 들 수 있습니다.`);
+      lines.push(`설교 제목은 ${withDeclarativeEnding(sentence(row.내용).replace(/\.$/, ''))}${example}`);
     } else if (heading === '서론') {
-      lines.push(`서론에서는 ${withObjectParticle(row.내용)} 이야기합니다. 적용 예로는 ${withObjectParticle(row.예화_적용)} 들 수 있습니다.`);
+      lines.push(isCompleteSentence(row.내용) || endsWithAdverbialParticle(row.내용)
+        ? `서론에서는 이렇게 말합니다. ${withPeriod(row.내용)}${example}`
+        : `서론에서는 ${withObjectParticle(row.내용)} 이야기합니다.${example}`);
     } else if (heading === '결론') {
-      lines.push(`결론에서는 ${withObjectParticle(row.내용)} 메시지로 전합니다. 적용 예로는 ${withObjectParticle(row.예화_적용)} 들 수 있습니다.`);
+      lines.push(isCompleteSentence(row.내용) || endsWithAdverbialParticle(row.내용)
+        ? `결론에서는 이렇게 전합니다. ${withPeriod(row.내용)}${example}`
+        : `결론에서는 ${withObjectParticle(row.내용)} 메시지로 전합니다.${example}`);
     } else {
-      lines.push(`${heading}입니다. ${phraseAsPoint(row.내용)} 적용 예로는 ${withObjectParticle(row.예화_적용)} 들 수 있습니다.`);
+      lines.push(`${withDeclarativeEnding(heading)} ${phraseAsPoint(row.내용)}${example}`);
     }
   }
 
@@ -428,7 +652,9 @@ function renderHymn(ctx, rows) {
 
   for (const row of rows) {
     const hymnTitle = `'${row.제목}'`;
-    lines.push(`새찬송가 ${row.새찬송가}, ${withObjectParticle(hymnTitle)} 함께 묵상할 수 있습니다. 이 찬송은 ${withObjectParticle(row.선정이유)} 떠올리게 한다는 점에서 본문과 연결됩니다.`);
+    // 찬송가 번호를 '찬송가 338장'처럼 라벨까지 담아 둔 행이 있어 낭독 시 라벨이 겹친다.
+    const hymnNumber = String(row.새찬송가).replace(/^(새찬송가|찬송가)\s+/, '');
+    lines.push(`새찬송가 ${hymnNumber}, ${withObjectParticle(hymnTitle)} 함께 묵상할 수 있습니다. 이 찬송은 ${withObjectParticle(row.선정이유)} 떠올리게 한다는 점에서 본문과 연결됩니다.`);
   }
 
   return lines.join('\n');
@@ -438,6 +664,13 @@ function renderCounseling(ctx, rows) {
   const lines = [intro(ctx), ''];
 
   for (const row of rows) {
+    const alt = altRow(row, ['상담주제', '성경적원리', '실제적조언', '위로의말씀']);
+    if (alt) {
+      const [topic, principle, advice, comfort] = alt;
+      lines.push(`상담 주제는 ${altSentence(topic)} 성경적 원리는 이렇습니다. ${altSentence(principle)} 실제적인 조언은 이렇습니다. ${altSentence(advice)} 위로의 말씀을 전합니다. ${altSentence(comfort)}`);
+      continue;
+    }
+
     lines.push(`${row.상황}에게 이 말씀을 적용할 수 있습니다. 성경 원리는 ${withObjectParticle(row.성경원리)} 붙드는 것입니다. 실제 적용으로는 ${withObjectParticle(row.실제적용)} 제안할 수 있습니다.`);
   }
 
@@ -479,12 +712,19 @@ function buildPlans(args) {
   const outputDir = buildOutputDir(args);
 
   return COMMENTARY_TYPES.map((item) => {
-    const rows = data[item.tableKey];
-    if (!Array.isArray(rows) || rows.length === 0) {
+    const sourceRows = data[item.tableKey];
+    if (!Array.isArray(sourceRows) || sourceRows.length === 0) {
       throw new Error(`${dataKey}의 ${item.tableKey} 데이터가 비어 있습니다.`);
     }
 
-    const text = `${RENDERERS[item.type]({ args, data, title: item.title, bookName }, rows).trim()}\n`;
+    // 일부 절은 같은 내용을 다른 필드명으로 저장해 두었다. 값은 옮기기만 하고 고치지 않는다.
+    // 대체 스키마 전용 렌더링이 원본 필드를 그대로 봐야 하므로 원본 키도 함께 남긴다.
+    const normalizedRows = normalizeCommentaryTableRows(item.tableKey, args.locale, sourceRows);
+    const rows = sourceRows.map((sourceRow, index) => ({ ...sourceRow, ...normalizedRows[index] }));
+
+    const text = `${RENDERERS[item.type]({
+      args, data, title: item.title, bookName, type: item.type,
+    }, rows).trim()}\n`;
     const outputPath = path.join(outputDir, `${item.type}.txt`);
 
     if (item.type === 'matthew-henry') {

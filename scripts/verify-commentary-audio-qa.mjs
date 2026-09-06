@@ -20,6 +20,7 @@ const MANIFEST_PATH = path.join(ROOT, 'audio', 'audio-manifest.json');
 
 const BOOK_NAMES = {
   genesis: '창세기',
+  exodus: '출애굽기',
 };
 
 const TYPE_LIST = COMMENTARY_TYPES.map((item) => ({

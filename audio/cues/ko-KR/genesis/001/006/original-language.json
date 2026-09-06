@@ -1,45 +1,332 @@
 {
   "audioId": "genesis.001.006.original-language",
-  "duration": 36.648,
-  "measuredDuration": 36.648,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/006/original-language-study.mp3",
-  "finalMp3Duration": 36.648,
+  "duration": 38.952,
+  "measuredDuration": 38.952,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/006/original-language-study.mp3",
+  "finalMp3Duration": 38.952,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 10.301917
+      "end": 10.434
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 10.301917,
-      "end": 15.58875
+      "start": 10.434,
+      "end": 16.351
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 15.58875,
-      "end": 21.179542
+      "start": 16.351,
+      "end": 22.392
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 21.179542,
-      "end": 25.831833
+      "start": 22.392,
+      "end": 27.569
     },
     {
       "type": "item",
       "itemIndex": 3,
-      "start": 25.831833,
-      "end": 31.447542
+      "start": 27.569,
+      "end": 34.307
     },
     {
       "type": "item",
       "itemIndex": 4,
-      "start": 31.447542,
-      "end": 36.648
+      "start": 34.307,
+      "end": 38.952
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.058,
+      "end": 0.836
+    },
+    {
+      "text": "1장",
+      "start": 0.895,
+      "end": 1.034
+    },
+    {
+      "text": "6절,",
+      "start": 1.034,
+      "end": 1.242
+    },
+    {
+      "text": "원어분석입니다.",
+      "start": 1.378,
+      "end": 1.615
+    },
+    {
+      "text": "본문은",
+      "start": 2.076,
+      "end": 3.022
+    },
+    {
+      "text": "'하나님이",
+      "start": 3.675,
+      "end": 4.206
+    },
+    {
+      "text": "가라사대",
+      "start": 4.552,
+      "end": 5.069
+    },
+    {
+      "text": "물",
+      "start": 5.112,
+      "end": 5.257
+    },
+    {
+      "text": "가운데",
+      "start": 5.257,
+      "end": 5.693
+    },
+    {
+      "text": "궁창이",
+      "start": 5.975,
+      "end": 6.197
+    },
+    {
+      "text": "있어",
+      "start": 6.222,
+      "end": 6.463
+    },
+    {
+      "text": "물과",
+      "start": 6.463,
+      "end": 6.704
+    },
+    {
+      "text": "물로",
+      "start": 6.77,
+      "end": 7.088
+    },
+    {
+      "text": "나뉘게",
+      "start": 7.088,
+      "end": 7.565
+    },
+    {
+      "text": "하리라",
+      "start": 8.074,
+      "end": 9.767
+    },
+    {
+      "text": "하시고'입니다.",
+      "start": 9.796,
+      "end": 9.943
+    },
+    {
+      "text": "라키아는",
+      "start": 10.424,
+      "end": 10.613
+    },
+    {
+      "text": "“궁창”이라는",
+      "start": 10.682,
+      "end": 11.222
+    },
+    {
+      "text": "뜻의",
+      "start": 11.56,
+      "end": 11.787
+    },
+    {
+      "text": "명사입니다.",
+      "start": 11.826,
+      "end": 12.381
+    },
+    {
+      "text": "질서의",
+      "start": 12.427,
+      "end": 13.539
+    },
+    {
+      "text": "공간을",
+      "start": 14.045,
+      "end": 14.638
+    },
+    {
+      "text": "보여",
+      "start": 14.694,
+      "end": 15.18
+    },
+    {
+      "text": "줍니다.",
+      "start": 15.225,
+      "end": 15.91
+    },
+    {
+      "text": "베토크는",
+      "start": 16.329,
+      "end": 16.439
+    },
+    {
+      "text": "“가운데”라는",
+      "start": 16.49,
+      "end": 16.589
+    },
+    {
+      "text": "뜻으로,",
+      "start": 16.643,
+      "end": 16.981
+    },
+    {
+      "text": "전치사입니다.",
+      "start": 17.261,
+      "end": 18.394
+    },
+    {
+      "text": "중재·중심을",
+      "start": 18.758,
+      "end": 19.586
+    },
+    {
+      "text": "보여",
+      "start": 20.096,
+      "end": 20.584
+    },
+    {
+      "text": "줍니다.",
+      "start": 20.833,
+      "end": 22.051
+    },
+    {
+      "text": "마임은",
+      "start": 22.389,
+      "end": 22.965
+    },
+    {
+      "text": "“물”이라는",
+      "start": 23.442,
+      "end": 24.172
+    },
+    {
+      "text": "뜻의",
+      "start": 24.229,
+      "end": 24.491
+    },
+    {
+      "text": "명사입니다.",
+      "start": 24.491,
+      "end": 25.278
+    },
+    {
+      "text": "혼돈",
+      "start": 25.857,
+      "end": 26.15
+    },
+    {
+      "text": "요소를",
+      "start": 26.15,
+      "end": 26.589
+    },
+    {
+      "text": "보여",
+      "start": 26.643,
+      "end": 26.852
+    },
+    {
+      "text": "줍니다.",
+      "start": 26.852,
+      "end": 27.27
+    },
+    {
+      "text": "히바델은",
+      "start": 27.553,
+      "end": 27.707
+    },
+    {
+      "text": "“나뉘라”라는",
+      "start": 27.737,
+      "end": 28.288
+    },
+    {
+      "text": "뜻의",
+      "start": 28.607,
+      "end": 29.434
+    },
+    {
+      "text": "명령형",
+      "start": 29.488,
+      "end": 29.811
+    },
+    {
+      "text": "동사입니다.",
+      "start": 30.114,
+      "end": 31.537
+    },
+    {
+      "text": "구별",
+      "start": 32.121,
+      "end": 33.04
+    },
+    {
+      "text": "명령을",
+      "start": 33.319,
+      "end": 33.331
+    },
+    {
+      "text": "보여",
+      "start": 33.331,
+      "end": 33.34
+    },
+    {
+      "text": "줍니다.",
+      "start": 33.379,
+      "end": 34.047
+    },
+    {
+      "text": "예히는",
+      "start": 34.305,
+      "end": 34.989
+    },
+    {
+      "text": "“있으라”라는",
+      "start": 35.397,
+      "end": 35.953
+    },
+    {
+      "text": "뜻의",
+      "start": 36.319,
+      "end": 36.434
+    },
+    {
+      "text": "명령형",
+      "start": 36.434,
+      "end": 36.607
+    },
+    {
+      "text": "동사입니다.",
+      "start": 36.657,
+      "end": 37.001
+    },
+    {
+      "text": "창조적",
+      "start": 37.128,
+      "end": 37.476
+    },
+    {
+      "text": "선언을",
+      "start": 37.476,
+      "end": 37.825
+    },
+    {
+      "text": "보여",
+      "start": 37.852,
+      "end": 38.081
+    },
+    {
+      "text": "줍니다.",
+      "start": 38.081,
+      "end": 38.952
     }
   ]
 }

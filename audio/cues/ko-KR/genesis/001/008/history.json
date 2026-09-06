@@ -1,33 +1,310 @@
 {
   "audioId": "genesis.001.008.history",
-  "duration": 37.368,
-  "measuredDuration": 37.368,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/008/history-warm.mp3",
-  "finalMp3Duration": 37.368,
+  "duration": 33,
+  "measuredDuration": 33,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/008/history-warm.mp3",
+  "finalMp3Duration": 33,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 11.581208
+      "end": 3.774
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 11.581208,
-      "end": 20.737333
+      "start": 3.774,
+      "end": 12.719
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 20.737333,
-      "end": 29.459708
+      "start": 12.719,
+      "end": 23.319
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 29.459708,
-      "end": 37.368
+      "start": 23.319,
+      "end": 33
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.068,
+      "end": 1.727
+    },
+    {
+      "text": "1장",
+      "start": 2.135,
+      "end": 2.264
+    },
+    {
+      "text": "8절,",
+      "start": 2.331,
+      "end": 2.676
+    },
+    {
+      "text": "역사적배경입니다.",
+      "start": 2.798,
+      "end": 3.484
+    },
+    {
+      "text": "고대",
+      "start": 3.774,
+      "end": 4.15
+    },
+    {
+      "text": "왕권",
+      "start": 4.15,
+      "end": 4.525
+    },
+    {
+      "text": "명명을",
+      "start": 4.58,
+      "end": 5.597
+    },
+    {
+      "text": "생각해",
+      "start": 5.644,
+      "end": 5.747
+    },
+    {
+      "text": "볼",
+      "start": 5.775,
+      "end": 6.057
+    },
+    {
+      "text": "수",
+      "start": 6.057,
+      "end": 6.338
+    },
+    {
+      "text": "있습니다.",
+      "start": 6.373,
+      "end": 6.476
+    },
+    {
+      "text": "이름은",
+      "start": 6.988,
+      "end": 7.281
+    },
+    {
+      "text": "지배",
+      "start": 7.281,
+      "end": 7.477
+    },
+    {
+      "text": "표시라는",
+      "start": 7.53,
+      "end": 7.842
+    },
+    {
+      "text": "배경이",
+      "start": 7.903,
+      "end": 8.437
+    },
+    {
+      "text": "있습니다.",
+      "start": 8.476,
+      "end": 8.627
+    },
+    {
+      "text": "이",
+      "start": 8.653,
+      "end": 8.872
+    },
+    {
+      "text": "점은",
+      "start": 8.872,
+      "end": 9.31
+    },
+    {
+      "text": "하나님",
+      "start": 9.78,
+      "end": 10.271
+    },
+    {
+      "text": "왕권을",
+      "start": 10.499,
+      "end": 11.241
+    },
+    {
+      "text": "생각하게",
+      "start": 11.301,
+      "end": 11.833
+    },
+    {
+      "text": "합니다.",
+      "start": 11.89,
+      "end": 12.443
+    },
+    {
+      "text": "하늘",
+      "start": 12.698,
+      "end": 13.186
+    },
+    {
+      "text": "개념을",
+      "start": 13.213,
+      "end": 14.064
+    },
+    {
+      "text": "생각해",
+      "start": 14.116,
+      "end": 14.899
+    },
+    {
+      "text": "볼",
+      "start": 14.933,
+      "end": 15
+    },
+    {
+      "text": "수",
+      "start": 15,
+      "end": 15.067
+    },
+    {
+      "text": "있습니다.",
+      "start": 16.134,
+      "end": 16.378
+    },
+    {
+      "text": "영적",
+      "start": 16.435,
+      "end": 16.549
+    },
+    {
+      "text": "공간과",
+      "start": 16.645,
+      "end": 17.264
+    },
+    {
+      "text": "기후라는",
+      "start": 17.343,
+      "end": 18.921
+    },
+    {
+      "text": "배경이",
+      "start": 19.735,
+      "end": 20.227
+    },
+    {
+      "text": "있습니다.",
+      "start": 20.269,
+      "end": 20.347
+    },
+    {
+      "text": "이",
+      "start": 20.387,
+      "end": 20.639
+    },
+    {
+      "text": "점은",
+      "start": 20.678,
+      "end": 20.871
+    },
+    {
+      "text": "초월과",
+      "start": 20.927,
+      "end": 21.772
+    },
+    {
+      "text": "임재를",
+      "start": 21.823,
+      "end": 21.932
+    },
+    {
+      "text": "생각하게",
+      "start": 21.963,
+      "end": 22.232
+    },
+    {
+      "text": "합니다.",
+      "start": 22.26,
+      "end": 22.373
+    },
+    {
+      "text": "창조",
+      "start": 23.315,
+      "end": 23.934
+    },
+    {
+      "text": "주기를",
+      "start": 23.971,
+      "end": 24.124
+    },
+    {
+      "text": "생각해",
+      "start": 24.156,
+      "end": 24.483
+    },
+    {
+      "text": "볼",
+      "start": 24.566,
+      "end": 24.903
+    },
+    {
+      "text": "수",
+      "start": 24.975,
+      "end": 25.099
+    },
+    {
+      "text": "있습니다.",
+      "start": 25.125,
+      "end": 25.961
+    },
+    {
+      "text": "6+1",
+      "start": 26.615,
+      "end": 26.741
+    },
+    {
+      "text": "패턴이라는",
+      "start": 26.905,
+      "end": 27.593
+    },
+    {
+      "text": "배경이",
+      "start": 27.659,
+      "end": 27.778
+    },
+    {
+      "text": "있습니다.",
+      "start": 27.846,
+      "end": 28.341
+    },
+    {
+      "text": "이",
+      "start": 28.398,
+      "end": 29.088
+    },
+    {
+      "text": "점은",
+      "start": 29.12,
+      "end": 29.234
+    },
+    {
+      "text": "리듬",
+      "start": 29.896,
+      "end": 30.47
+    },
+    {
+      "text": "영성을",
+      "start": 30.652,
+      "end": 31.658
+    },
+    {
+      "text": "생각하게",
+      "start": 31.738,
+      "end": 32.047
+    },
+    {
+      "text": "합니다.",
+      "start": 32.102,
+      "end": 33
     }
   ]
 }

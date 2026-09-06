@@ -35,7 +35,48 @@ const GENESIS_VERSE_COUNTS = {
   41: 57, 42: 38, 43: 34, 44: 34, 45: 28, 46: 34, 47: 31, 48: 22, 49: 33, 50: 26,
 };
 
+const EXODUS_VERSE_COUNTS = {
+  1: 22, 2: 25, 3: 22, 4: 31, 5: 23, 6: 30, 7: 25, 8: 32, 9: 35, 10: 29,
+  11: 10, 12: 51, 13: 22, 14: 31, 15: 27, 16: 36, 17: 16, 18: 27, 19: 25, 20: 26,
+  21: 36, 22: 31, 23: 33, 24: 18, 25: 40, 26: 37, 27: 21, 28: 43, 29: 46, 30: 38,
+  31: 18, 32: 35, 33: 23, 34: 35, 35: 35, 36: 38, 37: 29, 38: 31, 39: 43, 40: 38,
+};
+
+const BOOK_REGISTRY = {
+  genesis: {
+    koreanName: '창세기',
+    dataFileName: 'gomna_data_genesis.js',
+    verseCounts: GENESIS_VERSE_COUNTS,
+  },
+  exodus: {
+    koreanName: '출애굽기',
+    dataFileName: 'gomna_data_exodus.js',
+    verseCounts: EXODUS_VERSE_COUNTS,
+  },
+};
+
+function bookConfig(bookId) {
+  const config = BOOK_REGISTRY[bookId];
+  if (!config) throw new Error(`지원하지 않는 book입니다: ${bookId}`);
+  return config;
+}
+
+function verseCountsFor(bookId) {
+  return BOOK_REGISTRY[bookId]?.verseCounts || {};
+}
+
+// Exodus book unit: chapters 1–40. Upload / manifest publish remain blocked.
+const EXODUS_PRODUCTION_MIN_CHAPTER = 1;
+const EXODUS_PRODUCTION_MAX_CHAPTER = 40;
+
 const SAFE_TARGET_RANGES = [
+  {
+    locale: 'ko-KR',
+    bookId: 'genesis',
+    chapter: 1,
+    fromVerse: 1,
+    toVerse: 31,
+  },
   LEGACY_SAFE_TARGET,
   {
     locale: 'ko-KR',
@@ -76,6 +117,20 @@ const SAFE_TARGET_RANGES = [
     .map(({ chapter, toVerse }) => ({
       locale: 'ko-KR',
       bookId: 'genesis',
+      chapter,
+      fromVerse: 1,
+      toVerse,
+    })),
+  // Exodus 1–40 book unit: scripts write + production audio/cue plan allowed.
+  // Upload / manifest publish remain blocked until a later approved step.
+  ...Object.entries(EXODUS_VERSE_COUNTS)
+    .map(([chapter, toVerse]) => ({ chapter: Number(chapter), toVerse }))
+    .filter(({ chapter }) => (
+      chapter >= EXODUS_PRODUCTION_MIN_CHAPTER && chapter <= EXODUS_PRODUCTION_MAX_CHAPTER
+    ))
+    .map(({ chapter, toVerse }) => ({
+      locale: 'ko-KR',
+      bookId: 'exodus',
       chapter,
       fromVerse: 1,
       toVerse,
@@ -262,7 +317,9 @@ function usage() {
   console.error('   or: node scripts/run-commentary-audio-pipeline.mjs --locale ko-KR --book genesis --from-chapter 4 --to-chapter 50 --stage prepare --dry-run');
   console.error('Stages: prepare, scripts, audio, upload, manifest, publish, qa.');
   console.error('Default mode: dry-run. Write/upload/manifest require explicit --write and approved targets.');
-  console.error('Safe targets: ko-KR genesis 1:5, 1:6-31, 2:1-25, 3:1-24, 4:1–50:end.');
+  console.error('Safe targets: ko-KR genesis 1:5, 1:6-31, 2:1-25, 3:1-24, 4:1–50:end, exodus 1:1–40:end.');
+  console.error('Exodus 1–40: scripts/audio write allowed; upload/manifest blocked.');
+  console.error('--segment-cache-root <abs>: 다른 체크아웃의 세그먼트 캐시를 읽기 전용으로 재사용 (해당 경로에 쓰지 않음).');
   console.error('Genesis 3–50: scripts --write allowed; audio uses production cue builder (not batch).');
   console.error('Production audio+cue write requires --confirm-production-audio-write.');
   console.error('Book-unit production audio also requires segment cache + --max-new-tts-calls N + --confirm-new-tts-calls N.');
@@ -291,6 +348,7 @@ function parseArgs(argv) {
     maxNewTtsCalls: null,
     confirmNewTtsCalls: null,
     allowNoSegmentCache: false,
+    segmentCacheRoot: null,
   };
   let dryRunExplicit = false;
   let writeExplicit = false;
@@ -335,6 +393,8 @@ function parseArgs(argv) {
       args.confirmNewTtsCalls = Number(argv[++i]);
     } else if (arg === '--allow-no-segment-cache') {
       args.allowNoSegmentCache = true;
+    } else if (arg === '--segment-cache-root') {
+      args.segmentCacheRoot = argv[++i];
     } else if (arg === '--no-report') {
       args.report = false;
     } else if (arg === '--help' || arg === '-h') {
@@ -353,6 +413,17 @@ function parseArgs(argv) {
     usage();
     throw new Error('필수 옵션이 누락되었습니다.');
   }
+  bookConfig(args.bookId);
+
+  if (args.segmentCacheRoot) {
+    args.segmentCacheRoot = path.resolve(args.segmentCacheRoot);
+    if (args.segmentCacheRoot === path.resolve(ROOT)) {
+      throw new Error('--segment-cache-root가 GOMNA_ROOT와 같습니다. 분리된 캐시 루트를 지정하세요.');
+    }
+    if (!fs.existsSync(path.join(args.segmentCacheRoot, 'audio', 'commentary-segment-cache'))) {
+      throw new Error(`segment_cache_root_missing:${args.segmentCacheRoot}`);
+    }
+  }
 
   const bookMode = args.fromChapter != null || args.toChapter != null;
   if (bookMode) {
@@ -366,7 +437,7 @@ function parseArgs(argv) {
       throw new Error('--from-chapter는 --to-chapter보다 클 수 없습니다.');
     }
     for (let chapter = args.fromChapter; chapter <= args.toChapter; chapter++) {
-      if (!GENESIS_VERSE_COUNTS[chapter]) {
+      if (!verseCountsFor(args.bookId)[chapter]) {
         throw new Error(`지원하지 않는 장입니다: ${chapter}`);
       }
     }
@@ -408,7 +479,7 @@ function expandChapterJobs(args) {
         ...args,
         chapter,
         fromVerse: 1,
-        toVerse: GENESIS_VERSE_COUNTS[chapter],
+        toVerse: verseCountsFor(args.bookId)[chapter],
         verse: null,
         fromChapter: null,
         toChapter: null,
@@ -429,7 +500,10 @@ function assertSafeTarget(args) {
   ));
 
   if (!matched) {
-    throw new Error('master pipeline은 현재 ko-KR 창세기 1:5, 1:6-31, 2:1-25, 3:1-24, 또는 4:1–50:end 범위만 처리할 수 있습니다.');
+    throw new Error(
+      'master pipeline은 현재 ko-KR 창세기 1:5, 1:6-31, 2:1-25, 3:1-24, 4:1–50:end '
+      + '또는 출애굽기 1:1–40:end 범위만 처리할 수 있습니다.',
+    );
   }
 }
 
@@ -448,6 +522,13 @@ function isGenesis3ProductionTarget(args) {
   );
 }
 
+function isGenesis1to2ProductionTarget(args) {
+  if (args.locale !== 'ko-KR' || args.bookId !== 'genesis') return false;
+  if (args.chapter < 1 || args.chapter > 2) return false;
+  const maxVerse = GENESIS_VERSE_COUNTS[args.chapter];
+  return args.fromVerse >= 1 && args.toVerse <= maxVerse;
+}
+
 function isGenesis4to50ProductionTarget(args) {
   if (args.locale !== 'ko-KR' || args.bookId !== 'genesis') return false;
   if (args.chapter < 4 || args.chapter > 50) return false;
@@ -455,8 +536,21 @@ function isGenesis4to50ProductionTarget(args) {
   return args.fromVerse >= 1 && args.toVerse <= maxVerse;
 }
 
+function isExodusProductionTarget(args) {
+  if (args.locale !== 'ko-KR' || args.bookId !== 'exodus') return false;
+  if (
+    args.chapter < EXODUS_PRODUCTION_MIN_CHAPTER
+    || args.chapter > EXODUS_PRODUCTION_MAX_CHAPTER
+  ) return false;
+  const maxVerse = EXODUS_VERSE_COUNTS[args.chapter];
+  return args.fromVerse >= 1 && args.toVerse <= maxVerse;
+}
+
 function usesProductionCueBuilder(args) {
-  return isGenesis3ProductionTarget(args) || isGenesis4to50ProductionTarget(args);
+  return isGenesis1to2ProductionTarget(args)
+    || isGenesis3ProductionTarget(args)
+    || isGenesis4to50ProductionTarget(args)
+    || isExodusProductionTarget(args);
 }
 
 function countNonEmptyParagraphs(text) {
@@ -466,14 +560,16 @@ function countNonEmptyParagraphs(text) {
     .filter(Boolean).length;
 }
 
-let genesisCommentaryDataCache = null;
+const commentaryDataCacheByBook = new Map();
 
-function loadGenesisCommentaryData() {
-  if (genesisCommentaryDataCache) return genesisCommentaryDataCache;
-  const filePath = path.join(ROOT, 'gomna_data_genesis.js');
-  if (!fs.existsSync(filePath)) {
-    genesisCommentaryDataCache = { ok: false, data: null };
-    return genesisCommentaryDataCache;
+function loadCommentaryData(bookId) {
+  if (commentaryDataCacheByBook.has(bookId)) return commentaryDataCacheByBook.get(bookId);
+  const config = BOOK_REGISTRY[bookId];
+  const filePath = config ? path.join(ROOT, config.dataFileName) : null;
+  if (!filePath || !fs.existsSync(filePath)) {
+    const missing = { ok: false, data: null };
+    commentaryDataCacheByBook.set(bookId, missing);
+    return missing;
   }
   const source = fs.readFileSync(filePath, 'utf8');
   const sandbox = {
@@ -482,16 +578,22 @@ function loadGenesisCommentaryData() {
     commentaryData: {},
     module: { exports: {} },
   };
+  let result;
   try {
     vm.runInNewContext(source, sandbox, { filename: filePath });
     const data = Object.keys(sandbox.pastorCommentaryData).length
       ? sandbox.pastorCommentaryData
       : sandbox.window.pastorCommentaryData;
-    genesisCommentaryDataCache = { ok: true, data };
+    result = { ok: true, data };
   } catch {
-    genesisCommentaryDataCache = { ok: false, data: null };
+    result = { ok: false, data: null };
   }
-  return genesisCommentaryDataCache;
+  commentaryDataCacheByBook.set(bookId, result);
+  return result;
+}
+
+function commentaryVerseKey(bookId, chapter, verse) {
+  return `${bookConfig(bookId).koreanName}_${chapter}_${verse}`;
 }
 
 function emptySegmentBreakdown(total = 0) {
@@ -506,7 +608,7 @@ function estimateSegmentBreakdownFromScripts(args, scriptAbs, typeConfig, verse)
   }
 
   const paragraphs = splitParagraphs(raw);
-  const dataResult = loadGenesisCommentaryData();
+  const dataResult = loadCommentaryData(args.bookId);
   if (!dataResult.ok) {
     return emptySegmentBreakdown(countNonEmptyParagraphs(raw));
   }
@@ -516,7 +618,7 @@ function estimateSegmentBreakdownFromScripts(args, scriptAbs, typeConfig, verse)
     return emptySegmentBreakdown(countNonEmptyParagraphs(raw));
   }
 
-  const verseKey = `창세기_${args.chapter}_${verse}`;
+  const verseKey = commentaryVerseKey(args.bookId, args.chapter, verse);
   const entry = dataResult.data[verseKey];
   if (!entry || !Array.isArray(entry[highlightType.tableKey])) {
     return emptySegmentBreakdown(countNonEmptyParagraphs(raw));
@@ -556,7 +658,7 @@ function isBookUnitProductionTarget(args) {
     ...args,
     chapter: args.fromChapter,
     fromVerse: 1,
-    toVerse: GENESIS_VERSE_COUNTS[args.fromChapter] || 1,
+    toVerse: verseCountsFor(args.bookId)[args.fromChapter] || 1,
   });
 }
 
@@ -577,10 +679,14 @@ function estimateSegmentCachePlan(args) {
   if (!usesProductionCueBuilder(args)) return empty;
 
   const loaded = loadSegmentCacheIndex(ROOT, args.locale);
-  empty.cacheIndexOk = loaded.ok;
-  empty.cacheIndexReason = loaded.ok ? null : loaded.reason;
+  const externalLoaded = args.segmentCacheRoot
+    ? loadSegmentCacheIndex(args.segmentCacheRoot, args.locale)
+    : null;
+  const anyCacheOk = loaded.ok || Boolean(externalLoaded?.ok);
+  empty.cacheIndexOk = anyCacheOk;
+  empty.cacheIndexReason = anyCacheOk ? null : (externalLoaded?.reason || loaded.reason);
 
-  const dataResult = loadGenesisCommentaryData();
+  const dataResult = loadCommentaryData(args.bookId);
   if (!dataResult.ok) {
     empty.cacheIndexReason = empty.cacheIndexReason || 'commentary_data_unavailable';
     return empty;
@@ -619,7 +725,7 @@ function estimateSegmentCachePlan(args) {
       const highlightType = HIGHLIGHT_COMMENTARY_TYPES.find((item) => item.type === typeConfig.type);
       if (!highlightType) continue;
       const paragraphs = splitParagraphs(fs.readFileSync(scriptAbs, 'utf8'));
-      const verseKey = `창세기_${args.chapter}_${verse}`;
+      const verseKey = commentaryVerseKey(args.bookId, args.chapter, verse);
       const entry = dataResult.data[verseKey];
       const rows = entry?.[highlightType.tableKey];
       if (!Array.isArray(rows)) continue;
@@ -637,17 +743,22 @@ function estimateSegmentCachePlan(args) {
       for (const segment of expandPlanSegments(plan, paragraphs)) {
         totalSegments += 1;
         const keyInfo = buildCacheKeyForText(segment.text, { locale: args.locale });
-        if (!loaded.ok) {
+        if (!anyCacheOk) {
           // No usable index: treat every planned segment as a new TTS call.
           cacheMissCount += 1;
           totalNewInputCharacters += keyInfo.signature.text.length;
           continue;
         }
-        const lookup = lookupSegmentCache(ROOT, args.locale, keyInfo.key, {
+        const localHit = loaded.ok && lookupSegmentCache(ROOT, args.locale, keyInfo.key, {
           index: loaded,
           skipValidate: true,
-        });
-        if (lookup.hit) {
+        }).hit;
+        const externalHit = !localHit && externalLoaded?.ok
+          && lookupSegmentCache(args.segmentCacheRoot, args.locale, keyInfo.key, {
+            index: externalLoaded,
+            skipValidate: true,
+          }).hit;
+        if (localHit || externalHit) {
           cacheHitCount += 1;
         } else {
           cacheMissCount += 1;
@@ -665,8 +776,8 @@ function estimateSegmentCachePlan(args) {
     expectedNewTtsCalls: cacheMissCount,
     expectedReusedCalls: cacheHitCount,
     totalNewInputCharacters,
-    cacheIndexOk: loaded.ok,
-    cacheIndexReason: loaded.ok ? null : loaded.reason,
+    cacheIndexOk: anyCacheOk,
+    cacheIndexReason: anyCacheOk ? null : (externalLoaded?.reason || loaded.reason),
     incompleteAudioIds,
   };
 }
@@ -683,9 +794,9 @@ function buildProductionWriteBlockers(args) {
   const scriptsOnly = stages.length > 0 && stages.every((stage) => stage === 'scripts');
   const uploadOnly = stages.length === 1 && stages[0] === 'upload';
   const manifestOnly = stages.length === 1 && stages[0] === 'manifest';
-  const chapterLabel = `창세기 ${args.chapter}장`;
+  const chapterLabel = `${bookConfig(args.bookId).koreanName} ${args.chapter}장`;
 
-  if (isGenesis4to50ProductionTarget(args)) {
+  if (isGenesis1to2ProductionTarget(args) || isGenesis4to50ProductionTarget(args) || isExodusProductionTarget(args)) {
     if (scriptsOnly) return blockers;
     if (wantsUpload || uploadOnly) {
       blockers.push(`${chapterLabel} upload write는 현재 차단됩니다.`);
@@ -880,8 +991,8 @@ function printHardeningPlanSummary(summary) {
       `○ overwrite: ${summary.plannedOverwriteCount}`,
       '○ batch 이중 생성 없음',
       `○ OpenAI 실행 여부: ${summary.openAiWouldRun}`,
-      `○ 최종 MP3 경로: ${summary.finalMp3Root}/ko-KR/genesis/{CCC}/{VVV}/{type}-{preset}.mp3`,
-      `○ cue 경로: ${summary.cueRoot}/ko-KR/genesis/{CCC}/{VVV}/{type}.json`,
+      `○ 최종 MP3 경로: ${summary.finalMp3Root}/ko-KR/{book}/{CCC}/{VVV}/{type}-{preset}.mp3`,
+      `○ cue 경로: ${summary.cueRoot}/ko-KR/{book}/{CCC}/{VVV}/{type}.json`,
       `○ 기존 대본 수: ${summary.existingScriptCount}`,
       `○ segment cache index: ${summary.cacheIndexOk ? 'ok' : `missing/invalid (${summary.cacheIndexReason || 'n/a'})`}`,
       `○ 신규 audio ID: ${summary.incompleteAudioIds ?? 0}`,
@@ -1172,6 +1283,10 @@ function stagesToSteps(stages, args = null) {
   return steps;
 }
 
+function segmentCacheRootArgs(args) {
+  return args.segmentCacheRoot ? ['--segment-cache-root', args.segmentCacheRoot] : [];
+}
+
 function commandForStep({ args, verse, step }) {
   const targetArgs = baseTargetArgs(args, verse);
   const env = pipelineEnv(args, verse);
@@ -1189,7 +1304,7 @@ function commandForStep({ args, verse, step }) {
     if (usesProductionCueBuilder(args)) {
       return buildCommand(
         'scripts/build-commentary-highlight-cues.mjs',
-        [...targetArgs, '--production-output', '--dry-run'],
+        [...targetArgs, '--production-output', '--dry-run', ...segmentCacheRootArgs(args)],
         env,
       );
     }
@@ -1206,6 +1321,7 @@ function commandForStep({ args, verse, step }) {
           writeAudio ? '--write' : '--dry-run',
           writeAudio && args.overwrite ? '--force' : null,
           args.allowNoSegmentCache ? '--allow-no-segment-cache' : null,
+          ...segmentCacheRootArgs(args),
         ].filter(Boolean),
         env,
       );
@@ -1460,22 +1576,23 @@ function validateWriteSafety({ args, steps }) {
 
   const blockers = [];
 
-  if (isGenesis4to50ProductionTarget(args)) {
+  if (isGenesis1to2ProductionTarget(args) || isGenesis4to50ProductionTarget(args) || isExodusProductionTarget(args)) {
+    const label = `${bookConfig(args.bookId).koreanName} ${args.chapter}장`;
     const scriptsOnly = steps.every((step) => step === 'build-scripts' || step === 'validate-scripts');
     if (scriptsOnly) {
       return [];
     }
     if (steps.includes('upload') || args.stages.includes('publish')) {
-      blockers.push(`창세기 ${args.chapter}장 upload/publish write는 현재 차단됩니다.`);
+      blockers.push(`${label} upload/publish write는 현재 차단됩니다.`);
     }
     if (steps.includes('manifest')) {
-      blockers.push(`창세기 ${args.chapter}장 manifest write는 현재 차단됩니다.`);
+      blockers.push(`${label} manifest write는 현재 차단됩니다.`);
     }
     if (steps.includes('audio')) {
       if (!args.confirmProductionAudioWrite) {
-        blockers.push(`창세기 ${args.chapter}장 production audio+cue write는 --confirm-production-audio-write가 필요합니다.`);
+        blockers.push(`${label} production audio+cue write는 --confirm-production-audio-write가 필요합니다.`);
       } else if (!isOnlyAudioStage(args, steps)) {
-        blockers.push(`창세기 ${args.chapter}장 production audio+cue write는 --stage audio 단독 실행에서만 허용됩니다.`);
+        blockers.push(`${label} production audio+cue write는 --stage audio 단독 실행에서만 허용됩니다.`);
       }
     }
     return blockers;

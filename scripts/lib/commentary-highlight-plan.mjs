@@ -3,25 +3,10 @@ import { COMMENTARY_TYPES as REGISTRY_COMMENTARY_TYPES } from './commentary-type
 /** Compatibility export — authoritative metadata lives in commentary-type-registry.mjs */
 export const COMMENTARY_TYPES = REGISTRY_COMMENTARY_TYPES;
 
-const VERIFIED_SPECIAL_PLANS = {
-  'genesis.001.001.hymn': [
-    { kind: 'intro', paragraphIndices: [0] },
-    { kind: 'bridge', paragraphIndices: [1] },
-    { kind: 'item', paragraphIndices: [2], itemIndex: 0 },
-    { kind: 'item', paragraphIndices: [3], itemIndex: 1 },
-    { kind: 'item', paragraphIndices: [4], itemIndex: 2 },
-    { kind: 'item', paragraphIndices: [5], itemIndex: 3 },
-    { kind: 'closing', paragraphIndices: [6] },
-  ],
-  'genesis.001.001.sermon': [
-    { kind: 'intro', paragraphIndices: [0] },
-    { kind: 'item', paragraphIndices: [1], itemIndex: 0 },
-    { kind: 'item', paragraphIndices: [2], itemIndex: 2 },
-    { kind: 'item', paragraphIndices: [3], itemIndex: 3 },
-    { kind: 'item', paragraphIndices: [4], itemIndex: 4 },
-    { kind: 'item', paragraphIndices: [5], itemIndex: 5 },
-  ],
-};
+// 1:1 hymn/sermon 고정 계획은 예전 대본 문단 수(찬송 7문단, 설교 6문단)에
+// 묶여 있었다. 현재 renderer는 찬송 intro+행, 설교 intro+행을 쓰므로
+// 기본 planner에 맡긴다. 빈 문단을 TTS에 넣지 않기 위한 최소 변경이다.
+const VERIFIED_SPECIAL_PLANS = {};
 
 export const CROSS_REF_BOOK_NAMES = {
   시: '시편',
@@ -476,7 +461,8 @@ export function buildGenerationPlan({
 
   switch (typeConfig.type) {
     case 'matthew-henry':
-      return buildStandardPlan(paragraphs, rowCount, typeConfig.paragraphsPerItem || 3);
+      return buildStandardPlan(paragraphs, rowCount, typeConfig.paragraphsPerItem || 3)
+        || buildStandardPlan(paragraphs, rowCount, 0);
     case 'hymn':
       return buildHymnPlan(paragraphs, rowCount);
     case 'sermon':

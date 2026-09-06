@@ -1,33 +1,395 @@
 {
   "audioId": "genesis.001.005.matthew-henry",
-  "duration": 50.4,
-  "measuredDuration": 50.4,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/005/matthew-henry-calm.mp3",
-  "finalMp3Duration": 50.4,
+  "duration": 44.592,
+  "measuredDuration": 44.592,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/005/matthew-henry-calm.mp3",
+  "finalMp3Duration": 44.592,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 12.928625
+      "end": 4.181
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 12.928625,
-      "end": 25.132167
+      "start": 4.181,
+      "end": 17.832
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 25.132167,
-      "end": 38.845958
+      "start": 17.832,
+      "end": 31.666
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 38.845958,
-      "end": 50.4
+      "start": 31.666,
+      "end": 44.592
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.091,
+      "end": 0.76
+    },
+    {
+      "text": "1장",
+      "start": 1.109,
+      "end": 2.062
+    },
+    {
+      "text": "5절,",
+      "start": 2.647,
+      "end": 2.806
+    },
+    {
+      "text": "매튜헨리입니다.",
+      "start": 2.936,
+      "end": 3.842
+    },
+    {
+      "text": "매튜",
+      "start": 4.178,
+      "end": 4.317
+    },
+    {
+      "text": "헨리의",
+      "start": 4.377,
+      "end": 5.038
+    },
+    {
+      "text": "영어",
+      "start": 5.098,
+      "end": 5.922
+    },
+    {
+      "text": "원문입니다.",
+      "start": 5.955,
+      "end": 6.122
+    },
+    {
+      "text": "He",
+      "start": 7.06,
+      "end": 7.185
+    },
+    {
+      "text": "that",
+      "start": 7.185,
+      "end": 7.436
+    },
+    {
+      "text": "formed",
+      "start": 7.479,
+      "end": 7.994
+    },
+    {
+      "text": "time",
+      "start": 8.061,
+      "end": 8.478
+    },
+    {
+      "text": "governs",
+      "start": 8.583,
+      "end": 9.127
+    },
+    {
+      "text": "it.",
+      "start": 9.19,
+      "end": 9.227
+    },
+    {
+      "text": "시간을",
+      "start": 9.661,
+      "end": 9.872
+    },
+    {
+      "text": "지으신",
+      "start": 9.904,
+      "end": 10.344
+    },
+    {
+      "text": "분이",
+      "start": 10.384,
+      "end": 11.29
+    },
+    {
+      "text": "시간을",
+      "start": 11.534,
+      "end": 12.137
+    },
+    {
+      "text": "다스리신다.",
+      "start": 12.169,
+      "end": 12.91
+    },
+    {
+      "text": "여기서",
+      "start": 13.599,
+      "end": 14.119
+    },
+    {
+      "text": "핵심은",
+      "start": 14.153,
+      "end": 14.573
+    },
+    {
+      "text": "시간",
+      "start": 14.864,
+      "end": 15.082
+    },
+    {
+      "text": "주권을",
+      "start": 15.082,
+      "end": 15.409
+    },
+    {
+      "text": "보여",
+      "start": 15.497,
+      "end": 15.631
+    },
+    {
+      "text": "준다는",
+      "start": 15.631,
+      "end": 15.832
+    },
+    {
+      "text": "점입니다.",
+      "start": 15.878,
+      "end": 17.103
+    },
+    {
+      "text": "두",
+      "start": 17.832,
+      "end": 17.91
+    },
+    {
+      "text": "번째",
+      "start": 17.91,
+      "end": 18.067
+    },
+    {
+      "text": "영어",
+      "start": 18.067,
+      "end": 18.224
+    },
+    {
+      "text": "원문입니다.",
+      "start": 18.276,
+      "end": 19.526
+    },
+    {
+      "text": "Evening",
+      "start": 20.158,
+      "end": 21.59
+    },
+    {
+      "text": "first",
+      "start": 21.631,
+      "end": 21.818
+    },
+    {
+      "text": "reminds",
+      "start": 21.818,
+      "end": 22.079
+    },
+    {
+      "text": "us",
+      "start": 22.128,
+      "end": 22.135
+    },
+    {
+      "text": "of",
+      "start": 22.135,
+      "end": 22.142
+    },
+    {
+      "text": "rest",
+      "start": 22.142,
+      "end": 22.157
+    },
+    {
+      "text": "before",
+      "start": 22.236,
+      "end": 22.745
+    },
+    {
+      "text": "labor.",
+      "start": 22.777,
+      "end": 22.909
+    },
+    {
+      "text": "저녁이",
+      "start": 23.464,
+      "end": 24.161
+    },
+    {
+      "text": "먼저라는",
+      "start": 24.161,
+      "end": 25.091
+    },
+    {
+      "text": "사실은",
+      "start": 25.535,
+      "end": 26.448
+    },
+    {
+      "text": "노동",
+      "start": 26.448,
+      "end": 27.056
+    },
+    {
+      "text": "전에",
+      "start": 27.124,
+      "end": 27.274
+    },
+    {
+      "text": "쉼을",
+      "start": 27.274,
+      "end": 27.425
+    },
+    {
+      "text": "상기시킨다.",
+      "start": 28.159,
+      "end": 28.616
+    },
+    {
+      "text": "여기서",
+      "start": 28.658,
+      "end": 29.052
+    },
+    {
+      "text": "핵심은",
+      "start": 29.38,
+      "end": 29.64
+    },
+    {
+      "text": "안식을",
+      "start": 29.64,
+      "end": 29.901
+    },
+    {
+      "text": "보여",
+      "start": 29.946,
+      "end": 29.956
+    },
+    {
+      "text": "준다는",
+      "start": 29.956,
+      "end": 29.971
+    },
+    {
+      "text": "점입니다.",
+      "start": 30.008,
+      "end": 31.118
+    },
+    {
+      "text": "마지막",
+      "start": 31.663,
+      "end": 32.541
+    },
+    {
+      "text": "영어",
+      "start": 32.541,
+      "end": 33.127
+    },
+    {
+      "text": "원문입니다.",
+      "start": 33.16,
+      "end": 33.287
+    },
+    {
+      "text": "Names",
+      "start": 33.743,
+      "end": 34.27
+    },
+    {
+      "text": "fix",
+      "start": 34.458,
+      "end": 34.672
+    },
+    {
+      "text": "the",
+      "start": 34.734,
+      "end": 34.84
+    },
+    {
+      "text": "order",
+      "start": 34.88,
+      "end": 34.989
+    },
+    {
+      "text": "God",
+      "start": 35.02,
+      "end": 35.377
+    },
+    {
+      "text": "intends.",
+      "start": 35.464,
+      "end": 36.39
+    },
+    {
+      "text": "이름은",
+      "start": 36.902,
+      "end": 37.433
+    },
+    {
+      "text": "하나님이",
+      "start": 37.541,
+      "end": 38.108
+    },
+    {
+      "text": "의도하신",
+      "start": 38.16,
+      "end": 39.396
+    },
+    {
+      "text": "질서를",
+      "start": 39.46,
+      "end": 40.079
+    },
+    {
+      "text": "고정한다.",
+      "start": 40.649,
+      "end": 41.139
+    },
+    {
+      "text": "여기서",
+      "start": 41.173,
+      "end": 41.382
+    },
+    {
+      "text": "핵심은",
+      "start": 41.382,
+      "end": 41.59
+    },
+    {
+      "text": "명명",
+      "start": 41.899,
+      "end": 42.087
+    },
+    {
+      "text": "권세를",
+      "start": 42.087,
+      "end": 42.368
+    },
+    {
+      "text": "보여",
+      "start": 42.394,
+      "end": 42.574
+    },
+    {
+      "text": "준다는",
+      "start": 42.574,
+      "end": 42.845
+    },
+    {
+      "text": "점입니다.",
+      "start": 42.892,
+      "end": 44.592
     }
   ]
 }

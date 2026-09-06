@@ -24,6 +24,7 @@ import {
   toPosixRel,
   fileSha256,
   assertSegmentCacheDeletionAllowed,
+  SEGMENT_CACHE_REL,
 } from './lib/commentary-segment-cache.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -71,6 +72,8 @@ function usage() {
   console.error('Options: --locale ko-KR (default), --force, --production-output');
   console.error('  --production-output  최종 MP3를 audio/v1에, cue를 audio/cues에 기록 (기본 scoped 동작은 highlight-test 유지)');
   console.error('  Segment cache: exact TTS request reuse from audio/commentary-segment-cache (no OpenAI on hit).');
+  console.error('  --segment-cache-root <abs>  다른 체크아웃의 세그먼트 캐시를 읽기 전용 2차 조회로 재사용');
+  console.error('                              (해당 경로에는 어떤 파일도 쓰지 않음; 모든 산출물은 GOMNA_ROOT에 기록)');
   console.error('  Deleting audio/highlight-segments requires --confirm-delete-commentary-segment-cache.');
 }
 
@@ -90,6 +93,7 @@ function parseArgs(argv) {
     productionOutput: false,
     confirmDeleteCommentarySegmentCache: false,
     allowNoSegmentCache: false,
+    segmentCacheRoot: null,
   };
 
   for (let i = 0; i < argv.length; i++) {
@@ -108,6 +112,7 @@ function parseArgs(argv) {
     else if (arg === '--production-output') args.productionOutput = true;
     else if (arg === '--confirm-delete-commentary-segment-cache') args.confirmDeleteCommentarySegmentCache = true;
     else if (arg === '--allow-no-segment-cache') args.allowNoSegmentCache = true;
+    else if (arg === '--segment-cache-root') args.segmentCacheRoot = argv[++i];
     else if (arg === '--help' || arg === '-h') {
       usage();
       process.exit(0);
@@ -131,6 +136,16 @@ function parseArgs(argv) {
 
   if (args.productionOutput && args.all) {
     throw new Error('--production-output은 --all과 함께 사용할 수 없습니다. --book 범위를 지정하세요.');
+  }
+
+  if (args.segmentCacheRoot) {
+    args.segmentCacheRoot = path.resolve(args.segmentCacheRoot);
+    if (args.segmentCacheRoot === path.resolve(ROOT)) {
+      throw new Error('--segment-cache-root가 GOMNA_ROOT와 같습니다. 분리된 캐시 루트를 지정하세요.');
+    }
+    if (!fs.existsSync(path.join(args.segmentCacheRoot, SEGMENT_CACHE_REL))) {
+      throw new Error(`segment_cache_root_missing:${args.segmentCacheRoot}`);
+    }
   }
 
   if (!args.all && !args.bookId) {
@@ -560,12 +575,27 @@ async function callOpenAiTts({ apiKey, text }) {
   return Buffer.from(await response.arrayBuffer());
 }
 
+/**
+ * Copy a segment owned by an external cache root into this checkout.
+ * Deliberately a plain copy (not hardlink/symlink) so the external root keeps
+ * no shared inode with, and no reference from, this checkout.
+ */
+function copyExternalSegment(srcAbsPath, destPath) {
+  fs.mkdirSync(path.dirname(destPath), { recursive: true });
+  if (fs.existsSync(destPath) && fs.statSync(destPath).size > 0) return 'dest-exists';
+  const tmpPath = `${destPath}.${process.pid}.${Date.now()}.tmp`;
+  fs.copyFileSync(srcAbsPath, tmpPath);
+  fs.renameSync(tmpPath, destPath);
+  return 'copy';
+}
+
 function resolveOrMaterializeSegment({
   locale,
   text,
   segFile,
   force,
   cacheIndex,
+  externalCache,
   audioId,
   kind,
 }) {
@@ -590,6 +620,25 @@ function resolveOrMaterializeSegment({
     };
   }
 
+  // Read-only second tier: reuse segments owned by another checkout. Nothing is
+  // ever written to externalCache.root — the segment is copied in before use.
+  if (externalCache && externalCache.root && externalCache.index?.ok) {
+    const external = lookupSegmentCache(externalCache.root, locale, keyInfo.key, {
+      index: externalCache.index,
+    });
+    if (external.hit) {
+      copyExternalSegment(external.absPath, segFile);
+      const duration = external.duration ?? probeDurationSeconds(segFile);
+      return {
+        source: 'segment-cache-external',
+        absPath: segFile,
+        duration,
+        cacheKey: keyInfo.key,
+        cachePath: external.absPath,
+      };
+    }
+  }
+
   return {
     source: 'miss',
     absPath: segFile,
@@ -605,6 +654,7 @@ async function synthesizeSegmentWithCache({
   segFile,
   force,
   cacheIndex,
+  externalCache,
   audioId,
   kind,
 }) {
@@ -614,6 +664,7 @@ async function synthesizeSegmentWithCache({
     segFile,
     force,
     cacheIndex,
+    externalCache,
     audioId,
     kind,
   });
@@ -629,6 +680,7 @@ async function synthesizeSegmentWithCache({
       segFile,
       force,
       cacheIndex,
+      externalCache,
       audioId,
       kind,
     });
@@ -740,9 +792,15 @@ function buildCueSegmentsFromSpeechOnsets(units, unitSpeechStarts, totalDuration
     } else if (unit.kind === 'item') {
       const itemIndex = itemUnits.indexOf(unit);
       start = itemSpeechStarts[itemIndex] ?? 0;
-      end = itemIndex < itemSpeechStarts.length - 1
-        ? itemSpeechStarts[itemIndex + 1]
-        : totalDuration;
+      if (itemIndex < itemSpeechStarts.length - 1) {
+        end = itemSpeechStarts[itemIndex + 1];
+      } else {
+        const unitIndex = units.indexOf(unit);
+        const nextUnit = units[unitIndex + 1];
+        end = nextUnit
+          ? (unitSpeechStarts.get(nextUnit) ?? totalDuration)
+          : totalDuration;
+      }
     } else {
       start = unitSpeechStarts.get(unit) ?? 0;
       const unitIndex = units.indexOf(unit);
@@ -809,7 +867,7 @@ function validateBuiltCue({ duration, finalMp3Duration, segments, rowCount, type
   return errors;
 }
 
-async function writeTypeTarget({ inspected, apiKey, force, locale, cacheIndex }) {
+async function writeTypeTarget({ inspected, apiKey, force, locale, cacheIndex, externalCache }) {
   const {
     plan,
     outputs,
@@ -855,6 +913,7 @@ async function writeTypeTarget({ inspected, apiKey, force, locale, cacheIndex })
         segFile,
         force,
         cacheIndex,
+        externalCache,
         audioId,
         kind: unit.kind,
       });
@@ -1107,10 +1166,29 @@ async function main() {
 
   if (mode === 'write') {
     const cacheIndex = loadSegmentCacheIndex(ROOT, args.locale);
-    if (args.productionOutput && !cacheIndex.ok && !args.allowNoSegmentCache) {
+    const externalCache = args.segmentCacheRoot
+      ? {
+        root: args.segmentCacheRoot,
+        index: loadSegmentCacheIndex(args.segmentCacheRoot, args.locale),
+      }
+      : null;
+    if (externalCache && !externalCache.index.ok) {
+      throw new Error(`segment_cache_root_unusable:${externalCache.index.reason}`);
+    }
+    if (externalCache) {
+      report.summary.externalSegmentCacheRoot = externalCache.root;
+      report.summary.externalSegmentCacheEntryCount = externalCache.index.entryCount;
+    }
+    if (
+      args.productionOutput
+      && !cacheIndex.ok
+      && !externalCache
+      && !args.allowNoSegmentCache
+    ) {
       throw new Error(
         `segment_cache_required:${cacheIndex.reason}. `
-        + '인덱스를 먼저 만들거나 비상 시에만 --allow-no-segment-cache를 사용하세요.',
+        + '인덱스를 먼저 만들거나, --segment-cache-root로 기존 캐시를 읽기 전용 재사용하거나, '
+        + '비상 시에만 --allow-no-segment-cache를 사용하세요.',
       );
     }
     const apiKey = getOpenAiApiKey();
@@ -1138,6 +1216,7 @@ async function main() {
           force: args.force,
           locale: args.locale,
           cacheIndex,
+          externalCache,
         });
       } catch (error) {
         writeResult = {

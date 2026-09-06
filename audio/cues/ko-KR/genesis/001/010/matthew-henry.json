@@ -1,33 +1,345 @@
 {
   "audioId": "genesis.001.010.matthew-henry",
-  "duration": 43.056,
-  "measuredDuration": 43.056,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/010/matthew-henry-calm.mp3",
-  "finalMp3Duration": 43.056,
+  "duration": 40.368,
+  "measuredDuration": 40.368,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/010/matthew-henry-calm.mp3",
+  "finalMp3Duration": 40.368,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 9.270417
+      "end": 3.941
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 9.270417,
-      "end": 22.401708
+      "start": 3.941,
+      "end": 16.152
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 22.401708,
-      "end": 33.229167
+      "start": 16.152,
+      "end": 28.786
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 33.229167,
-      "end": 43.056
+      "start": 28.786,
+      "end": 40.368
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.351,
+      "end": 0.992
+    },
+    {
+      "text": "1장",
+      "start": 1.095,
+      "end": 1.789
+    },
+    {
+      "text": "10절,",
+      "start": 1.908,
+      "end": 2.124
+    },
+    {
+      "text": "매튜헨리입니다.",
+      "start": 2.583,
+      "end": 3.634
+    },
+    {
+      "text": "매튜",
+      "start": 3.938,
+      "end": 4.077
+    },
+    {
+      "text": "헨리의",
+      "start": 4.137,
+      "end": 4.797
+    },
+    {
+      "text": "영어",
+      "start": 4.858,
+      "end": 5.682
+    },
+    {
+      "text": "원문입니다.",
+      "start": 5.715,
+      "end": 5.882
+    },
+    {
+      "text": "Naming",
+      "start": 6.782,
+      "end": 7.287
+    },
+    {
+      "text": "fixes",
+      "start": 7.453,
+      "end": 7.539
+    },
+    {
+      "text": "usefulness.",
+      "start": 7.585,
+      "end": 8.638
+    },
+    {
+      "text": "이름은",
+      "start": 9.079,
+      "end": 9.618
+    },
+    {
+      "text": "유용함을",
+      "start": 9.944,
+      "end": 10.564
+    },
+    {
+      "text": "고정한다.",
+      "start": 10.622,
+      "end": 11.234
+    },
+    {
+      "text": "여기서",
+      "start": 11.785,
+      "end": 12.229
+    },
+    {
+      "text": "핵심은",
+      "start": 12.254,
+      "end": 12.648
+    },
+    {
+      "text": "정체성",
+      "start": 13.034,
+      "end": 13.241
+    },
+    {
+      "text": "역할을",
+      "start": 13.275,
+      "end": 13.752
+    },
+    {
+      "text": "보여",
+      "start": 13.833,
+      "end": 13.945
+    },
+    {
+      "text": "준다는",
+      "start": 13.945,
+      "end": 14.113
+    },
+    {
+      "text": "점입니다.",
+      "start": 14.27,
+      "end": 15.482
+    },
+    {
+      "text": "두",
+      "start": 16.152,
+      "end": 16.23
+    },
+    {
+      "text": "번째",
+      "start": 16.23,
+      "end": 16.387
+    },
+    {
+      "text": "영어",
+      "start": 16.387,
+      "end": 16.544
+    },
+    {
+      "text": "원문입니다.",
+      "start": 16.596,
+      "end": 17.846
+    },
+    {
+      "text": "Sea's",
+      "start": 18.47,
+      "end": 18.981
+    },
+    {
+      "text": "roar",
+      "start": 18.981,
+      "end": 19.391
+    },
+    {
+      "text": "bows",
+      "start": 19.615,
+      "end": 19.898
+    },
+    {
+      "text": "to",
+      "start": 19.898,
+      "end": 20.039
+    },
+    {
+      "text": "His",
+      "start": 20.079,
+      "end": 20.322
+    },
+    {
+      "text": "word.",
+      "start": 20.322,
+      "end": 20.729
+    },
+    {
+      "text": "바다의",
+      "start": 21.375,
+      "end": 21.947
+    },
+    {
+      "text": "포효도",
+      "start": 22.035,
+      "end": 22.36
+    },
+    {
+      "text": "그분의",
+      "start": 22.404,
+      "end": 22.612
+    },
+    {
+      "text": "말씀",
+      "start": 22.83,
+      "end": 23.268
+    },
+    {
+      "text": "앞에",
+      "start": 23.268,
+      "end": 23.705
+    },
+    {
+      "text": "굴복한다.",
+      "start": 23.8,
+      "end": 23.944
+    },
+    {
+      "text": "여기서",
+      "start": 24.016,
+      "end": 24.319
+    },
+    {
+      "text": "핵심은",
+      "start": 24.373,
+      "end": 24.726
+    },
+    {
+      "text": "권세를",
+      "start": 25.529,
+      "end": 26.006
+    },
+    {
+      "text": "보여",
+      "start": 26.045,
+      "end": 26.414
+    },
+    {
+      "text": "준다는",
+      "start": 26.776,
+      "end": 27.269
+    },
+    {
+      "text": "점입니다.",
+      "start": 27.321,
+      "end": 28.536
+    },
+    {
+      "text": "마지막",
+      "start": 28.783,
+      "end": 29.661
+    },
+    {
+      "text": "영어",
+      "start": 29.661,
+      "end": 30.247
+    },
+    {
+      "text": "원문입니다.",
+      "start": 30.28,
+      "end": 30.407
+    },
+    {
+      "text": "Goodness",
+      "start": 30.877,
+      "end": 31.572
+    },
+    {
+      "text": "crowns",
+      "start": 31.688,
+      "end": 32.284
+    },
+    {
+      "text": "the",
+      "start": 32.338,
+      "end": 32.923
+    },
+    {
+      "text": "boundaries.",
+      "start": 32.957,
+      "end": 33.103
+    },
+    {
+      "text": "경계",
+      "start": 33.653,
+      "end": 34.405
+    },
+    {
+      "text": "위에",
+      "start": 34.701,
+      "end": 35.213
+    },
+    {
+      "text": "선함이",
+      "start": 35.271,
+      "end": 36.168
+    },
+    {
+      "text": "관을",
+      "start": 36.718,
+      "end": 37.211
+    },
+    {
+      "text": "씌운다.",
+      "start": 37.245,
+      "end": 37.63
+    },
+    {
+      "text": "여기서",
+      "start": 37.97,
+      "end": 38.362
+    },
+    {
+      "text": "핵심은",
+      "start": 38.402,
+      "end": 38.544
+    },
+    {
+      "text": "경계",
+      "start": 38.572,
+      "end": 38.742
+    },
+    {
+      "text": "복을",
+      "start": 38.818,
+      "end": 38.964
+    },
+    {
+      "text": "보여",
+      "start": 38.964,
+      "end": 39.11
+    },
+    {
+      "text": "준다는",
+      "start": 39.141,
+      "end": 39.966
+    },
+    {
+      "text": "점입니다.",
+      "start": 39.997,
+      "end": 40.368
     }
   ]
 }

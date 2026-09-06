@@ -1,45 +1,347 @@
 {
   "audioId": "genesis.001.005.original-language",
-  "duration": 38.808,
-  "measuredDuration": 38.808,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/005/original-language-study.mp3",
-  "finalMp3Duration": 38.808,
+  "duration": 42.72,
+  "measuredDuration": 42.72,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/005/original-language-study.mp3",
+  "finalMp3Duration": 42.72,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 12.501833
+      "end": 13.426
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 12.501833,
-      "end": 17.639792
+      "start": 13.426,
+      "end": 19.542
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 17.639792,
-      "end": 23.146
+      "start": 19.542,
+      "end": 24.983
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 23.146,
-      "end": 28.128167
+      "start": 24.983,
+      "end": 30.277
     },
     {
       "type": "item",
       "itemIndex": 3,
-      "start": 28.128167,
-      "end": 33.564917
+      "start": 30.277,
+      "end": 36.883
     },
     {
       "type": "item",
       "itemIndex": 4,
-      "start": 33.564917,
-      "end": 38.808
+      "start": 36.883,
+      "end": 42.72
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.077,
+      "end": 0.911
+    },
+    {
+      "text": "1장",
+      "start": 0.964,
+      "end": 1.528
+    },
+    {
+      "text": "5절,",
+      "start": 2.048,
+      "end": 2.36
+    },
+    {
+      "text": "원어분석입니다.",
+      "start": 2.395,
+      "end": 3.111
+    },
+    {
+      "text": "본문은",
+      "start": 3.884,
+      "end": 4.355
+    },
+    {
+      "text": "'빛을",
+      "start": 4.773,
+      "end": 4.879
+    },
+    {
+      "text": "낮이라",
+      "start": 4.971,
+      "end": 5.413
+    },
+    {
+      "text": "칭하시고",
+      "start": 5.44,
+      "end": 5.667
+    },
+    {
+      "text": "어두움을",
+      "start": 5.71,
+      "end": 6.113
+    },
+    {
+      "text": "밤이라",
+      "start": 6.152,
+      "end": 6.3
+    },
+    {
+      "text": "칭하시니라",
+      "start": 6.705,
+      "end": 7.253
+    },
+    {
+      "text": "저녁이",
+      "start": 7.309,
+      "end": 7.714
+    },
+    {
+      "text": "되며",
+      "start": 7.758,
+      "end": 8.382
+    },
+    {
+      "text": "아침이",
+      "start": 8.973,
+      "end": 9.914
+    },
+    {
+      "text": "되니",
+      "start": 9.952,
+      "end": 10.566
+    },
+    {
+      "text": "이는",
+      "start": 10.838,
+      "end": 11.074
+    },
+    {
+      "text": "첫째",
+      "start": 11.074,
+      "end": 11.31
+    },
+    {
+      "text": "날이니라'입니다.",
+      "start": 11.403,
+      "end": 12.019
+    },
+    {
+      "text": "카라는",
+      "start": 13.424,
+      "end": 14.097
+    },
+    {
+      "text": "“칭하다”는",
+      "start": 14.489,
+      "end": 14.925
+    },
+    {
+      "text": "뜻의",
+      "start": 14.959,
+      "end": 15.275
+    },
+    {
+      "text": "동사입니다.",
+      "start": 15.341,
+      "end": 15.611
+    },
+    {
+      "text": "이름",
+      "start": 15.66,
+      "end": 16.05
+    },
+    {
+      "text": "짓는",
+      "start": 16.05,
+      "end": 16.44
+    },
+    {
+      "text": "권세를",
+      "start": 17.178,
+      "end": 17.957
+    },
+    {
+      "text": "보여",
+      "start": 17.957,
+      "end": 18.476
+    },
+    {
+      "text": "줍니다.",
+      "start": 18.628,
+      "end": 19.316
+    },
+    {
+      "text": "욤은",
+      "start": 19.539,
+      "end": 20.105
+    },
+    {
+      "text": "“낮”이라는",
+      "start": 20.3,
+      "end": 20.52
+    },
+    {
+      "text": "뜻의",
+      "start": 20.572,
+      "end": 20.998
+    },
+    {
+      "text": "명사입니다.",
+      "start": 21.059,
+      "end": 22.196
+    },
+    {
+      "text": "활동·삶의",
+      "start": 22.718,
+      "end": 22.876
+    },
+    {
+      "text": "시간을",
+      "start": 23.005,
+      "end": 24.001
+    },
+    {
+      "text": "보여",
+      "start": 24.043,
+      "end": 24.074
+    },
+    {
+      "text": "줍니다.",
+      "start": 24.106,
+      "end": 24.719
+    },
+    {
+      "text": "라일라는",
+      "start": 24.978,
+      "end": 25.781
+    },
+    {
+      "text": "“밤”이라는",
+      "start": 26.151,
+      "end": 26.731
+    },
+    {
+      "text": "뜻의",
+      "start": 26.764,
+      "end": 27.798
+    },
+    {
+      "text": "명사입니다.",
+      "start": 28.383,
+      "end": 28.678
+    },
+    {
+      "text": "휴식·신뢰를",
+      "start": 28.735,
+      "end": 29.263
+    },
+    {
+      "text": "보여",
+      "start": 29.371,
+      "end": 29.571
+    },
+    {
+      "text": "줍니다.",
+      "start": 29.571,
+      "end": 29.971
+    },
+    {
+      "text": "에레브는",
+      "start": 30.275,
+      "end": 31.268
+    },
+    {
+      "text": "“저녁”이라는",
+      "start": 31.637,
+      "end": 32.475
+    },
+    {
+      "text": "뜻의",
+      "start": 32.512,
+      "end": 33.489
+    },
+    {
+      "text": "명사입니다.",
+      "start": 33.514,
+      "end": 33.651
+    },
+    {
+      "text": "유대적",
+      "start": 34.221,
+      "end": 34.699
+    },
+    {
+      "text": "하루",
+      "start": 34.748,
+      "end": 35.389
+    },
+    {
+      "text": "시작을",
+      "start": 35.43,
+      "end": 35.6
+    },
+    {
+      "text": "보여",
+      "start": 35.685,
+      "end": 35.981
+    },
+    {
+      "text": "줍니다.",
+      "start": 36.008,
+      "end": 36.406
+    },
+    {
+      "text": "보케르는",
+      "start": 36.87,
+      "end": 37
+    },
+    {
+      "text": "“아침”이라는",
+      "start": 37.109,
+      "end": 37.575
+    },
+    {
+      "text": "뜻의",
+      "start": 37.921,
+      "end": 38.033
+    },
+    {
+      "text": "명사입니다.",
+      "start": 38.164,
+      "end": 38.725
+    },
+    {
+      "text": "소망의",
+      "start": 38.794,
+      "end": 39.841
+    },
+    {
+      "text": "새",
+      "start": 40.396,
+      "end": 40.575
+    },
+    {
+      "text": "출발을",
+      "start": 40.575,
+      "end": 41.111
+    },
+    {
+      "text": "보여",
+      "start": 41.17,
+      "end": 41.702
+    },
+    {
+      "text": "줍니다.",
+      "start": 41.846,
+      "end": 42.72
     }
   ]
 }

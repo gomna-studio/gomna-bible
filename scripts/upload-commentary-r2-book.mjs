@@ -23,9 +23,23 @@ const R2 = {
   bucket: 'gomna-bible-audio-prod',
   publicBaseUrl: 'https://pub-1606395d18b84b29b95f841e5fe9e008.r2.dev',
   contentType: 'audio/mpeg',
+  accountId: '3cdb3e17fc47d710e288dce45dbd4d8d',
 };
 
 const FILE_NAMES = [
+  'original-language-study.mp3',
+  'history-warm.mp3',
+  'theology-warm.mp3',
+  'typology-study.mp3',
+  'matthew-henry-calm.mp3',
+  'sermon-strong.mp3',
+  'hymn-soft.mp3',
+  'counseling-warm.mp3',
+  'cross-reference-calm.mp3',
+];
+
+// Actual Exodus production filenames on disk (audio/v1/ko-KR/exodus/001/001).
+const EXODUS_FILE_NAMES = [
   'original-language-study.mp3',
   'history-warm.mp3',
   'theology-warm.mp3',
@@ -45,6 +59,28 @@ const GENESIS_VERSE_COUNTS = {
   41: 57, 42: 38, 43: 34, 44: 34, 45: 28, 46: 34, 47: 31, 48: 22, 49: 33, 50: 26,
 };
 
+const EXODUS_VERSE_COUNTS = {
+  1: 22, 2: 25, 3: 22, 4: 31, 5: 23, 6: 30, 7: 25, 8: 32, 9: 35, 10: 29,
+  11: 10, 12: 51, 13: 22, 14: 31, 15: 27, 16: 36, 17: 16, 18: 27, 19: 25, 20: 26,
+  21: 36, 22: 31, 23: 33, 24: 18, 25: 40, 26: 37, 27: 21, 28: 43, 29: 46, 30: 38,
+  31: 18, 32: 35, 33: 23, 34: 35, 35: 35, 36: 38, 37: 29, 38: 31, 39: 43, 40: 38,
+};
+
+const BOOK_VERSE_COUNTS = {
+  genesis: GENESIS_VERSE_COUNTS,
+  exodus: EXODUS_VERSE_COUNTS,
+};
+
+const BOOK_FILE_NAMES = {
+  genesis: FILE_NAMES,
+  exodus: EXODUS_FILE_NAMES,
+};
+
+const EXODUS_VERSE_TOTAL = Object.values(EXODUS_VERSE_COUNTS).reduce((sum, n) => sum + n, 0);
+if (EXODUS_VERSE_TOTAL !== 1213) {
+  throw new Error(`EXODUS_VERSE_COUNTS 합이 1213이 아닙니다: ${EXODUS_VERSE_TOTAL}`);
+}
+
 const DEFAULT_CONCURRENCY = 4;
 const MAX_CONCURRENCY = 12;
 const MAX_RESUME_CONCURRENCY = 6;
@@ -55,6 +91,8 @@ function usage() {
   console.error('Usage:');
   console.error('  node scripts/upload-commentary-r2-book.mjs --book genesis --from-chapter 4 --to-chapter 50 [--dry-run]');
   console.error('  node scripts/upload-commentary-r2-book.mjs --book genesis --from-chapter 4 --to-chapter 50 --resume --write --confirm-upload-count N --concurrency 4');
+  console.error('  node scripts/upload-commentary-r2-book.mjs --book exodus --from-chapter 1 --to-chapter 40 [--dry-run]');
+  console.error('  node scripts/upload-commentary-r2-book.mjs --book exodus --from-chapter 1 --to-chapter 40 --write --confirm-upload-count N --concurrency 4');
   console.error('Options: --resume --protect-keys-file PATH --keys-file PATH --auth-exists-check --verify-only --retry-failed --sample-sha');
 }
 
@@ -106,12 +144,18 @@ function parseArgs(argv) {
     }
   }
 
-  if (args.bookId !== 'genesis') throw new Error('현재 genesis만 지원합니다.');
+  if (args.bookId !== 'genesis' && args.bookId !== 'exodus') {
+    throw new Error('현재 genesis와 exodus만 지원합니다.');
+  }
   if (!Number.isInteger(args.fromChapter) || !Number.isInteger(args.toChapter)) {
     throw new Error('--from-chapter/--to-chapter가 필요합니다.');
   }
-  if (args.fromChapter < 4 || args.toChapter > 50 || args.fromChapter > args.toChapter) {
-    throw new Error('업로드 범위는 창세기 4~50장만 허용됩니다.');
+  if (args.bookId === 'genesis') {
+    if (args.fromChapter < 4 || args.toChapter > 50 || args.fromChapter > args.toChapter) {
+      throw new Error('업로드 범위는 창세기 4~50장만 허용됩니다.');
+    }
+  } else if (args.fromChapter < 1 || args.toChapter > 40 || args.fromChapter > args.toChapter) {
+    throw new Error('업로드 범위는 출애굽기 1~40장만 허용됩니다.');
   }
   if (args.verse != null && (!Number.isInteger(args.verse) || args.verse < 1)) {
     throw new Error('--verse가 올바르지 않습니다.');
@@ -133,39 +177,43 @@ function pad3(value) {
   return String(value).padStart(3, '0');
 }
 
-function reportPaths(fromChapter, toChapter, resume) {
+function reportPaths(bookId, fromChapter, toChapter, resume) {
   const tag = `${pad3(fromChapter)}-${pad3(toChapter)}`;
   const dir = path.join(ROOT, 'reports', 'commentary-r2-upload');
+  const prefix = bookId || 'genesis';
   if (resume) {
     return {
       dir,
-      checkpoint: path.join(dir, `genesis-${tag}-resume-checkpoint.jsonl`),
-      failed: path.join(dir, `genesis-${tag}-resume-failed.jsonl`),
-      conflicts: path.join(dir, `genesis-${tag}-resume-conflicts.jsonl`),
-      summary: path.join(dir, `genesis-${tag}-resume-summary.json`),
-      dryRun: path.join(dir, `genesis-${tag}-resume-dry-run.json`),
-      legacyCheckpoint: path.join(dir, `genesis-${tag}-checkpoint.jsonl`),
+      checkpoint: path.join(dir, `${prefix}-${tag}-resume-checkpoint.jsonl`),
+      failed: path.join(dir, `${prefix}-${tag}-resume-failed.jsonl`),
+      conflicts: path.join(dir, `${prefix}-${tag}-resume-conflicts.jsonl`),
+      summary: path.join(dir, `${prefix}-${tag}-resume-summary.json`),
+      dryRun: path.join(dir, `${prefix}-${tag}-resume-dry-run.json`),
+      legacyCheckpoint: path.join(dir, `${prefix}-${tag}-checkpoint.jsonl`),
     };
   }
   return {
     dir,
-    checkpoint: path.join(dir, `genesis-${tag}-checkpoint.jsonl`),
-    failed: path.join(dir, `genesis-${tag}-failed.jsonl`),
-    conflicts: path.join(dir, `genesis-${tag}-conflicts.jsonl`),
-    summary: path.join(dir, `genesis-${tag}-summary.json`),
-    dryRun: path.join(dir, `genesis-${tag}-dry-run.json`),
+    checkpoint: path.join(dir, `${prefix}-${tag}-checkpoint.jsonl`),
+    failed: path.join(dir, `${prefix}-${tag}-failed.jsonl`),
+    conflicts: path.join(dir, `${prefix}-${tag}-conflicts.jsonl`),
+    summary: path.join(dir, `${prefix}-${tag}-summary.json`),
+    dryRun: path.join(dir, `${prefix}-${tag}-dry-run.json`),
     legacyCheckpoint: null,
   };
 }
 
 function buildAllowlist(args) {
+  const verseCounts = BOOK_VERSE_COUNTS[args.bookId];
+  const fileNames = BOOK_FILE_NAMES[args.bookId];
+  if (!verseCounts || !fileNames) throw new Error(`unsupported book ${args.bookId}`);
   const items = [];
   for (let chapter = args.fromChapter; chapter <= args.toChapter; chapter++) {
-    const maxVerse = GENESIS_VERSE_COUNTS[chapter];
+    const maxVerse = verseCounts[chapter];
     if (!maxVerse) throw new Error(`unknown chapter ${chapter}`);
     for (let verse = 1; verse <= maxVerse; verse++) {
       if (args.verse != null && verse !== args.verse) continue;
-      for (const fileName of FILE_NAMES) {
+      for (const fileName of fileNames) {
         const chapter3 = pad3(chapter);
         const verse3 = pad3(verse);
         const absoluteLocalPath = path.join(
@@ -334,11 +382,28 @@ async function probePublic(publicUrl, timeoutSec = 12) {
   };
 }
 
+function assertProductionRemoteWranglerArgs(args) {
+  const isR2Object = args.includes('r2') && args.includes('object');
+  if (!isR2Object) return;
+  if (args.includes('--local')) {
+    throw new Error('production wrangler 호출에서 --local은 금지됩니다.');
+  }
+  if (!args.includes('--remote')) {
+    throw new Error('production wrangler PUT/GET은 --remote가 필수입니다.');
+  }
+}
+
 function runNpxWrangler(args) {
+  assertProductionRemoteWranglerArgs(args);
+  const env = {
+    ...process.env,
+    CLOUDFLARE_ACCOUNT_ID: R2.accountId,
+  };
   return new Promise((resolve) => {
     const child = spawn('npx', ['--yes', WRANGLER_PACKAGE, ...args], {
       cwd: ROOT,
       stdio: ['ignore', 'pipe', 'pipe'],
+      env,
     });
     let stdout = '';
     let stderr = '';
@@ -349,6 +414,15 @@ function runNpxWrangler(args) {
   });
 }
 
+function assertWranglerRemoteLocation(output, verb) {
+  if (/Resource location:\s*local/i.test(output)) {
+    throw new Error(`wrangler가 local R2에 ${verb}했습니다. --remote가 적용되지 않았습니다.`);
+  }
+  if (!/Resource location:\s*remote/i.test(output)) {
+    throw new Error(`wrangler 출력에서 remote ${verb} 확인에 실패했습니다.`);
+  }
+}
+
 async function wranglerGetToFile(objectPath, destPath) {
   fs.mkdirSync(path.dirname(destPath), { recursive: true });
   const result = await runNpxWrangler([
@@ -357,17 +431,19 @@ async function wranglerGetToFile(objectPath, destPath) {
   const output = `${result.stdout || ''}\n${result.stderr || ''}`.trim();
   if (result.code !== 0) {
     if (/does not exist/i.test(output) || /The specified key does not exist/i.test(output)) {
-      return { exists: false, output };
+      assertWranglerRemoteLocation(output, 'get');
+      return { exists: false, output, remote: true };
     }
     const err = new Error(output || 'wrangler r2 object get failed');
     err.authError = /auth|login|unauthorized|forbidden|oauth/i.test(output);
     err.retryable = /429|5\d\d|ECONN|ETIMEDOUT|network|fetch failed|throttle/i.test(output);
     throw err;
   }
+  assertWranglerRemoteLocation(output, 'get');
   if (!fs.existsSync(destPath) || fs.statSync(destPath).size <= 0) {
     throw new Error(`wrangler get produced empty file: ${destPath}`);
   }
-  return { exists: true, output, size: fs.statSync(destPath).size };
+  return { exists: true, output, size: fs.statSync(destPath).size, remote: true };
 }
 
 function isTransientRemoteError(error) {
@@ -419,12 +495,7 @@ async function runWranglerPut(item) {
     err.authError = /auth|login|unauthorized|forbidden|oauth|ECOMPROMISED/i.test(output);
     throw err;
   }
-  if (/Resource location:\s*local/i.test(output)) {
-    throw new Error('wrangler가 local R2에 저장했습니다. --remote 업로드가 적용되지 않았습니다.');
-  }
-  if (!/Resource location:\s*remote/i.test(output)) {
-    throw new Error('wrangler 출력에서 remote 업로드 확인에 실패했습니다.');
-  }
+  assertWranglerRemoteLocation(output, 'put');
   return output;
 }
 
@@ -506,7 +577,15 @@ async function classifyRemote(item, { checkpointMap, protectSet, authExistsCheck
   }
 
   if (pub.status === 0) {
-    return { action: 'unresolved', remoteStatus: 0, detail: 'public probe failed' };
+    // Public probe failure is not absence. Confirm with the same auth GET as 404/403.
+    try {
+      return await authRemoteSize(item);
+    } catch (error) {
+      if (error.authError) {
+        return { action: 'unresolved', remoteStatus: 'auth-error', detail: error.message.slice(0, 300) };
+      }
+      return { action: 'unresolved', remoteStatus: 0, detail: error.message.slice(0, 300) || 'public probe failed' };
+    }
   }
 
   return {
@@ -808,7 +887,7 @@ async function planResumeDryRun(items, args, paths, protectSet) {
     duplicateKey,
     conflictCount: 0,
     outOfScopeChecks: {
-      genesis1to3: items.filter((i) => i.chapter <= 3).length,
+      genesis1to3: items.filter((i) => i.bookId === 'genesis' && i.chapter <= 3).length,
       cue: 0,
       segment: 0,
       cache: 0,
@@ -913,7 +992,7 @@ async function planAllLegacy(items, args, paths) {
     blockerCount: blockers.length + blockerCount,
     blockers: [...new Set(blockers)].slice(0, 50),
     outOfScopeChecks: {
-      genesis1to3: items.filter((i) => i.chapter <= 3).length,
+      genesis1to3: items.filter((i) => i.bookId === 'genesis' && i.chapter <= 3).length,
       cue: 0,
       segment: 0,
       cache: 0,
@@ -932,7 +1011,7 @@ async function planAllLegacy(items, args, paths) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const paths = reportPaths(args.fromChapter, args.toChapter, args.resume);
+  const paths = reportPaths(args.bookId, args.fromChapter, args.toChapter, args.resume);
   fs.mkdirSync(paths.dir, { recursive: true });
 
   let items = buildAllowlist(args);

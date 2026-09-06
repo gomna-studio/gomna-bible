@@ -1,173 +1,138 @@
 {
   "audioId": "genesis.020.018.hymn",
-  "duration": 19.872,
-  "measuredDuration": 19.872,
+  "duration": 15.72,
+  "measuredDuration": 15.72,
   "testAudioPath": "audio/v1/ko-KR/genesis/020/018/hymn-soft.mp3",
-  "finalMp3Duration": 19.872,
+  "finalMp3Duration": 15.72,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 10.232
+      "end": 4.215
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 10.232,
-      "end": 19.872
+      "start": 4.215,
+      "end": 15.72
     }
   ],
   "words": [
     {
       "text": "창세기",
-      "start": 0.065,
-      "end": 0.903
+      "start": 0.165,
+      "end": 1.202
     },
     {
       "text": "20장",
-      "start": 1.024,
-      "end": 1.35
+      "start": 1.326,
+      "end": 1.572
     },
     {
       "text": "18절,",
-      "start": 1.419,
-      "end": 1.571
+      "start": 1.704,
+      "end": 2.354
     },
     {
       "text": "찬송가입니다.",
-      "start": 1.636,
-      "end": 1.833
-    },
-    {
-      "text": "본문은",
-      "start": 2.206,
-      "end": 3.062
-    },
-    {
-      "text": "'여호와께서",
-      "start": 3.678,
-      "end": 4.192
-    },
-    {
-      "text": "아브라함의",
-      "start": 4.578,
-      "end": 4.974
-    },
-    {
-      "text": "아내",
-      "start": 5.058,
-      "end": 5.361
-    },
-    {
-      "text": "사라의",
-      "start": 5.414,
-      "end": 7.048
-    },
-    {
-      "text": "일로",
-      "start": 7.446,
-      "end": 8.079
-    },
-    {
-      "text": "아비멜렉의",
-      "start": 8.108,
-      "end": 8.229
-    },
-    {
-      "text": "집의",
-      "start": 8.255,
-      "end": 8.724
-    },
-    {
-      "text": "모든",
-      "start": 8.764,
-      "end": 8.911
-    },
-    {
-      "text": "태를",
-      "start": 8.911,
-      "end": 9.057
-    },
-    {
-      "text": "닫으셨음이었더라'입니다.",
-      "start": 9.108,
-      "end": 9.93
+      "start": 2.762,
+      "end": 3.689
     },
     {
       "text": "새찬송가",
-      "start": 10.232,
-      "end": 10.465
+      "start": 4.212,
+      "end": 4.402
     },
     {
-      "text": "undefined,",
-      "start": 10.512,
-      "end": 11.216
+      "text": "310장,",
+      "start": 4.46,
+      "end": 5.04
     },
     {
-      "text": "'undefined'를",
-      "start": 11.275,
-      "end": 11.656
+      "text": "'하나님의",
+      "start": 5.276,
+      "end": 5.853
+    },
+    {
+      "text": "은혜로'를",
+      "start": 5.96,
+      "end": 6.194
     },
     {
       "text": "함께",
-      "start": 11.681,
-      "end": 12.133
+      "start": 6.446,
+      "end": 6.795
     },
     {
       "text": "묵상할",
-      "start": 12.576,
-      "end": 13.365
+      "start": 6.795,
+      "end": 7.317
     },
     {
       "text": "수",
-      "start": 13.365,
-      "end": 13.628
+      "start": 7.317,
+      "end": 7.492
     },
     {
       "text": "있습니다.",
-      "start": 13.71,
-      "end": 13.969
+      "start": 7.771,
+      "end": 7.913
     },
     {
       "text": "이",
-      "start": 14.009,
-      "end": 14.259
+      "start": 7.913,
+      "end": 7.941
     },
     {
       "text": "찬송은",
-      "start": 14.259,
-      "end": 15.01
+      "start": 8.001,
+      "end": 8.114
     },
     {
-      "text": "를",
-      "start": 15.571,
-      "end": 15.599
+      "text": "생명을",
+      "start": 8.114,
+      "end": 8.227
+    },
+    {
+      "text": "주관하시는",
+      "start": 8.271,
+      "end": 9.139
+    },
+    {
+      "text": "하나님의",
+      "start": 9.645,
+      "end": 9.758
+    },
+    {
+      "text": "은혜를",
+      "start": 9.806,
+      "end": 10.32
     },
     {
       "text": "떠올리게",
-      "start": 15.599,
-      "end": 15.711
+      "start": 10.568,
+      "end": 11.079
     },
     {
       "text": "한다는",
-      "start": 15.741,
-      "end": 16.584
+      "start": 11.104,
+      "end": 12.655
     },
     {
       "text": "점에서",
-      "start": 16.65,
-      "end": 17.977
+      "start": 12.717,
+      "end": 13.31
     },
     {
       "text": "본문과",
-      "start": 18.306,
-      "end": 19.526
+      "start": 13.31,
+      "end": 13.904
     },
     {
       "text": "연결됩니다.",
-      "start": 19.552,
-      "end": 19.872
+      "start": 14.281,
+      "end": 15.72
     }
   ]
 }

@@ -1,33 +1,230 @@
 {
   "audioId": "genesis.001.006.typology",
-  "duration": 34.968,
-  "measuredDuration": 34.968,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/006/typology-study.mp3",
-  "finalMp3Duration": 34.968,
+  "duration": 27.6,
+  "measuredDuration": 27.6,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/006/typology-study.mp3",
+  "finalMp3Duration": 27.6,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 10.010417
+      "end": 3.352
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 10.010417,
-      "end": 17.254208
+      "start": 3.352,
+      "end": 10.392
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 17.254208,
-      "end": 25.862083
+      "start": 10.392,
+      "end": 19.155
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 25.862083,
-      "end": 34.968
+      "start": 19.155,
+      "end": 27.6
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.27,
+      "end": 1.079
+    },
+    {
+      "text": "1장",
+      "start": 1.164,
+      "end": 1.491
+    },
+    {
+      "text": "6절,",
+      "start": 1.652,
+      "end": 1.879
+    },
+    {
+      "text": "예표론입니다.",
+      "start": 2.295,
+      "end": 3.128
+    },
+    {
+      "text": "구약예표의",
+      "start": 3.331,
+      "end": 3.769
+    },
+    {
+      "text": "관점에서",
+      "start": 3.828,
+      "end": 4.042
+    },
+    {
+      "text": "보면,",
+      "start": 4.083,
+      "end": 4.264
+    },
+    {
+      "text": "홍해",
+      "start": 4.291,
+      "end": 4.651
+    },
+    {
+      "text": "갈라짐과",
+      "start": 4.678,
+      "end": 4.975
+    },
+    {
+      "text": "연결됩니다.",
+      "start": 5.306,
+      "end": 6.791
+    },
+    {
+      "text": "이것은",
+      "start": 6.817,
+      "end": 6.95
+    },
+    {
+      "text": "세례",
+      "start": 7.345,
+      "end": 7.752
+    },
+    {
+      "text": "예표와",
+      "start": 7.963,
+      "end": 8.456
+    },
+    {
+      "text": "연결됩니다.",
+      "start": 8.511,
+      "end": 9.548
+    },
+    {
+      "text": "신약성취의",
+      "start": 10.39,
+      "end": 10.659
+    },
+    {
+      "text": "관점에서",
+      "start": 10.703,
+      "end": 10.947
+    },
+    {
+      "text": "보면,",
+      "start": 10.974,
+      "end": 11.234
+    },
+    {
+      "text": "예수",
+      "start": 11.278,
+      "end": 11.793
+    },
+    {
+      "text": "세례",
+      "start": 11.822,
+      "end": 12.174
+    },
+    {
+      "text": "시",
+      "start": 12.559,
+      "end": 13.395
+    },
+    {
+      "text": "하늘",
+      "start": 13.395,
+      "end": 15.068
+    },
+    {
+      "text": "열림과",
+      "start": 15.723,
+      "end": 16.168
+    },
+    {
+      "text": "연결됩니다.",
+      "start": 16.498,
+      "end": 17.465
+    },
+    {
+      "text": "이것은",
+      "start": 17.562,
+      "end": 17.723
+    },
+    {
+      "text": "마",
+      "start": 17.759,
+      "end": 17.791
+    },
+    {
+      "text": "3장",
+      "start": 17.791,
+      "end": 17.854
+    },
+    {
+      "text": "16절과도",
+      "start": 17.884,
+      "end": 18.022
+    },
+    {
+      "text": "이어집니다.",
+      "start": 18.087,
+      "end": 18.631
+    },
+    {
+      "text": "그리스도론의",
+      "start": 19.132,
+      "end": 19.504
+    },
+    {
+      "text": "관점에서",
+      "start": 19.572,
+      "end": 19.962
+    },
+    {
+      "text": "보면,",
+      "start": 20.007,
+      "end": 20.63
+    },
+    {
+      "text": "중보자-하늘과",
+      "start": 20.702,
+      "end": 21.039
+    },
+    {
+      "text": "땅",
+      "start": 21.494,
+      "end": 22.568
+    },
+    {
+      "text": "연결입니다.",
+      "start": 22.679,
+      "end": 23.586
+    },
+    {
+      "text": "이것은",
+      "start": 24.17,
+      "end": 25.524
+    },
+    {
+      "text": "요한복음",
+      "start": 25.582,
+      "end": 26.209
+    },
+    {
+      "text": "1장",
+      "start": 26.248,
+      "end": 26.553
+    },
+    {
+      "text": "51절과도",
+      "start": 26.588,
+      "end": 26.73
+    },
+    {
+      "text": "이어집니다.",
+      "start": 26.763,
+      "end": 27.6
     }
   ]
 }

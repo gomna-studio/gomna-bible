@@ -51,16 +51,18 @@ const MH_ALIASES_BY_SLOT = Object.freeze([
   ]),
 ]);
 
+// 한국어 별칭 중 일부는 원본 데이터의 키 오타다(예: 연결점 → 연절점).
+// 정규 키가 값을 가지고 있으면 항상 정규 키가 이기므로 정상 행에는 영향이 없다.
 const NON_MH_ALIASES_BY_TABLE = Object.freeze({
   표1_원어분석: Object.freeze([
-    Object.freeze(['원어', 'original', 'Original', '原語']),
-    Object.freeze(['의미_문법', 'meaning_grammar', 'MeaningGrammar', '意味_文法']),
-    Object.freeze(['설교포인트', 'sermon_point', 'SermonPoint', '説教ポイント']),
+    Object.freeze(['원어', 'original', 'Original', '原語', '히브리어', '히브리어원어']),
+    Object.freeze(['의미_문법', 'meaning_grammar', 'MeaningGrammar', '意味_文法', '의미', '내용']),
+    Object.freeze(['설교포인트', 'sermon_point', 'SermonPoint', '説教ポイント', '선정이유']),
   ]),
   표2_역사적배경: Object.freeze([
     Object.freeze(['항목', 'Item', 'item', '項目']),
     Object.freeze(['내용', 'Content', 'content', '内容']),
-    Object.freeze(['목회적활용', 'PastoralUse', 'pastoral_use', '牧会的活用']),
+    Object.freeze(['목회적활용', 'PastoralUse', 'pastoral_use', '牧会的活用', '설교포인트']),
   ]),
   표3_신학적의미: Object.freeze([
     Object.freeze(['교리', 'Doctrine', 'doctrine', '教理']),
@@ -82,10 +84,13 @@ const NON_MH_ALIASES_BY_TABLE = Object.freeze({
       'christ_connection',
       'キリストとのつながり',
       'キリスト接続',
+      '그리스도론',
+      '설교포인트',
+      '예화적용',
     ]),
   ]),
   표6_설교자료: Object.freeze([
-    Object.freeze(['대지', 'Main Point', 'MainPoint', 'main_point', '大地']),
+    Object.freeze(['대지', 'Main Point', 'MainPoint', 'main_point', '大地', '구분']),
     Object.freeze(['내용', 'Content', 'content', '内容']),
     Object.freeze([
       '예화_적용',
@@ -96,14 +101,15 @@ const NON_MH_ALIASES_BY_TABLE = Object.freeze({
     ]),
   ]),
   표7_찬송가: Object.freeze([
-    Object.freeze(['새찬송가', 'Hymn', 'hymn', '新賛美歌']),
+    Object.freeze(['새찬송가', 'Hymn', 'hymn', '新賛美歌', '찬송가번호']),
     Object.freeze(['통일찬송가', 'Unity Hymn', 'UnityHymn', '統一賛美歌']),
-    Object.freeze(['제목', 'Title', 'title', 'タイトル']),
+    Object.freeze(['제목', 'Title', 'title', 'タイトル', '찬송가제목']),
     Object.freeze([
       '선정이유',
       'Reason for Selection',
       'ReasonForSelection',
       '選定理由',
+      '연관성',
     ]),
   ]),
   표8_상담적용: Object.freeze([
@@ -119,12 +125,24 @@ const NON_MH_ALIASES_BY_TABLE = Object.freeze({
       'PracticalApplication',
       'practical_application',
       '実際適用',
+      '실제적활용',
     ]),
   ]),
   표9_교차참조: Object.freeze([
     Object.freeze(['구절', 'Verse', 'verse', '句']),
-    Object.freeze(['연결점', 'Connection', 'connection', '関連点']),
-    Object.freeze(['구분', 'Category', 'category', '区分']),
+    Object.freeze([
+      '연결점',
+      'Connection',
+      'connection',
+      '関連点',
+      '내용',
+      '연절점',
+      '연용점',
+      '연역점',
+      '연결',
+      '연용',
+    ]),
+    Object.freeze(['구분', 'Category', 'category', '区分', '선정이유']),
   ]),
 });
 
@@ -177,6 +195,15 @@ export function normalizeCommentaryCardRow(tableKey, locale, row) {
 export function normalizeCommentaryTableRows(tableKey, locale, rows) {
   if (!Array.isArray(rows)) return rows;
   return rows.map((row) => normalizeCommentaryCardRow(tableKey, locale, row));
+}
+
+/**
+ * Alias key lists per canonical slot. QA uses this to tell a missing alias
+ * (recoverable code defect) apart from a missing source value (blocked).
+ */
+export function getAliasSlotsForTable(tableKey) {
+  if (tableKey === MATTHEW_HENRY_TABLE_KEY) return MH_ALIASES_BY_SLOT;
+  return NON_MH_ALIASES_BY_TABLE[tableKey] || null;
 }
 
 export function getCanonicalFieldsForTable(tableKey, locale) {

@@ -1,45 +1,347 @@
 {
   "audioId": "genesis.001.007.original-language",
-  "duration": 37.104,
-  "measuredDuration": 37.104,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/007/original-language-study.mp3",
-  "finalMp3Duration": 37.104,
+  "duration": 37.752,
+  "measuredDuration": 37.752,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/007/original-language-study.mp3",
+  "finalMp3Duration": 37.752,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 11.230167
+      "end": 11.267
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 11.230167,
-      "end": 16.224542
+      "start": 11.267,
+      "end": 16.635
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 16.224542,
-      "end": 21.874292
+      "start": 16.635,
+      "end": 22.797
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 21.874292,
-      "end": 27.030583
+      "start": 22.797,
+      "end": 26.895
     },
     {
       "type": "item",
       "itemIndex": 3,
-      "start": 27.030583,
-      "end": 32.431625
+      "start": 26.895,
+      "end": 32.104
     },
     {
       "type": "item",
       "itemIndex": 4,
-      "start": 32.431625,
-      "end": 37.104
+      "start": 32.104,
+      "end": 37.752
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.052,
+      "end": 0.493
+    },
+    {
+      "text": "1장",
+      "start": 0.518,
+      "end": 0.895
+    },
+    {
+      "text": "7절,",
+      "start": 0.965,
+      "end": 1.207
+    },
+    {
+      "text": "원어분석입니다.",
+      "start": 1.245,
+      "end": 1.474
+    },
+    {
+      "text": "본문은",
+      "start": 1.552,
+      "end": 1.789
+    },
+    {
+      "text": "'하나님이",
+      "start": 2.134,
+      "end": 2.468
+    },
+    {
+      "text": "궁창을",
+      "start": 2.499,
+      "end": 3.197
+    },
+    {
+      "text": "만드사",
+      "start": 3.678,
+      "end": 4.134
+    },
+    {
+      "text": "궁창",
+      "start": 4.263,
+      "end": 4.754
+    },
+    {
+      "text": "아래의",
+      "start": 4.804,
+      "end": 5.016
+    },
+    {
+      "text": "물과",
+      "start": 5.049,
+      "end": 5.844
+    },
+    {
+      "text": "궁창",
+      "start": 6.231,
+      "end": 7.177
+    },
+    {
+      "text": "위의",
+      "start": 7.212,
+      "end": 7.321
+    },
+    {
+      "text": "물로",
+      "start": 7.321,
+      "end": 7.431
+    },
+    {
+      "text": "나뉘게",
+      "start": 7.527,
+      "end": 9.385
+    },
+    {
+      "text": "하시매",
+      "start": 9.702,
+      "end": 10.11
+    },
+    {
+      "text": "그대로",
+      "start": 10.137,
+      "end": 10.68
+    },
+    {
+      "text": "되니라'입니다.",
+      "start": 10.711,
+      "end": 10.805
+    },
+    {
+      "text": "아사는",
+      "start": 11.267,
+      "end": 11.922
+    },
+    {
+      "text": "“만들다”는",
+      "start": 12.212,
+      "end": 12.986
+    },
+    {
+      "text": "뜻의",
+      "start": 13.077,
+      "end": 13.411
+    },
+    {
+      "text": "동사입니다.",
+      "start": 13.465,
+      "end": 14.123
+    },
+    {
+      "text": "세밀한",
+      "start": 14.579,
+      "end": 15.123
+    },
+    {
+      "text": "제작을",
+      "start": 15.123,
+      "end": 15.666
+    },
+    {
+      "text": "보여",
+      "start": 15.712,
+      "end": 15.925
+    },
+    {
+      "text": "줍니다.",
+      "start": 15.925,
+      "end": 16.35
+    },
+    {
+      "text": "라키아는",
+      "start": 16.635,
+      "end": 16.813
+    },
+    {
+      "text": "“궁창”이라는",
+      "start": 16.877,
+      "end": 17.377
+    },
+    {
+      "text": "뜻의",
+      "start": 17.749,
+      "end": 17.974
+    },
+    {
+      "text": "명사입니다.",
+      "start": 18.012,
+      "end": 18.586
+    },
+    {
+      "text": "질서의",
+      "start": 18.627,
+      "end": 19.667
+    },
+    {
+      "text": "돔",
+      "start": 20.349,
+      "end": 20.917
+    },
+    {
+      "text": "지속을",
+      "start": 20.98,
+      "end": 21.562
+    },
+    {
+      "text": "보여",
+      "start": 21.602,
+      "end": 21.788
+    },
+    {
+      "text": "줍니다.",
+      "start": 21.937,
+      "end": 22.595
+    },
+    {
+      "text": "타하트는",
+      "start": 22.788,
+      "end": 23.121
+    },
+    {
+      "text": "“아래”라는",
+      "start": 23.234,
+      "end": 23.494
+    },
+    {
+      "text": "뜻으로,",
+      "start": 23.494,
+      "end": 23.667
+    },
+    {
+      "text": "전치사입니다.",
+      "start": 24.101,
+      "end": 24.706
+    },
+    {
+      "text": "권위",
+      "start": 24.779,
+      "end": 24.955
+    },
+    {
+      "text": "구조를",
+      "start": 24.955,
+      "end": 25.217
+    },
+    {
+      "text": "보여",
+      "start": 25.636,
+      "end": 25.954
+    },
+    {
+      "text": "줍니다.",
+      "start": 25.954,
+      "end": 26.59
+    },
+    {
+      "text": "마임은",
+      "start": 26.892,
+      "end": 27.433
+    },
+    {
+      "text": "“물”이라는",
+      "start": 27.77,
+      "end": 28.285
+    },
+    {
+      "text": "뜻의",
+      "start": 28.333,
+      "end": 29.254
+    },
+    {
+      "text": "명사입니다.",
+      "start": 29.284,
+      "end": 29.394
+    },
+    {
+      "text": "위·아래",
+      "start": 29.892,
+      "end": 30.125
+    },
+    {
+      "text": "물",
+      "start": 30.162,
+      "end": 30.284
+    },
+    {
+      "text": "분리를",
+      "start": 30.284,
+      "end": 30.65
+    },
+    {
+      "text": "보여",
+      "start": 30.69,
+      "end": 31.132
+    },
+    {
+      "text": "줍니다.",
+      "start": 31.223,
+      "end": 31.794
+    },
+    {
+      "text": "마알은",
+      "start": 32.102,
+      "end": 32.798
+    },
+    {
+      "text": "“위”라는",
+      "start": 33.014,
+      "end": 33.548
+    },
+    {
+      "text": "뜻으로,",
+      "start": 33.602,
+      "end": 34.054
+    },
+    {
+      "text": "전치사입니다.",
+      "start": 34.36,
+      "end": 35.216
+    },
+    {
+      "text": "높음",
+      "start": 35.856,
+      "end": 35.997
+    },
+    {
+      "text": "신학을",
+      "start": 36.068,
+      "end": 36.474
+    },
+    {
+      "text": "보여",
+      "start": 36.474,
+      "end": 36.744
+    },
+    {
+      "text": "줍니다.",
+      "start": 36.892,
+      "end": 37.752
     }
   ]
 }

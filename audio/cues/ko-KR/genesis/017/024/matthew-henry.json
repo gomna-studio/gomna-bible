@@ -1,839 +1,829 @@
 {
   "audioId": "genesis.017.024.matthew-henry",
-  "duration": 82.08,
-  "measuredDuration": 82.08,
+  "duration": 81.048,
+  "measuredDuration": 81.048,
   "testAudioPath": "audio/v1/ko-KR/genesis/017/024/matthew-henry-calm.mp3",
-  "finalMp3Duration": 82.08,
+  "finalMp3Duration": 81.048,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 6.115
+      "end": 4.445
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 6.115,
-      "end": 48.931
+      "start": 4.445,
+      "end": 47.64
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 48.931,
-      "end": 82.08
+      "start": 47.64,
+      "end": 81.048
     }
   ],
   "words": [
     {
       "text": "창세기",
-      "start": 0.061,
-      "end": 0.825
+      "start": 0.098,
+      "end": 0.832
     },
     {
       "text": "17장",
-      "start": 0.903,
-      "end": 2.124
+      "start": 0.971,
+      "end": 1.792
     },
     {
       "text": "24절,",
-      "start": 2.557,
-      "end": 2.703
+      "start": 1.894,
+      "end": 2.607
     },
     {
       "text": "매튜헨리입니다.",
-      "start": 2.759,
-      "end": 3.483
-    },
-    {
-      "text": "본문은",
-      "start": 4.117,
-      "end": 4.587
-    },
-    {
-      "text": "'undefined'입니다.",
-      "start": 4.78,
-      "end": 5.813
+      "start": 3.188,
+      "end": 4.219
     },
     {
       "text": "매튜",
-      "start": 6.114,
-      "end": 6.274
+      "start": 4.442,
+      "end": 4.581
     },
     {
       "text": "헨리의",
-      "start": 6.372,
-      "end": 6.899
+      "start": 4.641,
+      "end": 5.302
     },
     {
       "text": "영어",
-      "start": 6.899,
-      "end": 7.251
+      "start": 5.362,
+      "end": 6.186
     },
     {
       "text": "원문입니다.",
-      "start": 7.412,
-      "end": 8.389
+      "start": 6.219,
+      "end": 6.386
     },
     {
       "text": "Abraham",
-      "start": 8.911,
-      "end": 9.353
+      "start": 7.279,
+      "end": 7.721
     },
     {
       "text": "was",
-      "start": 9.353,
-      "end": 9.543
+      "start": 7.721,
+      "end": 7.911
     },
     {
       "text": "ninety-nine",
-      "start": 9.624,
-      "end": 11.037
+      "start": 7.992,
+      "end": 9.405
     },
     {
       "text": "years",
-      "start": 11.375,
-      "end": 11.912
+      "start": 9.743,
+      "end": 10.28
     },
     {
       "text": "old",
-      "start": 11.958,
-      "end": 12.118
+      "start": 10.326,
+      "end": 10.486
     },
     {
       "text": "when",
-      "start": 12.118,
-      "end": 12.331
+      "start": 10.486,
+      "end": 10.699
     },
     {
       "text": "he",
-      "start": 12.358,
-      "end": 12.382
+      "start": 10.726,
+      "end": 10.75
     },
     {
       "text": "was",
-      "start": 12.382,
-      "end": 12.418
+      "start": 10.75,
+      "end": 10.786
     },
     {
       "text": "circumcised.",
-      "start": 12.455,
-      "end": 12.477
+      "start": 10.823,
+      "end": 10.845
     },
     {
       "text": "Note,",
-      "start": 13.037,
-      "end": 13.178
+      "start": 11.405,
+      "end": 11.546
     },
     {
       "text": "No",
-      "start": 13.178,
-      "end": 13.235
+      "start": 11.546,
+      "end": 11.603
     },
     {
       "text": "time",
-      "start": 13.303,
-      "end": 13.334
+      "start": 11.671,
+      "end": 11.702
     },
     {
       "text": "of",
-      "start": 13.334,
-      "end": 13.35
+      "start": 11.702,
+      "end": 11.718
     },
     {
       "text": "life",
-      "start": 13.83,
-      "end": 13.989
+      "start": 12.198,
+      "end": 12.357
     },
     {
       "text": "is",
-      "start": 13.989,
-      "end": 14.069
+      "start": 12.357,
+      "end": 12.437
     },
     {
       "text": "too",
-      "start": 14.107,
-      "end": 14.351
+      "start": 12.475,
+      "end": 12.719
     },
     {
       "text": "late",
-      "start": 14.351,
-      "end": 14.677
+      "start": 12.719,
+      "end": 13.045
     },
     {
       "text": "to",
-      "start": 14.712,
-      "end": 14.755
+      "start": 13.08,
+      "end": 13.123
     },
     {
       "text": "begin",
-      "start": 14.755,
-      "end": 14.862
+      "start": 13.123,
+      "end": 13.23
     },
     {
       "text": "religious",
-      "start": 14.923,
-      "end": 15.341
+      "start": 13.291,
+      "end": 13.709
     },
     {
       "text": "duties.",
-      "start": 15.416,
-      "end": 15.615
+      "start": 13.784,
+      "end": 13.983
     },
     {
       "text": "Old",
-      "start": 15.645,
-      "end": 15.933
+      "start": 14.013,
+      "end": 14.301
     },
     {
       "text": "age",
-      "start": 15.933,
-      "end": 16.22
+      "start": 14.301,
+      "end": 14.588
     },
     {
       "text": "should",
-      "start": 16.264,
-      "end": 16.549
+      "start": 14.632,
+      "end": 14.917
     },
     {
       "text": "not",
-      "start": 16.549,
-      "end": 16.692
+      "start": 14.917,
+      "end": 15.06
     },
     {
       "text": "exempt",
-      "start": 17.602,
-      "end": 18.623
+      "start": 15.97,
+      "end": 16.991
     },
     {
       "text": "us",
-      "start": 18.623,
-      "end": 18.963
+      "start": 16.991,
+      "end": 17.331
     },
     {
       "text": "from",
-      "start": 19.016,
-      "end": 19.568
+      "start": 17.384,
+      "end": 17.936
     },
     {
       "text": "the",
-      "start": 19.568,
-      "end": 19.981
+      "start": 17.936,
+      "end": 18.349
     },
     {
       "text": "service",
-      "start": 20.037,
-      "end": 20.311
+      "start": 18.405,
+      "end": 18.679
     },
     {
       "text": "of",
-      "start": 20.735,
-      "end": 20.829
+      "start": 19.103,
+      "end": 19.197
     },
     {
       "text": "God,",
-      "start": 20.829,
-      "end": 21.017
+      "start": 19.197,
+      "end": 19.385
     },
     {
       "text": "but",
-      "start": 21.085,
-      "end": 21.139
+      "start": 19.453,
+      "end": 19.507
     },
     {
       "text": "should",
-      "start": 21.139,
-      "end": 21.247
+      "start": 19.507,
+      "end": 19.615
     },
     {
       "text": "quicken",
-      "start": 21.289,
-      "end": 21.6
+      "start": 19.657,
+      "end": 19.968
     },
     {
       "text": "us",
-      "start": 21.642,
-      "end": 21.68
+      "start": 20.01,
+      "end": 20.048
     },
     {
       "text": "to",
-      "start": 21.68,
-      "end": 21.719
+      "start": 20.048,
+      "end": 20.087
     },
     {
       "text": "prepare",
-      "start": 21.771,
-      "end": 21.863
+      "start": 20.139,
+      "end": 20.231
     },
     {
       "text": "for",
-      "start": 21.924,
-      "end": 22.183
+      "start": 20.292,
+      "end": 20.551
     },
     {
       "text": "death.",
-      "start": 22.183,
-      "end": 22.701
+      "start": 20.551,
+      "end": 21.069
     },
     {
       "text": "아브라함이",
-      "start": 23.077,
-      "end": 23.783
+      "start": 21.445,
+      "end": 22.151
     },
     {
       "text": "할례를",
-      "start": 23.818,
-      "end": 24.236
+      "start": 22.186,
+      "end": 22.604
     },
     {
       "text": "받았을",
-      "start": 24.277,
-      "end": 24.591
+      "start": 22.645,
+      "end": 22.959
     },
     {
       "text": "때",
-      "start": 24.591,
-      "end": 24.695
+      "start": 22.959,
+      "end": 23.063
     },
     {
       "text": "99세였습니다.",
-      "start": 24.802,
-      "end": 24.973
+      "start": 23.17,
+      "end": 23.341
     },
     {
       "text": "주목하라,",
-      "start": 25.133,
-      "end": 25.419
+      "start": 23.501,
+      "end": 23.787
     },
     {
       "text": "종교적",
-      "start": 25.542,
-      "end": 26.321
+      "start": 23.91,
+      "end": 24.689
     },
     {
       "text": "의무를",
-      "start": 26.811,
-      "end": 27.065
+      "start": 25.179,
+      "end": 25.433
     },
     {
       "text": "시작하기에",
-      "start": 27.126,
-      "end": 27.378
+      "start": 25.494,
+      "end": 25.746
     },
     {
       "text": "너무",
-      "start": 27.857,
-      "end": 28.101
+      "start": 26.225,
+      "end": 26.469
     },
     {
       "text": "늦은",
-      "start": 28.101,
-      "end": 28.346
+      "start": 26.469,
+      "end": 26.714
     },
     {
       "text": "인생의",
-      "start": 28.379,
-      "end": 29.066
+      "start": 26.747,
+      "end": 27.434
     },
     {
       "text": "시기는",
-      "start": 29.124,
-      "end": 29.532
+      "start": 27.492,
+      "end": 27.9
     },
     {
       "text": "없습니다.",
-      "start": 29.58,
-      "end": 30.818
+      "start": 27.948,
+      "end": 29.186
     },
     {
       "text": "노년은",
-      "start": 30.845,
-      "end": 31.112
+      "start": 29.213,
+      "end": 29.48
     },
     {
       "text": "우리를",
-      "start": 31.158,
-      "end": 31.221
+      "start": 29.526,
+      "end": 29.589
     },
     {
       "text": "하나님의",
-      "start": 31.258,
-      "end": 31.684
+      "start": 29.626,
+      "end": 30.052
     },
     {
       "text": "봉사에서",
-      "start": 32.391,
-      "end": 32.934
+      "start": 30.759,
+      "end": 31.302
     },
     {
       "text": "면제하지",
-      "start": 33.249,
-      "end": 34.068
+      "start": 31.617,
+      "end": 32.436
     },
     {
       "text": "않으며,",
-      "start": 34.117,
-      "end": 35.778
+      "start": 32.485,
+      "end": 34.146
     },
     {
       "text": "오히려",
-      "start": 36.267,
-      "end": 36.706
+      "start": 34.635,
+      "end": 35.074
     },
     {
       "text": "죽음을",
-      "start": 36.749,
-      "end": 37.18
+      "start": 35.117,
+      "end": 35.548
     },
     {
       "text": "준비하도록",
-      "start": 37.211,
-      "end": 37.857
+      "start": 35.579,
+      "end": 36.225
     },
     {
       "text": "재촉해야",
-      "start": 37.958,
-      "end": 38.107
+      "start": 36.326,
+      "end": 36.475
     },
     {
       "text": "합니다.",
-      "start": 38.161,
-      "end": 38.274
+      "start": 36.529,
+      "end": 36.642
     },
     {
       "text": "여기서",
-      "start": 38.325,
-      "end": 38.876
+      "start": 36.693,
+      "end": 37.244
     },
     {
       "text": "핵심은",
-      "start": 39.587,
-      "end": 40.038
+      "start": 37.955,
+      "end": 38.406
     },
     {
       "text": "어떤",
-      "start": 40.074,
-      "end": 40.483
+      "start": 38.442,
+      "end": 38.851
     },
     {
       "text": "나이에도",
-      "start": 40.796,
-      "end": 40.904
+      "start": 39.164,
+      "end": 39.272
     },
     {
       "text": "하나님께",
-      "start": 41.002,
-      "end": 42.093
+      "start": 39.37,
+      "end": 40.461
     },
     {
       "text": "순종하기에",
-      "start": 42.153,
-      "end": 42.779
+      "start": 40.521,
+      "end": 41.147
     },
     {
       "text": "늦지",
-      "start": 42.814,
-      "end": 43.095
+      "start": 41.182,
+      "end": 41.463
     },
     {
       "text": "않으며,",
-      "start": 43.174,
-      "end": 43.7
+      "start": 41.542,
+      "end": 42.068
     },
     {
       "text": "오히려",
-      "start": 44.209,
-      "end": 44.614
+      "start": 42.577,
+      "end": 42.982
     },
     {
       "text": "고령은",
-      "start": 44.686,
-      "end": 45.051
+      "start": 43.054,
+      "end": 43.419
     },
     {
       "text": "더",
-      "start": 45.051,
-      "end": 45.173
+      "start": 43.419,
+      "end": 43.541
     },
     {
       "text": "적극적인",
-      "start": 45.392,
-      "end": 45.573
+      "start": 43.76,
+      "end": 43.941
     },
     {
       "text": "헌신의",
-      "start": 45.618,
-      "end": 45.756
+      "start": 43.986,
+      "end": 44.124
     },
     {
       "text": "이유가",
-      "start": 45.818,
-      "end": 45.881
+      "start": 44.186,
+      "end": 44.249
     },
     {
       "text": "됨을",
-      "start": 45.977,
-      "end": 46.542
+      "start": 44.345,
+      "end": 44.91
     },
     {
       "text": "보여",
-      "start": 46.542,
-      "end": 47.107
+      "start": 44.91,
+      "end": 45.475
     },
     {
       "text": "준다는",
-      "start": 47.133,
-      "end": 47.45
+      "start": 45.501,
+      "end": 45.818
     },
     {
       "text": "점입니다.",
-      "start": 47.593,
-      "end": 48.689
+      "start": 45.961,
+      "end": 47.057
     },
     {
       "text": "두",
-      "start": 48.926,
-      "end": 48.996
+      "start": 47.64,
+      "end": 47.718
     },
     {
       "text": "번째",
-      "start": 48.996,
-      "end": 49.136
+      "start": 47.718,
+      "end": 47.875
     },
     {
       "text": "영어",
-      "start": 49.136,
-      "end": 49.276
+      "start": 47.875,
+      "end": 48.032
     },
     {
       "text": "원문입니다.",
-      "start": 49.333,
-      "end": 50.516
+      "start": 48.084,
+      "end": 49.334
     },
     {
       "text": "Though",
-      "start": 51.005,
-      "end": 51.656
+      "start": 49.973,
+      "end": 50.624
     },
     {
       "text": "it",
-      "start": 51.689,
-      "end": 51.719
+      "start": 50.657,
+      "end": 50.687
     },
     {
       "text": "was",
-      "start": 51.719,
-      "end": 51.765
+      "start": 50.687,
+      "end": 50.733
     },
     {
       "text": "to",
-      "start": 51.821,
-      "end": 51.967
+      "start": 50.789,
+      "end": 50.935
     },
     {
       "text": "put",
-      "start": 51.967,
-      "end": 52.186
+      "start": 50.935,
+      "end": 51.154
     },
     {
       "text": "him",
-      "start": 52.219,
-      "end": 52.298
+      "start": 51.187,
+      "end": 51.266
     },
     {
       "text": "to",
-      "start": 52.298,
-      "end": 52.35
+      "start": 51.266,
+      "end": 51.318
     },
     {
       "text": "considerable",
-      "start": 52.397,
-      "end": 53.035
+      "start": 51.365,
+      "end": 52.003
     },
     {
       "text": "pain,",
-      "start": 53.073,
-      "end": 53.471
+      "start": 52.041,
+      "end": 52.439
     },
     {
       "text": "yet",
-      "start": 53.942,
-      "end": 54.48
+      "start": 52.91,
+      "end": 53.448
     },
     {
       "text": "he",
-      "start": 54.48,
-      "end": 54.839
+      "start": 53.448,
+      "end": 53.807
     },
     {
       "text": "did",
-      "start": 54.886,
-      "end": 55.06
+      "start": 53.854,
+      "end": 54.028
     },
     {
       "text": "not",
-      "start": 55.06,
-      "end": 55.233
+      "start": 54.028,
+      "end": 54.201
     },
     {
       "text": "delay",
-      "start": 55.343,
-      "end": 55.358
+      "start": 54.311,
+      "end": 54.326
     },
     {
       "text": "it.",
-      "start": 55.358,
-      "end": 55.366
+      "start": 54.326,
+      "end": 54.334
     },
     {
       "text": "Note,",
-      "start": 56.009,
-      "end": 56.149
+      "start": 54.977,
+      "end": 55.117
     },
     {
       "text": "The",
-      "start": 56.149,
-      "end": 56.233
+      "start": 55.117,
+      "end": 55.201
     },
     {
       "text": "command",
-      "start": 56.302,
-      "end": 56.349
+      "start": 55.27,
+      "end": 55.317
     },
     {
       "text": "of",
-      "start": 56.648,
-      "end": 56.668
+      "start": 55.616,
+      "end": 55.636
     },
     {
       "text": "God,",
-      "start": 56.668,
-      "end": 56.707
+      "start": 55.636,
+      "end": 55.675
     },
     {
       "text": "when",
-      "start": 56.75,
-      "end": 57.056
+      "start": 55.718,
+      "end": 56.024
     },
     {
       "text": "it",
-      "start": 57.056,
-      "end": 57.209
+      "start": 56.024,
+      "end": 56.177
     },
     {
       "text": "comes",
-      "start": 57.259,
-      "end": 57.618
+      "start": 56.227,
+      "end": 56.586
     },
     {
       "text": "with",
-      "start": 57.841,
-      "end": 57.99
+      "start": 56.809,
+      "end": 56.958
     },
     {
       "text": "power,",
-      "start": 58.041,
-      "end": 58.389
+      "start": 57.009,
+      "end": 57.357
     },
     {
       "text": "will",
-      "start": 58.484,
-      "end": 58.891
+      "start": 57.452,
+      "end": 57.859
     },
     {
       "text": "overrule",
-      "start": 59.21,
-      "end": 59.34
+      "start": 58.179,
+      "end": 58.308
     },
     {
       "text": "all",
-      "start": 59.385,
-      "end": 59.704
+      "start": 58.353,
+      "end": 58.672
     },
     {
       "text": "the",
-      "start": 59.704,
-      "end": 60.022
+      "start": 58.672,
+      "end": 58.99
     },
     {
       "text": "objections",
-      "start": 60.11,
-      "end": 60.538
+      "start": 59.078,
+      "end": 59.506
     },
     {
       "text": "of",
-      "start": 60.573,
-      "end": 60.614
+      "start": 59.541,
+      "end": 59.582
     },
     {
       "text": "flesh",
-      "start": 60.614,
-      "end": 60.715
+      "start": 59.582,
+      "end": 59.683
     },
     {
       "text": "and",
-      "start": 60.751,
-      "end": 61.181
+      "start": 59.719,
+      "end": 60.149
     },
     {
       "text": "blood.",
-      "start": 61.181,
-      "end": 62.042
+      "start": 60.149,
+      "end": 61.01
     },
     {
       "text": "그것이",
-      "start": 62.435,
-      "end": 63.026
+      "start": 61.403,
+      "end": 61.994
     },
     {
       "text": "그에게",
-      "start": 63.157,
-      "end": 63.443
+      "start": 62.125,
+      "end": 62.411
     },
     {
       "text": "상당한",
-      "start": 63.468,
-      "end": 64.259
+      "start": 62.436,
+      "end": 63.227
     },
     {
       "text": "고통을",
-      "start": 64.284,
-      "end": 64.363
+      "start": 63.252,
+      "end": 63.331
     },
     {
       "text": "주는",
-      "start": 64.363,
-      "end": 64.415
+      "start": 63.331,
+      "end": 63.383
     },
     {
       "text": "것이었지만,",
-      "start": 64.486,
-      "end": 65.311
+      "start": 63.454,
+      "end": 64.279
     },
     {
       "text": "그는",
-      "start": 65.371,
-      "end": 65.489
+      "start": 64.339,
+      "end": 64.457
     },
     {
       "text": "지체하지",
-      "start": 65.489,
-      "end": 65.725
+      "start": 64.457,
+      "end": 64.693
     },
     {
       "text": "않았습니다.",
-      "start": 66.197,
-      "end": 66.543
+      "start": 65.165,
+      "end": 65.511
     },
     {
       "text": "주목하라,",
-      "start": 66.58,
-      "end": 66.737
+      "start": 65.548,
+      "end": 65.705
     },
     {
       "text": "하나님의",
-      "start": 66.803,
-      "end": 67.673
+      "start": 65.771,
+      "end": 66.641
     },
     {
       "text": "명령이",
-      "start": 67.699,
-      "end": 67.861
+      "start": 66.667,
+      "end": 66.829
     },
     {
       "text": "능력으로",
-      "start": 68.515,
-      "end": 68.734
+      "start": 67.483,
+      "end": 67.702
     },
     {
       "text": "올",
-      "start": 68.734,
-      "end": 68.789
+      "start": 67.702,
+      "end": 67.757
     },
     {
       "text": "때,",
-      "start": 68.849,
-      "end": 68.958
+      "start": 67.817,
+      "end": 67.926
     },
     {
       "text": "육신의",
-      "start": 68.958,
-      "end": 69.121
+      "start": 67.926,
+      "end": 68.089
     },
     {
       "text": "모든",
-      "start": 69.637,
-      "end": 70.184
+      "start": 68.605,
+      "end": 69.152
     },
     {
       "text": "반대를",
-      "start": 70.184,
-      "end": 71.004
+      "start": 69.152,
+      "end": 69.972
     },
     {
       "text": "이겨냅니다.",
-      "start": 71.03,
-      "end": 71.349
+      "start": 69.998,
+      "end": 70.317
     },
     {
       "text": "여기서",
-      "start": 71.435,
-      "end": 71.593
+      "start": 70.403,
+      "end": 70.561
     },
     {
       "text": "핵심은",
-      "start": 72.086,
-      "end": 72.188
+      "start": 71.054,
+      "end": 71.156
     },
     {
       "text": "참된",
-      "start": 72.221,
-      "end": 73.008
+      "start": 71.189,
+      "end": 71.976
     },
     {
       "text": "믿음은",
-      "start": 73.008,
-      "end": 74.189
+      "start": 71.976,
+      "end": 73.157
     },
     {
       "text": "육신의",
-      "start": 74.839,
-      "end": 75.365
+      "start": 73.807,
+      "end": 74.333
     },
     {
       "text": "고통보다",
-      "start": 75.396,
-      "end": 75.832
+      "start": 74.364,
+      "end": 74.8
     },
     {
       "text": "하나님의",
-      "start": 76.196,
-      "end": 77.657
+      "start": 75.164,
+      "end": 76.625
     },
     {
       "text": "명령을",
-      "start": 77.703,
-      "end": 77.831
+      "start": 76.671,
+      "end": 76.799
     },
     {
       "text": "우선시함을",
-      "start": 77.893,
-      "end": 78.327
+      "start": 76.861,
+      "end": 77.295
     },
     {
       "text": "보여",
-      "start": 78.797,
-      "end": 79.502
+      "start": 77.765,
+      "end": 78.47
     },
     {
       "text": "준다는",
-      "start": 79.502,
-      "end": 80.558
+      "start": 78.47,
+      "end": 79.526
     },
     {
       "text": "점입니다.",
-      "start": 80.656,
-      "end": 82.08
+      "start": 79.624,
+      "end": 81.048
     }
   ]
 }

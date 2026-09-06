@@ -1,910 +1,845 @@
 {
   "audioId": "genesis.030.009.matthew-henry",
-  "duration": 89.328,
-  "measuredDuration": 89.328,
+  "duration": 81.192,
+  "measuredDuration": 81.192,
   "testAudioPath": "audio/v1/ko-KR/genesis/030/009/matthew-henry-calm.mp3",
-  "finalMp3Duration": 89.328,
+  "finalMp3Duration": 81.192,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 12.188
+      "end": 3.341
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 12.188,
-      "end": 40.603
+      "start": 3.341,
+      "end": 32.28
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 40.603,
-      "end": 63.901
+      "start": 32.28,
+      "end": 55.522
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 63.901,
-      "end": 89.328
+      "start": 55.522,
+      "end": 81.192
     }
   ],
   "words": [
     {
       "text": "창세기",
-      "start": 0.374,
-      "end": 0.811
+      "start": 0.065,
+      "end": 0.993
     },
     {
       "text": "30장",
-      "start": 0.841,
-      "end": 1.354
+      "start": 1.102,
+      "end": 1.703
     },
     {
       "text": "9절,",
-      "start": 1.458,
-      "end": 1.723
+      "start": 2.056,
+      "end": 2.188
     },
     {
       "text": "매튜헨리입니다.",
-      "start": 1.755,
-      "end": 2.133
-    },
-    {
-      "text": "본문은",
-      "start": 2.673,
-      "end": 2.826
-    },
-    {
-      "text": "'레아가",
-      "start": 2.895,
-      "end": 3.517
-    },
-    {
-      "text": "자기의",
-      "start": 3.543,
-      "end": 3.672
-    },
-    {
-      "text": "생산이",
-      "start": 4.169,
-      "end": 4.631
-    },
-    {
-      "text": "멈춤을",
-      "start": 5.208,
-      "end": 5.713
-    },
-    {
-      "text": "보고",
-      "start": 5.745,
-      "end": 7.219
-    },
-    {
-      "text": "그",
-      "start": 7.25,
-      "end": 7.342
-    },
-    {
-      "text": "시녀",
-      "start": 7.385,
-      "end": 7.538
-    },
-    {
-      "text": "실바를",
-      "start": 8.072,
-      "end": 9.111
-    },
-    {
-      "text": "취하여",
-      "start": 9.139,
-      "end": 9.6
-    },
-    {
-      "text": "야곱에게",
-      "start": 9.982,
-      "end": 10.403
-    },
-    {
-      "text": "첩으로",
-      "start": 10.429,
-      "end": 10.571
-    },
-    {
-      "text": "주매'입니다.",
-      "start": 10.615,
-      "end": 11.691
+      "start": 2.26,
+      "end": 2.989
     },
     {
       "text": "매튜",
-      "start": 12.186,
-      "end": 12.349
+      "start": 3.338,
+      "end": 3.477
     },
     {
       "text": "헨리의",
-      "start": 12.428,
-      "end": 12.876
+      "start": 3.537,
+      "end": 4.198
     },
     {
       "text": "영어",
-      "start": 12.876,
-      "end": 13.174
+      "start": 4.258,
+      "end": 5.082
     },
     {
       "text": "원문입니다.",
-      "start": 13.463,
-      "end": 14.608
+      "start": 5.115,
+      "end": 5.282
     },
     {
       "text": "Leah",
-      "start": 14.85,
-      "end": 15.248
+      "start": 6.186,
+      "end": 6.584
     },
     {
       "text": "perceiving",
-      "start": 15.342,
-      "end": 16.042
+      "start": 6.678,
+      "end": 7.378
     },
     {
       "text": "that",
-      "start": 16.104,
-      "end": 16.191
+      "start": 7.44,
+      "end": 7.527
     },
     {
       "text": "she",
-      "start": 16.229,
-      "end": 16.569
+      "start": 7.565,
+      "end": 7.905
     },
     {
       "text": "had",
-      "start": 16.569,
-      "end": 16.908
+      "start": 7.905,
+      "end": 8.244
     },
     {
       "text": "left",
-      "start": 16.955,
-      "end": 17.115
+      "start": 8.291,
+      "end": 8.451
     },
     {
       "text": "off",
-      "start": 17.115,
-      "end": 17.235
+      "start": 8.451,
+      "end": 8.571
     },
     {
       "text": "bearing,",
-      "start": 17.278,
-      "end": 17.728
+      "start": 8.614,
+      "end": 9.064
     },
     {
       "text": "took",
-      "start": 18.251,
-      "end": 18.368
+      "start": 9.587,
+      "end": 9.704
     },
     {
       "text": "the",
-      "start": 18.49,
-      "end": 18.669
+      "start": 9.826,
+      "end": 10.005
     },
     {
       "text": "same",
-      "start": 18.669,
-      "end": 18.907
+      "start": 10.005,
+      "end": 10.243
     },
     {
       "text": "course",
-      "start": 18.942,
-      "end": 19.278
+      "start": 10.278,
+      "end": 10.614
     },
     {
       "text": "that",
-      "start": 19.315,
-      "end": 19.628
+      "start": 10.651,
+      "end": 10.964
     },
     {
       "text": "Rachel",
-      "start": 19.667,
-      "end": 19.908
+      "start": 11.003,
+      "end": 11.244
     },
     {
       "text": "had",
-      "start": 19.954,
-      "end": 20.1
+      "start": 11.29,
+      "end": 11.436
     },
     {
       "text": "taken,",
-      "start": 20.148,
-      "end": 20.324
+      "start": 11.484,
+      "end": 11.66
     },
     {
       "text": "and",
-      "start": 20.879,
-      "end": 21.356
+      "start": 12.215,
+      "end": 12.692
     },
     {
       "text": "gave",
-      "start": 21.356,
-      "end": 21.992
+      "start": 12.692,
+      "end": 13.328
     },
     {
       "text": "her",
-      "start": 22.044,
-      "end": 22.146
+      "start": 13.38,
+      "end": 13.482
     },
     {
       "text": "maid",
-      "start": 22.146,
-      "end": 22.283
+      "start": 13.482,
+      "end": 13.619
     },
     {
       "text": "Zilpah",
-      "start": 22.402,
-      "end": 22.741
+      "start": 13.738,
+      "end": 14.077
     },
     {
       "text": "to",
-      "start": 22.792,
-      "end": 22.832
+      "start": 14.128,
+      "end": 14.168
     },
     {
       "text": "Jacob",
-      "start": 22.832,
-      "end": 22.932
+      "start": 14.168,
+      "end": 14.268
     },
     {
       "text": "to",
-      "start": 22.995,
-      "end": 23.098
+      "start": 14.331,
+      "end": 14.434
     },
     {
       "text": "wife.",
-      "start": 23.098,
-      "end": 23.356
+      "start": 14.434,
+      "end": 14.692
     },
     {
       "text": "레아가",
-      "start": 23.858,
-      "end": 24.25
+      "start": 15.194,
+      "end": 15.586
     },
     {
       "text": "자신의",
-      "start": 24.286,
-      "end": 24.541
+      "start": 15.622,
+      "end": 15.877
     },
     {
       "text": "출산이",
-      "start": 24.703,
-      "end": 25.187
+      "start": 16.039,
+      "end": 16.523
     },
     {
       "text": "멈추었음을",
-      "start": 25.226,
-      "end": 26.578
+      "start": 16.562,
+      "end": 17.914
     },
     {
       "text": "깨닫고,",
-      "start": 26.616,
-      "end": 26.834
+      "start": 17.952,
+      "end": 18.17
     },
     {
       "text": "라헬이",
-      "start": 26.963,
-      "end": 27.113
+      "start": 18.299,
+      "end": 18.449
     },
     {
       "text": "취한",
-      "start": 27.579,
-      "end": 28.096
+      "start": 18.915,
+      "end": 19.432
     },
     {
       "text": "것과",
-      "start": 28.136,
-      "end": 28.662
+      "start": 19.472,
+      "end": 19.998
     },
     {
       "text": "같은",
-      "start": 28.79,
-      "end": 28.934
+      "start": 20.126,
+      "end": 20.27
     },
     {
       "text": "방법을",
-      "start": 28.987,
-      "end": 29.088
+      "start": 20.323,
+      "end": 20.424
     },
     {
       "text": "취하여",
-      "start": 29.179,
-      "end": 29.836
+      "start": 20.515,
+      "end": 21.172
     },
     {
       "text": "그녀의",
-      "start": 29.885,
-      "end": 30.354
+      "start": 21.221,
+      "end": 21.69
     },
     {
       "text": "시녀",
-      "start": 30.875,
-      "end": 32.004
+      "start": 22.211,
+      "end": 23.34
     },
     {
       "text": "실바를",
-      "start": 32.036,
-      "end": 32.311
+      "start": 23.372,
+      "end": 23.647
     },
     {
       "text": "야곱에게",
-      "start": 32.458,
-      "end": 32.624
+      "start": 23.794,
+      "end": 23.96
     },
     {
       "text": "아내로",
-      "start": 32.657,
-      "end": 32.874
+      "start": 23.993,
+      "end": 24.21
     },
     {
       "text": "주었다.",
-      "start": 32.904,
-      "end": 33.044
+      "start": 24.24,
+      "end": 24.38
     },
     {
       "text": "여기서",
-      "start": 33.085,
-      "end": 33.654
+      "start": 24.421,
+      "end": 24.99
     },
     {
       "text": "핵심은",
-      "start": 33.774,
-      "end": 33.896
+      "start": 25.11,
+      "end": 25.232
     },
     {
       "text": "레아는",
-      "start": 34.695,
-      "end": 35.225
+      "start": 26.031,
+      "end": 26.561
     },
     {
       "text": "라헬의",
-      "start": 35.261,
-      "end": 35.673
+      "start": 26.597,
+      "end": 27.009
     },
     {
       "text": "방법을",
-      "start": 36.139,
-      "end": 37.138
+      "start": 27.475,
+      "end": 28.474
     },
     {
       "text": "그대로",
-      "start": 37.182,
-      "end": 37.661
+      "start": 28.518,
+      "end": 28.997
     },
     {
       "text": "따라했다를",
-      "start": 37.727,
-      "end": 38.088
+      "start": 29.063,
+      "end": 29.425
     },
     {
       "text": "보여",
-      "start": 38.17,
-      "end": 38.479
+      "start": 29.506,
+      "end": 29.815
     },
     {
       "text": "준다는",
-      "start": 38.579,
-      "end": 38.845
+      "start": 29.915,
+      "end": 30.181
     },
     {
       "text": "점입니다.",
-      "start": 38.904,
-      "end": 40.126
+      "start": 30.24,
+      "end": 31.462
     },
     {
       "text": "두",
-      "start": 40.601,
-      "end": 40.691
+      "start": 32.28,
+      "end": 32.358
     },
     {
       "text": "번째",
-      "start": 40.691,
-      "end": 40.87
+      "start": 32.358,
+      "end": 32.515
     },
     {
       "text": "영어",
-      "start": 40.87,
-      "end": 41.049
+      "start": 32.515,
+      "end": 32.672
     },
     {
       "text": "원문입니다.",
-      "start": 41.09,
-      "end": 42.478
+      "start": 32.724,
+      "end": 33.974
     },
     {
       "text": "One",
-      "start": 42.969,
-      "end": 43.295
+      "start": 34.617,
+      "end": 34.943
     },
     {
       "text": "would",
-      "start": 43.295,
-      "end": 43.838
+      "start": 34.943,
+      "end": 35.486
     },
     {
       "text": "have",
-      "start": 43.9,
-      "end": 44.033
+      "start": 35.548,
+      "end": 35.681
     },
     {
       "text": "thought",
-      "start": 44.033,
-      "end": 44.265
+      "start": 35.681,
+      "end": 35.913
     },
     {
       "text": "Leah,",
-      "start": 44.49,
-      "end": 45.129
+      "start": 36.138,
+      "end": 36.777
     },
     {
       "text": "having",
-      "start": 45.129,
-      "end": 45.895
+      "start": 36.777,
+      "end": 37.543
     },
     {
       "text": "four",
-      "start": 46.211,
-      "end": 46.318
+      "start": 37.859,
+      "end": 37.966
     },
     {
       "text": "sons",
-      "start": 46.318,
-      "end": 46.425
+      "start": 37.966,
+      "end": 38.073
     },
     {
       "text": "already,",
-      "start": 46.471,
-      "end": 47.022
+      "start": 38.119,
+      "end": 38.67
     },
     {
       "text": "would",
-      "start": 47.062,
-      "end": 47.138
+      "start": 38.71,
+      "end": 38.786
     },
     {
       "text": "have",
-      "start": 47.138,
-      "end": 47.198
+      "start": 38.786,
+      "end": 38.846
     },
     {
       "text": "been",
-      "start": 47.198,
-      "end": 47.259
+      "start": 38.846,
+      "end": 38.907
     },
     {
       "text": "satisfied;",
-      "start": 47.787,
-      "end": 47.866
+      "start": 39.435,
+      "end": 39.514
     },
     {
       "text": "but",
-      "start": 47.896,
-      "end": 47.951
+      "start": 39.544,
+      "end": 39.599
     },
     {
       "text": "still",
-      "start": 47.951,
-      "end": 48.043
+      "start": 39.599,
+      "end": 39.691
     },
     {
       "text": "she",
-      "start": 48.08,
-      "end": 48.173
+      "start": 39.728,
+      "end": 39.821
     },
     {
       "text": "will",
-      "start": 48.173,
-      "end": 48.296
+      "start": 39.821,
+      "end": 39.944
     },
     {
       "text": "be",
-      "start": 48.296,
-      "end": 48.358
+      "start": 39.944,
+      "end": 40.006
     },
     {
       "text": "adding",
-      "start": 48.619,
-      "end": 48.935
+      "start": 40.267,
+      "end": 40.583
     },
     {
       "text": "to",
-      "start": 48.935,
-      "end": 49.041
+      "start": 40.583,
+      "end": 40.689
     },
     {
       "text": "her",
-      "start": 49.078,
-      "end": 49.397
+      "start": 40.726,
+      "end": 41.045
     },
     {
       "text": "family.",
-      "start": 49.397,
-      "end": 50.141
+      "start": 41.045,
+      "end": 41.789
     },
     {
       "text": "이미",
-      "start": 50.407,
-      "end": 50.803
+      "start": 42.055,
+      "end": 42.451
     },
     {
       "text": "네",
-      "start": 50.803,
-      "end": 51.001
+      "start": 42.451,
+      "end": 42.649
     },
     {
       "text": "아들을",
-      "start": 51.073,
-      "end": 51.469
+      "start": 42.721,
+      "end": 43.117
     },
     {
       "text": "가진",
-      "start": 51.503,
-      "end": 51.996
+      "start": 43.151,
+      "end": 43.644
     },
     {
       "text": "레아가",
-      "start": 51.996,
-      "end": 52.736
+      "start": 43.644,
+      "end": 44.384
     },
     {
       "text": "만족했을",
-      "start": 52.787,
-      "end": 53.022
+      "start": 44.435,
+      "end": 44.67
     },
     {
       "text": "것이라고",
-      "start": 53.083,
-      "end": 53.797
+      "start": 44.731,
+      "end": 45.445
     },
     {
       "text": "생각하겠지만,",
-      "start": 53.847,
-      "end": 54.036
+      "start": 45.495,
+      "end": 45.684
     },
     {
       "text": "여전히",
-      "start": 54.086,
-      "end": 54.439
+      "start": 45.735,
+      "end": 46.087
     },
     {
       "text": "그녀는",
-      "start": 54.865,
-      "end": 55.296
+      "start": 46.513,
+      "end": 46.944
     },
     {
       "text": "가족을",
-      "start": 55.343,
-      "end": 55.793
+      "start": 46.991,
+      "end": 47.441
     },
     {
       "text": "늘리려",
-      "start": 55.841,
-      "end": 56.814
+      "start": 47.489,
+      "end": 48.462
     },
     {
       "text": "했다.",
-      "start": 56.925,
-      "end": 57.048
+      "start": 48.573,
+      "end": 48.696
     },
     {
       "text": "여기서",
-      "start": 57.82,
-      "end": 58.755
+      "start": 49.468,
+      "end": 50.403
     },
     {
       "text": "핵심은",
-      "start": 58.814,
-      "end": 59.714
+      "start": 50.462,
+      "end": 51.362
     },
     {
       "text": "가진",
-      "start": 59.764,
-      "end": 59.929
+      "start": 51.412,
+      "end": 51.577
     },
     {
       "text": "것에",
-      "start": 59.929,
-      "end": 60.093
+      "start": 51.577,
+      "end": 51.741
     },
     {
       "text": "만족하지",
-      "start": 60.145,
-      "end": 60.466
+      "start": 51.793,
+      "end": 52.114
     },
     {
       "text": "못하는",
-      "start": 60.772,
-      "end": 61.221
+      "start": 52.42,
+      "end": 52.869
     },
     {
       "text": "인간의",
-      "start": 61.251,
-      "end": 61.491
+      "start": 52.899,
+      "end": 53.139
     },
     {
       "text": "본성을",
-      "start": 61.491,
-      "end": 61.73
+      "start": 53.139,
+      "end": 53.378
     },
     {
       "text": "보여",
-      "start": 61.825,
-      "end": 62.2
+      "start": 53.473,
+      "end": 53.848
     },
     {
       "text": "준다는",
-      "start": 62.2,
-      "end": 62.762
+      "start": 53.848,
+      "end": 54.41
     },
     {
       "text": "점입니다.",
-      "start": 62.788,
-      "end": 62.931
+      "start": 54.436,
+      "end": 54.579
     },
     {
       "text": "마지막",
-      "start": 63.899,
-      "end": 64.139
+      "start": 55.519,
+      "end": 56.397
     },
     {
       "text": "영어",
-      "start": 64.139,
-      "end": 64.299
+      "start": 56.397,
+      "end": 56.983
     },
     {
       "text": "원문입니다.",
-      "start": 64.349,
-      "end": 65.359
+      "start": 57.016,
+      "end": 57.143
     },
     {
       "text": "See",
-      "start": 65.728,
-      "end": 66.821
+      "start": 57.592,
+      "end": 58.685
     },
     {
       "text": "how",
-      "start": 66.872,
-      "end": 66.941
+      "start": 58.736,
+      "end": 58.805
     },
     {
       "text": "the",
-      "start": 66.941,
-      "end": 67.01
+      "start": 58.805,
+      "end": 58.874
     },
     {
       "text": "effects",
-      "start": 67.036,
-      "end": 67.762
+      "start": 58.9,
+      "end": 59.626
     },
     {
       "text": "of",
-      "start": 67.8,
-      "end": 67.829
+      "start": 59.664,
+      "end": 59.693
     },
     {
       "text": "one",
-      "start": 67.829,
-      "end": 67.873
+      "start": 59.693,
+      "end": 59.737
     },
     {
       "text": "bad",
-      "start": 67.873,
-      "end": 67.917
+      "start": 59.737,
+      "end": 59.781
     },
     {
       "text": "action",
-      "start": 67.967,
-      "end": 68.292
+      "start": 59.831,
+      "end": 60.156
     },
     {
       "text": "spread.",
-      "start": 68.359,
-      "end": 68.573
+      "start": 60.223,
+      "end": 60.437
     },
     {
       "text": "Rachel's",
-      "start": 69.219,
-      "end": 69.421
+      "start": 61.083,
+      "end": 61.285
     },
     {
       "text": "giving",
-      "start": 69.453,
-      "end": 69.725
+      "start": 61.317,
+      "end": 61.589
     },
     {
       "text": "her",
-      "start": 69.785,
-      "end": 70.083
+      "start": 61.649,
+      "end": 61.947
     },
     {
       "text": "maid",
-      "start": 70.083,
-      "end": 70.481
+      "start": 61.947,
+      "end": 62.345
     },
     {
       "text": "to",
-      "start": 70.522,
-      "end": 70.615
+      "start": 62.386,
+      "end": 62.479
     },
     {
       "text": "Jacob",
-      "start": 70.615,
-      "end": 70.847
+      "start": 62.479,
+      "end": 62.711
     },
     {
       "text": "occasioned",
-      "start": 70.898,
-      "end": 71.101
+      "start": 62.762,
+      "end": 62.965
     },
     {
       "text": "this",
-      "start": 71.388,
-      "end": 71.445
+      "start": 63.252,
+      "end": 63.309
     },
     {
       "text": "similar",
-      "start": 71.498,
-      "end": 72.768
+      "start": 63.362,
+      "end": 64.632
     },
     {
       "text": "action",
-      "start": 72.815,
-      "end": 73.11
+      "start": 64.679,
+      "end": 64.974
     },
     {
       "text": "of",
-      "start": 73.161,
-      "end": 73.294
+      "start": 65.025,
+      "end": 65.158
     },
     {
       "text": "Leah.",
-      "start": 73.294,
-      "end": 73.627
+      "start": 65.158,
+      "end": 65.491
     },
     {
       "text": "하나의",
-      "start": 73.876,
-      "end": 74.354
+      "start": 65.74,
+      "end": 66.218
     },
     {
       "text": "잘못된",
-      "start": 74.382,
-      "end": 74.745
+      "start": 66.246,
+      "end": 66.609
     },
     {
       "text": "행동이",
-      "start": 74.821,
-      "end": 75.488
+      "start": 66.685,
+      "end": 67.352
     },
     {
       "text": "어떻게",
-      "start": 75.8,
-      "end": 75.917
+      "start": 67.664,
+      "end": 67.781
     },
     {
       "text": "퍼져나가는지",
-      "start": 75.985,
-      "end": 76.066
+      "start": 67.849,
+      "end": 67.93
     },
     {
       "text": "보라.",
-      "start": 76.123,
-      "end": 76.265
+      "start": 67.987,
+      "end": 68.129
     },
     {
       "text": "라헬이",
-      "start": 76.324,
-      "end": 76.454
+      "start": 68.188,
+      "end": 68.318
     },
     {
       "text": "자기",
-      "start": 76.482,
-      "end": 76.728
+      "start": 68.346,
+      "end": 68.592
     },
     {
       "text": "시녀를",
-      "start": 76.728,
-      "end": 77.096
+      "start": 68.592,
+      "end": 68.96
     },
     {
       "text": "야곱에게",
-      "start": 77.134,
-      "end": 77.376
+      "start": 68.998,
+      "end": 69.24
     },
     {
       "text": "준",
-      "start": 78.003,
-      "end": 78.156
+      "start": 69.867,
+      "end": 70.02
     },
     {
       "text": "것이",
-      "start": 78.156,
-      "end": 78.461
+      "start": 70.02,
+      "end": 70.325
     },
     {
       "text": "레아의",
-      "start": 78.494,
-      "end": 79.288
+      "start": 70.358,
+      "end": 71.152
     },
     {
       "text": "이",
-      "start": 79.541,
-      "end": 79.576
+      "start": 71.405,
+      "end": 71.44
     },
     {
       "text": "유사한",
-      "start": 79.576,
-      "end": 79.683
+      "start": 71.44,
+      "end": 71.547
     },
     {
       "text": "행동을",
-      "start": 79.719,
-      "end": 80.034
+      "start": 71.583,
+      "end": 71.898
     },
     {
       "text": "야기했다.",
-      "start": 80.063,
-      "end": 80.594
+      "start": 71.927,
+      "end": 72.458
     },
     {
       "text": "여기서",
-      "start": 80.921,
-      "end": 82.484
+      "start": 72.785,
+      "end": 74.348
     },
     {
       "text": "핵심은",
-      "start": 82.723,
-      "end": 83.062
+      "start": 74.587,
+      "end": 74.926
     },
     {
       "text": "잘못된",
-      "start": 83.177,
-      "end": 83.31
+      "start": 75.041,
+      "end": 75.174
     },
     {
       "text": "행동은",
-      "start": 83.938,
-      "end": 84.838
+      "start": 75.802,
+      "end": 76.702
     },
     {
       "text": "다른",
-      "start": 85.145,
-      "end": 85.281
+      "start": 77.009,
+      "end": 77.145
     },
     {
       "text": "잘못된",
-      "start": 85.281,
-      "end": 85.485
+      "start": 77.145,
+      "end": 77.349
     },
     {
       "text": "행동을",
-      "start": 85.543,
-      "end": 86.126
+      "start": 77.407,
+      "end": 77.99
     },
     {
       "text": "낳는다를",
-      "start": 86.395,
-      "end": 87.036
+      "start": 78.259,
+      "end": 78.9
     },
     {
       "text": "보여",
-      "start": 87.09,
-      "end": 87.319
+      "start": 78.954,
+      "end": 79.183
     },
     {
       "text": "준다는",
-      "start": 87.319,
-      "end": 87.663
+      "start": 79.183,
+      "end": 79.527
     },
     {
       "text": "점입니다.",
-      "start": 87.884,
-      "end": 89.328
+      "start": 79.748,
+      "end": 81.192
     }
   ]
 }

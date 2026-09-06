@@ -1,45 +1,332 @@
 {
   "audioId": "genesis.001.010.original-language",
-  "duration": 37.368,
-  "measuredDuration": 37.368,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/010/original-language-study.mp3",
-  "finalMp3Duration": 37.368,
+  "duration": 38.448,
+  "measuredDuration": 38.448,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/010/original-language-study.mp3",
+  "finalMp3Duration": 38.448,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 12.131542
+      "end": 10.813
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 12.131542,
-      "end": 17.176375
+      "start": 10.813,
+      "end": 15.928
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 17.176375,
-      "end": 22.126542
+      "start": 15.928,
+      "end": 22.093
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 22.126542,
-      "end": 27.074292
+      "start": 22.093,
+      "end": 27.463
     },
     {
       "type": "item",
       "itemIndex": 3,
-      "start": 27.074292,
-      "end": 32.264125
+      "start": 27.463,
+      "end": 33.163
     },
     {
       "type": "item",
       "itemIndex": 4,
-      "start": 32.264125,
-      "end": 37.368
+      "start": 33.163,
+      "end": 38.448
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.077,
+      "end": 0.81
+    },
+    {
+      "text": "1장",
+      "start": 0.858,
+      "end": 1.206
+    },
+    {
+      "text": "10절,",
+      "start": 1.313,
+      "end": 1.514
+    },
+    {
+      "text": "원어분석입니다.",
+      "start": 1.927,
+      "end": 2.875
+    },
+    {
+      "text": "본문은",
+      "start": 3.42,
+      "end": 3.907
+    },
+    {
+      "text": "'하나님이",
+      "start": 4.211,
+      "end": 5.065
+    },
+    {
+      "text": "뭍을",
+      "start": 5.149,
+      "end": 5.472
+    },
+    {
+      "text": "땅이라",
+      "start": 5.527,
+      "end": 5.911
+    },
+    {
+      "text": "칭하시고",
+      "start": 5.951,
+      "end": 6.106
+    },
+    {
+      "text": "모인",
+      "start": 6.474,
+      "end": 7.058
+    },
+    {
+      "text": "물을",
+      "start": 7.118,
+      "end": 7.512
+    },
+    {
+      "text": "바다라",
+      "start": 7.558,
+      "end": 8.165
+    },
+    {
+      "text": "칭하시니라",
+      "start": 8.628,
+      "end": 9.065
+    },
+    {
+      "text": "하나님의",
+      "start": 9.097,
+      "end": 9.612
+    },
+    {
+      "text": "보시기에",
+      "start": 9.658,
+      "end": 9.904
+    },
+    {
+      "text": "좋았더라'입니다.",
+      "start": 9.973,
+      "end": 10.547
+    },
+    {
+      "text": "에레츠는",
+      "start": 10.81,
+      "end": 11.13
+    },
+    {
+      "text": "“땅”이라는",
+      "start": 11.163,
+      "end": 11.573
+    },
+    {
+      "text": "뜻의",
+      "start": 11.855,
+      "end": 12.461
+    },
+    {
+      "text": "명사입니다.",
+      "start": 12.51,
+      "end": 13.418
+    },
+    {
+      "text": "삶의",
+      "start": 13.448,
+      "end": 13.568
+    },
+    {
+      "text": "무대를",
+      "start": 14.122,
+      "end": 14.653
+    },
+    {
+      "text": "보여",
+      "start": 14.653,
+      "end": 15.008
+    },
+    {
+      "text": "줍니다.",
+      "start": 15.054,
+      "end": 15.693
+    },
+    {
+      "text": "얌은",
+      "start": 15.919,
+      "end": 16.428
+    },
+    {
+      "text": "“바다”는",
+      "start": 16.819,
+      "end": 17.217
+    },
+    {
+      "text": "뜻의",
+      "start": 17.217,
+      "end": 17.376
+    },
+    {
+      "text": "명사입니다.",
+      "start": 17.412,
+      "end": 18.506
+    },
+    {
+      "text": "경외",
+      "start": 19.24,
+      "end": 19.429
+    },
+    {
+      "text": "대상",
+      "start": 19.429,
+      "end": 19.617
+    },
+    {
+      "text": "아님을",
+      "start": 19.653,
+      "end": 20.145
+    },
+    {
+      "text": "보여",
+      "start": 20.145,
+      "end": 20.473
+    },
+    {
+      "text": "줍니다.",
+      "start": 20.798,
+      "end": 21.498
+    },
+    {
+      "text": "카라는",
+      "start": 22.092,
+      "end": 22.625
+    },
+    {
+      "text": "“칭하다”는",
+      "start": 22.942,
+      "end": 23.628
+    },
+    {
+      "text": "뜻의",
+      "start": 23.689,
+      "end": 23.968
+    },
+    {
+      "text": "동사입니다.",
+      "start": 24.017,
+      "end": 24.706
+    },
+    {
+      "text": "명명",
+      "start": 25.347,
+      "end": 25.744
+    },
+    {
+      "text": "권세를",
+      "start": 25.744,
+      "end": 26.339
+    },
+    {
+      "text": "보여",
+      "start": 26.436,
+      "end": 26.638
+    },
+    {
+      "text": "줍니다.",
+      "start": 26.638,
+      "end": 27.042
+    },
+    {
+      "text": "토브는",
+      "start": 27.462,
+      "end": 28.001
+    },
+    {
+      "text": "“좋다”는",
+      "start": 28.336,
+      "end": 28.506
+    },
+    {
+      "text": "뜻의",
+      "start": 28.588,
+      "end": 28.892
+    },
+    {
+      "text": "형용사입니다.",
+      "start": 28.946,
+      "end": 30.205
+    },
+    {
+      "text": "선하심",
+      "start": 30.835,
+      "end": 31.554
+    },
+    {
+      "text": "확증을",
+      "start": 31.657,
+      "end": 32
+    },
+    {
+      "text": "보여",
+      "start": 32.138,
+      "end": 32.34
+    },
+    {
+      "text": "줍니다.",
+      "start": 32.372,
+      "end": 32.745
+    },
+    {
+      "text": "미크웨는",
+      "start": 33.161,
+      "end": 33.29
+    },
+    {
+      "text": "“모임”이라는",
+      "start": 33.378,
+      "end": 33.879
+    },
+    {
+      "text": "뜻의",
+      "start": 34.202,
+      "end": 34.909
+    },
+    {
+      "text": "명사입니다.",
+      "start": 34.957,
+      "end": 35.973
+    },
+    {
+      "text": "공동체",
+      "start": 36.535,
+      "end": 36.911
+    },
+    {
+      "text": "개념을",
+      "start": 36.945,
+      "end": 37.564
+    },
+    {
+      "text": "보여",
+      "start": 37.613,
+      "end": 38.107
+    },
+    {
+      "text": "줍니다.",
+      "start": 38.144,
+      "end": 38.448
     }
   ]
 }
