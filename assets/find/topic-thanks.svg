@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="thanks-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F3E2B8"/>
+      <stop offset=".5" stop-color="#E0B45A"/>
+      <stop offset="1" stop-color="#B07A2C"/>
+    </linearGradient>
+    <radialGradient id="thanks-sun" cx="28%" cy="22%" r="42%">
+      <stop offset="0" stop-color="#FFF6D8" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#FFF6D8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="480" height="480" fill="url(#thanks-sky)"/>
+  <rect width="480" height="480" fill="url(#thanks-sun)"/>
+  <path d="M-20 250 C80 230 150 270 240 248 C340 224 410 268 500 246 L500 500 L-20 500Z" fill="#C48A32"/>
+  <path d="M-20 292 C90 274 170 312 270 294 C360 278 430 314 500 298 L500 500 L-20 500Z" fill="#9A6824"/>
+  <path d="M40 250 l6 90 M58 242 l5 98 M76 255 l6 86 M94 238 l5 100 M112 250 l6 90 M130 244 l5 96 M148 256 l6 84 M166 240 l5 98 M184 252 l6 88 M202 246 l5 94 M220 258 l6 82 M238 242 l5 96 M256 250 l6 90 M274 238 l5 100 M292 254 l6 84 M310 246 l5 94 M328 258 l6 82 M346 240 l5 98 M364 252 l6 88 M382 244 l5 96 M400 256 l6 84 M418 248 l5 92" stroke="#E8C878" stroke-width="2.2" opacity=".45"/>
+  <path d="M310 300 C330 250 360 248 372 300 C384 248 416 252 430 308 C400 300 360 312 310 300Z" fill="#8A5A1E" opacity=".55"/>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 640" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="heal-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E4F0E8"/>
+      <stop offset=".38" stop-color="#7EAEA4"/>
+      <stop offset="1" stop-color="#2C5E58"/>
+    </linearGradient>
+    <radialGradient id="heal-light" cx="52%" cy="22%" r="50%">
+      <stop offset="0" stop-color="#F7F2D8" stop-opacity=".62"/>
+      <stop offset="1" stop-color="#F7F2D8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="560" height="640" fill="url(#heal-sky)"/>
+  <rect width="560" height="640" fill="url(#heal-light)"/>
+  <path d="M-40 -20 C40 80 20 220 -10 640 L-40 640Z" fill="#1C4540" opacity=".32"/>
+  <path d="M600 -20 C500 90 530 240 580 640 L600 640Z" fill="#1C4540" opacity=".26"/>
+  <path d="M90 -10 C130 160 70 360 110 650" fill="none" stroke="#F4EED0" stroke-width="10" opacity=".12"/>
+  <path d="M220 -10 C250 180 200 380 240 650" fill="none" stroke="#F4EED0" stroke-width="7" opacity=".1"/>
+  <path d="M40 420 C150 390 230 430 300 404 C390 376 470 424 580 400 L580 660 L40 660Z" fill="#214E4A" opacity=".5"/>
+  <path d="M110 456 C190 444 260 468 330 454 C400 440 460 464 520 450" fill="none" stroke="#D7EBE6" stroke-width="3" opacity=".22"/>
+</svg>

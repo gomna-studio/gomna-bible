@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 560" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="fear-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4A5568"/>
+      <stop offset=".4" stop-color="#2E394C"/>
+      <stop offset="1" stop-color="#1A2230"/>
+    </linearGradient>
+    <linearGradient id="fear-sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3A4A5E"/>
+      <stop offset="1" stop-color="#121820"/>
+    </linearGradient>
+  </defs>
+  <rect width="560" height="560" fill="url(#fear-sky)"/>
+  <ellipse cx="90" cy="70" rx="80" ry="24" fill="#1A2230" opacity=".45"/>
+  <ellipse cx="220" cy="50" rx="110" ry="28" fill="#151C28" opacity=".5"/>
+  <ellipse cx="430" cy="80" rx="90" ry="22" fill="#1A2230" opacity=".4"/>
+  <path d="M-20 250 C80 220 140 280 230 248 C330 214 400 276 580 240 L580 580 L-20 580Z" fill="url(#fear-sea)"/>
+  <path d="M-10 300 C70 270 130 330 210 302 C300 270 370 334 570 298" fill="none" stroke="#8AA0B8" stroke-width="3" opacity=".18"/>
+  <path d="M40 360 C120 320 190 400 280 352 C370 306 440 392 560 344" fill="none" stroke="#6A8098" stroke-width="4" opacity=".16"/>
+  <path d="M210 328 C230 318 270 318 292 330 C278 338 248 342 210 328Z" fill="#0E141C" opacity=".8"/>
+  <path d="M236 318 l8-16 8 14" fill="none" stroke="#C9D4E0" stroke-width="2" opacity=".25"/>
+  <path d="M360 40 L348 210" stroke="#D7DEE8" stroke-width="2" opacity=".18"/>
+</svg>

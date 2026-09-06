@@ -858,31 +858,22 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
 }
 .login-close:hover{background:rgba(139,94,44,.16)}
 .login-close:active{background:rgba(139,94,44,.22)}
-/* 카드 위 큰 문구 — 로그인 화면에 들어와 가장 먼저 읽는 핵심 메시지다.
-   카드 번호와 1:1로 짝을 이루고, 카드가 바뀌어도 자리는 움직이지 않는다.
-   min-height를 두 줄(2.8em = line-height 1.4 x 2)로 잡아 두어 글줄 수가 달라도
-   아래 카드가 밀리지 않는다. 세 문구 모두 이 폭에서 두 줄이라 빈 줄이 남지 않는다.
-   max-width는 한 줄이 너무 길게 늘어나지 않게 하는 제한이고, 아이폰에서 두 줄로
-   자연스럽게 나뉘는 폭이다. word-break:keep-all로 낱말 중간에서 끊기지 않는다. */
 .login-brand-lead{
-  /* 폭을 em으로 잡는다. 세 문구를 재 보면 첫 줄은 최대 13.7em, 문구 전체는 최소 15.9em이라
-     그 사이 값이면 글자 크기가 바뀌어도 줄바꿈이 지금 자리에서 움직이지 않는다.
-     14.8em은 양쪽으로 20px 이상 여유가 있어 기기별 글꼴 차이도 견딘다.
-     MacBook 패널에서 오른쪽 위 닫기 X와 첫 줄이 나란히 붙지 않는 폭이기도 하다. */
+  position:relative;
   max-width:14.8em;
-  margin:0 auto 38px;
+  margin:0 auto 14px;
   min-height:2.8em;
-  font-size:18.5px;
-  font-weight:700;
+  font-size:17px;
+  font-weight:600;
   line-height:1.4;
   letter-spacing:-.2px;
-  color:#1A2332;
+  color:#1F2329;
   text-align:center;
   word-break:keep-all;
   transition:opacity 130ms ease;
 }
-/* 중앙 브랜드 비주얼 — 대표가 준 이미지 3장을 각각 그대로 두고
-   위치·크기·회전·그림자만 CSS로 얹어 한 상징물처럼 겹친다. */
+/* 중앙 브랜드 비주얼 — 옆 카드의 위쪽 overflow는 padding-top 안에서만 일어나
+   바로 위 .login-brand-lead와 겹치지 않는다. */
 .login-brand-visual{
   --lv-w:206px;
   --lv-h:130px;
@@ -891,9 +882,9 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
   width:var(--lv-w);
   max-width:100%;
   height:var(--lv-h);
-  /* 아래 여백이 곧 「보이는 카드 밑변 → dot」 간격이다. 가운데 카드가 bottom:0이라
-     상자 밑변과 카드 밑변이 같은 선에 있다. */
-  margin:0 auto 30px;
+  padding-top:48px;
+  box-sizing:content-box;
+  margin:8px auto 22px;
   animation:loginBrandIn 200ms ease-out both;
 }
 @keyframes loginBrandIn{from{opacity:0}to{opacity:1}}
@@ -972,7 +963,7 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
    지금 카드만 진하게 둔다. 화면 읽기 도구에는 장식이라 알리지 않으며(aria-hidden),
    탭 순서에도 넣지 않아 키보드로 로그인 버튼에 가는 길이 길어지지 않게 한다.
    점 자체는 6px이지만 가상 요소로 손가락이 닿는 영역만 넓힌다. */
-.login-brand-dots{display:flex;justify-content:center;gap:7px;margin:0 0 22px}
+.login-brand-dots{display:flex;justify-content:center;gap:7px;margin:0 0 18px}
 .login-brand-dot{
   position:relative;
   width:6px;
@@ -997,10 +988,8 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
    상단 비주얼이 있어 X와 만나지 않으므로 기준선 값으로 바꾼다.
    간격은 제목·설명을 한 덩어리로 묶고(5px), 그 덩어리와 버튼 세트 사이만
    버튼 간 간격 18px보다 넓게(22px) 벌려 위아래 위계를 만든다. */
-.login-title{margin:0 0 5px;padding:0 var(--login-inset);font-size:21px;font-weight:700;color:#3D2818;line-height:1.4;letter-spacing:-.3px;text-align:left}
-/* 설명문은 제목보다 한 단계 가벼운 톤. 예전 #765B3D보다 채도를 낮춰 뉴트럴 그레이
-   테두리의 버튼과 나란히 두어도 갈색만 튀어 보이지 않게 한다. */
-.login-desc{margin:0 0 22px;padding:0 var(--login-inset);font-size:15.5px;line-height:1.65;color:#7B6E62}
+.login-title{margin:0 0 18px;padding:0 var(--login-inset);font-size:16px;font-weight:600;color:#1F2329;line-height:1.4;letter-spacing:-.02em;text-align:center}
+.login-desc{display:none}
 /* 네 버튼은 하나의 세트다. 폭·높이·간격·테두리를 이 두 규칙에서만 정하고 버튼별 예외를 두지 않는다.
    좌우 바깥 여백은 버튼 내부 padding이 아니라 묶음 상자의 안쪽 여백으로 만든다.
    그래야 네 버튼의 전체 폭이 똑같이 줄고 시작·종료선이 정확히 일치한다.
@@ -1157,26 +1146,9 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
   /* 닫기는 화면 오른쪽 위에 둔다. 노치 아래로 내려오도록 안전 여백을 더한다. */
   .login-close{top:calc(env(safe-area-inset-top,0px) + 10px);right:10px}
   .login-box{--login-inset:26px}
-  /* 아이폰에서는 한 단계 크게 두고 폭도 넓힌다. 닫기 X가 화면 모서리로 나가 있어
-     문구와 나란히 서지 않으므로 320px까지 쓸 수 있다. 세 문구 모두 두 줄이 된다. */
-  .login-brand-lead{font-size:19.5px}
-  /* 제목은 데스크톱과 같은 21px로 둔다. 버튼 문구 16.5px과 차이가 벌어져 위계가 또렷해진다.
-     margin-top은 「제목 + 설명 + 네 버튼」을 한 덩어리로 아래로 내리는 값이다.
-     세 요소가 흐름상 이어져 있어 제목 위 여백만 늘리면 덩어리째 내려간다.
-     상자가 세로 가운데 정렬이라 늘어난 만큼 상단 비주얼은 위로 올라가고,
-     그 결과 아이콘과 폼 사이에 넓은 빈 공간이 생긴다.
-     px 대신 14vh를 쓴 이유가 있다. 고정값을 쓰면 특정 높이를 넘는 순간에만 적용되는
-     기준선이 필요해지고, iOS Safari는 주소창 표시 여부로 뷰포트 높이가 오가서
-     같은 기기가 두 배치를 왔다 갔다 한다. vh는 큰 뷰포트 기준으로 일정하고
-     화면이 짧아지면 함께 줄어 별도 예외 없이 짧은 아이폰에서도 스크롤이 생기지 않는다.
-     이 값은 위 padding과 한 쌍이다. 상자가 가운데 정렬이라 이 여백을 줄이면 폼이 올라가는데,
-     위 padding을 그만큼 키워 폼은 제자리에 두고 카드만 아래로 내려오게 맞췄다.
-     상단 hero(큰 문구 + 카드 + 점)가 커진 뒤에도 폼은 같은 자리(390x844에서
-     「로그인」 위 420px, 마지막 버튼 아래 112px)에 있다. 늘어난 hero 높이만큼
-     위 padding을 9vh로 줄여, 폼은 그대로 두고 hero만 자리를 넓히게 맞춘 값이다.
-     이 여백은 hero와 하단 로그인 영역을 갈라 보이게 하는 값도 겸한다(점 아래 32px).
-     이 규칙은 max-width:600px 안에만 있어 MacBook 패널에는 적용되지 않는다. */
-  .login-title{margin-top:10px}
+  .login-brand-visual{margin:4px auto 22px}
+  .login-brand-lead{font-size:16.5px;margin-bottom:12px}
+  .login-title{margin-top:4px}
   .login-provider{font-size:16.5px}
 }
 /* 일반 아이폰 폭 */
@@ -1190,20 +1162,16 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 }
 /* 세로가 짧은 화면: 비주얼을 먼저 줄여 로그인 버튼을 화면 안에 남긴다. */
 @media (max-height:740px){
-  .login-brand-visual{--lv-w:170px;--lv-h:88px;--lv-front:73px;margin:0 auto 24px}
-  .login-brand-lead{font-size:18.5px;margin-bottom:30px}
-  .login-title{margin-bottom:4px}
-  .login-desc{margin-bottom:16px}
-  /* 세로가 짧은 화면에서도 높이 44px은 그대로 둔다. GIS 공식 버튼과 맞물리는 값이고
-     터치 최소 높이라서 여기서 줄이면 구글 버튼에 눌리지 않는 띠가 생긴다.
-     대신 버튼 사이 간격만 좁혀 네 버튼을 화면 안에 남긴다. */
+  .login-brand-visual{--lv-w:170px;--lv-h:88px;--lv-front:73px;margin:4px auto 18px;padding-top:36px}
+  .login-brand-lead{font-size:16px;margin-bottom:10px;min-height:2.6em}
+  .login-title{margin-bottom:14px}
   .login-providers{gap:14px}
 }
 @media (max-height:650px){
-  .login-brand-visual{--lv-w:152px;--lv-h:76px;--lv-front:65px;margin:0 auto 20px}
-  .login-brand-lead{font-size:17px;margin-bottom:24px}
+  .login-brand-visual{--lv-w:152px;--lv-h:76px;--lv-front:65px;margin:0 auto 16px;padding-top:28px}
+  .login-brand-lead{font-size:15.5px;margin-bottom:8px}
   .login-box{padding-top:20px}
-  .login-desc{margin-bottom:12px;font-size:15px}
+  .login-title{margin-bottom:12px}
 }
 @media (prefers-reduced-motion:reduce){
   .login-box,
@@ -1952,9 +1920,9 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
 <script src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
 <script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
-<link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260905-scrollhide-v1">
+<link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260905-all66-v1">
 <link rel="preload" as="image" href="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1">
-<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260905-scrollhide-v1">
+<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260906-nav-login-v1">
 <style>
 /* 홈 데스크톱 선택창 폭 = 홈 메인 카드 폭. .container max-width 390 - padding 18+18. Reader 프레임 폭은 쓰지 않는다. */
 @media (min-width:700px) and (min-height:600px){
@@ -2143,7 +2111,7 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
             <span class="gomna-home-act-count">공유</span>
           </button>
           <button type="button" class="gomna-home-related" data-ghd-related aria-label="관련 콘텐츠">
-            <img src="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1" alt="" width="40" height="40">
+            <img src="assets/images/home-thumbnail-bible-gold.png?v=20260906-thumb-bible-v1" alt="" width="40" height="40" decoding="async">
           </button>
         </div>
       </article>
@@ -2310,7 +2278,7 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
     </button>
     <a class="card easy" id="homeEasyFindBtn" href="./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3" role="link" aria-label="찾기" data-i18n-aria-label="home.easyFind.title">
       <div class="card-visual menu-icon-slot easy-find-icon-wrap">
-        <div class="card-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
+        <div class="card-search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M14.88 14.88L20.2 20.2"/></svg></div>
       </div>
       <div class="card-label"><div class="card-name" data-i18n-ui="find_word" data-i18n-key="home.easyFind.title" translate="no">찾기</div></div>
       <span class="menu-open-pill" aria-hidden="true" data-i18n-key="home.menu.openCta">열기</span>
@@ -2318,7 +2286,7 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
     <div class="search-shell" id="homeSearchShell">
       <form class="search" id="homeSearchForm" onsubmit="submitSearch(event)" onclick="activateSearch()">
         <span class="menu-icon-slot word-search-icon-wrap" aria-hidden="true">
-          <button type="submit" class="search-icon search-submit" aria-label="검색 실행" data-i18n-aria-label="search.submitAria"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+          <button type="submit" class="search-icon search-submit" aria-label="검색 실행" data-i18n-aria-label="search.submitAria"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M14.88 14.88L20.2 20.2"/></svg></button>
         </span>
         <input id="homeSearchInput" class="search-input" type="search" placeholder="말씀 찾기 (예: 사랑, 믿음, 요한복음 3장 16절)" aria-label="성경 검색어 입력" autocomplete="off" data-i18n-placeholder="search.placeholder.home" data-i18n-aria-label="search.inputAria">
         <span class="search-hint" id="homeSearchHint" aria-hidden="true"></span>
@@ -2352,12 +2320,12 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
     <span>묵상</span>
   </button>
   <a class="gomna-home-tab" data-ghd-nav="find" href="./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3" aria-label="찾기">
-    <span class="gomna-home-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m18 18-3.5-3.5"/></svg></span>
+    <span class="gomna-home-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M14.88 14.88L20.2 20.2"/></svg></span>
     <span>찾기</span>
   </a>
-  <button type="button" class="gomna-home-tab" data-ghd-nav="me" aria-label="나">
+  <button type="button" class="gomna-home-tab" data-ghd-nav="me" aria-label="로그인">
     <span class="gomna-home-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg></span>
-    <span>나</span>
+    <span data-ghd-me-label>로그인</span>
   </button>
 </nav>
 <div class="gomna-home-viewer" id="gomnaHomeViewer" hidden>
@@ -2426,13 +2394,11 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
     <button class="popup-close" onclick="closeSettings()" data-i18n-key="common.close">닫기</button>
   </div>
 </div>
-<div class="popup-overlay login-overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" aria-describedby="loginModalDesc" aria-hidden="true" onclick="if(event.target===this)closeLoginModal()">
+<div class="popup-overlay login-overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" aria-hidden="true" onclick="if(event.target===this)closeLoginModal()">
   <div class="popup-box login-box" tabindex="-1" onclick="event.stopPropagation()">
     <span class="login-sheet-handle" aria-hidden="true"></span>
     <button type="button" class="login-close" id="loginModalCloseBtn" onclick="closeLoginModal()" aria-label="닫기">✕</button>
-    <p class="login-brand-lead" id="loginBrandLead">말씀과 함께한 시간을 어디서든 이어가세요.</p>
-    <!-- 카드 번호(data-brand-card)와 문구(data-brand-caption)는 1:1이다.
-         자리 클래스를 마크업에도 적어 두어 스크립트가 없어도 지금 배치가 그대로 보인다. -->
+    <p class="login-brand-lead" id="loginBrandLead">읽고, 듣고, 묵상하며 말씀을 더 깊이 알아가세요.</p>
     <div class="login-brand-visual" id="loginBrandVisual" aria-hidden="true">
       <span class="login-brand-glow"></span>
       <span class="login-brand-card login-brand-card--gold login-brand-card--slot-left" data-brand-card="2" data-brand-caption="오늘 필요한 말씀을 더 가까이 만나보세요."><img src="assets/login/login-visual-gold.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
@@ -2444,12 +2410,11 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
       <button type="button" class="login-brand-dot" tabindex="-1"></button>
       <button type="button" class="login-brand-dot" tabindex="-1"></button>
     </div>
-    <div class="login-title" id="loginModalTitle">로그인</div>
-    <p class="login-desc" id="loginModalDesc">로그인 방법을 선택하세요.</p>
+    <div class="login-title" id="loginModalTitle">로그인을 선택하세요</div>
     <div class="login-providers">
-      <button type="button" class="login-provider login-provider--official login-provider--kakao" id="loginKakaoBtn" data-auth-provider="kakao"><span class="login-provider-icon" aria-hidden="true"><img class="login-provider-official-img" src="assets/auth/kakao-login-button-ko-wide.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">카카오톡 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
-      <button type="button" class="login-provider login-provider--official login-provider--naver" data-auth-provider="custom:naver"><span class="login-provider-icon" aria-hidden="true"><img class="login-provider-official-img" src="assets/auth/naver-login-button-ko-wide.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">네이버 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
       <button type="button" class="login-provider login-provider--google" data-auth-provider="google"><span class="login-provider-icon" aria-hidden="true"><img src="assets/auth/google-g-logo.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">구글 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--official login-provider--naver" data-auth-provider="custom:naver"><span class="login-provider-icon" aria-hidden="true"><img class="login-provider-official-img" src="assets/auth/naver-login-button-ko-wide.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">네이버 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--official login-provider--kakao" id="loginKakaoBtn" data-auth-provider="kakao"><span class="login-provider-icon" aria-hidden="true"><img class="login-provider-official-img" src="assets/auth/kakao-login-button-ko-wide.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">카카오톡 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
       <button type="button" class="login-provider login-provider--email" onclick="if(window.GomnaAuth)window.GomnaAuth.openEmailLogin();else showLoginNextStepNotice();"><span class="login-provider-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m4 7.5 8 5.2 8-5.2"/></svg></span><span class="login-provider-label">이메일 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
     </div>
     <div class="login-next-step-notice" id="loginNextStepNotice" role="status" aria-live="polite" hidden>로그인 연결은 다음 단계에서 작동합니다.</div>
@@ -2841,7 +2806,9 @@ function openDailyVerse(mode){
     const params=new URLSearchParams();
     params.set('book',t?t.book:'창세기');
     params.set('chapter',String(t?t.chapter:1));
+    params.set('verseStart',String(t?t.startVerse:1));
     params.set('verse',String(t?t.startVerse:1));
+    if(t&&t.endVerse>t.startVerse)params.set('verseEnd',String(t.endVerse));
     params.set('commentary','1');
     params.set('source','home-card-commentary');
     window.location.href='reader.html?'+params.toString();
@@ -3238,6 +3205,13 @@ function setHomeAccountState(state,profile){
     /* 로그인 전에는 이 버튼이 로그인 선택창을 직접 열므로 가리키는 대상도 함께 맞춘다. */
     btn.setAttribute('aria-controls',signedIn?'homeAccountPanel':'loginModal');
   }
+  var meTab=document.querySelector('.gomna-home-tab[data-ghd-nav="me"]');
+  if(meTab){
+    meTab.classList.toggle('is-signed-in',signedIn);
+    meTab.setAttribute('aria-label',signedIn?'나':'로그인');
+    var meLabel=meTab.querySelector('[data-ghd-me-label]');
+    if(meLabel)meLabel.textContent=signedIn?'나':'로그인';
+  }
   homeAccountSignedIn=signedIn;
   setHomeAccountAvatar(signedIn?(info.avatar||''):'');
   syncPreviewLoginFlow(signedIn);
@@ -3398,7 +3372,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 </script>
 <script src="js/gomna-home-resume.js?v=20260904-resume-deckhide-v1"></script>
 <script src="js/gomna-home-feed.js?v=20260905-bible-picker-v1"></script>
-<script src="js/gomna-bible-stair-picker.js?v=20260901-stair-easy-v1"></script>
+<script src="js/gomna-bible-stair-picker.js?v=20260905-ot-back-v1"></script>
 <script src="settings_guide.js?v=20260807-settings-v3" defer></script>
 <script src="translate_feature.js?v=20260809-lang-suggest-v1" defer></script>
 <script>
@@ -3562,6 +3536,6 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
 <script defer src="js/gomna-help.js?v=20260808-help-v8"></script>
 <!-- 로컬 미리보기: 로그인 상단 카드 3장 교차 셔플(표시 전용). 되돌릴 때는 이 줄과 파일만 지운다. -->
-<script defer src="js/gomna-login-brand-shuffle.js?v=20260829-shuffle-v1"></script>
+<script defer src="js/gomna-login-brand-shuffle.js?v=20260905-login-copy-v1"></script>
 </body>
 </html>

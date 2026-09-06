@@ -111,6 +111,10 @@ body.gomna-home-deck-on .container .home-account-avatar-icon{
   stroke:#1A2332;
   stroke-width:1.7;
 }
+@media (max-width:600px){
+  body.gomna-home-deck-on .container #homeAccountBtn{display:none}
+  body.gomna-home-deck-on .container #homeHeaderActions{margin-right:0}
+}
 body.gomna-home-deck-on .home-cookie-banner{
   background:#FFFFFF;
   color:#1A2332;
@@ -572,16 +576,28 @@ html.gomna-home-viewer-open body{
 .gomna-home-act[aria-pressed="true"] svg{fill:rgba(255,120,140,.92);stroke:#ffd0d6}
 .gomna-home-related{
   margin-left:auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   width:40px;
   height:40px;
   padding:0;
   border:0;
   border-radius:10px;
   overflow:hidden;
-  background:rgba(255,255,255,.08);
+  background:rgba(16,36,58,.26);
   cursor:pointer;
 }
-.gomna-home-related img{width:100%;height:100%;object-fit:cover;object-position:center bottom;display:block}
+.gomna-home-related img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  display:block;
+  transform:translateY(1px);
+  filter:drop-shadow(0 1px 4px rgba(0,0,0,.12));
+  pointer-events:none;
+}
 
 .gomna-home-after{
   display:none !important;
@@ -709,7 +725,12 @@ html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
   width:23px;
   height:23px;
 }
+.gomna-home-tab[data-ghd-nav="home"] svg,
+.gomna-home-tab[data-ghd-nav="me"] svg{
+  stroke-width:2.15;
+}
 .gomna-home-tab.is-on{color:#152033}
+.gomna-home-tab[data-ghd-nav="me"]:not(.is-signed-in){color:#355F9A}
 
 .gomna-home-viewer{
   position:fixed;

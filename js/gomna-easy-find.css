@@ -61,6 +61,16 @@ html.reader-hide-chrome .phone-frame:has(#easyView.active) .reader-dock-top-clos
   color:#17191D;
   font-size:18px;
   font-weight:400;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+html.reader-hide-chrome .phone-frame:has(#easyView.easy-find-search-active) .reader-dock-top-close{
+  width:44px;
+  height:44px;
+  min-width:44px;
+  font-size:22px;
+  line-height:1;
 }
 html.reader-hide-chrome .phone-frame:has(#easyView.active) .reader-dock-top-close:active{
   background:#F7FAFE;
@@ -241,6 +251,233 @@ html.reader-hide-chrome .phone-frame:has(#easyView.active) .reader-dock-top-clos
 }
 .easy-find-search-clear[hidden]{display:none!important}
 .easy-find-search-clear:active{color:#17191D;background:#F7FAFE}
+.easy-find-filter{
+  margin:10px 0 0;
+  padding:0 0 14px;
+}
+.easy-find-filter[hidden]{display:none!important}
+.easy-find-filter-track{
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-x pinch-zoom;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  padding:1px 1px 2px;
+}
+.easy-find-filter-track::-webkit-scrollbar{
+  display:none;
+  width:0;
+  height:0;
+}
+.easy-find-filter-chip{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:24px;
+  min-height:24px;
+  padding:0 14px;
+  border:0.5px solid rgba(23,25,29,0.08);
+  border-radius:999px;
+  background:#F4F6F8;
+  color:#4B5563;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:-.02em;
+  line-height:1;
+  white-space:nowrap;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  box-shadow:none;
+}
+.easy-find-filter-chip.is-active{
+  background:#27313D;
+  color:#FFFFFF;
+  border-color:transparent;
+}
+#easyView .easy-find-filter-chip:active{
+  transform:none;
+  filter:none;
+  opacity:1;
+  background:#F4F6F8;
+  color:#4B5563;
+  border-color:rgba(23,25,29,0.08);
+  box-shadow:none;
+}
+#easyView .easy-find-filter-chip.is-active:active{
+  background:#27313D;
+  color:#FFFFFF;
+  border-color:transparent;
+}
+.easy-find-filter-chip.is-scope-on{
+  background:#F4F6F8;
+  color:#27313D;
+  border-color:#27313D;
+}
+.easy-find-filter-chip.is-scope-on::after{
+  content:"";
+  width:5px;
+  height:5px;
+  margin-left:5px;
+  border-radius:50%;
+  background:#27313D;
+  flex:0 0 auto;
+}
+#easyView .easy-find-filter-chip.is-scope-on:active{
+  background:#F4F6F8;
+  color:#27313D;
+  border-color:#27313D;
+}
+.easy-find-bible-panel{
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:center;
+  gap:8px;
+  margin-top:8px;
+  padding:1px 1px 2px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.easy-find-bible-panel::-webkit-scrollbar{
+  display:none;
+  width:0;
+  height:0;
+}
+.easy-find-bible-panel[hidden]{display:none!important}
+.easy-find-scope-overlay{
+  position:fixed;
+  inset:0;
+  z-index:120;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  background:rgba(23,25,29,.28);
+  padding:16px 16px calc(var(--scripture-dock-height,68px) + env(safe-area-inset-bottom,0px) + 12px);
+  box-sizing:border-box;
+}
+.easy-find-scope-overlay[hidden]{display:none!important}
+.easy-find-scope-sheet{
+  width:100%;
+  max-width:420px;
+  background:#FFFFFF;
+  border:0.5px solid rgba(23,25,29,.08);
+  border-radius:18px;
+  box-shadow:0 12px 32px rgba(23,25,29,.12);
+  padding:14px 12px 12px;
+}
+.easy-find-scope-head{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin:0 4px 10px;
+}
+.easy-find-scope-title{
+  flex:1;
+  margin:0;
+  font-size:15px;
+  font-weight:700;
+  color:#17191D;
+  letter-spacing:-.02em;
+}
+.easy-find-scope-back,
+.easy-find-scope-close{
+  flex:0 0 auto;
+  width:32px;
+  height:32px;
+  padding:0;
+  border:none;
+  border-radius:10px;
+  background:transparent;
+  color:#17191D;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.easy-find-scope-back[hidden]{display:none!important}
+.easy-find-scope-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  max-height:min(52vh, 420px);
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.easy-find-scope-list::-webkit-scrollbar{
+  display:none;
+  width:0;
+  height:0;
+}
+.easy-find-scope-label{
+  margin:6px 8px 2px;
+  font-size:12px;
+  font-weight:600;
+  color:#6B7380;
+  letter-spacing:-.02em;
+}
+.easy-find-scope-item{
+  width:100%;
+  min-height:44px;
+  padding:0 14px;
+  border:0.5px solid rgba(23,25,29,.08);
+  border-radius:12px;
+  background:#F4F6F8;
+  color:#4B5563;
+  font-family:inherit;
+  font-size:14px;
+  font-weight:600;
+  text-align:left;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  box-shadow:none;
+}
+.easy-find-scope-item.is-active{
+  background:#27313D;
+  color:#FFFFFF;
+  border-color:transparent;
+}
+#easyView .easy-find-scope-item:active{
+  transform:none;
+  filter:none;
+  opacity:1;
+}
+.easy-find-scope-chapters{
+  display:grid;
+  grid-template-columns:repeat(5, minmax(0, 1fr));
+  gap:6px;
+  padding:4px 0 2px;
+}
+.easy-find-scope-chapter{
+  min-height:40px;
+  padding:0 4px;
+  border:0.5px solid rgba(23,25,29,.08);
+  border-radius:12px;
+  background:#F4F6F8;
+  color:#4B5563;
+  font-family:inherit;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.easy-find-scope-chapter.is-active{
+  background:#27313D;
+  color:#FFFFFF;
+  border-color:transparent;
+}
+#easyView.easy-find-search-active .easy-find-hits{
+  margin-top:0;
+}
 .easy-find-section{margin:20px 0 0}
 .easy-find-section-title{
   margin:0 0 10px;
@@ -370,7 +607,7 @@ html.reader-hide-chrome .phone-frame:has(#easyView.active) .reader-dock-top-clos
   position:relative;
   overflow:hidden;
   background:#FFFFFF;
-  border:0.5px solid rgba(23,25,29,.22);
+  border:0.5px solid rgba(23,25,29,.38);
   box-shadow:0 4px 14px rgba(20,24,31,.04);
 }
 .easy-find-choice[data-easy-tst="old"]{

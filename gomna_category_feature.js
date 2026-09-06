@@ -36,80 +36,92 @@
     '.cat-section--scripture-guide .section-title{display:inline-flex;align-items:center;gap:10px;flex-wrap:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;font-size:18px;font-weight:800;line-height:1.3;color:var(--primary)}' +
     '.scripture-guide-info-btn{display:inline-flex;align-items:center;justify-content:center;height:36px;min-height:36px;margin-left:0;padding:0 12px;border:1px solid rgba(184,134,11,0.42);border-radius:999px;background:rgba(255,250,244,0.95);color:#5a3818;font-size:15px;font-weight:700;line-height:1;cursor:pointer;flex-shrink:0;font-family:inherit;vertical-align:middle;-webkit-tap-highlight-color:transparent;box-sizing:border-box}' +
     '.scripture-guide-info-btn:active{transform:scale(0.97);opacity:0.88;background:rgba(255,245,225,1)}' +
-    '.scripture-guide-overlay{position:fixed;inset:0;z-index:320;display:none;align-items:stretch;justify-content:center;background:rgba(26,15,10,0.38);box-sizing:border-box;padding:0}' +
+    '.scripture-guide-overlay{position:fixed;inset:0;z-index:320;display:none;align-items:stretch;justify-content:center;background:rgba(23,25,29,0.28);box-sizing:border-box;padding:0}' +
     '.scripture-guide-overlay.is-open{display:flex}' +
-    '.scripture-guide-sheet{width:100%;max-width:760px;height:100%;max-height:100%;background:linear-gradient(180deg,#F7F0E4 0%,#F3EBDD 100%);border-radius:0;box-shadow:none;display:flex;flex-direction:column;overflow:hidden;transform:translateY(0);transition:none;box-sizing:border-box;min-height:0}' +
+    '.scripture-guide-sheet{width:100%;max-width:760px;height:100%;max-height:100%;background:#FFFFFF;border-radius:0;box-shadow:none;display:flex;flex-direction:column;overflow:hidden;transform:translateY(0);transition:none;box-sizing:border-box;min-height:0}' +
     '.scripture-guide-overlay.is-open .scripture-guide-sheet{transform:none}' +
-    '.scripture-guide-handle{width:36px;height:4px;border-radius:999px;background:rgba(139,94,44,0.35);margin:10px auto 6px;flex:0 0 auto}' +
-    '.scripture-guide-panel{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden}' +
+    '.scripture-guide-handle{width:36px;height:4px;border-radius:999px;background:rgba(23,25,29,0.18);margin:10px auto 6px;flex:0 0 auto}' +
+    '.scripture-guide-panel{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden;background:#FFFFFF}' +
     '.scripture-guide-panel[hidden]{display:none!important}' +
-    '.scripture-guide-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y pinch-zoom;padding:8px 16px calc(28px + env(safe-area-inset-bottom,0));box-sizing:border-box}' +
-    '.scripture-guide-eyebrow{font-size:13px;font-weight:700;color:#9a7209;margin:0 0 8px;letter-spacing:0.02em}' +
-    '.scripture-guide-crumb{font-size:13px;font-weight:700;color:#8b5e2c;margin:0 0 12px;letter-spacing:0.01em;line-height:1.4}' +
-    '.scripture-guide-crumb-sep{display:inline-block;margin:0 6px;font-weight:600;color:#b08a4a}' +
-    '.scripture-guide-cat{font-size:22px;font-weight:800;color:#4a2511;margin:0 0 4px;line-height:1.3}' +
-    '.scripture-guide-alt{font-size:14px;font-weight:600;color:#7a5a3a;margin:0 0 10px;line-height:1.45}' +
-    '.scripture-guide-range{font-size:14px;font-weight:600;color:#6b4e38;margin:0 0 10px;line-height:1.5}' +
-    '.scripture-guide-p{font-size:15px;line-height:1.65;font-weight:500;color:#3d2818;margin:0}' +
-    '.scripture-guide-summary{background:rgba(255,252,247,0.55);border:1px solid rgba(184,134,11,0.14);border-radius:14px;padding:16px;margin:0 0 16px;box-sizing:border-box}' +
-    '.scripture-guide-card{background:#FFFCF7;border:1px solid rgba(184,134,11,0.22);border-radius:14px;padding:18px 16px;margin:0 0 14px;box-sizing:border-box}' +
-    '.scripture-guide-card-title{font-size:16px;font-weight:800;color:#4a2511;margin:0 0 12px;line-height:1.35}' +
+    '.scripture-guide-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y pinch-zoom;padding:8px 16px calc(28px + env(safe-area-inset-bottom,0));box-sizing:border-box;background:#FFFFFF}' +
+    '.scripture-guide-eyebrow{font-size:13px;font-weight:700;color:#355F9A;margin:0 0 8px;letter-spacing:0.02em}' +
+    '.scripture-guide-crumb{font-size:13px;font-weight:600;color:#6B7280;margin:0 0 12px;letter-spacing:0.01em;line-height:1.4}' +
+    '.scripture-guide-crumb-sep{display:inline-block;margin:0 6px;font-weight:600;color:#9AA3AF}' +
+    '.scripture-guide-cat{font-size:22px;font-weight:800;color:#1F2329;margin:0 0 4px;line-height:1.3}' +
+    '.scripture-guide-alt{font-size:14px;font-weight:600;color:#6B7280;margin:0 0 10px;line-height:1.45}' +
+    '.scripture-guide-range{font-size:14px;font-weight:600;color:#6B7280;margin:0 0 10px;line-height:1.5}' +
+    '.scripture-guide-p{font-size:16px;line-height:1.75;font-weight:500;color:#1F2329;margin:0}' +
+    '.scripture-guide-summary{background:#FFFFFF;border:0.5px solid rgba(23,25,29,0.10);border-radius:16px;padding:18px 16px;margin:0 0 14px;box-sizing:border-box;box-shadow:0 4px 14px rgba(23,25,29,.04)}' +
+    '.scripture-guide-card{background:#FFFFFF;border:0.5px solid rgba(23,25,29,0.10);border-radius:16px;padding:18px 16px;margin:0 0 14px;box-sizing:border-box;box-shadow:0 4px 14px rgba(23,25,29,.04)}' +
+    '.scripture-guide-card--compact{padding:14px 16px}' +
+    '.scripture-guide-card--list .scripture-guide-card-title{margin-bottom:8px}' +
+    '.scripture-guide-card-title{font-size:16px;font-weight:800;color:#1F2329;margin:0 0 12px;line-height:1.35}' +
     '.scripture-guide-qa{margin:0}' +
-    '.scripture-guide-qa--divided{margin-top:14px;padding-top:14px;border-top:1px solid rgba(139,94,44,0.14)}' +
+    '.scripture-guide-qa--divided{margin-top:14px;padding-top:14px;border-top:0.5px solid rgba(23,25,29,0.10)}' +
     '.scripture-guide-book-list{list-style:none;margin:0;padding:0}' +
-    '.scripture-guide-book-row{display:grid;grid-template-columns:minmax(5.8em,max-content) minmax(0,1fr);column-gap:16px;row-gap:2px;align-items:baseline;padding:10px 0;border-bottom:1px solid rgba(139,94,44,0.10)}' +
+    '.scripture-guide-book-row{display:grid;grid-template-columns:minmax(5.8em,max-content) minmax(0,1fr);column-gap:16px;row-gap:2px;align-items:baseline;padding:10px 0;border-bottom:0.5px solid rgba(23,25,29,0.10)}' +
     '.scripture-guide-book-row:last-child{border-bottom:none;padding-bottom:0}' +
     '.scripture-guide-book-row:first-child{padding-top:0}' +
     '.scripture-guide-read-chevron{display:block;flex:0 0 auto;width:16px;height:16px;color:inherit}' +
-    '.scripture-guide-divider{height:1px;background:rgba(139,94,44,0.16);margin:14px 0;border:none}' +
-    '.scripture-guide-label{font-size:12px;font-weight:700;color:#8b5e2c;margin:0 0 6px;letter-spacing:0.02em}' +
-    '.scripture-guide-books{font-size:13px;line-height:1.5;font-weight:500;color:#4a3728;margin:0 0 16px}' +
-    '.scripture-guide-more-btn{width:100%;padding:14px 16px;border-radius:12px;border:1px solid rgba(184,134,11,0.45);background:rgba(255,250,244,0.92);color:#7a4b17;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}' +
-    '.scripture-guide-more-btn:active{opacity:0.88}' +
-    '.scripture-guide-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px 6px;flex:0 0 auto;border-bottom:1px solid rgba(139,94,44,0.12)}' +
+    '.scripture-guide-divider{height:0.5px;background:rgba(23,25,29,0.12);margin:14px 0;border:none}' +
+    '.scripture-guide-label{font-size:12px;font-weight:700;color:#6B7280;margin:0 0 6px;letter-spacing:0.02em}' +
+    '.scripture-guide-books{font-size:14px;line-height:1.55;font-weight:500;color:#1F2329;margin:0 0 16px}' +
+    '.scripture-guide-more-btn{width:100%;padding:14px 16px;border-radius:12px;border:0.5px solid rgba(23,25,29,0.12);background:#FFFFFF;color:#1F2329;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}' +
+    '.scripture-guide-more-btn:active{background:#E8F0FC}' +
+    '.scripture-guide-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(8px + env(safe-area-inset-top,0px)) 14px 8px;flex:0 0 auto;border-bottom:0.5px solid rgba(23,25,29,0.10);background:#FFFFFF}' +
     '.scripture-guide-head-spacer{width:36px;min-width:36px;height:36px;flex:0 0 36px;display:block}' +
-    '.scripture-guide-head-btn{min-width:44px;min-height:36px;padding:6px 8px;border:none;background:transparent;color:#5a3818;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}' +
-    '.scripture-guide-head-title{flex:1;text-align:center;font-size:14px;font-weight:700;color:#9a7209}' +
-    '.scripture-guide-head-close{width:36px;height:36px;min-width:36px;padding:0;border:none;background:rgba(139,94,44,0.1);border-radius:50%;color:#5a3818;font-size:16px;cursor:pointer;font-family:inherit;line-height:1}' +
-    '.scripture-guide-detail-h{font-size:17px;font-weight:800;color:#4a2511;margin:0 0 14px}' +
-    '.scripture-guide-q{font-size:14px;font-weight:700;color:#4a2511;margin:0 0 6px;line-height:1.45}' +
-    '.scripture-guide-a{font-size:14px;line-height:1.65;font-weight:500;color:#3d2818;margin:0}' +
+    '.scripture-guide-head-copy{flex:1;min-width:0;text-align:center}' +
+    '.scripture-guide-head-btn{min-width:44px;min-height:36px;padding:6px 8px;border:none;background:transparent;color:#1F2329;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}' +
+    '.scripture-guide-head-title{flex:1;text-align:center;font-size:16px;font-weight:700;color:#1F2329;margin:0;line-height:1.3}' +
+    '.scripture-guide-head-sub{margin:3px 0 0;font-size:12px;font-weight:600;color:#6B7280;line-height:1.3}' +
+    '.scripture-guide-head-sub[hidden]{display:none!important}' +
+    '.scripture-guide-head-close{width:36px;height:36px;min-width:36px;padding:0;border:none;background:#E8F0FC;border-radius:50%;color:#355F9A;font-size:16px;cursor:pointer;font-family:inherit;line-height:1}' +
+    '.scripture-guide-head-close:active{background:#D7E4F7}' +
+    '.scripture-guide-detail-h{font-size:17px;font-weight:800;color:#1F2329;margin:0 0 14px}' +
+    '.scripture-guide-q{font-size:15px;font-weight:700;color:#355F9A;margin:0 0 6px;line-height:1.45}' +
+    '.scripture-guide-a{font-size:15px;line-height:1.75;font-weight:500;color:#1F2329;margin:0}' +
     '.scripture-guide-a + .scripture-guide-a{margin-top:8px}' +
     '.scripture-guide-book-item{margin:10px 0 0}' +
-    '.scripture-guide-book-name{font-size:14px;font-weight:700;color:#4a2511;margin:0;line-height:1.45;white-space:nowrap}' +
-    '.scripture-guide-book-desc{font-size:14px;line-height:1.55;font-weight:500;color:#5a4638;margin:0;min-width:0}' +
-    '.scripture-guide-tags{font-size:14px;line-height:1.7;font-weight:600;color:#6b4e38;margin:0;word-break:keep-all}' +
-    '.scripture-guide-read-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;width:100%;margin-top:4px;padding:14px 16px;border-radius:12px;border:1px solid rgba(184,134,11,0.42);background:rgba(255,250,244,0.96);color:#5a3818;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent}' +
-    '.scripture-guide-read-btn:active{opacity:0.88}' +
-    '.scripture-guide-detail-body{flex:1 1 auto;min-height:0}' +
+    '.scripture-guide-book-name{font-size:15px;font-weight:700;color:#1F2329;margin:0;line-height:1.45;white-space:nowrap}' +
+    '.scripture-guide-book-desc{font-size:15px;line-height:1.6;font-weight:500;color:#6B7280;margin:0;min-width:0}' +
+    '.scripture-guide-tags{font-size:15px;line-height:1.7;font-weight:600;color:#1F2329;margin:0;word-break:keep-all}' +
+    '.scripture-guide-read-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;width:100%;margin-top:4px;padding:14px 16px;border-radius:12px;border:0.5px solid rgba(23,25,29,0.12);background:#FFFFFF;color:#1F2329;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent}' +
+    '.scripture-guide-read-btn:hover{background:#F2F6FC}' +
+    '.scripture-guide-read-btn:active{background:#E8F0FC;opacity:1}' +
+    '.scripture-guide-detail-body{flex:1 1 auto;min-height:0;background:#FFFFFF}' +
     '.scripture-guide-verse-list{display:flex;flex-direction:column;gap:8px;margin:4px 0 0}' +
-    '.scripture-guide-verse-link{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;padding:12px 14px;border:1px solid rgba(184,134,11,0.38);border-radius:12px;background:rgba(255,250,244,0.95);color:#5a3818;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent;transition:transform 0.15s ease,opacity 0.15s ease,background 0.15s ease}' +
-    '.scripture-guide-verse-link:active{transform:scale(0.98);opacity:0.9;background:rgba(255,245,225,1)}' +
+    '.scripture-guide-verse-link{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;padding:12px 14px;border:0.5px solid rgba(23,25,29,0.12);border-radius:12px;background:#FFFFFF;color:#1F2329;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent}' +
+    '.scripture-guide-verse-link:hover{background:#F2F6FC}' +
+    '.scripture-guide-verse-link:active{background:#E8F0FC;transform:none;opacity:1}' +
     '.scripture-guide-verse-link-label{display:flex;align-items:center;gap:6px;flex:1;min-width:0}' +
-    '.scripture-guide-verse-link-icon{flex-shrink:0;font-size:13px;color:#9a7209;line-height:1}' +
-    '.scripture-guide-verse-link-arrow{flex-shrink:0;font-size:15px;color:#9a7209;font-weight:700;line-height:1}' +
-    '.verse-item.gomna-guide-verse-highlight{background:rgba(200,152,73,0.18)!important;box-shadow:inset 0 0 0 1px rgba(184,134,11,0.35);border-radius:8px;transition:background 0.9s ease,box-shadow 0.9s ease}' +
-    '.verse-item.gomna-guide-verse-highlight.gomna-guide-verse-has-return{border-radius:8px 8px 0 0;margin-bottom:0}' +
+    '.scripture-guide-verse-link-icon{flex-shrink:0;font-size:13px;color:#355F9A;line-height:1}' +
+    '.scripture-guide-verse-link-arrow{flex-shrink:0;font-size:15px;color:#355F9A;font-weight:700;line-height:1}' +
+    '.verse-item.gomna-guide-verse-highlight{background:#E8F0FC!important;box-shadow:none;border-radius:0;transition:background 0.9s ease}' +
+    '.verse-item.gomna-guide-verse-highlight.gomna-guide-verse-has-return{border-radius:0;margin-bottom:0}' +
     '.verse-item.gomna-guide-verse-highlight.gomna-guide-verse-highlight-fade{background:transparent!important;box-shadow:none!important}' +
-    '.scripture-guide-return-tag{display:block;width:calc(100% - 4px);max-width:100%;margin:-1px auto 10px;padding:10px 14px;min-height:44px;border:0.5px solid rgba(184,134,11,0.42);border-top:0.5px solid rgba(184,134,11,0.2);border-radius:0 0 10px 10px;background:rgba(255,250,244,0.96);color:#5a3818;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;box-sizing:border-box;-webkit-tap-highlight-color:transparent;transition:transform 0.15s ease,opacity 0.15s ease,background 0.15s ease}' +
-    '.scripture-guide-return-tag:active{transform:scale(0.99);opacity:0.9;background:rgba(255,245,225,1)}' +
+    '.scripture-guide-return-tag{display:block;width:calc(100% - 4px);max-width:100%;margin:-1px auto 10px;padding:10px 14px;min-height:44px;border:0.5px solid rgba(23,25,29,0.12);border-top:none;border-radius:0 0 10px 10px;background:#FFFFFF;color:#355F9A;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;box-sizing:border-box;-webkit-tap-highlight-color:transparent}' +
+    '.scripture-guide-return-tag:active{background:#E8F0FC}' +
     '@media(max-width:420px){.scripture-guide-book-row{grid-template-columns:1fr}.scripture-guide-book-name{white-space:normal}}' +
     '@media(min-width:769px){' +
       '.scripture-guide-overlay{align-items:center;justify-content:center;padding:24px}' +
-      '.scripture-guide-sheet{border-radius:18px;max-width:760px;width:100%;height:min(90vh,900px);max-height:min(90vh,900px);box-shadow:0 8px 28px rgba(74,37,17,0.10)}' +
-      '.scripture-guide-body{padding:10px 22px 28px}' +
+      '.scripture-guide-sheet{border-radius:18px;max-width:680px;width:100%;height:min(90vh,900px);max-height:min(90vh,900px);box-shadow:0 6px 20px rgba(23,25,29,0.08);border:0.5px solid rgba(23,25,29,0.12)}' +
+      '.scripture-guide-head{padding:10px 18px 8px}' +
+      '.scripture-guide-body{padding:12px 22px 28px}' +
       '.scripture-all-guides-body{padding:12px 24px calc(32px + env(safe-area-inset-bottom,0))}' +
-      '.scripture-all-guides-inner{max-width:760px;margin:0 auto}' +
+      '.scripture-all-guides-inner{max-width:680px;margin:0 auto}' +
     '}' +
     '.scripture-guide-pull-spacer{display:none}' +
-    'html.scripture-all-guides-lock,html.scripture-all-guides-lock body{overflow:hidden!important}' +
-    '.scripture-all-guides-overlay{position:fixed;inset:0;z-index:330;display:none;flex-direction:column;background:linear-gradient(180deg,#F7F0E4 0%,#F3EBDD 100%);box-sizing:border-box}' +
+    'html.scripture-all-guides-lock,html.scripture-all-guides-lock body{overflow:hidden!important;background:#FFFFFF!important}' +
+    '.scripture-all-guides-overlay{position:fixed;inset:0;z-index:330;display:none;flex-direction:column;background:#FFFFFF;box-sizing:border-box}' +
     '.scripture-all-guides-overlay.is-open{display:flex}' +
     '.scripture-all-guides-overlay[hidden]{display:none}' +
-    '.scripture-all-guides-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:8px 16px calc(28px + env(safe-area-inset-bottom,0));box-sizing:border-box}' +
-    '.scripture-all-guides-inner{width:100%;max-width:760px;margin:0 auto;box-sizing:border-box}' +
-    '.scripture-all-guides-testament{font-size:13px;font-weight:700;color:#9a7209;margin:8px 0 12px;letter-spacing:0.02em}' +
+    '.scripture-all-guides-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:8px 16px calc(28px + env(safe-area-inset-bottom,0));box-sizing:border-box;background:#FFFFFF}' +
+    '.scripture-all-guides-inner{width:100%;max-width:680px;margin:0 auto;box-sizing:border-box;background:#FFFFFF}' +
+    '.scripture-all-guides-now{font-size:14px;font-weight:600;color:#6B7280;margin:4px 0 14px;line-height:1.45}' +
+    '.scripture-all-guides-kicker{font-size:12px;font-weight:700;color:#355F9A;margin:8px 0 10px;letter-spacing:0.04em}' +
+    '.scripture-all-guides-testament{font-size:13px;font-weight:700;color:#6B7280;margin:18px 0 12px;letter-spacing:0.02em}' +
     '.scripture-all-guides-article{margin:0 0 22px}' +
+    '.scripture-all-guides-article.is-current .scripture-guide-summary{border-color:rgba(53,95,154,0.28);background:#FFFFFF}' +
     '.scripture-all-guides-article+.scripture-all-guides-article{margin-top:8px;padding-top:8px;border-top:none}';
   document.head.appendChild(styleEl);
 
@@ -568,7 +580,7 @@
     var sections = c.sections || [];
     var hasGroups = !!(c.bookGroups && c.bookGroups.length);
     if (sections.length || hasGroups) {
-      html += '<section class="scripture-guide-card">';
+      html += '<section class="scripture-guide-card scripture-guide-card--qa">';
       html += '<h3 class="scripture-guide-card-title">이름과 의미</h3>';
       for (var i = 0; i < sections.length; i++) {
         html += '<div class="scripture-guide-qa' + (i ? ' scripture-guide-qa--divided' : '') + '">';
@@ -589,7 +601,7 @@
 
     var books = c.bookSummaries || [];
     if (books.length) {
-      html += '<section class="scripture-guide-card">';
+      html += '<section class="scripture-guide-card scripture-guide-card--list">';
       html += '<h3 class="scripture-guide-card-title">' + escGuideHtml(getGuideGlanceTitle(c)) + '</h3>';
       html += '<ul class="scripture-guide-book-list">';
       for (var b = 0; b < books.length; b++) {
@@ -602,14 +614,14 @@
     }
 
     if (c.themes) {
-      html += '<section class="scripture-guide-card">';
+      html += '<section class="scripture-guide-card scripture-guide-card--compact">';
       html += '<h3 class="scripture-guide-card-title">핵심 주제</h3>';
       html += '<p class="scripture-guide-tags">' + escGuideHtml(c.themes) + '</p>';
       html += '</section>';
     }
 
     if (c.jesusLink) {
-      html += '<section class="scripture-guide-card">';
+      html += '<section class="scripture-guide-card scripture-guide-card--reading">';
       html += '<h3 class="scripture-guide-card-title">예수님과의 연결</h3>';
       html += '<p class="scripture-guide-a">' + escGuideHtml(c.jesusLink) + '</p>';
       html += '</section>';
@@ -617,14 +629,14 @@
 
     var verses = c.relatedVerses || [];
     if (verses.length) {
-      html += '<section class="scripture-guide-card">';
+      html += '<section class="scripture-guide-card scripture-guide-card--list">';
       html += '<h3 class="scripture-guide-card-title" data-guide-related-verses>관련 말씀</h3>';
       html += '<div class="scripture-guide-verse-list">';
       for (var rv = 0; rv < verses.length; rv++) {
         var v = verses[rv];
         var vLabel = v.label || (v.book + ' ' + v.chapter + '장 ' + v.verse + '절');
         html += '<button type="button" class="scripture-guide-verse-link" data-guide-verse data-book="' + escGuideHtml(v.book) + '" data-chapter="' + v.chapter + '" data-verse="' + v.verse + '" data-testament="' + escGuideHtml(v.testament) + '">';
-        html += '<span class="scripture-guide-verse-link-label"><span class="scripture-guide-verse-link-icon" aria-hidden="true">📖</span><span>' + escGuideHtml(vLabel) + '</span></span>';
+        html += '<span class="scripture-guide-verse-link-label"><span>' + escGuideHtml(vLabel) + '</span></span>';
         html += GUIDE_READ_CHEVRON;
         html += '</button>';
       }
@@ -651,7 +663,7 @@
     var body = overlay.querySelector('[data-guide-panel="summary"] .scripture-guide-body');
     if (!body) return;
     body.innerHTML =
-      '<p class="scripture-guide-eyebrow" id="scriptureGuideDialogTitle">📖 성경 길잡이</p>' +
+      '<p class="scripture-guide-eyebrow" id="scriptureGuideDialogTitle">성경 길잡이</p>' +
       '<h2 class="scripture-guide-cat">' + escGuideHtml(guide.categoryName) + '</h2>' +
       '<p class="scripture-guide-alt">' + escGuideHtml(guide.altNames) + '</p>' +
       '<p class="scripture-guide-p">' + escGuideHtml(guide.summaryLine1) + '</p>' +
@@ -659,7 +671,7 @@
       '<hr class="scripture-guide-divider">' +
       '<p class="scripture-guide-label">포함된 성경</p>' +
       '<p class="scripture-guide-books">' + escGuideHtml(guide.books) + '</p>' +
-      '<button type="button" class="scripture-guide-more-btn">📖 성경 길잡이 더 알아보기 →</button>';
+      '<button type="button" class="scripture-guide-more-btn">성경 길잡이 더 알아보기</button>';
     var moreBtn = body.querySelector('.scripture-guide-more-btn');
     if (moreBtn) moreBtn.addEventListener('click', showScriptureGuideDetail);
   }
@@ -683,7 +695,7 @@
           '<div class="scripture-guide-pull-spacer" aria-hidden="true"></div>' +
           '<div class="scripture-guide-head">' +
             '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
-            '<span class="scripture-guide-head-title">📖 성경 길잡이</span>' +
+            '<span class="scripture-guide-head-title">성경 길잡이</span>' +
             '<button type="button" class="scripture-guide-head-close" data-guide-close aria-label="닫기">✕</button>' +
           '</div>' +
           '<div class="scripture-guide-body"></div>' +
@@ -692,7 +704,7 @@
           '<div class="scripture-guide-pull-spacer" aria-hidden="true"></div>' +
           '<div class="scripture-guide-head">' +
             '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
-            '<span class="scripture-guide-head-title">📖 성경 길잡이</span>' +
+            '<span class="scripture-guide-head-title">성경 길잡이</span>' +
             '<button type="button" class="scripture-guide-head-close" data-guide-close aria-label="닫기">✕</button>' +
           '</div>' +
           '<div class="scripture-guide-body scripture-guide-detail-body"></div>' +
@@ -1497,21 +1509,80 @@
     new: ['복음서', '역사서', '바울서신', '공동서신', '예언서']
   };
 
-  function buildGuideReadingArticleHtml(guide) {
-    return '<article class="scripture-all-guides-article">' + buildGuidePageHtml(guide) + '</article>';
+  function findGuideForBook(bookName) {
+    var name = String(bookName || '').trim();
+    var testaments;
+    var t;
+    var bucket;
+    var keys;
+    var i;
+    var b;
+    var guide;
+    var books;
+    if (!name) return null;
+    testaments = ['old', 'new'];
+    for (t = 0; t < testaments.length; t++) {
+      bucket = SCRIPTURE_GUIDES[testaments[t]] || {};
+      keys = Object.keys(bucket);
+      for (i = 0; i < keys.length; i++) {
+        guide = bucket[keys[i]];
+        books = (guide && guide.bookSummaries) || [];
+        for (b = 0; b < books.length; b++) {
+          if (books[b].name === name) {
+            return { testament: testaments[t], catName: keys[i], guide: guide };
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  function getCurrentReaderGuidePlace() {
+    var book = window.currentBook;
+    var chapter = window.currentChapter;
+    if (!book || !book.name) return null;
+    return {
+      book: book.name,
+      chapter: chapter,
+      testament: book.testament
+    };
+  }
+
+  function buildGuideReadingArticleHtml(guide, extraClass) {
+    var cls = 'scripture-all-guides-article' + (extraClass ? ' ' + extraClass : '');
+    var testament = guide && guide.testament ? escGuideHtml(guide.testament) : '';
+    var cat = guide && guide.categoryName ? escGuideHtml(guide.categoryName) : '';
+    return '<article class="' + cls + '" data-guide-testament="' + testament + '" data-guide-cat="' + cat + '">' + buildGuidePageHtml(guide) + '</article>';
   }
 
   function buildAllGuidesHtml() {
     var html = '<div class="scripture-all-guides-inner">';
+    var place = getCurrentReaderGuidePlace();
+    var current = place ? findGuideForBook(place.book) : null;
     var groups = [
       { label: '구약', testament: 'old' },
       { label: '신약', testament: 'new' }
     ];
-    for (var g = 0; g < groups.length; g++) {
-      var names = ALL_GUIDE_ORDER[groups[g].testament] || [];
+    var g;
+    var names;
+    var i;
+    var guide;
+    var skipTestament = current ? current.testament : '';
+    var skipCat = current ? current.catName : '';
+    if (place) {
+      html += '<p class="scripture-all-guides-now">지금 읽는 곳 · ' + escGuideHtml(place.book + ' ' + place.chapter + '장') + '</p>';
+    }
+    if (current && current.guide) {
+      html += '<p class="scripture-all-guides-kicker">현재 분류</p>';
+      html += buildGuideReadingArticleHtml(current.guide, 'is-current');
+      html += '<p class="scripture-all-guides-kicker">다른 분류</p>';
+    }
+    for (g = 0; g < groups.length; g++) {
+      names = ALL_GUIDE_ORDER[groups[g].testament] || [];
       html += '<p class="scripture-all-guides-testament">' + escGuideHtml(groups[g].label) + '</p>';
-      for (var i = 0; i < names.length; i++) {
-        var guide = getScriptureGuide(groups[g].testament, names[i]);
+      for (i = 0; i < names.length; i++) {
+        if (groups[g].testament === skipTestament && names[i] === skipCat) continue;
+        guide = getScriptureGuide(groups[g].testament, names[i]);
         if (guide) html += buildGuideReadingArticleHtml(guide);
       }
     }
@@ -1556,7 +1627,10 @@
     overlay.innerHTML =
       '<div class="scripture-guide-head">' +
         '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
-        '<h1 class="scripture-guide-head-title" id="scriptureAllGuidesTitle">성경 길잡이</h1>' +
+        '<div class="scripture-guide-head-copy">' +
+          '<h1 class="scripture-guide-head-title" id="scriptureAllGuidesTitle">성경 길잡이</h1>' +
+          '<p class="scripture-guide-head-sub" id="scriptureAllGuidesSub" hidden></p>' +
+        '</div>' +
         '<button type="button" class="scripture-guide-head-close" data-all-guides-close aria-label="닫기">✕</button>' +
       '</div>' +
       '<div class="scripture-all-guides-body" id="scriptureAllGuidesBody"></div>';
@@ -1595,11 +1669,22 @@
   function openAllScriptureGuides() {
     var overlay = ensureAllGuidesOverlay();
     var body = overlay.querySelector('#scriptureAllGuidesBody');
+    var sub = overlay.querySelector('#scriptureAllGuidesSub');
     var scrollEl = getAllGuidesScrollEl();
+    var place = getCurrentReaderGuidePlace();
     allGuidesReturnScroll = scrollEl ? scrollEl.scrollTop : 0;
-    if (body && !body.getAttribute('data-guides-filled')) {
+    if (body) {
       body.innerHTML = buildAllGuidesHtml();
-      body.setAttribute('data-guides-filled', '1');
+      body.removeAttribute('data-guides-filled');
+    }
+    if (sub) {
+      if (place) {
+        sub.hidden = false;
+        sub.textContent = place.book + ' ' + place.chapter + '장';
+      } else {
+        sub.hidden = true;
+        sub.textContent = '';
+      }
     }
     overlay.hidden = false;
     overlay.classList.add('is-open');

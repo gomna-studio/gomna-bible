@@ -1,5 +1,4 @@
-/* 로그인 화면 상단 hero: 큰 문구 + 카드 3장 교차 셔플 + 점 동기화.
-   문구는 카드 위에 있고 카드 번호와 1:1로 짝을 이룬다.
+/* 로그인 화면 상단 hero: 카드 3장 교차 셔플 + 점 동기화.
    표시 전용이며 로그인 인증 코드와 어디에서도 닿지 않는다.
    되돌리려면 이 파일과 index.html·reader.html의 script 태그만 지우면 된다.
    (자리 클래스는 마크업에도 적어 두었으므로 이 스크립트가 없어도 정지 화면은 그대로 보인다.) */
@@ -28,21 +27,16 @@
 
   ready(function () {
     var visual = document.getElementById('loginBrandVisual');
-    var lead = document.getElementById('loginBrandLead');
     var dotsWrap = document.getElementById('loginBrandDots');
     var overlay = document.getElementById('loginModal');
-    if (!visual || !lead) return;
+    if (!visual) return;
 
-    /* 카드 번호와 문구는 1:1이다. 마크업 순서(겹치는 순서)에 기대지 않고 번호로 정렬한다. */
+    /* 카드 번호로 정렬한다. 마크업 순서(겹치는 순서)에 기대지 않는다. */
     var cards = [].slice.call(visual.querySelectorAll('[data-brand-card]')).sort(function (a, b) {
       return (+a.getAttribute('data-brand-card')) - (+b.getAttribute('data-brand-card'));
     });
     if (cards.length !== 3) return;
 
-    var texts = [];
-    for (var t = 0; t < cards.length; t++) {
-      texts.push(cards[t].getAttribute('data-brand-caption') || '');
-    }
     var dots = dotsWrap ? [].slice.call(dotsWrap.querySelectorAll('.login-brand-dot')) : [];
 
     var front = 0;   /* 지금 가운데 앞에 있는 카드 */
@@ -69,20 +63,13 @@
       }
     }
 
-    /* 문구는 자리를 옮기지 않는다. 카드 교차가 끝난 시점에 내용만 바꾸고,
-       갑자기 깜빡이지 않게 opacity만 아주 약하게 되돌린다. */
+    /* 점은 가운데 카드와 맞춘다. 상단 고정 문구는 카드 전환과 바꾸지 않는다. */
     function syncLabel() {
       for (var i = 0; i < dots.length; i++) {
         if (dots[i].classList.contains('is-on') !== (i === front)) {
           dots[i].classList.toggle('is-on', i === front);
         }
       }
-      if (lead.textContent === texts[front]) return;
-      lead.style.opacity = '.85';
-      lead.textContent = texts[front];
-      window.requestAnimationFrame(function () {
-        window.requestAnimationFrame(function () { lead.style.opacity = ''; });
-      });
     }
 
     function schedule(wait) {
@@ -103,7 +90,7 @@
       schedule(wait);
     }
 
-    /* 창을 다시 열면 1번 카드·1번 문구부터. 이때는 움직임 없이 자리만 잡는다. */
+    /* 창을 다시 열면 1번 카드부터. 이때는 움직임 없이 자리만 잡는다. */
     function resetInstantly() {
       visual.classList.add('is-instant');
       front = 0;
