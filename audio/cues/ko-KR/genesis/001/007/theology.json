@@ -1,33 +1,310 @@
 {
   "audioId": "genesis.001.007.theology",
-  "duration": 42,
-  "measuredDuration": 42,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/007/theology-warm.mp3",
-  "finalMp3Duration": 42,
+  "duration": 35.352,
+  "measuredDuration": 35.352,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/007/theology-warm.mp3",
+  "finalMp3Duration": 35.352,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 11.614333
+      "end": 3.826
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 11.614333,
-      "end": 22.409
+      "start": 3.826,
+      "end": 15.235
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 22.409,
-      "end": 32.020042
+      "start": 15.235,
+      "end": 26.163
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 32.020042,
-      "end": 42
+      "start": 26.163,
+      "end": 35.352
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.077,
+      "end": 0.892
+    },
+    {
+      "text": "1장",
+      "start": 0.967,
+      "end": 1.804
+    },
+    {
+      "text": "7절,",
+      "start": 2.211,
+      "end": 2.514
+    },
+    {
+      "text": "신학적의미입니다.",
+      "start": 2.608,
+      "end": 3.479
+    },
+    {
+      "text": "공급의",
+      "start": 3.825,
+      "end": 5.121
+    },
+    {
+      "text": "하나님의",
+      "start": 5.154,
+      "end": 5.631
+    },
+    {
+      "text": "의미가",
+      "start": 5.682,
+      "end": 6.361
+    },
+    {
+      "text": "드러납니다.",
+      "start": 7.149,
+      "end": 7.728
+    },
+    {
+      "text": "위",
+      "start": 7.877,
+      "end": 8.671
+    },
+    {
+      "text": "물은",
+      "start": 8.772,
+      "end": 9.076
+    },
+    {
+      "text": "비",
+      "start": 9.076,
+      "end": 9.228
+    },
+    {
+      "text": "원천을",
+      "start": 9.258,
+      "end": 9.381
+    },
+    {
+      "text": "보여",
+      "start": 9.943,
+      "end": 10.564
+    },
+    {
+      "text": "줍니다.",
+      "start": 10.905,
+      "end": 11.52
+    },
+    {
+      "text": "관련해서",
+      "start": 11.587,
+      "end": 11.909
+    },
+    {
+      "text": "신",
+      "start": 11.944,
+      "end": 12.339
+    },
+    {
+      "text": "11장",
+      "start": 12.367,
+      "end": 12.432
+    },
+    {
+      "text": "13절부터",
+      "start": 12.519,
+      "end": 12.694
+    },
+    {
+      "text": "15절을",
+      "start": 13.014,
+      "end": 13.655
+    },
+    {
+      "text": "함께",
+      "start": 13.768,
+      "end": 13.953
+    },
+    {
+      "text": "볼",
+      "start": 14.001,
+      "end": 14.057
+    },
+    {
+      "text": "수",
+      "start": 14.057,
+      "end": 14.113
+    },
+    {
+      "text": "있습니다.",
+      "start": 14.171,
+      "end": 15.007
+    },
+    {
+      "text": "구별·질서의",
+      "start": 15.222,
+      "end": 15.728
+    },
+    {
+      "text": "의미가",
+      "start": 15.967,
+      "end": 17.06
+    },
+    {
+      "text": "드러납니다.",
+      "start": 17.099,
+      "end": 17.579
+    },
+    {
+      "text": "분리",
+      "start": 17.607,
+      "end": 17.672
+    },
+    {
+      "text": "행위",
+      "start": 17.672,
+      "end": 17.737
+    },
+    {
+      "text": "반복을",
+      "start": 18.201,
+      "end": 18.598
+    },
+    {
+      "text": "보여",
+      "start": 18.598,
+      "end": 18.862
+    },
+    {
+      "text": "줍니다.",
+      "start": 18.89,
+      "end": 19.464
+    },
+    {
+      "text": "관련해서",
+      "start": 19.494,
+      "end": 20.048
+    },
+    {
+      "text": "이사야",
+      "start": 20.589,
+      "end": 21.207
+    },
+    {
+      "text": "45장",
+      "start": 21.486,
+      "end": 23.167
+    },
+    {
+      "text": "12절을",
+      "start": 23.371,
+      "end": 23.561
+    },
+    {
+      "text": "함께",
+      "start": 23.628,
+      "end": 23.693
+    },
+    {
+      "text": "볼",
+      "start": 23.693,
+      "end": 23.725
+    },
+    {
+      "text": "수",
+      "start": 23.725,
+      "end": 23.758
+    },
+    {
+      "text": "있습니다.",
+      "start": 23.837,
+      "end": 24.598
+    },
+    {
+      "text": "창조",
+      "start": 26.163,
+      "end": 26.59
+    },
+    {
+      "text": "보존의",
+      "start": 26.628,
+      "end": 27.437
+    },
+    {
+      "text": "의미가",
+      "start": 27.481,
+      "end": 28.096
+    },
+    {
+      "text": "드러납니다.",
+      "start": 28.755,
+      "end": 28.997
+    },
+    {
+      "text": "지속적",
+      "start": 29.095,
+      "end": 29.179
+    },
+    {
+      "text": "보존(섭리)를",
+      "start": 29.328,
+      "end": 29.656
+    },
+    {
+      "text": "보여",
+      "start": 29.745,
+      "end": 30.242
+    },
+    {
+      "text": "줍니다.",
+      "start": 30.288,
+      "end": 30.875
+    },
+    {
+      "text": "관련해서",
+      "start": 31.5,
+      "end": 32.094
+    },
+    {
+      "text": "골로새서",
+      "start": 32.154,
+      "end": 32.929
+    },
+    {
+      "text": "1장",
+      "start": 32.987,
+      "end": 33.294
+    },
+    {
+      "text": "17절을",
+      "start": 33.382,
+      "end": 33.543
+    },
+    {
+      "text": "함께",
+      "start": 33.588,
+      "end": 33.887
+    },
+    {
+      "text": "볼",
+      "start": 33.925,
+      "end": 34.127
+    },
+    {
+      "text": "수",
+      "start": 34.17,
+      "end": 34.279
+    },
+    {
+      "text": "있습니다.",
+      "start": 34.332,
+      "end": 35.352
     }
   ]
 }

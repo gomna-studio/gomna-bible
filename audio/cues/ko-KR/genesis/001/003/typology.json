@@ -1,33 +1,245 @@
 {
   "audioId": "genesis.001.003.typology",
-  "duration": 40.008,
-  "measuredDuration": 40.008,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/003/typology-study.mp3",
-  "finalMp3Duration": 40.008,
+  "duration": 30.912,
+  "measuredDuration": 30.912,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/003/typology-study.mp3",
+  "finalMp3Duration": 30.912,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 8.435917
+      "end": 3.114
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 8.435917,
-      "end": 19.054458
+      "start": 3.114,
+      "end": 11.422
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 19.054458,
-      "end": 30.427167
+      "start": 11.422,
+      "end": 20.86
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 30.427167,
-      "end": 40.008
+      "start": 20.86,
+      "end": 30.912
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.065,
+      "end": 0.859
+    },
+    {
+      "text": "1장",
+      "start": 0.916,
+      "end": 1.633
+    },
+    {
+      "text": "3절,",
+      "start": 1.998,
+      "end": 2.132
+    },
+    {
+      "text": "예표론입니다.",
+      "start": 2.196,
+      "end": 2.865
+    },
+    {
+      "text": "구약예표의",
+      "start": 3.114,
+      "end": 3.399
+    },
+    {
+      "text": "관점에서",
+      "start": 3.549,
+      "end": 3.69
+    },
+    {
+      "text": "보면,",
+      "start": 3.768,
+      "end": 4.028
+    },
+    {
+      "text": "출애굽의",
+      "start": 4.071,
+      "end": 4.264
+    },
+    {
+      "text": "광명과",
+      "start": 4.306,
+      "end": 5.077
+    },
+    {
+      "text": "연결됩니다.",
+      "start": 5.562,
+      "end": 6.05
+    },
+    {
+      "text": "이것은",
+      "start": 6.103,
+      "end": 7.432
+    },
+    {
+      "text": "어둠",
+      "start": 8.102,
+      "end": 8.398
+    },
+    {
+      "text": "속",
+      "start": 8.398,
+      "end": 8.546
+    },
+    {
+      "text": "양",
+      "start": 8.62,
+      "end": 8.863
+    },
+    {
+      "text": "피로",
+      "start": 8.863,
+      "end": 9.35
+    },
+    {
+      "text": "구원과",
+      "start": 9.391,
+      "end": 9.669
+    },
+    {
+      "text": "연결됩니다.",
+      "start": 9.943,
+      "end": 11.226
+    },
+    {
+      "text": "신약성취의",
+      "start": 11.419,
+      "end": 11.697
+    },
+    {
+      "text": "관점에서",
+      "start": 11.744,
+      "end": 12.292
+    },
+    {
+      "text": "보면,",
+      "start": 12.334,
+      "end": 13.314
+    },
+    {
+      "text": "예수",
+      "start": 13.834,
+      "end": 14.2
+    },
+    {
+      "text": "그리스도",
+      "start": 14.246,
+      "end": 14.535
+    },
+    {
+      "text": "빛",
+      "start": 14.6,
+      "end": 14.789
+    },
+    {
+      "text": "선언과",
+      "start": 14.87,
+      "end": 15.006
+    },
+    {
+      "text": "연결됩니다.",
+      "start": 15.06,
+      "end": 16.492
+    },
+    {
+      "text": "이것은",
+      "start": 17.176,
+      "end": 17.618
+    },
+    {
+      "text": "요한복음",
+      "start": 17.912,
+      "end": 18.581
+    },
+    {
+      "text": "8장",
+      "start": 18.632,
+      "end": 18.806
+    },
+    {
+      "text": "12절과도",
+      "start": 18.891,
+      "end": 19.88
+    },
+    {
+      "text": "이어집니다.",
+      "start": 19.97,
+      "end": 20.59
+    },
+    {
+      "text": "그리스도론의",
+      "start": 20.86,
+      "end": 21.977
+    },
+    {
+      "text": "관점에서",
+      "start": 22.015,
+      "end": 22.719
+    },
+    {
+      "text": "보면,",
+      "start": 22.808,
+      "end": 23.146
+    },
+    {
+      "text": "태초부터",
+      "start": 23.706,
+      "end": 23.855
+    },
+    {
+      "text": "비추신",
+      "start": 23.916,
+      "end": 24.161
+    },
+    {
+      "text": "말씀과",
+      "start": 24.25,
+      "end": 24.393
+    },
+    {
+      "text": "연결됩니다.",
+      "start": 24.439,
+      "end": 24.569
+    },
+    {
+      "text": "이것은",
+      "start": 24.606,
+      "end": 26.517
+    },
+    {
+      "text": "고린도후서",
+      "start": 27.253,
+      "end": 27.716
+    },
+    {
+      "text": "4장",
+      "start": 28.01,
+      "end": 29.365
+    },
+    {
+      "text": "6절과도",
+      "start": 29.481,
+      "end": 30.559
+    },
+    {
+      "text": "이어집니다.",
+      "start": 30.593,
+      "end": 30.912
     }
   ]
 }

@@ -1,799 +1,734 @@
 {
   "audioId": "genesis.019.013.matthew-henry",
-  "duration": 76.128,
-  "measuredDuration": 76.128,
+  "duration": 70.224,
+  "measuredDuration": 70.224,
   "testAudioPath": "audio/v1/ko-KR/genesis/019/013/matthew-henry-calm.mp3",
-  "finalMp3Duration": 76.128,
+  "finalMp3Duration": 70.224,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 11.037
+      "end": 4.781
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 11.037,
-      "end": 40.534
+      "start": 4.781,
+      "end": 34.656
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 40.534,
-      "end": 76.128
+      "start": 34.656,
+      "end": 70.224
     }
   ],
   "words": [
     {
       "text": "창세기",
-      "start": 0.158,
-      "end": 0.807
+      "start": 0.646,
+      "end": 1.462
     },
     {
       "text": "19장",
-      "start": 0.926,
-      "end": 1.356
+      "start": 1.589,
+      "end": 2.741
     },
     {
       "text": "13절,",
-      "start": 1.389,
-      "end": 1.842
+      "start": 3.203,
+      "end": 3.335
     },
     {
       "text": "매튜헨리입니다.",
-      "start": 2.159,
-      "end": 2.289
-    },
-    {
-      "text": "본문은",
-      "start": 2.348,
-      "end": 3.053
-    },
-    {
-      "text": "'그들에",
-      "start": 3.723,
-      "end": 4.259
-    },
-    {
-      "text": "대한",
-      "start": 4.312,
-      "end": 4.665
-    },
-    {
-      "text": "부르짖음이",
-      "start": 4.695,
-      "end": 4.965
-    },
-    {
-      "text": "여호와",
-      "start": 5.001,
-      "end": 6.145
-    },
-    {
-      "text": "앞에",
-      "start": 6.23,
-      "end": 6.338
-    },
-    {
-      "text": "크므로",
-      "start": 6.402,
-      "end": 6.803
-    },
-    {
-      "text": "여호와께서",
-      "start": 7.227,
-      "end": 7.566
-    },
-    {
-      "text": "이",
-      "start": 7.648,
-      "end": 8.122
-    },
-    {
-      "text": "곳을",
-      "start": 8.158,
-      "end": 9.011
-    },
-    {
-      "text": "멸하시려고",
-      "start": 9.056,
-      "end": 9.199
-    },
-    {
-      "text": "우리를",
-      "start": 9.48,
-      "end": 9.856
-    },
-    {
-      "text": "보내셨나니라'입니다.",
-      "start": 9.902,
-      "end": 10.66
+      "start": 3.411,
+      "end": 4.283
     },
     {
       "text": "매튜",
-      "start": 11.035,
-      "end": 11.091
+      "start": 4.778,
+      "end": 4.917
     },
     {
       "text": "헨리의",
-      "start": 11.091,
-      "end": 11.175
+      "start": 4.977,
+      "end": 5.637
     },
     {
       "text": "영어",
-      "start": 11.175,
-      "end": 11.231
+      "start": 5.698,
+      "end": 6.522
     },
     {
       "text": "원문입니다.",
-      "start": 11.288,
-      "end": 13.006
+      "start": 6.555,
+      "end": 6.722
     },
     {
       "text": "The",
-      "start": 13.85,
-      "end": 13.898
+      "start": 7.634,
+      "end": 7.682
     },
     {
       "text": "cry",
-      "start": 13.898,
-      "end": 13.947
+      "start": 7.682,
+      "end": 7.731
     },
     {
       "text": "of",
-      "start": 13.998,
-      "end": 14.281
+      "start": 7.781,
+      "end": 8.065
     },
     {
       "text": "them",
-      "start": 14.281,
-      "end": 14.848
+      "start": 8.065,
+      "end": 8.632
     },
     {
       "text": "is",
-      "start": 14.848,
-      "end": 15.132
+      "start": 8.632,
+      "end": 8.916
     },
     {
       "text": "waxen",
-      "start": 15.186,
-      "end": 15.465
+      "start": 8.97,
+      "end": 9.249
     },
     {
       "text": "great",
-      "start": 15.465,
-      "end": 15.744
+      "start": 9.249,
+      "end": 9.528
     },
     {
       "text": "before",
-      "start": 15.798,
-      "end": 15.855
+      "start": 9.582,
+      "end": 9.639
     },
     {
       "text": "the",
-      "start": 15.978,
-      "end": 16.023
+      "start": 9.762,
+      "end": 9.807
     },
     {
       "text": "face",
-      "start": 16.023,
-      "end": 16.085
+      "start": 9.807,
+      "end": 9.869
     },
     {
       "text": "of",
-      "start": 16.085,
-      "end": 16.115
+      "start": 9.869,
+      "end": 9.899
     },
     {
       "text": "the",
-      "start": 16.14,
-      "end": 16.612
+      "start": 9.924,
+      "end": 10.396
     },
     {
       "text": "Lord.",
-      "start": 16.612,
-      "end": 17.398
+      "start": 10.396,
+      "end": 11.182
     },
     {
       "text": "The",
-      "start": 17.426,
-      "end": 17.439
+      "start": 11.21,
+      "end": 11.223
     },
     {
       "text": "sins",
-      "start": 17.439,
-      "end": 17.458
+      "start": 11.223,
+      "end": 11.242
     },
     {
       "text": "of",
-      "start": 18.428,
-      "end": 18.743
+      "start": 12.212,
+      "end": 12.527
     },
     {
       "text": "Sodom",
-      "start": 18.743,
-      "end": 19.531
+      "start": 12.527,
+      "end": 13.315
     },
     {
       "text": "cried",
-      "start": 19.577,
-      "end": 19.84
+      "start": 13.361,
+      "end": 13.624
     },
     {
       "text": "to",
-      "start": 19.84,
-      "end": 19.945
+      "start": 13.624,
+      "end": 13.729
     },
     {
       "text": "heaven",
-      "start": 19.987,
-      "end": 20.693
+      "start": 13.771,
+      "end": 14.477
     },
     {
       "text": "for",
-      "start": 20.693,
-      "end": 21.045
+      "start": 14.477,
+      "end": 14.829
     },
     {
       "text": "vengeance.",
-      "start": 21.095,
-      "end": 21.245
+      "start": 14.879,
+      "end": 15.029
     },
     {
       "text": "The",
-      "start": 22.009,
-      "end": 22.033
+      "start": 15.793,
+      "end": 15.817
     },
     {
       "text": "cry",
-      "start": 22.033,
-      "end": 22.058
+      "start": 15.817,
+      "end": 15.842
     },
     {
       "text": "of",
-      "start": 22.058,
-      "end": 22.074
+      "start": 15.842,
+      "end": 15.858
     },
     {
       "text": "sin",
-      "start": 22.127,
-      "end": 22.49
+      "start": 15.911,
+      "end": 16.274
     },
     {
       "text": "is",
-      "start": 22.49,
-      "end": 22.731
+      "start": 16.274,
+      "end": 16.515
     },
     {
       "text": "the",
-      "start": 22.731,
-      "end": 23.094
+      "start": 16.515,
+      "end": 16.878
     },
     {
       "text": "ground",
-      "start": 23.429,
-      "end": 23.985
+      "start": 17.214,
+      "end": 17.769
     },
     {
       "text": "of",
-      "start": 23.985,
-      "end": 24.171
+      "start": 17.769,
+      "end": 17.955
     },
     {
       "text": "its",
-      "start": 24.235,
-      "end": 24.495
+      "start": 18.019,
+      "end": 18.279
     },
     {
       "text": "ruin.",
-      "start": 24.495,
-      "end": 24.928
+      "start": 18.279,
+      "end": 18.712
     },
     {
       "text": "그들에",
-      "start": 25.354,
-      "end": 26.113
+      "start": 19.138,
+      "end": 19.897
     },
     {
       "text": "대한",
-      "start": 26.16,
-      "end": 26.779
+      "start": 19.944,
+      "end": 20.563
     },
     {
       "text": "부르짖음이",
-      "start": 27.057,
-      "end": 27.562
+      "start": 20.841,
+      "end": 21.346
     },
     {
       "text": "여호와",
-      "start": 27.674,
-      "end": 27.82
+      "start": 21.458,
+      "end": 21.604
     },
     {
       "text": "앞에",
-      "start": 27.887,
-      "end": 28.137
+      "start": 21.671,
+      "end": 21.921
     },
     {
       "text": "커졌다.",
-      "start": 28.256,
-      "end": 28.384
+      "start": 22.04,
+      "end": 22.168
     },
     {
       "text": "소돔의",
-      "start": 28.761,
-      "end": 29.35
+      "start": 22.545,
+      "end": 23.133
     },
     {
       "text": "죄들이",
-      "start": 29.385,
-      "end": 29.609
+      "start": 23.169,
+      "end": 23.393
     },
     {
       "text": "보복을",
-      "start": 29.667,
-      "end": 30.405
+      "start": 23.451,
+      "end": 24.189
     },
     {
       "text": "위해",
-      "start": 30.575,
-      "end": 30.936
+      "start": 24.359,
+      "end": 24.72
     },
     {
       "text": "하늘에",
-      "start": 31.013,
-      "end": 31.288
+      "start": 24.797,
+      "end": 25.072
     },
     {
       "text": "호소했다.",
-      "start": 31.399,
-      "end": 31.516
+      "start": 25.183,
+      "end": 25.3
     },
     {
       "text": "죄의",
-      "start": 31.999,
-      "end": 32.297
+      "start": 25.783,
+      "end": 26.081
     },
     {
       "text": "부르짖음은",
-      "start": 32.344,
-      "end": 32.976
+      "start": 26.128,
+      "end": 26.76
     },
     {
       "text": "그",
-      "start": 33.273,
-      "end": 33.437
+      "start": 27.057,
+      "end": 27.221
     },
     {
       "text": "멸망의",
-      "start": 33.437,
-      "end": 33.928
+      "start": 27.221,
+      "end": 27.712
     },
     {
       "text": "근거이다.",
-      "start": 33.981,
-      "end": 34.398
+      "start": 27.765,
+      "end": 28.182
     },
     {
       "text": "여기서",
-      "start": 34.447,
-      "end": 34.564
+      "start": 28.231,
+      "end": 28.348
     },
     {
       "text": "핵심은",
-      "start": 34.96,
-      "end": 35.436
+      "start": 28.744,
+      "end": 29.22
     },
     {
       "text": "죄는",
-      "start": 35.466,
-      "end": 35.856
+      "start": 29.25,
+      "end": 29.64
     },
     {
       "text": "하나님",
-      "start": 36.185,
-      "end": 37.003
+      "start": 29.969,
+      "end": 30.787
     },
     {
       "text": "앞에",
-      "start": 37.078,
-      "end": 37.318
+      "start": 30.862,
+      "end": 31.102
     },
     {
       "text": "쌓여",
-      "start": 37.318,
-      "end": 37.559
+      "start": 31.102,
+      "end": 31.343
     },
     {
       "text": "심판을",
-      "start": 37.787,
-      "end": 38.001
+      "start": 31.571,
+      "end": 31.785
     },
     {
       "text": "부른다를",
-      "start": 38.044,
-      "end": 38.3
+      "start": 31.828,
+      "end": 32.084
     },
     {
       "text": "보여",
-      "start": 38.354,
-      "end": 38.555
+      "start": 32.138,
+      "end": 32.339
     },
     {
       "text": "준다는",
-      "start": 38.555,
-      "end": 38.857
+      "start": 32.339,
+      "end": 32.641
     },
     {
       "text": "점입니다.",
-      "start": 38.919,
-      "end": 40.119
+      "start": 32.703,
+      "end": 33.903
     },
     {
       "text": "두",
-      "start": 40.529,
-      "end": 40.637
+      "start": 34.656,
+      "end": 34.734
     },
     {
       "text": "번째",
-      "start": 40.637,
-      "end": 40.854
+      "start": 34.734,
+      "end": 34.891
     },
     {
       "text": "영어",
-      "start": 40.884,
-      "end": 41.986
+      "start": 34.891,
+      "end": 35.048
     },
     {
       "text": "원문입니다.",
-      "start": 42.015,
-      "end": 42.161
+      "start": 35.1,
+      "end": 36.35
     },
     {
       "text": "The",
-      "start": 42.896,
-      "end": 43.193
+      "start": 36.992,
+      "end": 37.289
     },
     {
       "text": "Lord",
-      "start": 43.193,
-      "end": 43.591
+      "start": 37.289,
+      "end": 37.687
     },
     {
       "text": "hath",
-      "start": 43.652,
-      "end": 44.15
+      "start": 37.748,
+      "end": 38.246
     },
     {
       "text": "sent",
-      "start": 44.205,
-      "end": 44.375
+      "start": 38.301,
+      "end": 38.471
     },
     {
       "text": "us",
-      "start": 44.375,
-      "end": 44.46
+      "start": 38.471,
+      "end": 38.556
     },
     {
       "text": "to",
-      "start": 44.46,
-      "end": 44.546
+      "start": 38.556,
+      "end": 38.642
     },
     {
       "text": "destroy",
-      "start": 44.576,
-      "end": 44.886
+      "start": 38.672,
+      "end": 38.982
     },
     {
       "text": "it.",
-      "start": 44.957,
-      "end": 44.989
+      "start": 39.053,
+      "end": 39.085
     },
     {
       "text": "The",
-      "start": 44.989,
-      "end": 45.021
+      "start": 39.085,
+      "end": 39.117
     },
     {
       "text": "angels",
-      "start": 45.824,
-      "end": 46.317
+      "start": 39.92,
+      "end": 40.413
     },
     {
       "text": "declared",
-      "start": 46.367,
-      "end": 46.428
+      "start": 40.463,
+      "end": 40.524
     },
     {
       "text": "that",
-      "start": 46.468,
-      "end": 46.896
+      "start": 40.564,
+      "end": 40.992
     },
     {
       "text": "they",
-      "start": 46.961,
-      "end": 47.069
+      "start": 41.057,
+      "end": 41.165
     },
     {
       "text": "were",
-      "start": 47.069,
-      "end": 47.177
+      "start": 41.165,
+      "end": 41.273
     },
     {
       "text": "commissioned",
-      "start": 47.236,
-      "end": 48.253
+      "start": 41.332,
+      "end": 42.349
     },
     {
       "text": "from",
-      "start": 48.43,
-      "end": 48.561
+      "start": 42.526,
+      "end": 42.657
     },
     {
       "text": "heaven",
-      "start": 48.561,
-      "end": 48.758
+      "start": 42.657,
+      "end": 42.854
     },
     {
       "text": "to",
-      "start": 48.8,
-      "end": 48.959
+      "start": 42.896,
+      "end": 43.055
     },
     {
       "text": "destroy",
-      "start": 48.959,
-      "end": 49.516
+      "start": 43.055,
+      "end": 43.612
     },
     {
       "text": "Sodom.",
-      "start": 50.732,
-      "end": 50.869
+      "start": 44.828,
+      "end": 44.965
     },
     {
       "text": "They",
-      "start": 50.915,
-      "end": 51.513
+      "start": 45.011,
+      "end": 45.609
     },
     {
       "text": "came",
-      "start": 51.513,
-      "end": 52.11
+      "start": 45.609,
+      "end": 46.206
     },
     {
       "text": "not",
-      "start": 52.656,
-      "end": 52.992
+      "start": 46.752,
+      "end": 47.088
     },
     {
       "text": "of",
-      "start": 52.992,
-      "end": 53.217
+      "start": 47.088,
+      "end": 47.313
     },
     {
       "text": "themselves,",
-      "start": 53.286,
-      "end": 53.559
+      "start": 47.382,
+      "end": 47.655
     },
     {
       "text": "but",
-      "start": 53.587,
-      "end": 53.733
+      "start": 47.683,
+      "end": 47.829
     },
     {
       "text": "were",
-      "start": 53.733,
-      "end": 53.928
+      "start": 47.829,
+      "end": 48.024
     },
     {
       "text": "sent",
-      "start": 53.969,
-      "end": 54.055
+      "start": 48.065,
+      "end": 48.151
     },
     {
       "text": "by",
-      "start": 54.055,
-      "end": 54.099
+      "start": 48.151,
+      "end": 48.195
     },
     {
       "text": "the",
-      "start": 54.166,
-      "end": 54.297
+      "start": 48.262,
+      "end": 48.393
     },
     {
       "text": "Judge",
-      "start": 54.297,
-      "end": 54.516
+      "start": 48.393,
+      "end": 48.612
     },
     {
       "text": "of",
-      "start": 54.549,
-      "end": 54.594
+      "start": 48.645,
+      "end": 48.69
     },
     {
       "text": "all",
-      "start": 54.594,
-      "end": 54.661
+      "start": 48.69,
+      "end": 48.757
     },
     {
       "text": "the",
-      "start": 54.661,
-      "end": 54.729
+      "start": 48.757,
+      "end": 48.825
     },
     {
       "text": "earth.",
-      "start": 54.802,
-      "end": 54.9
+      "start": 48.898,
+      "end": 48.996
     },
     {
       "text": "여호와께서",
-      "start": 55.13,
-      "end": 55.553
+      "start": 49.226,
+      "end": 49.649
     },
     {
       "text": "이",
-      "start": 55.632,
-      "end": 55.744
+      "start": 49.728,
+      "end": 49.84
     },
     {
       "text": "곳을",
-      "start": 55.744,
-      "end": 55.968
+      "start": 49.84,
+      "end": 50.064
     },
     {
       "text": "멸하시려고",
-      "start": 56.111,
-      "end": 56.28
+      "start": 50.207,
+      "end": 50.376
     },
     {
       "text": "우리를",
-      "start": 56.339,
-      "end": 57.272
+      "start": 50.435,
+      "end": 51.368
     },
     {
       "text": "보내셨다.",
-      "start": 57.315,
-      "end": 57.487
+      "start": 51.411,
+      "end": 51.583
     },
     {
       "text": "천사들은",
-      "start": 57.63,
-      "end": 57.996
+      "start": 51.726,
+      "end": 52.092
     },
     {
       "text": "그들이",
-      "start": 58.038,
-      "end": 58.417
+      "start": 52.134,
+      "end": 52.513
     },
     {
       "text": "소돔을",
-      "start": 58.532,
-      "end": 58.64
+      "start": 52.628,
+      "end": 52.736
     },
     {
       "text": "멸하도록",
-      "start": 59.381,
-      "end": 60.02
+      "start": 53.477,
+      "end": 54.116
     },
     {
       "text": "하늘로부터",
-      "start": 60.22,
-      "end": 61.492
+      "start": 54.316,
+      "end": 55.588
     },
     {
       "text": "위임받았음을",
-      "start": 61.693,
-      "end": 62.148
+      "start": 55.789,
+      "end": 56.244
     },
     {
       "text": "선언했다.",
-      "start": 62.24,
-      "end": 62.411
+      "start": 56.336,
+      "end": 56.507
     },
     {
       "text": "그들은",
-      "start": 62.526,
-      "end": 63.752
+      "start": 56.622,
+      "end": 57.848
     },
     {
       "text": "스스로",
-      "start": 63.873,
-      "end": 63.991
+      "start": 57.969,
+      "end": 58.087
     },
     {
       "text": "온",
-      "start": 64.688,
-      "end": 65.198
+      "start": 58.784,
+      "end": 59.294
     },
     {
       "text": "것이",
-      "start": 65.198,
-      "end": 66.217
+      "start": 59.294,
+      "end": 60.313
     },
     {
       "text": "아니라",
-      "start": 66.639,
-      "end": 66.884
+      "start": 60.735,
+      "end": 60.98
     },
     {
       "text": "온",
-      "start": 66.943,
-      "end": 67.349
+      "start": 61.039,
+      "end": 61.445
     },
     {
       "text": "땅의",
-      "start": 67.349,
-      "end": 68.161
+      "start": 61.445,
+      "end": 62.257
     },
     {
       "text": "심판자에",
-      "start": 68.3,
-      "end": 68.66
+      "start": 62.396,
+      "end": 62.756
     },
     {
       "text": "의해",
-      "start": 68.783,
-      "end": 68.889
+      "start": 62.879,
+      "end": 62.985
     },
     {
       "text": "보내졌다.",
-      "start": 69.657,
-      "end": 69.797
+      "start": 63.753,
+      "end": 63.893
     },
     {
       "text": "여기서",
-      "start": 69.823,
-      "end": 70.176
+      "start": 63.919,
+      "end": 64.272
     },
     {
       "text": "핵심은",
-      "start": 70.219,
-      "end": 70.608
+      "start": 64.315,
+      "end": 64.704
     },
     {
       "text": "심판은",
-      "start": 70.954,
-      "end": 72.042
+      "start": 65.05,
+      "end": 66.138
     },
     {
       "text": "하나님의",
-      "start": 72.07,
-      "end": 72.197
+      "start": 66.166,
+      "end": 66.293
     },
     {
       "text": "주권적",
-      "start": 72.289,
-      "end": 72.588
+      "start": 66.385,
+      "end": 66.684
     },
     {
       "text": "결정에",
-      "start": 72.644,
-      "end": 72.809
+      "start": 66.74,
+      "end": 66.905
     },
     {
       "text": "의해",
-      "start": 72.854,
-      "end": 73.401
+      "start": 66.95,
+      "end": 67.497
     },
     {
       "text": "집행된다를",
-      "start": 73.572,
-      "end": 73.709
+      "start": 67.668,
+      "end": 67.805
     },
     {
       "text": "보여",
-      "start": 73.773,
-      "end": 74.022
+      "start": 67.869,
+      "end": 68.118
     },
     {
       "text": "준다는",
-      "start": 74.022,
-      "end": 74.396
+      "start": 68.118,
+      "end": 68.492
     },
     {
       "text": "점입니다.",
-      "start": 74.544,
-      "end": 76.128
+      "start": 68.64,
+      "end": 70.224
     }
   ]
 }

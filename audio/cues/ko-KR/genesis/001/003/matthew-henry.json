@@ -1,33 +1,390 @@
 {
   "audioId": "genesis.001.003.matthew-henry",
-  "duration": 53.952,
-  "measuredDuration": 53.952,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/003/matthew-henry-calm.mp3",
-  "finalMp3Duration": 53.952,
+  "duration": 42.672,
+  "measuredDuration": 42.672,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/003/matthew-henry-calm.mp3",
+  "finalMp3Duration": 42.672,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 8.636208
+      "end": 3.485
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 8.636208,
-      "end": 23.535333
+      "start": 3.485,
+      "end": 17.136
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 23.535333,
-      "end": 38.344667
+      "start": 17.136,
+      "end": 30.61
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 38.344667,
-      "end": 53.952
+      "start": 30.61,
+      "end": 42.672
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.065,
+      "end": 0.896
+    },
+    {
+      "text": "1장",
+      "start": 0.961,
+      "end": 1.689
+    },
+    {
+      "text": "3절,",
+      "start": 2.049,
+      "end": 2.181
+    },
+    {
+      "text": "매튜헨리입니다.",
+      "start": 2.255,
+      "end": 3.051
+    },
+    {
+      "text": "매튜",
+      "start": 3.482,
+      "end": 3.621
+    },
+    {
+      "text": "헨리의",
+      "start": 3.681,
+      "end": 4.342
+    },
+    {
+      "text": "영어",
+      "start": 4.402,
+      "end": 5.226
+    },
+    {
+      "text": "원문입니다.",
+      "start": 5.259,
+      "end": 5.426
+    },
+    {
+      "text": "God's",
+      "start": 6.404,
+      "end": 7.163
+    },
+    {
+      "text": "word",
+      "start": 7.235,
+      "end": 7.762
+    },
+    {
+      "text": "created",
+      "start": 7.91,
+      "end": 8.429
+    },
+    {
+      "text": "the",
+      "start": 8.472,
+      "end": 8.506
+    },
+    {
+      "text": "first",
+      "start": 8.56,
+      "end": 8.98
+    },
+    {
+      "text": "daybreak.",
+      "start": 9.05,
+      "end": 9.097
+    },
+    {
+      "text": "하나님의",
+      "start": 9.364,
+      "end": 10.51
+    },
+    {
+      "text": "말씀은",
+      "start": 10.757,
+      "end": 10.924
+    },
+    {
+      "text": "첫",
+      "start": 10.97,
+      "end": 11.058
+    },
+    {
+      "text": "새벽을",
+      "start": 11.058,
+      "end": 11.322
+    },
+    {
+      "text": "만들었다.",
+      "start": 11.358,
+      "end": 11.886
+    },
+    {
+      "text": "여기서",
+      "start": 12.014,
+      "end": 12.155
+    },
+    {
+      "text": "핵심은",
+      "start": 12.752,
+      "end": 13.354
+    },
+    {
+      "text": "말씀의",
+      "start": 13.385,
+      "end": 13.768
+    },
+    {
+      "text": "창조력을",
+      "start": 14.078,
+      "end": 14.569
+    },
+    {
+      "text": "보여",
+      "start": 14.603,
+      "end": 14.857
+    },
+    {
+      "text": "준다는",
+      "start": 14.857,
+      "end": 15.238
+    },
+    {
+      "text": "점입니다.",
+      "start": 15.285,
+      "end": 16.559
+    },
+    {
+      "text": "두",
+      "start": 17.136,
+      "end": 17.214
+    },
+    {
+      "text": "번째",
+      "start": 17.214,
+      "end": 17.371
+    },
+    {
+      "text": "영어",
+      "start": 17.371,
+      "end": 17.528
+    },
+    {
+      "text": "원문입니다.",
+      "start": 17.58,
+      "end": 18.83
+    },
+    {
+      "text": "No",
+      "start": 19.458,
+      "end": 19.777
+    },
+    {
+      "text": "creature",
+      "start": 19.824,
+      "end": 20.307
+    },
+    {
+      "text": "can",
+      "start": 20.895,
+      "end": 21.606
+    },
+    {
+      "text": "resist",
+      "start": 21.672,
+      "end": 21.878
+    },
+    {
+      "text": "His",
+      "start": 21.956,
+      "end": 22.185
+    },
+    {
+      "text": "fiat.",
+      "start": 22.3,
+      "end": 22.333
+    },
+    {
+      "text": "어떤",
+      "start": 22.502,
+      "end": 22.622
+    },
+    {
+      "text": "피조물도",
+      "start": 22.858,
+      "end": 23.14
+    },
+    {
+      "text": "그분의",
+      "start": 23.216,
+      "end": 23.719
+    },
+    {
+      "text": "명령에",
+      "start": 23.749,
+      "end": 23.949
+    },
+    {
+      "text": "거역할",
+      "start": 24.283,
+      "end": 25.253
+    },
+    {
+      "text": "수",
+      "start": 25.332,
+      "end": 25.613
+    },
+    {
+      "text": "없다.",
+      "start": 25.685,
+      "end": 26.069
+    },
+    {
+      "text": "여기서",
+      "start": 26.239,
+      "end": 26.363
+    },
+    {
+      "text": "핵심은",
+      "start": 26.967,
+      "end": 27.564
+    },
+    {
+      "text": "주권을",
+      "start": 27.601,
+      "end": 28.041
+    },
+    {
+      "text": "보여",
+      "start": 28.348,
+      "end": 28.476
+    },
+    {
+      "text": "준다는",
+      "start": 28.623,
+      "end": 28.942
+    },
+    {
+      "text": "점입니다.",
+      "start": 29.009,
+      "end": 30.318
+    },
+    {
+      "text": "마지막",
+      "start": 30.607,
+      "end": 31.485
+    },
+    {
+      "text": "영어",
+      "start": 31.485,
+      "end": 32.071
+    },
+    {
+      "text": "원문입니다.",
+      "start": 32.104,
+      "end": 32.231
+    },
+    {
+      "text": "Light",
+      "start": 32.69,
+      "end": 32.938
+    },
+    {
+      "text": "is",
+      "start": 32.976,
+      "end": 33.001
+    },
+    {
+      "text": "the",
+      "start": 33.001,
+      "end": 33.037
+    },
+    {
+      "text": "first",
+      "start": 33.164,
+      "end": 33.432
+    },
+    {
+      "text": "blessing",
+      "start": 33.499,
+      "end": 33.721
+    },
+    {
+      "text": "He",
+      "start": 33.843,
+      "end": 34.273
+    },
+    {
+      "text": "bestows.",
+      "start": 34.509,
+      "end": 35.188
+    },
+    {
+      "text": "빛은",
+      "start": 36.185,
+      "end": 36.234
+    },
+    {
+      "text": "그분이",
+      "start": 36.234,
+      "end": 36.308
+    },
+    {
+      "text": "주신",
+      "start": 36.371,
+      "end": 36.604
+    },
+    {
+      "text": "첫",
+      "start": 36.604,
+      "end": 36.721
+    },
+    {
+      "text": "복이다.",
+      "start": 36.797,
+      "end": 37.549
+    },
+    {
+      "text": "여기서",
+      "start": 37.584,
+      "end": 37.74
+    },
+    {
+      "text": "핵심은",
+      "start": 37.923,
+      "end": 38.308
+    },
+    {
+      "text": "은혜의",
+      "start": 38.745,
+      "end": 39.262
+    },
+    {
+      "text": "선행성을",
+      "start": 39.303,
+      "end": 39.735
+    },
+    {
+      "text": "보여",
+      "start": 40.044,
+      "end": 40.519
+    },
+    {
+      "text": "준다는",
+      "start": 40.519,
+      "end": 41.23
+    },
+    {
+      "text": "점입니다.",
+      "start": 41.289,
+      "end": 42.672
     }
   ]
 }

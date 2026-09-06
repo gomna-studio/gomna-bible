@@ -1,33 +1,300 @@
 {
   "audioId": "genesis.001.005.theology",
-  "duration": 68.952,
-  "measuredDuration": 68.952,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/005/theology-warm.mp3",
-  "finalMp3Duration": 68.952,
+  "duration": 35.592,
+  "measuredDuration": 35.592,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/005/theology-warm.mp3",
+  "finalMp3Duration": 35.592,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 13.405292
+      "end": 4.034
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 13.405292,
-      "end": 29.413875
+      "start": 4.034,
+      "end": 13.391
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 29.413875,
-      "end": 48.354917
+      "start": 13.391,
+      "end": 23.256
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 48.354917,
-      "end": 68.952
+      "start": 23.256,
+      "end": 35.592
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.402,
+      "end": 1.206
+    },
+    {
+      "text": "1장",
+      "start": 1.27,
+      "end": 1.958
+    },
+    {
+      "text": "5절,",
+      "start": 2.367,
+      "end": 2.666
+    },
+    {
+      "text": "신학적의미입니다.",
+      "start": 2.777,
+      "end": 3.635
+    },
+    {
+      "text": "시간론의",
+      "start": 4.03,
+      "end": 4.823
+    },
+    {
+      "text": "의미가",
+      "start": 4.867,
+      "end": 5.318
+    },
+    {
+      "text": "드러납니다.",
+      "start": 5.355,
+      "end": 5.785
+    },
+    {
+      "text": "시간은",
+      "start": 5.821,
+      "end": 5.975
+    },
+    {
+      "text": "창조의",
+      "start": 6.663,
+      "end": 7.933
+    },
+    {
+      "text": "일부를",
+      "start": 7.963,
+      "end": 8.116
+    },
+    {
+      "text": "보여",
+      "start": 8.116,
+      "end": 8.217
+    },
+    {
+      "text": "줍니다.",
+      "start": 8.262,
+      "end": 8.912
+    },
+    {
+      "text": "관련해서",
+      "start": 9.536,
+      "end": 10.173
+    },
+    {
+      "text": "전",
+      "start": 10.44,
+      "end": 10.744
+    },
+    {
+      "text": "3장",
+      "start": 10.744,
+      "end": 11.353
+    },
+    {
+      "text": "1절을",
+      "start": 11.399,
+      "end": 11.923
+    },
+    {
+      "text": "함께",
+      "start": 11.97,
+      "end": 12.043
+    },
+    {
+      "text": "볼",
+      "start": 12.043,
+      "end": 12.079
+    },
+    {
+      "text": "수",
+      "start": 12.079,
+      "end": 12.115
+    },
+    {
+      "text": "있습니다.",
+      "start": 12.156,
+      "end": 12.972
+    },
+    {
+      "text": "안식교리의",
+      "start": 13.378,
+      "end": 13.733
+    },
+    {
+      "text": "의미가",
+      "start": 13.846,
+      "end": 14.831
+    },
+    {
+      "text": "드러납니다.",
+      "start": 14.88,
+      "end": 15.548
+    },
+    {
+      "text": "저녁이",
+      "start": 16.097,
+      "end": 16.854
+    },
+    {
+      "text": "먼저인",
+      "start": 16.854,
+      "end": 17.611
+    },
+    {
+      "text": "순서를",
+      "start": 17.658,
+      "end": 17.671
+    },
+    {
+      "text": "보여",
+      "start": 17.671,
+      "end": 17.68
+    },
+    {
+      "text": "줍니다.",
+      "start": 17.712,
+      "end": 18.147
+    },
+    {
+      "text": "관련해서",
+      "start": 18.178,
+      "end": 18.327
+    },
+    {
+      "text": "레",
+      "start": 18.897,
+      "end": 19.066
+    },
+    {
+      "text": "23장",
+      "start": 19.066,
+      "end": 19.573
+    },
+    {
+      "text": "32절을",
+      "start": 19.935,
+      "end": 21.937
+    },
+    {
+      "text": "함께",
+      "start": 22.01,
+      "end": 22.073
+    },
+    {
+      "text": "볼",
+      "start": 22.073,
+      "end": 22.105
+    },
+    {
+      "text": "수",
+      "start": 22.105,
+      "end": 22.136
+    },
+    {
+      "text": "있습니다.",
+      "start": 22.182,
+      "end": 23.037
+    },
+    {
+      "text": "섭리론의",
+      "start": 23.252,
+      "end": 24.062
+    },
+    {
+      "text": "의미가",
+      "start": 24.312,
+      "end": 25.445
+    },
+    {
+      "text": "드러납니다.",
+      "start": 26.268,
+      "end": 26.783
+    },
+    {
+      "text": "밤·낮",
+      "start": 26.883,
+      "end": 27.323
+    },
+    {
+      "text": "모두",
+      "start": 27.542,
+      "end": 27.662
+    },
+    {
+      "text": "주권을",
+      "start": 27.757,
+      "end": 28.076
+    },
+    {
+      "text": "보여",
+      "start": 28.177,
+      "end": 28.762
+    },
+    {
+      "text": "줍니다.",
+      "start": 29.603,
+      "end": 30.241
+    },
+    {
+      "text": "관련해서",
+      "start": 30.547,
+      "end": 30.695
+    },
+    {
+      "text": "시편",
+      "start": 30.783,
+      "end": 31.541
+    },
+    {
+      "text": "139편",
+      "start": 31.63,
+      "end": 31.736
+    },
+    {
+      "text": "11절부터",
+      "start": 31.805,
+      "end": 32.068
+    },
+    {
+      "text": "12절을",
+      "start": 32.336,
+      "end": 32.95
+    },
+    {
+      "text": "함께",
+      "start": 33.029,
+      "end": 33.211
+    },
+    {
+      "text": "볼",
+      "start": 33.379,
+      "end": 34.007
+    },
+    {
+      "text": "수",
+      "start": 34.237,
+      "end": 34.426
+    },
+    {
+      "text": "있습니다.",
+      "start": 34.479,
+      "end": 35.592
     }
   ]
 }

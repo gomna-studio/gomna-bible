@@ -1,348 +1,258 @@
 {
   "audioId": "genesis.013.016.matthew-henry",
-  "duration": 33.744,
-  "measuredDuration": 33.744,
+  "duration": 25.344,
+  "measuredDuration": 25.344,
   "testAudioPath": "audio/v1/ko-KR/genesis/013/016/matthew-henry-calm.mp3",
-  "finalMp3Duration": 33.744,
+  "finalMp3Duration": 25.344,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 13.109
+      "end": 4.445
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 13.109,
-      "end": 33.744
+      "start": 4.445,
+      "end": 25.344
     }
   ],
   "words": [
     {
       "text": "창세기",
-      "start": 0.065,
-      "end": 0.718
+      "start": 0.089,
+      "end": 0.747
     },
     {
       "text": "13장",
-      "start": 0.837,
-      "end": 0.987
+      "start": 0.949,
+      "end": 2.008
     },
     {
       "text": "16절,",
-      "start": 1.026,
-      "end": 1.925
+      "start": 2.145,
+      "end": 2.356
     },
     {
       "text": "매튜헨리입니다.",
-      "start": 2.02,
-      "end": 2.238
-    },
-    {
-      "text": "본문은",
-      "start": 2.485,
-      "end": 2.617
-    },
-    {
-      "text": "'내가",
-      "start": 2.668,
-      "end": 3.476
-    },
-    {
-      "text": "네",
-      "start": 4.051,
-      "end": 4.575
-    },
-    {
-      "text": "자손이",
-      "start": 5.053,
-      "end": 6.129
-    },
-    {
-      "text": "땅의",
-      "start": 6.311,
-      "end": 6.574
-    },
-    {
-      "text": "티끌",
-      "start": 6.651,
-      "end": 6.739
-    },
-    {
-      "text": "같게",
-      "start": 6.835,
-      "end": 7.083
-    },
-    {
-      "text": "하리니",
-      "start": 7.162,
-      "end": 7.661
-    },
-    {
-      "text": "사람이",
-      "start": 8.108,
-      "end": 8.621
-    },
-    {
-      "text": "땅의",
-      "start": 8.707,
-      "end": 8.975
-    },
-    {
-      "text": "티끌을",
-      "start": 9.039,
-      "end": 9.109
-    },
-    {
-      "text": "능히",
-      "start": 9.214,
-      "end": 10.421
-    },
-    {
-      "text": "셀",
-      "start": 10.459,
-      "end": 10.644
-    },
-    {
-      "text": "수",
-      "start": 10.644,
-      "end": 10.829
-    },
-    {
-      "text": "있을진대",
-      "start": 11.224,
-      "end": 11.417
-    },
-    {
-      "text": "네",
-      "start": 11.442,
-      "end": 11.582
-    },
-    {
-      "text": "자손도",
-      "start": 11.582,
-      "end": 12
-    },
-    {
-      "text": "세리라'입니다.",
-      "start": 12.124,
-      "end": 12.887
+      "start": 2.844,
+      "end": 3.893
     },
     {
       "text": "매튜",
-      "start": 13.107,
-      "end": 13.168
+      "start": 4.442,
+      "end": 4.581
     },
     {
       "text": "헨리의",
-      "start": 13.168,
-      "end": 13.261
+      "start": 4.641,
+      "end": 5.302
     },
     {
       "text": "영어",
-      "start": 13.261,
-      "end": 13.322
+      "start": 5.362,
+      "end": 6.186
     },
     {
       "text": "원문입니다.",
-      "start": 13.371,
-      "end": 15.176
+      "start": 6.219,
+      "end": 6.386
     },
     {
       "text": "I",
-      "start": 15.685,
-      "end": 15.836
+      "start": 7.285,
+      "end": 7.436
     },
     {
       "text": "will",
-      "start": 15.836,
-      "end": 16.44
+      "start": 7.436,
+      "end": 8.04
     },
     {
       "text": "make",
-      "start": 16.488,
-      "end": 16.508
+      "start": 8.088,
+      "end": 8.108
     },
     {
       "text": "thy",
-      "start": 16.569,
-      "end": 17.171
+      "start": 8.169,
+      "end": 8.771
     },
     {
       "text": "seed",
-      "start": 17.405,
-      "end": 17.535
+      "start": 9.005,
+      "end": 9.135
     },
     {
       "text": "as",
-      "start": 17.582,
-      "end": 17.732
+      "start": 9.182,
+      "end": 9.332
     },
     {
       "text": "the",
-      "start": 17.775,
-      "end": 18.015
+      "start": 9.375,
+      "end": 9.615
     },
     {
       "text": "dust",
-      "start": 18.045,
-      "end": 18.286
+      "start": 9.645,
+      "end": 9.886
     },
     {
       "text": "of",
-      "start": 18.336,
-      "end": 18.654
+      "start": 9.936,
+      "end": 10.254
     },
     {
       "text": "the",
-      "start": 19.067,
-      "end": 19.37
+      "start": 10.667,
+      "end": 10.97
     },
     {
       "text": "earth",
-      "start": 19.433,
-      "end": 19.978
+      "start": 11.033,
+      "end": 11.578
     },
     {
       "text": "-",
-      "start": 20.028,
-      "end": 20.109
+      "start": 11.628,
+      "end": 11.709
     },
     {
       "text": "God's",
-      "start": 20.109,
-      "end": 20.516
+      "start": 11.709,
+      "end": 12.116
     },
     {
       "text": "blessings",
-      "start": 20.556,
-      "end": 20.829
+      "start": 12.156,
+      "end": 12.429
     },
     {
       "text": "exceed",
-      "start": 20.861,
-      "end": 20.93
+      "start": 12.461,
+      "end": 12.53
     },
     {
       "text": "our",
-      "start": 20.98,
-      "end": 21.052
+      "start": 12.58,
+      "end": 12.652
     },
     {
       "text": "expectations",
-      "start": 21.129,
-      "end": 21.664
+      "start": 12.729,
+      "end": 13.264
     },
     {
       "text": "내가",
-      "start": 21.918,
-      "end": 22.761
+      "start": 13.518,
+      "end": 14.361
     },
     {
       "text": "네",
-      "start": 22.761,
-      "end": 23.183
+      "start": 14.361,
+      "end": 14.783
     },
     {
       "text": "자손을",
-      "start": 23.409,
-      "end": 23.699
+      "start": 15.009,
+      "end": 15.299
     },
     {
       "text": "땅의",
-      "start": 23.75,
-      "end": 23.843
+      "start": 15.35,
+      "end": 15.443
     },
     {
       "text": "티끌같게",
-      "start": 23.949,
-      "end": 24.179
+      "start": 15.549,
+      "end": 15.779
     },
     {
       "text": "하리라",
-      "start": 24.262,
-      "end": 24.568
+      "start": 15.862,
+      "end": 16.168
     },
     {
       "text": "-",
-      "start": 24.568,
-      "end": 24.67
+      "start": 16.168,
+      "end": 16.27
     },
     {
       "text": "하나님의",
-      "start": 25.148,
-      "end": 25.605
+      "start": 16.748,
+      "end": 17.205
     },
     {
       "text": "축복은",
-      "start": 25.635,
-      "end": 25.72
+      "start": 17.235,
+      "end": 17.32
     },
     {
       "text": "우리",
-      "start": 25.843,
-      "end": 26.182
+      "start": 17.443,
+      "end": 17.782
     },
     {
       "text": "기대를",
-      "start": 26.316,
-      "end": 26.561
+      "start": 17.916,
+      "end": 18.161
     },
     {
       "text": "초월한다",
-      "start": 26.601,
-      "end": 27.013
+      "start": 18.201,
+      "end": 18.613
     },
     {
       "text": "여기서",
-      "start": 27.05,
-      "end": 27.649
+      "start": 18.65,
+      "end": 19.249
     },
     {
       "text": "핵심은",
-      "start": 28.262,
-      "end": 28.739
+      "start": 19.862,
+      "end": 20.339
     },
     {
       "text": "하나님의",
-      "start": 28.785,
-      "end": 29.15
+      "start": 20.385,
+      "end": 20.75
     },
     {
       "text": "약속은",
-      "start": 29.422,
-      "end": 29.947
+      "start": 21.022,
+      "end": 21.547
     },
     {
       "text": "인간의",
-      "start": 29.988,
-      "end": 30.161
+      "start": 21.588,
+      "end": 21.761
     },
     {
       "text": "상상을",
-      "start": 30.192,
-      "end": 30.376
+      "start": 21.792,
+      "end": 21.976
     },
     {
       "text": "뛰어넘는다를",
-      "start": 30.534,
-      "end": 31.478
+      "start": 22.134,
+      "end": 23.078
     },
     {
       "text": "보여",
-      "start": 31.535,
-      "end": 31.846
+      "start": 23.135,
+      "end": 23.446
     },
     {
       "text": "준다는",
-      "start": 31.846,
-      "end": 32.312
+      "start": 23.446,
+      "end": 23.912
     },
     {
       "text": "점입니다.",
-      "start": 32.525,
-      "end": 33.744
+      "start": 24.125,
+      "end": 25.344
     }
   ]
 }

@@ -1,45 +1,352 @@
 {
   "audioId": "genesis.001.009.original-language",
-  "duration": 40.008,
-  "measuredDuration": 40.008,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/009/original-language-study.mp3",
-  "finalMp3Duration": 40.008,
+  "duration": 41.376,
+  "measuredDuration": 41.376,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/009/original-language-study.mp3",
+  "finalMp3Duration": 41.376,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 12.023583
+      "end": 11.674
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 12.023583,
-      "end": 16.391125
+      "start": 11.674,
+      "end": 17.64
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 16.391125,
-      "end": 21.921542
+      "start": 17.64,
+      "end": 23.6
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 21.921542,
-      "end": 28.6215
+      "start": 23.6,
+      "end": 30.245
     },
     {
       "type": "item",
       "itemIndex": 3,
-      "start": 28.6215,
-      "end": 34.40975
+      "start": 30.245,
+      "end": 35.687
     },
     {
       "type": "item",
       "itemIndex": 4,
-      "start": 34.40975,
-      "end": 40.008
+      "start": 35.687,
+      "end": 41.376
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.358,
+      "end": 1.026
+    },
+    {
+      "text": "1장",
+      "start": 1.085,
+      "end": 1.256
+    },
+    {
+      "text": "9절,",
+      "start": 1.31,
+      "end": 1.558
+    },
+    {
+      "text": "원어분석입니다.",
+      "start": 1.584,
+      "end": 1.97
+    },
+    {
+      "text": "본문은",
+      "start": 2.301,
+      "end": 2.609
+    },
+    {
+      "text": "'하나님이",
+      "start": 2.648,
+      "end": 2.944
+    },
+    {
+      "text": "가라사대",
+      "start": 2.97,
+      "end": 3.336
+    },
+    {
+      "text": "천하의",
+      "start": 3.963,
+      "end": 4.456
+    },
+    {
+      "text": "물이",
+      "start": 4.875,
+      "end": 5.328
+    },
+    {
+      "text": "한",
+      "start": 5.364,
+      "end": 5.928
+    },
+    {
+      "text": "곳으로",
+      "start": 6.181,
+      "end": 7.638
+    },
+    {
+      "text": "모이고",
+      "start": 7.709,
+      "end": 7.84
+    },
+    {
+      "text": "뭍이",
+      "start": 8.19,
+      "end": 8.508
+    },
+    {
+      "text": "드러나라",
+      "start": 8.554,
+      "end": 9.46
+    },
+    {
+      "text": "하시매",
+      "start": 9.785,
+      "end": 10.171
+    },
+    {
+      "text": "그대로",
+      "start": 10.21,
+      "end": 10.762
+    },
+    {
+      "text": "되니라'입니다.",
+      "start": 10.797,
+      "end": 10.919
+    },
+    {
+      "text": "이카우는",
+      "start": 11.674,
+      "end": 11.773
+    },
+    {
+      "text": "“모여라”라는",
+      "start": 11.831,
+      "end": 12.327
+    },
+    {
+      "text": "뜻의",
+      "start": 12.644,
+      "end": 14.939
+    },
+    {
+      "text": "명령형",
+      "start": 15.683,
+      "end": 15.843
+    },
+    {
+      "text": "동사입니다.",
+      "start": 15.871,
+      "end": 16.658
+    },
+    {
+      "text": "수집의",
+      "start": 16.727,
+      "end": 16.77
+    },
+    {
+      "text": "섭리를",
+      "start": 16.798,
+      "end": 16.988
+    },
+    {
+      "text": "보여",
+      "start": 17.014,
+      "end": 17.237
+    },
+    {
+      "text": "줍니다.",
+      "start": 17.263,
+      "end": 17.38
+    },
+    {
+      "text": "마임은",
+      "start": 17.637,
+      "end": 18.271
+    },
+    {
+      "text": "“물”이라는",
+      "start": 18.589,
+      "end": 18.973
+    },
+    {
+      "text": "뜻의",
+      "start": 19.014,
+      "end": 19.109
+    },
+    {
+      "text": "명사입니다.",
+      "start": 19.109,
+      "end": 19.396
+    },
+    {
+      "text": "혼돈에서",
+      "start": 19.428,
+      "end": 20.447
+    },
+    {
+      "text": "질서를",
+      "start": 21.088,
+      "end": 21.461
+    },
+    {
+      "text": "보여",
+      "start": 21.461,
+      "end": 21.709
+    },
+    {
+      "text": "줍니다.",
+      "start": 21.766,
+      "end": 23.065
+    },
+    {
+      "text": "니르에는",
+      "start": 23.597,
+      "end": 24.234
+    },
+    {
+      "text": "“드러나라”라는",
+      "start": 24.592,
+      "end": 25.389
+    },
+    {
+      "text": "뜻의",
+      "start": 25.418,
+      "end": 25.543
+    },
+    {
+      "text": "명령형",
+      "start": 25.543,
+      "end": 25.731
+    },
+    {
+      "text": "동사입니다.",
+      "start": 25.759,
+      "end": 26.365
+    },
+    {
+      "text": "가려진",
+      "start": 26.403,
+      "end": 27.043
+    },
+    {
+      "text": "잠재력을",
+      "start": 27.659,
+      "end": 28.872
+    },
+    {
+      "text": "보여",
+      "start": 29.067,
+      "end": 29.29
+    },
+    {
+      "text": "줍니다.",
+      "start": 29.29,
+      "end": 29.736
+    },
+    {
+      "text": "야바샤는",
+      "start": 30.239,
+      "end": 31.008
+    },
+    {
+      "text": "“뭍”이라는",
+      "start": 31.251,
+      "end": 31.439
+    },
+    {
+      "text": "뜻의",
+      "start": 31.719,
+      "end": 32.086
+    },
+    {
+      "text": "명사입니다.",
+      "start": 32.126,
+      "end": 33.207
+    },
+    {
+      "text": "안정",
+      "start": 33.909,
+      "end": 34.477
+    },
+    {
+      "text": "기반을",
+      "start": 34.509,
+      "end": 34.668
+    },
+    {
+      "text": "보여",
+      "start": 34.668,
+      "end": 34.774
+    },
+    {
+      "text": "줍니다.",
+      "start": 34.885,
+      "end": 35.457
+    },
+    {
+      "text": "마콤",
+      "start": 35.685,
+      "end": 35.812
+    },
+    {
+      "text": "에하드는",
+      "start": 35.94,
+      "end": 36.165
+    },
+    {
+      "text": "“한",
+      "start": 36.207,
+      "end": 36.809
+    },
+    {
+      "text": "곳”이라는",
+      "start": 37.168,
+      "end": 37.522
+    },
+    {
+      "text": "뜻으로,",
+      "start": 37.569,
+      "end": 37.95
+    },
+    {
+      "text": "구입니다.",
+      "start": 37.983,
+      "end": 38.374
+    },
+    {
+      "text": "집중",
+      "start": 38.632,
+      "end": 39.19
+    },
+    {
+      "text": "원리를",
+      "start": 39.743,
+      "end": 39.866
+    },
+    {
+      "text": "보여",
+      "start": 39.969,
+      "end": 40.572
+    },
+    {
+      "text": "줍니다.",
+      "start": 40.681,
+      "end": 41.376
     }
   ]
 }

@@ -1,685 +1,590 @@
 {
   "audioId": "genesis.041.030.matthew-henry",
-  "duration": 67.44,
-  "measuredDuration": 67.44,
+  "duration": 57.6,
+  "measuredDuration": 57.6,
   "testAudioPath": "audio/v1/ko-KR/genesis/041/030/matthew-henry-calm.mp3",
-  "finalMp3Duration": 67.44,
+  "finalMp3Duration": 57.6,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 13.542
+      "end": 3.845
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 13.542,
-      "end": 29.761
+      "start": 3.845,
+      "end": 20.04
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 29.761,
-      "end": 48.874
+      "start": 20.04,
+      "end": 39.274
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 48.874,
-      "end": 67.44
+      "start": 39.274,
+      "end": 57.6
     }
   ],
   "words": [
     {
       "text": "창세기",
       "start": 0.065,
-      "end": 1.191
+      "end": 1.649
     },
     {
       "text": "41장",
-      "start": 1.239,
-      "end": 1.759
+      "start": 1.742,
+      "end": 1.961
     },
     {
       "text": "30절,",
-      "start": 1.867,
-      "end": 2.095
+      "start": 2.375,
+      "end": 2.495
     },
     {
       "text": "매튜헨리입니다.",
-      "start": 2.486,
-      "end": 2.615
-    },
-    {
-      "text": "본문은",
-      "start": 2.67,
-      "end": 3.44
-    },
-    {
-      "text": "'그",
-      "start": 3.976,
-      "end": 4.456
-    },
-    {
-      "text": "후에",
-      "start": 4.784,
-      "end": 5.505
-    },
-    {
-      "text": "일곱",
-      "start": 5.53,
-      "end": 5.591
-    },
-    {
-      "text": "해",
-      "start": 5.591,
-      "end": 5.622
-    },
-    {
-      "text": "흉년이",
-      "start": 5.689,
-      "end": 6.744
-    },
-    {
-      "text": "들므로",
-      "start": 7.15,
-      "end": 7.363
-    },
-    {
-      "text": "애굽",
-      "start": 7.473,
-      "end": 7.761
-    },
-    {
-      "text": "땅에",
-      "start": 7.874,
-      "end": 8.043
-    },
-    {
-      "text": "있던",
-      "start": 8.074,
-      "end": 8.59
-    },
-    {
-      "text": "풍년을",
-      "start": 8.886,
-      "end": 9.489
-    },
-    {
-      "text": "다",
-      "start": 9.489,
-      "end": 9.691
-    },
-    {
-      "text": "잊어버리게",
-      "start": 9.717,
-      "end": 9.834
-    },
-    {
-      "text": "되고",
-      "start": 9.873,
-      "end": 10.036
-    },
-    {
-      "text": "이",
-      "start": 10.468,
-      "end": 10.503
-    },
-    {
-      "text": "땅이",
-      "start": 10.503,
-      "end": 10.573
-    },
-    {
-      "text": "기근으로",
-      "start": 10.667,
-      "end": 10.964
-    },
-    {
-      "text": "멸망하게",
-      "start": 10.998,
-      "end": 12.567
-    },
-    {
-      "text": "되리니'입니다.",
-      "start": 12.903,
-      "end": 13.286
+      "start": 2.551,
+      "end": 3.362
     },
     {
       "text": "매튜",
-      "start": 13.54,
-      "end": 13.583
+      "start": 3.842,
+      "end": 3.981
     },
     {
       "text": "헨리의",
-      "start": 13.583,
-      "end": 13.648
+      "start": 4.041,
+      "end": 4.701
     },
     {
       "text": "영어",
-      "start": 13.648,
-      "end": 13.691
+      "start": 4.762,
+      "end": 5.586
     },
     {
       "text": "원문입니다.",
-      "start": 13.825,
-      "end": 15.681
+      "start": 5.619,
+      "end": 5.786
     },
     {
       "text": "The",
-      "start": 16.339,
-      "end": 16.558
+      "start": 6.691,
+      "end": 6.91
     },
     {
       "text": "famine",
-      "start": 16.588,
-      "end": 16.976
+      "start": 6.94,
+      "end": 7.328
     },
     {
       "text": "would",
-      "start": 17.072,
-      "end": 17.2
+      "start": 7.424,
+      "end": 7.552
     },
     {
       "text": "be",
-      "start": 17.236,
-      "end": 17.726
+      "start": 7.588,
+      "end": 8.078
     },
     {
       "text": "so",
-      "start": 17.726,
-      "end": 18.215
+      "start": 8.078,
+      "end": 8.567
     },
     {
       "text": "severe",
-      "start": 18.474,
-      "end": 18.579
+      "start": 8.826,
+      "end": 8.931
     },
     {
       "text": "that",
-      "start": 18.73,
-      "end": 19.074
+      "start": 9.082,
+      "end": 9.426
     },
     {
       "text": "all",
-      "start": 19.12,
-      "end": 19.144
+      "start": 9.472,
+      "end": 9.496
     },
     {
       "text": "the",
-      "start": 19.144,
-      "end": 19.169
+      "start": 9.496,
+      "end": 9.521
     },
     {
       "text": "plenty",
-      "start": 19.197,
-      "end": 19.576
+      "start": 9.549,
+      "end": 9.928
     },
     {
       "text": "would",
-      "start": 19.832,
-      "end": 20.261
+      "start": 10.184,
+      "end": 10.613
     },
     {
       "text": "be",
-      "start": 20.261,
-      "end": 20.433
+      "start": 10.613,
+      "end": 10.785
     },
     {
       "text": "forgotten",
-      "start": 20.489,
-      "end": 20.591
+      "start": 10.841,
+      "end": 10.943
     },
     {
       "text": "기근이",
-      "start": 21.082,
-      "end": 22.516
+      "start": 11.434,
+      "end": 12.868
     },
     {
       "text": "너무",
-      "start": 22.908,
-      "end": 23.354
+      "start": 13.26,
+      "end": 13.706
     },
     {
       "text": "심하여",
-      "start": 23.413,
-      "end": 23.698
+      "start": 13.765,
+      "end": 14.05
     },
     {
       "text": "모든",
-      "start": 23.726,
-      "end": 23.876
+      "start": 14.078,
+      "end": 14.228
     },
     {
       "text": "풍요가",
-      "start": 23.912,
-      "end": 24.038
+      "start": 14.264,
+      "end": 14.39
     },
     {
       "text": "잊혀질",
-      "start": 24.075,
-      "end": 24.369
+      "start": 14.427,
+      "end": 14.721
     },
     {
       "text": "것이다",
-      "start": 24.426,
-      "end": 24.612
+      "start": 14.778,
+      "end": 14.964
     },
     {
       "text": "여기서",
-      "start": 24.663,
-      "end": 24.81
+      "start": 15.015,
+      "end": 15.162
     },
     {
       "text": "핵심은",
-      "start": 25.518,
-      "end": 26.415
+      "start": 15.87,
+      "end": 16.767
     },
     {
       "text": "환난의",
-      "start": 26.774,
-      "end": 27.541
+      "start": 17.126,
+      "end": 17.893
     },
     {
       "text": "심각성을",
-      "start": 27.578,
-      "end": 27.898
+      "start": 17.93,
+      "end": 18.25
     },
     {
       "text": "보여",
-      "start": 27.938,
-      "end": 27.946
+      "start": 18.29,
+      "end": 18.298
     },
     {
       "text": "준다는",
-      "start": 27.946,
-      "end": 27.959
+      "start": 18.298,
+      "end": 18.31
     },
     {
       "text": "점입니다.",
-      "start": 27.99,
-      "end": 29.108
+      "start": 18.342,
+      "end": 19.46
     },
     {
       "text": "두",
-      "start": 29.755,
-      "end": 29.83
+      "start": 20.04,
+      "end": 20.118
     },
     {
       "text": "번째",
-      "start": 29.83,
-      "end": 29.98
+      "start": 20.118,
+      "end": 20.275
     },
     {
       "text": "영어",
-      "start": 29.98,
-      "end": 30.13
+      "start": 20.275,
+      "end": 20.432
     },
     {
       "text": "원문입니다.",
-      "start": 30.175,
-      "end": 31.532
+      "start": 20.484,
+      "end": 21.734
     },
     {
       "text": "The",
-      "start": 31.977,
-      "end": 32.302
+      "start": 22.377,
+      "end": 22.702
     },
     {
       "text": "land",
-      "start": 32.302,
-      "end": 32.735
+      "start": 22.702,
+      "end": 23.135
     },
     {
       "text": "would",
-      "start": 32.766,
-      "end": 32.837
+      "start": 23.166,
+      "end": 23.237
     },
     {
       "text": "be",
-      "start": 32.837,
-      "end": 32.865
+      "start": 23.237,
+      "end": 23.265
     },
     {
       "text": "consumed",
-      "start": 32.91,
-      "end": 33.542
+      "start": 23.31,
+      "end": 23.942
     },
     {
       "text": "by",
-      "start": 33.594,
-      "end": 33.869
+      "start": 23.994,
+      "end": 24.269
     },
     {
       "text": "the",
-      "start": 33.869,
-      "end": 34.282
+      "start": 24.269,
+      "end": 24.682
     },
     {
       "text": "famine,",
-      "start": 34.63,
-      "end": 35.2
+      "start": 25.03,
+      "end": 25.6
     },
     {
       "text": "showing",
-      "start": 35.264,
-      "end": 35.433
+      "start": 25.664,
+      "end": 25.833
     },
     {
       "text": "how",
-      "start": 35.481,
-      "end": 35.505
+      "start": 25.881,
+      "end": 25.905
     },
     {
       "text": "quickly",
-      "start": 35.531,
-      "end": 35.654
+      "start": 25.931,
+      "end": 26.054
     },
     {
       "text": "prosperity",
-      "start": 35.698,
-      "end": 35.963
+      "start": 26.098,
+      "end": 26.363
     },
     {
       "text": "can",
-      "start": 36.01,
-      "end": 36.402
+      "start": 26.41,
+      "end": 26.802
     },
     {
       "text": "turn",
-      "start": 36.464,
-      "end": 36.822
+      "start": 26.864,
+      "end": 27.222
     },
     {
       "text": "to",
-      "start": 36.822,
-      "end": 37.001
+      "start": 27.222,
+      "end": 27.401
     },
     {
       "text": "poverty",
-      "start": 37.043,
-      "end": 37.474
+      "start": 27.443,
+      "end": 27.874
     },
     {
       "text": "땅이",
-      "start": 37.806,
-      "end": 38.189
+      "start": 28.206,
+      "end": 28.589
     },
     {
       "text": "기근으로",
-      "start": 38.41,
-      "end": 39.034
+      "start": 28.81,
+      "end": 29.434
     },
     {
       "text": "소진되니",
-      "start": 39.064,
-      "end": 39.664
+      "start": 29.464,
+      "end": 30.064
     },
     {
       "text": "번영이",
-      "start": 40.035,
-      "end": 41.044
+      "start": 30.435,
+      "end": 31.444
     },
     {
       "text": "얼마나",
-      "start": 41.132,
-      "end": 41.332
+      "start": 31.532,
+      "end": 31.732
     },
     {
       "text": "빨리",
-      "start": 41.332,
-      "end": 41.466
+      "start": 31.732,
+      "end": 31.866
     },
     {
       "text": "빈곤으로",
-      "start": 41.522,
-      "end": 42.051
+      "start": 31.922,
+      "end": 32.451
     },
     {
       "text": "바뀔",
-      "start": 42.094,
-      "end": 42.16
+      "start": 32.494,
+      "end": 32.56
     },
     {
       "text": "수",
-      "start": 42.16,
-      "end": 42.194
+      "start": 32.56,
+      "end": 32.594
     },
     {
       "text": "있는지",
-      "start": 42.305,
-      "end": 43.036
+      "start": 32.705,
+      "end": 33.436
     },
     {
       "text": "보여준다",
-      "start": 43.16,
-      "end": 43.678
+      "start": 33.56,
+      "end": 34.078
     },
     {
       "text": "여기서",
-      "start": 44.367,
-      "end": 44.815
+      "start": 34.767,
+      "end": 35.215
     },
     {
       "text": "핵심은",
-      "start": 44.855,
-      "end": 45.234
+      "start": 35.255,
+      "end": 35.634
     },
     {
       "text": "세상",
-      "start": 45.618,
-      "end": 45.788
+      "start": 36.018,
+      "end": 36.188
     },
     {
       "text": "번영의",
-      "start": 45.788,
-      "end": 46.042
+      "start": 36.188,
+      "end": 36.442
     },
     {
       "text": "불안정성을",
-      "start": 46.087,
-      "end": 46.551
+      "start": 36.487,
+      "end": 36.951
     },
     {
       "text": "보여",
-      "start": 46.6,
-      "end": 46.922
+      "start": 37,
+      "end": 37.322
     },
     {
       "text": "준다는",
-      "start": 46.922,
-      "end": 47.405
+      "start": 37.322,
+      "end": 37.805
     },
     {
       "text": "점입니다.",
-      "start": 47.522,
-      "end": 48.62
+      "start": 37.922,
+      "end": 39.02
     },
     {
       "text": "마지막",
-      "start": 48.872,
-      "end": 49.116
+      "start": 39.271,
+      "end": 40.149
     },
     {
       "text": "영어",
-      "start": 49.116,
-      "end": 49.279
+      "start": 40.149,
+      "end": 40.735
     },
     {
       "text": "원문입니다.",
-      "start": 49.719,
-      "end": 50.777
+      "start": 40.768,
+      "end": 40.895
     },
     {
       "text": "This",
-      "start": 51.192,
-      "end": 51.435
+      "start": 41.352,
+      "end": 41.595
     },
     {
       "text": "teaches",
-      "start": 51.484,
-      "end": 51.625
+      "start": 41.644,
+      "end": 41.785
     },
     {
       "text": "us",
-      "start": 51.653,
-      "end": 51.773
+      "start": 41.813,
+      "end": 41.933
     },
     {
       "text": "not",
-      "start": 51.773,
-      "end": 51.953
+      "start": 41.933,
+      "end": 42.113
     },
     {
       "text": "to",
-      "start": 51.953,
-      "end": 52.074
+      "start": 42.113,
+      "end": 42.234
     },
     {
       "text": "set",
-      "start": 52.125,
-      "end": 52.248
+      "start": 42.285,
+      "end": 42.408
     },
     {
       "text": "our",
-      "start": 52.248,
-      "end": 52.371
+      "start": 42.408,
+      "end": 42.531
     },
     {
       "text": "hearts",
-      "start": 52.446,
-      "end": 53.076
+      "start": 42.606,
+      "end": 43.236
     },
     {
       "text": "upon",
-      "start": 53.134,
-      "end": 53.29
+      "start": 43.294,
+      "end": 43.45
     },
     {
       "text": "worldly",
-      "start": 53.33,
-      "end": 53.927
+      "start": 43.49,
+      "end": 44.087
     },
     {
       "text": "prosperity",
-      "start": 53.969,
-      "end": 54.167
+      "start": 44.129,
+      "end": 44.327
     },
     {
       "text": "which",
-      "start": 54.212,
-      "end": 54.552
+      "start": 44.372,
+      "end": 44.712
     },
     {
       "text": "is",
-      "start": 54.847,
-      "end": 55.302
+      "start": 45.007,
+      "end": 45.462
     },
     {
       "text": "so",
-      "start": 55.302,
-      "end": 55.756
+      "start": 45.462,
+      "end": 45.916
     },
     {
       "text": "uncertain",
-      "start": 55.793,
-      "end": 55.93
+      "start": 45.953,
+      "end": 46.09
     },
     {
       "text": "이것은",
-      "start": 56.139,
-      "end": 56.702
+      "start": 46.299,
+      "end": 46.862
     },
     {
       "text": "우리에게",
-      "start": 57.023,
-      "end": 57.752
+      "start": 47.183,
+      "end": 47.912
     },
     {
       "text": "이처럼",
-      "start": 57.803,
-      "end": 58.158
+      "start": 47.963,
+      "end": 48.318
     },
     {
       "text": "불확실한",
-      "start": 58.197,
-      "end": 58.432
+      "start": 48.357,
+      "end": 48.592
     },
     {
       "text": "세상의",
-      "start": 58.471,
-      "end": 59.228
+      "start": 48.631,
+      "end": 49.388
     },
     {
       "text": "번영에",
-      "start": 59.266,
-      "end": 59.781
+      "start": 49.426,
+      "end": 49.941
     },
     {
       "text": "마음을",
-      "start": 60.418,
-      "end": 60.887
+      "start": 50.578,
+      "end": 51.047
     },
     {
       "text": "두지",
-      "start": 60.937,
-      "end": 61.174
+      "start": 51.097,
+      "end": 51.334
     },
     {
       "text": "말라고",
-      "start": 61.174,
-      "end": 61.53
+      "start": 51.334,
+      "end": 51.69
     },
     {
       "text": "가르친다",
-      "start": 61.559,
-      "end": 61.663
+      "start": 51.719,
+      "end": 51.823
     },
     {
       "text": "여기서",
-      "start": 61.704,
-      "end": 61.926
+      "start": 51.864,
+      "end": 52.086
     },
     {
       "text": "핵심은",
-      "start": 61.969,
-      "end": 62.308
+      "start": 52.129,
+      "end": 52.468
     },
     {
       "text": "영원한",
-      "start": 63.046,
-      "end": 63.526
+      "start": 53.206,
+      "end": 53.686
     },
     {
       "text": "것에",
-      "start": 63.561,
-      "end": 63.721
+      "start": 53.721,
+      "end": 53.881
     },
     {
       "text": "마음을",
-      "start": 63.721,
-      "end": 63.961
+      "start": 53.881,
+      "end": 54.121
     },
     {
       "text": "두라를",
-      "start": 64.347,
-      "end": 65.561
+      "start": 54.507,
+      "end": 55.721
     },
     {
       "text": "보여",
-      "start": 65.602,
-      "end": 65.761
+      "start": 55.762,
+      "end": 55.921
     },
     {
       "text": "준다는",
-      "start": 65.761,
-      "end": 65.999
+      "start": 55.921,
+      "end": 56.159
     },
     {
       "text": "점입니다.",
-      "start": 66.055,
-      "end": 67.44
+      "start": 56.215,
+      "end": 57.6
     }
   ]
 }

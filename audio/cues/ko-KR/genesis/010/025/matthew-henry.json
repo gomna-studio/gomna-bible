@@ -1,510 +1,425 @@
 {
   "audioId": "genesis.010.025.matthew-henry",
-  "duration": 58.2,
-  "measuredDuration": 58.2,
+  "duration": 44.208,
+  "measuredDuration": 44.208,
   "testAudioPath": "audio/v1/ko-KR/genesis/010/025/matthew-henry-calm.mp3",
-  "finalMp3Duration": 58.2,
+  "finalMp3Duration": 44.208,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 13.32
+      "end": 3.293
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 13.32,
-      "end": 28.211
+      "start": 3.293,
+      "end": 18.744
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 28.211,
-      "end": 42.747
+      "start": 18.744,
+      "end": 31.282
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 42.747,
-      "end": 58.2
+      "start": 31.282,
+      "end": 44.208
     }
   ],
   "words": [
     {
       "text": "창세기",
-      "start": 0.07,
-      "end": 0.461
+      "start": 0.058,
+      "end": 0.754
     },
     {
       "text": "10장",
-      "start": 0.489,
-      "end": 0.877
+      "start": 0.898,
+      "end": 1.727
     },
     {
       "text": "25절,",
-      "start": 1.015,
-      "end": 1.971
+      "start": 2.054,
+      "end": 2.195
     },
     {
       "text": "매튜헨리입니다.",
-      "start": 2.201,
-      "end": 2.348
-    },
-    {
-      "text": "본문은",
-      "start": 2.411,
-      "end": 3.13
-    },
-    {
-      "text": "'에벨은",
-      "start": 3.789,
-      "end": 4.295
-    },
-    {
-      "text": "두",
-      "start": 4.623,
-      "end": 4.746
-    },
-    {
-      "text": "아들을",
-      "start": 4.746,
-      "end": 5.117
-    },
-    {
-      "text": "낳고",
-      "start": 5.158,
-      "end": 5.439
-    },
-    {
-      "text": "하나의",
-      "start": 5.439,
-      "end": 5.861
-    },
-    {
-      "text": "이름을",
-      "start": 5.967,
-      "end": 6.01
-    },
-    {
-      "text": "벨렉이라",
-      "start": 6.04,
-      "end": 7.132
-    },
-    {
-      "text": "하였으니",
-      "start": 7.201,
-      "end": 8.074
-    },
-    {
-      "text": "그",
-      "start": 8.074,
-      "end": 8.292
-    },
-    {
-      "text": "때에",
-      "start": 8.814,
-      "end": 8.852
-    },
-    {
-      "text": "세상이",
-      "start": 8.852,
-      "end": 8.909
-    },
-    {
-      "text": "나뉘었음이요",
-      "start": 9.014,
-      "end": 9.305
-    },
-    {
-      "text": "벨렉의",
-      "start": 9.335,
-      "end": 10.477
-    },
-    {
-      "text": "아우의",
-      "start": 10.945,
-      "end": 12.184
-    },
-    {
-      "text": "이름은",
-      "start": 12.334,
-      "end": 12.44
-    },
-    {
-      "text": "욕단이며'입니다.",
-      "start": 12.571,
-      "end": 12.987
+      "start": 2.254,
+      "end": 3.016
     },
     {
       "text": "매튜",
-      "start": 13.319,
-      "end": 13.497
+      "start": 3.29,
+      "end": 3.429
     },
     {
       "text": "헨리의",
-      "start": 13.649,
-      "end": 14.224
+      "start": 3.489,
+      "end": 4.15
     },
     {
       "text": "영어",
-      "start": 14.224,
-      "end": 14.607
+      "start": 4.21,
+      "end": 5.034
     },
     {
       "text": "원문입니다.",
-      "start": 14.803,
-      "end": 15.894
+      "start": 5.067,
+      "end": 5.234
     },
     {
       "text": "Shem",
-      "start": 16.362,
-      "end": 16.829
+      "start": 6.142,
+      "end": 6.552
     },
     {
       "text": "was",
-      "start": 17.157,
-      "end": 17.315
+      "start": 6.67,
+      "end": 6.741
     },
     {
       "text": "the",
-      "start": 17.354,
-      "end": 17.439
+      "start": 6.741,
+      "end": 6.812
     },
     {
       "text": "ancestor",
-      "start": 17.488,
-      "end": 17.909
+      "start": 6.845,
+      "end": 7.576
     },
     {
       "text": "of",
-      "start": 17.942,
-      "end": 18.069
+      "start": 7.613,
+      "end": 7.659
     },
     {
       "text": "all",
-      "start": 18.069,
-      "end": 18.259
+      "start": 7.659,
+      "end": 7.728
     },
     {
       "text": "the",
-      "start": 18.4,
-      "end": 18.756
+      "start": 7.793,
+      "end": 8.585
     },
     {
       "text": "children",
-      "start": 18.799,
-      "end": 19.317
+      "start": 8.623,
+      "end": 8.744
     },
     {
       "text": "of",
-      "start": 19.391,
-      "end": 19.525
+      "start": 8.808,
+      "end": 8.899
     },
     {
       "text": "Eber.",
-      "start": 19.554,
-      "end": 19.755
+      "start": 8.899,
+      "end": 9.127
     },
     {
       "text": "셈은",
-      "start": 20.234,
-      "end": 20.439
+      "start": 9.592,
+      "end": 10.119
     },
     {
       "text": "에벨의",
-      "start": 20.439,
-      "end": 20.748
+      "start": 10.3,
+      "end": 10.449
     },
     {
       "text": "모든",
-      "start": 20.968,
-      "end": 21.506
+      "start": 10.483,
+      "end": 11.741
     },
     {
       "text": "자손의",
-      "start": 21.506,
-      "end": 22.313
+      "start": 11.876,
+      "end": 12.383
     },
     {
       "text": "조상이었다.",
-      "start": 22.341,
-      "end": 22.832
+      "start": 12.524,
+      "end": 12.652
     },
     {
       "text": "여기서",
-      "start": 22.959,
-      "end": 23.087
+      "start": 13.439,
+      "end": 13.983
     },
     {
       "text": "핵심은",
-      "start": 23.878,
-      "end": 24.357
+      "start": 14.021,
+      "end": 14.47
     },
     {
       "text": "히브리",
-      "start": 24.386,
-      "end": 24.823
+      "start": 14.864,
+      "end": 15.007
     },
     {
       "text": "민족의",
-      "start": 25.164,
-      "end": 25.573
+      "start": 15.036,
+      "end": 15.734
     },
     {
       "text": "기원을",
-      "start": 25.573,
-      "end": 25.982
+      "start": 15.768,
+      "end": 16.275
     },
     {
       "text": "보여",
-      "start": 26.038,
-      "end": 26.226
+      "start": 16.559,
+      "end": 16.588
     },
     {
       "text": "준다는",
-      "start": 26.226,
-      "end": 26.509
+      "start": 16.621,
+      "end": 17.686
     },
     {
       "text": "점입니다.",
-      "start": 26.567,
-      "end": 27.812
+      "start": 17.72,
+      "end": 17.853
     },
     {
       "text": "두",
-      "start": 28.205,
-      "end": 28.341
+      "start": 18.744,
+      "end": 18.822
     },
     {
       "text": "번째",
-      "start": 28.341,
-      "end": 28.613
+      "start": 18.822,
+      "end": 18.979
     },
     {
       "text": "영어",
-      "start": 28.642,
-      "end": 29.65
+      "start": 18.979,
+      "end": 19.136
     },
     {
       "text": "원문입니다.",
-      "start": 29.688,
-      "end": 29.802
+      "start": 19.188,
+      "end": 20.438
     },
     {
       "text": "In",
-      "start": 30.327,
-      "end": 30.536
+      "start": 21.053,
+      "end": 21.29
     },
     {
       "text": "Peleg's",
-      "start": 30.604,
-      "end": 31.134
+      "start": 21.322,
+      "end": 21.851
     },
     {
       "text": "days",
-      "start": 31.179,
-      "end": 31.599
+      "start": 21.89,
+      "end": 22.236
     },
     {
       "text": "the",
-      "start": 31.835,
-      "end": 31.946
+      "start": 22.448,
+      "end": 22.544
     },
     {
       "text": "earth",
-      "start": 32.004,
-      "end": 32.252
+      "start": 22.613,
+      "end": 22.806
     },
     {
       "text": "was",
-      "start": 32.535,
-      "end": 32.682
+      "start": 22.917,
+      "end": 23.053
     },
     {
       "text": "divided.",
-      "start": 32.726,
-      "end": 33.198
+      "start": 23.095,
+      "end": 23.508
     },
     {
       "text": "벨렉의",
-      "start": 34.196,
-      "end": 34.999
+      "start": 23.827,
+      "end": 24.165
     },
     {
       "text": "시대에",
-      "start": 35.033,
-      "end": 35.361
+      "start": 24.193,
+      "end": 24.886
     },
     {
       "text": "땅이",
-      "start": 35.633,
-      "end": 36.409
+      "start": 25.102,
+      "end": 25.807
     },
     {
       "text": "나뉘었다.",
-      "start": 36.574,
-      "end": 36.7
+      "start": 25.947,
+      "end": 26.074
     },
     {
       "text": "여기서",
-      "start": 37.468,
-      "end": 38.081
+      "start": 26.818,
+      "end": 27.24
     },
     {
       "text": "핵심은",
-      "start": 38.122,
-      "end": 38.564
+      "start": 27.287,
+      "end": 27.659
     },
     {
       "text": "바벨탑",
-      "start": 38.953,
-      "end": 39.31
+      "start": 27.883,
+      "end": 28.199
     },
     {
       "text": "사건과의",
-      "start": 39.372,
-      "end": 39.476
+      "start": 28.255,
+      "end": 28.361
     },
     {
       "text": "연결을",
-      "start": 39.52,
-      "end": 39.705
+      "start": 28.399,
+      "end": 28.558
     },
     {
       "text": "보여",
-      "start": 39.811,
-      "end": 40.297
+      "start": 28.63,
+      "end": 29.008
     },
     {
       "text": "준다는",
-      "start": 40.368,
-      "end": 40.954
+      "start": 29.008,
+      "end": 29.574
     },
     {
       "text": "점입니다.",
-      "start": 41.033,
-      "end": 42.299
+      "start": 29.618,
+      "end": 30.828
     },
     {
       "text": "마지막",
-      "start": 42.744,
-      "end": 43.261
+      "start": 31.279,
+      "end": 32.157
     },
     {
       "text": "영어",
-      "start": 43.526,
-      "end": 44.483
+      "start": 32.157,
+      "end": 32.743
     },
     {
       "text": "원문입니다.",
-      "start": 44.512,
-      "end": 44.634
+      "start": 32.776,
+      "end": 32.903
     },
     {
       "text": "From",
-      "start": 46.019,
-      "end": 46.354
+      "start": 33.396,
+      "end": 33.805
     },
     {
       "text": "Shem",
-      "start": 46.354,
-      "end": 46.689
+      "start": 33.805,
+      "end": 34.215
     },
     {
       "text": "came",
-      "start": 46.852,
-      "end": 47.056
+      "start": 34.372,
+      "end": 34.596
     },
     {
       "text": "the",
-      "start": 47.056,
-      "end": 47.21
+      "start": 34.596,
+      "end": 34.764
     },
     {
       "text": "blessed",
-      "start": 47.256,
-      "end": 47.547
+      "start": 34.798,
+      "end": 35.559
     },
     {
       "text": "line",
-      "start": 47.588,
-      "end": 47.888
+      "start": 35.648,
+      "end": 35.85
     },
     {
       "text": "of",
-      "start": 47.888,
-      "end": 48.038
+      "start": 35.85,
+      "end": 35.951
     },
     {
       "text": "promise.",
-      "start": 48.133,
-      "end": 48.663
+      "start": 35.979,
+      "end": 36.165
     },
     {
       "text": "셈으로부터",
-      "start": 49.267,
-      "end": 49.88
+      "start": 36.572,
+      "end": 37.132
     },
     {
       "text": "축복받은",
-      "start": 49.957,
-      "end": 50.194
+      "start": 37.212,
+      "end": 37.401
     },
     {
       "text": "약속의",
-      "start": 50.245,
-      "end": 50.37
+      "start": 37.468,
+      "end": 37.599
     },
     {
       "text": "계보가",
-      "start": 50.505,
-      "end": 50.585
+      "start": 37.725,
+      "end": 37.79
     },
     {
       "text": "나왔다.",
-      "start": 50.711,
-      "end": 51.265
+      "start": 37.913,
+      "end": 38.32
     },
     {
       "text": "여기서",
-      "start": 51.328,
-      "end": 52.554
+      "start": 38.38,
+      "end": 38.697
     },
     {
       "text": "핵심은",
-      "start": 52.713,
-      "end": 52.843
+      "start": 38.755,
+      "end": 38.92
     },
     {
       "text": "메시아",
-      "start": 53.673,
-      "end": 54.212
+      "start": 38.949,
+      "end": 39.365
     },
     {
       "text": "혈통의",
-      "start": 54.258,
-      "end": 54.699
+      "start": 39.507,
+      "end": 39.622
     },
     {
       "text": "시작을",
-      "start": 55.063,
-      "end": 55.739
+      "start": 40.239,
+      "end": 41.147
     },
     {
       "text": "보여",
-      "start": 55.816,
-      "end": 56.634
+      "start": 41.422,
+      "end": 42.008
     },
     {
       "text": "준다는",
-      "start": 56.706,
-      "end": 56.728
+      "start": 42.081,
+      "end": 42.794
     },
     {
       "text": "점입니다.",
-      "start": 56.773,
-      "end": 58.2
+      "start": 42.85,
+      "end": 44.208
     }
   ]
 }

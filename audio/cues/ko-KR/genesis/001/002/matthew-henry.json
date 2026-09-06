@@ -1,33 +1,450 @@
 {
   "audioId": "genesis.001.002.matthew-henry",
-  "duration": 54,
-  "measuredDuration": 54,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/002/matthew-henry-calm.mp3",
-  "finalMp3Duration": 54,
+  "duration": 49.896,
+  "measuredDuration": 49.896,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/002/matthew-henry-calm.mp3",
+  "finalMp3Duration": 49.896,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 10.878583
+      "end": 4.493
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 10.878583,
-      "end": 24.924667
+      "start": 4.493,
+      "end": 20.544
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 24.924667,
-      "end": 38.6385
+      "start": 20.544,
+      "end": 35.122
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 38.6385,
-      "end": 54
+      "start": 35.122,
+      "end": 49.896
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 1.011,
+      "end": 1.611
+    },
+    {
+      "text": "1장",
+      "start": 1.691,
+      "end": 2.535
+    },
+    {
+      "text": "2절,",
+      "start": 3,
+      "end": 3.145
+    },
+    {
+      "text": "매튜헨리입니다.",
+      "start": 3.208,
+      "end": 3.988
+    },
+    {
+      "text": "매튜",
+      "start": 4.49,
+      "end": 4.629
+    },
+    {
+      "text": "헨리의",
+      "start": 4.689,
+      "end": 5.35
+    },
+    {
+      "text": "영어",
+      "start": 5.41,
+      "end": 6.234
+    },
+    {
+      "text": "원문입니다.",
+      "start": 6.267,
+      "end": 6.434
+    },
+    {
+      "text": "The",
+      "start": 7.347,
+      "end": 7.445
+    },
+    {
+      "text": "Spirit",
+      "start": 7.445,
+      "end": 7.64
+    },
+    {
+      "text": "of",
+      "start": 7.696,
+      "end": 7.899
+    },
+    {
+      "text": "God",
+      "start": 7.899,
+      "end": 8.203
+    },
+    {
+      "text": "was",
+      "start": 8.252,
+      "end": 8.446
+    },
+    {
+      "text": "the",
+      "start": 8.446,
+      "end": 8.64
+    },
+    {
+      "text": "first",
+      "start": 8.783,
+      "end": 8.966
+    },
+    {
+      "text": "mover.",
+      "start": 9.005,
+      "end": 10.009
+    },
+    {
+      "text": "하나님의",
+      "start": 11.489,
+      "end": 12.568
+    },
+    {
+      "text": "영이",
+      "start": 12.834,
+      "end": 13.021
+    },
+    {
+      "text": "최초의",
+      "start": 13.066,
+      "end": 13.146
+    },
+    {
+      "text": "움직이심이었다.",
+      "start": 13.172,
+      "end": 13.395
+    },
+    {
+      "text": "여기서",
+      "start": 13.433,
+      "end": 14.148
+    },
+    {
+      "text": "핵심은",
+      "start": 14.272,
+      "end": 14.417
+    },
+    {
+      "text": "창조의",
+      "start": 15.095,
+      "end": 15.549
+    },
+    {
+      "text": "동력이",
+      "start": 15.584,
+      "end": 15.938
+    },
+    {
+      "text": "성령임을",
+      "start": 16.288,
+      "end": 16.786
+    },
+    {
+      "text": "강조를",
+      "start": 16.827,
+      "end": 17.993
+    },
+    {
+      "text": "보여",
+      "start": 18.288,
+      "end": 18.778
+    },
+    {
+      "text": "준다는",
+      "start": 18.879,
+      "end": 19.834
+    },
+    {
+      "text": "점입니다.",
+      "start": 19.86,
+      "end": 19.978
+    },
+    {
+      "text": "두",
+      "start": 20.544,
+      "end": 20.622
+    },
+    {
+      "text": "번째",
+      "start": 20.622,
+      "end": 20.779
+    },
+    {
+      "text": "영어",
+      "start": 20.779,
+      "end": 20.936
+    },
+    {
+      "text": "원문입니다.",
+      "start": 20.988,
+      "end": 22.238
+    },
+    {
+      "text": "Chaos",
+      "start": 22.895,
+      "end": 23.461
+    },
+    {
+      "text": "makes",
+      "start": 23.739,
+      "end": 23.966
+    },
+    {
+      "text": "way",
+      "start": 24.02,
+      "end": 24.595
+    },
+    {
+      "text": "for",
+      "start": 24.66,
+      "end": 25.314
+    },
+    {
+      "text": "cosmos",
+      "start": 25.638,
+      "end": 25.865
+    },
+    {
+      "text": "when",
+      "start": 25.893,
+      "end": 26.271
+    },
+    {
+      "text": "God",
+      "start": 26.323,
+      "end": 26.443
+    },
+    {
+      "text": "speaks.",
+      "start": 26.519,
+      "end": 26.696
+    },
+    {
+      "text": "하나님이",
+      "start": 26.927,
+      "end": 27.508
+    },
+    {
+      "text": "말씀하실",
+      "start": 27.659,
+      "end": 28.247
+    },
+    {
+      "text": "때",
+      "start": 28.347,
+      "end": 28.395
+    },
+    {
+      "text": "혼돈은",
+      "start": 28.395,
+      "end": 28.541
+    },
+    {
+      "text": "우주가",
+      "start": 28.969,
+      "end": 29.451
+    },
+    {
+      "text": "된다.",
+      "start": 29.501,
+      "end": 30.242
+    },
+    {
+      "text": "여기서",
+      "start": 30.887,
+      "end": 31.798
+    },
+    {
+      "text": "핵심은",
+      "start": 32.088,
+      "end": 32.319
+    },
+    {
+      "text": "말씀의",
+      "start": 32.319,
+      "end": 32.549
+    },
+    {
+      "text": "권능",
+      "start": 32.595,
+      "end": 32.95
+    },
+    {
+      "text": "강조를",
+      "start": 32.95,
+      "end": 33.483
+    },
+    {
+      "text": "보여",
+      "start": 33.593,
+      "end": 34.007
+    },
+    {
+      "text": "준다는",
+      "start": 34.007,
+      "end": 34.63
+    },
+    {
+      "text": "점입니다.",
+      "start": 34.658,
+      "end": 34.795
+    },
+    {
+      "text": "마지막",
+      "start": 35.119,
+      "end": 35.997
+    },
+    {
+      "text": "영어",
+      "start": 35.997,
+      "end": 36.583
+    },
+    {
+      "text": "원문입니다.",
+      "start": 36.616,
+      "end": 36.743
+    },
+    {
+      "text": "Darkness",
+      "start": 37.248,
+      "end": 37.412
+    },
+    {
+      "text": "serves",
+      "start": 37.469,
+      "end": 37.725
+    },
+    {
+      "text": "to",
+      "start": 37.725,
+      "end": 37.81
+    },
+    {
+      "text": "magnify",
+      "start": 37.861,
+      "end": 38.354
+    },
+    {
+      "text": "the",
+      "start": 38.389,
+      "end": 38.849
+    },
+    {
+      "text": "light",
+      "start": 38.849,
+      "end": 39.616
+    },
+    {
+      "text": "that",
+      "start": 39.719,
+      "end": 39.832
+    },
+    {
+      "text": "follows.",
+      "start": 39.884,
+      "end": 40.499
+    },
+    {
+      "text": "어둠은",
+      "start": 41.253,
+      "end": 41.806
+    },
+    {
+      "text": "그",
+      "start": 42.039,
+      "end": 42.09
+    },
+    {
+      "text": "뒤에",
+      "start": 42.09,
+      "end": 42.191
+    },
+    {
+      "text": "올",
+      "start": 42.191,
+      "end": 42.242
+    },
+    {
+      "text": "빛을",
+      "start": 42.298,
+      "end": 42.591
+    },
+    {
+      "text": "더욱",
+      "start": 42.591,
+      "end": 42.884
+    },
+    {
+      "text": "돋보이게",
+      "start": 42.942,
+      "end": 43.044
+    },
+    {
+      "text": "한다.",
+      "start": 43.136,
+      "end": 43.411
+    },
+    {
+      "text": "여기서",
+      "start": 43.486,
+      "end": 43.736
+    },
+    {
+      "text": "핵심은",
+      "start": 43.84,
+      "end": 43.946
+    },
+    {
+      "text": "시련",
+      "start": 44.068,
+      "end": 44.485
+    },
+    {
+      "text": "후",
+      "start": 44.485,
+      "end": 44.694
+    },
+    {
+      "text": "영광의",
+      "start": 45.1,
+      "end": 45.576
+    },
+    {
+      "text": "원리를",
+      "start": 45.607,
+      "end": 45.996
+    },
+    {
+      "text": "보여",
+      "start": 46.299,
+      "end": 46.929
+    },
+    {
+      "text": "준다는",
+      "start": 46.929,
+      "end": 47.874
+    },
+    {
+      "text": "점입니다.",
+      "start": 47.926,
+      "end": 49.896
     }
   ]
 }

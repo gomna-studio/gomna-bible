@@ -1,45 +1,327 @@
 {
   "audioId": "genesis.001.004.original-language",
-  "duration": 31.368,
-  "measuredDuration": 31.368,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/004/original-language-study.mp3",
-  "finalMp3Duration": 31.368,
+  "duration": 42.312,
+  "measuredDuration": 42.312,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/004/original-language-study.mp3",
+  "finalMp3Duration": 42.312,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 6.283917
+      "end": 10.786
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 6.283917,
-      "end": 11.420542
+      "start": 10.786,
+      "end": 17.129
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 11.420542,
-      "end": 16.565083
+      "start": 17.129,
+      "end": 23.26
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 16.565083,
-      "end": 21.122958
+      "start": 23.26,
+      "end": 29.065
     },
     {
       "type": "item",
       "itemIndex": 3,
-      "start": 21.122958,
-      "end": 25.928458
+      "start": 29.065,
+      "end": 35.611
     },
     {
       "type": "item",
       "itemIndex": 4,
-      "start": 25.928458,
-      "end": 31.368
+      "start": 35.611,
+      "end": 42.312
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.064,
+      "end": 0.991
+    },
+    {
+      "text": "1장",
+      "start": 1.07,
+      "end": 1.819
+    },
+    {
+      "text": "4절,",
+      "start": 2.132,
+      "end": 3.139
+    },
+    {
+      "text": "원어분석입니다.",
+      "start": 3.777,
+      "end": 4.341
+    },
+    {
+      "text": "본문은",
+      "start": 4.789,
+      "end": 4.964
+    },
+    {
+      "text": "'그",
+      "start": 4.996,
+      "end": 5.109
+    },
+    {
+      "text": "빛이",
+      "start": 5.167,
+      "end": 6.006
+    },
+    {
+      "text": "하나님의",
+      "start": 6.048,
+      "end": 6.564
+    },
+    {
+      "text": "보시기에",
+      "start": 6.599,
+      "end": 6.869
+    },
+    {
+      "text": "좋았더라",
+      "start": 6.969,
+      "end": 7.193
+    },
+    {
+      "text": "하나님이",
+      "start": 7.882,
+      "end": 8.404
+    },
+    {
+      "text": "빛과",
+      "start": 8.47,
+      "end": 8.578
+    },
+    {
+      "text": "어두움을",
+      "start": 8.741,
+      "end": 8.912
+    },
+    {
+      "text": "나누사'입니다.",
+      "start": 8.943,
+      "end": 10.309
+    },
+    {
+      "text": "토브는",
+      "start": 10.786,
+      "end": 11.456
+    },
+    {
+      "text": "“좋다”는",
+      "start": 11.765,
+      "end": 11.958
+    },
+    {
+      "text": "뜻의",
+      "start": 12.057,
+      "end": 12.374
+    },
+    {
+      "text": "형용사입니다.",
+      "start": 12.42,
+      "end": 13.668
+    },
+    {
+      "text": "선하심",
+      "start": 14.379,
+      "end": 14.754
+    },
+    {
+      "text": "판단",
+      "start": 14.754,
+      "end": 15.004
+    },
+    {
+      "text": "기준을",
+      "start": 15.042,
+      "end": 15.601
+    },
+    {
+      "text": "보여",
+      "start": 15.601,
+      "end": 15.974
+    },
+    {
+      "text": "줍니다.",
+      "start": 16.263,
+      "end": 16.896
+    },
+    {
+      "text": "바달은",
+      "start": 17.118,
+      "end": 17.803
+    },
+    {
+      "text": "“구별하다”는",
+      "start": 18.241,
+      "end": 19.017
+    },
+    {
+      "text": "뜻의",
+      "start": 19.064,
+      "end": 19.406
+    },
+    {
+      "text": "동사입니다.",
+      "start": 19.464,
+      "end": 20.234
+    },
+    {
+      "text": "거룩한",
+      "start": 21.086,
+      "end": 21.366
+    },
+    {
+      "text": "구분을",
+      "start": 21.433,
+      "end": 21.658
+    },
+    {
+      "text": "보여",
+      "start": 21.699,
+      "end": 22.176
+    },
+    {
+      "text": "줍니다.",
+      "start": 22.233,
+      "end": 23.001
+    },
+    {
+      "text": "오르는",
+      "start": 23.26,
+      "end": 23.84
+    },
+    {
+      "text": "“빛”이라는",
+      "start": 23.992,
+      "end": 24.131
+    },
+    {
+      "text": "뜻의",
+      "start": 24.194,
+      "end": 24.641
+    },
+    {
+      "text": "명사입니다.",
+      "start": 24.704,
+      "end": 25.085
+    },
+    {
+      "text": "계시의",
+      "start": 25.204,
+      "end": 25.847
+    },
+    {
+      "text": "영역을",
+      "start": 25.876,
+      "end": 25.993
+    },
+    {
+      "text": "보여",
+      "start": 26.575,
+      "end": 27.618
+    },
+    {
+      "text": "줍니다.",
+      "start": 27.862,
+      "end": 28.523
+    },
+    {
+      "text": "호셰크는",
+      "start": 29.061,
+      "end": 29.409
+    },
+    {
+      "text": "“어둠”이라는",
+      "start": 29.492,
+      "end": 29.855
+    },
+    {
+      "text": "뜻의",
+      "start": 30.313,
+      "end": 31.072
+    },
+    {
+      "text": "명사입니다.",
+      "start": 31.127,
+      "end": 32.211
+    },
+    {
+      "text": "죄·무질서",
+      "start": 32.793,
+      "end": 33.153
+    },
+    {
+      "text": "상징을",
+      "start": 33.423,
+      "end": 34.646
+    },
+    {
+      "text": "보여",
+      "start": 34.687,
+      "end": 35.204
+    },
+    {
+      "text": "줍니다.",
+      "start": 35.236,
+      "end": 35.352
+    },
+    {
+      "text": "엘로힘은",
+      "start": 35.608,
+      "end": 36.392
+    },
+    {
+      "text": "“하나님”이라는",
+      "start": 36.686,
+      "end": 37.56
+    },
+    {
+      "text": "뜻의",
+      "start": 37.604,
+      "end": 38.514
+    },
+    {
+      "text": "명사입니다.",
+      "start": 38.545,
+      "end": 38.691
+    },
+    {
+      "text": "윤리",
+      "start": 39.313,
+      "end": 39.649
+    },
+    {
+      "text": "판단의",
+      "start": 39.709,
+      "end": 40.202
+    },
+    {
+      "text": "절대자를",
+      "start": 40.465,
+      "end": 40.677
+    },
+    {
+      "text": "보여",
+      "start": 40.762,
+      "end": 41.186
+    },
+    {
+      "text": "줍니다.",
+      "start": 41.246,
+      "end": 42.312
     }
   ]
 }

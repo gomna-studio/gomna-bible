@@ -1,33 +1,355 @@
 {
   "audioId": "genesis.001.007.matthew-henry",
-  "duration": 46.32,
-  "measuredDuration": 46.32,
-  "testAudioPath": "audio/highlight-test/ko-KR/genesis/001/007/matthew-henry-calm.mp3",
-  "finalMp3Duration": 46.32,
+  "duration": 41.376,
+  "measuredDuration": 41.376,
+  "testAudioPath": "audio/v1/ko-KR/genesis/001/007/matthew-henry-calm.mp3",
+  "finalMp3Duration": 41.376,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 9.951708
+      "end": 3.341
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 9.951708,
-      "end": 24.426417
+      "start": 3.341,
+      "end": 17.736
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 24.426417,
-      "end": 36.10675
+      "start": 17.736,
+      "end": 30.97
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 36.10675,
-      "end": 46.32
+      "start": 30.97,
+      "end": 41.376
+    }
+  ],
+  "words": [
+    {
+      "text": "창세기",
+      "start": 0.059,
+      "end": 1.387
+    },
+    {
+      "text": "1장",
+      "start": 1.446,
+      "end": 1.674
+    },
+    {
+      "text": "7절,",
+      "start": 2.18,
+      "end": 2.291
+    },
+    {
+      "text": "매튜헨리입니다.",
+      "start": 2.352,
+      "end": 3.123
+    },
+    {
+      "text": "매튜",
+      "start": 3.338,
+      "end": 3.477
+    },
+    {
+      "text": "헨리의",
+      "start": 3.537,
+      "end": 4.198
+    },
+    {
+      "text": "영어",
+      "start": 4.258,
+      "end": 5.082
+    },
+    {
+      "text": "원문입니다.",
+      "start": 5.115,
+      "end": 5.282
+    },
+    {
+      "text": "The",
+      "start": 6.187,
+      "end": 6.626
+    },
+    {
+      "text": "same",
+      "start": 6.626,
+      "end": 7.212
+    },
+    {
+      "text": "hand",
+      "start": 7.486,
+      "end": 7.718
+    },
+    {
+      "text": "that",
+      "start": 7.718,
+      "end": 7.951
+    },
+    {
+      "text": "lifts",
+      "start": 7.996,
+      "end": 8.579
+    },
+    {
+      "text": "waters",
+      "start": 8.979,
+      "end": 9.307
+    },
+    {
+      "text": "holds",
+      "start": 9.349,
+      "end": 9.461
+    },
+    {
+      "text": "them.",
+      "start": 9.461,
+      "end": 9.572
+    },
+    {
+      "text": "물을",
+      "start": 9.839,
+      "end": 10.074
+    },
+    {
+      "text": "들어",
+      "start": 10.074,
+      "end": 10.31
+    },
+    {
+      "text": "올리신",
+      "start": 10.374,
+      "end": 10.411
+    },
+    {
+      "text": "손이",
+      "start": 10.444,
+      "end": 11.572
+    },
+    {
+      "text": "그것을",
+      "start": 11.932,
+      "end": 12.026
+    },
+    {
+      "text": "붙드신다.",
+      "start": 12.061,
+      "end": 12.38
+    },
+    {
+      "text": "여기서",
+      "start": 12.439,
+      "end": 12.521
+    },
+    {
+      "text": "핵심은",
+      "start": 12.631,
+      "end": 13.102
+    },
+    {
+      "text": "보존을",
+      "start": 13.811,
+      "end": 14.784
+    },
+    {
+      "text": "보여",
+      "start": 15.166,
+      "end": 15.671
+    },
+    {
+      "text": "준다는",
+      "start": 15.72,
+      "end": 16.84
+    },
+    {
+      "text": "점입니다.",
+      "start": 16.867,
+      "end": 17.004
+    },
+    {
+      "text": "두",
+      "start": 17.736,
+      "end": 17.814
+    },
+    {
+      "text": "번째",
+      "start": 17.814,
+      "end": 17.971
+    },
+    {
+      "text": "영어",
+      "start": 17.971,
+      "end": 18.128
+    },
+    {
+      "text": "원문입니다.",
+      "start": 18.18,
+      "end": 19.43
+    },
+    {
+      "text": "Every",
+      "start": 20.155,
+      "end": 20.927
+    },
+    {
+      "text": "drop",
+      "start": 21.362,
+      "end": 21.572
+    },
+    {
+      "text": "waits",
+      "start": 21.606,
+      "end": 21.715
+    },
+    {
+      "text": "His",
+      "start": 21.773,
+      "end": 22.02
+    },
+    {
+      "text": "nod.",
+      "start": 22.02,
+      "end": 22.349
+    },
+    {
+      "text": "모든",
+      "start": 23.018,
+      "end": 23.836
+    },
+    {
+      "text": "물방울이",
+      "start": 23.911,
+      "end": 24.422
+    },
+    {
+      "text": "그분의",
+      "start": 24.73,
+      "end": 25.201
+    },
+    {
+      "text": "고갯짓을",
+      "start": 25.252,
+      "end": 25.539
+    },
+    {
+      "text": "기다린다.",
+      "start": 25.633,
+      "end": 25.958
+    },
+    {
+      "text": "여기서",
+      "start": 26.002,
+      "end": 26.635
+    },
+    {
+      "text": "핵심은",
+      "start": 27.204,
+      "end": 27.734
+    },
+    {
+      "text": "섭리를",
+      "start": 27.775,
+      "end": 28.2
+    },
+    {
+      "text": "보여",
+      "start": 28.481,
+      "end": 29.052
+    },
+    {
+      "text": "준다는",
+      "start": 29.1,
+      "end": 30.251
+    },
+    {
+      "text": "점입니다.",
+      "start": 30.283,
+      "end": 30.437
+    },
+    {
+      "text": "마지막",
+      "start": 30.967,
+      "end": 31.845
+    },
+    {
+      "text": "영어",
+      "start": 31.845,
+      "end": 32.431
+    },
+    {
+      "text": "원문입니다.",
+      "start": 32.464,
+      "end": 32.591
+    },
+    {
+      "text": "Separation",
+      "start": 33.049,
+      "end": 33.253
+    },
+    {
+      "text": "serves",
+      "start": 33.315,
+      "end": 34.312
+    },
+    {
+      "text": "preservation.",
+      "start": 34.391,
+      "end": 35.118
+    },
+    {
+      "text": "분리는",
+      "start": 35.493,
+      "end": 36.025
+    },
+    {
+      "text": "보존을",
+      "start": 36.149,
+      "end": 36.585
+    },
+    {
+      "text": "돕는다.",
+      "start": 36.611,
+      "end": 37.111
+    },
+    {
+      "text": "여기서",
+      "start": 37.783,
+      "end": 38.248
+    },
+    {
+      "text": "핵심은",
+      "start": 38.29,
+      "end": 38.696
+    },
+    {
+      "text": "질서",
+      "start": 38.941,
+      "end": 39.495
+    },
+    {
+      "text": "목적을",
+      "start": 39.628,
+      "end": 39.92
+    },
+    {
+      "text": "보여",
+      "start": 39.977,
+      "end": 40.403
+    },
+    {
+      "text": "준다는",
+      "start": 40.403,
+      "end": 41.043
+    },
+    {
+      "text": "점입니다.",
+      "start": 41.077,
+      "end": 41.376
     }
   ]
 }

@@ -1,591 +1,531 @@
 {
   "audioId": "genesis.007.015.matthew-henry",
-  "duration": 67.176,
-  "measuredDuration": 67.176,
+  "duration": 57.6,
+  "measuredDuration": 57.6,
   "testAudioPath": "audio/v1/ko-KR/genesis/007/015/matthew-henry-calm.mp3",
-  "finalMp3Duration": 67.176,
+  "finalMp3Duration": 57.6,
   "segments": [
     {
       "type": "intro",
       "itemIndex": -1,
       "start": 0,
-      "end": 13.443
+      "end": 3.677
     },
     {
       "type": "item",
       "itemIndex": 0,
-      "start": 13.443,
-      "end": 27.903
+      "start": 3.677,
+      "end": 18.48
     },
     {
       "type": "item",
       "itemIndex": 1,
-      "start": 27.903,
-      "end": 41.471
+      "start": 18.48,
+      "end": 31.73
     },
     {
       "type": "item",
       "itemIndex": 2,
-      "start": 41.471,
-      "end": 55.259
+      "start": 31.73,
+      "end": 45.826
     },
     {
       "type": "item",
       "itemIndex": 3,
-      "start": 55.259,
-      "end": 67.176
+      "start": 45.826,
+      "end": 57.6
     }
   ],
   "words": [
     {
       "text": "창세기",
-      "start": 0.077,
-      "end": 0.489
+      "start": 0.068,
+      "end": 0.888
     },
     {
       "text": "7장",
-      "start": 0.516,
-      "end": 0.74
+      "start": 0.964,
+      "end": 1.689
     },
     {
       "text": "15절,",
-      "start": 1.273,
-      "end": 1.529
+      "start": 2.117,
+      "end": 2.246
     },
     {
       "text": "매튜헨리입니다.",
-      "start": 1.61,
-      "end": 2.065
-    },
-    {
-      "text": "본문은",
-      "start": 2.096,
-      "end": 2.457
-    },
-    {
-      "text": "'생명의",
-      "start": 2.989,
-      "end": 3.141
-    },
-    {
-      "text": "기운이",
-      "start": 3.248,
-      "end": 4.072
-    },
-    {
-      "text": "있는",
-      "start": 4.935,
-      "end": 5.489
-    },
-    {
-      "text": "모든",
-      "start": 5.803,
-      "end": 6.355
-    },
-    {
-      "text": "육체",
-      "start": 6.41,
-      "end": 7.768
-    },
-    {
-      "text": "중에서",
-      "start": 7.87,
-      "end": 8.46
-    },
-    {
-      "text": "암수",
-      "start": 9.191,
-      "end": 9.607
-    },
-    {
-      "text": "둘씩",
-      "start": 9.648,
-      "end": 10.054
-    },
-    {
-      "text": "노아에게",
-      "start": 10.43,
-      "end": 11.47
-    },
-    {
-      "text": "나아와",
-      "start": 11.776,
-      "end": 12.292
-    },
-    {
-      "text": "방주로",
-      "start": 12.344,
-      "end": 12.658
-    },
-    {
-      "text": "들어갔더니'입니다.",
-      "start": 12.752,
-      "end": 13.025
+      "start": 2.31,
+      "end": 3.108
     },
     {
       "text": "매튜",
-      "start": 13.441,
-      "end": 13.49
+      "start": 3.674,
+      "end": 3.813
     },
     {
       "text": "헨리의",
-      "start": 13.49,
-      "end": 13.562
+      "start": 3.873,
+      "end": 4.534
     },
     {
       "text": "영어",
-      "start": 13.562,
-      "end": 13.611
+      "start": 4.594,
+      "end": 5.418
     },
     {
       "text": "원문입니다.",
-      "start": 13.704,
-      "end": 15.521
+      "start": 5.451,
+      "end": 5.618
     },
     {
       "text": "All",
-      "start": 16.228,
-      "end": 16.566
+      "start": 6.508,
+      "end": 6.846
     },
     {
       "text": "flesh",
-      "start": 16.566,
-      "end": 17.129
+      "start": 6.846,
+      "end": 7.409
     },
     {
       "text": "wherein",
-      "start": 17.211,
-      "end": 17.722
+      "start": 7.491,
+      "end": 8.002
     },
     {
       "text": "is",
-      "start": 17.766,
-      "end": 17.816
+      "start": 8.046,
+      "end": 8.096
     },
     {
       "text": "the",
-      "start": 17.816,
-      "end": 17.892
+      "start": 8.096,
+      "end": 8.172
     },
     {
       "text": "breath",
-      "start": 17.922,
-      "end": 18.587
+      "start": 8.202,
+      "end": 8.867
     },
     {
       "text": "of",
-      "start": 18.632,
-      "end": 18.664
+      "start": 8.912,
+      "end": 8.944
     },
     {
       "text": "life.",
-      "start": 18.664,
-      "end": 18.744
+      "start": 8.944,
+      "end": 9.024
     },
     {
       "text": "생명의",
-      "start": 19.49,
-      "end": 20.141
+      "start": 9.77,
+      "end": 10.421
     },
     {
       "text": "기운이",
-      "start": 20.226,
-      "end": 20.544
+      "start": 10.506,
+      "end": 10.824
     },
     {
       "text": "있는",
-      "start": 20.544,
-      "end": 20.755
+      "start": 10.824,
+      "end": 11.035
     },
     {
       "text": "모든",
-      "start": 21.283,
-      "end": 21.727
+      "start": 11.563,
+      "end": 12.007
     },
     {
       "text": "육체.",
-      "start": 21.727,
-      "end": 22.393
+      "start": 12.007,
+      "end": 12.673
     },
     {
       "text": "여기서",
-      "start": 22.504,
-      "end": 22.631
+      "start": 12.784,
+      "end": 12.911
     },
     {
       "text": "핵심은",
-      "start": 22.631,
-      "end": 22.757
+      "start": 12.911,
+      "end": 13.037
     },
     {
       "text": "살아있는",
-      "start": 23.2,
-      "end": 23.788
+      "start": 13.48,
+      "end": 14.068
     },
     {
       "text": "모든",
-      "start": 23.833,
-      "end": 24.039
+      "start": 14.113,
+      "end": 14.319
     },
     {
       "text": "것을",
-      "start": 24.039,
-      "end": 24.245
+      "start": 14.319,
+      "end": 14.525
     },
     {
       "text": "보여",
-      "start": 24.69,
-      "end": 25.235
+      "start": 14.97,
+      "end": 15.515
     },
     {
       "text": "준다는",
-      "start": 25.235,
-      "end": 26.054
+      "start": 15.515,
+      "end": 16.334
     },
     {
       "text": "점입니다.",
-      "start": 26.171,
-      "end": 27.471
+      "start": 16.451,
+      "end": 17.751
     },
     {
       "text": "두",
-      "start": 27.903,
-      "end": 27.987
+      "start": 18.48,
+      "end": 18.558
     },
     {
       "text": "번째",
-      "start": 27.987,
-      "end": 28.155
+      "start": 18.558,
+      "end": 18.715
     },
     {
       "text": "영어",
-      "start": 28.155,
-      "end": 28.324
+      "start": 18.715,
+      "end": 18.872
     },
     {
       "text": "원문입니다.",
-      "start": 28.365,
-      "end": 29.717
+      "start": 18.924,
+      "end": 20.174
     },
     {
       "text": "Two",
-      "start": 30.551,
-      "end": 30.71
+      "start": 20.831,
+      "end": 20.99
     },
     {
       "text": "and",
-      "start": 30.71,
-      "end": 30.869
+      "start": 20.99,
+      "end": 21.149
     },
     {
       "text": "two",
-      "start": 30.917,
-      "end": 31.118
+      "start": 21.197,
+      "end": 21.398
     },
     {
       "text": "of",
-      "start": 31.118,
-      "end": 31.253
+      "start": 21.398,
+      "end": 21.533
     },
     {
       "text": "all",
-      "start": 31.253,
-      "end": 31.454
+      "start": 21.533,
+      "end": 21.734
     },
     {
       "text": "flesh",
-      "start": 31.624,
-      "end": 32.061
+      "start": 21.904,
+      "end": 22.341
     },
     {
       "text": "came",
-      "start": 32.061,
-      "end": 32.41
+      "start": 22.341,
+      "end": 22.69
     },
     {
       "text": "unto",
-      "start": 32.474,
-      "end": 32.804
+      "start": 22.754,
+      "end": 23.084
     },
     {
       "text": "Noah.",
-      "start": 32.804,
-      "end": 33.216
+      "start": 23.084,
+      "end": 23.496
     },
     {
       "text": "모든",
-      "start": 33.94,
-      "end": 34.576
+      "start": 24.22,
+      "end": 24.856
     },
     {
       "text": "육체가",
-      "start": 34.668,
-      "end": 34.824
+      "start": 24.948,
+      "end": 25.104
     },
     {
       "text": "둘씩",
-      "start": 34.853,
-      "end": 35.037
+      "start": 25.133,
+      "end": 25.317
     },
     {
       "text": "노아에게",
-      "start": 35.104,
-      "end": 35.547
+      "start": 25.384,
+      "end": 25.827
     },
     {
       "text": "나아왔다.",
-      "start": 35.672,
-      "end": 36.689
+      "start": 25.952,
+      "end": 26.969
     },
     {
       "text": "여기서",
-      "start": 36.813,
-      "end": 36.985
+      "start": 27.093,
+      "end": 27.265
     },
     {
       "text": "핵심은",
-      "start": 37.549,
-      "end": 38.014
+      "start": 27.829,
+      "end": 28.294
     },
     {
       "text": "완전한",
-      "start": 38.057,
-      "end": 38.502
+      "start": 28.337,
+      "end": 28.782
     },
     {
       "text": "보존을",
-      "start": 38.703,
-      "end": 39.274
+      "start": 28.983,
+      "end": 29.554
     },
     {
       "text": "보여",
-      "start": 39.364,
-      "end": 39.462
+      "start": 29.644,
+      "end": 29.742
     },
     {
       "text": "준다는",
-      "start": 39.488,
-      "end": 39.726
+      "start": 29.768,
+      "end": 30.006
     },
     {
       "text": "점입니다.",
-      "start": 39.833,
-      "end": 40.993
+      "start": 30.113,
+      "end": 31.273
     },
     {
-      "text": "마지막",
-      "start": 41.465,
-      "end": 41.738
+      "text": "세",
+      "start": 31.724,
+      "end": 31.806
+    },
+    {
+      "text": "번째",
+      "start": 31.806,
+      "end": 31.969
     },
     {
       "text": "영어",
-      "start": 41.738,
-      "end": 41.921
+      "start": 31.998,
+      "end": 32.225
     },
     {
       "text": "원문입니다.",
-      "start": 42.083,
-      "end": 43.235
+      "start": 32.27,
+      "end": 33.614
     },
     {
       "text": "They",
-      "start": 43.602,
-      "end": 43.935
+      "start": 34.17,
+      "end": 34.503
     },
     {
       "text": "came",
-      "start": 44.022,
-      "end": 44.696
+      "start": 34.59,
+      "end": 35.264
     },
     {
       "text": "to",
-      "start": 44.728,
-      "end": 44.929
+      "start": 35.296,
+      "end": 35.497
     },
     {
       "text": "the",
-      "start": 45.483,
-      "end": 45.55
+      "start": 36.051,
+      "end": 36.118
     },
     {
       "text": "ark—God",
-      "start": 45.576,
-      "end": 45.989
+      "start": 36.144,
+      "end": 36.557
     },
     {
       "text": "directed",
-      "start": 46.148,
-      "end": 46.4
+      "start": 36.716,
+      "end": 36.968
     },
     {
       "text": "them.",
-      "start": 46.5,
-      "end": 46.921
+      "start": 37.068,
+      "end": 37.489
     },
     {
       "text": "그들이",
-      "start": 47.145,
-      "end": 47.537
+      "start": 37.713,
+      "end": 38.105
     },
     {
       "text": "방주로",
-      "start": 47.608,
-      "end": 48.313
+      "start": 38.176,
+      "end": 38.881
     },
     {
       "text": "왔다—하나님이",
-      "start": 48.479,
-      "end": 48.596
+      "start": 39.047,
+      "end": 39.164
     },
     {
       "text": "인도하셨다.",
-      "start": 49.238,
-      "end": 50.412
+      "start": 39.806,
+      "end": 40.98
     },
     {
       "text": "여기서",
-      "start": 50.535,
-      "end": 50.64
+      "start": 41.103,
+      "end": 41.208
     },
     {
       "text": "핵심은",
-      "start": 51.25,
-      "end": 51.785
+      "start": 41.818,
+      "end": 42.353
     },
     {
       "text": "하나님의",
-      "start": 51.833,
-      "end": 52.247
+      "start": 42.401,
+      "end": 42.815
     },
     {
       "text": "인도를",
-      "start": 52.627,
-      "end": 53.742
+      "start": 43.195,
+      "end": 44.31
     },
     {
       "text": "보여",
-      "start": 53.806,
-      "end": 53.834
+      "start": 44.374,
+      "end": 44.402
     },
     {
       "text": "준다는",
-      "start": 53.876,
-      "end": 54.851
+      "start": 44.444,
+      "end": 45.419
     },
     {
       "text": "점입니다.",
-      "start": 54.877,
-      "end": 54.999
+      "start": 45.445,
+      "end": 45.567
     },
     {
       "text": "마지막",
-      "start": 55.257,
-      "end": 55.744
+      "start": 45.823,
+      "end": 46.701
     },
     {
       "text": "영어",
-      "start": 55.777,
-      "end": 56.766
+      "start": 46.701,
+      "end": 47.287
     },
     {
       "text": "원문입니다.",
-      "start": 56.792,
-      "end": 56.938
+      "start": 47.32,
+      "end": 47.447
     },
     {
       "text": "Male",
-      "start": 57.467,
-      "end": 57.743
+      "start": 47.891,
+      "end": 48.167
     },
     {
       "text": "and",
-      "start": 57.743,
-      "end": 57.951
+      "start": 48.167,
+      "end": 48.375
     },
     {
       "text": "female",
-      "start": 58.182,
-      "end": 58.535
+      "start": 48.606,
+      "end": 48.959
     },
     {
       "text": "for",
-      "start": 58.535,
-      "end": 58.711
+      "start": 48.959,
+      "end": 49.135
     },
     {
       "text": "the",
-      "start": 58.711,
-      "end": 58.887
+      "start": 49.135,
+      "end": 49.311
     },
     {
       "text": "continuation",
-      "start": 59.391,
-      "end": 59.588
+      "start": 49.815,
+      "end": 50.012
     },
     {
       "text": "of",
-      "start": 59.619,
-      "end": 59.984
+      "start": 50.043,
+      "end": 50.408
     },
     {
       "text": "life.",
-      "start": 59.984,
-      "end": 60.896
+      "start": 50.408,
+      "end": 51.32
     },
     {
       "text": "암수로",
-      "start": 61.547,
-      "end": 62.432
+      "start": 51.971,
+      "end": 52.856
     },
     {
       "text": "생명의",
-      "start": 62.432,
-      "end": 63.318
+      "start": 52.856,
+      "end": 53.742
     },
     {
       "text": "지속을",
-      "start": 63.659,
-      "end": 63.876
+      "start": 54.083,
+      "end": 54.3
     },
     {
       "text": "위해.",
-      "start": 63.876,
-      "end": 64.093
+      "start": 54.3,
+      "end": 54.517
     },
     {
       "text": "여기서",
-      "start": 64.131,
-      "end": 64.318
+      "start": 54.555,
+      "end": 54.742
     },
     {
       "text": "핵심은",
-      "start": 64.318,
-      "end": 64.506
+      "start": 54.742,
+      "end": 54.93
     },
     {
       "text": "생명의",
-      "start": 64.73,
-      "end": 65.245
+      "start": 55.154,
+      "end": 55.669
     },
     {
       "text": "연속을",
-      "start": 65.245,
-      "end": 65.759
+      "start": 55.669,
+      "end": 56.183
     },
     {
       "text": "보여",
-      "start": 65.858,
-      "end": 66.221
+      "start": 56.282,
+      "end": 56.645
     },
     {
       "text": "준다는",
-      "start": 66.221,
-      "end": 66.767
+      "start": 56.645,
+      "end": 57.191
     },
     {
       "text": "점입니다.",
-      "start": 66.796,
-      "end": 67.176
+      "start": 57.22,
+      "end": 57.6
     }
   ]
 }
