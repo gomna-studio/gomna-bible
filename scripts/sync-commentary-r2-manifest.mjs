@@ -40,14 +40,26 @@ const EXODUS_VERSE_COUNTS = {
   31: 18, 32: 35, 33: 23, 34: 35, 35: 35, 36: 38, 37: 29, 38: 31, 39: 43, 40: 38,
 };
 
+const LEVITICUS_VERSE_COUNTS = {
+  1: 17, 2: 16, 3: 17, 4: 35, 5: 19, 6: 30, 7: 38, 8: 36, 9: 24, 10: 20,
+  11: 47, 12: 8, 13: 59, 14: 57, 15: 33, 16: 34, 17: 16, 18: 30, 19: 37, 20: 27,
+  21: 24, 22: 33, 23: 44, 24: 23, 25: 55, 26: 46, 27: 34,
+};
+
 const EXODUS_VERSE_TOTAL = Object.values(EXODUS_VERSE_COUNTS).reduce((sum, n) => sum + n, 0);
 if (EXODUS_VERSE_TOTAL !== 1213) {
   throw new Error(`EXODUS_VERSE_COUNTS 합이 1213이 아닙니다: ${EXODUS_VERSE_TOTAL}`);
 }
 
+const LEVITICUS_VERSE_TOTAL = Object.values(LEVITICUS_VERSE_COUNTS).reduce((sum, n) => sum + n, 0);
+if (LEVITICUS_VERSE_TOTAL !== 859) {
+  throw new Error(`LEVITICUS_VERSE_COUNTS 합이 859가 아닙니다: ${LEVITICUS_VERSE_TOTAL}`);
+}
+
 const BOOK_VERSE_COUNTS = {
   genesis: GENESIS_VERSE_COUNTS,
   exodus: EXODUS_VERSE_COUNTS,
+  leviticus: LEVITICUS_VERSE_COUNTS,
 };
 
 const COMMENTARY_TYPES = [
@@ -184,7 +196,7 @@ const EXODUS_COMMENTARY_TYPES = [
 ];
 
 function commentaryTypesFor(bookId) {
-  if (bookId === 'exodus') return EXODUS_COMMENTARY_TYPES;
+  if (bookId === 'exodus' || bookId === 'leviticus') return EXODUS_COMMENTARY_TYPES;
   return COMMENTARY_TYPES;
 }
 
@@ -193,6 +205,7 @@ function usage() {
   console.error('  node scripts/sync-commentary-r2-manifest.mjs --locale ko-KR --book genesis --chapter 1 --verse 4 [--dry-run|--write]');
   console.error('  node scripts/sync-commentary-r2-manifest.mjs --locale ko-KR --book genesis --from-chapter 4 --to-chapter 50 [--dry-run|--write --confirm-create-count 13077]');
   console.error('  node scripts/sync-commentary-r2-manifest.mjs --locale ko-KR --book exodus --from-chapter 1 --to-chapter 40 [--dry-run|--write --confirm-create-count N]');
+  console.error('  node scripts/sync-commentary-r2-manifest.mjs --locale ko-KR --book leviticus --from-chapter 1 --to-chapter 27 [--dry-run|--write --confirm-create-count N]');
   console.error('Default mode is --dry-run.');
 }
 
@@ -319,17 +332,28 @@ function isExodus1to40Range(args) {
   );
 }
 
+function isLeviticus1to27Range(args) {
+  return (
+    args.rangeMode &&
+    args.locale === 'ko-KR' &&
+    args.bookId === 'leviticus' &&
+    args.fromChapter === 1 &&
+    args.toChapter === 27
+  );
+}
+
 function assertTargetScope(args) {
   if (
     isDefaultTarget(args) ||
     isPipelineAllowedTarget(args) ||
     isGenesis4to50Range(args) ||
-    isExodus1to40Range(args)
+    isExodus1to40Range(args) ||
+    isLeviticus1to27Range(args)
   ) {
     return;
   }
   throw new Error(
-    '이 스크립트는 ko-KR 창세기 단일 절(기본/파이프라인 허용), 승인된 창세기 4~50장 범위, 또는 승인된 출애굽기 1~40장 범위 manifest 동기화에만 사용할 수 있습니다.',
+    '이 스크립트는 ko-KR 창세기 단일 절(기본/파이프라인 허용), 승인된 창세기 4~50장 범위, 승인된 출애굽기 1~40장 범위, 또는 승인된 레위기 1~27장 범위 manifest 동기화에만 사용할 수 있습니다.',
   );
 }
 
@@ -337,7 +361,7 @@ function buildTarget(bookId, language, chapter, verse) {
   const chapter3 = pad3(chapter);
   const verse3 = pad3(verse);
   return {
-    book: bookId === 'genesis' ? '창세기' : bookId === 'exodus' ? '출애굽기' : bookId,
+    book: bookId === 'genesis' ? '창세기' : bookId === 'exodus' ? '출애굽기' : bookId === 'leviticus' ? '레위기' : bookId,
     bookId,
     language,
     chapter,
@@ -530,11 +554,24 @@ function countExodusCommentary(audios, fromChapter, toChapter) {
   return count;
 }
 
+function countLeviticusCommentary(audios, fromChapter, toChapter) {
+  let count = 0;
+  for (const id of Object.keys(audios || {})) {
+    const parts = id.split('.');
+    if (parts.length < 4 || parts[0] !== 'leviticus') continue;
+    const type = parts[parts.length - 1];
+    if (!EXODUS_COMMENTARY_TYPES.some((item) => item.type === type)) continue;
+    const chapter = Number(parts[1]);
+    if (chapter >= fromChapter && chapter <= toChapter) count += 1;
+  }
+  return count;
+}
+
 function countOtherBookEntries(audios) {
   let count = 0;
   for (const id of Object.keys(audios || {})) {
     const bookId = String(id).split('.')[0];
-    if (bookId !== 'genesis' && bookId !== 'exodus') count += 1;
+    if (bookId !== 'genesis' && bookId !== 'exodus' && bookId !== 'leviticus') count += 1;
   }
   return count;
 }
@@ -688,6 +725,7 @@ async function mainRange(args) {
   const before1to3 = countGenesisCommentary(manifest.audios, 1, 3);
   const before4to50 = countGenesisCommentary(manifest.audios, 4, 50);
   const beforeExodus = countExodusCommentary(manifest.audios, 1, 40);
+  const beforeLeviticus = countLeviticusCommentary(manifest.audios, 1, 27);
   const beforeOtherBooks = countOtherBookEntries(manifest.audios);
   const plan = await planRange(args, manifest);
 
@@ -723,7 +761,24 @@ async function mainRange(args) {
     plan.outOfScope.otherBooks === 0 &&
     plan.createCount === 10917 - beforeExodus
   );
-  const dryRunOk = isExodus1to40Range(args) ? exodusDryRunOk : genesisDryRunOk;
+  const leviticusDryRunOk = (
+    isLeviticus1to27Range(args) &&
+    plan.verseCount === 859 &&
+    plan.topicsPerVerse === 9 &&
+    plan.plannedCount === 7731 &&
+    plan.uniqueIdCount === 7731 &&
+    plan.uniqueUrlCount === 7731 &&
+    plan.duplicateIdCount === 0 &&
+    plan.duplicateUrlCount === 0 &&
+    plan.localMp3MissingCount === 0 &&
+    plan.cueMissingCount === 0 &&
+    plan.outOfScope.genesis1to3 === 0 &&
+    plan.outOfScope.otherBooks === 0 &&
+    plan.createCount === 7731 - beforeLeviticus
+  );
+  const dryRunOk = isLeviticus1to27Range(args)
+    ? leviticusDryRunOk
+    : isExodus1to40Range(args) ? exodusDryRunOk : genesisDryRunOk;
 
   if (!args.write) {
     console.log(JSON.stringify({
@@ -747,6 +802,7 @@ async function mainRange(args) {
       beforeGenesis1to3: before1to3,
       beforeGenesis4to50: before4to50,
       beforeExodus1to40: beforeExodus,
+      beforeLeviticus1to27: beforeLeviticus,
       beforeOtherBooks: beforeOtherBooks,
       outOfScope: plan.outOfScope,
       firstEntry: plan.firstEntryMeta,
@@ -787,10 +843,27 @@ async function mainRange(args) {
   const after1to3 = countGenesisCommentary(nextManifest.audios, 1, 3);
   const after4to50 = countGenesisCommentary(nextManifest.audios, 4, 50);
   const afterExodus = countExodusCommentary(nextManifest.audios, 1, 40);
+  const afterLeviticus = countLeviticusCommentary(nextManifest.audios, 1, 27);
   const afterOtherBooks = countOtherBookEntries(nextManifest.audios);
-  if (isExodus1to40Range(args)) {
+  if (isLeviticus1to27Range(args)) {
     if (after1to3 !== before1to3 || after4to50 !== before4to50) {
       throw new Error(`창세기 commentary가 변경되어 write를 중단합니다: 1-3=${after1to3} 4-50=${after4to50}`);
+    }
+    if (afterExodus !== beforeExodus) {
+      throw new Error(`출애굽기 commentary가 변경되어 write를 중단합니다: ${beforeExodus} -> ${afterExodus}`);
+    }
+    if (afterOtherBooks !== beforeOtherBooks) {
+      throw new Error(`다른 book 항목이 변경되어 write를 중단합니다: ${beforeOtherBooks} -> ${afterOtherBooks}`);
+    }
+    if (afterLeviticus !== beforeLeviticus + plan.createCount) {
+      throw new Error(`레위기 집계 불일치: ${afterLeviticus} != ${beforeLeviticus}+${plan.createCount}`);
+    }
+  } else if (isExodus1to40Range(args)) {
+    if (after1to3 !== before1to3 || after4to50 !== before4to50) {
+      throw new Error(`창세기 commentary가 변경되어 write를 중단합니다: 1-3=${after1to3} 4-50=${after4to50}`);
+    }
+    if (afterLeviticus !== beforeLeviticus) {
+      throw new Error(`레위기 commentary가 변경되어 write를 중단합니다: ${beforeLeviticus} -> ${afterLeviticus}`);
     }
     if (afterOtherBooks !== beforeOtherBooks) {
       throw new Error(`다른 book 항목이 변경되어 write를 중단합니다: ${beforeOtherBooks} -> ${afterOtherBooks}`);
@@ -818,6 +891,8 @@ async function mainRange(args) {
     afterGenesis1to50: after1to3 + after4to50,
     beforeExodus1to40: beforeExodus,
     afterExodus1to40: afterExodus,
+    beforeLeviticus1to27: beforeLeviticus,
+    afterLeviticus1to27: afterLeviticus,
     beforeOtherBooks,
     afterOtherBooks,
     totalAudios: nextManifest.totalAudios,

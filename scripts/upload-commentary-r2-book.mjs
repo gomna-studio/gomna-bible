@@ -66,19 +66,44 @@ const EXODUS_VERSE_COUNTS = {
   31: 18, 32: 35, 33: 23, 34: 35, 35: 35, 36: 38, 37: 29, 38: 31, 39: 43, 40: 38,
 };
 
+const LEVITICUS_VERSE_COUNTS = {
+  1: 17, 2: 16, 3: 17, 4: 35, 5: 19, 6: 30, 7: 38, 8: 36, 9: 24, 10: 20,
+  11: 47, 12: 8, 13: 59, 14: 57, 15: 33, 16: 34, 17: 16, 18: 30, 19: 37, 20: 27,
+  21: 24, 22: 33, 23: 44, 24: 23, 25: 55, 26: 46, 27: 34,
+};
+
+const LEVITICUS_FILE_NAMES = [
+  'original-language-study.mp3',
+  'history-warm.mp3',
+  'theology-warm.mp3',
+  'typology-study.mp3',
+  'matthew-henry-calm.mp3',
+  'sermon-strong.mp3',
+  'hymn-soft.mp3',
+  'counseling-warm.mp3',
+  'cross-reference-calm.mp3',
+];
+
 const BOOK_VERSE_COUNTS = {
   genesis: GENESIS_VERSE_COUNTS,
   exodus: EXODUS_VERSE_COUNTS,
+  leviticus: LEVITICUS_VERSE_COUNTS,
 };
 
 const BOOK_FILE_NAMES = {
   genesis: FILE_NAMES,
   exodus: EXODUS_FILE_NAMES,
+  leviticus: LEVITICUS_FILE_NAMES,
 };
 
 const EXODUS_VERSE_TOTAL = Object.values(EXODUS_VERSE_COUNTS).reduce((sum, n) => sum + n, 0);
 if (EXODUS_VERSE_TOTAL !== 1213) {
   throw new Error(`EXODUS_VERSE_COUNTS 합이 1213이 아닙니다: ${EXODUS_VERSE_TOTAL}`);
+}
+
+const LEVITICUS_VERSE_TOTAL = Object.values(LEVITICUS_VERSE_COUNTS).reduce((sum, n) => sum + n, 0);
+if (LEVITICUS_VERSE_TOTAL !== 859) {
+  throw new Error(`LEVITICUS_VERSE_COUNTS 합이 859가 아닙니다: ${LEVITICUS_VERSE_TOTAL}`);
 }
 
 const DEFAULT_CONCURRENCY = 4;
@@ -93,6 +118,8 @@ function usage() {
   console.error('  node scripts/upload-commentary-r2-book.mjs --book genesis --from-chapter 4 --to-chapter 50 --resume --write --confirm-upload-count N --concurrency 4');
   console.error('  node scripts/upload-commentary-r2-book.mjs --book exodus --from-chapter 1 --to-chapter 40 [--dry-run]');
   console.error('  node scripts/upload-commentary-r2-book.mjs --book exodus --from-chapter 1 --to-chapter 40 --write --confirm-upload-count N --concurrency 4');
+  console.error('  node scripts/upload-commentary-r2-book.mjs --book leviticus --from-chapter 1 --to-chapter 27 [--dry-run]');
+  console.error('  node scripts/upload-commentary-r2-book.mjs --book leviticus --from-chapter 1 --to-chapter 27 --resume --write --confirm-upload-count N --concurrency 4');
   console.error('Options: --resume --protect-keys-file PATH --keys-file PATH --auth-exists-check --verify-only --retry-failed --sample-sha');
 }
 
@@ -144,8 +171,8 @@ function parseArgs(argv) {
     }
   }
 
-  if (args.bookId !== 'genesis' && args.bookId !== 'exodus') {
-    throw new Error('현재 genesis와 exodus만 지원합니다.');
+  if (args.bookId !== 'genesis' && args.bookId !== 'exodus' && args.bookId !== 'leviticus') {
+    throw new Error('현재 genesis, exodus, leviticus만 지원합니다.');
   }
   if (!Number.isInteger(args.fromChapter) || !Number.isInteger(args.toChapter)) {
     throw new Error('--from-chapter/--to-chapter가 필요합니다.');
@@ -154,8 +181,12 @@ function parseArgs(argv) {
     if (args.fromChapter < 4 || args.toChapter > 50 || args.fromChapter > args.toChapter) {
       throw new Error('업로드 범위는 창세기 4~50장만 허용됩니다.');
     }
-  } else if (args.fromChapter < 1 || args.toChapter > 40 || args.fromChapter > args.toChapter) {
-    throw new Error('업로드 범위는 출애굽기 1~40장만 허용됩니다.');
+  } else if (args.bookId === 'exodus') {
+    if (args.fromChapter < 1 || args.toChapter > 40 || args.fromChapter > args.toChapter) {
+      throw new Error('업로드 범위는 출애굽기 1~40장만 허용됩니다.');
+    }
+  } else if (args.fromChapter < 1 || args.toChapter > 27 || args.fromChapter > args.toChapter) {
+    throw new Error('업로드 범위는 레위기 1~27장만 허용됩니다.');
   }
   if (args.verse != null && (!Number.isInteger(args.verse) || args.verse < 1)) {
     throw new Error('--verse가 올바르지 않습니다.');

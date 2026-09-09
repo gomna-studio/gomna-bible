@@ -21,6 +21,12 @@ const BOOKS = {
     },
     commentaryDataPath: path.join(ROOT, 'gomna_data_exodus.js'),
   },
+  leviticus: {
+    bookNameByLocale: {
+      'ko-KR': '레위기',
+    },
+    commentaryDataPath: path.join(ROOT, 'gomna_data_leviticus.js'),
+  },
 };
 
 const LOCALES = {
@@ -173,7 +179,11 @@ function buildOutputDir(args) {
 function loadPastorCommentaryData(bookId) {
   const bookConfig = BOOKS[bookId];
   const source = fs.readFileSync(bookConfig.commentaryDataPath, 'utf8');
-  const sandbox = { pastorCommentaryData: {} };
+  const sharedCommentaryData = {};
+  const sandbox = {
+    pastorCommentaryData: sharedCommentaryData,
+    commentaryData: sharedCommentaryData,
+  };
   vm.runInNewContext(source, sandbox, {
     filename: toRelativePath(bookConfig.commentaryDataPath),
   });

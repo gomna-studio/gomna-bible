@@ -62,7 +62,7 @@ const NON_MH_ALIASES_BY_TABLE = Object.freeze({
   표2_역사적배경: Object.freeze([
     Object.freeze(['항목', 'Item', 'item', '項目']),
     Object.freeze(['내용', 'Content', 'content', '内容']),
-    Object.freeze(['목회적활용', 'PastoralUse', 'pastoral_use', '牧会的活用', '설교포인트']),
+    Object.freeze(['목회적활용', 'PastoralUse', 'pastoral_use', '牧会的活用', '설교포인트', '실제적용']),
   ]),
   표3_신학적의미: Object.freeze([
     Object.freeze(['교리', 'Doctrine', 'doctrine', '教理']),
@@ -98,6 +98,7 @@ const NON_MH_ALIASES_BY_TABLE = Object.freeze({
       'ApplicationExample',
       'application_example',
       '例話_適用',
+      '그리스도연결',
     ]),
   ]),
   표7_찬송가: Object.freeze([
@@ -113,7 +114,7 @@ const NON_MH_ALIASES_BY_TABLE = Object.freeze({
     ]),
   ]),
   표8_상담적용: Object.freeze([
-    Object.freeze(['상황', 'Situation', 'situation', '状況']),
+    Object.freeze(['상황', 'Situation', 'situation', '状況', '상況']),
     Object.freeze([
       '성경원리',
       'BiblicalPrinciple',
@@ -126,6 +127,7 @@ const NON_MH_ALIASES_BY_TABLE = Object.freeze({
       'practical_application',
       '実際適用',
       '실제적활용',
+      '관련구절',
     ]),
   ]),
   표9_교차참조: Object.freeze([
