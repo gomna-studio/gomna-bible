@@ -18,7 +18,7 @@ const LOCALES = {
   'es-ES': { enabled: false },
 };
 
-const BOOKS = new Set(['genesis', 'exodus']);
+const BOOKS = new Set(['genesis', 'exodus', 'leviticus']);
 
 const COMMENTARY_TYPES = [
   'original-language',
@@ -223,7 +223,11 @@ function loadPastorCommentaryData(bookId) {
   const cached = commentaryDataByBook.get(bookId);
   if (cached) return cached;
 
-  const sandbox = { pastorCommentaryData: {} };
+  const sharedCommentaryData = {};
+  const sandbox = {
+    pastorCommentaryData: sharedCommentaryData,
+    commentaryData: sharedCommentaryData,
+  };
   vm.runInNewContext(
     fs.readFileSync(path.join(ROOT, `gomna_data_${bookId}.js`), 'utf8'),
     sandbox,

@@ -53,6 +53,15 @@ const BOOK_REGISTRY = {
     dataFileName: 'gomna_data_exodus.js',
     verseCounts: EXODUS_VERSE_COUNTS,
   },
+  leviticus: {
+    koreanName: '레위기',
+    dataFileName: 'gomna_data_leviticus.js',
+    verseCounts: {
+      1: 17, 2: 16, 3: 17, 4: 35, 5: 19, 6: 30, 7: 38, 8: 36, 9: 24, 10: 20,
+      11: 47, 12: 8, 13: 59, 14: 57, 15: 33, 16: 34, 17: 16, 18: 30, 19: 37, 20: 27,
+      21: 24, 22: 33, 23: 44, 24: 23, 25: 55, 26: 46, 27: 34,
+    },
+  },
 };
 
 function bookConfig(bookId) {
@@ -69,7 +78,19 @@ function verseCountsFor(bookId) {
 const EXODUS_PRODUCTION_MIN_CHAPTER = 1;
 const EXODUS_PRODUCTION_MAX_CHAPTER = 40;
 
+const LEVITICUS_PRODUCTION_MIN_CHAPTER = 1;
+const LEVITICUS_PRODUCTION_MAX_CHAPTER = 27;
+
 const SAFE_TARGET_RANGES = [
+  ...Object.entries(BOOK_REGISTRY.leviticus.verseCounts)
+    .map(([chapter, toVerse]) => ({ chapter: Number(chapter), toVerse }))
+    .map(({ chapter, toVerse }) => ({
+      locale: 'ko-KR',
+      bookId: 'leviticus',
+      chapter,
+      fromVerse: 1,
+      toVerse,
+    })),
   {
     locale: 'ko-KR',
     bookId: 'genesis',
@@ -158,6 +179,13 @@ const COMMENTARY_TOPIC_TYPES = [
 ];
 
 const APPROVED_AUDIO_WRITE_TARGETS = [
+  {
+    locale: 'ko-KR',
+    bookId: 'leviticus',
+    chapter: 1,
+    fromVerse: 1,
+    toVerse: 1,
+  },
   {
     locale: 'ko-KR',
     bookId: 'genesis',
@@ -546,11 +574,22 @@ function isExodusProductionTarget(args) {
   return args.fromVerse >= 1 && args.toVerse <= maxVerse;
 }
 
+function isLeviticusProductionTarget(args) {
+  if (args.locale !== 'ko-KR' || args.bookId !== 'leviticus') return false;
+  if (
+    args.chapter < LEVITICUS_PRODUCTION_MIN_CHAPTER
+    || args.chapter > LEVITICUS_PRODUCTION_MAX_CHAPTER
+  ) return false;
+  const maxVerse = BOOK_REGISTRY.leviticus.verseCounts[args.chapter];
+  return args.fromVerse >= 1 && args.toVerse <= maxVerse;
+}
+
 function usesProductionCueBuilder(args) {
   return isGenesis1to2ProductionTarget(args)
     || isGenesis3ProductionTarget(args)
     || isGenesis4to50ProductionTarget(args)
-    || isExodusProductionTarget(args);
+    || isExodusProductionTarget(args)
+    || isLeviticusProductionTarget(args);
 }
 
 function countNonEmptyParagraphs(text) {
@@ -796,7 +835,7 @@ function buildProductionWriteBlockers(args) {
   const manifestOnly = stages.length === 1 && stages[0] === 'manifest';
   const chapterLabel = `${bookConfig(args.bookId).koreanName} ${args.chapter}장`;
 
-  if (isGenesis1to2ProductionTarget(args) || isGenesis4to50ProductionTarget(args) || isExodusProductionTarget(args)) {
+  if (isGenesis1to2ProductionTarget(args) || isGenesis4to50ProductionTarget(args) || isExodusProductionTarget(args) || isLeviticusProductionTarget(args)) {
     if (scriptsOnly) return blockers;
     if (wantsUpload || uploadOnly) {
       blockers.push(`${chapterLabel} upload write는 현재 차단됩니다.`);
@@ -1576,7 +1615,7 @@ function validateWriteSafety({ args, steps }) {
 
   const blockers = [];
 
-  if (isGenesis1to2ProductionTarget(args) || isGenesis4to50ProductionTarget(args) || isExodusProductionTarget(args)) {
+  if (isGenesis1to2ProductionTarget(args) || isGenesis4to50ProductionTarget(args) || isExodusProductionTarget(args) || isLeviticusProductionTarget(args)) {
     const label = `${bookConfig(args.bookId).koreanName} ${args.chapter}장`;
     const scriptsOnly = steps.every((step) => step === 'build-scripts' || step === 'validate-scripts');
     if (scriptsOnly) {
