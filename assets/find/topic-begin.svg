@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="begin-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#D8EFE8"/>
+      <stop offset=".4" stop-color="#7EBEB4"/>
+      <stop offset="1" stop-color="#3A7A74"/>
+    </linearGradient>
+    <radialGradient id="begin-dawn" cx="30%" cy="34%" r="46%">
+      <stop offset="0" stop-color="#F6F0D4" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#F6F0D4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="900" height="500" fill="url(#begin-sky)"/>
+  <rect width="900" height="500" fill="url(#begin-dawn)"/>
+  <ellipse cx="250" cy="170" rx="44" ry="44" fill="#F4EBC4" opacity=".5"/>
+  <path d="M-20 280 C90 256 180 304 300 278 C430 250 540 300 920 270 L920 520 L-20 520Z" fill="#2F6862"/>
+  <path d="M-20 330 C120 312 220 356 360 336 C520 312 660 360 920 338 L920 520 L-20 520Z" fill="#245450"/>
+  <path d="M40 360 C220 348 400 372 900 350" fill="none" stroke="#E7F4F0" stroke-width="3" opacity=".18"/>
+  <path d="M220 318 C250 300 290 304 318 322" fill="none" stroke="#1A3A38" stroke-width="8" opacity=".25"/>
+</svg>

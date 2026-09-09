@@ -1017,16 +1017,34 @@
     }
   }
 
+  function canonicalizeAppLocale(lang) {
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.canonicalizeLocale === 'function') {
+      var n = window.GomnaUII18n.canonicalizeLocale(lang);
+      if (n) return n;
+    }
+    if (!lang) return null;
+    var c = String(lang).toLowerCase().replace(/_/g, '-');
+    if (c === 'zh' || c.indexOf('zh-') === 0) return 'zh';
+    var primary = c.split('-')[0];
+    if (primary === 'jp') primary = 'ja';
+    if (primary === 'ko' || primary === 'en' || primary === 'ja' || primary === 'zh') return primary;
+    return lang;
+  }
+
   function getNativeHomeLanguage() {
     try {
-      var stored = localStorage.getItem('gomna_ui_language');
-      if (stored === 'ko' || stored === 'en' || stored === 'ja') return stored;
+      var stored = canonicalizeAppLocale(localStorage.getItem('gomna_ui_language'));
+      if (isNativeHomeLanguage(stored)) return stored;
     } catch (e) { /* ignore */ }
     return null;
   }
 
   function isNativeHomeLanguage(lang) {
-    return lang === 'ko' || lang === 'en' || lang === 'ja';
+    var n = canonicalizeAppLocale(lang);
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.isNativeLocale === 'function') {
+      return !!window.GomnaUII18n.isNativeLocale(n);
+    }
+    return n === 'ko' || n === 'en' || n === 'ja' || n === 'zh';
   }
 
   /**
@@ -1162,10 +1180,11 @@
 
       if (resolved.mode === 'native') {
         // Native home must not keep Google pending / observers alive.
+        // Native ko/en/ja UI uses GomnaUII18n + Bible datasets (KRV/WEBP/Kougo).
+        // Never set googtrans here — leftover cookies make Reader load element.js
+        // and surface "번역 서비스 로드 실패" on a normal English tap.
         endTranslationPending({ immediate: true });
-
-        if (resolved.lang === 'ko') clearGoogTransCookie();
-        else setGoogTransCookie(resolved.lang);
+        clearGoogTransCookie();
 
         if (window.GomnaUII18n && typeof window.GomnaUII18n.apply === 'function') {
           window.GomnaUII18n.apply(resolved.lang, { persist: !!resolved.persisted });
@@ -1186,7 +1205,7 @@
           window.GomnaUII18n && typeof window.GomnaUII18n.deactivate === 'function') {
         // Only deactivate if storage was already cleared for unsupported langs.
         try {
-          if (!getNativeHomeLanguage()) window.GomnaUII18n.deactivate();
+          if (!getNativeHomeLanguage()) window.GomnaUII18n.deactivate({ keepSelectedLocale: true });
         } catch (e3) { /* ignore */ }
       }
     } finally {
@@ -1235,6 +1254,187 @@
     return !!(html && (html.classList.contains('translated-ltr') || html.classList.contains('translated-rtl')));
   }
 
+  /* iPhone Safari often omits translated-ltr while Google <font> wrappers remain. */
+  function hasExternalTranslationResidue() {
+    if (isGoogleTranslatedDom()) return true;
+    try {
+      if (document.querySelector(
+        'iframe.skiptranslate, .goog-te-banner-frame, .goog-te-combo, #google_translate_element iframe, .goog-te-gadget'
+      )) {
+        return true;
+      }
+    } catch (e0) { /* ignore */ }
+    try {
+      if (document.querySelectorAll('font font').length > 0) return true;
+    } catch (e1) { /* ignore */ }
+    try {
+      if (document.querySelectorAll('font[style*="vertical-align"]').length > 0) return true;
+    } catch (e2) { /* ignore */ }
+    return false;
+  }
+
+  function collectNativeKoEnglishLeftovers() {
+    var hits = [];
+    function check(sel, forbidden) {
+      var el = document.querySelector(sel);
+      if (!el) return;
+      var text = String(el.textContent || '').replace(/\s+/g, ' ').trim();
+      if (text === forbidden) hits.push({ sel: sel, text: text });
+    }
+    check('#verseToolbarLocationText', 'Find Passage');
+    check('#opt4VerseListenLabel', 'Listen');
+    check('#scriptureDock [data-dock="home"] .scripture-dock-label', 'Home');
+    check('#scriptureDock [data-dock="bible"] .scripture-dock-label', 'Bible');
+    check('#scriptureDock [data-dock="find"] .scripture-dock-label', 'Find');
+    check('#scriptureDock [data-dock="archive"] .scripture-dock-label', 'Saved');
+    check('#scriptureDock [data-dock="my"] .scripture-dock-label', 'Sign in');
+    check('.gomna-home-tabbar [data-i18n-key="home.tab.home"]', 'Home');
+    check('.gomna-home-tabbar [data-i18n-key="home.tab.bible"]', 'Bible');
+    check('.gomna-home-tabbar [data-i18n-key="home.tab.find"]', 'Find');
+    check('.gomna-home-tabbar [data-i18n-key="home.tab.login"]', 'Sign in');
+    return hits;
+  }
+
+  function assertNativeKoChrome(reason) {
+    try {
+      if (!window.GomnaUII18n || typeof window.GomnaUII18n.getSelectedLocale !== 'function') return [];
+      if (window.GomnaUII18n.getSelectedLocale() !== 'ko') return [];
+    } catch (e0) { return []; }
+    var hits = collectNativeKoEnglishLeftovers();
+    if (hits.length) {
+      try {
+        console.warn('[gomna-locale] mixed-language leftovers', { reason: reason || 'assert', hits: hits });
+      } catch (e1) { /* ignore */ }
+    }
+    return hits;
+  }
+
+  function scheduleNativeKoResync(generation) {
+    var gen = generation || window.__gomnaLocaleGen || 0;
+    [180, 500, 1100].forEach(function (ms) {
+      setTimeout(function () {
+        if ((window.__gomnaLocaleGen || 0) !== gen) return;
+        try {
+          if (!window.GomnaUII18n || window.GomnaUII18n.getSelectedLocale() !== 'ko') return;
+        } catch (eSel) { return; }
+        var hits = assertNativeKoChrome('guard-' + ms);
+        if (!hits.length) return;
+        if (typeof window.syncReaderLocaleUi === 'function') {
+          try { window.syncReaderLocaleUi('ko'); } catch (eSync) { /* ignore */ }
+        } else if (window.GomnaUII18n && typeof window.GomnaUII18n.applyLocale === 'function') {
+          try {
+            window.GomnaUII18n.applyLocale('ko', { persist: true, source: 'native-ko-guard' });
+          } catch (eApply) { /* ignore */ }
+        }
+        try { applyUiTextI18n('ko'); } catch (eUi) { /* ignore */ }
+        if (typeof window.__gomnaRefreshReaderI18n === 'function') {
+          try { window.__gomnaRefreshReaderI18n('ko'); } catch (eRi) { /* ignore */ }
+        }
+        if (typeof window.__gomnaRefreshHomeI18n === 'function') {
+          try { window.__gomnaRefreshHomeI18n(); } catch (eHome) { /* ignore */ }
+        }
+      }, ms);
+    });
+  }
+
+  function isExternalUiPresent() {
+    try {
+      if (window.GomnaUII18n && typeof window.GomnaUII18n.isExternalLocale === 'function') {
+        var attr = document.documentElement.getAttribute('data-gomna-ui-lang');
+        if (window.GomnaUII18n.isExternalLocale(attr)) return true;
+        var stored = localStorage.getItem('gomna_ui_language');
+        if (window.GomnaUII18n.isExternalLocale(stored)) return true;
+      }
+    } catch (e0) { /* ignore */ }
+    try {
+      var cookie = getCurrentTargetLang();
+      if (cookie && cookie !== 'ko' && !isNativeHomeLanguage(cookie)) return true;
+    } catch (e1) { /* ignore */ }
+    return hasExternalTranslationResidue();
+  }
+
+  function teardownExternalTranslation() {
+    cancelWidgetLanguageTrigger();
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.bumpLocaleGeneration === 'function') {
+      try { window.GomnaUII18n.bumpLocaleGeneration(); } catch (eGen) { /* ignore */ }
+    } else {
+      try { window.__gomnaLocaleGen = (window.__gomnaLocaleGen || 0) + 1; } catch (eGen2) { /* ignore */ }
+    }
+    if (_gtReaderRetranslateTimer) {
+      clearTimeout(_gtReaderRetranslateTimer);
+      _gtReaderRetranslateTimer = null;
+    }
+    clearGoogTransCookie();
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.clearIncompleteGoogTrans === 'function') {
+      try { window.GomnaUII18n.clearIncompleteGoogTrans(); } catch (eClr) { /* ignore */ }
+    }
+    try {
+      var html = document.documentElement;
+      html.classList.remove('translated-ltr', 'translated-rtl', 'gt-translation-pending');
+      html.removeAttribute('data-gomna-reader-target-lang');
+    } catch (eHtml) { /* ignore */ }
+    try { window.__gomnaBridgeDisplayLang = null; } catch (ePend) { /* ignore */ }
+    try { window.__gtWidgetLoading = false; } catch (eLoad) { /* ignore */ }
+  }
+
+  /**
+   * Single native-locale entry (ko/en/ja/zh), including return from Google.
+   * Teardown + persist + native apply + chrome sync as one transaction.
+   * Never reloads: already-rendered Reader chrome must rerender in place.
+   */
+  function enterNativeLocale(nextLang, opts) {
+    opts = opts || {};
+    var code = canonicalizeAppLocale(nextLang) || nextLang;
+    if (!isNativeHomeLanguage(code)) return { reloaded: false, skipped: true };
+    var fromExternal = isExternalUiPresent();
+    teardownExternalTranslation();
+    try { localStorage.setItem('gomna_ui_language', code); } catch (e0) { /* ignore */ }
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.applyLocale === 'function') {
+      try {
+        window.GomnaUII18n.applyLocale(code, {
+          persist: true,
+          source: opts.source || 'enterNativeLocale',
+          fromExternal: fromExternal
+        });
+      } catch (eApply) { /* ignore */ }
+    } else if (window.GomnaUII18n && typeof window.GomnaUII18n.setLanguage === 'function') {
+      try { window.GomnaUII18n.setLanguage(code); } catch (eSet) { /* ignore */ }
+    }
+    try { applyUiTextI18n(code); } catch (eUi) { /* ignore */ }
+    if (BOOK_LANG_IDX[code]) {
+      try { applyBookNameI18n(code); } catch (eBook) { /* ignore */ }
+    }
+    if (typeof window.syncReaderNativeUiLangClass === 'function') {
+      try { window.syncReaderNativeUiLangClass(); } catch (eSync) { /* ignore */ }
+    }
+    if (typeof window.syncReaderLocaleUi === 'function') {
+      try { window.syncReaderLocaleUi(code); } catch (eSyncUi) { /* ignore */ }
+    } else if (typeof window.__gomnaRefreshReaderI18n === 'function') {
+      try { window.__gomnaRefreshReaderI18n(code); } catch (eRi) { /* ignore */ }
+    } else {
+      if (typeof window.updateOpt4BottomBar === 'function') {
+        try { window.updateOpt4BottomBar(); } catch (eBar) { /* ignore */ }
+      }
+      if (typeof window.updateVerseToolbar === 'function') {
+        try { window.updateVerseToolbar(); } catch (eTb) { /* ignore */ }
+      }
+    }
+    if (typeof window.__gomnaRefreshHomeI18n === 'function') {
+      try { window.__gomnaRefreshHomeI18n(); } catch (eHome) { /* ignore */ }
+    }
+    if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.apply === 'function') {
+      try { window.GomnaCommentaryI18n.apply(); } catch (eCi) { /* ignore */ }
+    }
+    try { endTranslationPending({ immediate: true }); } catch (eEnd) { /* ignore */ }
+    if (code === 'ko') {
+      try { scheduleNativeKoResync(window.__gomnaLocaleGen || 0); } catch (eGuard) { /* ignore */ }
+    }
+    return { reloaded: false, fromExternal: fromExternal };
+  }
+
+  window.GomnaEnterNativeLocale = enterNativeLocale;
+  window.GomnaTeardownExternalTranslation = teardownExternalTranslation;
+
   // Resolves the "active" language code (cookie target, or "ko" if no cookie).
   function getActiveLangCode() {
     if (isHomePage()) {
@@ -1248,7 +1448,7 @@
     if (isReaderPage() && typeof window.getReaderUiLangCode === 'function') {
       try {
         var readerUi = window.getReaderUiLangCode();
-        if (readerUi === 'ko' || readerUi === 'en' || readerUi === 'ja') return readerUi;
+        if (readerUi) return readerUi;
       } catch (e) { /* ignore */ }
     }
     return getCurrentTargetLang() || 'ko';
@@ -1368,12 +1568,19 @@
 
   function clearGoogTransCookie() {
     const expire = '; max-age=0';
+    const gmt = '; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     document.cookie = 'googtrans=; path=/' + expire;
+    document.cookie = 'googtrans=; path=/' + gmt;
     const host = location.hostname;
+    if (host) {
+      document.cookie = 'googtrans=; path=/; domain=' + host + expire;
+      document.cookie = 'googtrans=; path=/; domain=' + host + gmt;
+    }
     if (host && host.indexOf('.') > -1 && !/^[\d.]+$/.test(host)) {
       const parts = host.split('.');
       const dom = '.' + parts.slice(-2).join('.');
       document.cookie = 'googtrans=; path=/; domain=' + dom + expire;
+      document.cookie = 'googtrans=; path=/; domain=' + dom + gmt;
     }
   }
 
@@ -1989,7 +2196,39 @@
     );
   }
 
+  /**
+   * Google Translate Element is only for non-native UI languages (vi, es, …).
+   * Native ko/en/ja/zh must never fetch element.js: Home/Reader UI uses GomnaUII18n,
+   * and Bible text uses KRV / WEBP / Kougo / CUV datasets — not Google page translation.
+   */
+  function shouldUseGoogleWidget() {
+    var stored = getNativeHomeLanguage();
+    if (stored) return false;
+    try {
+      var selected = canonicalizeAppLocale(localStorage.getItem('gomna_ui_language'));
+      if (selected && !isNativeHomeLanguage(selected)) return true;
+    } catch (eSel) { /* ignore */ }
+    if (isHomePage()) {
+      try {
+        var resolved = resolveHomeDisplayLanguage();
+        if (resolved && resolved.mode === 'native') return false;
+      } catch (eHome) { /* ignore */ }
+    }
+    if (isReaderPage()) {
+      try {
+        var ui = localStorage.getItem('gomna_ui_language');
+        if (isNativeHomeLanguage(ui)) return false;
+      } catch (eReader) { /* ignore */ }
+    }
+    var tl = hasGoogTransCookie() ? getCurrentTargetLang() : null;
+    return !!(tl && tl !== 'ko' && !isNativeHomeLanguage(tl));
+  }
+
   function ensureTranslateWidget() {
+    if (!shouldUseGoogleWidget()) {
+      window.__gtWidgetLoading = false;
+      return;
+    }
     if (window.__gtWidgetLoaded) return;
     if (window.__gtWidgetLoading) return;
 
@@ -2035,7 +2274,21 @@
     script.onerror = function () {
       window.__gtWidgetLoading = false;
       window.__gtWidgetLoaded = false;
-      showToast('번역 서비스 로드 실패 · Translation service failed to load');
+      var retries = window.__gtWidgetRetries || 0;
+      console.error('[gomna-translate] Google Translate widget failed to load', script.src, 'retry=' + retries);
+      if (retries < 2 && shouldUseGoogleWidget()) {
+        window.__gtWidgetRetries = retries + 1;
+        try { if (script.parentNode) script.parentNode.removeChild(script); } catch (eRm) { /* ignore */ }
+        setTimeout(function () {
+          window.__gtWidgetLoading = false;
+          ensureTranslateWidget();
+        }, 700 * (retries + 1));
+        return;
+      }
+      /* Native ko/en/ja never toast: they do not need this widget. */
+      if (shouldUseGoogleWidget()) {
+        showToast('번역 서비스 로드 실패 · Translation service failed to load');
+      }
       endTranslationPending({ immediate: true });
       clearApplyInFlight(null);
       try { unlockReaderScrollLocks(); } catch (eUnlockErr) { /* ignore */ }
@@ -2164,9 +2417,17 @@
   var _gtReaderRetranslateTimer = null;
   function retranslateReaderBody(reason) {
     if (!isReaderPage()) return false;
+    try {
+      if (window.GomnaUII18n && typeof window.GomnaUII18n.isNativeLocale === 'function' &&
+          window.GomnaUII18n.isNativeLocale(window.GomnaUII18n.getSelectedLocale && window.GomnaUII18n.getSelectedLocale())) {
+        return false;
+      }
+    } catch (eNat) { /* ignore */ }
+    if (!shouldUseGoogleWidget()) return false;
     var lang = getCurrentTargetLang();
     if (!lang || lang === 'ko') return false;
     if (!hasGoogTransCookie()) return false;
+    var genAtSchedule = window.__gomnaLocaleGen || 0;
     ensureTranslateWidget();
     if (_gtReaderRetranslateTimer) {
       clearTimeout(_gtReaderRetranslateTimer);
@@ -2175,6 +2436,13 @@
     /* Debounce rapid chapter jumps; keep reading position (caller restores separately). */
     _gtReaderRetranslateTimer = setTimeout(function () {
       _gtReaderRetranslateTimer = null;
+      if ((window.__gomnaLocaleGen || 0) !== genAtSchedule) return;
+      try {
+        if (window.GomnaUII18n && typeof window.GomnaUII18n.isNativeLocale === 'function' &&
+            window.GomnaUII18n.isNativeLocale(window.GomnaUII18n.getSelectedLocale && window.GomnaUII18n.getSelectedLocale())) {
+          return;
+        }
+      } catch (eGen) { /* ignore */ }
       var still = getCurrentTargetLang();
       if (!still || still === 'ko' || !hasGoogTransCookie()) return;
       try {
@@ -2230,14 +2498,15 @@
   function dispatchReaderLanguageChange(activeLanguage, source) {
     var recent = null;
     try { recent = localStorage.getItem('gomna_recent_foreign_language'); } catch (e) { /* ignore */ }
-    // Do not promote active JA (or other UI langs) into the quick-foreign slot.
-    if (!recent || recent === 'ko') recent = 'en';
+    var active = canonicalizeAppLocale(activeLanguage) || activeLanguage || 'ko';
+    var quick = (active && active !== 'ko') ? active : (canonicalizeAppLocale(recent) || 'en');
+    if (!recent || recent === 'ko') recent = quick;
     try {
       window.dispatchEvent(new CustomEvent('gomna:languagechange', {
         detail: {
-          activeLanguage: activeLanguage || 'ko',
+          activeLanguage: active,
           recentForeignLanguage: recent,
-          quickForeignLanguage: 'en',
+          quickForeignLanguage: quick,
           source: source || 'translate_feature'
         }
       }));
@@ -2257,11 +2526,8 @@
   function syncReaderUiLanguageStorage(nextLang) {
     if (!isReaderPage()) return;
     try {
-      if (nextLang === 'ko' || nextLang === 'en' || nextLang === 'ja') {
-        localStorage.setItem('gomna_ui_language', nextLang);
-      } else {
-        localStorage.removeItem('gomna_ui_language');
-      }
+      var locale = canonicalizeAppLocale(nextLang) || nextLang;
+      if (locale) localStorage.setItem('gomna_ui_language', locale);
     } catch (e) { /* ignore */ }
   }
 
@@ -2271,8 +2537,9 @@
     var applySource = opts.source || 'language-modal';
     saveRecent(country[0]);
 
-    const nextLang = country[3];
-    const currentLang = getActiveLangCode();
+    const nextLangRaw = country[3];
+    const nextLang = canonicalizeAppLocale(nextLangRaw) || nextLangRaw;
+    const currentLang = canonicalizeAppLocale(getActiveLangCode()) || getActiveLangCode();
     const homeNative = isHomePage() && isNativeHomeLanguage(nextLang);
     const readerNativePair = isReaderPage() && isNativeHomeLanguage(nextLang);
 
@@ -2280,19 +2547,13 @@
       saveRecentForeignLanguage(nextLang);
     }
 
-    // No-op: same language already active (unless cleaning a Google-translated DOM).
-    // Capture current BEFORE any optimistic display flag so EN/JA taps are not no-ops.
-    // Reader en/ja can report "active" via gomna_ui_language while the verse body is
-    // still Korean (Google not applied) — do not no-op in that stuck state.
-    var readerBodyNeedsGoogle =
-      readerNativePair &&
-      nextLang !== 'ko' &&
-      !isGoogleTranslatedDom();
+    // No-op: same canonical locale already active (unless cleaning leftover Google DOM).
+    var nativeNeedsSourceRestore =
+      (homeNative || readerNativePair) && (isGoogleTranslatedDom() || hasExternalTranslationResidue());
     if (
       currentLang === nextLang &&
-      !readerBodyNeedsGoogle &&
-      !(homeNative && isGoogleTranslatedDom()) &&
-      !(readerNativePair && nextLang === 'ko' && isGoogleTranslatedDom())
+      !nativeNeedsSourceRestore &&
+      !isExternalUiPresent()
     ) {
       closeModal({ skipHomeRestore: true });
       try { window.__gomnaBridgeDisplayLang = null; } catch (ePend2) { /* ignore */ }
@@ -2301,7 +2562,7 @@
     }
 
     /* Drop duplicate in-flight applies for the same target (rapid globe / bridge taps). */
-    if (isApplyInFlight(nextLang) && !readerBodyNeedsGoogle) {
+    if (isApplyInFlight(nextLang) && !nativeNeedsSourceRestore) {
       closeModal({ skipHomeRestore: true });
       return;
     }
@@ -2310,41 +2571,49 @@
 
     try { window.__gomnaBridgeDisplayLang = nextLang; } catch (ePend) { /* ignore */ }
 
+    try {
+      var cfg = (window.GomnaUII18n && typeof window.GomnaUII18n.getLocaleConfig === 'function')
+        ? window.GomnaUII18n.getLocaleConfig(nextLang)
+        : null;
+      console.info('[gomna-locale]', {
+        globeSelectedRaw: nextLangRaw,
+        canonicalLocale: nextLang,
+        previousLocale: currentLang,
+        currentLocale: nextLang,
+        uiLocale: cfg && cfg.uiLocale,
+        displayLanguageLabel: cfg && cfg.languageLabel,
+        translationMode: cfg && cfg.translationMode,
+        googleTarget: cfg && cfg.googleTarget,
+        bibleLanguage: cfg && cfg.bibleLanguage,
+        bibleVersion: cfg && cfg.bibleVersion,
+        source: applySource
+      });
+    } catch (eLog) { /* ignore */ }
+
     if (window.GomnaAnalytics) {
       GomnaAnalytics.trackChangeTranslation(currentLang || 'ko', nextLang);
     }
 
-    // Home ko/en/ja: instant native UI swap (no pending / no Google widget).
+    // Home ko/en/ja/zh: native UI swap. Returning from Google uses enterNativeLocale.
     if (homeNative) {
-      try { localStorage.setItem('gomna_ui_language', nextLang); } catch (e) { /* ignore */ }
-      if (nextLang === 'ko') clearGoogTransCookie();
-      else setGoogTransCookie(nextLang);
       closeModal({ skipHomeRestore: true });
-
-      // Leaving a Google-translated DOM for native mode needs one cleanup reload.
-      if (isGoogleTranslatedDom()) {
-        location.reload();
-        return;
-      }
-
-      if (window.GomnaUII18n && typeof window.GomnaUII18n.setLanguage === 'function') {
-        window.GomnaUII18n.setLanguage(nextLang);
-      }
-      applyUiTextI18n(nextLang);
-      if (typeof window.__gomnaRefreshHomeI18n === 'function') {
-        try { window.__gomnaRefreshHomeI18n(); } catch (e2) { /* ignore */ }
-      }
+      enterNativeLocale(nextLang, { source: applySource + '-home-native' });
       try { window.__gomnaBridgeDisplayLang = null; } catch (ePend3) { /* ignore */ }
-      endTranslationPending();
       dispatchReaderLanguageChange(nextLang, applySource + '-home-native');
       return;
     }
 
-    // Home + unsupported language: drop native mode, use Google Translate path.
-    if (isHomePage()) {
-      try { localStorage.removeItem('gomna_ui_language'); } catch (e3) { /* ignore */ }
-      if (window.GomnaUII18n && typeof window.GomnaUII18n.deactivate === 'function') {
-        window.GomnaUII18n.deactivate();
+    // Home + external language: keep selectedLocale (hi/es/vi), drop native packs.
+    if (isHomePage() && !homeNative) {
+      if (window.GomnaUII18n && typeof window.GomnaUII18n.applyLocale === 'function') {
+        try {
+          window.GomnaUII18n.applyLocale(nextLang, { persist: true, source: applySource + '-home-external' });
+        } catch (eExt) { /* ignore */ }
+      } else {
+        try { localStorage.setItem('gomna_ui_language', nextLang); } catch (e3) { /* ignore */ }
+        if (window.GomnaUII18n && typeof window.GomnaUII18n.deactivate === 'function') {
+          window.GomnaUII18n.deactivate({ keepSelectedLocale: true });
+        }
       }
     }
 
@@ -2352,77 +2621,30 @@
     prepareReaderLanguageTransition(nextLang, applySource);
 
     /*
-     * Reader ko/en/ja:
-     * - No full EN/JA Bible verse datasets exist in this repo (Korean bodies only).
-     * - Body text uses Google Translate Element.
-     * - KO→EN / KO→JA: in-place widget trigger (no reload) for immediate response.
-     * - EN↔JA or any already-translated → other: reload (widget cannot reliably retranslate).
-     * - →KO: reload to restore clean Korean source DOM.
+     * Reader ko/en/ja/zh:
+     * - UI uses native labels (GomnaUII18n / getReaderToolbarLabels).
+     * - Chapter Bible text uses KRV / WEBP / Kougo / CUV by locale (GomnaBibleLocale).
+     * - If a leftover Google-translated DOM exists, reload once to restore source text.
      */
     if (readerNativePair) {
       closeModal({ skipHomeRestore: true });
+      enterNativeLocale(nextLang, { source: applySource + '-reader-native' });
       dispatchReaderLanguageChange(nextLang, applySource + '-reader-native');
-
-      if (nextLang === 'ko') {
-        var wasTranslatedDom = isGoogleTranslatedDom();
-        clearGoogTransCookie();
-        if (wasTranslatedDom) {
-          showToast('🌐 한국어로 복원 중... · Restoring Korean...');
-          setTimeout(function () { location.reload(); }, 200);
-          return;
-        }
-        try { window.__gomnaBridgeDisplayLang = null; } catch (ePend4) { /* ignore */ }
-        if (typeof window.syncReaderNativeUiLangClass === 'function') {
-          try { window.syncReaderNativeUiLangClass(); } catch (eSync) { /* ignore */ }
-        }
-        if (typeof window.updateOpt4BottomBar === 'function') {
-          try { window.updateOpt4BottomBar(); } catch (eBar) { /* ignore */ }
-        }
-        endTranslationPending({ immediate: true });
-        return;
-      }
-
-      /* en / ja */
-      setGoogTransCookie(nextLang);
-      var needReload = isGoogleTranslatedDom() && currentLang && currentLang !== 'ko' && currentLang !== nextLang;
-      if (needReload) {
-        startTranslationPending();
-        showToast('🌐 ' + country[1] + ' · ' + country[4] + ' 적용 중...');
-        setTimeout(function () { location.reload(); }, 200);
-        return;
-      }
-
-      startTranslationPending();
-      ensureTranslateWidget();
-      beginWidgetLanguageTrigger(nextLang);
-      watchTranslationPendingComplete();
-      if (BOOK_LANG_IDX[nextLang]) {
-        setTimeout(function () { applyBookNameI18n(nextLang); }, 900);
-      }
-      setTimeout(function () { applyUiTextI18n(nextLang); }, 400);
-      if (typeof window.syncReaderNativeUiLangClass === 'function') {
-        try { window.syncReaderNativeUiLangClass(); } catch (eSync2) { /* ignore */ }
-      }
-      if (typeof window.updateOpt4BottomBar === 'function') {
-        try { window.updateOpt4BottomBar(); } catch (eBar2) { /* ignore */ }
-      }
-      if (typeof window.updateVerseToolbar === 'function') {
-        try { window.updateVerseToolbar(); } catch (eTb) { /* ignore */ }
-      }
-      if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.apply === 'function') {
-        try { window.GomnaCommentaryI18n.apply(); } catch (eCi) { /* ignore */ }
-      }
       return;
     }
 
-    // Korean = source language → undo translation (non-native / Google-only langs).
+    // Korean = source language → native KO without reload (Reader/Home already handled).
     if (nextLang === 'ko') {
-      clearGoogTransCookie();
       closeModal({ skipHomeRestore: true });
-      showToast('🌐 한국어로 복원 중... · Restoring Korean...');
+      enterNativeLocale('ko', { source: applySource + '-ko-fallback' });
       dispatchReaderLanguageChange('ko', applySource);
-      setTimeout(function () { location.reload(); }, 250);
       return;
+    }
+
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.applyLocale === 'function') {
+      try {
+        window.GomnaUII18n.applyLocale(nextLang, { persist: true, source: applySource + '-external' });
+      } catch (eExtR) { /* ignore */ }
     }
 
     // Set the cookie + reload. This is the most reliable way to switch
@@ -3146,14 +3368,37 @@
       }, 1200);
     }
 
+    // Native Reader ko/en/ja: clear leftover googtrans so element.js is never fetched.
+    var nativeStored = getNativeHomeLanguage();
+    if (nativeStored) {
+      clearGoogTransCookie();
+      applyUiTextI18n(nativeStored);
+      if (isReaderPage() && BOOK_LANG_IDX[nativeStored]) {
+        try { applyBookNameI18n(nativeStored); } catch (eBookN) { /* ignore */ }
+      }
+      if (typeof window.__gomnaRefreshReaderI18n === 'function') {
+        try { window.__gomnaRefreshReaderI18n(); } catch (eRiN) { /* ignore */ }
+      }
+      if (nativeStored === 'ko') {
+        try { scheduleNativeKoResync(window.__gomnaLocaleGen || 0); } catch (eGuardN) { /* ignore */ }
+      }
+      endTranslationPending({ immediate: true });
+      if (isReaderPage()) {
+        try { releaseReaderBootOverlay({ immediate: true }); } catch (eBoot) { /* ignore */ }
+        window.addEventListener('pageshow', function () {
+          try { releaseReaderBootOverlay({ immediate: true }); } catch (ePs) { /* ignore */ }
+        });
+      }
+      return;
+    }
+
     // Apply curated UI text (categories, welcome message) for the current
     // language — runs both for Korean (default) and translated pages.
     const tl = hasGoogTransCookie() ? getCurrentTargetLang() : null;
     applyUiTextI18n(tl);
 
-    // If user previously chose a non-Korean language, the googtrans cookie
-    // is still set — load the widget so the page is auto-translated.
-    if (hasGoogTransCookie()) {
+    // Non-native languages only: googtrans cookie loads the Google widget.
+    if (hasGoogTransCookie() && shouldUseGoogleWidget()) {
       ensureTranslateWidget();
       var needsPending = document.documentElement.classList.contains('gt-translation-pending') ||
         (isReaderPage() && tl && tl !== 'ko') ||

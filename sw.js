@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-08-26-analytics-internal-exclusion-v1';
+const CACHE_VERSION = '2026-09-10-home-engage-v1';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE = 'gomna-data-v1';
@@ -15,7 +15,16 @@ const NETWORK_FIRST_TIMEOUT_MS = 4000;
 // 로컬 미리보기 주소에서만 적용하는 예외.
 // 운영 도메인에서는 아래 값이 false이므로 기존 동작이 그대로 유지된다.
 const LOCAL_PREVIEW_HOSTS = ['127.0.0.1', 'localhost', '::1'];
-const IS_LOCAL_PREVIEW = LOCAL_PREVIEW_HOSTS.indexOf(self.location.hostname) !== -1;
+function isLocalPreviewHost(hostname) {
+  const host = String(hostname || '');
+  if (LOCAL_PREVIEW_HOSTS.indexOf(host) !== -1) return true;
+  if (/^192\.168\.\d+\.\d+$/.test(host)) return true;
+  if (/^10\.\d+\.\d+\.\d+$/.test(host)) return true;
+  if (/^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/.test(host)) return true;
+  if (/\.trycloudflare\.com$/i.test(host)) return true;
+  return false;
+}
+const IS_LOCAL_PREVIEW = isLocalPreviewHost(self.location.hostname);
 
 const STATIC_URLS = [
   '/',
@@ -42,6 +51,8 @@ const STATIC_URLS = [
   '/favicon-16x16.png',
   '/favicon-32x32.png',
   '/apple-touch-icon.png',
+  '/app-icon-180.png',
+  '/app-icon-512.png',
   '/icon-192.png',
   '/icon-512.png',
   '/assets/globe_3d_256.webp',
@@ -405,7 +416,7 @@ self.addEventListener('fetch', event => {
 
   // ── 3) 앱 코드/manifest: 네트워크 우선, 실패 시 동일 URL 캐시 폴백 ──
   if (isFreshAppAsset(req, url)) {
-    event.respondWith(networkFirst(req));
+    event.respondWith(IS_LOCAL_PREVIEW ? networkFirstWithoutTimeout(req) : networkFirst(req));
     return;
   }
 
@@ -423,3 +434,61 @@ self.addEventListener('fetch', event => {
     })
   );
 });
+
+self.addEventListener('push', (event) => {
+  let payload = {
+    title: '오늘의 말씀',
+    body: '',
+    lang: 'ko',
+    tag: 'gomna-today',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    data: { source: 'home-today', url: '/?source=home-today' }
+  };
+  try {
+    if (event.data) payload = Object.assign(payload, event.data.json());
+  } catch (ePush) {}
+  const data = payload.data && typeof payload.data === 'object'
+    ? payload.data
+    : { source: 'home-today', url: '/?source=home-today' };
+  event.waitUntil(
+    self.registration.showNotification(payload.title || '오늘의 말씀', {
+      body: payload.body || '',
+      lang: payload.lang || 'ko',
+      tag: payload.tag || 'gomna-today',
+      icon: payload.icon || '/icon-192.png',
+      badge: payload.badge || '/icon-192.png',
+      silent: false,
+      data: data
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const data = event.notification.data || { source: 'home-today' };
+  const dest = data.url || '/?source=home-today';
+  event.waitUntil(openTodayWordFromPush(dest, data));
+});
+
+function openTodayWordFromPush(dest, data) {
+  const abs = new URL(dest, self.location.origin).href;
+  return self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+    for (let i = 0; i < list.length; i++) {
+      const client = list[i];
+      try {
+        if (new URL(client.url).origin !== self.location.origin) continue;
+      } catch (eOrigin) {
+        continue;
+      }
+      const focus = client.focus ? client.focus() : Promise.resolve();
+      return Promise.resolve(focus).then(() => {
+        try { client.postMessage({ type: 'gomna-open-today', data: data || {} }); } catch (eMsg) {}
+        const path = (() => { try { return new URL(client.url).pathname; } catch (ePath) { return ''; } })();
+        if (path === '/' || path === '/index.html') return;
+        if (typeof client.navigate === 'function') return client.navigate(abs).catch(() => {});
+      });
+    }
+    return self.clients.openWindow(abs);
+  });
+}

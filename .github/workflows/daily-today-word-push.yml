@@ -1,0 +1,68 @@
+# 푸시는 사용자 현지 알림 시간에 맞춰 15분마다 대상을 고른다.
+# 이메일은 하루 1회(KST 00:10 = UTC 15:10)만 보낸다.
+name: Daily today-word push
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'YYYY-MM-DD verse date override (optional)'
+        required: false
+      force:
+        description: 'Set 1 to send all active push subscriptions ignoring local time'
+        required: false
+        default: '0'
+  schedule:
+    - cron: '*/15 * * * *'
+    - cron: '10 15 * * *'
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send timed today-word push
+        env:
+          PUSH_URL: ${{ secrets.GOMNA_PUSH_DAILY_URL }}
+          PUSH_CRON_SECRET: ${{ secrets.GOMNA_PUSH_CRON_SECRET }}
+          SEND_DATE: ${{ github.event.inputs.date }}
+          FORCE: ${{ github.event.inputs.force }}
+        run: |
+          if [ -z "$PUSH_URL" ] || [ -z "$PUSH_CRON_SECRET" ]; then
+            echo "push secrets not set; skip"
+            exit 0
+          fi
+          BODY='{"mode":"daily"}'
+          if [ "$FORCE" = "1" ]; then
+            BODY='{"mode":"daily","force":true}'
+          fi
+          if [ -n "$SEND_DATE" ]; then
+            if [ "$FORCE" = "1" ]; then
+              BODY=$(printf '{"mode":"daily","force":true,"date":"%s"}' "$SEND_DATE")
+            else
+              BODY=$(printf '{"mode":"daily","date":"%s"}' "$SEND_DATE")
+            fi
+          fi
+          curl -fsS -X POST "$PUSH_URL" \
+            -H "Content-Type: application/json" \
+            -H "x-gomna-push-cron: $PUSH_CRON_SECRET" \
+            -d "$BODY"
+  mail:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '10 15 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send daily today-word email
+        env:
+          MAIL_URL: ${{ secrets.GOMNA_MAIL_DAILY_URL }}
+          MAIL_CRON_SECRET: ${{ secrets.GOMNA_MAIL_CRON_SECRET }}
+          SEND_DATE: ${{ github.event.inputs.date }}
+        run: |
+          if [ -z "$MAIL_URL" ] || [ -z "$MAIL_CRON_SECRET" ]; then
+            echo "mail secrets not set; skip"
+            exit 0
+          fi
+          BODY='{"mode":"daily"}'
+          if [ -n "$SEND_DATE" ]; then
+            BODY=$(printf '{"mode":"daily","date":"%s"}' "$SEND_DATE")
+          fi
+          curl -fsS -X POST "$MAIL_URL" \
+            -H "Content-Type: application/json" \
+            -H "x-gomna-mail-cron: $MAIL_CRON_SECRET" \
+            -d "$BODY"

@@ -28,7 +28,7 @@ html.bible-stair-lock,html.bible-stair-lock body{overflow:hidden!important}
   display:flex;
   flex-direction:column;
   box-sizing:border-box;
-  background:#F7F8FA;
+  background:#FCFAF6;
   border:1px solid #D5D7DA;
   border-bottom:none;
   border-radius:22px 22px 0 0;
@@ -116,8 +116,11 @@ html.bible-stair-lock,html.bible-stair-lock body{overflow:hidden!important}
   overflow-y:auto;
   overscroll-behavior:contain;
   -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
   padding:2px 0 4px;
 }
+#bibleStairBody::-webkit-scrollbar{width:0;height:0;display:none}
 #bibleStairBody.is-stage-in{animation:bible-stair-in 180ms ease}
 
 .bible-stair-books{
@@ -181,4 +184,230 @@ html.bible-stair-lock,html.bible-stair-lock body{overflow:hidden!important}
 @media (min-width:700px) and (min-height:600px){
   #bibleStairOverlay{align-items:flex-end}
   #bibleStairPanel{max-width:calc(390px - 18px - 18px)}
+}
+
+/* Find → 구약/신약에서 찾기 : full-screen grouped explorer. Home sheets stay unchanged. */
+.bible-stair-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.bible-stair-head-copy{min-width:0;flex:1 1 auto}
+.bible-stair-kicker{
+  margin:6px 0 0;
+  color:#6B7380;
+  font-size:13px;
+  font-weight:500;
+  letter-spacing:-.02em;
+  line-height:1.35;
+}
+.bible-stair-close{
+  display:none;
+  flex:0 0 auto;
+  width:36px;
+  height:36px;
+  margin:0;
+  padding:0;
+  border:1px solid #E4EAF2;
+  border-radius:50%;
+  background:#FFFFFF;
+  box-shadow:0 4px 12px rgba(23,25,29,.05);
+  color:#17191D;
+  font-size:20px;
+  font-weight:400;
+  line-height:1;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.bible-stair-close:active{background:#F7FAFE}
+
+#bibleStairOverlay.is-explore{
+  align-items:stretch;
+  justify-content:center;
+  background:#FCFAF6;
+}
+#bibleStairOverlay.is-explore #bibleStairPanel{
+  width:100%;
+  max-width:430px;
+  height:100%;
+  max-height:none;
+  min-height:100vh;
+  min-height:100dvh;
+  margin:0 auto;
+  border:none;
+  border-radius:0;
+  box-shadow:none;
+  background:#FCFAF6;
+  padding:calc(12px + env(safe-area-inset-top,0px)) 20px calc(28px + env(safe-area-inset-bottom,0px));
+  transform:none;
+  opacity:1;
+}
+#bibleStairOverlay.is-explore .bible-stair-head{
+  flex:0 0 auto;
+  align-items:center;
+  margin:0 0 18px;
+  padding:4px 0 14px;
+  border-bottom:1px solid rgba(23,25,29,.06);
+}
+#bibleStairOverlay.is-explore .bible-stair-title{
+  margin:0;
+  padding:0;
+  color:#17191D;
+  font-size:28px;
+  font-weight:700;
+  letter-spacing:-.03em;
+  line-height:1.15;
+}
+#bibleStairOverlay.is-explore .bible-stair-close{display:inline-flex;align-items:center;justify-content:center}
+#bibleStairOverlay.is-explore #bibleStairSteps{
+  margin:0 0 16px;
+}
+#bibleStairOverlay.is-explore .bible-explore-back{
+  display:inline-flex;
+  align-items:center;
+  min-height:36px;
+  margin:0;
+  padding:0;
+  border:none;
+  background:transparent;
+  color:#355F9A;
+  font-family:inherit;
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:-.02em;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+#bibleStairOverlay.is-explore #bibleStairBody{
+  padding:0 0 8px;
+}
+.bible-explore{
+  display:flex;
+  flex-direction:column;
+  gap:23px;
+  padding:2px 0 12px;
+}
+.bible-explore.is-all{gap:36px}
+.bible-explore-testament{
+  display:flex;
+  flex-direction:column;
+  gap:23px;
+  min-width:0;
+}
+.bible-explore-testament-label{
+  margin:0;
+  color:#17191D;
+  font-size:20px;
+  font-weight:700;
+  letter-spacing:-.03em;
+  line-height:1.2;
+}
+.bible-explore-group{min-width:0}
+.bible-explore-label{
+  margin:0 0 12px;
+  color:#17191D;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:-.02em;
+  line-height:1.3;
+}
+.bible-explore-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+}
+.bible-explore-book{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:48px;
+  padding:12px 12px;
+  box-sizing:border-box;
+  border:0.5px solid rgba(23,25,29,.20);
+  border-radius:14px;
+  background:#FFFFFF;
+  box-shadow:none;
+  color:#1F2329;
+  font-family:inherit;
+  font-size:16px;
+  font-weight:650;
+  letter-spacing:-.03em;
+  line-height:1.3;
+  text-align:center;
+  white-space:normal;
+  overflow:visible;
+  overflow-wrap:break-word;
+  word-break:keep-all;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.bible-explore-book.is-cur,
+.bible-explore-book:active{
+  background:#E8F0FC;
+  border-color:rgba(53,95,154,.22);
+  color:#355F9A;
+}
+.bible-explore-book:focus-visible{outline:2px solid rgba(53,95,154,.35);outline-offset:2px}
+.bible-explore-switch-wrap{
+  margin:20px 0 12px;
+}
+.bible-explore-switch{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:52px;
+  padding:14px 16px;
+  box-sizing:border-box;
+  border:0.5px solid rgba(53,95,154,.22);
+  border-radius:14px;
+  background:#E8F0FC;
+  box-shadow:none;
+  color:#355F9A;
+  font-family:inherit;
+  font-size:16px;
+  font-weight:650;
+  letter-spacing:-.03em;
+  line-height:1.3;
+  text-align:center;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.bible-explore-switch:active{background:#D9E8FA}
+.bible-explore-switch:focus-visible{outline:2px solid rgba(53,95,154,.35);outline-offset:2px}
+@media (hover:hover){
+  .bible-explore-switch:hover{background:#D9E8FA}
+}
+
+#bibleStairOverlay.is-explore .bible-stair-nums.is-explore-nums{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+#bibleStairOverlay.is-explore .bible-stair-nums.is-explore-nums .bible-stair-item{
+  min-height:52px;
+  padding:12px 6px;
+  border:0.5px solid rgba(23,25,29,.14);
+  border-radius:14px;
+  background:#FFFFFF;
+  box-shadow:none;
+  color:#1F2329;
+  font-size:16px;
+  font-weight:650;
+}
+#bibleStairOverlay.is-explore .bible-stair-nums.is-explore-nums .bible-stair-item.is-cur,
+#bibleStairOverlay.is-explore .bible-stair-nums.is-explore-nums .bible-stair-item:active{
+  background:#E8F0FC;
+  border-color:rgba(53,95,154,.22);
+  color:#355F9A;
+  box-shadow:none;
+}
+
+@media (min-width:700px){
+  #bibleStairOverlay.is-explore{align-items:stretch}
+  #bibleStairOverlay.is-explore #bibleStairPanel{
+    max-width:430px;
+    height:100%;
+    max-height:none;
+  }
 }

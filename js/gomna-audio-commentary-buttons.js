@@ -734,7 +734,7 @@
       .split('-')[0];
 
     if (primary === 'jp') primary = 'ja';
-    if (primary === 'ko' || primary === 'en' || primary === 'ja') return primary;
+    if (primary === 'ko' || primary === 'en' || primary === 'ja' || primary === 'zh') return primary;
     return null;
   }
 
@@ -3410,7 +3410,7 @@
     if (nextLang) {
       window.__gomnaCommentaryAudioLang = nextLang;
       try {
-        if (nextLang === 'ko' || nextLang === 'en' || nextLang === 'ja') {
+        if (nextLang === 'ko' || nextLang === 'en' || nextLang === 'ja' || nextLang === 'zh') {
           localStorage.setItem('gomna_ui_language', nextLang);
         }
       } catch (eStore) { /* ignore */ }

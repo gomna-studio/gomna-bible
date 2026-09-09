@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="grief-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8A97AC"/>
+      <stop offset=".45" stop-color="#5C6B82"/>
+      <stop offset="1" stop-color="#2E394C"/>
+    </linearGradient>
+    <radialGradient id="grief-dusk" cx="78%" cy="28%" r="40%">
+      <stop offset="0" stop-color="#D8C4A4" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#D8C4A4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="480" fill="url(#grief-sky)"/>
+  <rect width="640" height="480" fill="url(#grief-dusk)"/>
+  <path d="M-20 250 C80 236 150 270 250 252 C360 232 450 268 660 248 L660 500 L-20 500Z" fill="#3A465A"/>
+  <path d="M-20 300 C110 286 200 324 330 306 C450 288 530 326 660 310 L660 500 L-20 500Z" fill="#2A3344"/>
+  <path d="M70 318 L570 300" fill="none" stroke="#C9D2DE" stroke-width="6" opacity=".12"/>
+  <path d="M90 328 L550 312" fill="none" stroke="#1A202C" stroke-width="10" opacity=".18"/>
+  <path d="M148 268 C156 220 176 196 186 268 C196 214 218 214 224 276 L140 286Z" fill="#1E2634"/>
+  <path d="M430 290 c4-14 2-24-2-30 8-2 12-10 10-18-3-10-16-12-20-4-4 3-10 2-12-3l-5 4 c6 10 5 20-2 28-2 12 3 28 8 42z" fill="#1A202C" opacity=".7"/>
+</svg>

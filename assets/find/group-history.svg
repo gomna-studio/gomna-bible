@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E8D7BE"/>
+      <stop offset="1" stop-color="#C9B49A"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#hsky)"/>
+  <rect x="48" y="168" width="92" height="170" rx="4" fill="#8B6E52"/>
+  <rect x="156" y="128" width="118" height="210" rx="4" fill="#6F5640"/>
+  <rect x="286" y="188" width="78" height="150" rx="4" fill="#9A7A5A"/>
+  <rect x="0" y="328" width="400" height="72" fill="#B79A78"/>
+  <rect x="176" y="148" width="18" height="36" fill="#E8D7BE" opacity=".55"/>
+  <rect x="214" y="148" width="18" height="36" fill="#E8D7BE" opacity=".55"/>
+</svg>

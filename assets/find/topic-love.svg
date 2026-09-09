@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="love-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E8C4B4"/>
+      <stop offset=".36" stop-color="#C56B66"/>
+      <stop offset=".7" stop-color="#7A3E46"/>
+      <stop offset="1" stop-color="#3A242C"/>
+    </linearGradient>
+    <radialGradient id="love-glow" cx="68%" cy="38%" r="46%">
+      <stop offset="0" stop-color="#F2D4B0" stop-opacity=".7"/>
+      <stop offset="1" stop-color="#F2D4B0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="800" fill="url(#love-sky)"/>
+  <rect width="640" height="800" fill="url(#love-glow)"/>
+  <ellipse cx="430" cy="270" rx="70" ry="70" fill="#F4E2C4" opacity=".22"/>
+  <path d="M-20 430 C130 392 220 452 340 414 C470 372 540 436 660 408 L660 820 L-20 820Z" fill="#5A3238"/>
+  <path d="M-20 508 C100 476 190 528 310 500 C440 468 530 524 660 498 L660 820 L-20 820Z" fill="#2A181E"/>
+  <path d="M180 620 C270 598 360 610 450 592" fill="none" stroke="#E8C4B0" stroke-width="2.5" opacity=".18"/>
+  <path d="M318 552 c3-10 2-16-1-21 6-2 9-7 7-13-2-7-12-8-15-3-3 2-8 2-10-2l-3 3 c5 7 4 15-1 21-2 9 2 20 6 30z" fill="#1A1014" opacity=".7"/>
+  <path d="M338 550 c3-11 2-18-1-23 7-2 10-8 8-14-3-8-13-9-16-3-4 2-9 2-11-2l-3 3 c5 8 5 16-1 22-2 10 3 22 7 33z" fill="#1A1014" opacity=".78"/>
+</svg>

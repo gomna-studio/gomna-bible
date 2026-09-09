@@ -13,6 +13,8 @@ tmp/tts-samples/
 reports/
 audio/v1/**/*.mp3
 .cache/
+scripts/push/node_modules/
+supabase/.temp/
 *.swp
 *~
 .env

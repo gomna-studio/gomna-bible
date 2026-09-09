@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="hope-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F0E2B8"/>
+      <stop offset=".4" stop-color="#A8C98A"/>
+      <stop offset="1" stop-color="#3E7A5A"/>
+    </linearGradient>
+    <radialGradient id="hope-dawn" cx="70%" cy="30%" r="46%">
+      <stop offset="0" stop-color="#F7F0D0" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#F7F0D0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="480" height="480" fill="url(#hope-sky)"/>
+  <rect width="480" height="480" fill="url(#hope-dawn)"/>
+  <path d="M-20 250 C70 230 140 270 230 248 C330 224 400 266 500 246 L500 500 L-20 500Z" fill="#2F6248"/>
+  <path d="M-20 310 C90 294 170 334 270 316 C360 300 430 338 500 322 L500 500 L-20 500Z" fill="#244C38"/>
+  <path d="M300 268 C318 210 350 200 362 268 C376 206 410 214 422 278 C390 268 348 280 300 268Z" fill="#1C3A2C"/>
+  <ellipse cx="338" cy="128" rx="26" ry="26" fill="#F4E8B8" opacity=".55"/>
+</svg>

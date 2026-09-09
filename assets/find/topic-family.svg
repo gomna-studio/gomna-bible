@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="family-wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E6C4A4"/>
+      <stop offset=".52" stop-color="#C48456"/>
+      <stop offset="1" stop-color="#6E4430"/>
+    </linearGradient>
+    <radialGradient id="family-lamp" cx="64%" cy="26%" r="44%">
+      <stop offset="0" stop-color="#F4E0B4" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#F4E0B4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="900" height="500" fill="url(#family-wall)"/>
+  <rect width="900" height="500" fill="url(#family-lamp)"/>
+  <rect x="0" y="332" width="900" height="168" fill="#3E281E"/>
+  <path d="M90 332 H810 L770 398 H130 Z" fill="#513226"/>
+  <path d="M130 398 H770 V408 H130 Z" fill="#2C1C16"/>
+  <path d="M448 48 v92" stroke="#7A4E34" stroke-width="3"/>
+  <ellipse cx="448" cy="48" rx="34" ry="11" fill="#E8C878" opacity=".9"/>
+  <ellipse cx="448" cy="44" rx="18" ry="6" fill="#FFF4D4" opacity=".55"/>
+  <path d="M0 0 H120 V500 H0 Z" fill="#2C1C16" opacity=".2"/>
+  <path d="M780 0 H900 V500 H780 Z" fill="#2C1C16" opacity=".16"/>
+</svg>

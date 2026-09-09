@@ -65,9 +65,9 @@
 
   function getClient() {
     if (client) return client;
+    if (!isConfigured() || !libReady()) return null;
     if (clientTried) return null;
     clientTried = true;
-    if (!isConfigured() || !libReady()) return null;
     try {
       client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
         auth: {
@@ -299,6 +299,16 @@
       if (wasSignedIn) closeProfile();
     }
     refreshAccountViews();
+    setTimeout(function () {
+      try {
+        if (window.GomnaHomeFeed && typeof window.GomnaHomeFeed.syncGreeting === 'function') {
+          window.GomnaHomeFeed.syncGreeting();
+        }
+        if (window.GomnaHomeFeed && typeof window.GomnaHomeFeed.refreshSocial === 'function') {
+          window.GomnaHomeFeed.refreshSocial();
+        }
+      } catch (eHome) {}
+    }, 0);
     var list = bridges();
     for (var i = 0; i < list.length; i++) {
       try {
@@ -796,6 +806,7 @@
     if (!currentUser) return null;
     var provider = pickProvider(currentUser);
     return {
+      id: currentUser.id,
       name: displayName(currentUser),
       email: pickEmail(currentUser),
       accountLine: pickAccountLine(currentUser),
@@ -2770,7 +2781,8 @@
     openFavorites: openFavorites,
     runAction: handleAccountAction,
     syncRecords: syncRecords,
-    checkCapabilities: probeCapabilities
+    checkCapabilities: probeCapabilities,
+    getClient: getClient
   };
 
   function init() {

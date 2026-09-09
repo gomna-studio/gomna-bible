@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 560" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="comfort-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#D5E6F0"/>
+      <stop offset=".5" stop-color="#8FB4C8"/>
+      <stop offset="1" stop-color="#4E7A92"/>
+    </linearGradient>
+    <linearGradient id="comfort-water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B7D2DE"/>
+      <stop offset="1" stop-color="#3E6A80"/>
+    </linearGradient>
+  </defs>
+  <rect width="560" height="560" fill="url(#comfort-sky)"/>
+  <ellipse cx="420" cy="120" rx="70" ry="70" fill="#F3E9C8" opacity=".32"/>
+  <path d="M-20 230 C90 210 170 258 280 232 C390 206 470 250 580 228 L580 360 L-20 360Z" fill="#5A8498" opacity=".4"/>
+  <path d="M-20 300 C100 286 190 330 300 310 C410 290 490 334 580 316 L580 580 L-20 580Z" fill="url(#comfort-water)"/>
+  <path d="M60 340 C140 334 220 350 300 342 C390 332 470 350 560 342" fill="none" stroke="#E7F1F6" stroke-width="2" opacity=".25"/>
+  <path d="M20 0 C80 80 70 180 40 300 C90 200 150 140 120 40 Z" fill="#2F5364" opacity=".55"/>
+  <path d="M0 80 C40 140 36 210 16 300 C50 230 90 180 70 90 Z" fill="#243F4C" opacity=".4"/>
+</svg>

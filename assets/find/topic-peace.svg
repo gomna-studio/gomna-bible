@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="peace-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C9DCEB"/>
+      <stop offset=".42" stop-color="#8EB4D4"/>
+      <stop offset=".7" stop-color="#5A8FBE"/>
+      <stop offset="1" stop-color="#3A6A96"/>
+    </linearGradient>
+    <linearGradient id="peace-water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6EA0C4" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#2E5578"/>
+    </linearGradient>
+    <radialGradient id="peace-sun" cx="72%" cy="38%" r="28%">
+      <stop offset="0" stop-color="#F4E4C0" stop-opacity=".95"/>
+      <stop offset=".45" stop-color="#F4E4C0" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#F4E4C0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="480" fill="url(#peace-sky)"/>
+  <rect width="640" height="480" fill="url(#peace-sun)"/>
+  <path d="M-20 250 C90 230 160 268 250 246 C360 220 440 262 660 236 L660 300 L-20 300Z" fill="#4A7396" opacity=".35"/>
+  <path d="M-20 278 C120 262 200 292 320 274 C430 258 520 286 660 270 L660 500 L-20 500Z" fill="url(#peace-water)"/>
+  <path d="M0 318 C80 312 160 326 240 318 C360 306 460 328 640 316" fill="none" stroke="#D7E7F2" stroke-width="2" opacity=".28"/>
+  <path d="M40 352 C140 344 230 360 340 350 C450 340 540 358 640 348" fill="none" stroke="#D7E7F2" stroke-width="1.5" opacity=".18"/>
+  <ellipse cx="460" cy="186" rx="34" ry="34" fill="#F7EDD4" opacity=".55"/>
+</svg>
