@@ -21,8 +21,6 @@
   var SNAPSHOT_VERSION = 1;
   var SNAPSHOT_TTL_MS = 180000;
   var DEFAULT_FOREIGN = 'en';
-  // Quick toggle pair is always KO·EN — independent of device language / active UI lang.
-  var QUICK_FOREIGN = 'en';
   var FIXED_ID = 'gomnaReaderLangBridge';
   var COMMENTARY_ID = 'gomnaReaderLangBridgeCommentary';
   var ROOT_COMMENTARY_CLASS = 'gomna-lang-bridge-in-commentary';
@@ -37,14 +35,26 @@
     if (!code) return null;
     var c = String(code).toLowerCase().replace(/_/g, '-').trim();
     if (!c || c === 'auto') return null;
-    if (c === 'zh-cn' || c === 'zh-tw' || c.indexOf('zh-') === 0) return c;
+    if (c === 'zh' || c === 'zh-cn' || c === 'zh-tw' || c.indexOf('zh-') === 0) return 'zh';
     var primary = c.split('-')[0];
     return primary || null;
   }
 
+  function canonicalize(code) {
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.canonicalizeLocale === 'function') {
+      var n = window.GomnaUII18n.canonicalizeLocale(code);
+      if (n) return n;
+    }
+    return normalizeLangCode(code);
+  }
+
   function displayCode(code) {
-    var n = normalizeLangCode(code) || DEFAULT_FOREIGN;
-    return String(n).toUpperCase();
+    var n = canonicalize(code) || normalizeLangCode(code) || DEFAULT_FOREIGN;
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.getLocaleConfig === 'function') {
+      var cfg = window.GomnaUII18n.getLocaleConfig(n);
+      if (cfg && cfg.languageLabel && cfg.uiLocale === n) return cfg.languageLabel;
+    }
+    return String(n).split('-')[0].toUpperCase();
   }
 
   function readRecentForeign() {
@@ -75,14 +85,20 @@
     try {
       var display = window.__gomnaBridgeDisplayLang;
       if (display) {
-        var dNorm = normalizeLangCode(display);
+        var dNorm = canonicalize(display);
         if (dNorm) return dNorm;
       }
     } catch (ePend) { /* ignore */ }
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.getSelectedLocale === 'function') {
+      try {
+        var selected = canonicalize(window.GomnaUII18n.getSelectedLocale());
+        if (selected) return selected;
+      } catch (eSel) { /* ignore */ }
+    }
     if (typeof window.getReaderUiLangCode === 'function') {
       try {
-        var ui = window.getReaderUiLangCode();
-        if (ui === 'ko' || ui === 'en' || ui === 'ja') return ui;
+        var ui = canonicalize(window.getReaderUiLangCode());
+        if (ui === 'ko' || ui === 'en' || ui === 'ja' || ui === 'zh') return ui;
         if (ui == null) {
           var cookie = readCookieLang();
           if (cookie && cookie !== 'ko') return cookie;
@@ -91,27 +107,35 @@
     }
     if (typeof window.GomnaGetActiveLangCode === 'function') {
       try {
-        var active = normalizeLangCode(window.GomnaGetActiveLangCode());
+        var active = canonicalize(window.GomnaGetActiveLangCode());
         if (active) return active;
       } catch (e1) { /* ignore */ }
     }
     var cookieLang = readCookieLang();
     if (cookieLang) return cookieLang;
     try {
-      var stored = normalizeLangCode(localStorage.getItem('gomna_ui_language'));
+      var stored = canonicalize(localStorage.getItem('gomna_ui_language'));
       if (stored) return stored;
     } catch (e2) { /* ignore */ }
     return 'ko';
   }
 
+  function getQuickForeign() {
+    var active = getActiveLanguage() || 'ko';
+    if (active && active !== 'ko') return active;
+    var recent = readRecentForeign();
+    if (recent && recent !== 'ko') return recent;
+    return DEFAULT_FOREIGN;
+  }
+
   function getState() {
     var active = getActiveLanguage() || 'ko';
-    // Keep recent-foreign storage for modal/history, but quick buttons stay KO·EN.
     var recent = readRecentForeign();
+    var quick = getQuickForeign();
     return {
       activeLanguage: active,
       recentForeignLanguage: recent || DEFAULT_FOREIGN,
-      quickForeignLanguage: QUICK_FOREIGN
+      quickForeignLanguage: quick
     };
   }
 
@@ -505,11 +529,20 @@
   }
 
   function applyLanguageCode(langCode, source) {
-    var code = normalizeLangCode(langCode) || 'ko';
+    var code = canonicalize(langCode) || normalizeLangCode(langCode) || 'ko';
     if (code !== 'ko') writeRecentForeign(code);
     try { window.__gomnaBridgeDisplayLang = code; } catch (e0) { /* ignore */ }
     dispatchLanguageChange(source || 'bridge-optimistic');
     prepareTransition(code, source || 'bridge');
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.applyLocale === 'function' &&
+        window.GomnaUII18n.isNativeLocale && window.GomnaUII18n.isNativeLocale(code)) {
+      if (typeof window.GomnaApplyLanguageByCode === 'function') {
+        window.GomnaApplyLanguageByCode(code, source || 'bridge');
+        return;
+      }
+      window.GomnaUII18n.applyLocale(code, { persist: true, source: source || 'bridge' });
+      return;
+    }
     if (typeof window.GomnaApplyLanguageByCode === 'function') {
       window.GomnaApplyLanguageByCode(code, source || 'bridge');
       return;
@@ -519,10 +552,10 @@
 
   function bridgeHtml(compact) {
     var state = getState();
-    var foreign = displayCode(QUICK_FOREIGN);
+    var foreign = displayCode(state.quickForeignLanguage || DEFAULT_FOREIGN);
     var active = state.activeLanguage || 'ko';
     var koActive = active === 'ko';
-    var foreignActive = active === QUICK_FOREIGN;
+    var foreignActive = !koActive;
     var cls = 'gomna-lang-bridge' + (compact ? ' gomna-lang-bridge--compact' : '');
     return (
       '<div class="' + cls + ' notranslate" role="group" aria-label="Reading language" translate="no">' +
@@ -557,10 +590,10 @@
       if (action === 'ko') {
         applyLanguageCode('ko', 'bridge-ko');
       } else if (action === 'foreign') {
-        applyLanguageCode(QUICK_FOREIGN, 'bridge-foreign');
+        applyLanguageCode(state.quickForeignLanguage || DEFAULT_FOREIGN, 'bridge-foreign');
       } else if (action === 'swap') {
         if ((state.activeLanguage || 'ko') === 'ko') {
-          applyLanguageCode(QUICK_FOREIGN, 'bridge-swap');
+          applyLanguageCode(state.quickForeignLanguage || DEFAULT_FOREIGN, 'bridge-swap');
         } else {
           applyLanguageCode('ko', 'bridge-swap');
         }

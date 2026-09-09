@@ -146,26 +146,30 @@ body[data-gomna-page="reader"] #gomnaReaderBootOverlay .gomna-reader-boot-btn{
   }
 }
 </style>
-<link rel="icon" type="image/png" href="favicon.png?v=6">
-<link rel="icon" type="image/x-icon" href="favicon.ico?v=6">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=6">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=6">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=5">
+<link rel="apple-touch-icon" href="/app-icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/app-icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
 <meta name="description" content="개역한글 성경 본문을 장·절로 읽고 들으며, 각 절의 원어·역사·신학·예표·매튜헨리·설교·찬송·상담·교차참조 말씀풀이를 함께 살펴보세요.">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
-<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if(src==='home-bible-picker'){document.documentElement.classList.add('home-bible-picker');}else if(((src==='home-daily-read'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='guide-related'||src==='bible-tab'||src==='home-resume-read'||src==='home-resume-listen'||src==='home-resume-recent')&&p.get('book'))||(!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&!(p.get('q')||'').trim()&&p.get('focus')!=='search'&&p.get('testament')!=='old'&&p.get('testament')!=='new'))document.documentElement.classList.add('scripture-entry-pending');if(p.get('commentary')==='1'&&(src==='home-card-commentary'||src==='home-main-commentary'))document.documentElement.classList.add('gomna-home-commentary-loading');var qEarly=(p.get('q')||'').trim();if(qEarly){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
+<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if(src==='home-bible-picker'){document.documentElement.classList.add('home-bible-picker');}else if(((src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='guide-related'||src==='bible-tab'||src==='home-resume-read'||src==='home-resume-listen'||src==='home-resume-recent')&&p.get('book'))||(!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&!(p.get('q')||'').trim()&&p.get('focus')!=='search'&&p.get('testament')!=='old'&&p.get('testament')!=='new'))document.documentElement.classList.add('scripture-entry-pending');if(p.get('commentary')==='1'&&(src==='home-card-commentary'||src==='home-main-commentary'))document.documentElement.classList.add('gomna-home-commentary-loading');var qEarly=(p.get('q')||'').trim();if(qEarly){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
 <meta name="theme-color" content="#FCFAF6">
 <link rel="canonical" href="https://gomnastudio.com/reader.html">
 <!-- Open Graph 메타 태그 (공유용) -->
 <meta property="og:title" content="성경 읽기·듣기·말씀풀이 | 은혜의말씀">
 <meta property="og:description" content="개역한글 성경 본문을 장·절로 읽고 들으며, 각 절의 원어·역사·신학·예표·매튜헨리·설교·찬송·상담·교차참조 말씀풀이를 함께 살펴보세요.">
-<meta property="og:image" content="https://gomnastudio.com/og-image.png">
+<meta property="og:image" content="/app-icon-512.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://gomnastudio.com/reader.html">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="성경 읽기·듣기·말씀풀이 | 은혜의말씀">
 <meta name="twitter:description" content="개역한글 성경 본문을 장·절로 읽고 들으며, 각 절의 원어·역사·신학·예표·매튜헨리·설교·찬송·상담·교차참조 말씀풀이를 함께 살펴보세요.">
+<meta name="twitter:image" content="/app-icon-512.png">
 <title>성경 읽기·듣기·말씀풀이 | 은혜의말씀</title>
 <style>
 :root{--primary:#4A2511;--primary-dark:#3A1D0D;--gold:#B8751F;--gold-light:#D4A056;--cream:#FCFAF6;--text:#1A0F0A;--text-light:#3D2817;--border:#E5E7EB;--font-size:17px}
@@ -1673,7 +1677,7 @@ html.gomna-lang-bridge-in-commentary .gomna-reader-lang-bridge-host:not(.gomna-r
   font-size:10px;
 }
 .gomna-lang-bridge-btn.is-active{
-  background:rgba(200,152,73,.19);
+  background:rgba(200,152,73,.16);
   color:#6F4A24;
 }
 .gomna-lang-bridge--compact .gomna-lang-bridge-btn.is-active{
@@ -1705,7 +1709,7 @@ html.gomna-lang-bridge-in-commentary .gomna-reader-lang-bridge-host:not(.gomna-r
 #gomnaReaderLangBridge .gomna-lang-bridge{
   overflow:hidden;
 }
-#gomnaReaderLangBridge .gomna-lang-bridge-ko.is-active{box-shadow:-10px 0 0 0 rgba(200,152,73,.19)}
+#gomnaReaderLangBridge .gomna-lang-bridge-ko.is-active{box-shadow:-10px 0 0 0 rgba(200,152,73,.16)}
 /* 서랍이 열린 동안에는 같은 자리를 구약/신약 줄이 쓰므로 카드만 감춘다.
    자리는 그대로 두어(visibility) 열고 닫을 때 헤더가 좌우로 튀지 않는다. */
 html.ubc-rail-drawer #gomnaReaderLangBridge{visibility:hidden;pointer-events:none}
@@ -4249,7 +4253,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
   }
 }
 </script>
-<link rel="manifest" href="manifest.json?v=20260905-warm-zoom-v1">
+<link rel="manifest" href="manifest.json?v=20260910-app-icon-v1">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260905-warm-zoom-v1">
 <style id="gomna-commentary-unified-scroll-css">
@@ -4393,7 +4397,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" })
+  navigator.serviceWorker.register("/sw.js?v=20260910-home-engage-v1", { scope: "/", updateViaCache: "none" })
     .then(function(reg){ try { reg.update(); } catch (eUp) {} })
     .catch(function(){});
   if (!window.__gomnaSwUpdateBound) {
@@ -4420,6 +4424,8 @@ if ("serviceWorker" in navigator) {
 <script src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
 <script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
+<script src="js/gomna-ui-i18n.js?v=20260909-locale-runtime-sync-v1"></script>
+<script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 </head>
 <body data-gomna-page="reader">
 <div id="gomnaReaderBootOverlay" class="gomna-reader-boot-overlay" aria-hidden="true">
@@ -4452,7 +4458,7 @@ if ("serviceWorker" in navigator) {
 </div>
 <!-- haptic-tap-feedback -->
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
-<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function hasScriptureEntryQuery(){try{var p=new URLSearchParams(location.search);var src=p.get('source');return(src==='home-daily-read'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='guide-related')&&!!(p.get('book')||'').trim();}catch(e){return false;}}function hasBookOrHomePickQuery(){try{var p=new URLSearchParams(location.search);var h=location.hash;return!!((p.get('book')||'').trim())||p.get('testament')==='old'||p.get('testament')==='new'||h==='#pick-old'||h==='#pick-new';}catch(e){return false;}}function hasBibleTabOrBareQuery(){try{var p=new URLSearchParams(location.search);if((p.get('source')||'').trim()==='bible-tab')return true;if((p.get('book')||'').trim())return false;if(p.has('easy')||p.has('favorites'))return false;if((p.get('q')||'').trim()||p.get('focus')==='search')return false;if(p.get('testament')==='old'||p.get('testament')==='new')return false;return true;}catch(e){return false;}}function prepScriptureEntryViewEarly(){try{if(!hasScriptureEntryQuery()&&!hasBookOrHomePickQuery()&&!hasBibleTabOrBareQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var vv=document.getElementById('verseView');if(vv)vv.classList.add('active');}catch(e){}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();prepScriptureEntryViewEarly();activateEasyViewEarly();});}else{prepScriptureEntryViewEarly();activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
+<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function hasScriptureEntryQuery(){try{var p=new URLSearchParams(location.search);var src=p.get('source');return(src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='guide-related')&&!!(p.get('book')||'').trim();}catch(e){return false;}}function hasBookOrHomePickQuery(){try{var p=new URLSearchParams(location.search);var h=location.hash;return!!((p.get('book')||'').trim())||p.get('testament')==='old'||p.get('testament')==='new'||h==='#pick-old'||h==='#pick-new';}catch(e){return false;}}function hasBibleTabOrBareQuery(){try{var p=new URLSearchParams(location.search);if((p.get('source')||'').trim()==='bible-tab')return true;if((p.get('book')||'').trim())return false;if(p.has('easy')||p.has('favorites'))return false;if((p.get('q')||'').trim()||p.get('focus')==='search')return false;if(p.get('testament')==='old'||p.get('testament')==='new')return false;return true;}catch(e){return false;}}function prepScriptureEntryViewEarly(){try{if(!hasScriptureEntryQuery()&&!hasBookOrHomePickQuery()&&!hasBibleTabOrBareQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var vv=document.getElementById('verseView');if(vv)vv.classList.add('active');}catch(e){}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();prepScriptureEntryViewEarly();activateEasyViewEarly();});}else{prepScriptureEntryViewEarly();activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
 <div class="phone-frame"><div id="appTopChrome"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
   <span class="gs-text">Gomna Studio, Inc.</span>
   <span class="gs-arrow">↗</span>
@@ -4543,60 +4549,60 @@ if ("serviceWorker" in navigator) {
         </div>
       </div>
       <div class="header-right">
-        <button class="home-btn" onclick="goHome()">← 홈으로</button>
+        <button class="home-btn" onclick="goHome()" data-i18n-key="common.home">← 홈으로</button>
         <button class="settings-btn" onclick="openSettings()">⚙️</button>
       </div>
     </div>
     <div class="header-btns">
       <button class="header-btn old-btn" id="oldBtn" onclick="switchTab('old')">
         <span class="btn-icon">📜</span>
-        <span class="btn-label">구약 39권</span>
-        <span class="btn-sub">현재 펼쳐짐</span>
+        <span class="btn-label" data-i18n-key="home.oldTestament.title">구약 39권</span>
+        <span class="btn-sub" data-i18n-key="reader.testament.expanded">현재 펼쳐짐</span>
       </button>
       <button class="header-btn new-btn" id="newBtn" onclick="switchTab('new')">
         <span class="btn-icon">📕</span>
-        <span class="btn-label">신약 27권</span>
+        <span class="btn-label" data-i18n-key="home.newTestament.title">신약 27권</span>
       </button>
       <button class="header-btn easy-btn" id="easyBtn" onclick="switchTab('easy')">
         <span class="btn-icon">👆</span>
-        <span class="btn-label">찾기</span>
+        <span class="btn-label" data-i18n-key="home.easyFind.title">찾기</span>
       </button>
     </div>
     <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="성경 말씀 찾기 (예: 사랑, 믿음, 소망)">
+      <input type="text" id="searchInput" placeholder="성경 말씀 찾기 (예: 사랑, 믿음, 소망)" data-i18n-placeholder="search.placeholder.home">
       <button class="search-icon" onclick="doSearch()">🔍</button>
     </div>
   </header>
   <nav class="tabs">
-    <button class="tab active" data-tab="old" onclick="switchTab('old')">구약</button>
-    <button class="tab" data-tab="new" onclick="switchTab('new')">신약</button>
-    <button class="tab" data-tab="easy" onclick="switchTab('easy')">찾기</button>
-    <button class="tab" data-tab="fav" onclick="switchTab('fav')">내 보관함</button>
+      <button class="tab active" data-tab="old" onclick="switchTab('old')" data-i18n-key="reader.picker.old">구약</button>
+    <button class="tab" data-tab="new" onclick="switchTab('new')" data-i18n-key="reader.picker.new">신약</button>
+    <button class="tab" data-tab="easy" onclick="switchTab('easy')" data-i18n-key="home.easyFind.title">찾기</button>
+    <button class="tab" data-tab="fav" onclick="switchTab('fav')" data-i18n-key="reader.myArchive">내 보관함</button>
   </nav>
   </div>
   <nav id="readerNav" class="reader-sheet-tabs" aria-label="성경 메뉴">
-    <button type="button" class="reader-tab" data-reader-tab="old" onclick="location.href='reader.html?testament=old'">구약</button>
-    <button type="button" class="reader-tab" data-reader-tab="new" onclick="location.href='reader.html?testament=new'">신약</button>
-    <button type="button" class="reader-tab" data-reader-tab="easy" onclick="location.href='reader.html?easy=1&amp;v=20260712-easyfind-direct-v3'">찾기</button>
-    <button type="button" class="reader-tab" data-reader-tab="fav" onclick="location.href='reader.html?favorites'">내 보관함</button>
+    <button type="button" class="reader-tab" data-reader-tab="old" onclick="location.href='reader.html?testament=old'" data-i18n-key="reader.picker.old">구약</button>
+    <button type="button" class="reader-tab" data-reader-tab="new" onclick="location.href='reader.html?testament=new'" data-i18n-key="reader.picker.new">신약</button>
+    <button type="button" class="reader-tab" data-reader-tab="easy" onclick="location.href='reader.html?easy=1&amp;v=20260712-easyfind-direct-v3'" data-i18n-key="home.easyFind.title">찾기</button>
+    <button type="button" class="reader-tab" data-reader-tab="fav" onclick="location.href='reader.html?favorites'" data-i18n-key="reader.myArchive">내 보관함</button>
     <div class="reader-nav-end">
-      <button type="button" class="reader-tab reader-home" onclick="location.href='/'">← 홈으로</button>
-      <button type="button" class="reader-close" onclick="location.href='/'" aria-label="닫기">✕</button>
+      <button type="button" class="reader-tab reader-home" onclick="location.href='/'" data-i18n-key="common.home">← 홈으로</button>
+      <button type="button" class="reader-close" onclick="location.href='/'" aria-label="닫기" data-i18n-aria-label="reader.picker.close">✕</button>
     </div>
   </nav>
   <!-- v72: 모바일 전체 화면형 view(책/장 선택·검색·보관함·쉬운찾기) 공통 한 손 조작 여유 공간. 공유 헤더 #readerDockTop 바로 앞의 투명 스페이서 하나로, 헤더·콘텐츠를 같은 스크롤 흐름 안에서 함께 아래로 끌어내린다 -->
   <div id="mobileTopPullSpacer" class="mobile-top-pull-spacer" aria-hidden="true"></div>
   <header id="readerDockTop" class="reader-dock-top" aria-label="성경읽기 상단">
     <div class="reader-dock-top-leading">
-      <span class="reader-dock-top-title" id="readerDockTopTitle">성경</span>
+      <span class="reader-dock-top-title" id="readerDockTopTitle" data-i18n-key="home.tab.bible">성경</span>
       <div class="mode-seg reader-dock-top-testament-seg" id="readerDockTopTestamentSeg" role="tablist" aria-label="구약 신약 전환" hidden>
-        <button type="button" class="mode-seg-btn reader-dock-top-pill active" data-testament-pill="old" onclick="dockSwitchTestament('old')" role="tab" aria-selected="true">구약</button>
-        <button type="button" class="mode-seg-btn reader-dock-top-pill" data-testament-pill="new" onclick="dockSwitchTestament('new')" role="tab" aria-selected="false">신약</button>
+        <button type="button" class="mode-seg-btn reader-dock-top-pill active" data-testament-pill="old" onclick="dockSwitchTestament('old')" role="tab" aria-selected="true" data-i18n-key="reader.picker.old">구약</button>
+        <button type="button" class="mode-seg-btn reader-dock-top-pill" data-testament-pill="new" onclick="dockSwitchTestament('new')" role="tab" aria-selected="false" data-i18n-key="reader.picker.new">신약</button>
       </div>
       <button type="button" class="reader-dock-top-all-books" id="readerDockTopAllBooks" onclick="showAllBooks(this)" hidden>전체 성경</button>
     </div>
     <div class="reader-dock-top-actions" id="readerDockTopActions">
-      <button type="button" class="reader-dock-top-close" id="readerDockTopClose" onclick="readerDockTopClose()" aria-label="홈으로">✕</button>
+      <button type="button" class="reader-dock-top-close" id="readerDockTopClose" onclick="readerDockTopClose()" aria-label="홈으로" data-i18n-aria-label="reader.homeAria">✕</button>
     </div>
   </header>
   <nav id="verseReadHeader" class="verse-read-header" style="display:none" aria-label="읽기 헤더">
@@ -4608,11 +4614,11 @@ if ("serviceWorker" in navigator) {
     </div>
     <div id="gomnaReaderLangBridge" class="gomna-reader-lang-bridge-host notranslate" translate="no" hidden></div>
   </nav>
-  <div id="readerLocationPopover" hidden role="dialog" aria-label="절 선택">
+  <div id="readerLocationPopover" hidden role="dialog" aria-label="절 선택" data-i18n-aria-label="reader.picker.verse">
     <div id="readerLocationVersePane" hidden>
       <div class="reader-loc-verse-head">
         <div class="reader-loc-verse-head-txt">
-          <span class="ubc-chcard-label">절 선택</span>
+          <span class="ubc-chcard-label" data-i18n-key="reader.picker.verse">절 선택</span>
           <span class="reader-loc-verse-book" id="readerLocationVerseBook"></span>
         </div>
       </div>
@@ -4623,11 +4629,11 @@ if ("serviceWorker" in navigator) {
   <button type="button" class="reader-ch-fab reader-ch-fab--next" id="readerChapterNextFab" onclick="nextChapter()" aria-label="다음 장" hidden><span class="reader-ch-fab-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" focusable="false"><path d="M9.2 4.2 16.2 12 9.2 19.8" stroke="currentColor" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
   <div id="verseReadMoreOverlay" class="verse-read-more-overlay" aria-hidden="true" onclick="if(event.target===this)closeVerseReadMoreMenu()">
     <div class="verse-read-more-sheet" onclick="event.stopPropagation()">
-      <div class="verse-read-more-sheet-head"><span>더보기</span><button type="button" class="verse-range-modal-close" onclick="closeVerseReadMoreMenu()" aria-label="닫기">✕</button></div>
-      <button type="button" class="verse-read-more-item" onclick="closeVerseReadMoreMenu();switchTab('search');var si=document.getElementById('searchInput');if(si)si.focus();">검색</button>
-      <button type="button" class="verse-read-more-item" onclick="closeVerseReadMoreMenu();switchTab('easy');">찾기</button>
-      <button type="button" class="verse-read-more-item" onclick="closeVerseReadMoreMenu();switchTab('fav');">내 보관함</button>
-      <button type="button" class="verse-read-more-item" onclick="closeVerseReadMoreMenu();openSettings();">글자 크기 설정</button>
+      <div class="verse-read-more-sheet-head"><span data-i18n-key="reader.more">더보기</span><button type="button" class="verse-range-modal-close" onclick="closeVerseReadMoreMenu()" aria-label="닫기" data-i18n-aria-label="reader.picker.close">✕</button></div>
+      <button type="button" class="verse-read-more-item" onclick="closeVerseReadMoreMenu();switchTab('search');var si=document.getElementById('searchInput');if(si)si.focus();" data-i18n-key="reader.search">검색</button>
+      <button type="button" class="verse-read-more-item" onclick="closeVerseReadMoreMenu();switchTab('easy');" data-i18n-key="home.tab.find">찾기</button>
+      <button type="button" class="verse-read-more-item" onclick="closeVerseReadMoreMenu();switchTab('fav');" data-i18n-key="reader.myArchive">내 보관함</button>
+      <button type="button" class="verse-read-more-item" onclick="closeVerseReadMoreMenu();openSettings();" data-i18n-key="settings.fontSize">글자 크기 설정</button>
     </div>
   </div>
   <div id="unifiedBookChapterModal" class="unified-bc-overlay" aria-hidden="true" role="dialog" aria-modal="true" onclick="if(event.target===this)unifiedBcOnOverlayClick()">
@@ -4638,8 +4644,8 @@ if ("serviceWorker" in navigator) {
       <div class="unified-bc-cat-sheet" id="unifiedBcCatSheet" aria-hidden="true" onclick="if(event.target===this)unifiedBcCloseCatSheet()">
         <div class="unified-bc-cat-sheet-box" onclick="event.stopPropagation()">
           <div class="unified-bc-cat-sheet-head">
-            <span class="unified-bc-cat-sheet-title">책 분류 선택</span>
-            <button type="button" class="unified-bc-head-btn" onclick="unifiedBcCloseCatSheet()" aria-label="닫기">✕</button>
+            <span class="unified-bc-cat-sheet-title" data-i18n-key="reader.picker.cat">책 분류 선택</span>
+            <button type="button" class="unified-bc-head-btn" onclick="unifiedBcCloseCatSheet()" aria-label="닫기" data-i18n-aria-label="reader.picker.close">✕</button>
           </div>
           <div class="unified-bc-cat-sheet-body" id="unifiedBcCatSheetBody"></div>
         </div>
@@ -4647,11 +4653,11 @@ if ("serviceWorker" in navigator) {
     </div>
   </div>
   <main class="content">
-    <div class="view active" id="oldView"><div class="loading-state"><div class="spinner"></div><div>성경 데이터 로딩중...</div></div></div>
-    <div class="view" id="newView"><div class="loading-state"><div class="spinner"></div><div>성경 데이터 로딩중...</div></div></div>
+    <div class="view active" id="oldView"><div class="loading-state"><div class="spinner"></div><div data-i18n-key="reader.loading">성경 데이터 로딩중...</div></div></div>
+    <div class="view" id="newView"><div class="loading-state"><div class="spinner"></div><div data-i18n-key="reader.loading">성경 데이터 로딩중...</div></div></div>
     <div class="view" id="easyView"></div>
     <div class="view" id="searchView">
-      <button type="button" id="readerBackToTextBtn" class="reader-back-to-text" onclick="returnToReader()" style="display:none">← 본문으로</button>
+      <button type="button" id="readerBackToTextBtn" class="reader-back-to-text" onclick="returnToReader()" style="display:none" data-i18n-key="reader.backToText">← 본문으로</button>
       <div class="reader-search-bar">
         <input type="text" id="searchInputReader" class="reader-search-input" placeholder="성경 말씀 찾기 (예: 사랑, 믿음, 소망)" onkeypress="if(event.key==='Enter'){doSearchFromReader();return false;}">
         <button type="button" class="reader-search-clear" aria-label="검색어 지우기" onclick="var n=document.getElementById('searchInputReader');var o=document.getElementById('searchInput');if(n)n.value='';if(o)o.value='';">
@@ -4662,7 +4668,7 @@ if ("serviceWorker" in navigator) {
       <div id="searchResultsArea"><div class="empty-state"><div class="icon">🔍</div><div class="msg">검색어를 입력하세요</div></div></div>
     </div>
     <div class="view" id="favView">
-      <button type="button" id="readerBackToTextBtnFav" class="reader-back-to-text" onclick="returnToReader()" style="display:none">← 본문으로</button>
+      <button type="button" id="readerBackToTextBtnFav" class="reader-back-to-text" onclick="returnToReader()" style="display:none" data-i18n-key="reader.backToText">← 본문으로</button>
       <div class="fav-login-notice" id="favLoginNotice">
         <span class="fav-status-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -4679,10 +4685,10 @@ if ("serviceWorker" in navigator) {
     <div class="view" id="verseView"></div>
   </main>
   <nav id="scriptureDock" class="scripture-dock" aria-label="주 메뉴">
-    <button type="button" class="scripture-dock-item" data-dock="home" onclick="handleScriptureDock('home')" aria-label="홈"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg></span><span class="scripture-dock-label">홈</span></span></button>
-    <button type="button" class="scripture-dock-item active" data-dock="bible" onclick="handleScriptureDock('bible')" aria-label="성경"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:1.8"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg></span><span class="scripture-dock-label">성경</span></span></button>
-    <button type="button" class="scripture-dock-item" data-dock="find" onclick="handleScriptureDock('find')" aria-label="찾기" title="찾기"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M14.88 14.88L20.2 20.2"/></svg></span><span class="scripture-dock-label">찾기</span></span></button>
-    <button type="button" class="scripture-dock-item" data-dock="archive" onclick="handleScriptureDock('archive')" aria-label="보관함"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></span><span class="scripture-dock-label">보관함</span></span></button>
+    <button type="button" class="scripture-dock-item" data-dock="home" onclick="handleScriptureDock('home')" aria-label="홈" data-i18n-aria-label="home.tab.home"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg></span><span class="scripture-dock-label" data-i18n-key="home.tab.home">홈</span></span></button>
+    <button type="button" class="scripture-dock-item active" data-dock="bible" onclick="handleScriptureDock('bible')" aria-label="성경" data-i18n-aria-label="home.tab.bible"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:1.8"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg></span><span class="scripture-dock-label" data-i18n-key="home.tab.bible">성경</span></span></button>
+    <button type="button" class="scripture-dock-item" data-dock="find" onclick="handleScriptureDock('find')" aria-label="찾기" title="찾기" data-i18n-aria-label="home.tab.find" data-i18n-title="home.tab.find"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M14.88 14.88L20.2 20.2"/></svg></span><span class="scripture-dock-label" data-i18n-key="home.tab.find">찾기</span></span></button>
+    <button type="button" class="scripture-dock-item" data-dock="archive" onclick="handleScriptureDock('archive')" aria-label="보관함" data-i18n-aria-label="reader.tab.archive"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></span><span class="scripture-dock-label" data-i18n-key="reader.tab.archive">보관함</span></span></button>
     <button type="button" class="scripture-dock-item" data-dock="my" onclick="handleScriptureDock('my')" aria-label="로그인" title="로그인"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg></span><span class="scripture-dock-label">로그인</span></span></button>
   </nav>
   <nav id="opt4BottomBar" class="opt4-bottom-bar" aria-label="장 이동 및 절 도구">
@@ -4692,14 +4698,14 @@ if ("serviceWorker" in navigator) {
       <button type="button" class="opt4-bottom-next" id="opt4BottomNext" onclick="nextChapter()">다음 장</button>
     </div>
     <div id="opt4VerseToolbar" class="opt4-bar-mode">
-      <button type="button" class="verse-toolbar-location-btn" id="verseToolbarLocationButton" onclick="onVerseToolbarLocationClick()" aria-haspopup="dialog" aria-expanded="false" aria-label="구절찾기"><span class="opt4-bar-cluster"><span class="verse-toolbar-location-text" id="verseToolbarLocationText">구절찾기</span><span class="verse-toolbar-location-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></span><span class="verse-toolbar-location-clear" hidden aria-hidden="true">×</span></span></button>
-      <button type="button" class="opt4-verse-listen" id="opt4VerseListen" data-gomna-chapter-listen="1" aria-haspopup="dialog" aria-expanded="false" aria-label="현재 성경 듣기 방식 선택"><span class="opt4-bar-cluster"><span class="opt4-bar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v3a2 2 0 0 0 2 2h1v-7H5a1 1 0 0 0-1 1zm15 0v3a2 2 0 0 1-2 2h-1v-7h2a1 1 0 0 1 1 1z"></path><path d="M4 14a8 8 0 0 1 16 0"></path></svg></span><span class="opt4-bar-label" id="opt4VerseListenLabel">듣기</span></span></button>
+      <button type="button" class="verse-toolbar-location-btn" id="verseToolbarLocationButton" onclick="onVerseToolbarLocationClick()" aria-haspopup="dialog" aria-expanded="false" aria-label="구절찾기" data-i18n-aria-label="reader.find"><span class="opt4-bar-cluster"><span class="verse-toolbar-location-text" id="verseToolbarLocationText" data-i18n-key="reader.find">구절찾기</span><span class="verse-toolbar-location-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></span><span class="verse-toolbar-location-clear" hidden aria-hidden="true">×</span></span></button>
+      <button type="button" class="opt4-verse-listen" id="opt4VerseListen" data-gomna-chapter-listen="1" aria-haspopup="dialog" aria-expanded="false" aria-label="현재 성경 듣기 방식 선택" data-i18n-aria-label="reader.listen.chooseMode"><span class="opt4-bar-cluster"><span class="opt4-bar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v3a2 2 0 0 0 2 2h1v-7H5a1 1 0 0 0-1 1zm15 0v3a2 2 0 0 1-2 2h-1v-7h2a1 1 0 0 1 1 1z"></path><path d="M4 14a8 8 0 0 1 16 0"></path></svg></span><span class="opt4-bar-label" id="opt4VerseListenLabel" data-i18n-key="reader.listen">듣기</span></span></button>
       <div id="opt4VerseListenChoice" class="opt4-verse-listen-choice" hidden>
         <button type="button" class="opt4-verse-listen" id="opt4VerseListenOnly">이 절만</button>
         <button type="button" class="opt4-verse-listen" id="opt4VerseListenFromHere">여기부터</button>
       </div>
-      <button type="button" class="opt4-verse-commentary" id="opt4VerseCommentary" onclick="opt4ToolbarCommentary()"><span class="opt4-bar-cluster"><span class="opt4-bar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.8h8.2L18.2 6.8V20.2H7V3.8z"></path><path d="M15.2 3.8v3h3"></path><path d="M9.6 11.4h5.3"></path><path d="M9.6 15.1h3.7"></path></svg></span><span class="opt4-bar-label">말씀풀이</span></span></button>
-      <button type="button" class="opt4-verse-more" id="opt4VerseMore" onclick="openVerseToolbarMoreMenu()" aria-label="더보기" aria-haspopup="dialog" aria-expanded="false"><span class="opt4-bar-cluster"><span class="opt4-bar-label">더보기</span><span class="opt4-verse-more-ellipsis" aria-hidden="true">⋯</span></span></button>
+      <button type="button" class="opt4-verse-commentary" id="opt4VerseCommentary" onclick="opt4ToolbarCommentary()"><span class="opt4-bar-cluster"><span class="opt4-bar-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.8h8.2L18.2 6.8V20.2H7V3.8z"></path><path d="M15.2 3.8v3h3"></path><path d="M9.6 11.4h5.3"></path><path d="M9.6 15.1h3.7"></path></svg></span><span class="opt4-bar-label" data-i18n-key="reader.commentary">말씀풀이</span></span></button>
+      <button type="button" class="opt4-verse-more" id="opt4VerseMore" onclick="openVerseToolbarMoreMenu()" aria-label="더보기" data-i18n-aria-label="reader.more" aria-haspopup="dialog" aria-expanded="false"><span class="opt4-bar-cluster"><span class="opt4-bar-label" data-i18n-key="reader.more">더보기</span><span class="opt4-verse-more-ellipsis" aria-hidden="true">⋯</span></span></button>
     </div>
   </nav>
   <div id="opt4VerseListenModeBackdrop" hidden></div>
@@ -4746,7 +4752,7 @@ if ("serviceWorker" in navigator) {
       </button>
       <button type="button" class="verse-toolbar-more-item" id="verseToolbarDeselectBtn" hidden onclick="opt4ToolbarDeselect()">
         <span class="verse-toolbar-more-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg></span>
-        <span class="verse-toolbar-more-copy"><span class="verse-toolbar-more-title">선택 해제</span></span>
+        <span class="verse-toolbar-more-copy"><span class="verse-toolbar-more-title" data-i18n-key="reader.deselect">선택 해제</span></span>
       </button>
     </div>
   </div>
@@ -4757,8 +4763,8 @@ if ("serviceWorker" in navigator) {
         <div class="range-header">
           <span class="range-header-spacer" aria-hidden="true"></span>
           <span class="range-title" id="verseRangeModalTitle"></span>
-          <button type="button" class="range-close" id="verseRangeModalCloseBtn" onclick="closeVerseRangeModal(); return false;" aria-label="닫기">✕</button>
-          <button type="button" id="rangeStatusAction" class="range-status-tag" disabled aria-disabled="true" aria-live="polite">시작 절을 선택하세요</button>
+          <button type="button" class="range-close" id="verseRangeModalCloseBtn" onclick="closeVerseRangeModal(); return false;" aria-label="닫기" data-i18n-aria-label="reader.picker.close">✕</button>
+          <button type="button" id="rangeStatusAction" class="range-status-tag" disabled aria-disabled="true" aria-live="polite" data-i18n-key="reader.range.startHint">시작 절을 선택하세요</button>
         </div>
         <div id="verseRangeModalBody" class="verse-range-modal-body"></div>
       </div>
@@ -5817,7 +5823,7 @@ function applyNavigationFromQuery() {
       var entrySource = p.get('source');
       var isScriptureEntry = typeof isScriptureEntrySource === 'function'
         ? isScriptureEntrySource(entrySource)
-        : (entrySource === 'home-daily-read' || entrySource === 'home-card-listen' || entrySource === 'home-card-commentary' || entrySource === 'search-related' || entrySource === 'guide-related');
+        : (entrySource === 'home-daily-read' || entrySource === 'home-life' || entrySource === 'home-bible-person' || entrySource === 'home-card-listen' || entrySource === 'home-card-commentary' || entrySource === 'search-related' || entrySource === 'guide-related');
       var verseRaw = p.get('verseStart') || p.get('verse');
       var verseNum = verseRaw != null && verseRaw !== '' ? parseInt(verseRaw, 10) : NaN;
       renderVerses(!isScriptureEntry && !resumeFallback && !isNaN(verseNum) && verseNum >= 1 ? verseNum : undefined);
@@ -6104,8 +6110,17 @@ function initializeApp() {
   var _si=document.getElementById('searchInput');if(_si)_si.addEventListener('keypress', function(e) { if(e.key === 'Enter') doSearch(); });
   initVerseToolbarEvents();
   syncReaderNativeUiLangClass();
-  function refreshCommentaryForUiLanguageChange() {
+  if (typeof applyReaderChromeI18n === 'function') {
+    try { applyReaderChromeI18n(); } catch (eChrome) { /* ignore */ }
+  }
+  function refreshCommentaryForUiLanguageChange(ev) {
+    var loc = ev && ev.detail && (ev.detail.lang || ev.detail.locale || ev.detail.activeLanguage);
     refreshReaderChapterLabelsAfterTranslation();
+    if (typeof window.syncReaderLocaleUi === 'function') {
+      try { window.syncReaderLocaleUi(loc); } catch (eRi) { /* ignore */ }
+    } else if (typeof window.__gomnaRefreshReaderI18n === 'function') {
+      try { window.__gomnaRefreshReaderI18n(loc); } catch (eRi2) { /* ignore */ }
+    }
     _commentaryRenderKey = null;
     var pop = document.getElementById('commentaryPopup');
     if (pop && pop.classList.contains('show') && currentCommentaryVerseForRelated != null &&
@@ -6211,9 +6226,9 @@ function updateHeaderBtns(tab) {
   oldBtn.className = 'header-btn ' + (tab === 'old' ? 'old-btn' : 'new-btn');
   newBtn.className = 'header-btn ' + (tab === 'new' ? 'old-btn' : 'new-btn');
   easyBtn.className = 'header-btn ' + (tab === 'easy' ? 'old-btn' : 'easy-btn');
-  oldBtn.innerHTML = '<span class="btn-icon">📜</span><span class="btn-label">구약 39권</span>' + (tab === 'old' ? '<span class="btn-sub">현재 펼쳐짐</span>' : '');
-  newBtn.innerHTML = '<span class="btn-icon">📕</span><span class="btn-label">신약 27권</span>' + (tab === 'new' ? '<span class="btn-sub">현재 펼쳐짐</span>' : '');
-  easyBtn.innerHTML = '<span class="btn-icon">👆</span><span class="btn-label">찾기</span>' + (tab === 'easy' ? '<span class="btn-sub">현재 펼쳐짐</span>' : '');
+  oldBtn.innerHTML = '<span class="btn-icon">📜</span><span class="btn-label">' + readerUiT('home.oldTestament.title', '구약 39권') + '</span>' + (tab === 'old' ? '<span class="btn-sub">' + readerUiT('reader.testament.expanded', '현재 펼쳐짐') + '</span>' : '');
+  newBtn.innerHTML = '<span class="btn-icon">📕</span><span class="btn-label">' + readerUiT('home.newTestament.title', '신약 27권') + '</span>' + (tab === 'new' ? '<span class="btn-sub">' + readerUiT('reader.testament.expanded', '현재 펼쳐짐') + '</span>' : '');
+  easyBtn.innerHTML = '<span class="btn-icon">👆</span><span class="btn-label">' + readerUiT('home.easyFind.title', '찾기') + '</span>' + (tab === 'easy' ? '<span class="btn-sub">' + readerUiT('reader.testament.expanded', '현재 펼쳐짐') + '</span>' : '');
 }
 
 function findBook(data, bookName) {
@@ -6232,13 +6247,20 @@ function getChapterUnit(bookName) {
   return isPsalmsBook(bookName) ? '편' : '장';
 }
 
-/** Normalize en-US / ja-JP / ko-KR → en / ja / ko. Unknown codes → null. */
+/** Normalize en-US / ja-JP / zh-CN / hi / es → canonical. Unknown → null. */
 function normalizeReaderLangCode(code) {
   if (!code) return null;
+  if (window.GomnaUII18n && typeof window.GomnaUII18n.canonicalizeLocale === 'function') {
+    var canon = window.GomnaUII18n.canonicalizeLocale(code);
+    if (canon) return canon;
+  }
   var c = String(code).toLowerCase().replace(/_/g, '-');
   if (c === 'ko' || c.indexOf('ko-') === 0) return 'ko';
   if (c === 'en' || c.indexOf('en-') === 0) return 'en';
   if (c === 'ja' || c.indexOf('ja-') === 0) return 'ja';
+  if (c === 'zh' || c.indexOf('zh-') === 0) return 'zh';
+  var primary = c.split('-')[0];
+  if (primary && /^[a-z]{2,3}$/.test(primary)) return primary;
   return null;
 }
 
@@ -6261,59 +6283,50 @@ function getGoogTeComboLangRaw() {
 }
 
 /**
- * Reader UI lang for ko/en/ja native chapter/toolbar labels.
- * Other Google langs return null (keep Korean source for Google).
- * App selection (gomna_ui_language) is the authority for ko/en/ja so
- * audio locale and on-screen language stay in sync on iPhone.
+ * Reader UI lang: selectedLocale including external codes (hi/es/vi).
+ * Native chrome uses ko/en/ja/zh packs. External codes keep Korean source for Google.
  */
 function getReaderUiLangCode() {
-  /* Optimistic bridge selection wins during in-flight KO↔EN/JA switches. */
+  /* Optimistic bridge selection wins during in-flight locale switches. */
   try {
     var displayPending = window.__gomnaBridgeDisplayLang;
     if (displayPending) {
       var displayNorm = normalizeReaderLangCode(displayPending);
-      if (displayNorm === 'ko' || displayNorm === 'en' || displayNorm === 'ja') {
-        return displayNorm;
-      }
+      if (displayNorm) return displayNorm;
     }
   } catch (eDisp) { /* ignore */ }
+  if (window.GomnaUII18n && typeof window.GomnaUII18n.getSelectedLocale === 'function') {
+    try {
+      var selected = normalizeReaderLangCode(window.GomnaUII18n.getSelectedLocale());
+      if (selected) return selected;
+    } catch (eSel) { /* ignore */ }
+  }
   var storedNorm = null;
   try {
     storedNorm = normalizeReaderLangCode(localStorage.getItem('gomna_ui_language'));
   } catch (e2) { /* ignore */ }
-  if (storedNorm === 'ko' || storedNorm === 'en' || storedNorm === 'ja') {
-    return storedNorm;
-  }
+  if (storedNorm) return storedNorm;
 
   var rawCookie = getRawGoogTransTarget();
   var rawCombo = getGoogTeComboLangRaw();
   var cookieNorm = normalizeReaderLangCode(rawCookie);
   var comboNorm = normalizeReaderLangCode(rawCombo);
-  if (rawCookie && !cookieNorm) return null;
-  var translated = false;
-  try {
-    var html = document.documentElement;
-    translated = !!(html && (html.classList.contains('translated-ltr') || html.classList.contains('translated-rtl')));
-  } catch (e0) { /* ignore */ }
-  if (translated && rawCombo && !comboNorm) return null;
-
-  if (translated) {
-    if (comboNorm) return comboNorm;
-    if (cookieNorm) return cookieNorm;
-  }
-  if (cookieNorm === 'en' || cookieNorm === 'ja') return cookieNorm;
-  if (cookieNorm === 'ko') return 'ko';
+  if (cookieNorm) return cookieNorm;
+  if (comboNorm) return comboNorm;
   return 'ko';
 }
 
 function isReaderNativeUiLang(lang) {
-  return lang === 'ko' || lang === 'en' || lang === 'ja';
+  if (window.GomnaUII18n && typeof window.GomnaUII18n.isNativeLocale === 'function') {
+    return !!window.GomnaUII18n.isNativeLocale(normalizeReaderLangCode(lang) || lang);
+  }
+  return lang === 'ko' || lang === 'en' || lang === 'ja' || lang === 'zh';
 }
 
 function syncReaderNativeUiLangClass() {
   var root = document.documentElement;
   if (!root) return;
-  root.classList.remove('gomna-reader-ui-ko', 'gomna-reader-ui-en', 'gomna-reader-ui-ja');
+  root.classList.remove('gomna-reader-ui-ko', 'gomna-reader-ui-en', 'gomna-reader-ui-ja', 'gomna-reader-ui-zh');
   var lang = getReaderUiLangCode();
   if (isReaderNativeUiLang(lang)) root.classList.add('gomna-reader-ui-' + lang);
 }
@@ -6322,6 +6335,7 @@ function formatReaderChapterLabel(n, lang, bookName) {
   var code = lang || getReaderUiLangCode() || 'ko';
   if (code === 'en') return 'Chapter ' + n;
   if (code === 'ja') return '第' + n + '章';
+  if (code === 'zh') return '第' + n + '章';
   var unit = bookName ? getChapterUnit(bookName) : '장';
   return n + unit;
 }
@@ -6353,8 +6367,51 @@ function getReaderCurrentVerseNum() {
   return start >= 1 ? start : 1;
 }
 
-/* 본문 데이터의 metadata를 읽어 실제 번역본을 표시한다(개역한글 = KRV 고정 소스). */
+function getReaderScriptureLang() {
+  var lang = typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko';
+  if (lang === 'en' || lang === 'ja' || lang === 'zh' || lang === 'ko') return lang;
+  return 'ko';
+}
+
+function readerLocalizedBookName(koreanName) {
+  var name = koreanName || '';
+  var lang = typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko';
+  if ((lang === 'en' || lang === 'ja' || lang === 'zh') && window.GomnaTranslateBookName) {
+    try { return window.GomnaTranslateBookName(name, lang) || name; } catch (eBook) { /* ignore */ }
+  }
+  return name;
+}
+
+function formatReaderBookChapterTitle(bookName, chapter) {
+  var label = readerLocalizedBookName(bookName);
+  var n = parseInt(chapter, 10) || 0;
+  if (!label) return n ? String(n) : '';
+  return n ? (label + ' ' + n) : label;
+}
+
+function escapeReaderVerseHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function readerCanonicalBookNr(bookName) {
+  var code = bookNumbers && bookNumbers[bookName];
+  var n = parseInt(code, 10);
+  return n >= 1 ? n : 0;
+}
+
+/* 화면에 실제로 쓰는 번역본 라벨. KO=KRV, EN=WEBP, JA=Kougo, ZH=CUV. */
 function getReaderBibleVersionLabel() {
+  var lang = getReaderScriptureLang();
+  if (window.GomnaBibleLocale && typeof window.GomnaBibleLocale.getVersionLabel === 'function') {
+    var overlay = window.GomnaBibleLocale.getVersionLabel(lang);
+    if (overlay) return overlay;
+  }
+  if (lang === 'en') return 'WEBP';
+  if (lang === 'ja') return 'Kougo';
+  if (lang === 'zh') return 'CUV';
   var meta = null;
   try {
     var src = (currentBook && currentBook.testament === 'old') ? oldTestamentData : newTestamentData;
@@ -6363,6 +6420,13 @@ function getReaderBibleVersionLabel() {
   if (!meta) return 'KRV';
   if (meta.version === '개역한글' || /Korean Revised Version/i.test(String(meta.description || ''))) return 'KRV';
   return String(meta.version || 'KRV');
+}
+
+function getReaderBibleVersionAria(label) {
+  if (label === 'WEBP') return readerUiT('reader.webpAria', 'World English Bible 본문');
+  if (label === 'Kougo') return readerUiT('reader.kougoAria', '구어역 성경 본문');
+  if (label === 'CUV') return readerUiT('reader.cuvAria', '和合本 성경 본문');
+  return readerUiT('reader.krvAria', '개역한글 성경 본문');
 }
 
 function buildReaderChapterButtonHtml(n, opts) {
@@ -6498,8 +6562,20 @@ function getReaderToolbarLabels(lang) {
       backAria: '戻る'
     };
   }
+  if (code === 'zh') {
+    return {
+      find: readerUiT('reader.find', '查找经文'),
+      listen: readerUiT('reader.listen', '收听'),
+      listenPause: readerUiT('reader.pause', '暂停'),
+      listenResume: readerUiT('reader.resume', '继续收听'),
+      commentary: readerUiT('reader.commentary', '经文讲解'),
+      more: readerUiT('reader.more', '更多'),
+      back: '← ' + readerUiT('reader.back', '返回'),
+      backAria: readerUiT('reader.backAria', '返回')
+    };
+  }
   return {
-    find: '본문 찾기',
+    find: '구절찾기',
     listen: '장 듣기',
     listenPause: '전체 일시정지',
     listenResume: '전체 이어듣기',
@@ -6512,8 +6588,26 @@ function getReaderToolbarLabels(lang) {
 
 function markReaderOwnedTranslate(el, owned) {
   if (!el) return;
-  if (owned) el.setAttribute('translate', 'no');
-  else el.removeAttribute('translate');
+  if (owned) {
+    el.setAttribute('translate', 'no');
+    if (el.classList && !el.classList.contains('notranslate')) el.classList.add('notranslate');
+  } else {
+    el.removeAttribute('translate');
+    if (el.classList) el.classList.remove('notranslate');
+  }
+}
+
+function requestGoogleUiRetranslate(reason) {
+  try {
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.isNativeLocale === 'function' &&
+        window.GomnaUII18n.isNativeLocale(window.GomnaUII18n.getSelectedLocale && window.GomnaUII18n.getSelectedLocale())) {
+      return;
+    }
+  } catch (eNat) { /* ignore */ }
+  if (isReaderNativeUiLang(typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko')) return;
+  if (typeof window.GomnaReaderRetranslateBody === 'function') {
+    try { window.GomnaReaderRetranslateBody(reason || 'chrome'); } catch (eRt) { /* ignore */ }
+  }
 }
 
 /* Reader-only fixed UI i18n for commentary chrome (ko/en/ja). Long body stays on Google. */
@@ -6812,6 +6906,104 @@ function markReaderOwnedTranslate(el, owned) {
       'commentary.localeUnavailable': 'この節の日本語解説カードはまだ準備されていません。',
       'commentary.localeLoadError': '日本語解説カードの読み込みに失敗しました。',
       'commentary.multilang.preparing': 'みことば解説の翻訳を準備しています。'
+    },
+    zh: {
+      'commentary.title': '经文讲解',
+      'commentary.subtitle': '注释 · 含马太亨利',
+      'commentary.tab.original': '原文分析',
+      'commentary.tab.history': '历史背景',
+      'commentary.tab.theology': '神学意义',
+      'commentary.tab.typology': '预表',
+      'commentary.tab.matthewHenry': '马太亨利',
+      'commentary.tab.sermon': '讲道材料',
+      'commentary.tab.hymn': '圣诗',
+      'commentary.tab.counseling': '辅导应用',
+      'commentary.tab.crossReference': '交叉引用',
+      'commentary.section.original': '原文分析',
+      'commentary.section.history': '历史背景',
+      'commentary.section.theology': '神学意义',
+      'commentary.section.typology': '预表',
+      'commentary.section.matthewHenry': '马太亨利',
+      'commentary.section.sermon': '讲道材料',
+      'commentary.section.hymn': '圣诗',
+      'commentary.section.counseling': '辅导应用',
+      'commentary.section.crossReference': '交叉引用',
+      'commentary.column.originalWord': '原文',
+      'commentary.column.meaningGrammar': '词义与语法',
+      'commentary.column.sermonPoint': '讲道要点',
+      'commentary.column.item': '项目',
+      'commentary.column.content': '内容',
+      'commentary.column.pastoral': '牧养应用',
+      'commentary.column.doctrine': '教义',
+      'commentary.column.explanation': '说明',
+      'commentary.column.relatedVerse': '相关经文',
+      'commentary.column.category': '分类',
+      'commentary.column.christLink': '与基督的关联',
+      'commentary.column.englishOriginal': '英文原文',
+      'commentary.column.koreanTranslation': '中文说明',
+      'commentary.column.keyInsight': '核心洞察',
+      'commentary.hymn.new': '新',
+      'commentary.hymn.unified': '统一',
+      'commentary.column.point': '要点',
+      'commentary.column.illustration': '例证 · 应用',
+      'commentary.column.hymnNumber': '圣诗',
+      'commentary.column.title': '标题',
+      'commentary.column.reason': '选用理由',
+      'commentary.column.situation': '处境',
+      'commentary.column.principle': '圣经原则',
+      'commentary.column.application': '应用',
+      'commentary.column.passage': '经文',
+      'commentary.column.connection': '关联',
+      'commentary.th.originalWord': '原文',
+      'commentary.th.meaningGrammar': '词义与语法',
+      'commentary.th.sermonPoint': '讲道要点',
+      'commentary.th.item': '项目',
+      'commentary.th.content': '内容',
+      'commentary.th.pastoral': '牧养应用',
+      'commentary.th.doctrine': '教义',
+      'commentary.th.explanation': '说明',
+      'commentary.th.relatedVerse': '相关经文',
+      'commentary.th.category': '分类',
+      'commentary.th.christLink': '与基督的关联',
+      'commentary.th.englishOriginal': '英文原文',
+      'commentary.th.koreanTranslation': '中文说明',
+      'commentary.th.keyInsight': '核心洞察',
+      'commentary.th.point': '要点',
+      'commentary.th.illustration': '例证 · 应用',
+      'commentary.th.hymnNumber': '编号',
+      'commentary.th.title': '标题',
+      'commentary.th.reason': '选用理由',
+      'commentary.th.situation': '处境',
+      'commentary.th.principle': '圣经原则',
+      'commentary.th.application': '应用',
+      'commentary.th.passage': '经文',
+      'commentary.th.connection': '关联',
+      'commentary.audio.listen': '收听',
+      'commentary.audio.listenAll': '全部收听',
+      'commentary.audio.replay': '重听',
+      'commentary.audio.resume': '继续',
+      'commentary.audio.pause': '暂停',
+      'commentary.audio.listenAllPause': '全部暂停',
+      'commentary.audio.listenAllResume': '全部继续',
+      'commentary.audio.preparing': '准备中',
+      'commentary.close': '关闭',
+      'commentary.closeAria': '关闭讲解',
+      'commentary.audio.controlsAria': '讲解音频控制',
+      'commentary.audio.listenAllAria': '收听全部讲解',
+      'commentary.audio.listenAllPauseAria': '暂停全部讲解',
+      'commentary.audio.listenAllResumeAria': '继续全部讲解',
+      'commentary.nav.prevVerse': '上一节',
+      'commentary.nav.nextVerse': '下一节',
+      'commentary.nav.pickBook': '选择书卷与章',
+      'commentary.related.title': '相关经文',
+      'commentary.related.back': '← 返回相关经文',
+      'commentary.multi.prefix': '所选经文',
+      'commentary.multi.done': '选择完成',
+      'commentary.loading': '正在加载注释…',
+      'commentary.empty': '本节没有注释数据。',
+      'commentary.localeUnavailable': '本节的中文讲解卡片尚未准备。',
+      'commentary.localeLoadError': '中文讲解卡片加载失败。',
+      'commentary.multilang.preparing': '正在准备经文讲解翻译。'
     }
   };
 
@@ -6849,7 +7041,7 @@ function markReaderOwnedTranslate(el, owned) {
 
   function isNativeLang(lang) {
     var code = lang || getLang();
-    return code === 'ko' || code === 'en' || code === 'ja';
+    return code === 'ko' || code === 'en' || code === 'ja' || code === 'zh';
   }
 
   function t(key) {
@@ -7855,8 +8047,46 @@ function renderVerses(highlightVerse) {
   closeVerseToolbarTargetMenu();
   if (typeof closeVerseListenModeMenu === 'function') closeVerseListenModeMenu();
 
-  var chapterUnit = getChapterUnit(currentBook.name);
-  var html = '<div class="verse-range-box" id="verseRangeBoxBtn"><span class="verse-range-box-inner"><span class="verse-range-label">절 범위</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-actions"><button type="button" class="verse-range-action" onclick="openVerseRangeModal()">범위 선택 ▼</button><button type="button" class="verse-range-action verse-range-action-primary" data-audio-action="play-range">▶ 선택 범위 듣기</button></span></div>';
+  var scriptureLang = getReaderScriptureLang();
+  var bookNr = readerCanonicalBookNr(currentBook.name);
+  var localeReady = scriptureLang === 'ko' || (window.GomnaBibleLocale && window.GomnaBibleLocale.isReady(scriptureLang));
+  var localeFailed = !!(window.__gomnaBibleLocaleFail && window.__gomnaBibleLocaleFail[scriptureLang]);
+  if (scriptureLang !== 'ko' && window.GomnaBibleLocale && !localeReady && !localeFailed) {
+    var keepVerse = highlightVerse || (typeof getReaderCurrentVerseNum === 'function' ? getReaderCurrentVerseNum() : 1);
+    var loadingHtml = '<div class="verse-range-box" id="verseRangeBoxBtn"><span class="verse-range-box-inner"><span class="verse-range-label">' +
+      readerUiT('reader.range.label', '절 범위') + '</span><span class="verse-range-main" id="verseRangeMainText">' +
+      readerUiT('reader.loadingLocale', '성경 본문을 불러오는 중...') + '</span></span></div>' +
+      '<div class="verse-list" id="verseList"></div>';
+    document.getElementById('verseView').innerHTML = loadingHtml;
+    var wantLang = scriptureLang;
+    var wantGen = window.__gomnaLocaleGen || 0;
+    var wantBook = currentBook.name;
+    var wantChapter = currentChapter;
+    window.GomnaBibleLocale.ensure(scriptureLang).then(function () {
+      if ((window.__gomnaLocaleGen || 0) !== wantGen) return;
+      if (typeof getReaderScriptureLang === 'function' && getReaderScriptureLang() !== wantLang) return;
+      if (!currentBook || currentBook.name !== wantBook || currentChapter !== wantChapter) return;
+      renderVerses(keepVerse);
+    }).catch(function () {
+      if ((window.__gomnaLocaleGen || 0) !== wantGen) return;
+      if (typeof getReaderScriptureLang === 'function' && getReaderScriptureLang() !== wantLang) return;
+      window.__gomnaBibleLocaleFail = window.__gomnaBibleLocaleFail || {};
+      window.__gomnaBibleLocaleFail[scriptureLang] = true;
+      if (!currentBook) return;
+      renderVerses(keepVerse);
+    });
+    return;
+  }
+
+  var locChapter = null;
+  if (scriptureLang !== 'ko' && bookNr && window.GomnaBibleLocale) {
+    locChapter = window.GomnaBibleLocale.getChapter(scriptureLang, bookNr, currentChapter);
+  }
+
+  var html = '<div class="verse-range-box" id="verseRangeBoxBtn"><span class="verse-range-box-inner"><span class="verse-range-label">' +
+    readerUiT('reader.range.label', '절 범위') + '</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-actions"><button type="button" class="verse-range-action" onclick="openVerseRangeModal()">' +
+    readerUiT('reader.range.choose', '범위 선택 ▼') + '</button><button type="button" class="verse-range-action verse-range-action-primary" data-audio-action="play-range">' +
+    readerUiT('reader.range.listen', '▶ 선택 범위 듣기') + '</button></span></div>';
   html += '<div class="verse-list" id="verseList">';
 
   var verseOccurrenceCounts = {};
@@ -7864,10 +8094,21 @@ function renderVerses(highlightVerse) {
     var occurrence = (verseOccurrenceCounts[v.verse] || 0) + 1;
     verseOccurrenceCounts[v.verse] = occurrence;
     var occurrenceAttr = occurrence > 1 ? ' data-audio-occurrence="' + occurrence + '"' : '';
-    html += '<div class="verse-item" role="button" tabindex="0" aria-selected="false" data-verse="' + v.verse + '"' + occurrenceAttr + '><div class="verse-top"><span class="verse-num" aria-label="' + v.verse + '절">' + v.verse + '</span><span class="verse-text">' + v.text + '</span></div></div>';
+    var verseText = v.text;
+    if (scriptureLang !== 'ko') {
+      verseText = '';
+      if (locChapter) {
+        var mapped = locChapter[v.verse];
+        if (mapped == null) mapped = locChapter[String(v.verse)];
+        if (mapped != null) verseText = mapped;
+      }
+      verseText = escapeReaderVerseHtml(verseText);
+    }
+    html += '<div class="verse-item" role="button" tabindex="0" aria-selected="false" data-verse="' + v.verse + '"' + occurrenceAttr + '><div class="verse-top"><span class="verse-num" aria-label="' + readerUiFmt('reader.verseN', { n: v.verse }, v.verse + '절') + '">' + v.verse + '</span><span class="verse-text">' + verseText + '</span></div></div>';
   });
   html += '</div>';
   document.getElementById('verseView').innerHTML = html;
+  window.__gomnaReaderPaintedScripture = scriptureLang + ':' + currentBook.name + ':' + currentChapter;
   opt4RangeStart = 1;
   opt4RangeEnd = verses.length;
   applyRange(1, verses.length);
@@ -7893,7 +8134,7 @@ function renderVerses(highlightVerse) {
     var entrySrc = new URLSearchParams(location.search).get('source');
     skipEntryScroll = typeof isScriptureEntrySource === 'function'
       ? isScriptureEntrySource(entrySrc)
-      : (entrySrc === 'home-daily-read' || entrySrc === 'home-card-listen' || entrySrc === 'home-card-commentary' || entrySrc === 'search-related' || entrySrc === 'guide-related');
+      : (entrySrc === 'home-daily-read' || entrySrc === 'home-life' || entrySrc === 'home-bible-person' || entrySrc === 'home-card-listen' || entrySrc === 'home-card-commentary' || entrySrc === 'search-related' || entrySrc === 'guide-related');
   } catch (e) {}
   // 진입/딥링크는 위치만 이동하고 선택 상태는 만들지 않는다 (scripture entry는 별도 경로)
   if (highlightVerse && !skipEntryScroll && Number(highlightVerse) > 1) {
@@ -8066,7 +8307,12 @@ function getCommentaryHeaderVerseText(bookName, chapter, verseNum) {
   var korean = getKoreanBibleVerseText(bookName, chapter, verseNum);
   var localized;
 
-  if (lang === 'en' || lang === 'ja') {
+  if (lang === 'en' || lang === 'ja' || lang === 'zh') {
+    if (window.GomnaBibleLocale && typeof readerCanonicalBookNr === 'function') {
+      var nr = readerCanonicalBookNr(bookName);
+      var overlay = nr ? window.GomnaBibleLocale.getVerse(lang, nr, chapter, verseNum) : '';
+      if (overlay) return overlay;
+    }
     localized = getLocaleCardVerseText(bookName, chapter, verseNum);
     if (localized) return localized;
   }
@@ -9874,7 +10120,9 @@ function updateVerseRangeBoxLabel() {
   if (opt4RangeStart <= 0 || opt4RangeEnd <= 0) return;
   var n = opt4RangeEnd - opt4RangeStart + 1;
   var full = opt4RangeStart === 1 && opt4RangeEnd >= currentVerseCount;
-  el.textContent = opt4RangeStart + '절 ~ ' + opt4RangeEnd + '절' + (full ? ' (전체)' : ' (' + n + '개 절)');
+  el.textContent = full
+    ? readerUiFmt('reader.range.previewFull', { start: opt4RangeStart, end: opt4RangeEnd }, opt4RangeStart + '절 ~ ' + opt4RangeEnd + '절 (전체)')
+    : readerUiFmt('reader.range.preview', { start: opt4RangeStart, end: opt4RangeEnd, n: n }, opt4RangeStart + '절 ~ ' + opt4RangeEnd + '절 (' + n + '개 절)');
 }
 
 
@@ -10017,9 +10265,9 @@ function buildUnifiedAllBooksSectionsHtml(sections, data, testament) {
 
 function buildUnifiedAllBooksHtml() {
   var html = '';
-  html += '<div class="unified-bc-all-testament-title unified-bc-all-testament-title--old">구약 · 39권</div>';
+  html += '<div class="unified-bc-all-testament-title unified-bc-all-testament-title--old">' + readerUiT('home.oldTestament.title', '구약 39권') + '</div>';
   html += buildUnifiedAllBooksSectionsHtml(getUnifiedOldSections(), oldTestamentData, 'old');
-  html += '<div class="unified-bc-all-testament-title unified-bc-all-testament-title--new">신약 · 27권</div>';
+  html += '<div class="unified-bc-all-testament-title unified-bc-all-testament-title--new">' + readerUiT('home.newTestament.title', '신약 27권') + '</div>';
   html += buildUnifiedAllBooksSectionsHtml(getUnifiedNewSections(), newTestamentData, 'new');
   return html;
 }
@@ -10092,14 +10340,14 @@ function unifiedBcActiveBookCategory() {
 function buildUnifiedBookDialHtml() {
   var html = '';
   html += '<div class="ubc-drawer-title-menu">';
-  html += '<button type="button" class="ubc-drawer-title ubc-drawer-title--menu" id="unifiedBcBookDrawerTitle"'
+    html += '<button type="button" class="ubc-drawer-title ubc-drawer-title--menu" id="unifiedBcBookDrawerTitle"'
     + ' aria-haspopup="menu" aria-expanded="false" aria-controls="ubcReaderTestamentPop"'
-    + ' onclick="toggleUbcReaderTestamentPop(event)">성경</button>';
+    + ' onclick="toggleUbcReaderTestamentPop(event)">' + readerUiT('reader.picker.bible', '성경') + '</button>';
   html += '<div id="ubcReaderTestamentPop" class="ubc-reader-testament-pop" hidden role="menu" aria-labelledby="unifiedBcBookDrawerTitle">';
-  html += '<button type="button" class="ubc-reader-testament-item" role="menuitem" data-ubc-reader-testament="old" onclick="openUbcReaderTestamentFind(\'old\', event)">구약</button>';
-  html += '<button type="button" class="ubc-reader-testament-item" role="menuitem" data-ubc-reader-testament="new" onclick="openUbcReaderTestamentFind(\'new\', event)">신약</button>';
+  html += '<button type="button" class="ubc-reader-testament-item" role="menuitem" data-ubc-reader-testament="old" onclick="openUbcReaderTestamentFind(\'old\', event)">' + readerUiT('reader.picker.old', '구약') + '</button>';
+  html += '<button type="button" class="ubc-reader-testament-item" role="menuitem" data-ubc-reader-testament="new" onclick="openUbcReaderTestamentFind(\'new\', event)">' + readerUiT('reader.picker.new', '신약') + '</button>';
   html += '</div></div>';
-  html += '<div class="ubc-book-list" id="unifiedBcBookList" tabindex="0" aria-label="성경 책 선택">';
+  html += '<div class="ubc-book-list" id="unifiedBcBookList" tabindex="0" aria-label="' + readerUiT('reader.picker.booksAria', '성경 책 선택') + '">';
   html += buildUnifiedBookListItemsHtml();
   html += '</div>';
   return html;
@@ -10115,9 +10363,11 @@ function buildUnifiedBookListItemsHtml() {
     var t = book.testament === 'new' ? 'new' : 'old';
     var isCur = ref.name === book.name && ref.testament === t;
     var isOpen = openBook === book.name;
-    var label = unifiedBcDialBookDisplayName(book.name);
+    var label = (typeof getReaderUiLangCode === 'function' && getReaderUiLangCode() !== 'ko')
+      ? readerLocalizedBookName(book.name)
+      : unifiedBcDialBookDisplayName(book.name);
     html += '<button type="button" class="ubc-book-row' + (isCur ? ' is-cur' : '') + '"'
-      + ' aria-expanded="' + (isOpen ? 'true' : 'false') + '" aria-label="' + book.name + ' 장 선택"'
+      + ' aria-expanded="' + (isOpen ? 'true' : 'false') + '" aria-label="' + readerUiFmt('reader.picker.chapterOf', { book: label }, label + ' 장 선택') + '"'
       + ' data-ubc-book-name="' + book.name + '"'
       + ' onclick="unifiedBcToggleBookChapters(\'' + book.name + '\',' + book.chapters + ',\'' + t + '\')">'
       + '<span class="ubc-book-name">' + label + '</span></button>';
@@ -10129,16 +10379,15 @@ function buildUnifiedBookListItemsHtml() {
 /* 펼친 카드는 장 판과 절 판을 같은 자리에서 갈아 쓴다.
    장 숫자를 누르면 Reader로 가지 않고 절 판으로 넘어간다. */
 function buildUnifiedChcardHead(kind, book, chapter) {
-  var chLabel;
+  var place = formatReaderBookChapterTitle(book.name, chapter);
   if (kind === 'verse') {
-    chLabel = formatReaderChapterLabel(chapter, getReaderUiLangCode(), book.name);
     return '<div class="ubc-chcard-head ubc-chcard-head--verse">'
-      + '<span class="ubc-chcard-label">절 선택</span>'
-      + '<span class="ubc-chcard-place">' + book.name + ' ' + chLabel + '</span>'
+      + '<span class="ubc-chcard-label">' + readerUiT('reader.picker.verse', '절 선택') + '</span>'
+      + '<span class="ubc-chcard-place">' + place + '</span>'
       + '</div>';
   }
   return '<div class="ubc-chcard-head">'
-    + '<span class="ubc-chcard-label">장 선택</span>'
+    + '<span class="ubc-chcard-label">' + readerUiT('reader.picker.chapter', '장 선택') + '</span>'
     + '</div>';
 }
 
@@ -10150,7 +10399,7 @@ function buildUnifiedBookChaptersHtml(book, testament) {
   var isReading = !!(currentBook && currentBook.name === book.name);
   var pickCh = Number(unifiedBcState.pickChapter) || 0;
   var html = '<div class="ubc-book-chapters" role="group" data-ubc-chapters-of="' + book.name + '"'
-    + ' aria-label="' + book.name + ' 장 선택">';
+    + ' aria-label="' + readerUiFmt('reader.picker.chapterOf', { book: readerLocalizedBookName(book.name) }, book.name + ' 장 선택') + '">';
   html += buildUnifiedChcardHead('chapter', book);
   html += '<div class="ubc-chcard-grid">';
   for (var n = 1; n <= total; n++) {
@@ -10178,7 +10427,7 @@ function buildUnifiedCardVerseHtml(book, testament, pick) {
   var count = unifiedBcChapterVerseCount(book.name, pick.chapter, testament);
   var html = '<div class="ubc-book-chapters" role="group" data-ubc-verses-of="' + book.name + '"'
     + ' data-ubc-verse-chapter="' + pick.chapter + '"'
-    + ' aria-label="' + book.name + ' ' + chLabel + ' 절 선택">';
+    + ' aria-label="' + readerUiFmt('reader.picker.verseOf', { book: readerLocalizedBookName(book.name), chapter: chLabel }, book.name + ' ' + chLabel + ' 절 선택') + '">';
   html += buildUnifiedChcardHead('verse', book, pick.chapter);
   html += '<div class="ubc-chcard-grid">';
   for (var v = 1; v <= count; v++) {
@@ -10834,11 +11083,13 @@ function renderUnifiedModalHead() {
   if (!head) return;
   var html = '';
   if (unifiedBcState.step === 'books') {
-    html += '<button type="button" class="ubc-sr-close" onclick="closeUnifiedBookChapterModal()" aria-label="책 선택 닫기">닫기</button>';
+    html += '<button type="button" class="ubc-sr-close" onclick="closeUnifiedBookChapterModal()" aria-label="' + readerUiT('reader.picker.closeBookAria', '책 선택 닫기') + '">' + readerUiT('reader.picker.close', '닫기') + '</button>';
   } else {
-    html += '<button type="button" class="ubc-sr-close" onclick="closeUnifiedBookChapterModal()" aria-label="장 선택 닫기">닫기</button>';
-    html += '<button type="button" class="unified-bc-dial-book" onclick="unifiedBcSwitchTab(\'books\')" aria-label="책 바꾸기">'
-      + '<span class="unified-bc-dial-book-name">' + unifiedBcDialBookDisplayName(unifiedBcState.selectedBook || '') + '</span>'
+    html += '<button type="button" class="ubc-sr-close" onclick="closeUnifiedBookChapterModal()" aria-label="' + readerUiT('reader.picker.closeChapterAria', '장 선택 닫기') + '">' + readerUiT('reader.picker.close', '닫기') + '</button>';
+    html += '<button type="button" class="unified-bc-dial-book" onclick="unifiedBcSwitchTab(\'books\')" aria-label="' + readerUiT('reader.picker.changeBook', '책 바꾸기') + '">'
+      + '<span class="unified-bc-dial-book-name">' + ((typeof getReaderUiLangCode === 'function' && getReaderUiLangCode() !== 'ko')
+        ? readerLocalizedBookName(unifiedBcState.selectedBook || '')
+        : unifiedBcDialBookDisplayName(unifiedBcState.selectedBook || '')) + '</span>'
       + '<span class="unified-bc-dial-book-caret" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></span></button>';
   }
   head.classList.toggle('unified-bc-head--dial', unifiedBcState.step !== 'books');
@@ -11692,13 +11943,16 @@ function readerLocationOpenVersePick() {
   var chLabel = typeof formatReaderChapterLabel === 'function'
     ? formatReaderChapterLabel(currentChapter, typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko', currentBook.name)
     : (currentChapter + unit);
-  if (bookEl) bookEl.textContent = currentBook.name + ' ' + chLabel;
+  if (bookEl) bookEl.textContent = formatReaderBookChapterTitle(currentBook.name, currentChapter);
+  var locHeadLabel = document.querySelector('#readerLocationVersePane .ubc-chcard-label');
+  if (locHeadLabel) locHeadLabel.textContent = readerUiT('reader.picker.verse', '절 선택');
   var html = '';
   var i;
+  var bookLabel = readerLocalizedBookName(currentBook.name);
   for (i = 1; i <= count; i++) {
     html += '<button type="button" class="ubc-book-chapter' + (i === curV ? ' is-loc-cur' : '') + '"'
       + ' data-ubc-verse="' + i + '"'
-      + ' aria-label="' + currentBook.name + ' ' + currentChapter + unit + ' ' + i + '절"'
+      + ' aria-label="' + readerUiFmt('reader.picker.verseOf', { book: bookLabel, chapter: currentChapter }, bookLabel + ' ' + currentChapter + ' 절 선택') + ' ' + i + '"'
       + ' onclick="readerLocationGoVerse(' + i + ')">' + i + '</button>';
   }
   grid.innerHTML = html;
@@ -12176,7 +12430,7 @@ function syncScriptureBooksToolbar() {
   /* 가이드 화면을 벗어나면 본문 복귀 상태를 즉시 버린다. */
   if (!on) guideReturnPlace = null;
   var closeBtn = document.getElementById('readerDockTopClose');
-  if (closeBtn) closeBtn.setAttribute('aria-label', guideReturnPlace ? '본문으로' : '홈으로');
+  if (closeBtn) closeBtn.setAttribute('aria-label', guideReturnPlace ? readerUiT('reader.backToTextAria', '본문으로') : readerUiT('reader.homeAria', '홈으로'));
   if (!bar || !on) return;
   bar.style.display = 'flex';
   if (typeof updateVerseToolbar === 'function') updateVerseToolbar();
@@ -12210,7 +12464,7 @@ function updateOpt4BottomBar() {
     if (txt) {
       var titleLang = typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko';
       var bookLabel = currentBook.name;
-      if ((titleLang === 'en' || titleLang === 'ja') && window.GomnaTranslateBookName) {
+      if ((titleLang === 'en' || titleLang === 'ja' || titleLang === 'zh') && window.GomnaTranslateBookName) {
         try { bookLabel = window.GomnaTranslateBookName(currentBook.name, titleLang) || currentBook.name; } catch (eTitle) { /* ignore */ }
       }
       txt.textContent = formatReaderLocationLabel(bookLabel, currentChapter, getReaderCurrentVerseNum());
@@ -12218,10 +12472,10 @@ function updateOpt4BottomBar() {
       if (badge) {
         var versionLabel = getReaderBibleVersionLabel();
         badge.textContent = versionLabel;
-        badge.setAttribute('aria-label', versionLabel === 'KRV' ? '개역한글 성경 본문' : versionLabel);
+        badge.setAttribute('aria-label', getReaderBibleVersionAria(versionLabel));
       }
       var titleBtn = document.getElementById('verseReadTitleBtn');
-      if (titleBtn && (titleLang === 'en' || titleLang === 'ja')) {
+      if (titleBtn && (titleLang === 'en' || titleLang === 'ja' || titleLang === 'zh')) {
         titleBtn.classList.add('notranslate');
         titleBtn.setAttribute('translate', 'no');
         titleBtn.setAttribute('lang', titleLang);
@@ -12245,6 +12499,14 @@ function updateOpt4BottomBar() {
   var chCount = bookData ? getDisplayedChapterCount(bookData) : (currentBook.chapters || 999);
   if (prev) prev.disabled = currentChapter <= 1;
   if (next) next.disabled = currentChapter >= chCount;
+  var barLang = typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko';
+  var barNative = typeof isReaderNativeUiLang === 'function' ? isReaderNativeUiLang(barLang) : true;
+  if (barNative) {
+    if (prev) prev.textContent = readerUiT('reader.chapter.prev', '이전 장');
+    if (next) next.textContent = readerUiT('reader.chapter.next', '다음 장');
+    var chaptersBtn = document.getElementById('opt4BottomChapters');
+    if (chaptersBtn) chaptersBtn.textContent = readerUiT('reader.chapter.list', '장 목록');
+  }
   if (typeof syncReaderChapterFabs === 'function') syncReaderChapterFabs();
   updateVerseToolbar();
   syncScriptureDockActive();
@@ -12417,7 +12679,7 @@ function initOpt4BottomBarAutoHide() {
 
 function getVerseRefLabel(verseNum) {
   if (!currentBook || !verseNum) return '';
-  return currentBook.name + ' ' + currentChapter + ':' + verseNum;
+  return formatReaderLocationLabel(readerLocalizedBookName(currentBook.name), currentChapter, verseNum);
 }
 
 function getVersePlainText(verseNum) {
@@ -12981,8 +13243,15 @@ function syncVerseToolbarLocationState() {
   if (chevron) chevron.hidden = false;
   if (clearMark) clearMark.hidden = true;
   if (toolbar) toolbar.setAttribute('data-toolbar-state', 'none');
-  txt.textContent = '구절찾기';
-  btn.setAttribute('aria-label', '구절찾기');
+  var findLabel = readerUiT('reader.find', '구절찾기');
+  var uiLang = typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko';
+  var nativeUi = typeof isReaderNativeUiLang === 'function' ? isReaderNativeUiLang(uiLang) : true;
+  if (nativeUi) {
+    txt.textContent = findLabel;
+    btn.setAttribute('aria-label', findLabel);
+  }
+  markReaderOwnedTranslate(txt, nativeUi);
+  markReaderOwnedTranslate(btn, nativeUi);
   if (typeof window.__gomnaSyncScriptureLocationButton === 'function') {
     window.__gomnaSyncScriptureLocationButton();
   }
@@ -13037,12 +13306,15 @@ function syncVerseToolbarListenButton() {
     hideSingleVerseChoice();
     btn.removeAttribute('data-audio-id');
     rangeCount = Math.max(0, opt4RangeEnd - opt4RangeStart + 1);
-    rangeLabel = rangeCount === 1 ? '1절 듣기' : rangeCount + '개 절 듣기';
+    rangeLabel = rangeCount === 1
+      ? readerUiT('reader.listen.rangeOne', '1절 듣기')
+      : readerUiFmt('reader.listen.rangeN', { n: rangeCount }, rangeCount + '개 절 듣기');
     if (state && state.queueActive && isSameAudioIdArray(state.queueAudioIds, getRangeAudioIds())) {
-      if (state.isPlaying) rangeLabel = '일시정지';
-      else if (state.isPaused) rangeLabel = '이어듣기';
+      if (state.isPlaying) rangeLabel = readerUiT('reader.pause', '일시정지');
+      else if (state.isPaused) rangeLabel = readerUiT('reader.resume', '이어듣기');
     }
     setToolbarActionLabel(btn, rangeLabel);
+    markReaderOwnedTranslate(btn, nativeUi);
     return;
   }
 
@@ -13054,25 +13326,23 @@ function syncVerseToolbarListenButton() {
     btn.hidden = false;
     hideSingleVerseChoice();
     btn.removeAttribute('data-audio-id');
-    chapterLabel = '듣기';
-    if (nativeUi && uiLang === 'en') chapterLabel = 'Listen';
-    else if (nativeUi && uiLang === 'ja') chapterLabel = '聞く';
+    chapterLabel = readerUiT('reader.listen', '듣기');
     btn.setAttribute('aria-haspopup', 'dialog');
     if (state && state.queueActive && isSameAudioIdArray(state.queueAudioIds, getChapterAudioIds())) {
       if (state.isPlaying) {
-        chapterLabel = (nativeUi && uiLang !== 'ko' && tLabels.listenPause) ? tLabels.listenPause : '일시정지';
+        chapterLabel = readerUiT('reader.pause', '일시정지');
         btn.setAttribute('aria-label', chapterLabel);
         btn.setAttribute('aria-expanded', 'false');
       } else if (state.isPaused) {
-        chapterLabel = (nativeUi && uiLang !== 'ko' && tLabels.listenResume) ? tLabels.listenResume : '이어듣기';
+        chapterLabel = readerUiT('reader.resume', '이어듣기');
         btn.setAttribute('aria-label', chapterLabel);
         btn.setAttribute('aria-expanded', 'false');
       } else {
-        btn.setAttribute('aria-label', '현재 성경 듣기 방식 선택');
+        btn.setAttribute('aria-label', readerUiT('reader.listen.chooseMode', '현재 성경 듣기 방식 선택'));
         btn.setAttribute('aria-expanded', isVerseListenModeMenuOpen() ? 'true' : 'false');
       }
     } else {
-      btn.setAttribute('aria-label', '현재 성경 듣기 방식 선택');
+      btn.setAttribute('aria-label', readerUiT('reader.listen.chooseMode', '현재 성경 듣기 방식 선택'));
       btn.setAttribute('aria-expanded', isVerseListenModeMenuOpen() ? 'true' : 'false');
     }
     setToolbarActionLabel(btn, chapterLabel);
@@ -13089,8 +13359,8 @@ function syncVerseToolbarListenButton() {
     btn.removeAttribute('data-audio-id');
     btn.removeAttribute('aria-haspopup');
     btn.setAttribute('aria-expanded', 'false');
-    multiLabel = '듣기';
-    btn.setAttribute('aria-label', '선택한 ' + selCount + '절 듣기');
+    multiLabel = readerUiT('reader.listen', '듣기');
+    btn.setAttribute('aria-label', readerUiFmt('reader.listen.selectedN', { n: selCount }, '선택한 ' + selCount + '절 듣기'));
     selectedIds = (typeof getSortedUniqueSelectedVerseNums === 'function'
       ? getSortedUniqueSelectedVerseNums()
       : selectedVerseNums.slice())
@@ -13112,14 +13382,15 @@ function syncVerseToolbarListenButton() {
     );
     if (sameSelected) {
       if (state.isPlaying) {
-        multiLabel = '일시정지';
-        btn.setAttribute('aria-label', '일시정지');
+        multiLabel = readerUiT('reader.pause', '일시정지');
+        btn.setAttribute('aria-label', multiLabel);
       } else if (state.isPaused) {
-        multiLabel = '이어듣기';
-        btn.setAttribute('aria-label', '이어듣기');
+        multiLabel = readerUiT('reader.resume', '이어듣기');
+        btn.setAttribute('aria-label', multiLabel);
       }
     }
     setToolbarActionLabel(btn, multiLabel);
+    markReaderOwnedTranslate(btn, nativeUi);
     return;
   }
 
@@ -13130,6 +13401,7 @@ function syncVerseToolbarListenButton() {
     btn.removeAttribute('data-audio-id');
     setToolbarActionLabel(btn, '듣기');
     btn.setAttribute('aria-label', '듣기');
+    markReaderOwnedTranslate(btn, nativeUi);
     return;
   }
   btn.hidden = true;
@@ -13235,6 +13507,12 @@ function getVerseBodyText(verseNum) {
   if (fromDom) return fromDom;
   try {
     if (!currentBook) return '';
+    var lang = typeof getReaderScriptureLang === 'function' ? getReaderScriptureLang() : 'ko';
+    if (lang !== 'ko' && window.GomnaBibleLocale && typeof window.GomnaBibleLocale.getVerse === 'function') {
+      var nr = readerCanonicalBookNr(currentBook.name);
+      var overlay = window.GomnaBibleLocale.getVerse(lang, nr, currentChapter, verseNum);
+      return overlay ? String(overlay).trim() : '';
+    }
     var data = currentBook.testament === 'old' ? oldTestamentData : newTestamentData;
     var bookData = findBook(data, currentBook.name);
     var chapterData = bookData && bookData.chapters
@@ -13250,8 +13528,8 @@ function getVerseBodyText(verseNum) {
 }
 
 function formatChapterShareTitle() {
-  if (!currentBook) return '은혜의말씀';
-  return currentBook.name + ' ' + currentChapter + '장';
+  if (!currentBook) return readerUiT('brand.title', '은혜의말씀');
+  return formatReaderBookChapterTitle(currentBook.name, currentChapter);
 }
 
 function formatShareVerseRef(verses) {
@@ -13260,8 +13538,8 @@ function formatShareVerseRef(verses) {
   var first = verses[0];
   var last = verses[verses.length - 1];
   var contiguous = verses.length === (last - first + 1);
-  if (contiguous) return currentBook.name + ' ' + currentChapter + ':' + first + '-' + last;
-  return currentBook.name + ' ' + currentChapter + ':' + verses.join(', ');
+  if (contiguous) return readerLocalizedBookName(currentBook.name) + ' ' + currentChapter + ':' + first + '-' + last;
+  return readerLocalizedBookName(currentBook.name) + ' ' + currentChapter + ':' + verses.join(', ');
 }
 
 function getShareSelectedVerses() {
@@ -13358,8 +13636,9 @@ function updateVerseToolbarSaveLabel() {
   var verses = getToolbarActionVerses();
   var saved = verses.length > 1 ? verses.every(isVerseFavorited) : isVerseFavorited(verses[0]);
   var title = saveBtn.querySelector('.verse-toolbar-more-title');
-  if (title) title.textContent = saved ? '저장됨' : '저장';
-  else saveBtn.textContent = saved ? '저장됨' : '저장';
+  var saveLabel = saved ? readerUiT('reader.saved', '저장됨') : readerUiT('reader.save', '저장');
+  if (title) title.textContent = saveLabel;
+  else saveBtn.textContent = saveLabel;
   saveBtn.classList.toggle('is-saved', saved);
 }
 
@@ -13392,16 +13671,12 @@ function syncVerseToolbarTargetButton() {
       ? getSelectedVerseCount()
       : (selectedVerseNums ? selectedVerseNums.length : 0);
     if (selCount > 1) {
-      if (uiLang === 'en') label = selCount + ' selected';
-      else if (uiLang === 'ja') label = selCount + '個選択';
-      else label = selCount + '구절 선택';
-      ariaLabel = '선택한 ' + selCount + '구절';
+      label = readerUiFmt('reader.selectedCount', { n: selCount }, selCount + '구절 선택');
+      ariaLabel = readerUiFmt('reader.selectedCountAria', { n: selCount }, '선택한 ' + selCount + '구절');
     } else if (selCount === 1) {
       verseNum = getSortedUniqueSelectedVerseNums()[0] || selectedVerseNum || getToolbarActionVerse();
-      if (uiLang === 'en') label = 'v' + verseNum;
-      else if (uiLang === 'ja') label = verseNum + '節選択';
-      else label = verseNum + '절 선택';
-      ariaLabel = verseNum + '절 선택';
+      label = readerUiFmt('reader.versePickN', { n: verseNum }, verseNum + '절 선택');
+      ariaLabel = label;
     }
   } else if (verseListenMode === 'range') {
     if (uiLang === 'en') {
@@ -13502,6 +13777,7 @@ function chooseVerseListenTargetMode(mode) {
 }
 
 function updateVerseToolbar() {
+  var chromeLang = typeof resolveReaderChromeLang === 'function' ? resolveReaderChromeLang() : getReaderUiLangCode();
   syncReaderNativeUiLangClass();
   syncVerseToolbarTargetButton();
   syncVerseToolbarLocationState();
@@ -13512,7 +13788,7 @@ function updateVerseToolbar() {
   var targetBtn = document.getElementById('verseToolbarTargetButton');
   var listBtn = document.getElementById('opt4VerseList');
   var listenBtn = document.getElementById('opt4VerseListen');
-  var uiLang = getReaderUiLangCode();
+  var uiLang = chromeLang || getReaderUiLangCode();
   var nativeUi = isReaderNativeUiLang(uiLang);
   var tLabels = getReaderToolbarLabels(uiLang || 'ko');
   if (commentaryBtn) {
@@ -13525,9 +13801,10 @@ function updateVerseToolbar() {
     markReaderOwnedTranslate(moreBtn, nativeUi);
   }
   if (listBtn) {
-    var backLabel = '돌아가기';
+    var backLabel = readerUiT('reader.back', '돌아가기');
     if (nativeUi && uiLang === 'en') backLabel = 'Back';
     else if (nativeUi && uiLang === 'ja') backLabel = '戻る';
+    else if (nativeUi && uiLang === 'zh') backLabel = readerUiT('reader.back', '返回');
     listBtn.innerHTML = '<span class="opt4-verse-list-arrow" aria-hidden="true">←</span><span class="opt4-verse-list-label"> ' + backLabel + '</span>';
     listBtn.setAttribute('aria-label', (tLabels && tLabels.backAria) || '돌아가기');
     markReaderOwnedTranslate(listBtn, nativeUi);
@@ -13543,10 +13820,16 @@ function updateVerseToolbar() {
     listenBtn.disabled = false;
     listenBtn.removeAttribute('disabled');
     listenBtn.setAttribute('aria-disabled', 'false');
+    markReaderOwnedTranslate(listenBtn, nativeUi);
   }
+  var locBtn = document.getElementById('verseToolbarLocationButton');
+  var locTxt = document.getElementById('verseToolbarLocationText');
+  markReaderOwnedTranslate(locBtn, nativeUi);
+  markReaderOwnedTranslate(locTxt, nativeUi);
   /* Listen button visibility (single vs dual) is owned by syncVerseToolbarListenButton. */
   syncVerseToolbarListenButton();
   syncOpt4ToolbarWrapMode();
+  requestGoogleUiRetranslate('updateVerseToolbar');
 }
 
 function opt4OpenChapterList() {
@@ -16452,9 +16735,12 @@ function getHomeDailyListenRange() {
   } catch (e) {
     parsed = null;
   }
-  if (!parsed || (typeof isHomeTodayEntryFocusSource === 'function'
-      ? !isHomeTodayEntryFocusSource(parsed.source)
-      : parsed.source !== 'home-daily-read' && parsed.source !== 'home-card-listen')) return null;
+  if (!parsed) return null;
+  var src = parsed.source;
+  var allowed = typeof isHomeCardEntryFocusSource === 'function'
+    ? isHomeCardEntryFocusSource(src)
+    : (src === 'home-daily-read' || src === 'home-card-listen' || src === 'home-card-commentary' || src === 'home-life' || src === 'home-bible-person');
+  if (!allowed) return null;
   if (!currentBook || currentBook.name !== parsed.book) return null;
   if (Number(currentChapter) !== Number(parsed.chapter)) return null;
   verses = parsed.verses || [];
@@ -16470,18 +16756,27 @@ function getHomeDailyListenRange() {
 
 function formatHomeDailyListenRef(range) {
   if (!range || !range.book) return '';
-  if (range.end > range.start) {
-    return range.book + ' ' + range.chapter + ':' + range.start + '–' + range.end;
+  var lang = typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko';
+  var book = range.book;
+  if ((lang === 'en' || lang === 'ja' || lang === 'zh') && typeof window.GomnaTranslateBookName === 'function') {
+    try { book = window.GomnaTranslateBookName(range.book, lang) || range.book; } catch (e) { /* ignore */ }
   }
-  return range.book + ' ' + range.chapter + ':' + range.start;
+  if (range.end > range.start) {
+    return book + ' ' + range.chapter + ':' + range.start + '–' + range.end;
+  }
+  return book + ' ' + range.chapter + ':' + range.start;
 }
 
 function getChapterListenMenuLabel() {
   var n = parseInt(currentChapter, 10);
   var book = currentBook && currentBook.name ? String(currentBook.name) : '';
   if (isNaN(n) || n < 1) n = 1;
-  if (book) return book + ' ' + n + '장 듣기';
-  return n + '장 듣기';
+  var lang = typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko';
+  if ((lang === 'en' || lang === 'ja' || lang === 'zh') && book && typeof window.GomnaTranslateBookName === 'function') {
+    try { book = window.GomnaTranslateBookName(book, lang) || book; } catch (e) { /* ignore */ }
+  }
+  if (book) return readerUiFmt('reader.listen.chapter', { book: book, n: n }, book + ' ' + n + '장 듣기');
+  return readerUiFmt('reader.listen.chapter', { book: '', n: n }, n + '장 듣기').replace(/\s+/g, ' ').trim();
 }
 
 function playHomeDailyVerseListen() {
@@ -16514,22 +16809,52 @@ function playHomeDailyVerseListen() {
 }
 
 function syncVerseListenModeMenuLabels() {
+  var parsed = null;
   var dailyRange = getHomeDailyListenRange();
   var dailyBtn = document.getElementById('opt4VerseListenModeDaily');
+  var dailyTitle = document.getElementById('opt4VerseListenModeDailyLabel');
   var dailySub = document.getElementById('opt4VerseListenModeDailySub');
   var dailyRef = formatHomeDailyListenRef(dailyRange);
+  var dailyLabel = readerUiT('home.listen.today', '오늘의 말씀 듣기');
+  var showDaily = false;
   var chapterBtn = document.getElementById('opt4VerseListenModeChapter');
   var continuousBtn = document.getElementById('opt4VerseListenModeContinuous');
   var chapterLabel = document.getElementById('opt4VerseListenModeChapterLabel');
   var chapterText = getChapterListenMenuLabel();
-  if (dailyBtn) {
-    dailyBtn.hidden = !dailyRange;
-    dailyBtn.setAttribute('aria-label', dailyRef ? ('오늘의 말씀 듣기, ' + dailyRef) : '오늘의 말씀 듣기');
+  try {
+    parsed = typeof parseScriptureEntryFromSearchParams === 'function'
+      ? parseScriptureEntryFromSearchParams(new URLSearchParams(location.search))
+      : null;
+  } catch (e) {
+    parsed = null;
   }
-  if (dailySub) dailySub.textContent = dailyRef;
+  if (typeof getHomeSpecialListenLabel === 'function') {
+    dailyLabel = getHomeSpecialListenLabel(parsed) || '';
+  } else if (!parsed || parsed.source === 'home-daily-read' || parsed.source === 'home-card-listen' || parsed.source === 'home-card-commentary') {
+    dailyLabel = readerUiT('home.listen.today', '오늘의 말씀 듣기');
+  } else {
+    dailyLabel = '';
+  }
+  showDaily = !!(dailyRange && dailyLabel);
+  var listenNative = typeof isReaderNativeUiLang === 'function'
+    ? isReaderNativeUiLang(typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko')
+    : true;
+  if (dailyBtn) dailyBtn.hidden = !showDaily;
+  if (!listenNative) {
+    if (typeof requestGoogleUiRetranslate === 'function') requestGoogleUiRetranslate('listenModeMenu');
+    return;
+  }
+  if (dailyTitle) dailyTitle.textContent = dailyLabel || readerUiT('home.listen.today', '오늘의 말씀 듣기');
+  if (dailyBtn) {
+    dailyBtn.hidden = !showDaily;
+    dailyBtn.setAttribute('aria-label', showDaily && dailyRef ? (dailyLabel + ', ' + dailyRef) : (dailyLabel || readerUiT('home.listen.today', '오늘의 말씀 듣기')));
+  }
+  if (dailySub) dailySub.textContent = showDaily ? dailyRef : '';
   if (chapterLabel) chapterLabel.textContent = chapterText;
   if (chapterBtn) chapterBtn.setAttribute('aria-label', chapterText);
-  if (continuousBtn) continuousBtn.setAttribute('aria-label', '장 연속 듣기');
+  if (continuousBtn) continuousBtn.setAttribute('aria-label', readerUiT('reader.listen.continuous', '장 연속 듣기'));
+  var continuousTitle = document.getElementById('opt4VerseListenModeContinuousLabel');
+  if (continuousTitle) continuousTitle.textContent = readerUiT('reader.listen.continuous', '장 연속 듣기');
 }
 
 function closeVerseListenModeMenu() {
@@ -17093,18 +17418,18 @@ function getVerseRangeModalHtml() {
   return '<div class="reader-verse-range-actions">' +
     '<div class="verse-range-split">' +
     '<div class="verse-range-column">' +
-    '<p class="verse-range-column-label">시작 절</p>' +
-    '<p class="verse-range-column-hint" id="verseRangeStartHint">시작 절을 선택하세요</p>' +
+    '<p class="verse-range-column-label">' + readerUiT('reader.range.start', '시작 절') + '</p>' +
+    '<p class="verse-range-column-hint" id="verseRangeStartHint">' + readerUiT('reader.range.startHint', '시작 절을 선택하세요') + '</p>' +
     '<div class="verse-range-column-scroll">' +
     '<div class="verse-grid" id="verseRangeStartGrid"></div></div></div>' +
     '<div class="verse-range-column" id="verseRangeEndArea">' +
-    '<p class="verse-range-column-label">끝 절</p>' +
-    '<p class="verse-range-column-hint" id="verseRangeEndHint">끝 절을 선택하세요</p>' +
+    '<p class="verse-range-column-label">' + readerUiT('reader.range.end', '끝 절') + '</p>' +
+    '<p class="verse-range-column-hint" id="verseRangeEndHint">' + readerUiT('reader.range.endHint', '끝 절을 선택하세요') + '</p>' +
     '<div class="verse-range-column-scroll">' +
     '<div class="verse-grid" id="verseRangeEndGrid"></div></div>' +
     '</div></div>' +
     '<div class="verse-range-back-wrap">' +
-    '<button type="button" class="verse-range-back-to-text" onclick="closeVerseRangeModal()" aria-label="본문으로 돌아가기">← 본문으로</button>' +
+    '<button type="button" class="verse-range-back-to-text" onclick="closeVerseRangeModal()" aria-label="' + readerUiT('reader.backToTextAria', '본문으로 돌아가기') + '">' + readerUiT('reader.backToText', '← 본문으로') + '</button>' +
     '</div>' +
     '</div>';
 }
@@ -17119,8 +17444,8 @@ function verseRangeSetHint(el, text, visible) {
 function verseRangeSyncHints(startVisible, endVisible) {
   var startEl = document.getElementById('verseRangeStartHint');
   var endEl = document.getElementById('verseRangeEndHint');
-  verseRangeSetHint(startEl, VERSE_RANGE_START_HINT_TEXT, !!startVisible);
-  verseRangeSetHint(endEl, VERSE_RANGE_END_HINT_TEXT, !!endVisible);
+  verseRangeSetHint(startEl, readerUiT('reader.range.startHint', '시작 절을 선택하세요'), !!startVisible);
+  verseRangeSetHint(endEl, readerUiT('reader.range.endHint', '끝 절을 선택하세요'), !!endVisible);
 }
 
 function verseRangeInitHints() {
@@ -17164,11 +17489,11 @@ function verseRangeRefreshPreview() {
   if (!el) return;
   if (verseRangeSelStart > 0 && verseRangeSelEnd > 0 && verseRangeSelEnd >= verseRangeSelStart) {
     var n = verseRangeSelEnd - verseRangeSelStart + 1;
-    el.textContent = verseRangeSelStart + '절 ~ ' + verseRangeSelEnd + '절 (' + n + '개 절)';
+    el.textContent = readerUiFmt('reader.range.preview', { start: verseRangeSelStart, end: verseRangeSelEnd, n: n }, verseRangeSelStart + '절 ~ ' + verseRangeSelEnd + '절 (' + n + '개 절)');
   } else if (verseRangeSelStart > 0) {
-    el.textContent = '끝 절을 선택하세요';
+    el.textContent = readerUiT('reader.range.endHint', '끝 절을 선택하세요');
   } else {
-    el.textContent = '시작 절을 선택하세요';
+    el.textContent = readerUiT('reader.range.startHint', '시작 절을 선택하세요');
   }
 }
 
@@ -17221,7 +17546,7 @@ function verseRangeUpdateStatusTag() {
   var tag = document.getElementById('rangeStatusAction');
   if (!tag) return;
   var ready = verseRangeSelStart > 0 && verseRangeSelEnd > 0 && verseRangeSelEnd >= verseRangeSelStart;
-  tag.textContent = ready ? '선택 완료' : (verseRangeSelStart > 0 ? '끝 절을 선택하세요' : '시작 절을 선택하세요');
+  tag.textContent = ready ? readerUiT('reader.range.done', '선택 완료') : (verseRangeSelStart > 0 ? readerUiT('reader.range.endHint', '끝 절을 선택하세요') : readerUiT('reader.range.startHint', '시작 절을 선택하세요'));
   tag.disabled = true;
   tag.setAttribute('aria-disabled', 'true');
   tag.classList.remove('range-status-tag--move');
@@ -17434,8 +17759,8 @@ function openVerseRangeModal() {
   if (!modal || !body) return;
   if (title) {
     title.textContent = (currentBook && currentBook.name && currentChapter)
-      ? currentBook.name + ' ' + currentChapter + getChapterUnit(currentBook.name)
-      : ((currentBook && currentBook.name) ? currentBook.name : '');
+      ? formatReaderBookChapterTitle(currentBook.name, currentChapter)
+      : ((currentBook && currentBook.name) ? readerLocalizedBookName(currentBook.name) : '');
   }
   if (box) {
     box.style.position = '';
@@ -17936,6 +18261,8 @@ function resolveScriptureEntryRange(opts) {
 
 function isScriptureEntrySource(source) {
   return source === 'home-daily-read' ||
+    source === 'home-life' ||
+    source === 'home-bible-person' ||
     source === 'home-card-listen' ||
     source === 'home-card-commentary' ||
     source === 'search-related' ||
@@ -17944,6 +18271,225 @@ function isScriptureEntrySource(source) {
 
 function isHomeTodayEntryFocusSource(source) {
   return source === 'home-daily-read' || source === 'home-card-listen' || source === 'home-card-commentary';
+}
+
+function isHomeCardEntryFocusSource(source) {
+  return isHomeTodayEntryFocusSource(source) || source === 'home-life' || source === 'home-bible-person';
+}
+
+function readerUiT(key, fallback) {
+  try {
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.t === 'function') {
+      var lang = typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : null;
+      if (window.GomnaUII18n.getSelectedLocale && window.GomnaUII18n.isNativeLocale) {
+        var selected = window.GomnaUII18n.getSelectedLocale();
+        if (window.GomnaUII18n.isNativeLocale(selected)) lang = selected;
+      }
+      var v = window.GomnaUII18n.t(key, lang);
+      if (v) return v;
+    }
+  } catch (e) { /* ignore */ }
+  return fallback == null ? '' : fallback;
+}
+
+function readerUiFmt(key, vars, fallback) {
+  try {
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.format === 'function') {
+      var v = window.GomnaUII18n.format(key, vars);
+      if (v) return v;
+    }
+  } catch (e) { /* ignore */ }
+  var s = readerUiT(key, fallback || '');
+  if (!vars) return s;
+  Object.keys(vars).forEach(function (k) {
+    s = String(s).split('{' + k + '}').join(vars[k] == null ? '' : String(vars[k]));
+  });
+  return s;
+}
+
+function homeLifeReturnLabel(themeId) {
+  return readerUiT('home.return.life.' + themeId, '');
+}
+
+function homePersonReturnLabel(personId) {
+  return readerUiT('home.return.person.' + personId, '');
+}
+
+function homeLifeListenLabel(themeId) {
+  return readerUiT('home.listen.life.' + themeId, '');
+}
+
+function homePersonListenLabel(personId) {
+  return readerUiT('home.listen.person.' + personId, '');
+}
+
+function resolveReaderChromeLang(override) {
+  if (override && window.GomnaUII18n && typeof window.GomnaUII18n.isNativeLocale === 'function' &&
+      window.GomnaUII18n.isNativeLocale(override)) {
+    return (window.GomnaUII18n.canonicalizeNativeLocale && window.GomnaUII18n.canonicalizeNativeLocale(override)) || override;
+  }
+  if (window.GomnaUII18n && typeof window.GomnaUII18n.getSelectedLocale === 'function') {
+    var selected = window.GomnaUII18n.getSelectedLocale();
+    if (window.GomnaUII18n.isNativeLocale && window.GomnaUII18n.isNativeLocale(selected)) return selected;
+  }
+  return typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko';
+}
+
+function applyReaderChromeI18n(localeOverride) {
+  var lang = resolveReaderChromeLang(localeOverride);
+  var nativeUi = typeof isReaderNativeUiLang === 'function' ? isReaderNativeUiLang(lang) : true;
+  var dock = document.getElementById('scriptureDock');
+  if (dock && nativeUi) {
+    dock.setAttribute('aria-label', readerUiT('reader.mainMenu', '주 메뉴'));
+    var dockMap = {
+      home: readerUiT('home.tab.home', '홈'),
+      bible: readerUiT('home.tab.bible', '성경'),
+      find: readerUiT('home.tab.find', '찾기'),
+      archive: readerUiT('reader.tab.archive', '보관함')
+    };
+    Object.keys(dockMap).forEach(function (id) {
+      var item = dock.querySelector('[data-dock="' + id + '"]');
+      if (!item) return;
+      var lab = item.querySelector('.scripture-dock-label');
+      if (lab) lab.textContent = dockMap[id];
+      item.setAttribute('aria-label', dockMap[id]);
+      markReaderOwnedTranslate(lab, true);
+      markReaderOwnedTranslate(item, true);
+    });
+    var myBtn = dock.querySelector('[data-dock="my"]');
+    if (myBtn) {
+      var myText = myBtn.classList.contains('is-signed-in')
+        ? readerUiT('home.tab.me', '나')
+        : readerUiT('home.tab.login', '로그인');
+      var myLab = myBtn.querySelector('.scripture-dock-label');
+      if (myLab) myLab.textContent = myText;
+      myBtn.setAttribute('aria-label', myText);
+      myBtn.setAttribute('title', myText);
+      markReaderOwnedTranslate(myLab, true);
+      markReaderOwnedTranslate(myBtn, true);
+    }
+  } else if (dock && !nativeUi) {
+    var dockItems = dock.querySelectorAll('.scripture-dock-item, .scripture-dock-label');
+    for (var di = 0; di < dockItems.length; di++) markReaderOwnedTranslate(dockItems[di], false);
+  }
+  if (nativeUi) {
+    var onlyBtn = document.getElementById('opt4VerseListenOnly');
+    if (onlyBtn) onlyBtn.textContent = readerUiT('reader.listen.thisVerse', '이 절만');
+    var fromBtn = document.getElementById('opt4VerseListenFromHere');
+    if (fromBtn) fromBtn.textContent = readerUiT('reader.listen.fromHere', '여기부터');
+    var menu = document.getElementById('opt4VerseListenModeMenu');
+    if (menu) menu.setAttribute('aria-label', readerUiT('reader.listen.modeAria', '듣기 방식'));
+    var prevFab = document.getElementById('readerChapterPrevFab');
+    if (prevFab) prevFab.setAttribute('aria-label', readerUiT('reader.chapter.prev', '이전 장'));
+  }
+  if (typeof syncVerseListenModeMenuLabels === 'function') {
+    try { syncVerseListenModeMenuLabels(); } catch (e0) { /* ignore */ }
+  }
+  if (typeof updateOpt4BottomBar === 'function') {
+    try { updateOpt4BottomBar(); } catch (e1) { /* ignore */ }
+  } else if (typeof updateVerseToolbar === 'function') {
+    try { updateVerseToolbar(); } catch (e2) { /* ignore */ }
+  }
+  if (typeof window.__gomnaRefreshSourceReturnLabel === 'function') {
+    try { window.__gomnaRefreshSourceReturnLabel(); } catch (e3) { /* ignore */ }
+  }
+  if (typeof updateHeaderBtns === 'function') {
+    try {
+      var activeTab = document.querySelector('.tab.active');
+      var tab = (activeTab && activeTab.getAttribute('data-tab')) || 'old';
+      updateHeaderBtns(tab);
+    } catch (eHdr) { /* ignore */ }
+  }
+  if (nativeUi) {
+    var locPopover = document.getElementById('readerLocationPopover');
+    if (locPopover) locPopover.setAttribute('aria-label', readerUiT('reader.picker.verse', '절 선택'));
+    var locVerseLabel = document.querySelector('#readerLocationVersePane .ubc-chcard-label');
+    if (locVerseLabel) locVerseLabel.textContent = readerUiT('reader.picker.verse', '절 선택');
+    var titleBtn = document.getElementById('verseReadTitleBtn');
+    if (titleBtn) titleBtn.setAttribute('aria-label', readerUiT('reader.locationAria', '현재 위치'));
+    var rangeClose = document.getElementById('verseRangeModalCloseBtn');
+    if (rangeClose) rangeClose.setAttribute('aria-label', readerUiT('reader.picker.close', '닫기'));
+    var moreHead = document.querySelector('.verse-read-more-sheet-head span');
+    if (moreHead) moreHead.textContent = readerUiT('reader.more', '더보기');
+    var catTitle = document.querySelector('.unified-bc-cat-sheet-title');
+    if (catTitle) catTitle.textContent = readerUiT('reader.picker.cat', '책 분류 선택');
+    var backBtns = document.querySelectorAll('.reader-back-to-text');
+    for (var bi = 0; bi < backBtns.length; bi++) backBtns[bi].textContent = readerUiT('reader.backToText', '← 본문으로');
+  }
+  var locBook = document.getElementById('readerLocationVerseBook');
+  if (locBook && currentBook) locBook.textContent = formatReaderBookChapterTitle(currentBook.name, currentChapter);
+  var rangeTag = document.getElementById('rangeStatusAction');
+  if (rangeTag && typeof verseRangeUpdateStatusTag === 'function') {
+    try { verseRangeUpdateStatusTag(); } catch (eTag) { /* ignore */ }
+  }
+  var rangeModal = document.getElementById('verseRangeModal');
+  if (rangeModal && rangeModal.classList.contains('active')) {
+    var rangeTitle = document.getElementById('verseRangeModalTitle');
+    if (rangeTitle && currentBook) rangeTitle.textContent = formatReaderBookChapterTitle(currentBook.name, currentChapter);
+    if (typeof verseRangeSyncHints === 'function') {
+      try {
+        verseRangeSyncHints(!(window.verseRangeSelStart > 0), window.verseRangeSelStart > 0 && !(window.verseRangeSelEnd > 0));
+      } catch (eHint) { /* ignore */ }
+    }
+    if (nativeUi) {
+      var labs = document.querySelectorAll('#verseRangeModalBody .verse-range-column-label');
+      if (labs[0]) labs[0].textContent = readerUiT('reader.range.start', '시작 절');
+      if (labs[1]) labs[1].textContent = readerUiT('reader.range.end', '끝 절');
+      var backTxt = document.querySelector('#verseRangeModalBody .verse-range-back-to-text');
+      if (backTxt) {
+        backTxt.textContent = readerUiT('reader.backToText', '← 본문으로');
+        backTxt.setAttribute('aria-label', readerUiT('reader.backToTextAria', '본문으로 돌아가기'));
+      }
+    }
+  }
+  var unifiedModal = document.getElementById('unifiedBookChapterModal');
+  if (unifiedModal && unifiedModal.classList.contains('active') && typeof renderUnifiedModalBody === 'function') {
+    try { renderUnifiedModalHead(); renderUnifiedModalBody(); } catch (eUbc) { /* ignore */ }
+  }
+  if (typeof updateVerseRangeBoxLabel === 'function') {
+    try { updateVerseRangeBoxLabel(); } catch (eRange) { /* ignore */ }
+  }
+  var verseView = document.getElementById('verseView');
+  if (verseView && verseView.classList.contains('active') && currentBook && typeof renderVerses === 'function') {
+    var sl = getReaderScriptureLang();
+    var token = sl + ':' + currentBook.name + ':' + currentChapter;
+    var ready = sl === 'ko' || (window.GomnaBibleLocale && window.GomnaBibleLocale.isReady(sl)) || (window.__gomnaBibleLocaleFail && window.__gomnaBibleLocaleFail[sl]);
+    if (window.__gomnaReaderPaintedScripture !== token || !ready) {
+      var keep = typeof getReaderCurrentVerseNum === 'function' ? getReaderCurrentVerseNum() : 1;
+      try { renderVerses(keep); } catch (eBody) { /* ignore */ }
+    }
+  } else if (window.GomnaBibleLocale && (lang === 'en' || lang === 'ja' || lang === 'zh')) {
+    try { window.GomnaBibleLocale.ensure(lang); } catch (ePre) { /* ignore */ }
+  }
+  requestGoogleUiRetranslate('applyReaderChromeI18n');
+}
+
+function syncReaderLocaleUi(locale) {
+  var wantGen = window.__gomnaLocaleGen || 0;
+  if (typeof syncReaderNativeUiLangClass === 'function') {
+    try { syncReaderNativeUiLangClass(); } catch (e0) { /* ignore */ }
+  }
+  applyReaderChromeI18n(locale);
+  if ((window.__gomnaLocaleGen || 0) !== wantGen) return;
+  if (window.GomnaCommentaryI18n && typeof window.GomnaCommentaryI18n.apply === 'function') {
+    try { window.GomnaCommentaryI18n.apply(); } catch (e1) { /* ignore */ }
+  }
+}
+window.syncReaderLocaleUi = syncReaderLocaleUi;
+window.__gomnaRefreshReaderI18n = syncReaderLocaleUi;
+
+function getHomeSpecialListenLabel(parsed) {
+  if (!parsed || !parsed.source) return '';
+  if (parsed.source === 'home-life') {
+    return typeof homeLifeListenLabel === 'function' ? homeLifeListenLabel(parsed.theme) : '';
+  }
+  if (parsed.source === 'home-bible-person') {
+    return typeof homePersonListenLabel === 'function' ? homePersonListenLabel(parsed.person) : '';
+  }
+  if (parsed.source === 'home-daily-read' || parsed.source === 'home-card-listen' || parsed.source === 'home-card-commentary') {
+    return readerUiT('home.listen.today', '오늘의 말씀 듣기');
+  }
+  return '';
 }
 
 function parseScriptureEntryFromSearchParams(p) {
@@ -17971,7 +18517,9 @@ function parseScriptureEntryFromSearchParams(p) {
     verses: verses,
     scrollVerse: verses[0],
     guideTestament: p.get('guideTestament') || null,
-    guideCat: (p.get('guideCat') || '').trim() || null
+    guideCat: (p.get('guideCat') || '').trim() || null,
+    theme: (p.get('theme') || '').trim() || null,
+    person: (p.get('person') || '').trim() || null
   };
 }
 
@@ -18186,7 +18734,7 @@ function changeFont(delta) {
 <script src="/js/gomna-audio-manifest-shards.js?v=20260724-manifest-shard-v1" defer></script>
 <script src="/js/audio-engine.js?v=20260831-chapter-preload-v1" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
-<script src="/js/gomna-audio-commentary-buttons.js?v=20260829-verse-first-chain-v1" defer></script>
+<script src="/js/gomna-audio-commentary-buttons.js?v=20260909-locale-canon-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
 <script src="/js/gomna-audio-ui.js?v=20260803-card-skip-v1" defer></script>
 <script src="settings_guide.js?v=20260807-settings-v3" defer></script>
@@ -18360,8 +18908,8 @@ function loadAds() {
   // 7월 AdSense 승인 후 광고 스크립트는 여기에만 삽입
 }
 </script>
-<script src="/js/gomna-reader-lang-bridge.js?v=20260814-header-half-v1" defer></script>
-<script src="translate_feature.js?v=20260809-lang-suggest-v1" defer></script>
+<script src="/js/gomna-reader-lang-bridge.js?v=20260909-locale-runtime-sync-v1" defer></script>
+<script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>
 <!-- 은혜의말씀 오디오 미니 플레이어 (평소 hidden, 듣기 클릭 시 등장) -->
 <div id="gomna-audio-mini-player" class="gomna-audio-mini-player" hidden>
   <div class="gomna-audio-mini-info">
@@ -18816,6 +19364,26 @@ function loadAds() {
     return false;
   };
 
+  window.returnToHomeLifeCard=function(){
+    if(returnLock)return false;
+    returnLock=true;
+    var theme=pending&&pending.theme?String(pending.theme):'';
+    var href='index.html?source=home-life';
+    if(theme)href+='&theme='+encodeURIComponent(theme);
+    window.location.href=href;
+    return false;
+  };
+
+  window.returnToHomePersonCard=function(){
+    if(returnLock)return false;
+    returnLock=true;
+    var person=pending&&pending.person?String(pending.person):'';
+    var href='index.html?source=home-bible-person';
+    if(person)href+='&person='+encodeURIComponent(person);
+    window.location.href=href;
+    return false;
+  };
+
   function removeDailyReturnBtn(){
     if(returnBtn&&returnBtn.parentNode)returnBtn.parentNode.removeChild(returnBtn);
     returnBtn=null;
@@ -18923,24 +19491,42 @@ function loadAds() {
     try{scrollEl.scrollTo({top:nextTop,behavior:'auto'});}catch(e){scrollEl.scrollTop=nextTop;}
   }
 
+  function attachHomeReturnButton(anchorItem, label, onClick){
+    removeDailyReturnBtn();
+    var btn=document.createElement('button');
+    btn.type='button';
+    btn.className='daily-word-return-btn';
+    btn.setAttribute('data-daily-word-return','1');
+    btn.textContent='← '+label;
+    btn.setAttribute('aria-label',label);
+    btn.addEventListener('click',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      onClick();
+    });
+    anchorItem.insertAdjacentElement('afterend',btn);
+    returnBtn=btn;
+  }
+
   function attachSourceReturnUI(anchorItem){
     if(!pending||!anchorItem)return;
     if(pending.source==='home-daily-read'){
-      removeDailyReturnBtn();
-      var btn=document.createElement('button');
-      btn.type='button';
-      btn.className='daily-word-return-btn';
-      btn.setAttribute('data-daily-word-return','1');
-      btn.textContent='← 오늘의 말씀으로 돌아가기';
-      btn.setAttribute('aria-label','오늘의 말씀으로 돌아가기');
-      btn.addEventListener('click',function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        returnToTodayWordCard();
-      });
-      anchorItem.insertAdjacentElement('afterend',btn);
-      returnBtn=btn;
+      attachHomeReturnButton(anchorItem, readerUiT('home.return.today', '오늘의 말씀으로 돌아가기'), returnToTodayWordCard);
       return;
+    }
+    if(pending.source==='home-life'){
+      var lifeName=typeof homeLifeReturnLabel==='function'?homeLifeReturnLabel(pending.theme):'';
+      if(lifeName){
+        attachHomeReturnButton(anchorItem,lifeName,returnToHomeLifeCard);
+        return;
+      }
+    }
+    if(pending.source==='home-bible-person'){
+      var personName=typeof homePersonReturnLabel==='function'?homePersonReturnLabel(pending.person):'';
+      if(personName){
+        attachHomeReturnButton(anchorItem,personName,returnToHomePersonCard);
+        return;
+      }
     }
     if(pending.source==='search-related'){
       removeDailyReturnBtn();
@@ -18963,6 +19549,19 @@ function loadAds() {
       window.__gomnaAttachGuideEntryReturn(anchorItem,pending.guideTestament||'old',pending.guideCat);
     }
   }
+
+  function refreshSourceReturnLabel(){
+    var btn=document.querySelector('.daily-word-return-btn[data-daily-word-return="1"]');
+    if(!btn||!pending)return;
+    var label='';
+    if(pending.source==='home-daily-read') label=readerUiT('home.return.today','오늘의 말씀으로 돌아가기');
+    else if(pending.source==='home-life') label=typeof homeLifeReturnLabel==='function'?homeLifeReturnLabel(pending.theme):'';
+    else if(pending.source==='home-bible-person') label=typeof homePersonReturnLabel==='function'?homePersonReturnLabel(pending.person):'';
+    if(!label)return;
+    btn.textContent='← '+label;
+    btn.setAttribute('aria-label',label);
+  }
+  window.__gomnaRefreshSourceReturnLabel=refreshSourceReturnLabel;
 
   function finishScriptureEntryReveal(firstItem,lastItem){
     if(pending.source==='search-related'){
@@ -19008,6 +19607,8 @@ function loadAds() {
       if(!fresh||fresh.source!==pending.source||fresh.book!==pending.book||fresh.chapter!==pending.chapter)return false;
       pending.verses=fresh.verses.slice();
       pending.scrollVerse=fresh.scrollVerse;
+      pending.theme=fresh.theme;
+      pending.person=fresh.person;
       return pending.verses.length>0;
     }catch(e){return false;}
   }
@@ -19032,7 +19633,7 @@ function loadAds() {
     var firstItem=list.querySelector('.verse-item[data-verse="'+firstVerse+'"]');
     var lastItem=list.querySelector('.verse-item[data-verse="'+lastVerse+'"]');
     if(!firstItem||!lastItem){revealScriptureEntry();return false;}
-    if(typeof isHomeTodayEntryFocusSource==='function'?isHomeTodayEntryFocusSource(pending.source):pending.source==='home-daily-read'){
+    if(typeof isHomeCardEntryFocusSource==='function'?isHomeCardEntryFocusSource(pending.source):pending.source==='home-daily-read'){
       /* Home 오늘의 말씀 진입은 화면 표시만 하고 선택·기록·말씀풀이 기준 절은 그대로 둔다. */
       if(typeof markEntryFocusVerses==='function')markEntryFocusVerses(highlightVerses);
       /* 아래 도구 막대 높이를 먼저 확정해야 강조 절이 막대에 가리지 않는다. */
@@ -19309,10 +19910,10 @@ function loadAds() {
     var myBtn = document.querySelector('#scriptureDock .scripture-dock-item[data-dock="my"]');
     if (myBtn) {
       myBtn.classList.toggle('is-signed-in', signedIn);
-      myBtn.setAttribute('aria-label', signedIn ? '나' : '로그인');
-      myBtn.setAttribute('title', signedIn ? '나' : '로그인');
+      myBtn.setAttribute('aria-label', signedIn ? readerUiT('home.tab.me', '나') : readerUiT('home.tab.login', '로그인'));
+      myBtn.setAttribute('title', signedIn ? readerUiT('home.tab.me', '나') : readerUiT('home.tab.login', '로그인'));
       var myLabel = myBtn.querySelector('.scripture-dock-label');
-      if (myLabel) myLabel.textContent = signedIn ? '나' : '로그인';
+      if (myLabel) myLabel.textContent = signedIn ? readerUiT('home.tab.me', '나') : readerUiT('home.tab.login', '로그인');
     }
   }
   window.GomnaReaderAccount = { setState: setState };

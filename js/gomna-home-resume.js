@@ -219,7 +219,10 @@
   }
 
   function isNativeUiLang(lang) {
-    return lang === 'ko' || lang === 'en' || lang === 'ja';
+    if (window.GomnaUII18n && typeof window.GomnaUII18n.isNativeLocale === 'function') {
+      return !!window.GomnaUII18n.isNativeLocale(lang);
+    }
+    return lang === 'ko' || lang === 'en' || lang === 'ja' || lang === 'zh';
   }
 
   /**
@@ -230,7 +233,11 @@
   function uiLang() {
     try {
       var stored = localStorage.getItem('gomna_ui_language');
-      if (stored === 'ko' || stored === 'en' || stored === 'ja') return stored;
+      if (stored === 'ko' || stored === 'en' || stored === 'ja' || stored === 'zh') return stored;
+      if (window.GomnaUII18n && typeof window.GomnaUII18n.canonicalizeLocale === 'function') {
+        var canon = window.GomnaUII18n.canonicalizeLocale(stored);
+        if (canon) return canon;
+      }
     } catch (e0) { /* ignore */ }
     try {
       if (
@@ -252,7 +259,7 @@
   /** True when book-name dictionary can localize this lang (not Hangul passthrough). */
   function hasBookNameDict(lang) {
     if (!lang || lang === 'ko') return false;
-    if (lang === 'en' || lang === 'ja') return true;
+    if (lang === 'en' || lang === 'ja' || lang === 'zh') return true;
     try {
       if (typeof window.GomnaTranslateBookName !== 'function') return false;
       return window.GomnaTranslateBookName('창세기', lang) !== '창세기';
@@ -595,7 +602,7 @@
     var btn;
     var empty;
     var lang = uiLang();
-    var lock = lang !== 'ko' && hasBookNameDict(lang);
+    var lock = lang === 'en' || lang === 'ja' || lang === 'zh';
     if (!host) return;
     host.innerHTML = '';
     if (!recent || !recent.length) {
@@ -603,8 +610,8 @@
       empty.className = 'home-resume-recent-empty';
       empty.setAttribute('data-i18n-key', 'home.resume.recentEmpty');
       empty.textContent = uiT('home.resume.recentEmpty', 'No recent verses yet');
-      // Empty copy uses native/en pack; lock when non-ko so Google won't mix.
-      if (lang !== 'ko') {
+      // Native packs lock; external langs stay eligible for Google Translate.
+      if (isNativeUiLang(lang) && lang !== 'ko') {
         empty.setAttribute('translate', 'no');
         empty.classList.add('notranslate');
       }
@@ -653,7 +660,7 @@
     var listen = getListen();
     var lang = uiLang();
     // Lock dictionary-localized dynamic text so GT / applyBookNameI18n cannot mix units.
-    var lockDynamic = lang !== 'ko' && (isNativeUiLang(lang) || hasBookNameDict(lang));
+    var lockDynamic = isNativeUiLang(lang) && lang !== 'ko';
     var mainMode = pickMainMode(read, listen);
     var mainEntry = mainMode === 'listen' ? listen : read;
     var actionKey;
