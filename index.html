@@ -1922,7 +1922,9 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
 <script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260905-all66-v1">
 <link rel="preload" as="image" href="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1">
-<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260906-nav-login-v1">
+<link rel="preload" as="image" href="assets/home/card-meditation-life.png?v=20260906-poster-mock-v1">
+<link rel="preload" as="image" href="assets/home/card-bible-stories-people.png?v=20260906-poster-mock-v1">
+<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260909-layer-v1">
 <style>
 /* 홈 데스크톱 선택창 폭 = 홈 메인 카드 폭. .container max-width 390 - padding 18+18. Reader 프레임 폭은 쓰지 않는다. */
 @media (min-width:700px) and (min-height:600px){
@@ -2115,74 +2117,107 @@ html[data-gomna-ui-lang="ja"] .cards.home-menu-card .card-name{
           </button>
         </div>
       </article>
-      <article class="gomna-home-card" data-card="1" data-ghd-deck="home" data-kind="content" aria-hidden="true" aria-label="오늘의 메시지">
+      <article class="gomna-home-card" data-card="1" data-life-theme="new" data-ghd-deck="home" data-kind="content" aria-hidden="true" aria-label="오늘의 묵상과 삶">
         <div class="gomna-home-card-inner">
-          <p class="gomna-home-kicker">오늘의 메시지</p>
-          <p class="gomna-home-sub">말씀이 삶에 닿는 순간</p>
-          <div class="gomna-home-card-face is-shown" data-face="tease">
-            <p class="gomna-home-lead" data-ghd-lead></p>
+          <div class="gomna-home-card-face is-shown gomna-home-poster" data-face="tease">
+            <p class="gomna-home-poster-kicker">말씀과 함께하는 오늘의 삶</p>
+            <h2 class="gomna-home-poster-title">오늘의 묵상과 삶</h2>
+            <p class="gomna-home-poster-lead">하나님의 말씀은<br>오늘도 우리의 삶을 새롭게 합니다.</p>
+            <div class="gomna-home-poster-pills" role="group" aria-label="삶 주제">
+              <button type="button" class="gomna-home-poster-pill is-on" data-ghd-life-chip="new" aria-pressed="true">새로운 삶</button>
+              <button type="button" class="gomna-home-poster-pill" data-ghd-life-chip="prayer" aria-pressed="false">기도하는 삶</button>
+              <button type="button" class="gomna-home-poster-pill" data-ghd-life-chip="blessed" aria-pressed="false">복된 삶</button>
+              <button type="button" class="gomna-home-poster-pill" data-ghd-life-chip="faith" aria-pressed="false">믿음의 삶</button>
+              <button type="button" class="gomna-home-poster-pill" data-ghd-life-chip="love" aria-pressed="false">사랑하는 삶</button>
+              <button type="button" class="gomna-home-poster-pill" data-ghd-life-chip="wisdom" aria-pressed="false">지혜로운 삶</button>
+              <button type="button" class="gomna-home-poster-pill" data-ghd-life-chip="hope" aria-pressed="false">소망의 삶</button>
+            </div>
+            <div class="gomna-home-poster-foot">
+              <p class="gomna-home-poster-foot-copy">오늘도, 말씀 안에서<br>더 깊은 하루를 살아갑니다.</p>
+            </div>
           </div>
-          <div class="gomna-home-card-face" data-face="open">
-            <div class="gomna-home-detail-head">
-              <p class="gomna-home-kicker" data-ghd-open-title>오늘의 메시지</p>
-              <p class="gomna-home-ref" data-ghd-open-ref></p>
-            </div>
-            <div class="gomna-home-detail-scroll" tabindex="0" aria-label="오늘의 메시지">
-              <p class="gomna-home-open-msg" data-ghd-open-message></p>
-              <p class="gomna-home-step"><b>기억할 한 문장</b><span data-ghd-open-remember></span></p>
-            </div>
-            <div class="gomna-home-detail-foot">
-              <div class="gomna-home-ctrl" role="toolbar" aria-label="오늘의 메시지 이어가기">
-                <button type="button" class="gomna-home-ctrl-item" data-ghd-read>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg>
-                  <span>성경 본문</span>
-                </button>
-                <button type="button" class="gomna-home-ctrl-item" data-ghd-commentary>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h12M7 12h12M7 17h12"/></svg>
-                  <span>말씀 풀이</span>
-                </button>
-                <button type="button" class="gomna-home-ctrl-item" data-ghd-listen>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-                  <span>듣기</span>
+          <div class="gomna-home-card-face gomna-home-leaf" data-face="open">
+            <div class="gomna-home-detail-scroll gomna-home-leaf-scroll" tabindex="0" aria-label="오늘의 묵상">
+              <p class="gomna-home-leaf-kicker">오늘의 묵상</p>
+              <span class="gomna-home-leaf-kicker-rule" aria-hidden="true"></span>
+              <p class="gomna-home-leaf-chip" data-ghd-life-name>새로운 삶</p>
+              <p class="gomna-home-leaf-ref" data-ghd-open-ref></p>
+              <h2 class="gomna-home-leaf-title" data-ghd-open-heading></h2>
+              <div class="gomna-home-leaf-ornament" aria-hidden="true">
+                <span></span>
+                <svg viewBox="0 0 24 24"><path d="M12 20c0-6 4-10 9-11-1 5-4 8-9 9-5-1-8-4-9-9 5 1 9 5 9 11z"/></svg>
+                <span></span>
+              </div>
+              <div class="gomna-home-leaf-poem" data-ghd-poem></div>
+              <section class="gomna-home-leaf-block">
+                <p class="gomna-home-leaf-label">
+                  <svg class="gomna-home-leaf-ico-step" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4"/><path d="M4 13h4"/></svg>
+                  오늘의 한 걸음
+                  <span></span>
+                </p>
+                <div class="gomna-home-leaf-copy" data-ghd-open-meditation></div>
+              </section>
+              <section class="gomna-home-leaf-block" data-ghd-pray-target tabindex="-1">
+                <p class="gomna-home-leaf-label gomna-home-leaf-label-pray">
+                  <span aria-hidden="true"></span>
+                  오늘의 기도
+                  <span aria-hidden="true"></span>
+                </p>
+                <div class="gomna-home-leaf-copy" data-ghd-open-prayer></div>
+              </section>
+              <div class="gomna-home-leaf-cta">
+                <button type="button" class="gomna-home-leaf-btn gomna-home-leaf-btn-read" data-ghd-read>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.2v12.1"/><path d="M12 6.2c-1.55-1.05-3.7-1.55-5.85-1.05v12.15c2.15-.5 4.3.15 5.85 1.2"/><path d="M12 6.2c1.55-1.05 3.7-1.55 5.85-1.05v12.15c-2.15-.5-4.3.15-5.85 1.2"/></svg>
+                  말씀 보기
                 </button>
               </div>
             </div>
           </div>
         </div>
       </article>
-      <article class="gomna-home-card" data-card="2" data-ghd-deck="home" data-kind="content" aria-hidden="true" aria-label="오늘의 응답">
+      <article class="gomna-home-card" data-card="2" data-ghd-deck="home" data-kind="content" aria-hidden="true" aria-label="성경 속 이야기와 인물">
         <div class="gomna-home-card-inner">
-          <p class="gomna-home-kicker">오늘의 응답</p>
-          <p class="gomna-home-sub">묵상 · 기도 · 실천</p>
-          <div class="gomna-home-card-face is-shown" data-face="tease">
-            <p class="gomna-home-lead" data-ghd-lead></p>
+          <div class="gomna-home-card-face is-shown gomna-home-poster" data-face="tease">
+            <p class="gomna-home-poster-kicker">사람들의 이야기 속 하나님의 역사</p>
+            <h2 class="gomna-home-poster-title">성경 속 이야기와 인물</h2>
+            <p class="gomna-home-poster-lead">평범한 사람들의 삶을 통해<br>일하시는 하나님의 놀라운 이야기</p>
+            <div class="gomna-home-poster-pills" role="group" aria-label="성경 속 인물">
+              <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="abraham" aria-pressed="false">아브라함</button>
+              <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="moses" aria-pressed="false">모세</button>
+              <button type="button" class="gomna-home-poster-pill is-on" data-ghd-story-chip="david" aria-pressed="true">다윗</button>
+              <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="joseph" aria-pressed="false">요셉</button>
+              <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="ruth" aria-pressed="false">룻</button>
+              <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="esther" aria-pressed="false">에스더</button>
+              <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="paul" aria-pressed="false">바울</button>
+            </div>
+            <div class="gomna-home-poster-foot">
+              <p class="gomna-home-poster-foot-copy">그들의 이야기는<br>지금도 우리에게 말씀합니다.</p>
+              <button type="button" class="gomna-home-poster-arrow" data-ghd-open-arrow aria-label="이야기 자세히 보기">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 5.6 16.4 12 9.2 18.4"/></svg>
+              </button>
+            </div>
           </div>
           <div class="gomna-home-card-face" data-face="open">
             <div class="gomna-home-detail-head">
-              <p class="gomna-home-kicker" data-ghd-open-title>오늘의 응답</p>
-              <p class="gomna-home-ref" data-ghd-open-ref></p>
+              <div class="gomna-home-detail-head-row">
+                <p class="gomna-home-kicker" data-ghd-open-title>성경 속 이야기와 인물</p>
+                <button type="button" class="gomna-home-back" data-ghd-back aria-label="뒤로가기">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+                </button>
+              </div>
+              <p class="gomna-home-story-kicker">오늘의 이야기</p>
+              <p class="gomna-home-story-name gomna-home-life-theme-open" data-ghd-story-name>다윗</p>
+              <p class="gomna-home-msg-title" data-ghd-open-heading></p>
+              <button type="button" class="gomna-home-story-ref" data-ghd-open-ref data-ghd-read></button>
             </div>
-            <div class="gomna-home-detail-scroll" tabindex="0" aria-label="오늘의 응답">
-              <p class="gomna-home-step"><b>묵상 질문</b><span data-ghd-open-meditation></span></p>
-              <p class="gomna-home-step"><b>짧은 기도</b><span data-ghd-open-prayer></span></p>
-              <p class="gomna-home-step"><b>오늘의 실천</b><span data-ghd-open-practice></span></p>
-              <label class="gomna-home-step" for="gomnaHomeResponseNote"><b>한 문장 남기기</b></label>
-              <textarea id="gomnaHomeResponseNote" class="gomna-home-note-input" data-ghd-note maxlength="200" placeholder="오늘 마음에 남는 한 문장"></textarea>
-              <button type="button" class="gomna-home-note-save" data-ghd-note-save>이 기기에 남기기</button>
+            <div class="gomna-home-detail-scroll" tabindex="0" aria-label="성경 속 이야기와 인물">
+              <p class="gomna-home-step"><b>이야기</b><span data-ghd-open-message></span></p>
             </div>
             <div class="gomna-home-detail-foot">
-              <div class="gomna-home-ctrl" role="toolbar" aria-label="오늘의 응답 이어가기">
+              <div class="gomna-home-ctrl gomna-home-ctrl-story" role="toolbar" aria-label="이야기 이어가기">
                 <button type="button" class="gomna-home-ctrl-item" data-ghd-read>
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg>
-                  <span>성경 본문</span>
-                </button>
-                <button type="button" class="gomna-home-ctrl-item" data-ghd-commentary>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h12M7 12h12M7 17h12"/></svg>
-                  <span>말씀 풀이</span>
-                </button>
-                <button type="button" class="gomna-home-ctrl-item" data-ghd-listen>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-                  <span>듣기</span>
+                  <span>말씀 보기</span>
                 </button>
               </div>
             </div>
@@ -3371,7 +3406,7 @@ document.addEventListener('keydown',function(e){
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 </script>
 <script src="js/gomna-home-resume.js?v=20260904-resume-deckhide-v1"></script>
-<script src="js/gomna-home-feed.js?v=20260905-bible-picker-v1"></script>
+<script src="js/gomna-home-feed.js?v=20260909-layer-v1"></script>
 <script src="js/gomna-bible-stair-picker.js?v=20260905-ot-back-v1"></script>
 <script src="settings_guide.js?v=20260807-settings-v3" defer></script>
 <script src="translate_feature.js?v=20260809-lang-suggest-v1" defer></script>

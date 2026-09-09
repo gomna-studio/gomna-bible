@@ -5,10 +5,117 @@
   var root, stage, cards=[], count=3, progress=0, raf=0, reduce=false;
   var pointerY=0, pointerX=0, pointerT=0, pointerMoved=false, scrollQuiet=true, scrollQuietTimer=0;
   var openScrollY=0, flipping=false;
+  var card2Settled=false, card3Settled=false, allowCard3=false, allowCard1From2=false, allowCard2From3=false;
+  var awaitingDir=false, gestureLive=false, gestureEndedSinceSettle=false;
+  var settleAnim=false, settleAnimTimer=0, wheelIdleTimer=0, lastP=0;
+  var pinching=false, pinchScrollY=0, lifeImgsPreloaded=false;
+  var swipeDrag=null, swipeHandled=false;
+  var SETTLE_AT=0.32;
+  var SETTLE_MS=180;
+  var SWIPE_PX=36;
+  var SWIPE_VEL=0.28;
+  var H_SWIPE_PX=28;
+  var H_SWIPE_VEL=0.22;
+  var AXIS_PX=16;
+  var AXIS_RATIO=1.25;
+  var LIFE_THEME_IMGS={
+    new:'assets/home/meditation/v5-card-new-life.png?v=20260908-mist-v1',
+    prayer:'assets/home/meditation/v10-card-prayer-life.png?v=20260909-clean-v1',
+    blessed:'assets/home/meditation/v5-card-blessed-life.png?v=20260908-mist-v1',
+    faith:'assets/home/meditation/v6-card-faith-life.png?v=20260908-partial-v1',
+    love:'assets/home/meditation/v10-card-love-life.png?v=20260909-clean-v1',
+    wisdom:'assets/home/meditation/v5-card-wisdom-life.png?v=20260908-mist-v1',
+    hope:'assets/home/meditation/v5-card-hope-life.png?v=20260908-mist-v1'
+  };
   var LIKE_KEY='gomna_daily_verse_likes';
   var COMMENT_KEY='gomna_daily_verse_comments';
   var SHARE_KEY='gomna_daily_verse_shares';
   var NOTE_KEY='gomna_home_response_';
+  var LIFE_THEME_DEFAULT='new';
+  var lifeThemeId=LIFE_THEME_DEFAULT;
+  var STORY_PERSON_DEFAULT='david';
+  var storyPersonId=STORY_PERSON_DEFAULT;
+  var STORY_PEOPLE=[
+    {id:'abraham', name:'아브라함'},
+    {id:'moses', name:'모세'},
+    {id:'david', name:'다윗'},
+    {id:'joseph', name:'요셉'},
+    {id:'ruth', name:'룻'},
+    {id:'esther', name:'에스더'},
+    {id:'paul', name:'바울'}
+  ];
+  var LIFE_THEMES=[
+    {
+      id:'new', name:'새로운 삶',
+      title:'다시 시작해도\n괜찮습니다',
+      verseRef:'고린도후서 5:17',
+      teaser:'어제의 실패가 오늘을 결정하지 않습니다.\n하나님 안에서는 다시 시작할 수 있습니다.',
+      reflection:'어제의 실수가\n오늘의 나를 결정하지 않습니다.\n\n하나님은 닫힌 문 앞에서도\n새로운 길을 준비하십니다.',
+      question:'오늘 하나님이 새롭게 하시기를 바라는 삶의 한 부분은 무엇입니까?',
+      step:'오늘 하나만 새롭게 시작해 보세요.',
+      prayer:'주님, 어제에 머물지 않고\n오늘 주시는 새 길을 걷게 하소서.'
+    },
+    {
+      id:'prayer', name:'기도하는 삶',
+      title:'말이 없어도\n기도는 시작됩니다',
+      verseRef:'빌립보서 4:6-7',
+      teaser:'아무것도 염려하지 말고, 감사함으로 아뢰십시오.\n구할 것이 있을 때 먼저 하나님께 맡기는 길이 있습니다.',
+      reflection:'무슨 말을 해야 할지\n모르는 날이 있습니다.\n\n그저 주님 앞에 머무는 것,\n그것도 기도입니다.',
+      question:'오늘 하나님께 아뢰고 싶은 한 가지는 무엇입니까?',
+      step:'지금 마음에 가장 무거운 한 가지를\n주님께 말씀드려 보세요.',
+      prayer:'주님, 염려를 품고 홀로 서 있지 않고\n모든 마음을 주님께 맡기게 하소서.'
+    },
+    {
+      id:'blessed', name:'복된 삶',
+      title:'주님 안에\n뿌리내린 삶이 복입니다',
+      verseRef:'시편 1:1-3',
+      teaser:'복 있는 사람은 하나님의 말씀을 즐거워합니다.\n그 삶은 시냇가에 심은 나무처럼 자리를 잡습니다.',
+      reflection:'복은 많이 가지는 데서\n시작되지 않습니다.\n\n하나님의 말씀 곁에 머무는 사람에게\n조용히 스며듭니다.',
+      question:'오늘 말씀을 즐거워하는 삶은 어떤 모습일까요?',
+      step:'오늘 잠시 멈추고\n말씀 한 절을 마음에 머물게 하세요.',
+      prayer:'주님, 세상의 기준보다\n주님 안의 복을 먼저 구하게 하소서.'
+    },
+    {
+      id:'faith', name:'믿음의 삶',
+      title:'보이지 않아도\n걸을 수 있습니다',
+      verseRef:'히브리서 11:1',
+      teaser:'믿음은 바라는 것들의 실상이요\n보이지 않는 것들의 증거입니다.',
+      reflection:'믿음은 모든 답을 아는 확신이 아니라\n\n주님이 함께하신다는 약속을\n붙드는 용기입니다.',
+      question:'오늘 보이지 않아도 주님께 맡기고 싶은 일은 무엇입니까?',
+      step:'오늘 두려운 일 하나 앞에서\n작은 순종을 선택하세요.',
+      prayer:'주님, 보이지 않는 길에서도\n주님의 손을 신뢰하게 하소서.'
+    },
+    {
+      id:'love', name:'사랑하는 삶',
+      title:'사랑은 가까운 사람부터\n시작됩니다',
+      verseRef:'요한복음 13:34',
+      teaser:'사랑은 우리가 먼저 만들어 내는 것이 아닙니다.\n이미 받은 사랑에서 흘러나옵니다.',
+      reflection:'사랑은 큰 말보다\n\n따뜻한 시선과\n다정한 기다림으로 전해집니다.\n\n주님의 사랑이 오늘\n우리의 말과 표정에 머물게 하소서.',
+      question:'오늘 내가 받은 사랑을 누구에게 전할 수 있을까요?',
+      step:'오늘 한 사람에게\n따뜻한 말 한마디를 건네 보세요.',
+      prayer:'주님, 받은 사랑을\n흘려보내는 하루가 되게 하소서.'
+    },
+    {
+      id:'wisdom', name:'지혜로운 삶',
+      title:'지혜가 필요할 때\n하나님께 구하십시오',
+      verseRef:'야고보서 1:5',
+      teaser:'오늘 필요한 지혜는 멀리 있지 않습니다.\n하나님은 구하는 자에게 후히 주십니다.',
+      reflection:'지혜는 서두르지 않고\n주님의 뜻을 분별하는 마음입니다.\n\n조용히 묻는 사람에게\n하나님은 길을 밝혀 보여 주십니다.',
+      question:'오늘 지혜가 필요한 선택 한 가지는 무엇입니까?',
+      step:'오늘 결정해야 할 한 가지를 두고\n먼저 기도하세요.',
+      prayer:'주님, 제 생각보다\n주님의 지혜를 먼저 따르게 하소서.'
+    },
+    {
+      id:'hope', name:'소망의 삶',
+      title:'끝이 보이지 않아도\n빛은 옵니다',
+      verseRef:'로마서 15:13',
+      teaser:'소망은 내일을 스스로 그리는 힘이 아닙니다.\n하나님을 바라보기에 오늘을 견디는 힘입니다.',
+      reflection:'소망은 상황이 좋아져서 생기는\n마음이 아닙니다.\n\n하나님이 여전히 일하고 계심을\n믿는 눈입니다.',
+      question:'오늘 하나님께 맡기며 기다릴 소망은 무엇입니까?',
+      step:'오늘 감사할 이유 하나를 적으며\n내일을 바라보세요.',
+      prayer:'주님, 흔들리는 마음에도\n하늘의 소망으로 저를 붙들어 주소서.'
+    }
+  ];
 
   function reduced(){
     try{return window.matchMedia('(prefers-reduced-motion:reduce)').matches;}catch(e){return false;}
@@ -60,9 +167,25 @@
     return [t.slice(0,14), t.slice(14,28), t.slice(28)].filter(Boolean);
   }
   function setText(el, text){if(el)el.textContent=text||'';}
+  function escapeHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+  function fillPoem(el, text){
+    if(!el)return;
+    var raw=String(text||'').trim();
+    if(!raw){el.innerHTML='';return;}
+    el.innerHTML=raw.split(/\n\s*\n/).map(function(block){
+      var lines=block.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+      return '<p class="gomna-home-leaf-stanza">'+lines.map(function(s){
+        return '<span>'+escapeHtml(s)+'</span>';
+      }).join('')+'</p>';
+    }).join('');
+  }
   function fillSlot(card, sel, text){
     var el=card&&card.querySelector(sel);
     setText(el, text);
+  }
+  function fillSlots(card, sel, text){
+    if(!card)return;
+    card.querySelectorAll(sel).forEach(function(el){setText(el, text);});
   }
   function pad2(n){return (n<10?'0':'')+n;}
   function dateKey(d){
@@ -82,6 +205,22 @@
   function writeJson(key, value){
     try{localStorage.setItem(key, JSON.stringify(value));}catch(e){}
   }
+  function lifeThemeById(id){
+    var i;
+    for(i=0;i<LIFE_THEMES.length;i++){
+      if(LIFE_THEMES[i].id===id)return LIFE_THEMES[i];
+    }
+    return LIFE_THEMES[0];
+  }
+  function currentLifeTheme(){return lifeThemeById(lifeThemeId);}
+  function storyPersonById(id){
+    var i;
+    for(i=0;i<STORY_PEOPLE.length;i++){
+      if(STORY_PEOPLE[i].id===id)return STORY_PEOPLE[i];
+    }
+    return STORY_PEOPLE[2];
+  }
+  function currentStoryPerson(){return storyPersonById(storyPersonId);}
   function extrasFor(key){
     var map={
       '베드로전서 5:7':{
@@ -148,26 +287,32 @@
       };
     }
     if(id==='1'){
+      var theme=currentLifeTheme();
       return {
-        cardId:'1', contentId:'daily-message-'+day+'-'+slugRef(key),
-        title:'오늘의 메시지', reference:key, translation:ver,
-        frontText:extra.message, verse:body,
-        message:extra.meaning+'\n\n'+extra.remember,
-        meaning:extra.meaning, remember:extra.remember,
-        scriptureTarget:key, commentaryTarget:key
+        cardId:'1', contentId:'daily-life-'+theme.id+'-'+day,
+        title:'오늘의 묵상', theme:theme.name, reference:theme.verseRef, translation:ver,
+        headline:theme.title, frontText:theme.teaser, verse:body,
+        message:theme.reflection, meditation:theme.step||theme.question, prayer:theme.prayer,
+        scriptureTarget:theme.verseRef, commentaryTarget:theme.verseRef
       };
     }
+    var person=currentStoryPerson();
+    var isDavid=person.id==='david';
     return {
-      cardId:'2', contentId:'daily-response-'+day+'-'+slugRef(key),
-      title:'오늘의 응답', reference:key, translation:ver,
-      frontText:extra.meditation, verse:body,
-      meditation:extra.meditation, prayer:extra.prayer, practice:extra.practice,
-      scriptureTarget:key
+      cardId:'2', contentId:'daily-story-'+person.id+'-'+day,
+      title:'성경 속 이야기와 인물', theme:person.name,
+      headline:isDavid?'넘어졌지만\n다시 하나님께 돌아온 사람':'',
+      frontText:'',
+      reference:isDavid?'사무엘상 16:13':'', translation:ver,
+      message:isDavid
+        ?'다윗은 실패와 두려움 속에서도\n하나님께 다시 돌아가는 사람이었습니다.\n이야기 속 인물의 삶은\n완벽한 기록이 아니라,\n주님께 돌아온 발걸음의 기록입니다.'
+        :'그들의 이야기는\n지금도 우리에게 말씀합니다.',
+      scriptureTarget:isDavid?'사무엘상 16:13':''
     };
   }
   function cardFromEl(el){return el&&el.closest?el.closest('.gomna-home-card'):null;}
   function isAction(el){
-    return el&&el.closest&&el.closest('.gomna-home-act, .gomna-home-related, .gomna-home-ctrl, .gomna-home-ctrl-item, .gomna-home-link, .gomna-home-note-save, button, a, input, textarea');
+    return el&&el.closest&&el.closest('.gomna-home-act, .gomna-home-related, .gomna-home-ctrl, .gomna-home-ctrl-item, .gomna-home-link, .gomna-home-note-save, .gomna-home-life-rail, .gomna-home-life-chip, .gomna-home-poster-pills, .gomna-home-poster-pill, .gomna-home-poster-arrow, .gomna-home-leaf-cta, .gomna-home-leaf-btn, button, a, [role="button"], input, select, textarea');
   }
   function hideLegacyHome(){
     var nodes=document.querySelectorAll('#homeResumeCard, #today-word-card, .container > .quick-menu, .container > .home-menu-card, .container > .imprint-bottom');
@@ -192,9 +337,27 @@
       fillSlot(card, '.gomna-home-card-inner > [data-ghd-ref]', displayRef(view));
       fillSlot(card, '[data-ghd-open-title]', detail.title);
       fillSlot(card, '[data-ghd-open-ref]', detail.reference||'');
-      fillSlot(card, '[data-ghd-open-heading]', detail.headline||'');
+      fillSlots(card, '[data-ghd-life-name]', detail.theme||'');
+      fillSlots(card, '[data-ghd-life-ref]', detail.reference||'');
+      fillSlots(card, '[data-ghd-story-name]', detail.theme||'');
+      fillSlots(card, '[data-ghd-story-ref]', detail.reference||'');
+      var heading=card.querySelector('[data-ghd-open-heading]');
+      var headingHtml=String(detail.headline||'').split('\n').map(function(s){
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      }).join('<br>');
+      if(heading){
+        heading.innerHTML=headingHtml;
+        heading.hidden=!detail.headline;
+      }
+      card.querySelectorAll('[data-ghd-open-ref], [data-ghd-life-ref], [data-ghd-story-ref]').forEach(function(refEl){
+        refEl.hidden=!detail.reference;
+      });
+      var storyCtrl=card.querySelector('.gomna-home-ctrl-story');
+      if(storyCtrl)storyCtrl.hidden=!detail.scriptureTarget;
       fillSlot(card, '[data-ghd-open-verse]', detail.verse);
-      fillSlot(card, '[data-ghd-open-message]', detail.message||detail.meaning||'');
+      var poem=card.querySelector('[data-ghd-poem]');
+      if(poem)fillPoem(poem, detail.message||detail.meaning||'');
+      else fillSlot(card, '[data-ghd-open-message]', detail.message||detail.meaning||'');
       var related=card.querySelector('[data-ghd-open-related]');
       if(related){
         if(detail.related){
@@ -206,8 +369,12 @@
         }
       }
       fillSlot(card, '[data-ghd-open-remember]', detail.remember||'');
-      fillSlot(card, '[data-ghd-open-meditation]', detail.meditation||'');
-      fillSlot(card, '[data-ghd-open-prayer]', detail.prayer||'');
+      var stepEl=card.querySelector('[data-ghd-open-meditation]');
+      if(stepEl&&stepEl.classList.contains('gomna-home-leaf-copy'))fillPoem(stepEl, detail.meditation||'');
+      else fillSlot(card, '[data-ghd-open-meditation]', detail.meditation||'');
+      var prayEl=card.querySelector('[data-ghd-open-prayer]');
+      if(prayEl&&prayEl.classList.contains('gomna-home-leaf-copy'))fillPoem(prayEl, detail.prayer||'');
+      else fillSlot(card, '[data-ghd-open-prayer]', detail.prayer||'');
       fillSlot(card, '[data-ghd-open-practice]', detail.practice||'');
       var lines=card.querySelector('[data-ghd-lines]');
       if(lines){
@@ -230,6 +397,54 @@
     if(listenTitle)listenTitle.textContent=displayRef(view)||'오늘의 말씀 듣기';
     syncSocial();
     syncGreeting();
+    syncLifeChips();
+    syncStoryChips();
+  }
+  function syncLifeChips(){
+    if(!root)return;
+    root.querySelectorAll('[data-ghd-life-chip]').forEach(function(btn){
+      var on=btn.getAttribute('data-ghd-life-chip')===lifeThemeId;
+      btn.setAttribute('aria-pressed', on?'true':'false');
+      btn.classList.toggle('is-on', on);
+    });
+    var lifeCard=root.querySelector('.gomna-home-card[data-card="1"]');
+    if(lifeCard)lifeCard.setAttribute('data-life-theme', lifeThemeId);
+  }
+  function syncStoryChips(){
+    if(!root)return;
+    root.querySelectorAll('[data-ghd-story-chip]').forEach(function(btn){
+      var on=btn.getAttribute('data-ghd-story-chip')===storyPersonId;
+      btn.setAttribute('aria-pressed', on?'true':'false');
+      btn.classList.toggle('is-on', on);
+    });
+  }
+  function selectLifeTheme(id, ev){
+    if(ev){ev.preventDefault();ev.stopPropagation();}
+    var theme=lifeThemeById(id);
+    if(!theme)return;
+    preloadLifeThemeImages();
+    lifeThemeId=theme.id;
+    fillCopy();
+    var lifeCard=root&&root.querySelector('.gomna-home-card[data-card="1"]');
+    if(lifeCard && !lifeCard.classList.contains('is-open'))openCard(lifeCard);
+  }
+  function selectStoryPerson(id, ev){
+    if(ev){ev.preventDefault();ev.stopPropagation();}
+    var person=storyPersonById(id);
+    if(!person)return;
+    storyPersonId=person.id;
+    fillCopy();
+  }
+  function focusPrayer(card){
+    if(!card)return;
+    if(!card.classList.contains('is-open'))openCard(card);
+    window.setTimeout(function(){
+      var el=card.querySelector('[data-ghd-pray-target]');
+      if(!el)return;
+      try{el.scrollIntoView({block:'nearest', behavior:reduce?'auto':'smooth'});}catch(e){}
+      if(!el.hasAttribute('tabindex'))el.setAttribute('tabindex','-1');
+      try{el.focus({preventScroll:true});}catch(e){try{el.focus();}catch(err){}}
+    }, reduce?0:80);
   }
   function safeDisplayName(raw){
     var name=String(raw||'').trim();
@@ -288,14 +503,356 @@
     if(typeof openDailyVerse==='function')openDailyVerse(mode);
   }
   function viewH(){return (window.visualViewport&&window.visualViewport.height)||window.innerHeight;}
+  function deckScrollY(){return root?root.scrollTop:window.scrollY;}
+  function pinDeckScroll(y){
+    if(root && Math.abs(root.scrollTop-y)>1)root.scrollTop=y;
+  }
   function stepH(){
     var step=root&&root.querySelector('.gomna-home-deck-step');
     return (step&&step.offsetHeight)||Math.round(viewH()*0.72);
   }
+  function syncStepSize(){
+    if(!root||!stage)return;
+    var h=Math.max(280, Math.round((stage.clientHeight||viewH()*0.62)*0.84));
+    root.style.setProperty('--ghd-step-h', h+'px');
+  }
   function progressFromScroll(){
     if(!root)return 0;
-    var y=Math.max(0, window.scrollY-root.offsetTop);
-    return clamp(y/stepH(), 0, count-1);
+    return clamp(deckScrollY()/stepH(), 0, count-1);
+  }
+  function lockY(){return stepH();}
+  function lockY3(){return stepH()*2;}
+  function dirCommitPx(){return Math.max(14, Math.round(stepH()*0.025));}
+  function preloadLifeThemeImages(){
+    if(lifeImgsPreloaded)return;
+    lifeImgsPreloaded=true;
+    Object.keys(LIFE_THEME_IMGS).forEach(function(id){
+      var img=new Image();
+      img.decoding='async';
+      img.src=LIFE_THEME_IMGS[id];
+    });
+  }
+  function maybePreloadLife(){
+    if(!lifeImgsPreloaded && progressFromScroll()>=0.18)preloadLifeThemeImages();
+  }
+  function resetStackGate(){
+    card2Settled=false;
+    card3Settled=false;
+    allowCard3=false;
+    allowCard1From2=false;
+    allowCard2From3=false;
+    awaitingDir=false;
+    gestureEndedSinceSettle=false;
+    settleAnim=false;
+    pinching=false;
+    lastP=0;
+    if(root)root.removeAttribute('data-ghd-card2');
+  }
+  function gatedProgress(p){
+    if(card3Settled && !allowCard2From3 && p<2)return 2;
+    if(!allowCard3 && !card3Settled && p>1)return 1;
+    if(card2Settled && !allowCard1From2 && p<1)return 1;
+    return p;
+  }
+  function startSettleTo1(){
+    card2Settled=false;
+    card3Settled=false;
+    allowCard3=false;
+    allowCard1From2=false;
+    allowCard2From3=false;
+    awaitingDir=false;
+    gestureEndedSinceSettle=!gestureLive;
+    settleAnim=true;
+    if(settleAnimTimer)clearTimeout(settleAnimTimer);
+    settleAnimTimer=setTimeout(function(){settleAnim=false;settleAnimTimer=0;}, SETTLE_MS+40);
+    pinDeckScroll(0);
+    lastP=0;
+    if(root)root.removeAttribute('data-ghd-card2');
+    apply(0, false);
+  }
+  function startSettleTo2(){
+    card2Settled=true;
+    card3Settled=false;
+    allowCard3=false;
+    allowCard1From2=false;
+    allowCard2From3=false;
+    awaitingDir=false;
+    gestureEndedSinceSettle=!gestureLive;
+    settleAnim=true;
+    if(settleAnimTimer)clearTimeout(settleAnimTimer);
+    settleAnimTimer=setTimeout(function(){settleAnim=false;settleAnimTimer=0;}, SETTLE_MS+40);
+    pinDeckScroll(lockY());
+    lastP=1;
+    if(root)root.setAttribute('data-ghd-card2','settled');
+    apply(1, false);
+  }
+  function startSettleTo3(){
+    card3Settled=true;
+    card2Settled=false;
+    allowCard3=false;
+    allowCard1From2=false;
+    allowCard2From3=false;
+    awaitingDir=false;
+    gestureEndedSinceSettle=!gestureLive;
+    settleAnim=true;
+    if(settleAnimTimer)clearTimeout(settleAnimTimer);
+    settleAnimTimer=setTimeout(function(){settleAnim=false;settleAnimTimer=0;}, SETTLE_MS+40);
+    pinDeckScroll(lockY3());
+    lastP=2;
+    if(root)root.removeAttribute('data-ghd-card2');
+    apply(2, false);
+  }
+  function isTouchPointer(ev){
+    return !!(ev && ev.pointerType==='touch');
+  }
+  function markGestureStart(ev){
+    if(isTouchPointer(ev))return;
+    if(ev && ev.touches && ev.touches.length>=2){
+      pinching=true;
+      pinchScrollY=deckScrollY();
+      awaitingDir=false;
+      return;
+    }
+    if(pinching)return;
+    gestureLive=true;
+    if((card2Settled || card3Settled) && gestureEndedSinceSettle)awaitingDir=true;
+  }
+  function markGestureEnd(ev){
+    if(isTouchPointer(ev))return;
+    if(ev && ev.touches && ev.touches.length>=1)return;
+    if(pinching){
+      pinching=false;
+      gestureLive=false;
+      return;
+    }
+    gestureLive=false;
+    if(card2Settled || card3Settled)gestureEndedSinceSettle=true;
+    if(swipeHandled){
+      swipeHandled=false;
+      return;
+    }
+    if(card2Settled && !allowCard3 && !allowCard1From2){
+      pinDeckScroll(lockY());
+      apply(1, true);
+    }else if(card3Settled && !allowCard2From3){
+      pinDeckScroll(lockY3());
+      apply(2, true);
+    }else if(allowCard3 && !card3Settled){
+      if(progressFromScroll()>=1.08)startSettleTo3();
+      else startSettleTo2();
+    }else if(allowCard2From3 && !card2Settled){
+      if(progressFromScroll()<=1.92)startSettleTo2();
+      else startSettleTo3();
+    }else if(allowCard1From2 && !card2Settled){
+      if(progressFromScroll()<=0.92)startSettleTo1();
+      else startSettleTo2();
+    }
+  }
+  function onDeckWheel(){
+    markGestureStart();
+    if(wheelIdleTimer)clearTimeout(wheelIdleTimer);
+    wheelIdleTimer=setTimeout(markGestureEnd, 180);
+  }
+  function swipePoint(ev){
+    if(ev.touches && ev.touches[0])return {x:ev.touches[0].clientX, y:ev.touches[0].clientY};
+    if(ev.changedTouches && ev.changedTouches[0])return {x:ev.changedTouches[0].clientX, y:ev.changedTouches[0].clientY};
+    if(typeof ev.clientX==='number')return {x:ev.clientX, y:ev.clientY};
+    return null;
+  }
+  function lifeDetailOpen(){
+    var card=root&&root.querySelector('.gomna-home-card[data-card="1"]');
+    return !!(card && card.classList.contains('is-open'));
+  }
+  function activeStackIndex(){
+    if(card3Settled)return 2;
+    if(card2Settled)return 1;
+    return Math.round(clamp(lastP, 0, 2));
+  }
+  function pointInGestureCard(x, y){
+    var card=root&&root.querySelector('.gomna-home-card.is-active');
+    if(!card)return false;
+    if(card.classList.contains('is-open') && card.getAttribute('data-card')!=='1')return false;
+    var r=card.getBoundingClientRect();
+    return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
+  }
+  function beginSwipe(x, y, pointerId){
+    if(pinching || swipeDrag)return false;
+    var lifeOpen=lifeDetailOpen();
+    if(flipping && !lifeOpen)return false;
+    if(document.documentElement.classList.contains('gomna-home-viewer-open'))return false;
+    if(document.querySelector('.ghd-sheet.is-open'))return false;
+    if(root.querySelector('.gomna-home-card.is-open:not([data-card="1"])'))return false;
+    if(!pointInGestureCard(x, y))return false;
+    swipeDrag={
+      y:y,
+      x:x,
+      lastX:x,
+      lastY:y,
+      t:Date.now(),
+      scroll:deckScrollY(),
+      swiping:false,
+      axis:'',
+      pointerId:pointerId,
+      lifeOpen:lifeOpen,
+      from:activeStackIndex()
+    };
+    swipeHandled=false;
+    pointerMoved=false;
+    if(!lifeOpen)markGestureStart();
+    return true;
+  }
+  function applySwipeMove(x, y, ev){
+    if(!swipeDrag || pinching)return;
+    if(flipping && !swipeDrag.lifeOpen)return;
+    var dy=y-swipeDrag.y;
+    var dx=x-swipeDrag.x;
+    swipeDrag.lastX=x;
+    swipeDrag.lastY=y;
+    if(!swipeDrag.axis){
+      var adx=Math.abs(dx), ady=Math.abs(dy);
+      if(adx<AXIS_PX && ady<AXIS_PX)return;
+      if(adx>ady*AXIS_RATIO){
+        swipeDrag.axis='x';
+        swipeDrag.swiping=true;
+        pointerMoved=true;
+      }else if(ady>adx*AXIS_RATIO){
+        if(swipeDrag.lifeOpen){
+          swipeDrag=null;
+          return;
+        }
+        swipeDrag.axis='y';
+        swipeDrag.swiping=true;
+        pointerMoved=true;
+      }else{
+        return;
+      }
+    }
+    if(ev && ev.cancelable)ev.preventDefault();
+    if(swipeDrag.lifeOpen || swipeDrag.axis!=='y')return;
+    var maxY=stepH()*(count-1);
+    pinDeckScroll(clamp(swipeDrag.scroll-dy, 0, maxY));
+  }
+  function onSwipeStart(ev){
+    if(ev.touches && ev.touches.length!==1){
+      swipeDrag=null;
+      return;
+    }
+    var p=swipePoint(ev);
+    if(!p)return;
+    beginSwipe(p.x, p.y, null);
+  }
+  function onSwipeMove(ev){
+    if(ev.touches && ev.touches.length!==1){
+      swipeDrag=null;
+      return;
+    }
+    var p=swipePoint(ev);
+    if(!p)return;
+    applySwipeMove(p.x, p.y, ev);
+  }
+  function onPtrStart(ev){
+    if(!ev.isPrimary){
+      swipeDrag=null;
+      return;
+    }
+    if(ev.pointerType==='mouse' && ev.buttons!==1)return;
+    if(beginSwipe(ev.clientX, ev.clientY, ev.pointerId) && root){
+      try{root.setPointerCapture(ev.pointerId);}catch(err){}
+    }
+  }
+  function onPtrMove(ev){
+    if(!swipeDrag)return;
+    if(swipeDrag.pointerId!=null && ev.pointerId!==swipeDrag.pointerId)return;
+    applySwipeMove(ev.clientX, ev.clientY, ev);
+  }
+  function settleTo(i){
+    if(i>=2)startSettleTo3();
+    else if(i===1)startSettleTo2();
+    else startSettleTo1();
+  }
+  function finishSwipe(from, up, down){
+    if(up){
+      settleTo(Math.min(2, from+1));
+      return;
+    }
+    if(down){
+      settleTo(Math.max(0, from-1));
+      return;
+    }
+    settleTo(from);
+  }
+  function applyLayerSwipe(left, right){
+    if(!left && !right)return;
+    if(lifeDetailOpen()){
+      if(right){
+        var life=root.querySelector('.gomna-home-card[data-card="1"]');
+        closeCard(life, false);
+      }
+      return;
+    }
+    var i=activeStackIndex();
+    if(right){
+      if(i>=2)startSettleTo2();
+      else if(i===1)startSettleTo1();
+      return;
+    }
+    if(i<=0)startSettleTo2();
+    else if(i===1)startSettleTo3();
+  }
+  function endSwipe(ev){
+    if(pinching){
+      swipeDrag=null;
+      return;
+    }
+    var drag=swipeDrag;
+    swipeDrag=null;
+    if(!drag)return;
+    if(drag.pointerId!=null && ev && ev.pointerId!=null && ev.pointerId!==drag.pointerId){
+      swipeDrag=drag;
+      return;
+    }
+    if(!drag.swiping || !drag.axis){
+      markGestureEnd(ev && ev.pointerType==='touch'?null:ev);
+      return;
+    }
+    var p={x:drag.lastX, y:drag.lastY};
+    var dt=Math.max(16, Date.now()-drag.t);
+    swipeHandled=true;
+    if(ev && ev.cancelable)ev.preventDefault();
+    if(drag.axis==='x'){
+      var dx=p.x-drag.x;
+      var velX=dx/dt;
+      var left=dx<=-H_SWIPE_PX || velX<=-H_SWIPE_VEL;
+      var right=dx>=H_SWIPE_PX || velX>=H_SWIPE_VEL;
+      applyLayerSwipe(left, right);
+    }else{
+      var dy=p.y-drag.y;
+      var vel=-dy/dt;
+      var up=dy<=-SWIPE_PX || vel>=SWIPE_VEL;
+      var down=dy>=SWIPE_PX || vel<=-SWIPE_VEL;
+      finishSwipe(drag.from, up, down);
+    }
+    gestureLive=false;
+    if(card2Settled || card3Settled)gestureEndedSinceSettle=true;
+    swipeDrag=null;
+  }
+  function onSwipeEnd(ev){
+    endSwipe(ev);
+  }
+  function onPtrEnd(ev){
+    endSwipe(ev);
+  }
+  function bindDeckSwipe(){
+    if(!root || root.getAttribute('data-ghd-swipe-bound')==='1')return;
+    root.setAttribute('data-ghd-swipe-bound','1');
+    document.addEventListener('touchstart', onSwipeStart, {passive:true, capture:true});
+    document.addEventListener('touchmove', onSwipeMove, {passive:false, capture:true});
+    document.addEventListener('touchend', onSwipeEnd, {passive:false, capture:true});
+    document.addEventListener('touchcancel', onSwipeEnd, {passive:true, capture:true});
+    document.addEventListener('pointerdown', onPtrStart, {passive:true, capture:true});
+    document.addEventListener('pointermove', onPtrMove, {passive:false, capture:true});
+    document.addEventListener('pointerup', onPtrEnd, {passive:false, capture:true});
+    document.addEventListener('pointercancel', onPtrEnd, {passive:true, capture:true});
   }
   function layoutNums(){
     var stageH=stage?stage.clientHeight:Math.round(viewH()*0.62);
@@ -307,31 +864,129 @@
     };
   }
   function apply(p, instant){
-    progress=0;
+    p=gatedProgress(p);
+    progress=p;
+    var L=layoutNums();
+    var peek=16;
+    var scaleStep=0.08;
+    var reserved=p*peek;
+    var cardH=Math.max(280, L.stageH-reserved);
+    var parkY=L.stageH+32;
+    var dur=(instant||reduce)?'none':(settleAnim?'transform '+SETTLE_MS+'ms ease-out':'transform 80ms linear');
     cards.forEach(function(card,i){
-      var front=i===0;
-      if(!card.classList.contains('is-open'))card.style.height='';
+      var behind=Math.max(0, p-i);
+      var incoming=Math.max(0, i-p);
+      var scale=1-(behind*scaleStep);
+      var y;
+      if(incoming>=1)y=parkY;
+      else if(incoming>0)y=reserved+incoming*(parkY-reserved);
+      else y=reserved-(behind*peek);
+      var active=behind<0.42 && incoming<0.42;
+      if(!card.classList.contains('is-open'))card.style.height=cardH+'px';
       card.style.width='100%';
-      card.style.transform=front?'translate3d(-50%,0,0)':'translate3d(-50%,140%,0)';
-      card.style.transition=(instant||reduce)?'none':'transform 80ms linear';
-      card.classList.toggle('is-active', front);
-      card.classList.toggle('is-behind', !front);
-      card.setAttribute('aria-hidden', front?'false':'true');
-      if(front)card.setAttribute('tabindex','0');
+      card.style.transform='translate3d(-50%,'+y+'px,0) scale('+scale+')';
+      card.style.transition=dur;
+      card.classList.toggle('is-active', active);
+      card.classList.toggle('is-behind', !active);
+      card.setAttribute('aria-hidden', active?'false':'true');
+      if(active)card.setAttribute('tabindex','0');
       else card.removeAttribute('tabindex');
-      card.style.zIndex=front?'12':'8';
+      card.style.zIndex=String(10+i);
+      if(!active && !pinching){
+        var inner=card.querySelector('.gomna-home-card-inner');
+        if(inner && inner.getAttribute('data-ghd-pinch') && inner.getAttribute('data-ghd-pinch')!=='1'){
+          inner.setAttribute('data-ghd-pinch','1');
+          inner.style.transform='';
+        }
+      }
     });
+    if(root)root.setAttribute('data-ghd-active', String(Math.round(p)));
   }
   function onScroll(){
+    if(pinching){
+      pinDeckScroll(pinchScrollY);
+      return;
+    }
     if(!root.querySelector('.gomna-home-card.is-open'))flipping=false;
     if(flipping){
-      if(Math.abs(window.scrollY-openScrollY)>1)window.scrollTo(0, openScrollY);
+      pinDeckScroll(openScrollY);
+      return;
+    }
+    maybePreloadLife();
+    var raw=progressFromScroll();
+    var lock=lockY();
+    var commit=dirCommitPx();
+    if(card3Settled && !allowCard2From3){
+      if(awaitingDir){
+        if(deckScrollY()<lockY3()-commit){
+          allowCard2From3=true;
+          card3Settled=false;
+          awaitingDir=false;
+        }else{
+          lastP=2;
+          return;
+        }
+      }else{
+        pinDeckScroll(lockY3());
+        apply(2, !settleAnim);
+        lastP=2;
+        return;
+      }
+    }
+    if(card2Settled && !allowCard3 && !allowCard1From2){
+      if(awaitingDir){
+        var y=deckScrollY();
+        if(y>lock+commit){
+          allowCard3=true;
+          card2Settled=false;
+          awaitingDir=false;
+          if(root)root.removeAttribute('data-ghd-card2');
+        }else if(y<lock-commit){
+          allowCard1From2=true;
+          card2Settled=false;
+          awaitingDir=false;
+          if(root)root.removeAttribute('data-ghd-card2');
+        }else{
+          lastP=1;
+          return;
+        }
+      }else{
+        pinDeckScroll(lock);
+        apply(1, !settleAnim);
+        lastP=1;
+        return;
+      }
+    }
+    if(raw<0.12){
+      allowCard3=false;
+      allowCard1From2=false;
+      allowCard2From3=false;
+      card2Settled=false;
+      card3Settled=false;
+      awaitingDir=false;
+      if(root)root.removeAttribute('data-ghd-card2');
+    }
+    if(!card2Settled && !allowCard3 && !card3Settled && lastP<1 && raw>=SETTLE_AT && raw>=lastP){
+      startSettleTo2();
+      return;
+    }
+    if(allowCard3 && !card3Settled && raw>=(1+SETTLE_AT) && raw>=lastP){
+      startSettleTo3();
+      return;
+    }
+    if(allowCard2From3 && !card2Settled && lastP>1 && raw<=(2-SETTLE_AT) && raw<=lastP){
+      startSettleTo2();
+      return;
+    }
+    if(allowCard1From2 && !card2Settled && raw<=0.22 && raw<=lastP){
+      startSettleTo1();
       return;
     }
     if(raf)return;
     raf=requestAnimationFrame(function(){
       raf=0;
-      apply(progressFromScroll(), false);
+      lastP=progressFromScroll();
+      apply(lastP, false);
     });
   }
   function closeCard(card, skipHistory){
@@ -355,6 +1010,8 @@
       cards.forEach(function(card){closeCard(card, true);});
     }
     flipping=false;
+    resetStackGate();
+    if(root)root.scrollTop=0;
     window.scrollTo(0, 0);
     apply(0, true);
     try{
@@ -366,7 +1023,7 @@
   function openCard(card){
     if(!card||!card.classList.contains('is-active')||card.classList.contains('is-open'))return;
     if(Math.abs(progress-cards.indexOf(card))>0.12)return;
-    openScrollY=window.scrollY;
+    openScrollY=deckScrollY();
     flipping=true;
     card.classList.add('is-open');
     card.querySelectorAll('.gomna-home-card-face').forEach(function(face){
@@ -381,12 +1038,60 @@
     if(card.classList.contains('is-open'))closeCard(card, false);
     else openCard(card);
   }
+  function pinchDist(ev){
+    if(!ev.touches || ev.touches.length<2)return 0;
+    var a=ev.touches[0], b=ev.touches[1];
+    var dx=a.clientX-b.clientX, dy=a.clientY-b.clientY;
+    return Math.sqrt(dx*dx+dy*dy);
+  }
+  function bindPinch(card){
+    var id=card.getAttribute('data-card');
+    if(id!=='0' && id!=='1')return;
+    var inner=card.querySelector('.gomna-home-card-inner');
+    if(!inner || inner.getAttribute('data-ghd-pinch-bound')==='1')return;
+    inner.setAttribute('data-ghd-pinch-bound','1');
+    var startDist=0, base=1;
+    card.addEventListener('touchstart', function(ev){
+      if(ev.touches.length<2)return;
+      if(!card.classList.contains('is-active') && !card.classList.contains('is-open'))return;
+      pinching=true;
+      pinchScrollY=deckScrollY();
+      awaitingDir=false;
+      gestureLive=false;
+      startDist=pinchDist(ev)||1;
+      base=parseFloat(inner.getAttribute('data-ghd-pinch')||'1')||1;
+    }, {passive:true});
+    card.addEventListener('touchmove', function(ev){
+      if(!pinching || ev.touches.length<2)return;
+      if(ev.cancelable)ev.preventDefault();
+      var s=clamp(base*(pinchDist(ev)/startDist), 1, 1.72);
+      inner.setAttribute('data-ghd-pinch', String(s));
+      inner.style.transform=s===1?'':'scale('+s+')';
+      pinDeckScroll(pinchScrollY);
+    }, {passive:false});
+    function endPinch(ev){
+      if(ev.touches && ev.touches.length>=2)return;
+      if(!pinching)return;
+      pinching=false;
+      var s=parseFloat(inner.getAttribute('data-ghd-pinch')||'1')||1;
+      if(s<1.04){
+        inner.setAttribute('data-ghd-pinch','1');
+        inner.style.transform='';
+      }
+    }
+    card.addEventListener('touchend', endPinch, {passive:true});
+    card.addEventListener('touchcancel', endPinch, {passive:true});
+  }
   function bindCard(card){
+    bindPinch(card);
     var sc=card.querySelector('.gomna-home-detail-scroll');
     if(sc && sc.getAttribute('data-ghd-scroll-bound')!=='1'){
       sc.setAttribute('data-ghd-scroll-bound','1');
       ['touchstart','touchmove','wheel'].forEach(function(type){
-        sc.addEventListener(type, function(ev){ev.stopPropagation();},{passive:true});
+        sc.addEventListener(type, function(ev){
+          if(ev.touches && ev.touches.length>=2)return;
+          ev.stopPropagation();
+        },{passive:true});
       });
       sc.addEventListener('scroll', function(){
         scrollQuiet=false;
@@ -404,11 +1109,13 @@
       if(isAction(ev.target)||pointerMoved)return;
       if(Date.now()-pointerT>420)return;
       if(card.classList.contains('is-open')&&!scrollQuiet)return;
+      if(card.getAttribute('data-card')==='1' && !card.classList.contains('is-open'))return;
       toggleOpen(card);
     });
     card.addEventListener('keydown', function(ev){
       if(ev.key==='Enter'||ev.key===' '){
         if(isAction(ev.target))return;
+        if(card.getAttribute('data-card')==='1' && !card.classList.contains('is-open'))return;
         ev.preventDefault();
         toggleOpen(card);
       }
@@ -605,6 +1312,28 @@
       });
     });
     root.querySelectorAll('[data-ghd-note-save]').forEach(function(el){el.addEventListener('click', saveNote);});
+    root.querySelectorAll('[data-ghd-life-chip]').forEach(function(el){
+      el.addEventListener('click', function(ev){
+        selectLifeTheme(el.getAttribute('data-ghd-life-chip'), ev);
+      });
+    });
+    root.querySelectorAll('[data-ghd-story-chip]').forEach(function(el){
+      el.addEventListener('click', function(ev){
+        selectStoryPerson(el.getAttribute('data-ghd-story-chip'), ev);
+      });
+    });
+    root.querySelectorAll('[data-ghd-open-arrow]').forEach(function(el){
+      el.addEventListener('click', function(ev){
+        ev.preventDefault();ev.stopPropagation();
+        openCard(cardFromEl(el));
+      });
+    });
+    root.querySelectorAll('[data-ghd-pray]').forEach(function(el){
+      el.addEventListener('click', function(ev){
+        ev.preventDefault();ev.stopPropagation();
+        focusPrayer(cardFromEl(el));
+      });
+    });
     root.querySelectorAll('[data-ghd-back]').forEach(function(el){
       el.addEventListener('click', function(ev){
         ev.preventDefault();ev.stopPropagation();
@@ -747,14 +1476,25 @@
     hideLegacyHome();
     reduce=reduced();
     cards=Array.prototype.slice.call(root.querySelectorAll('.gomna-home-card[data-ghd-deck="home"]'));
-    count=1;
+    count=3;
     fillCopy();
     syncGreeting();
     cards.forEach(bindCard);
     bindActions();
+    syncStepSize();
     apply(0, true);
+    window.requestAnimationFrame(function(){syncStepSize();apply(progressFromScroll(), true);});
+    bindDeckSwipe();
+    root.addEventListener('scroll', onScroll, {passive:true});
+    root.addEventListener('touchstart', markGestureStart, {passive:true});
+    root.addEventListener('touchend', markGestureEnd, {passive:true});
+    root.addEventListener('touchcancel', markGestureEnd, {passive:true});
+    root.addEventListener('pointerdown', markGestureStart, {passive:true});
+    root.addEventListener('pointerup', markGestureEnd, {passive:true});
+    root.addEventListener('pointercancel', markGestureEnd, {passive:true});
+    root.addEventListener('wheel', onDeckWheel, {passive:true});
     window.addEventListener('scroll', onScroll, {passive:true});
-    window.addEventListener('resize', function(){apply(progressFromScroll(), true);}, {passive:true});
+    window.addEventListener('resize', function(){syncStepSize();apply(progressFromScroll(), true);}, {passive:true});
     window.addEventListener('keydown', function(ev){
       if(ev.key==='Escape'){
         closeHomeBiblePicker(false);
@@ -779,6 +1519,8 @@
       if(data.action==='close')closeHomeBiblePicker(false);
     });
     window.setTimeout(preloadHomeBiblePicker, 280);
+    if('requestIdleCallback' in window)window.requestIdleCallback(function(){preloadLifeThemeImages();},{timeout:900});
+    else window.setTimeout(preloadLifeThemeImages, 480);
     var prev=window.__gomnaOnLangApplied;
     window.__gomnaOnLangApplied=function(){
       if(typeof prev==='function')try{prev();}catch(e){}
