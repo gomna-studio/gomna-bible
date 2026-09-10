@@ -10,6 +10,7 @@
   var settleAnim=false, settleAnimTimer=0, wheelIdleTimer=0, lastP=0;
   var pinching=false, pinchScrollY=0, lifeImgsPreloaded=false, storyImgsPreloaded=false;
   var swipeDrag=null, swipeHandled=false;
+  var relayoutQueued=false, relayoutPending=false;
   var SETTLE_AT=0.32;
   var SETTLE_MS=180;
   var SWIPE_PX=36;
@@ -617,7 +618,16 @@
   }
   function cardFromEl(el){return el&&el.closest?el.closest('.gomna-home-card'):null;}
   function isAction(el){
-    return el&&el.closest&&el.closest('.gomna-home-act, .gomna-home-related, .gomna-home-ctrl, .gomna-home-ctrl-item, .gomna-home-link, .gomna-home-note-save, .gomna-home-life-rail, .gomna-home-life-chip, .gomna-home-poster-pills, .gomna-home-poster-pill, .gomna-home-leaf-cta, .gomna-home-leaf-btn, button, a, [role="button"], input, select, textarea');
+    return el&&el.closest&&el.closest('.gomna-home-act, .gomna-home-related, .gomna-home-ctrl, .gomna-home-ctrl-item, .gomna-home-link, .gomna-home-note-save, .gomna-home-life-rail, .gomna-home-life-chip, .gomna-home-poster-pills, .gomna-home-poster-pill, .gomna-home-leaf-cta, .gomna-home-leaf-btn, .gomna-home-tabbar, .gomna-home-tab, button, a, [role="button"], input, select, textarea');
+  }
+  function isHomeChromeHit(el){
+    return !!(el&&el.closest&&el.closest('#gomnaHomeTabbar, .gomna-home-tabbar, #loginModal, #gomnaProfileSheet, #gomnaProfileEditSheet, .ghd-sheet, .home-account-panel, .home-account-scrim, .header-actions'));
+  }
+  function pointInHomeTabbar(x, y){
+    var bar=document.getElementById('gomnaHomeTabbar');
+    if(!bar)return false;
+    var r=bar.getBoundingClientRect();
+    return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
   }
   function hideLegacyHome(){
     var nodes=document.querySelectorAll('#homeResumeCard, #today-word-card, .container > .quick-menu, .container > .home-menu-card, .container > .imprint-bottom');
@@ -845,7 +855,7 @@
       var label=uiT(key);
       var textEl=el.querySelector('[data-ghd-me-label]')||el.querySelector('span:not(.gomna-home-tab-icon)');
       if(el.getAttribute('data-ghd-nav')==='me'){
-        var current=textEl&&textEl.getAttribute('data-ghd-me-signed')==='1';
+        var current=(textEl&&textEl.getAttribute('data-ghd-me-signed')==='1')||el.classList.contains('is-signed-in');
         if(current)label=uiT('home.tab.me','나');
       }
       if(textEl&&label)setText(textEl, label);
@@ -943,6 +953,7 @@
     }else{
       el.textContent=uiT('home.hello.guest','잠시 머물러 보세요');
     }
+    scheduleRelayout();
   }
   function syncSocial(){
     if(!root)return;
@@ -976,7 +987,54 @@
     }
     if(typeof openDailyVerse==='function')openDailyVerse(mode, extra);
   }
-  function viewH(){return (window.visualViewport&&window.visualViewport.height)||window.innerHeight;}
+  function viewH(){
+    var vv=window.visualViewport;
+    var h=(vv&&vv.height)||window.innerHeight;
+    if(!(h>0))h=window.innerHeight;
+    return h;
+  }
+  function syncViewportVars(){
+    try{
+      document.documentElement.style.setProperty('--ghd-vv-h', Math.round(viewH())+'px');
+    }catch(e){}
+  }
+  function relayoutHome(){
+    syncViewportVars();
+    if(!root||!stage)return;
+    syncStepSize();
+    apply(progressFromScroll(), true);
+    schedulePlaceTodayVerse();
+  }
+  function scheduleRelayout(){
+    if(swipeDrag){
+      relayoutPending=true;
+      return;
+    }
+    if(relayoutQueued)return;
+    relayoutQueued=true;
+    window.requestAnimationFrame(function(){
+      window.requestAnimationFrame(function(){
+        relayoutQueued=false;
+        relayoutHome();
+      });
+    });
+  }
+  function bindViewportRelayout(){
+    if(document.documentElement.getAttribute('data-ghd-vv-bound')==='1')return;
+    document.documentElement.setAttribute('data-ghd-vv-bound','1');
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize', scheduleRelayout, {passive:true});
+      window.visualViewport.addEventListener('scroll', scheduleRelayout, {passive:true});
+    }
+    window.addEventListener('pageshow', scheduleRelayout, {passive:true});
+    window.addEventListener('focus', scheduleRelayout, {passive:true});
+    window.addEventListener('orientationchange', scheduleRelayout, {passive:true});
+    document.addEventListener('visibilitychange', function(){
+      if(document.visibilityState==='visible')scheduleRelayout();
+    });
+  }
+  syncViewportVars();
+  bindViewportRelayout();
   function deckScrollY(){return root?root.scrollTop:window.scrollY;}
   function pinDeckScroll(y){
     if(root && Math.abs(root.scrollTop-y)>1)root.scrollTop=y;
@@ -1205,6 +1263,7 @@
     if(flipping && !layerOpen)return false;
     if(document.documentElement.classList.contains('gomna-home-viewer-open'))return false;
     if(document.querySelector('.ghd-sheet.is-open'))return false;
+    if(pointInHomeTabbar(x, y))return false;
     if(root.querySelector('.gomna-home-card.is-open:not([data-card="1"]):not([data-card="2"])'))return false;
     if(!pointInGestureCard(x, y))return false;
     swipeDrag={
@@ -1302,6 +1361,7 @@
     pinDeckScroll(clamp(swipeDrag.scroll-dy, 0, maxY));
   }
   function onSwipeStart(ev){
+    if(isHomeChromeHit(ev.target))return;
     if(ev.touches && ev.touches.length!==1){
       swipeDrag=null;
       return;
@@ -1320,6 +1380,7 @@
     applySwipeMove(p.x, p.y, ev);
   }
   function onPtrStart(ev){
+    if(isHomeChromeHit(ev.target))return;
     if(lifeDetailOpen() && ev.pointerType==='touch')return;
     if(!ev.isPrimary){
       swipeDrag=null;
@@ -1374,45 +1435,52 @@
     else if(i===1)startSettleTo3();
   }
   function endSwipe(ev){
-    if(pinching){
+    try{
+      if(pinching){
+        swipeDrag=null;
+        return;
+      }
+      var drag=swipeDrag;
       swipeDrag=null;
-      return;
+      if(!drag)return;
+      if(drag.pointerId!=null && ev && ev.pointerId!=null && ev.pointerId!==drag.pointerId){
+        swipeDrag=drag;
+        return;
+      }
+      if(!drag.swiping || !drag.axis){
+        markGestureEnd(ev && ev.pointerType==='touch'?null:ev);
+        return;
+      }
+      if(drag.lifeOpen && drag.axis==='y'){
+        markGestureEnd(ev && ev.pointerType==='touch'?null:ev);
+        return;
+      }
+      var p={x:drag.lastX, y:drag.lastY};
+      var dt=Math.max(16, Date.now()-drag.t);
+      swipeHandled=true;
+      if(ev && ev.cancelable)ev.preventDefault();
+      if(drag.axis==='x'){
+        var dx=p.x-drag.x;
+        var velX=dx/dt;
+        var left=dx<=-H_SWIPE_PX || velX<=-H_SWIPE_VEL;
+        var right=dx>=H_SWIPE_PX || velX>=H_SWIPE_VEL;
+        applyLayerSwipe(left, right);
+      }else{
+        var dy=p.y-drag.y;
+        var vel=-dy/dt;
+        var up=dy<=-SWIPE_PX || vel>=SWIPE_VEL;
+        var down=dy>=SWIPE_PX || vel<=-SWIPE_VEL;
+        finishSwipe(drag.from, up, down);
+      }
+      gestureLive=false;
+      if(card2Settled || card3Settled)gestureEndedSinceSettle=true;
+      swipeDrag=null;
+    }finally{
+      if(!swipeDrag && relayoutPending){
+        relayoutPending=false;
+        scheduleRelayout();
+      }
     }
-    var drag=swipeDrag;
-    swipeDrag=null;
-    if(!drag)return;
-    if(drag.pointerId!=null && ev && ev.pointerId!=null && ev.pointerId!==drag.pointerId){
-      swipeDrag=drag;
-      return;
-    }
-    if(!drag.swiping || !drag.axis){
-      markGestureEnd(ev && ev.pointerType==='touch'?null:ev);
-      return;
-    }
-    if(drag.lifeOpen && drag.axis==='y'){
-      markGestureEnd(ev && ev.pointerType==='touch'?null:ev);
-      return;
-    }
-    var p={x:drag.lastX, y:drag.lastY};
-    var dt=Math.max(16, Date.now()-drag.t);
-    swipeHandled=true;
-    if(ev && ev.cancelable)ev.preventDefault();
-    if(drag.axis==='x'){
-      var dx=p.x-drag.x;
-      var velX=dx/dt;
-      var left=dx<=-H_SWIPE_PX || velX<=-H_SWIPE_VEL;
-      var right=dx>=H_SWIPE_PX || velX>=H_SWIPE_VEL;
-      applyLayerSwipe(left, right);
-    }else{
-      var dy=p.y-drag.y;
-      var vel=-dy/dt;
-      var up=dy<=-SWIPE_PX || vel>=SWIPE_VEL;
-      var down=dy>=SWIPE_PX || vel<=-SWIPE_VEL;
-      finishSwipe(drag.from, up, down);
-    }
-    gestureLive=false;
-    if(card2Settled || card3Settled)gestureEndedSinceSettle=true;
-    swipeDrag=null;
   }
   function onSwipeEnd(ev){
     endSwipe(ev);
@@ -1435,6 +1503,13 @@
   }
   function layoutNums(){
     var stageH=stage?stage.clientHeight:Math.round(viewH()*0.62);
+    var bar=document.getElementById('gomnaHomeTabbar');
+    if(stage&&bar){
+      var sr=stage.getBoundingClientRect();
+      var br=bar.getBoundingClientRect();
+      var fit=Math.round(br.top-sr.top);
+      if(fit>80)stageH=Math.min(stageH, fit);
+    }
     return {
       sliver:0,
       peek:0,
@@ -3210,13 +3285,13 @@
     document.querySelectorAll('[data-ghd-nav]').forEach(function(el){
       el.addEventListener('click', function(ev){
         var act=el.getAttribute('data-ghd-nav');
-        if(act==='find')return;
+        if(act==='find'||act==='me')return;
         ev.preventDefault();
         if(act==='home')resetHomeToFirstCard();
         else if(act==='bible')openHomeBiblePicker();
         else if(act==='media'){
           window.scrollTo({top:0, behavior:reduce?'auto':'smooth'});
-        }else if(act==='me' && typeof handleHomeAccountBtn==='function')handleHomeAccountBtn();
+        }
       });
     });
   }
@@ -3359,11 +3434,19 @@
     if(verseFace&&typeof ResizeObserver==='function'){
       try{new ResizeObserver(function(){placeTodayVerseBlock();}).observe(verseFace);}catch(e){}
     }
+    if(typeof ResizeObserver==='function'){
+      try{
+        var lastStageH=-1;
+        new ResizeObserver(function(){
+          var h=stage.clientHeight;
+          if(Math.abs(h-lastStageH)<1)return;
+          lastStageH=h;
+          scheduleRelayout();
+        }).observe(stage);
+      }catch(e){}
+    }
     if(document.fonts&&document.fonts.ready){
       document.fonts.ready.then(function(){schedulePlaceTodayVerse();}).catch(function(){});
-    }
-    if(window.visualViewport){
-      window.visualViewport.addEventListener('resize', schedulePlaceTodayVerse, {passive:true});
     }
     if(restoreEntry){
       restoreHomeEntry(restoreEntry);
@@ -3382,7 +3465,7 @@
     root.addEventListener('pointercancel', markGestureEnd, {passive:true});
     root.addEventListener('wheel', onDeckWheel, {passive:true});
     window.addEventListener('scroll', onScroll, {passive:true});
-    window.addEventListener('resize', function(){syncStepSize();apply(progressFromScroll(), true);schedulePlaceTodayVerse();}, {passive:true});
+    window.addEventListener('resize', function(){scheduleRelayout();}, {passive:true});
     window.addEventListener('keydown', function(ev){
       if(ev.key==='Escape'){
         closeHomeBiblePicker(false);
@@ -3423,7 +3506,7 @@
     });
   }
 
-  window.GomnaHomeFeed={init:init,sync:fillCopy,syncSocial:syncSocial,refreshSocial:refreshSocial,syncGreeting:syncGreeting};
+  window.GomnaHomeFeed={init:init,sync:fillCopy,syncSocial:syncSocial,refreshSocial:refreshSocial,syncGreeting:syncGreeting,relayout:relayoutHome};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded', init);
   else init();
 })();

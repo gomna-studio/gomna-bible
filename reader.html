@@ -19853,6 +19853,10 @@ function loadAds() {
   /* 설정창의 계정 입구가 쓰는 내 정보 진입점. */
   window.openReaderAccountView = function () {
     try { if (typeof closeSettings === 'function') closeSettings(); } catch (e) {}
+    if (window.GomnaAuth && typeof window.GomnaAuth.openAccountView === 'function') {
+      window.GomnaAuth.openAccountView('reader-dock-my');
+      return;
+    }
     if (accountSignedIn() && window.GomnaAuth && typeof window.GomnaAuth.openProfile === 'function') {
       window.GomnaAuth.openProfile();
       return;
@@ -19921,10 +19925,10 @@ function loadAds() {
 </script>
 <!-- 로그인 연결: Supabase 공식 CDN이 먼저, 그 뒤에 gomna-auth.js. 순서를 바꾸지 않는다. -->
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="js/gomna-auth.js?v=20260829-gis-hit-44-v1"></script>
+<script defer src="js/gomna-auth.js?v=20260910-auth-unify-v1"></script>
 <!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
 <script defer src="js/gomna-help.js?v=20260808-help-v8"></script>
 <!-- 로컬 미리보기: 로그인 상단 카드 3장 교차 셔플(표시 전용). 되돌릴 때는 이 줄과 파일만 지운다. -->
-<script defer src="js/gomna-login-brand-shuffle.js?v=20260905-login-copy-v1"></script>
+<script defer src="js/gomna-login-brand-shuffle.js?v=20260910-lead-rotate-v1"></script>
 </body>
 </html>
