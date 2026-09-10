@@ -299,6 +299,7 @@
       if (wasSignedIn) closeProfile();
     }
     refreshAccountViews();
+    syncLoginChooserForSession();
     setTimeout(function () {
       try {
         if (window.GomnaHomeFeed && typeof window.GomnaHomeFeed.syncGreeting === 'function') {
@@ -1348,9 +1349,14 @@
 
       /* 기존 함수는 그대로 두고 감싸서, 창을 열고 닫을 때 안내 문구만 정리한다. */
       wrapWindowFn('closeLoginModal', resetEmailPanel);
-      wrapWindowFn('openLoginModal', function () {
+      wrapWindowFn('openLoginModal', function (source) {
+        if (currentUser && source !== 'password-recovery') {
+          openProfile();
+          return false;
+        }
         resetEmailPanel();
         queueGoogleButtonRefresh();
+        syncLoginChooserForSession();
       });
       wrapWindowFn('openHomeAccountPanel', onHomePanelClose);
       wrapWindowFn('closeHomeAccountPanel', onHomePanelClose);
@@ -1396,7 +1402,9 @@
     var original = window[name];
     if (typeof original !== 'function' || original.__gomnaWrapped) return;
     var wrapped = function () {
-      try { before(); } catch (e) {}
+      var skip = false;
+      try { skip = before.apply(this, arguments) === false; } catch (e) {}
+      if (skip) return;
       return original.apply(this, arguments);
     };
     wrapped.__gomnaWrapped = true;
@@ -2060,11 +2068,49 @@
     if (action === 'save') { saveProfileEdit(); return; }
   }
 
+  function syncLoginChooserForSession() {
+    var skip = document.querySelector('#loginModal .login-skip');
+    if (skip) skip.hidden = !!currentUser;
+    if (!currentUser) return;
+    var overlay = document.getElementById('loginModal');
+    if (!overlay || !overlay.classList.contains('show')) return;
+    if (overlay.getAttribute('data-login-source') === 'password-recovery') return;
+    try { if (typeof window.closeLoginModal === 'function') window.closeLoginModal(); } catch (e) {}
+  }
+
   function openLoginChooser() {
     try {
       if (typeof window.openLoginModal === 'function') { window.openLoginModal('gomna-auth'); return; }
     } catch (e) {}
     notify('로그인 화면을 열 수 없습니다. 화면을 새로 고친 뒤 다시 시도해 주세요.');
+  }
+
+  /* Home 하단 탭과 Reader dock MY가 같이 쓰는 입구. 새 창을 만들지 않고
+     로그인 중이면 기존 내 정보 시트, 아니면 기존 로그인 창만 연다. */
+  function openAccountView(source) {
+    injectShared();
+    function show() {
+      if (currentUser) {
+        try { if (typeof window.closeLoginModal === 'function') window.closeLoginModal(); } catch (e) {}
+        openProfile();
+        return;
+      }
+      try {
+        if (typeof window.openLoginModal === 'function') {
+          window.openLoginModal(source || 'gomna-auth');
+          return;
+        }
+      } catch (e) {}
+      openLoginChooser();
+    }
+    show();
+    var supabaseClient = getClient();
+    if (!supabaseClient || !supabaseClient.auth || typeof supabaseClient.auth.getSession !== 'function') return;
+    supabaseClient.auth.getSession().then(function (result) {
+      var had = !!currentUser;
+      applySession((result && result.data) ? result.data.session : null);
+      if (!!currentUser !== had) show();
+    })['catch'](function () {});
   }
 
   function openFavorites() {
@@ -2774,6 +2820,7 @@
     getAccount: accountInfo,
     openLogin: openLoginChooser,
     openProfile: openProfile,
+    openAccountView: openAccountView,
     closeProfile: closeProfile,
     openProfileEdit: openProfileEdit,
     openEmailLogin: openEmailLogin,

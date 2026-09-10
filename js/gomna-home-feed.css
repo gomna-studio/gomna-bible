@@ -3,11 +3,13 @@
 
 html:has(body.gomna-home-deck-on){
   height:100vh;
-  height:-webkit-fill-available;
   height:100svh;
+  height:100dvh;
+  height:var(--ghd-vv-h, 100dvh);
   max-height:100vh;
-  max-height:-webkit-fill-available;
   max-height:100svh;
+  max-height:100dvh;
+  max-height:var(--ghd-vv-h, 100dvh);
   overflow:hidden;
   background:#FCFAF6;
   touch-action:pan-x pan-y pinch-zoom;
@@ -1754,7 +1756,7 @@ html.gomna-home-viewer-open body{
   left:0;
   right:0;
   bottom:0;
-  z-index:25;
+  z-index:60;
   display:grid;
   grid-template-columns:repeat(5,1fr);
   height:calc(58px + env(safe-area-inset-bottom,0px));
@@ -1762,6 +1764,10 @@ html.gomna-home-viewer-open body{
   background:#FFFFFF;
   border-top:1px solid rgba(26,35,50,.06);
   box-sizing:border-box;
+  pointer-events:auto;
+  touch-action:manipulation;
+  transform:translateZ(0);
+  -webkit-transform:translateZ(0);
 }
 html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
 .gomna-home-tab{
@@ -1779,6 +1785,8 @@ html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
   font-weight:650;
   text-decoration:none;
   cursor:pointer;
+  pointer-events:auto;
+  touch-action:manipulation;
 }
 .gomna-home-tab-icon{
   width:23px;
