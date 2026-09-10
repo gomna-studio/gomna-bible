@@ -320,7 +320,7 @@ html.gt-translation-pending body::after{
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register("/sw.js?v=20260910-home-engage-v1", { scope: "/", updateViaCache: "none" })
+  navigator.serviceWorker.register("/sw.js?v=20260910-home-photo-v1", { scope: "/", updateViaCache: "none" })
     .then(function(reg){ try { reg.update(); } catch (eUp) {} })
     .catch(function(){});
   if (!window.__gomnaSwUpdateBound) {
@@ -1933,9 +1933,9 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
 <script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260905-all66-v1">
 <link rel="preload" as="image" href="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1">
-<link rel="preload" as="image" href="assets/home/card-meditation-life.png?v=20260906-poster-mock-v1">
-<link rel="preload" as="image" href="assets/home/card-bible-stories-people.png?v=20260906-poster-mock-v1">
-<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260910-home-vv-v1">
+<link rel="preload" as="image" href="assets/home/card-meditation-life.png?v=20260910-home-photo-v1">
+<link rel="preload" as="image" href="assets/home/card-bible-stories-people.png?v=20260910-home-photo-v1">
+<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260910-home-photo-v1">
 <style>
 /* 홈 데스크톱 선택창 폭 = 홈 메인 카드 폭. .container max-width 390 - padding 18+18. Reader 프레임 폭은 쓰지 않는다. */
 @media (min-width:700px) and (min-height:600px){
