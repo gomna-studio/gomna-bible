@@ -3116,9 +3116,6 @@ html.unified-bc-gesture-engine-active #unifiedBcGestureSurface [onclick]{
     border-top:.5px solid #E5E7EB;
     box-shadow:0 -1px 0 rgba(15,23,42,.04) inset;
   }
-  html.reader-hide-chrome:has(#commentaryPopup.show) #scriptureDock{
-    z-index:960!important;
-  }
   html.reader-hide-chrome .scripture-dock-item{
     flex:1;
     min-width:0;
@@ -3543,6 +3540,10 @@ html.ubc-rail-drawer #opt4BottomBar.opt4-bottom-bar{
 }
 html.ubc-rail-drawer #scriptureDock.scripture-dock{
   transform:translate3d(-50%,110%,0)!important;
+}
+body.gomna-commentary-popup-open #scriptureDock.scripture-dock{
+  display:none!important;
+  pointer-events:none!important;
 }
 @media (min-width:481px){
   html.reader-hide-chrome.ubc-rail-drawer #opt4BottomBar.opt4-bottom-bar{
@@ -4356,6 +4357,15 @@ body.gomna-commentary-popup-open #commentaryPopupBox > .gomna-commentary-inline-
   position:relative!important;
   z-index:6!important;
   touch-action:manipulation!important;
+}
+#commentaryPopupBox > .gomna-commentary-legacy-close-wrap,
+body.gomna-commentary-popup-open #commentaryPopupBox > .gomna-commentary-legacy-close-wrap{
+  display:none!important;
+  height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
 }
 </style>
 <style id="verse-ui-arrow-num-v1">
@@ -12845,6 +12855,15 @@ function isReaderBibleAudioCurrent() {
   return !!(state && state.currentAudioId && /\.bible$/.test(String(state.currentAudioId)));
 }
 
+function isReaderCommentaryAudioCurrent() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var state = engine && typeof engine.getState === 'function' ? engine.getState() : null;
+  var audioId = state && state.currentAudioId;
+  var buttons = window.GOMNA_AUDIO_COMMENTARY_BUTTONS;
+  if (!audioId || !buttons || typeof buttons.isCommentaryAudioId !== 'function') return false;
+  return !!buttons.isCommentaryAudioId(audioId);
+}
+
 function isReaderBiblePlaybackPaused() {
   var engine = window.GOMNA_AUDIO_ENGINE;
   var state = engine && typeof engine.getState === 'function' ? engine.getState() : null;
@@ -12881,7 +12900,7 @@ function syncReaderPlaybackStyleChrome() {
   var goldBtn = document.getElementById('readerPlaybackStyleGold');
   var focusBtn = document.getElementById('readerPlaybackStyleFocus');
   var style = getReaderPlaybackStyle();
-  var show = isReaderBibleAudioCurrent() && isReaderMiniPlayerOpen();
+  var show = (isReaderBibleAudioCurrent() || isReaderCommentaryAudioCurrent()) && isReaderMiniPlayerOpen();
   document.documentElement.classList.toggle('reader-bible-audio-on', show);
   syncReaderBiblePlayerClearance();
   if (btn) {
