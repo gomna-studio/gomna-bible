@@ -3285,10 +3285,13 @@
     document.querySelectorAll('[data-ghd-nav]').forEach(function(el){
       el.addEventListener('click', function(ev){
         var act=el.getAttribute('data-ghd-nav');
-        if(act==='find'||act==='me'||act==='media')return;
+        if(act==='find'||act==='me')return;
         ev.preventDefault();
         if(act==='home')resetHomeToFirstCard();
         else if(act==='bible')openHomeBiblePicker();
+        else if(act==='media'){
+          window.scrollTo({top:0, behavior:reduce?'auto':'smooth'});
+        }
       });
     });
   }
