@@ -953,7 +953,7 @@
     }else{
       el.textContent=uiT('home.hello.guest','잠시 머물러 보세요');
     }
-    scheduleRelayout();
+    if(!isIdleFirstCard())scheduleRelayout();
   }
   function syncSocial(){
     if(!root)return;
@@ -998,11 +998,20 @@
       document.documentElement.style.setProperty('--ghd-vv-h', Math.round(viewH())+'px');
     }catch(e){}
   }
+  function isIdleFirstCard(){
+    return !swipeDrag && !gestureLive && !card2Settled && !card3Settled && !allowCard3 && !allowCard1From2 && !allowCard2From3 && lastP<0.12;
+  }
   function relayoutHome(){
     syncViewportVars();
     if(!root||!stage)return;
     syncStepSize();
-    apply(progressFromScroll(), true);
+    if(isIdleFirstCard()){
+      pinDeckScroll(0);
+      lastP=0;
+      apply(0, true);
+    }else{
+      apply(progressFromScroll(), true);
+    }
     schedulePlaceTodayVerse();
   }
   function scheduleRelayout(){
@@ -1019,6 +1028,11 @@
       });
     });
   }
+  function refreshHomeReturnChrome(){
+    if(!root)return;
+    syncGreeting();
+    syncSocial();
+  }
   function bindViewportRelayout(){
     if(document.documentElement.getAttribute('data-ghd-vv-bound')==='1')return;
     document.documentElement.setAttribute('data-ghd-vv-bound','1');
@@ -1026,11 +1040,11 @@
       window.visualViewport.addEventListener('resize', scheduleRelayout, {passive:true});
       window.visualViewport.addEventListener('scroll', scheduleRelayout, {passive:true});
     }
-    window.addEventListener('pageshow', scheduleRelayout, {passive:true});
-    window.addEventListener('focus', scheduleRelayout, {passive:true});
+    window.addEventListener('pageshow', refreshHomeReturnChrome, {passive:true});
+    window.addEventListener('focus', refreshHomeReturnChrome, {passive:true});
     window.addEventListener('orientationchange', scheduleRelayout, {passive:true});
     document.addEventListener('visibilitychange', function(){
-      if(document.visibilityState==='visible')scheduleRelayout();
+      if(document.visibilityState==='visible')refreshHomeReturnChrome();
     });
   }
   syncViewportVars();
@@ -1563,6 +1577,11 @@
     if(!root.querySelector('.gomna-home-card.is-open'))flipping=false;
     if(flipping){
       pinDeckScroll(openScrollY);
+      return;
+    }
+    if(isIdleFirstCard()){
+      pinDeckScroll(0);
+      lastP=0;
       return;
     }
     maybePreloadLife();
@@ -3449,8 +3468,14 @@
       restoreHomeEntry(restoreEntry);
       window.requestAnimationFrame(function(){syncStepSize();});
     }else{
+      pinDeckScroll(0);
+      try{window.scrollTo(0,0);}catch(e){}
       apply(0, true);
-      window.requestAnimationFrame(function(){syncStepSize();apply(progressFromScroll(), true);});
+      window.requestAnimationFrame(function(){
+        pinDeckScroll(0);
+        syncStepSize();
+        apply(0, true);
+      });
     }
     bindDeckSwipe();
     root.addEventListener('scroll', onScroll, {passive:true});
