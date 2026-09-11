@@ -669,14 +669,77 @@ button.gmd-quick-card{
   padding:6px 0;
   cursor:pointer;
   color:var(--gmd-ink);
+  text-align:center;
 }
-.gmd-badge-btn span{
+.gmd-badge-btn .gmd-badge-name{
   display:block;
   margin-top:4px;
   font-size:11px;
 }
-.gmd-badge-btn.is-off span{
+.gmd-badge-btn.is-off .gmd-badge-name{
   color:var(--gmd-muted);
+}
+.gmd-badge-btn .gmd-badge-days{
+  display:inline-block;
+  margin-top:6px;
+  padding:2px 7px;
+  border:1px solid #E2EAF6;
+  border-radius:999px;
+  background:#F5F8FC;
+  color:#34445E;
+  font-size:10px;
+  font-weight:650;
+  line-height:1.3;
+}
+.gmd-badge-status{
+  display:block;
+  margin-top:4px;
+  font-size:10px;
+  font-weight:500;
+  line-height:1.3;
+  color:#667085;
+}
+.gmd-badge-track{
+  display:block;
+  width:52px;
+  height:4px;
+  margin:6px auto 0;
+  border-radius:999px;
+  background:#E7ECF2;
+  overflow:hidden;
+}
+.gmd-badge-fill{
+  display:block;
+  height:100%;
+  border-radius:999px;
+  background:transparent;
+}
+.gmd-badge-fill.is-done{background:#B38A43}
+.gmd-badge-fill.is-now{background:#315F9E}
+.gmd-badge-fill.is-later{background:transparent}
+.gmd-badge-goal{
+  margin-top:16px;
+  text-align:center;
+}
+.gmd-badge-goal-now,
+.gmd-badge-goal-next{
+  margin:0;
+  font-size:13px;
+  line-height:1.5;
+  color:#34445E;
+}
+.gmd-badge-goal-next{
+  margin-top:2px;
+  color:#667085;
+}
+.gmd-badge-goal-track{
+  display:block;
+  width:100%;
+  height:4px;
+  margin:10px 0 0;
+  border-radius:999px;
+  background:#E7ECF2;
+  overflow:hidden;
 }
 .gmd-sheet{
   position:fixed;

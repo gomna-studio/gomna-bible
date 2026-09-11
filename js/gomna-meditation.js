@@ -47,6 +47,61 @@
     return '<span class="gmd-badge'+(on?'':' is-off')+'"><img src="'+esc(badgeAsset(b))+'" alt=""></span>';
   }
 
+  function clampPct(n){
+    if(!(n>0))return 0;
+    if(n>100)return 100;
+    return n;
+  }
+
+  function badgeKind(b, total, next){
+    if(total>=b.days)return 'done';
+    if(next&&next.id===b.id)return 'now';
+    return 'later';
+  }
+
+  function badgeStatus(b, total, kind){
+    if(kind==='done')return '달성';
+    if(kind==='now')return total+' / '+b.days+'일';
+    return '기준 '+b.days+'일';
+  }
+
+  function badgeFillPct(b, total, kind){
+    if(kind==='done')return 100;
+    if(kind==='now')return clampPct((total/b.days)*100);
+    return 0;
+  }
+
+  function badgesGridHtml(){
+    var total=Store.totalDays();
+    var info=Store.badgeForTotal(total);
+    var next=info.next;
+    var unlocked=Store.unlockedBadges();
+    var unlockedIds={};
+    unlocked.forEach(function(b){unlockedIds[b.id]=true;});
+    var badges=Store.BADGES.map(function(b){
+      var on=!!unlockedIds[b.id];
+      var kind=badgeKind(b, total, next);
+      var status=badgeStatus(b, total, kind);
+      var pct=badgeFillPct(b, total, kind);
+      return '<button type="button" class="gmd-badge-btn'+(on?'':' is-off')+'" data-gmd-badge="'+esc(b.id)+'" aria-label="'+esc(b.name)+' '+esc(status)+'">'+
+        badgeImg(b,on)+
+        '<span class="gmd-badge-name">'+esc(b.name)+'</span>'+
+        '<span class="gmd-badge-days">'+esc(String(b.days))+'일</span>'+
+        '<span class="gmd-badge-status">'+esc(status)+'</span>'+
+        '<span class="gmd-badge-track" aria-hidden="true"><i class="gmd-badge-fill is-'+kind+'" style="width:'+pct+'%"></i></span>'+
+      '</button>';
+    }).join('');
+    var remain=next?Math.max(0, next.days-total):0;
+    var nextLine=next?(next.name+'까지 '+remain+'일 남았습니다.'):'말씀의 열매를 맺었습니다.';
+    var goalPct=next?clampPct((total/next.days)*100):100;
+    return '<div class="gmd-badges">'+badges+'</div>'+
+      '<div class="gmd-badge-goal">'+
+        '<p class="gmd-badge-goal-now">현재 말씀 동행 '+total+'일</p>'+
+        '<p class="gmd-badge-goal-next">'+esc(nextLine)+'</p>'+
+        '<span class="gmd-badge-goal-track" aria-hidden="true"><i class="gmd-badge-fill '+(next?'is-now':'is-done')+'" style="width:'+goalPct+'%"></i></span>'+
+      '</div>';
+  }
+
   function imgTag(src, pos, eager, alt){
     return '<img src="'+esc(src)+'" alt="'+esc(alt||'')+'" '+(eager?'':'loading="lazy" decoding="async"')+(eager?' fetchpriority="high"':' decoding="async"')+' style="object-position:'+esc(pos||'center')+'">';
   }
@@ -101,15 +156,7 @@
   }
 
   function badgesBlock(){
-    var unlocked=Store.unlockedBadges();
-    var unlockedIds={};
-    unlocked.forEach(function(b){unlockedIds[b.id]=true;});
-    var badges=Store.BADGES.map(function(b){
-      var on=!!unlockedIds[b.id];
-      return '<button type="button" class="gmd-badge-btn'+(on?'':' is-off')+'" data-gmd-badge="'+esc(b.id)+'" aria-label="'+esc(b.name)+(on?' 획득':' 미획득')+'">'+
-        badgeImg(b,on)+'<span>'+esc(b.name)+'</span></button>';
-    }).join('');
-    return '<section class="gmd-step" id="gmdBadges"><h2>배지</h2><div class="gmd-badges">'+badges+'</div></section>';
+    return '<section class="gmd-step" id="gmdBadges"><h2>말씀 동행 배지</h2>'+badgesGridHtml()+'</section>';
   }
 
   function calendarBlock(){
@@ -220,7 +267,6 @@
       '<section class="gmd-step">'+
         '<h2>9종 말씀풀이</h2>'+
         '<p class="gmd-progress">더 깊이 보고 싶을 때, 기존 말씀풀이로 이어갑니다.</p>'+
-        '<a class="gmd-link" href="'+esc(commUrl)+'" data-gmd-commentary="1">말씀풀이 더 깊이 보기 →</a>'+
       '</section>'+
     '</div>';
   }
@@ -251,15 +297,6 @@
     var total=Store.totalDays();
     var monthN=Store.monthCount(Store.todayKey());
     var streakN=Store.streak();
-    var prog=Store.progressCopy();
-    var unlocked=Store.unlockedBadges();
-    var unlockedIds={};
-    unlocked.forEach(function(b){unlockedIds[b.id]=true;});
-    var badges=Store.BADGES.map(function(b){
-      var on=!!unlockedIds[b.id];
-      return '<button type="button" class="gmd-badge-btn'+(on?'':' is-off')+'" data-gmd-badge="'+esc(b.id)+'">'+
-        badgeImg(b,on)+'<span>'+esc(b.name)+'</span></button>';
-    }).join('');
     return '<div class="gmd-wrap">'+
       '<button type="button" class="gmd-back" data-gmd-view="main">← 묵상</button>'+
       '<header class="gmd-header"><h1>말씀 동행</h1><p>하루를 놓쳐도 누적된 동행은 사라지지 않습니다.</p></header>'+
@@ -267,9 +304,9 @@
         '<div><b>'+total+'일</b><span>누적 완료일</span></div>'+
         '<div><b>'+monthN+'일</b><span>이번 달</span></div>'+
         '<div><b>'+streakN+'일</b><span>현재 연속</span></div>'+
-      '</div><p class="gmd-progress">'+esc(prog.text)+'</p></div>'+
+      '</div></div>'+
       calendarBlock()+
-      '<section class="gmd-section"><h2>말씀 동행 배지</h2><div class="gmd-badges">'+badges+'</div></section></div>';
+      '<section class="gmd-section"><h2>말씀 동행 배지</h2>'+badgesGridHtml()+'</section></div>';
   }
 
   function renderHistory(){
