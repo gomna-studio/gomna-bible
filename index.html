@@ -320,7 +320,7 @@ html.gt-translation-pending body::after{
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register("/sw.js?v=20260910-home-photo-v1", { scope: "/", updateViaCache: "none" })
+  navigator.serviceWorker.register("/sw.js?v=20260910-home-engage-v1", { scope: "/", updateViaCache: "none" })
     .then(function(reg){ try { reg.update(); } catch (eUp) {} })
     .catch(function(){});
   if (!window.__gomnaSwUpdateBound) {
@@ -1053,7 +1053,7 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
 .login-provider-icon{display:flex;width:24px;height:24px;align-items:center;justify-content:center}
 .login-provider-icon img{width:21px;height:21px;object-fit:contain;display:block}
 .login-provider svg{width:21px;height:21px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.login-provider-label{min-width:0;text-align:center;color:#2F3439;text-decoration:none}
+.login-provider-label{min-width:0;text-align:center}
 .login-provider-balance{display:block;width:24px;height:1px}
 /* 카카오·네이버는 심볼만 따로 있는 파일이 없어 각 사 공식 완성 버튼 이미지를 그대로 쓴다.
    두 이미지 모두 왼쪽 정사각 영역 한가운데에 심볼이 있다.
@@ -1124,28 +1124,38 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
 .login-box:focus{outline:none}
 /* 창이 열린 동안 배경 스크롤 차단 */
 html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-behavior:none}
-/* 아이폰에서도 화면을 꽉 채우지 않고, 가장자리 여백이 있는 중앙 카드로 둔다.
-   노치·홈 인디케이터는 overlay padding의 safe-area로만 피하고 상자 자체는 둥근 카드다. */
+/* 모바일: 화면 전체를 채우는 독립 로그인 화면.
+   배경과 상자를 같은 아이보리로 두고 테두리·모서리·그림자를 없애 이음선을 지운다.
+   상자를 viewport 높이로 늘리고 내용을 세로 가운데에 두어 시트가 아니라 한 화면으로 보이게 한다.
+   내용이 화면보다 길어지는 짧은 기기에서는 상자의 overflow-y:auto로 스크롤된다.
+   시트가 아니게 되었으므로 위쪽 .login-sheet-handle{display:none}이 그대로 적용된다. */
 @media (max-width:600px){
-  .login-overlay{
-    padding:calc(12px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));
-    align-items:center;
-    background:#FCFAF6;
-  }
+  .login-overlay{padding:0;align-items:stretch;background:#FCFAF6}
   .login-box{
-    max-width:412px;
-    padding:26px 18px 18px;
-    border:1px solid rgba(151,105,53,.18);
-    border-radius:22px;
-    box-shadow:0 18px 44px rgba(92,64,32,.22);
-    max-height:calc(100dvh - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
-    min-height:0;
-    height:auto;
-    display:block;
-    --login-inset:23px;
+    max-width:none;
+    /* 위 여백을 아래 여백보다 크게 두어 세로 가운데 정렬의 기준점을 아래로 내린다.
+       비주얼과 폼이 한 덩어리로 함께 내려가므로 둘의 간격은 유지된다.
+       두 값 모두 vh 비례다. 고정 px으로 아래로 밀면 짧은 화면에서 내용이 남는 높이를
+       넘어 스크롤이 생기는데, 비례값은 화면이 짧아질 때 함께 줄어 그 문제가 없다.
+       390x844에서 위 약 76px / 아래 약 40px이고, 아래 여백은 safe-area를 더해
+       홈 인디케이터·Safari 하단 바 위로 남는다. 위 여백이 아래보다 큰 만큼
+       두 덩어리가 함께 아래로 내려가, 카드 비주얼이 화면 상단에 붙지 않고
+       중앙보다 위쪽에 자리 잡는다. 닫기 X(위에서 10~50px)와는 만나지 않는다. */
+    padding:calc(env(safe-area-inset-top,0px) + 9vh) 18px calc(4.75vh + env(safe-area-inset-bottom,0px));
+    border:none;
+    border-radius:0;
+    box-shadow:none;
+    max-height:none;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
     animation:loginBoxIn 180ms ease-out;
   }
-  .login-close{top:14px;right:14px}
+  /* 닫기는 화면 오른쪽 위에 둔다. 노치 아래로 내려오도록 안전 여백을 더한다. */
+  .login-close{top:calc(env(safe-area-inset-top,0px) + 10px);right:10px}
+  .login-box{--login-inset:26px}
   .login-brand-visual{margin:4px auto 22px}
   .login-brand-lead{font-size:16.5px;margin-bottom:12px}
   .login-title{margin-top:4px}
@@ -1923,9 +1933,9 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
 <script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260905-all66-v1">
 <link rel="preload" as="image" href="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1">
-<link rel="preload" as="image" href="assets/home/card-meditation-life.png?v=20260910-home-photo-v1">
-<link rel="preload" as="image" href="assets/home/card-bible-stories-people.png?v=20260910-home-photo-v1">
-<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260910-home-photo-v1">
+<link rel="preload" as="image" href="assets/home/card-meditation-life.png?v=20260906-poster-mock-v1">
+<link rel="preload" as="image" href="assets/home/card-bible-stories-people.png?v=20260906-poster-mock-v1">
+<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260910-home-vv-v1">
 <style>
 /* 홈 데스크톱 선택창 폭 = 홈 메인 카드 폭. .container max-width 390 - padding 18+18. Reader 프레임 폭은 쓰지 않는다. */
 @media (min-width:700px) and (min-height:600px){
@@ -2258,10 +2268,10 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
     <span class="gomna-home-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg></span>
     <span data-i18n-key="home.tab.bible">성경</span>
   </button>
-  <a class="gomna-home-tab" data-ghd-nav="media" href="./meditation.html" aria-label="묵상">
+  <button type="button" class="gomna-home-tab" data-ghd-nav="media" aria-label="묵상">
     <span class="gomna-home-tab-icon" aria-hidden="true"><svg viewBox="0 0 23 23"><rect x="5.75" y="4.25" width="11.5" height="14.5" rx="2.1"/><path d="M8.2 9.55h6.6M8.2 13.45h6.6"/></svg></span>
     <span data-i18n-key="home.tab.media">묵상</span>
-  </a>
+  </button>
   <a class="gomna-home-tab" data-ghd-nav="find" href="./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3" aria-label="찾기">
     <span class="gomna-home-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M14.88 14.88L20.2 20.2"/></svg></span>
     <span data-i18n-key="home.tab.find">찾기</span>
@@ -2526,12 +2536,12 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
   <div class="popup-box login-box" tabindex="-1" onclick="event.stopPropagation()">
     <span class="login-sheet-handle" aria-hidden="true"></span>
     <button type="button" class="login-close" id="loginModalCloseBtn" onclick="closeLoginModal()" aria-label="닫기">✕</button>
-    <p class="login-brand-lead" id="loginBrandLead">오늘 필요한 말씀을 더 가까이 만나보세요.</p>
+    <p class="login-brand-lead" id="loginBrandLead">읽고, 듣고, 묵상하며 말씀을 더 깊이 알아가세요.</p>
     <div class="login-brand-visual" id="loginBrandVisual" aria-hidden="true">
       <span class="login-brand-glow"></span>
-      <span class="login-brand-card login-brand-card--gold login-brand-card--slot-center" data-brand-card="1" data-brand-caption="오늘 필요한 말씀을 더 가까이 만나보세요."><img src="assets/login/login-visual-gold.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
-      <span class="login-brand-card login-brand-card--gomna login-brand-card--slot-left" data-brand-card="2" data-brand-caption="읽고, 듣고, 묵상하며 말씀을 더 깊이 알아가세요."><img src="assets/login/login-visual-gomna.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
-      <span class="login-brand-card login-brand-card--blue login-brand-card--slot-right" data-brand-card="3" data-brand-caption="말씀과 함께한 시간을 어디서든 이어가세요."><img src="assets/login/login-visual-blue.png?v=1" alt="" decoding="async" onerror="if(this.getAttribute('data-fallback-used')){var c=this.closest('.login-brand-card');if(c)c.hidden=true;return;}this.setAttribute('data-fallback-used','1');this.src='logo-home.png?v=1';"></span>
+      <span class="login-brand-card login-brand-card--gold login-brand-card--slot-left" data-brand-card="2" data-brand-caption="오늘 필요한 말씀을 더 가까이 만나보세요."><img src="assets/login/login-visual-gold.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
+      <span class="login-brand-card login-brand-card--gomna login-brand-card--slot-right" data-brand-card="3" data-brand-caption="읽고, 듣고, 묵상하며 말씀을 더 깊이 알아가세요."><img src="assets/login/login-visual-gomna.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
+      <span class="login-brand-card login-brand-card--blue login-brand-card--slot-center" data-brand-card="1" data-brand-caption="말씀과 함께한 시간을 어디서든 이어가세요."><img src="assets/login/login-visual-blue.png?v=1" alt="" decoding="async" onerror="if(this.getAttribute('data-fallback-used')){var c=this.closest('.login-brand-card');if(c)c.hidden=true;return;}this.setAttribute('data-fallback-used','1');this.src='logo-home.png?v=1';"></span>
     </div>
     <div class="login-brand-dots" id="loginBrandDots" aria-hidden="true">
       <button type="button" class="login-brand-dot is-on" tabindex="-1"></button>
@@ -3487,7 +3497,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <script src="js/gomna-push-config.js?v=20260909-push-pref-v1"></script>
 <script src="js/gomna-push-prefs.js?v=20260909-push-pref-v1"></script>
 <script src="js/gomna-mail-config.js?v=20260909-mail-mac-v1"></script>
-<script src="js/gomna-home-feed.js?v=20260911-home-return-flicker-v1"></script>
+<script src="js/gomna-home-feed.js?v=20260910-auth-unify-v1"></script>
 <script src="js/gomna-bible-stair-picker.js?v=20260905-ot-back-v1"></script>
 <script src="settings_guide.js?v=20260807-settings-v3" defer></script>
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>
