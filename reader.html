@@ -3541,6 +3541,10 @@ html.ubc-rail-drawer #opt4BottomBar.opt4-bottom-bar{
 html.ubc-rail-drawer #scriptureDock.scripture-dock{
   transform:translate3d(-50%,110%,0)!important;
 }
+body.gomna-commentary-popup-open #scriptureDock.scripture-dock{
+  display:none!important;
+  pointer-events:none!important;
+}
 @media (min-width:481px){
   html.reader-hide-chrome.ubc-rail-drawer #opt4BottomBar.opt4-bottom-bar{
     transform:translate3d(-50%,110%,0)!important;
@@ -4354,6 +4358,15 @@ body.gomna-commentary-popup-open #commentaryPopupBox > .gomna-commentary-inline-
   z-index:6!important;
   touch-action:manipulation!important;
 }
+#commentaryPopupBox > .gomna-commentary-legacy-close-wrap,
+body.gomna-commentary-popup-open #commentaryPopupBox > .gomna-commentary-legacy-close-wrap{
+  display:none!important;
+  height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+}
 </style>
 <style id="verse-ui-arrow-num-v1">
 /* 오디오 CSS보다 나중에 적용: 원형 제거·3ch 2열 정렬·본문 첫 줄 기준선 맞춤 */
@@ -4848,14 +4861,14 @@ if ("serviceWorker" in navigator) {
   try{
     var p=new URLSearchParams(location.search);
     var src=p.get('source');
-    if(p.get('commentary')!=='1'||(src!=='home-card-commentary'&&src!=='home-main-commentary'))return;
+    if(p.get('commentary')!=='1'||(src!=='home-card-commentary'&&src!=='home-main-commentary'&&src!=='meditation-commentary'))return;
     var book=(p.get('book')||'').trim();
     var chapter=parseInt(p.get('chapter'),10);
     var verse=parseInt(p.get('verse')||p.get('verseStart')||'1',10);
     if(!book||!chapter||isNaN(verse))return;
     window.__GOMNA_HOME_COMMENTARY_PENDING={book:book,chapter:chapter,verse:verse};
-    document.documentElement.classList.add('gomna-home-commentary-loading');
-    if(src!=='home-main-commentary')return;
+    if(src!=='meditation-commentary')document.documentElement.classList.add('gomna-home-commentary-loading');
+    if(src!=='home-main-commentary'&&src!=='meditation-commentary')return;
     var ttl=document.getElementById('commentaryTitle');
     var cnt=document.getElementById('commentaryContent');
     var pop=document.getElementById('commentaryPopup');
@@ -4889,6 +4902,7 @@ var pastorCommentaryData = {};
 // 첫 방문 시 ~270 MB 다운로드를 → 평균 5–15 MB로 감소시킴.
 var _commentaryLoaded = {}; // 책별 주석 데이터는 외부 파일에서 동적 로드됨
 var _commentaryPromises = {};
+var _commentaryFailed = {};
 var BOOK_FILE_MAP = {
   "창세기":"genesis","출애굽기":"exodus","레위기":"leviticus","민수기":"numbers","신명기":"deuteronomy",
   "여호수아":"joshua","사사기":"judges","룻기":"ruth","사무엘상":"1samuel","사무엘하":"2samuel",
@@ -4909,16 +4923,47 @@ var BOOK_FILE_MAP = {
 };
 
 function loadPastorCommentary(bookName) {
-  if (_commentaryLoaded[bookName]) return Promise.resolve();
+  if (_commentaryLoaded[bookName]) return Promise.resolve(true);
+  if (_commentaryFailed[bookName]) return Promise.resolve(false);
   if (_commentaryPromises[bookName]) return _commentaryPromises[bookName];
   var fileBase = BOOK_FILE_MAP[bookName];
-  if (!fileBase) return Promise.resolve();
+  if (!fileBase) {
+    _commentaryFailed[bookName] = true;
+    return Promise.resolve(false);
+  }
   _commentaryPromises[bookName] = new Promise(function(resolve) {
+    var settled = false;
+    var timer = 0;
+    function finish(ok) {
+      if (settled) return;
+      settled = true;
+      if (timer) clearTimeout(timer);
+      if (ok) _commentaryLoaded[bookName] = true;
+      else _commentaryFailed[bookName] = true;
+      resolve(!!ok);
+    }
+    var marker = 'script[data-gomna-commentary-book="'+fileBase+'"]';
+    var existing = document.head && document.head.querySelector(marker);
+    if (existing) {
+      if (existing.getAttribute('data-gomna-commentary-ready') === '1') {
+        finish(true);
+        return;
+      }
+      existing.addEventListener('load', function(){ finish(true); });
+      existing.addEventListener('error', function(){ finish(false); });
+      timer = setTimeout(function(){ finish(false); }, 45000);
+      return;
+    }
     var s = document.createElement('script');
     s.src = 'gomna_data_' + fileBase + '.js';
     s.async = true;
-    s.onload = function() { _commentaryLoaded[bookName] = true; resolve(); };
-    s.onerror = function() { resolve(); };
+    s.setAttribute('data-gomna-commentary-book', fileBase);
+    s.onload = function() {
+      s.setAttribute('data-gomna-commentary-ready', '1');
+      finish(true);
+    };
+    s.onerror = function() { finish(false); };
+    timer = setTimeout(function(){ finish(false); }, 45000);
     document.head.appendChild(s);
   });
   return _commentaryPromises[bookName];
@@ -8655,9 +8700,14 @@ function showCommentary(verseNum) {
 
   // ── Lazy-load guard: KO uses pastorCommentaryData scripts; EN/JA use locale JSON ──
   if (cardLocale === 'ko-KR') {
-    if (typeof _commentaryLoaded !== 'undefined' && !_commentaryLoaded[bookName] && bookId) {
+    if (typeof _commentaryFailed !== 'undefined' && _commentaryFailed[bookName]) {
+      /* 실패한 책 자료를 다시 요청하지 않는다 */
+    } else if (typeof _commentaryLoaded !== 'undefined' && !_commentaryLoaded[bookName] && bookId) {
       showCommentaryLoadingState();
-      loadPastorCommentary(bookName).then(function() { showCommentary(verseNum); });
+      loadPastorCommentary(bookName).then(function() {
+        if (window.__gomnaCommentaryLoadAborted) return;
+        showCommentary(verseNum);
+      });
       return;
     }
   } else if (bookId) {
@@ -12805,6 +12855,15 @@ function isReaderBibleAudioCurrent() {
   return !!(state && state.currentAudioId && /\.bible$/.test(String(state.currentAudioId)));
 }
 
+function isReaderCommentaryAudioCurrent() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var state = engine && typeof engine.getState === 'function' ? engine.getState() : null;
+  var audioId = state && state.currentAudioId;
+  var buttons = window.GOMNA_AUDIO_COMMENTARY_BUTTONS;
+  if (!audioId || !buttons || typeof buttons.isCommentaryAudioId !== 'function') return false;
+  return !!buttons.isCommentaryAudioId(audioId);
+}
+
 function isReaderBiblePlaybackPaused() {
   var engine = window.GOMNA_AUDIO_ENGINE;
   var state = engine && typeof engine.getState === 'function' ? engine.getState() : null;
@@ -12841,7 +12900,7 @@ function syncReaderPlaybackStyleChrome() {
   var goldBtn = document.getElementById('readerPlaybackStyleGold');
   var focusBtn = document.getElementById('readerPlaybackStyleFocus');
   var style = getReaderPlaybackStyle();
-  var show = isReaderBibleAudioCurrent() && isReaderMiniPlayerOpen();
+  var show = (isReaderBibleAudioCurrent() || isReaderCommentaryAudioCurrent()) && isReaderMiniPlayerOpen();
   document.documentElement.classList.toggle('reader-bible-audio-on', show);
   syncReaderBiblePlayerClearance();
   if (btn) {
@@ -17897,6 +17956,8 @@ function goBack(to) {
 }
 
 function goHome() {
+  window.__gomnaCommentaryLoadAborted = true;
+  try { if (typeof closeCommentary === 'function') closeCommentary(); } catch (eHome) {}
   stopReaderAudioPlayback();
   window.location.assign('./index.html?v=20260712-easyfind-direct-v3');
 }
@@ -19168,7 +19229,7 @@ function loadAds() {
     try{
       var p=new URLSearchParams(location.search);
       var src=p.get('source');
-      if(p.get('commentary')==='1'&&(src==='home-card-commentary'||src==='home-main-commentary')){
+      if(p.get('commentary')==='1'&&(src==='home-card-commentary'||src==='home-main-commentary'||src==='meditation-commentary')){
         pending={
           book:(p.get('book')||'').trim(),
           chapter:parseInt(p.get('chapter'),10),
