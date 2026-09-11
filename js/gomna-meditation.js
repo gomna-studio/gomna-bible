@@ -138,7 +138,7 @@
         '<span><strong>'+esc(Data.formatDateLabel(r.date))+'</strong>'+
         '<span>'+esc(r.verseRef||'')+(note?(' · '+note.slice(0,48)):'')+' · 완료</span></span></button>';
     }).join(''):'<p class="gmd-empty">아직 마친 묵상이 없습니다.</p>';
-    return '<section class="gmd-step" id="gmdHistory"><h2>지난 묵상 회고</h2><div class="gmd-list">'+html+'</div>'+
+    return '<section class="gmd-step" id="gmdHistory"><h2>지난 묵상 기록</h2><div class="gmd-list">'+html+'</div>'+
       (past.length?'<button type="button" class="gmd-link" data-gmd-view="history">지난 묵상 모두 보기 →</button>':'')+
     '</section>';
   }
@@ -184,7 +184,7 @@
       '</section>'+
       '<section class="gmd-step gmd-pause">'+
         '<h2>잠시 머물기</h2>'+
-        '<p>말씀을 읽거나 들은 뒤, 잠시 이 한 구절 앞에 머물러 보세요.</p>'+
+        '<p>말씀을 읽거나 들은 뒤,<br>이 한 구절 앞에 잠시 머물러 보세요.</p>'+
       '</section>'+
       '<section class="gmd-step">'+
         '<h2>오늘의 묵상</h2>'+

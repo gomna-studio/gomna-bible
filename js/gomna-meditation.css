@@ -451,26 +451,33 @@ button.gmd-quick-card{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-height:44px;
-  padding:0 16px;
+  height:30px;
+  min-height:30px;
+  padding:0 14px;
   border-radius:999px;
-  border:1px solid var(--gmd-line);
-  background:var(--gmd-surface);
-  color:var(--gmd-ink);
+  border:1px solid #DCE8F6;
+  background:#F5F8FC;
+  color:#34445E;
   font:inherit;
   font-size:14px;
   font-weight:700;
   cursor:pointer;
   text-decoration:none;
+  box-sizing:border-box;
+  white-space:nowrap;
+  -webkit-tap-highlight-color:transparent;
 }
 .gmd-btn-primary{
-  background:var(--gmd-navy);
-  border-color:var(--gmd-navy);
-  color:#fff;
+  background:#F5F8FC;
+  border-color:#DCE8F6;
+  color:#34445E;
 }
+.gmd-btn:active,
+.gmd-btn-primary:active,
 .gmd-btn[aria-pressed="true"]{
-  background:var(--gmd-gold-dim);
-  border-color:rgba(176,138,74,.35);
+  background:#18243A;
+  border-color:#18243A;
+  color:#FFFFFF;
 }
 .gmd-pause{
   text-align:center;
@@ -752,6 +759,183 @@ button.gmd-quick-card{
 @media (min-width:860px){
   .gomna-home-tabbar{left:50%;width:min(820px,100vw);transform:translateX(-50%)}
 }
+
+/* 묵상 화면 색상 위계. 레이아웃·기능은 유지하고 연한 단색만 나눈다. 로그인 overlay에는 적용하지 않는다. */
+html:has(body.gmd-page),
+body.gmd-page{
+  background:#F6F8FB;
+  color:#18243A;
+  --gmd-bg:#F6F8FB;
+  --gmd-surface:#FFFFFF;
+  --gmd-ink:#18243A;
+  --gmd-muted:#667085;
+  --gmd-line:#DFE6EF;
+  --gmd-gold:#B38A43;
+  --gmd-gold-dim:rgba(179,138,67,.18);
+  --gmd-navy:#263958;
+}
+body.gmd-page .gmd-header h1{color:#18243A}
+body.gmd-page .gmd-header p{color:#667085}
+body.gmd-page .gmd-step{
+  background:#FFFFFF;
+  border-color:#DFE6EF;
+  box-shadow:0 8px 24px rgba(31,48,75,.04);
+}
+body.gmd-page .gmd-link{
+  color:#2B3F70;
+}
+
+/* 오늘의 말씀 */
+body.gmd-page #gmdStepWord{background:#F4F8FF}
+body.gmd-page #gmdStepWord .gmd-kicker-ink{color:#667085}
+body.gmd-page #gmdStepWord .gmd-ref,
+body.gmd-page #gmdStepWord .gmd-ref .gmd-krv{color:#B38A43}
+body.gmd-page #gmdStepWord .gmd-verse{color:#18243A}
+body.gmd-page #gmdStepWord .gmd-actions .gmd-btn:first-child,
+body.gmd-page #gmdStepWord .gmd-actions .gmd-btn:last-child{
+  background:#F5F8FC;
+  border-color:#DCE8F6;
+  color:#34445E;
+}
+body.gmd-page #gmdStepWord .gmd-actions .gmd-btn:first-child:active,
+body.gmd-page #gmdStepWord .gmd-actions .gmd-btn:last-child:active{
+  background:#18243A;
+  border-color:#18243A;
+  color:#FFFFFF;
+}
+
+/* 잠시 머물기 */
+body.gmd-page .gmd-pause{background:#FFFFFF;border-color:#E2E7EE}
+body.gmd-page .gmd-pause h2{color:#18243A}
+body.gmd-page .gmd-pause p{color:#687386}
+
+/* 오늘의 묵상 */
+body.gmd-page .gmd-session > .gmd-step:has(> .gmd-prose):has(> a.gmd-link){background:#F8FAFD}
+body.gmd-page .gmd-session > .gmd-step:has(> .gmd-prose):has(> a.gmd-link) h2{color:#18243A}
+body.gmd-page .gmd-session > .gmd-step:has(> .gmd-prose):has(> a.gmd-link) .gmd-prose{color:#18243A}
+body.gmd-page .gmd-session > .gmd-step:has(> .gmd-prose):has(> a.gmd-link) .gmd-link{color:#2B3F70}
+
+/* 묵상 질문 */
+body.gmd-page .gmd-session > .gmd-step:has(#gmdQ){background:#F8F9FB;border-color:#E2E7EE}
+body.gmd-page .gmd-session > .gmd-step:has(#gmdQ) h2{color:#18243A}
+body.gmd-page .gmd-session > .gmd-step:has(#gmdQ) .gmd-q{color:#29334A}
+body.gmd-page .gmd-session > .gmd-step:has(#gmdQ) .gmd-status{color:#687386}
+body.gmd-page #gmdQ{
+  background:#FFFFFF;
+  border-color:#DFE5EC;
+  color:#29334A;
+}
+body.gmd-page #gmdQ::placeholder{color:#9AA1AC}
+
+/* 오늘의 한 걸음 */
+body.gmd-page .gmd-session > .gmd-step:has(> p.gmd-prose){background:#FFFFFF;border-color:#E2E7EE}
+body.gmd-page .gmd-session > .gmd-step:has(> p.gmd-prose) h2{color:#18243A}
+body.gmd-page .gmd-session > .gmd-step:has(> p.gmd-prose) .gmd-prose{color:#465166}
+
+/* 오늘의 기도 */
+body.gmd-page .gmd-pray{background:#F8F9FB;border-color:#E2E7EE}
+body.gmd-page .gmd-pray-rule{color:#5F6878}
+body.gmd-page .gmd-pray .gmd-verse{color:#29334A}
+
+/* 오늘 내 마음 기록 */
+body.gmd-page .gmd-session > .gmd-step:has(#gmdNote){background:#F7F9FC}
+body.gmd-page .gmd-session > .gmd-step:has(#gmdNote) h2{color:#18243A}
+body.gmd-page #gmdNote{
+  background:#FFFFFF;
+  border-color:#DCE4ED;
+  color:#29334A;
+}
+body.gmd-page #gmdNote::placeholder{color:#A0A7B1}
+body.gmd-page #gmdSave{
+  background:#F5F8FC;
+  border-color:#DCE8F6;
+  color:#34445E;
+}
+body.gmd-page #gmdSave:active{
+  background:#18243A;
+  border-color:#18243A;
+  color:#FFFFFF;
+}
+
+/* 오늘의 묵상 마치기 */
+body.gmd-page #gmdFinish,
+body.gmd-page .gmd-btn-primary{
+  background:#F5F8FC;
+  border-color:#DCE8F6;
+  color:#34445E;
+}
+body.gmd-page #gmdFinish:active,
+body.gmd-page .gmd-btn-primary:active{
+  background:#18243A;
+  border-color:#18243A;
+  color:#FFFFFF;
+}
+
+/* 말씀 동행 기록 */
+body.gmd-page #gmdWalkPreview,
+body.gmd-page .gmd-walk{
+  background:#F1F6FA;
+  border-color:#DFE6EF;
+}
+body.gmd-page #gmdWalkPreview .gmd-walk-stats b,
+body.gmd-page .gmd-walk-stats b{color:#18243A}
+body.gmd-page #gmdWalkPreview .gmd-walk-stats span,
+body.gmd-page #gmdWalkPreview .gmd-progress,
+body.gmd-page .gmd-walk-stats span{color:#667085}
+body.gmd-page #gmdWalkPreview .gmd-link{color:#2B3F70}
+body.gmd-page .gmd-dot{
+  border-color:#D7DEE8;
+  background:#FFFFFF;
+}
+body.gmd-page .gmd-week .is-on .gmd-dot{
+  background:#315F9E;
+  border-color:#315F9E;
+}
+body.gmd-page .gmd-week .is-today .gmd-dot{
+  box-shadow:0 0 0 3px rgba(179,138,67,.22);
+}
+
+/* 배지: PNG 본래 색 유지. grayscale·탁한 투명도 없음 */
+body.gmd-page #gmdBadges{background:#F8FAFF}
+body.gmd-page .gmd-badge,
+body.gmd-page .gmd-badge img,
+body.gmd-page .gmd-badge.is-off,
+body.gmd-page .gmd-badge.is-off img,
+body.gmd-page .gmd-badge-btn.is-off,
+body.gmd-page .gmd-badge-btn.is-off .gmd-badge{
+  filter:none;
+  -webkit-filter:none;
+  opacity:1;
+}
+body.gmd-page .gmd-badge-btn:not(.is-off) .gmd-badge{
+  box-shadow:0 0 0 2px #B38A43;
+}
+
+/* 달력 */
+body.gmd-page #gmdCalendar{background:#FFFFFF}
+body.gmd-page .gmd-cal-nav{color:#315F9E}
+body.gmd-page .gmd-cal .is-today{
+  background:#DDEAFF;
+  color:#263958;
+  box-shadow:inset 0 0 0 1.5px #315F9E;
+}
+body.gmd-page .gmd-cal .is-done{
+  box-shadow:inset 0 0 0 1.5px #315F9E;
+}
+body.gmd-page .gmd-cal .is-future{color:#c0c4ca}
+
+/* 지난 묵상 기록 */
+body.gmd-page #gmdHistory{background:#F7F8FA;border-color:#E2E7EE}
+body.gmd-page #gmdHistory h2{color:#18243A}
+body.gmd-page #gmdHistory .gmd-empty,
+body.gmd-page #gmdHistory .gmd-row span{color:#687386}
+body.gmd-page #gmdHistory .gmd-link{color:#2B3F70}
+
+/* 9종 말씀풀이 */
+body.gmd-page .gmd-session > .gmd-step:has(> .gmd-progress):has(> a.gmd-link){background:#F8F9FB}
+body.gmd-page .gmd-session > .gmd-step:has(> .gmd-progress):has(> a.gmd-link) h2{color:#18243A}
+body.gmd-page .gmd-session > .gmd-step:has(> .gmd-progress):has(> a.gmd-link) .gmd-progress{color:#667085}
+body.gmd-page .gmd-session > .gmd-step:has(> .gmd-progress):has(> a.gmd-link) .gmd-link{color:#2B3F70}
 
 /* login overlay — Home과 같은 카드·버튼 규칙. 묵상 본문 선택자에는 적용하지 않는다. */
 .popup-overlay{display:none;position:fixed;inset:0;z-index:10000;justify-content:center;align-items:center}
