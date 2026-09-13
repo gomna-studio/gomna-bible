@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-09-10-home-photo-v1';
+const CACHE_VERSION = '2026-09-12-first-visit-stable-v1';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE = 'gomna-data-v1';
@@ -256,11 +256,6 @@ self.addEventListener('activate', event => {
         );
       })
       .then(() => self.clients.claim())
-      .then(() => {
-        // Do not wait on client.navigate here. A navigation fetch is
-        // blocked until activate finishes, so awaiting it deadlocks.
-        void refreshInstalledAppClients();
-      })
   );
 });
 

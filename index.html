@@ -15,7 +15,9 @@
 })();
 </script>
 <meta charset="UTF-8">
-<script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
+<link rel="preload" as="style" href="js/gomna-home-feed.css?v=20260910-home-photo-v1">
+<link rel="preload" as="style" href="js/gomna-bible-stair-picker.css?v=20260905-all66-v1">
+<script defer src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script>
 (function () {
   try {
@@ -206,8 +208,8 @@
 <style id="gomna-ui-i18n-boot-css">
 html.gomna-ui-i18n-boot [data-i18n-key]:not(img){visibility:hidden}
 </style>
-<script src="js/gomna-ui-i18n.js?v=20260909-locale-runtime-sync-v1"></script>
-<script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
+<script defer src="js/gomna-ui-i18n.js?v=20260909-locale-runtime-sync-v1"></script>
+<script defer src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <style id="gt-translation-pending-css">
 html.gt-translation-pending,
 html.gt-translation-pending body{
@@ -320,9 +322,22 @@ html.gt-translation-pending body::after{
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register("/sw.js?v=20260910-home-photo-v1", { scope: "/", updateViaCache: "none" })
-    .then(function(reg){ try { reg.update(); } catch (eUp) {} })
-    .catch(function(){});
+  var registerHomeServiceWorker = function () {
+    navigator.serviceWorker.register("/sw.js?v=20260912-first-visit-stable-v1", { scope: "/", updateViaCache: "none" })
+      .then(function(reg){ try { reg.update(); } catch (eUp) {} })
+      .catch(function(){});
+  };
+  if (hadSwController) {
+    registerHomeServiceWorker();
+  } else {
+    window.addEventListener("load", function () {
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(registerHomeServiceWorker, { timeout: 4000 });
+      } else {
+        window.setTimeout(registerHomeServiceWorker, 1200);
+      }
+    }, { once: true });
+  }
   if (!window.__gomnaSwUpdateBound) {
     window.__gomnaSwUpdateBound = true;
     navigator.serviceWorker.addEventListener("controllerchange", function(){
@@ -1914,13 +1929,17 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
     }
 
     window.GomnaHomeAnalyticsInit = initHomeAnalytics;
-    initHomeAnalytics();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initHomeAnalytics, { once: true });
+    } else {
+        initHomeAnalytics();
+    }
 })();
 </script>
 <!-- 사용자 글자 크기(공용). 첫 그림 전에 저장된 비율을 적용하려고 head에서 바로 읽는다. -->
-<script src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
+<script defer src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
-<script src="js/gomna-theme.js?v=20260807-theme-v7"></script>
+<script defer src="js/gomna-theme.js?v=20260807-theme-v7"></script>
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260905-all66-v1">
 <link rel="preload" as="image" href="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1">
 <link rel="preload" as="image" href="assets/home/card-meditation-life.png?v=20260910-home-photo-v1">

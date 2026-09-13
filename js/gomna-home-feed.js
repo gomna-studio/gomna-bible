@@ -7,10 +7,13 @@
   var openScrollY=0, flipping=false;
   var card2Settled=false, card3Settled=false, allowCard3=false, allowCard1From2=false, allowCard2From3=false;
   var awaitingDir=false, gestureLive=false, gestureEndedSinceSettle=false;
-  var settleAnim=false, settleAnimTimer=0, wheelIdleTimer=0, lastP=0;
+  var settleAnim=false, settleAnimTimer=0, wheelIdleTimer=0, wheelGesture=false, lastP=0;
   var pinching=false, pinchScrollY=0, lifeImgsPreloaded=false, storyImgsPreloaded=false;
+  var homeImageCache=Object.create(null), lifeImageRequest=0, storyImageRequest=0, cardOpenImageRequest=0;
   var swipeDrag=null, swipeHandled=false;
   var relayoutQueued=false, relayoutPending=false;
+  var vvResizeTimer=0;
+  var VV_RESIZE_WAIT=180;
   var SETTLE_AT=0.32;
   var SETTLE_MS=180;
   var SWIPE_PX=36;
@@ -892,21 +895,35 @@
     if(ev){ev.preventDefault();ev.stopPropagation();}
     var theme=lifeThemeById(id);
     if(!theme)return;
-    preloadLifeThemeImages();
-    lifeThemeId=theme.id;
-    fillCopy();
     var lifeCard=root&&root.querySelector('.gomna-home-card[data-card="1"]');
-    if(lifeCard && !lifeCard.classList.contains('is-open'))openCard(lifeCard);
+    var request=++lifeImageRequest;
+    setCardImageBusy(lifeCard, true);
+    ensureHomeImageReady(LIFE_THEME_IMGS[theme.id], 'high').then(function(ready){
+      if(request!==lifeImageRequest)return;
+      setCardImageBusy(lifeCard, false);
+      if(!ready)return;
+      lifeThemeId=theme.id;
+      fillCopy();
+      if(lifeCard && !lifeCard.classList.contains('is-open'))openCard(lifeCard);
+      preloadLifeThemeImages();
+    });
   }
   function selectStoryPerson(id, ev){
     if(ev){ev.preventDefault();ev.stopPropagation();}
     var person=storyPersonById(id);
     if(!person)return;
-    preloadStoryPersonImages();
-    storyPersonId=person.id;
-    fillCopy();
     var storyCard=root&&root.querySelector('.gomna-home-card[data-card="2"]');
-    if(storyCard && !storyCard.classList.contains('is-open'))openCard(storyCard);
+    var request=++storyImageRequest;
+    setCardImageBusy(storyCard, true);
+    ensureHomeImageReady(STORY_PERSON_IMGS[person.id], 'high').then(function(ready){
+      if(request!==storyImageRequest)return;
+      setCardImageBusy(storyCard, false);
+      if(!ready)return;
+      storyPersonId=person.id;
+      fillCopy();
+      if(storyCard && !storyCard.classList.contains('is-open'))openCard(storyCard);
+      preloadStoryPersonImages();
+    });
   }
   function focusPrayer(card){
     if(!card)return;
@@ -1033,12 +1050,18 @@
     syncGreeting();
     syncSocial();
   }
+  function onVisualViewportResize(){
+    if(vvResizeTimer)window.clearTimeout(vvResizeTimer);
+    vvResizeTimer=window.setTimeout(function(){
+      vvResizeTimer=0;
+      scheduleRelayout();
+    }, VV_RESIZE_WAIT);
+  }
   function bindViewportRelayout(){
     if(document.documentElement.getAttribute('data-ghd-vv-bound')==='1')return;
     document.documentElement.setAttribute('data-ghd-vv-bound','1');
     if(window.visualViewport){
-      window.visualViewport.addEventListener('resize', scheduleRelayout, {passive:true});
-      window.visualViewport.addEventListener('scroll', scheduleRelayout, {passive:true});
+      window.visualViewport.addEventListener('resize', onVisualViewportResize, {passive:true});
     }
     window.addEventListener('pageshow', refreshHomeReturnChrome, {passive:true});
     window.addEventListener('focus', refreshHomeReturnChrome, {passive:true});
@@ -1069,13 +1092,69 @@
   function lockY(){return stepH();}
   function lockY3(){return stepH()*2;}
   function dirCommitPx(){return Math.max(14, Math.round(stepH()*0.025));}
+  function setCardImageBusy(card, busy){
+    if(!card)return;
+    if(busy)card.setAttribute('aria-busy','true');
+    else card.removeAttribute('aria-busy');
+  }
+  function ensureHomeImageReady(src, priority){
+    if(!src)return Promise.resolve(true);
+    var cached=homeImageCache[src];
+    if(cached){
+      if(priority==='high'){
+        try{cached.img.fetchPriority='high';}catch(ePriority){}
+      }
+      return cached.promise;
+    }
+    var img=new Image();
+    var entry={img:img, ready:false, promise:null};
+    homeImageCache[src]=entry;
+    entry.promise=new Promise(function(resolve){
+      var settled=false;
+      function finish(ok){
+        if(settled)return;
+        settled=true;
+        if(!ok){
+          delete homeImageCache[src];
+          resolve(false);
+          return;
+        }
+        var decoded;
+        try{decoded=typeof img.decode==='function'?img.decode():null;}catch(eDecode){decoded=null;}
+        Promise.resolve(decoded).catch(function(){}).then(function(){
+          entry.ready=true;
+          resolve(true);
+        });
+      }
+      img.onload=function(){finish(true);};
+      img.onerror=function(){finish(false);};
+      img.decoding='async';
+      img.loading='eager';
+      try{img.fetchPriority=priority==='high'?'high':'low';}catch(ePriority){}
+      img.src=src;
+      if(img.complete)finish(img.naturalWidth>0);
+    });
+    return entry.promise;
+  }
+  function isHomeImageReady(src){
+    return !!(src&&homeImageCache[src]&&homeImageCache[src].ready);
+  }
+  function cardOpenImage(card){
+    if(!card)return '';
+    var id=card.getAttribute('data-card');
+    if(id==='1')return LIFE_THEME_IMGS[lifeThemeId]||'';
+    if(id==='2')return STORY_PERSON_IMGS[storyPersonId]||'';
+    return '';
+  }
+  function preloadCurrentHomeImages(){
+    ensureHomeImageReady(LIFE_THEME_IMGS[lifeThemeId], 'low');
+    ensureHomeImageReady(STORY_PERSON_IMGS[storyPersonId], 'low');
+  }
   function preloadLifeThemeImages(){
     if(lifeImgsPreloaded)return;
     lifeImgsPreloaded=true;
     Object.keys(LIFE_THEME_IMGS).forEach(function(id){
-      var img=new Image();
-      img.decoding='async';
-      img.src=LIFE_THEME_IMGS[id];
+      ensureHomeImageReady(LIFE_THEME_IMGS[id], 'low');
     });
   }
   function maybePreloadLife(){
@@ -1085,9 +1164,7 @@
     if(storyImgsPreloaded)return;
     storyImgsPreloaded=true;
     Object.keys(STORY_PERSON_IMGS).forEach(function(id){
-      var img=new Image();
-      img.decoding='async';
-      img.src=STORY_PERSON_IMGS[id];
+      ensureHomeImageReady(STORY_PERSON_IMGS[id], 'low');
     });
   }
   function maybePreloadStory(){
@@ -1104,6 +1181,7 @@
     settleAnim=false;
     pinching=false;
     lastP=0;
+    setCard3WheelMask(false);
     if(root)root.removeAttribute('data-ghd-card2');
   }
   function gatedProgress(p){
@@ -1125,6 +1203,7 @@
     settleAnimTimer=setTimeout(function(){settleAnim=false;settleAnimTimer=0;}, SETTLE_MS+40);
     pinDeckScroll(0);
     lastP=0;
+    setCard3WheelMask(false);
     if(root)root.removeAttribute('data-ghd-card2');
     apply(0, false);
   }
@@ -1138,7 +1217,11 @@
     gestureEndedSinceSettle=!gestureLive;
     settleAnim=true;
     if(settleAnimTimer)clearTimeout(settleAnimTimer);
-    settleAnimTimer=setTimeout(function(){settleAnim=false;settleAnimTimer=0;}, SETTLE_MS+40);
+    settleAnimTimer=setTimeout(function(){
+      settleAnim=false;
+      settleAnimTimer=0;
+      setCard3WheelMask(false);
+    }, SETTLE_MS+40);
     pinDeckScroll(lockY());
     lastP=1;
     if(root)root.setAttribute('data-ghd-card2','settled');
@@ -1157,6 +1240,7 @@
     settleAnimTimer=setTimeout(function(){settleAnim=false;settleAnimTimer=0;}, SETTLE_MS+40);
     pinDeckScroll(lockY3());
     lastP=2;
+    setCard3WheelMask(false);
     if(root)root.removeAttribute('data-ghd-card2');
     apply(2, false);
   }
@@ -1206,8 +1290,14 @@
       if(progressFromScroll()<=0.92)startSettleTo1();
       else startSettleTo2();
     }
+    wheelGesture=false;
+  }
+  function setCard3WheelMask(masked){
+    var card=cards&&cards[2];
+    if(card)card.style.visibility=masked?'hidden':'';
   }
   function onDeckWheel(){
+    wheelGesture=true;
     markGestureStart();
     if(wheelIdleTimer)clearTimeout(wheelIdleTimer);
     wheelIdleTimer=setTimeout(markGestureEnd, 180);
@@ -1534,6 +1624,7 @@
   function apply(p, instant){
     p=gatedProgress(p);
     progress=p;
+    var activeIndex=(allowCard2From3&&p>1)?1:Math.round(clamp(p, 0, count-1));
     var L=layoutNums();
     var peek=16;
     var scaleStep=0.08;
@@ -1549,7 +1640,7 @@
       if(incoming>=1)y=parkY;
       else if(incoming>0)y=reserved+incoming*(parkY-reserved);
       else y=reserved-(behind*peek);
-      var active=behind<0.42 && incoming<0.42;
+      var active=i===activeIndex;
       if(!card.classList.contains('is-open'))card.style.height=cardH+'px';
       card.style.width='100%';
       card.style.transform='translate3d(-50%,'+y+'px,0) scale('+scale+')';
@@ -1592,6 +1683,7 @@
     if(card3Settled && !allowCard2From3){
       if(awaitingDir){
         if(deckScrollY()<lockY3()-commit){
+          if(wheelGesture)setCard3WheelMask(true);
           allowCard2From3=true;
           card3Settled=false;
           awaitingDir=false;
@@ -1697,7 +1789,7 @@
       }
     }catch(e){}
   }
-  function openCard(card, skipHistory){
+  function openCardNow(card, skipHistory){
     if(!card||!card.classList.contains('is-active')||card.classList.contains('is-open'))return;
     if(Math.abs(progress-cards.indexOf(card))>0.12)return;
     openScrollY=deckScrollY();
@@ -1716,6 +1808,23 @@
     if(!skipHistory){
       try{history.pushState({ghd:'flip',card:card.getAttribute('data-card')}, '');}catch(e){}
     }
+  }
+  function openCard(card, skipHistory){
+    if(!card||!card.classList.contains('is-active')||card.classList.contains('is-open'))return;
+    if(Math.abs(progress-cards.indexOf(card))>0.12)return;
+    var src=cardOpenImage(card);
+    if(!src||isHomeImageReady(src)){
+      openCardNow(card, skipHistory);
+      return;
+    }
+    var request=++cardOpenImageRequest;
+    setCardImageBusy(card, true);
+    ensureHomeImageReady(src, 'high').then(function(ready){
+      if(request!==cardOpenImageRequest)return;
+      setCardImageBusy(card, false);
+      if(!ready)return;
+      openCardNow(card, skipHistory);
+    });
   }
   function toggleOpen(card){
     if(card.classList.contains('is-open'))closeCard(card, false);
@@ -3516,8 +3625,8 @@
       if(data.action==='close')closeHomeBiblePicker(false);
     });
     window.setTimeout(preloadHomeBiblePicker, 280);
-    if('requestIdleCallback' in window)window.requestIdleCallback(function(){preloadLifeThemeImages();preloadStoryPersonImages();},{timeout:1200});
-    else window.setTimeout(function(){preloadLifeThemeImages();preloadStoryPersonImages();}, 480);
+    if('requestIdleCallback' in window)window.requestIdleCallback(preloadCurrentHomeImages,{timeout:1200});
+    else window.setTimeout(preloadCurrentHomeImages, 480);
     var prev=window.__gomnaOnLangApplied;
     window.__gomnaOnLangApplied=function(){
       if(typeof prev==='function')try{prev();}catch(e){}
