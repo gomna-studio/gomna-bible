@@ -12,6 +12,46 @@
     { id: 'prophet', title: '예언과 계시', hint: '선지서·계시록', keys: ['major_prophets', 'minor_prophets', 'revelation'], tile: 'tall' }
   ];
 
+  /* 찾기 분류는 번역 기능의 존재 여부와 무관하게 항상 열려야 한다. */
+  var GROUP_BOOKS = {
+    begin: [
+      ['창세기', 50, 'old'], ['출애굽기', 40, 'old'], ['레위기', 27, 'old'],
+      ['민수기', 36, 'old'], ['신명기', 34, 'old']
+    ],
+    history: [
+      ['여호수아', 24, 'old'], ['사사기', 21, 'old'], ['룻기', 4, 'old'],
+      ['사무엘상', 31, 'old'], ['사무엘하', 24, 'old'], ['열왕기상', 22, 'old'],
+      ['열왕기하', 25, 'old'], ['역대상', 29, 'old'], ['역대하', 36, 'old'],
+      ['에스라', 10, 'old'], ['느헤미야', 13, 'old'], ['에스더', 10, 'old']
+    ],
+    wisdom: [
+      ['욥기', 42, 'old'], ['시편', 150, 'old'], ['잠언', 31, 'old'],
+      ['전도서', 12, 'old'], ['아가', 8, 'old']
+    ],
+    gospel: [
+      ['마태복음', 28, 'new'], ['마가복음', 16, 'new'],
+      ['누가복음', 24, 'new'], ['요한복음', 21, 'new']
+    ],
+    church: [
+      ['사도행전', 28, 'new'], ['로마서', 16, 'new'], ['고린도전서', 16, 'new'],
+      ['고린도후서', 13, 'new'], ['갈라디아서', 6, 'new'], ['에베소서', 6, 'new'],
+      ['빌립보서', 4, 'new'], ['골로새서', 4, 'new'], ['데살로니가전서', 5, 'new'],
+      ['데살로니가후서', 3, 'new'], ['디모데전서', 6, 'new'], ['디모데후서', 4, 'new'],
+      ['디도서', 3, 'new'], ['빌레몬서', 1, 'new'], ['히브리서', 13, 'new'],
+      ['야고보서', 5, 'new'], ['베드로전서', 5, 'new'], ['베드로후서', 3, 'new'],
+      ['요한일서', 5, 'new'], ['요한이서', 1, 'new'], ['요한삼서', 1, 'new'],
+      ['유다서', 1, 'new']
+    ],
+    prophet: [
+      ['이사야', 66, 'old'], ['예레미야', 52, 'old'], ['예레미야애가', 5, 'old'],
+      ['에스겔', 48, 'old'], ['다니엘', 12, 'old'], ['호세아', 14, 'old'],
+      ['요엘', 3, 'old'], ['아모스', 9, 'old'], ['오바댜', 1, 'old'],
+      ['요나', 4, 'old'], ['미가', 7, 'old'], ['나훔', 3, 'old'],
+      ['하박국', 3, 'old'], ['스바냐', 3, 'old'], ['학개', 2, 'old'],
+      ['스가랴', 14, 'old'], ['말라기', 4, 'old'], ['요한계시록', 22, 'new']
+    ]
+  };
+
   /* 홈 검색 칩 + 상황별 주제 페이지 범위. 클릭은 기존 openWordSearch를 재사용한다.
      face: ribbon | tall | inset | stack | bleed | split | quiet
      순서는 CSS dense 그리드 리듬용: 와이드 → 세로강조+소형 → 쌍 → 와이드 → 쌍 → 일반+소형 → 와이드. */
@@ -414,25 +454,12 @@
   }
 
   function booksByGroup(id) {
-    var group = null;
-    var names = [];
-    var seen = {};
-    var i;
-    var k;
-    var got;
-    for (i = 0; i < GROUPS.length; i++) {
-      if (GROUPS[i].id === id) { group = GROUPS[i]; break; }
-    }
-    if (!group) return [];
-    if (global.GomnaBibleCategories && typeof global.GomnaBibleCategories.getBooks === 'function') {
-      for (k = 0; k < group.keys.length; k++) {
-        got = global.GomnaBibleCategories.getBooks(group.keys[k]) || [];
-        got.forEach(function (n) {
-          if (!seen[n]) { seen[n] = 1; names.push(n); }
-        });
-      }
-    }
-    return books().filter(function (b) { return seen[b.name]; });
+    var rows = GROUP_BOOKS[id] || [];
+    var actual = {};
+    books().forEach(function (b) { actual[b.name] = b; });
+    return rows.map(function (row) {
+      return actual[row[0]] || { name: row[0], chapters: row[1], testament: row[2] };
+    });
   }
 
   function openChapterPicker(book) {
@@ -456,6 +483,21 @@
   function openStairAllBooks() {
     if (typeof global.openBibleStairPicker !== 'function') return;
     global.openBibleStairPicker({ catalog: 'all', stage: 'book', layout: 'explore' });
+  }
+
+  function openGroupBookCards(id) {
+    var group = null;
+    var list;
+    GROUPS.forEach(function (g) { if (g.id === id) group = g; });
+    if (!group || typeof global.openBibleStairPicker !== 'function') return false;
+    list = booksByGroup(id);
+    global.openBibleStairPicker({
+      bookNames: list.map(function (b) { return b.name; }),
+      title: group.title,
+      stage: 'book',
+      layout: 'explore'
+    });
+    return true;
   }
 
   function openPlace(entry) {
@@ -638,7 +680,7 @@
     return '<div class="easy-find-books">' + list.map(function (b) {
       return '<button type="button" class="easy-find-book" data-easy-book="' + esc(b.name) + '">'
         + '<span class="easy-find-book-name">' + esc(b.name) + '</span>'
-        + '<span class="easy-find-book-meta">' + esc(String(b.chapters || '') + chapterUnit(b.name)) + '</span>'
+        + '<span class="easy-find-book-meta">' + esc(String(b.chapters || '') + chapterUnitOf(b.name)) + '</span>'
         + '</button>';
     }).join('') + '</div>';
   }
@@ -1247,6 +1289,7 @@
         return;
       }
       if (btn.getAttribute('data-easy-group')) {
+        if (openGroupBookCards(btn.getAttribute('data-easy-group'))) return;
         state.panel = 'group:' + btn.getAttribute('data-easy-group');
         paint();
         return;

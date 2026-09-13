@@ -281,16 +281,16 @@ html.gomna-home-viewer-open body{
 .gomna-home-card[data-card="0"]::after{
   background:linear-gradient(180deg,rgba(6,12,22,.38) 0%,rgba(6,12,22,.08) 28%,rgba(6,12,22,.08) 58%,rgba(6,12,22,.42) 100%);
 }
-.gomna-home-card[data-card="1"]{
+.gomna-home-card[data-card="1"]:not(.is-open){
   color:#f7f3eb;
-  background-color:#2a2218;
-  background-image:url("../assets/home/card-meditation-life.png?v=20260906-poster-mock-v1");
+  background-color:#c4b49a;
+  background-image:url("../assets/home/card-meditation-life.png?v=20260910-home-photo-v1");
   background-size:cover;
-  background-position:76% 58%;
+  background-position:82% 72%;
   background-repeat:no-repeat;
 }
-.gomna-home-card[data-card="1"]::after{
-  background:linear-gradient(90deg, rgba(28,18,12,.50) 0%, rgba(28,18,12,.22) 34%, rgba(28,18,12,.06) 54%, rgba(28,18,12,0) 72%);
+.gomna-home-card[data-card="1"]:not(.is-open)::after{
+  background:linear-gradient(180deg,rgba(28,18,12,.28) 0%,rgba(28,18,12,.06) 30%,rgba(28,18,12,.04) 62%,rgba(28,18,12,.34) 100%);
 }
 .gomna-home-card[data-card="1"].is-open{
   color:#2F2C28;
@@ -507,16 +507,16 @@ html.gomna-home-viewer-open body{
 .gomna-home-card[data-card="1"].is-open[data-life-theme="love"] > .gomna-home-card-inner::after{
   background:radial-gradient(ellipse 62% 56% at 8% 32%, rgba(255,255,255,.20) 0%, rgba(247,248,249,.06) 48%, rgba(247,248,249,0) 74%);
 }
-.gomna-home-card[data-card="2"]{
+.gomna-home-card[data-card="2"]:not(.is-open){
   color:#f6f3ec;
-  background-color:#3a2c18;
-  background-image:url("../assets/home/card-bible-stories-people.png?v=20260906-poster-mock-v1");
+  background-color:#4a5a68;
+  background-image:url("../assets/home/card-bible-stories-people.png?v=20260910-home-photo-v1");
   background-size:cover;
-  background-position:58% 42%;
+  background-position:50% 42%;
   background-repeat:no-repeat;
 }
-.gomna-home-card[data-card="2"]::after{
-  background:linear-gradient(90deg, rgba(22,16,10,.46) 0%, rgba(22,16,10,.18) 38%, rgba(22,16,10,0) 66%);
+.gomna-home-card[data-card="2"]:not(.is-open)::after{
+  background:linear-gradient(180deg,rgba(18,14,10,.30) 0%,rgba(18,14,10,.08) 32%,rgba(18,14,10,.04) 60%,rgba(18,14,10,.38) 100%);
 }
 .gomna-home-card.is-open:not([data-card="1"]):not([data-card="2"])::after{
   background:linear-gradient(180deg,rgba(10,16,24,.62) 0%,rgba(10,16,24,.78) 100%);
@@ -2369,8 +2369,8 @@ html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
   .gomna-home-tabbar{left:50%;right:auto;width:430px;transform:translateX(-50%)}
   .ghd-sheet{align-items:center}
   .ghd-sheet-panel{border-radius:20px}
-  .gomna-home-card[data-card="1"]{background-position:76% 58%}
-  .gomna-home-card[data-card="2"]{background-position:58% 42%}
+  .gomna-home-card[data-card="1"]:not(.is-open){background-position:82% 72%}
+  .gomna-home-card[data-card="2"]:not(.is-open){background-position:50% 42%}
   .gomna-home-card[data-card="1"]:not(.is-open) .gomna-home-poster-pills,
   .gomna-home-card[data-card="2"]:not(.is-open) .gomna-home-poster-pills{
     flex:0 0 auto;
