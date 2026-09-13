@@ -1,6 +1,47 @@
 <!DOCTYPE html>
 <html lang="ko" class="reader-hide-chrome">
 <head>
+<script id="gomna-language-hard-off">
+(function () {
+  'use strict';
+
+  window.GOMNA_LANGUAGE_HARD_OFF = true;
+
+  /* Emergency production mode: Korean only. */
+  try {
+    localStorage.setItem('gomna_ui_language', 'ko');
+  } catch (e) {}
+
+  /* Remove any Google Translate state left by an older deployment. */
+  try {
+    document.cookie =
+      'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; path=/';
+
+    var host = location.hostname || '';
+    if (host && host !== 'localhost' && host !== '127.0.0.1') {
+      document.cookie =
+        'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; path=/; domain=' + host;
+
+      var parts = host.split('.');
+      if (parts.length >= 2) {
+        var base = '.' + parts.slice(-2).join('.');
+        document.cookie =
+          'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; path=/; domain=' + base;
+      }
+    }
+  } catch (e) {}
+
+  try {
+    document.documentElement.lang = 'ko';
+    document.documentElement.classList.remove(
+      'translated-ltr',
+      'translated-rtl',
+      'gomna-lang-bridge-in-commentary'
+    );
+  } catch (e) {}
+})();
+</script>
+
 <meta charset="UTF-8">
 <script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script>
@@ -4404,7 +4445,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260905-all66-v1">
 <script src="js/gomna-bible-stair-picker.js?v=20260906-topic-scope-v1"></script>
 <link rel="stylesheet" href="js/gomna-easy-find.css?v=20260906-bible-chip-v1">
-<script src="js/gomna-easy-find.js?v=20260906-search-icon-v1"></script>
+<script src="js/gomna-easy-find.js?v=20260913-six-buttons-v1"></script>
 <script src="/js/gomna-commentary-multilang-policy.js?v=20260725-multilang-structured-refs-v1"></script>
 <script>
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
@@ -18969,7 +19010,7 @@ function loadAds() {
   // 7월 AdSense 승인 후 광고 스크립트는 여기에만 삽입
 }
 </script>
-<script src="/js/gomna-reader-lang-bridge.js?v=20260909-locale-runtime-sync-v1" defer></script>
+<!-- GOMNA LANGUAGE HARD OFF: gomna-reader-lang-bridge.js disabled -->
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>
 <!-- 은혜의말씀 오디오 미니 플레이어 (평소 hidden, 듣기 클릭 시 등장) -->
 <div id="gomna-audio-mini-player" class="gomna-audio-mini-player" hidden>

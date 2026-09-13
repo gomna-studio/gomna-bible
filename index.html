@@ -1,6 +1,47 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script id="gomna-language-hard-off">
+(function () {
+  'use strict';
+
+  window.GOMNA_LANGUAGE_HARD_OFF = true;
+
+  /* Emergency production mode: Korean only. */
+  try {
+    localStorage.setItem('gomna_ui_language', 'ko');
+  } catch (e) {}
+
+  /* Remove any Google Translate state left by an older deployment. */
+  try {
+    document.cookie =
+      'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; path=/';
+
+    var host = location.hostname || '';
+    if (host && host !== 'localhost' && host !== '127.0.0.1') {
+      document.cookie =
+        'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; path=/; domain=' + host;
+
+      var parts = host.split('.');
+      if (parts.length >= 2) {
+        var base = '.' + parts.slice(-2).join('.');
+        document.cookie =
+          'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; path=/; domain=' + base;
+      }
+    }
+  } catch (e) {}
+
+  try {
+    document.documentElement.lang = 'ko';
+    document.documentElement.classList.remove(
+      'translated-ltr',
+      'translated-rtl',
+      'gomna-lang-bridge-in-commentary'
+    );
+  } catch (e) {}
+})();
+</script>
+
 <script>
 (function () {
   if (!location.search) return;
