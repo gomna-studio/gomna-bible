@@ -2,7 +2,7 @@
 (function(){
   'use strict';
 
-  var state = { mode: 'old', catalog: 'old', stage: 'book', bookName: '', chapter: 0, layout: '' };
+  var state = { mode: 'old', catalog: 'old', stage: 'book', bookName: '', chapter: 0, layout: '', bookNames: [], selectionTitle: '' };
   var bound = false;
   var lastFocus = null;
   var OT_EXPLORE_GROUPS = [
@@ -42,6 +42,11 @@
   function booksOf(mode){
     var all = allBooks();
     if (state.catalog === 'all') return all;
+    if (state.catalog === 'selection') {
+      var byName = {};
+      all.forEach(function(b){ if (b && b.name) byName[b.name] = b; });
+      return state.bookNames.map(function(name){ return byName[name]; }).filter(Boolean);
+    }
     return all.filter(function(b){ return b && b.testament === (mode || state.mode); });
   }
 
@@ -60,6 +65,7 @@
 
   function titleOf(mode){
     if (isExplore() && state.stage === 'chapter' && state.bookName) return state.bookName;
+    if (isExplore() && state.catalog === 'selection' && state.stage === 'book') return state.selectionTitle || '성경책 선택';
     if (isExplore() && state.catalog === 'all' && state.stage === 'book') return '성경 66권';
     if (state.catalog === 'all' && state.stage === 'book') return '성경';
     return mode === 'new' ? '신약성경' : '구약성경';
@@ -187,7 +193,7 @@
     var html = '';
     if (isExplore() && state.stage === 'chapter' && state.bookName) {
       html += '<button type="button" class="bible-explore-back" data-stair-back="book">← '
-        + (state.catalog === 'all' ? '성경 66권' : (state.mode === 'new' ? '신약성경' : '구약성경')) + '</button>';
+        + (state.catalog === 'selection' ? esc(state.selectionTitle || '성경책 선택') : (state.catalog === 'all' ? '성경 66권' : (state.mode === 'new' ? '신약성경' : '구약성경'))) + '</button>';
     } else if (!isExplore() && state.bookName) {
       html += '<button type="button" class="bible-stair-step is-selected-book" id="bibleStairStepBook" data-stair-back="book">'
         + esc(state.bookName) + '</button>';
@@ -243,6 +249,13 @@
 
   function renderExploreBookBody(){
     if (state.catalog === 'all') return renderExploreAllBookBody();
+    if (state.catalog === 'selection') {
+      var selectedHtml = '<div class="bible-explore is-selection" id="bibleStairBookGrid">';
+      selectedHtml += '<section class="bible-explore-group"><div class="bible-explore-grid">';
+      booksOf().forEach(function(b){ selectedHtml += bookButtonHtml(b); });
+      selectedHtml += '</div></section></div>';
+      return selectedHtml;
+    }
     var html = '<div class="bible-explore" id="bibleStairBookGrid">';
     html += renderExploreGroupsHtml(state.mode);
     html += '</div>';
@@ -404,7 +417,9 @@
     var found;
     bind();
     lastFocus = document.activeElement;
-    state.catalog = opts.catalog === 'all' ? 'all' : (opts.mode === 'new' ? 'new' : 'old');
+    state.bookNames = Array.isArray(opts.bookNames) ? opts.bookNames.filter(Boolean) : [];
+    state.selectionTitle = String(opts.title || '').trim();
+    state.catalog = state.bookNames.length ? 'selection' : (opts.catalog === 'all' ? 'all' : (opts.mode === 'new' ? 'new' : 'old'));
     state.mode = opts.mode === 'new' ? 'new' : 'old';
     state.layout = opts.layout === 'explore' ? 'explore' : '';
     state.bookName = String(opts.bookName || '').trim();
