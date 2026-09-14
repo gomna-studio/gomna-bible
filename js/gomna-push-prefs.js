@@ -5,6 +5,10 @@
   'use strict';
   var DEFAULT_FIRST = '07:30';
   var DEFAULT_SECOND = '20:30';
+  var DEFAULT_INTERVAL_START = '07:00';
+  var DEFAULT_INTERVAL_END = '22:00';
+  var DEFAULT_INTERVAL_HOURS = 1;
+  var INTERVAL_HOURS = [1, 2, 3, 4, 6, 12];
   var WINDOW_MIN = 15;
   var PRESETS = ['06:00', '07:30', '09:00'];
 
@@ -47,9 +51,13 @@
     extra = extra || {};
     return {
       enabled: false,
+      scheduleMode: 'fixed',
       frequency: 1,
       firstTime: DEFAULT_FIRST,
       secondTime: DEFAULT_SECOND,
+      intervalHours: DEFAULT_INTERVAL_HOURS,
+      intervalStartTime: DEFAULT_INTERVAL_START,
+      intervalEndTime: DEFAULT_INTERVAL_END,
       timezone: extra.timezone || deviceTimezone(),
       locale: nativeLocale(extra.locale)
     };
@@ -60,13 +68,20 @@
     prev = prev || {};
     var freq = Number(raw.frequency != null ? raw.frequency : prev.frequency);
     if (freq !== 2) freq = 1;
+    var scheduleMode = String(raw.scheduleMode || raw.schedule_mode || prev.scheduleMode || prev.schedule_mode || 'fixed') === 'interval' ? 'interval' : 'fixed';
+    var intervalHours = Number(raw.intervalHours != null ? raw.intervalHours : (raw.interval_hours != null ? raw.interval_hours : (prev.intervalHours != null ? prev.intervalHours : prev.interval_hours)));
+    if (INTERVAL_HOURS.indexOf(intervalHours) === -1) intervalHours = DEFAULT_INTERVAL_HOURS;
     var tz = String(raw.timezone || prev.timezone || '').trim().slice(0, 64);
     if (!tz) tz = deviceTimezone();
     return {
       enabled: raw.enabled != null ? !!raw.enabled : (prev.enabled != null ? !!prev.enabled : false),
+      scheduleMode: scheduleMode,
       frequency: freq,
       firstTime: normalizeTime(raw.firstTime || raw.first_send_time, prev.firstTime || prev.first_send_time || DEFAULT_FIRST),
       secondTime: normalizeTime(raw.secondTime || raw.second_send_time, prev.secondTime || prev.second_send_time || DEFAULT_SECOND),
+      intervalHours: intervalHours,
+      intervalStartTime: normalizeTime(raw.intervalStartTime || raw.interval_start_time, prev.intervalStartTime || prev.interval_start_time || DEFAULT_INTERVAL_START),
+      intervalEndTime: normalizeTime(raw.intervalEndTime || raw.interval_end_time, prev.intervalEndTime || prev.interval_end_time || DEFAULT_INTERVAL_END),
       timezone: tz,
       locale: nativeLocale(raw.locale || prev.locale)
     };
@@ -127,6 +142,20 @@
     prefs = normalizePrefs(prefs);
     var nowMin = localMinutes(prefs.timezone, now || new Date());
     var out = [];
+    if (prefs.scheduleMode === 'interval') {
+      var startMin = timeToMinutes(prefs.intervalStartTime);
+      var endMin = timeToMinutes(prefs.intervalEndTime);
+      var stepMin = prefs.intervalHours * 60;
+      if (startMin >= endMin) return out;
+      for (var target = startMin; target <= endMin; target += stepMin) {
+        if (inWindow(nowMin, target, windowMin)) {
+          var targetHour = Math.floor(target / 60);
+          var targetMinute = target % 60;
+          out.push('interval-' + pad2(targetHour) + pad2(targetMinute));
+        }
+      }
+      return out;
+    }
     if (inWindow(nowMin, timeToMinutes(prefs.firstTime), windowMin)) out.push('first');
     if (prefs.frequency === 2 && prefs.secondTime !== prefs.firstTime && inWindow(nowMin, timeToMinutes(prefs.secondTime), windowMin)) out.push('second');
     return out;
@@ -158,6 +187,10 @@
   var api = {
     DEFAULT_FIRST: DEFAULT_FIRST,
     DEFAULT_SECOND: DEFAULT_SECOND,
+    DEFAULT_INTERVAL_START: DEFAULT_INTERVAL_START,
+    DEFAULT_INTERVAL_END: DEFAULT_INTERVAL_END,
+    DEFAULT_INTERVAL_HOURS: DEFAULT_INTERVAL_HOURS,
+    INTERVAL_HOURS: INTERVAL_HOURS,
     WINDOW_MIN: WINDOW_MIN,
     PRESETS: PRESETS,
     SECOND_TITLES: SECOND_TITLES,

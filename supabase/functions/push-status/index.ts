@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     if (!endpoint) return json(400, { ok: false, error: 'invalid-subscription' }, origin);
     const hash = await sha32(endpoint);
     const res = await sb(
-      'gomna_push_subscriptions?endpoint_hash=eq.' + hash + '&select=endpoint_hash,active,frequency,first_send_time,second_send_time,timezone,locale',
+      'gomna_push_subscriptions?endpoint_hash=eq.' + hash + '&select=endpoint_hash,active,schedule_mode,frequency,first_send_time,second_send_time,interval_hours,interval_start_time,interval_end_time,timezone,locale',
       { method: 'GET' }
     );
     if (!res.ok) return json(500, { ok: false, error: 'read-failed' }, origin);

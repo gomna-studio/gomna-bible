@@ -30,11 +30,15 @@ Deno.serve(async (req) => {
       active: true,
       updated_at: new Date().toISOString()
     };
-    if (body.frequency != null || body.firstTime || body.first_send_time || body.secondTime || body.second_send_time) {
+    if (body.frequency != null || body.firstTime || body.first_send_time || body.secondTime || body.second_send_time || body.scheduleMode || body.schedule_mode || body.intervalHours || body.interval_hours || body.intervalStartTime || body.interval_start_time || body.intervalEndTime || body.interval_end_time) {
       const prefs = normalizePrefs(body);
+      row.schedule_mode = prefs.scheduleMode;
       row.frequency = prefs.frequency;
       row.first_send_time = prefs.firstTime;
       row.second_send_time = prefs.secondTime;
+      row.interval_hours = prefs.intervalHours;
+      row.interval_start_time = prefs.intervalStartTime;
+      row.interval_end_time = prefs.intervalEndTime;
       row.timezone = prefs.timezone;
       row.locale = prefs.locale;
     }
@@ -48,9 +52,13 @@ Deno.serve(async (req) => {
     const rec = Array.isArray(saved) ? saved[0] : saved;
     const prefs = normalizePrefs({
       enabled: true,
+      scheduleMode: rec && rec.schedule_mode,
       frequency: rec && rec.frequency,
       firstTime: rec && rec.first_send_time,
       secondTime: rec && rec.second_send_time,
+      intervalHours: rec && rec.interval_hours,
+      intervalStartTime: rec && rec.interval_start_time,
+      intervalEndTime: rec && rec.interval_end_time,
       timezone: rec && rec.timezone,
       locale: rec && rec.locale
     }, row);

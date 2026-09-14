@@ -10,9 +10,13 @@ type SubRow = {
   auth: string;
   locale: string;
   timezone?: string;
+  schedule_mode?: string;
   frequency?: number;
   first_send_time?: string;
   second_send_time?: string;
+  interval_hours?: number;
+  interval_start_time?: string;
+  interval_end_time?: string;
   active: boolean;
 };
 
@@ -44,7 +48,7 @@ Deno.serve(async (req) => {
   const force = body.force === true || mode === 'test';
   const verseDate = String(body.date || kstDateKey(now));
   const listRes = await sb(
-    'gomna_push_subscriptions?active=eq.true&select=endpoint,endpoint_hash,p256dh,auth,locale,timezone,frequency,first_send_time,second_send_time,active',
+    'gomna_push_subscriptions?active=eq.true&select=endpoint,endpoint_hash,p256dh,auth,locale,timezone,schedule_mode,frequency,first_send_time,second_send_time,interval_hours,interval_start_time,interval_end_time,active',
     { method: 'GET' }
   );
   if (!listRes.ok) return json(500, { ok: false, error: 'list-failed' }, origin);
@@ -57,8 +61,8 @@ Deno.serve(async (req) => {
   let sent = 0, skipped = 0, failed = 0, deactivated = 0;
   for (const row of rows) {
     const prefs = prefsFromRow(row as unknown as Record<string, unknown>);
-    const slots = force
-      ? (prefs.frequency === 2 ? ['first', 'second'] as const : ['first'] as const)
+    const slots: string[] = force
+      ? ['manual']
       : dueSlots(prefs, now);
     if (!slots.length) continue;
     const localDate = localDateKey(prefs.timezone, now);

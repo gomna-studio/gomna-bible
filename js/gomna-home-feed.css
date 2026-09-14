@@ -2075,6 +2075,10 @@ html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
   cursor:pointer;
 }
 .ghd-notify-option.is-on{font-weight:750}
+.ghd-notify-option.is-on .ghd-notify-option-label::after{
+  content:' ✓';
+  color:#315F9E;
+}
 .ghd-notify-option-rec{
   font-size:12px;
   font-weight:650;
@@ -2095,9 +2099,40 @@ html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
   background:#FFFFFF;
   color:#152033;
   font:inherit;
+  min-height:48px;
+}
+.ghd-notify-pref-actions{
+  position:sticky;
+  bottom:calc(-16px - env(safe-area-inset-bottom,0px));
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:12px -16px 0;
+  padding:10px 16px calc(16px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid rgba(26,35,50,.08);
+  background:#FFFFFF;
+}
+.ghd-notify-pref-actions button{
+  min-height:44px;
+  border-radius:12px;
+  font:inherit;
+  font-size:15px;
+  font-weight:750;
+  cursor:pointer;
+}
+.ghd-notify-pref-cancel{
+  border:1px solid rgba(26,35,50,.14);
+  background:#FFFFFF;
+  color:#5b6573;
+}
+.ghd-notify-pref-save{
+  border:1px solid #152033;
+  background:#152033;
+  color:#FFFFFF;
 }
 #ghdNotifyTimeSheet,
 #ghdNotifyFreqSheet{z-index:81}
+#ghdNotifyFreqSheet .ghd-notify-pref-panel{max-height:min(78vh,640px)}
 .ghd-notify-guide-title{
   margin:8px 0 0;
   font-size:15px;
