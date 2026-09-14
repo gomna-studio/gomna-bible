@@ -1642,6 +1642,7 @@ html.gomna-home-viewer-open body{
   font-weight:650;
   cursor:pointer;
 }
+.gomna-home-social-hidden{display:none !important}
 .gomna-home-act svg{
   width:18px;
   height:18px;
@@ -1922,6 +1923,8 @@ html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
   margin:2px auto 8px;
   border-radius:2px;
   background:rgba(26,35,50,.16);
+  touch-action:none;
+  cursor:grab;
 }
 .ghd-sheet-head{
   display:flex;
@@ -1951,6 +1954,82 @@ html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
   border:1px solid rgba(26,35,50,.08);
   border-radius:14px;
   background:#F7F6F3;
+}
+.ghd-notify-milestone{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  margin:2px 0 12px;
+  padding:14px;
+  border:1px solid #DDE5EF;
+  border-radius:14px;
+  background:#F5F8FC;
+}
+.ghd-notify-milestone[hidden]{display:none}
+.ghd-notify-milestone-icon{
+  display:flex;
+  flex:0 0 30px;
+  width:30px;
+  height:30px;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:#152033;
+  color:#FFFFFF;
+  font-size:15px;
+  font-weight:800;
+  line-height:1;
+}
+.ghd-notify-milestone-copy{
+  display:flex;
+  min-width:0;
+  flex:1;
+  flex-direction:column;
+  gap:3px;
+}
+.ghd-notify-milestone-copy strong{
+  color:#152033;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.35;
+  letter-spacing:-.025em;
+}
+.ghd-notify-milestone-copy span{
+  color:#5B6573;
+  font-size:12px;
+  font-weight:500;
+  line-height:1.45;
+}
+#ghdNotifySheet.is-install-step .ghd-notify-milestone{
+  border-color:#DDE5EF;
+  background:#F5F8FC;
+}
+#ghdNotifySheet.is-install-step .ghd-notify-milestone-icon,
+#ghdNotifySheet.is-blocked-step .ghd-notify-milestone-icon{
+  flex-basis:18px;
+  width:18px;
+  height:auto;
+  border-radius:0;
+  background:transparent;
+  color:#D93025;
+  font-size:24px;
+  line-height:1;
+}
+#ghdNotifySheet.is-installed-step .ghd-notify-milestone,
+#ghdNotifySheet.is-active-step .ghd-notify-milestone{
+  border-color:#D8E9E0;
+  background:#F1F8F4;
+}
+#ghdNotifySheet.is-installed-step .ghd-notify-milestone-icon,
+#ghdNotifySheet.is-active-step .ghd-notify-milestone-icon{
+  background:#2F7651;
+}
+#ghdNotifySheet.is-blocked-step .ghd-notify-milestone{
+  border-color:#EADFCF;
+  background:#FBF7F1;
+}
+#ghdNotifySheet.is-installed-step .ghd-sheet-cta{
+  margin-top:14px;
 }
 .ghd-notify-bible{
   flex:0 0 52px;
@@ -2057,6 +2136,7 @@ html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
 }
 .ghd-notify-pref-error[hidden]{display:none}
 .ghd-notify-option{
+  position:relative;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -2074,16 +2154,37 @@ html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
   text-align:left;
   cursor:pointer;
 }
-.ghd-notify-option.is-on{font-weight:750}
-.ghd-notify-option.is-on .ghd-notify-option-label::after{
-  content:' ✓';
+.ghd-notify-option.is-on{
+  padding-left:10px;
+  padding-right:38px;
+  border-radius:10px;
+  background:#F5F8FC;
+  font-weight:750;
+}
+.ghd-notify-option.is-on::after{
+  content:'✓';
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
   color:#315F9E;
+  font-size:16px;
+  font-weight:800;
 }
 .ghd-notify-option-rec{
+  margin-left:auto;
   font-size:12px;
   font-weight:650;
   color:#8a929c;
 }
+.ghd-notify-selection-note{
+  margin:8px 0 2px;
+  color:#315F9E;
+  font-size:12px;
+  font-weight:650;
+  line-height:1.45;
+}
+.ghd-notify-selection-note[hidden]{display:none}
 .ghd-notify-time-custom{
   display:block;
   margin:4px 0 8px;

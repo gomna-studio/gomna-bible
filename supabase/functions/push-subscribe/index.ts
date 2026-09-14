@@ -1,3 +1,4 @@
+import webpush from 'npm:web-push@3.6.7';
 import { corsHeaders, json, nativeLocale, sha32, sb } from '../_shared/push-http.ts';
 import { normalizePrefs } from '../_shared/push-prefs.ts';
 
@@ -9,6 +10,27 @@ function keysFrom(body: Record<string, unknown>) {
     p256dh: String(keys.p256dh || sub.p256dh || ''),
     auth: String(keys.auth || sub.auth || '')
   };
+}
+
+async function sendConfirmation(keys: { endpoint: string; p256dh: string; auth: string }) {
+  const publicKey = Deno.env.get('VAPID_PUBLIC_KEY') || '';
+  const privateKey = Deno.env.get('VAPID_PRIVATE_KEY') || '';
+  const subject = Deno.env.get('VAPID_SUBJECT') || 'https://gomnastudio.com';
+  if (!publicKey || !privateKey) throw new Error('vapid-missing');
+  webpush.setVapidDetails(subject, publicKey, privateKey);
+  await webpush.sendNotification(
+    { endpoint: keys.endpoint, keys: { p256dh: keys.p256dh, auth: keys.auth } },
+    JSON.stringify({
+      title: '은혜의말씀',
+      body: '말씀 알림이 설정되었습니다.',
+      lang: 'ko',
+      tag: 'gomna-push-confirmed',
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      data: { source: 'notification-settings', probe: true, url: '/?source=notification-settings' }
+    }),
+    { TTL: 60 * 60, urgency: 'high' }
+  );
 }
 
 Deno.serve(async (req) => {
@@ -62,7 +84,16 @@ Deno.serve(async (req) => {
       timezone: rec && rec.timezone,
       locale: rec && rec.locale
     }, row);
-    return json(200, { ok: true, id: hash, active: true, preferences: prefs }, origin);
+    let confirmationSent = false;
+    if (body.sendProbe === true) {
+      try {
+        await sendConfirmation(keys);
+        confirmationSent = true;
+      } catch {
+        confirmationSent = false;
+      }
+    }
+    return json(200, { ok: true, id: hash, active: true, preferences: prefs, confirmationSent }, origin);
   } catch {
     return json(500, { ok: false, error: 'server' }, origin);
   }

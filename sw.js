@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-09-14-notify-interval-v1';
+const CACHE_VERSION = '2026-09-14-push-display-check-v1';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE = 'gomna-data-v1';
@@ -446,17 +446,29 @@ self.addEventListener('push', (event) => {
   const data = payload.data && typeof payload.data === 'object'
     ? payload.data
     : { source: 'home-today', url: '/?source=home-today' };
-  event.waitUntil(
-    self.registration.showNotification(payload.title || '오늘의 말씀', {
-      body: payload.body || '',
-      lang: payload.lang || 'ko',
-      tag: payload.tag || 'gomna-today',
-      icon: payload.icon || '/icon-192.png',
-      badge: payload.badge || '/icon-192.png',
-      silent: false,
-      data: data
-    })
-  );
+  const report = (stage, extra) => fetch(new URL('/api/push/client-state', self.location.origin).href, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source: 'service-worker', stage, title: payload.title || '', extra: extra || null })
+  }).catch(() => {});
+  event.waitUntil((async () => {
+    await report('push-received');
+    try {
+      await self.registration.showNotification(payload.title || '오늘의 말씀', {
+        body: payload.body || '',
+        lang: payload.lang || 'ko',
+        tag: payload.tag || 'gomna-today',
+        icon: payload.icon || '/icon-192.png',
+        badge: payload.badge || '/icon-192.png',
+        silent: false,
+        data: data
+      });
+      await report('notification-shown');
+    } catch (error) {
+      await report('notification-show-error', String(error && error.message || error));
+      throw error;
+    }
+  })());
 });
 
 self.addEventListener('notificationclick', (event) => {

@@ -2466,6 +2466,7 @@
   }
   var PUSH_PENDING_KEY='gomna_pending_push_opt_in';
   var PUSH_PREFS_KEY='gomna_push_prefs';
+  var PUSH_CONFIRM_KEY='gomna_push_confirmation_sent_v2';
   var pushPrefsCache=null;
   var notifyTimeSlot='first';
   var notifyTimeDraft='';
@@ -2497,6 +2498,12 @@
     pushPrefsCache=normalizePushPrefs(prefs, pushPrefsCache||readPushPrefsCache());
     try{localStorage.setItem(PUSH_PREFS_KEY, JSON.stringify(pushPrefsCache));}catch(e){}
     return pushPrefsCache;
+  }
+  function pushConfirmationDone(){
+    try{return localStorage.getItem(PUSH_CONFIRM_KEY)==='1';}catch(e){return false;}
+  }
+  function markPushConfirmationDone(){
+    try{localStorage.setItem(PUSH_CONFIRM_KEY,'1');}catch(e){}
   }
   function currentPushPrefs(){
     return pushPrefsCache||readPushPrefsCache();
@@ -2594,6 +2601,7 @@
     if(env.permission==='denied')return 'permission-denied';
     if(!env.hasNotif || env.permission==='unsupported' || !env.hasPush)return 'unsupported';
     if(env.permission==='granted' && !env.subscribed)return 'permission-granted-no-subscription';
+    if(env.standalone && env.permission==='default')return 'installed-pending';
     return 'permission-default';
   }
   function installHelpCopy(env){
@@ -2604,8 +2612,8 @@
       };
     }
     return {
-      lead:'iPhone에서는 홈 화면에 추가한 은혜의말씀에서 알림을 받을 수 있습니다.',
-      steps:['Safari의 공유 버튼을 누르세요.','홈 화면에 추가를 선택하세요.','추가된 은혜의말씀을 열어 알림을 켜주세요.']
+      lead:'iPhone에서는 홈 화면 앱에서만 알림을 받을 수 있습니다.',
+      steps:['Safari의 공유 버튼을 누르세요.','홈 화면에 추가를 선택하세요.','추가된 은혜의말씀을 열어주세요.']
     };
   }
   function tryAndroidInstall(){
@@ -2642,6 +2650,23 @@
     el.textContent=label||'';
     el.classList.toggle('is-on', kind==='on');
     el.classList.toggle('is-need', kind==='need');
+  }
+  function setNotifyMilestone(mode, icon, title, body){
+    var sheet=document.getElementById('ghdNotifySheet');
+    var box=document.getElementById('ghdNotifyMilestone');
+    var iconEl=document.getElementById('ghdNotifyMilestoneIcon');
+    var titleEl=document.getElementById('ghdNotifyMilestoneTitle');
+    var bodyEl=document.getElementById('ghdNotifyMilestoneBody');
+    if(sheet){
+      sheet.classList.remove('is-install-step','is-installed-step','is-active-step','is-blocked-step');
+      if(mode)sheet.classList.add('is-'+mode+'-step');
+    }
+    if(!box)return;
+    if(!mode){box.hidden=true;return;}
+    box.hidden=false;
+    if(iconEl)iconEl.textContent=icon||'';
+    if(titleEl)titleEl.textContent=title||'';
+    if(bodyEl)bodyEl.textContent=body||'';
   }
   function notifyPreviewText(){
     var view=feedView();
@@ -2691,17 +2716,34 @@
     if(intervalStartVal)intervalStartVal.textContent=formatPushClock(prefs.intervalStartTime);
     if(intervalEndVal)intervalEndVal.textContent=formatPushClock(prefs.intervalEndTime);
     if(freqVal){
-      if(interval)freqVal.textContent=String(prefs.intervalHours)+'시간마다';
+      if(interval){
+        var api=pushPrefsApi();
+        var start=api.parseTime?api.parseTime(prefs.intervalStartTime):null;
+        var end=api.parseTime?api.parseTime(prefs.intervalEndTime):null;
+        var count=0;
+        if(start&&end){
+          var startMin=start.h*60+start.m;
+          var endMin=end.h*60+end.m;
+          if(startMin<endMin)count=Math.floor((endMin-startMin)/(prefs.intervalHours*60))+1;
+        }
+        var every=uiT('home.notify.everyHours','{hours}시간마다').replace('{hours}',String(prefs.intervalHours));
+        var perDay=uiT('home.notify.perDayCount','하루 최대 {count}회').replace('{count}',String(count));
+        freqVal.textContent=count?every+' · '+perDay:every;
+      }
       else freqVal.textContent=twice?uiT('home.notify.twice','하루 2회'):uiT('home.notify.once','하루 1회');
     }
     var timeLabel=document.querySelector('#ghdNotifyTimeRow span[data-i18n-key]');
     var firstLabel=document.querySelector('#ghdNotifyFirstRow span[data-i18n-key]');
     var secondLabel=document.querySelector('#ghdNotifySecondRow span[data-i18n-key]');
+    var intervalStartLabel=document.querySelector('#ghdNotifyIntervalStartRow span[data-i18n-key]');
+    var intervalEndLabel=document.querySelector('#ghdNotifyIntervalEndRow span[data-i18n-key]');
     var freqLabel=document.querySelector('#ghdNotifyFreqRow span[data-i18n-key]');
     if(timeLabel)timeLabel.textContent=uiT('home.notify.time','알림 시간');
     if(firstLabel)firstLabel.textContent=uiT('home.notify.first','첫 번째 알림');
     if(secondLabel)secondLabel.textContent=uiT('home.notify.second','두 번째 알림');
-    if(freqLabel)freqLabel.textContent=uiT('home.notify.frequency','알림 횟수');
+    if(intervalStartLabel)intervalStartLabel.textContent=uiT('home.notify.intervalStart','수신 시작 시간');
+    if(intervalEndLabel)intervalEndLabel.textContent=uiT('home.notify.intervalEnd','수신 종료 시간');
+    if(freqLabel)freqLabel.textContent=uiT('home.notify.frequency','알림 방식');
   }
   function renderNotifySheet(){
     var env=notifyEnv();
@@ -2719,14 +2761,16 @@
     if(refEl)refEl.textContent=displayRef(preview);
     if(title)title.textContent='오늘의 말씀 알림';
     var rowLabel=document.getElementById('ghdNotifyRowLabel');
-    if(rowLabel)rowLabel.textContent=uiT('home.notify.autoReceive','매일 자동 수신하기');
+    if(rowLabel)rowLabel.textContent=uiT('home.notify.autoReceive','알림 자동 수신하기');
     if(ask){ask.hidden=true;ask.textContent='말씀 알림 받기';ask.disabled=false;}
     if(off)off.hidden=true;
     if(test)test.hidden=true;
+    setNotifyMilestone('','','','');
 
     if(state==='install-required'){
       var help=installHelpCopy(env);
-      setNotifyState('홈 화면 추가 필요','need');
+      setNotifyMilestone('install','!',uiT('home.notify.installFirst','먼저 앱을 설치해 주세요'),uiT('home.notify.installFirstBody','설치가 끝나면 홈 화면의 은혜의말씀을 다시 열어주세요.'));
+      setNotifyState(uiT('home.notify.installNeeded','홈 화면 앱 추가 필요'),'need');
       setNotifyText('ghdNotifyGuideTitle','');
       setNotifyText('ghdNotifyLead', help.lead);
       setNotifySteps(help.steps);
@@ -2735,6 +2779,8 @@
     }
 
     if(state==='permission-denied'){
+      if(title)title.textContent=uiT('home.notify.blockedTitle','알림 허용 확인');
+      setNotifyMilestone('blocked','!',uiT('home.notify.blockedMilestone','알림 허용이 꺼져 있습니다'),uiT('home.notify.blockedMilestoneBody','기기 설정에서 은혜의말씀 알림을 다시 허용할 수 있습니다.'));
       setNotifyState('설정 필요','need');
       setNotifyText('ghdNotifyGuideTitle','알림을 켜주세요');
       setNotifyText('ghdNotifyLead','오늘의 말씀을 받으려면 기기 설정에서 알림을 허용해 주세요.');
@@ -2754,6 +2800,8 @@
 
     if(state==='subscribed'){
       setPendingPushOptIn(false);
+      if(title)title.textContent=uiT('home.notify.activeTitle','오늘의 말씀 알림 설정');
+      setNotifyMilestone('active','✓',uiT('home.notify.activeMilestone','말씀 알림이 설정되었습니다'),uiT('home.notify.activeMilestoneBody','아래에서 받는 시간과 알림 방식을 선택할 수 있습니다.'));
       setNotifyState('켜짐','on');
       setNotifyText('ghdNotifyGuideTitle','말씀 알림이 켜져 있습니다');
       setNotifyText('ghdNotifyLead','매일 오늘의 말씀을 알림으로 받고 있습니다.');
@@ -2770,6 +2818,18 @@
       setNotifyText('ghdNotifyLead','알림은 허용되어 있습니다. 매일 수신을 연결해 주세요.');
       setNotifySteps([]);
       if(ask){ask.hidden=false;ask.textContent='알림 연결하기';}
+      renderNotifyPrefs(false);
+      return env;
+    }
+
+    if(state==='installed-pending'){
+      if(title)title.textContent=uiT('home.notify.permissionStepTitle','2단계 · 말씀 알림 켜기');
+      setNotifyMilestone('installed','✓',uiT('home.notify.installedMilestone','홈 화면에 추가하셨습니다'),uiT('home.notify.installedMilestoneBody','은혜의말씀 앱 설치가 완료되었습니다. 이제 마지막으로 말씀 알림을 켜주세요.'));
+      setNotifyState(uiT('home.notify.lastStep','마지막 단계'),'need');
+      setNotifyText('ghdNotifyGuideTitle',uiT('home.notify.permissionGuideTitle','알림을 허용해 주세요'));
+      setNotifyText('ghdNotifyLead',uiT('home.notify.permissionGuideBody','아래 버튼을 누르면 iPhone의 알림 허용 창이 열립니다.'));
+      setNotifySteps([]);
+      if(ask){ask.hidden=false;ask.textContent=uiT('home.notify.turnOn','알림 켜기');}
       renderNotifyPrefs(false);
       return env;
     }
@@ -2813,7 +2873,7 @@
       });
     });
   }
-  function savePushSubscription(sub, extra){
+  function savePushSubscription(sub, extra, options){
     var json=sub&&typeof sub.toJSON==='function'?sub.toJSON():sub;
     var prefs=normalizePushPrefs(Object.assign({}, currentPushPrefs(), extra||{}, {
       enabled:true,
@@ -2831,11 +2891,49 @@
       intervalHours:prefs.intervalHours,
       intervalStartTime:prefs.intervalStartTime,
       intervalEndTime:prefs.intervalEndTime,
-      sendProbe:/iPhone|iPad|iPod/i.test(navigator.userAgent)
+      sendProbe:!!(options&&options.sendProbe) && /iPhone|iPad|iPod/i.test(navigator.userAgent)
     }).then(function(body){
       if(body&&body.preferences)writePushPrefsCache(Object.assign({}, body.preferences, {enabled:true}));
       else writePushPrefsCache(prefs);
       return body;
+    });
+  }
+  function ensurePushConfirmation(){
+    var permission='default';
+    try{permission=Notification.permission;}catch(e){}
+    if(permission!=='granted' || !pushSubCache || pushConfirmationDone())return Promise.resolve(null);
+    return savePushSubscription(pushSubCache, currentPushPrefs(), {sendProbe:true}).then(function(body){
+      if(body&&body.confirmationSent===true){
+        markPushConfirmationDone();
+        setNotifyPrefError('');
+        return body;
+      }
+      setNotifyPrefError('알림은 등록됐지만 확인 알림을 보내지 못했습니다. 다시 시도해 주세요.');
+      return body;
+    }).catch(function(){
+      setNotifyPrefError('확인 알림을 보내지 못했습니다. 다시 시도해 주세요.');
+      return null;
+    });
+  }
+  function connectAllowedPush(){
+    var cfg=window.GomnaPushConfig||{};
+    var key=cfg.vapidPublicKey||'';
+    if(!key)return Promise.reject(new Error('vapid-public-missing'));
+    return navigator.serviceWorker.ready.then(function(reg){
+      return reg.pushManager.getSubscription().then(function(existing){
+        if(existing)return existing;
+        return reg.pushManager.subscribe({
+          userVisibleOnly:true,
+          applicationServerKey:urlBase64ToUint8Array(key)
+        });
+      });
+    }).then(function(sub){
+      if(!sub)throw new Error('push-subscription-missing');
+      pushSubCache=sub;
+      return savePushSubscription(sub, null, {sendProbe:true});
+    }).then(function(body){
+      if(body&&body.confirmationSent===true)markPushConfirmationDone();
+      return refreshPushSubscription();
     });
   }
   function loadPushPrefs(){
@@ -2902,16 +3000,36 @@
     fetch('/api/push/client-state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(function(){});
   }
   function openNotify(){
+    // Open from the locally cached state immediately. Network and service-worker
+    // checks refresh the sheet in the background so a slow connection never
+    // delays the user's tap response.
+    renderNotifySheet();
+    openSheet('ghdNotifySheet');
+    postPushProbe({at:'open-immediate'});
     refreshPushSubscription().then(function(){
       return loadPushPrefs();
     }).then(function(){
+      if(resolvePushState()==='permission-granted-no-subscription'){
+        postPushProbe({at:'auto-connect-start'});
+        return connectAllowedPush().then(function(){
+          postPushProbe({at:'auto-connect-done'});
+        }).catch(function(err){
+          postPushProbe({at:'auto-connect-error', message:String(err&&err.message||err)});
+        });
+      }
+    }).then(function(){
+      return ensurePushConfirmation();
+    }).then(function(){
       renderNotifySheet();
-      openSheet('ghdNotifySheet');
-      postPushProbe({at:'open'});
+      postPushProbe({at:'open-refreshed'});
+    }).catch(function(err){
+      renderNotifySheet();
+      postPushProbe({at:'open-refresh-error', message:String(err&&err.message||err)});
     });
   }
   function askNotify(){
     var env=notifyEnv();
+    var openingState=resolvePushState(env);
     var ask=document.getElementById('ghdNotifyAsk');
     if(ask)ask.disabled=true;
     if(env.needsInstall){
@@ -2929,6 +3047,7 @@
       finishHelp();
       return;
     }
+    if(openingState==='installed-pending')setPendingPushOptIn(false);
     var start=Promise.resolve(env.permission);
     if(env.permission==='default'){
       if(!env.canAsk){
@@ -2942,24 +3061,7 @@
       if(perm!=='granted'){
         return refreshPushSubscription();
       }
-      var cfg=window.GomnaPushConfig||{};
-      var key=cfg.vapidPublicKey||'';
-      if(!key)throw new Error('vapid-public-missing');
-      return navigator.serviceWorker.ready.then(function(reg){
-        return reg.pushManager.getSubscription().then(function(existing){
-          if(existing)return existing;
-          return reg.pushManager.subscribe({
-            userVisibleOnly:true,
-            applicationServerKey:urlBase64ToUint8Array(key)
-          });
-        });
-      }).then(function(sub){
-        if(!sub)return null;
-        pushSubCache=sub;
-        return savePushSubscription(sub);
-      }).then(function(){
-        return refreshPushSubscription();
-      });
+      return connectAllowedPush();
     }).then(function(){
       renderNotifySheet();
     }).catch(function(err){
@@ -3230,11 +3332,6 @@
         var isBackdrop=ev.target===sheet;
         mailOnly('backdrop click', ev, {isBackdrop:isBackdrop});
         if(!isBackdrop)return;
-        if(sheet.hasAttribute('data-ghd-stable-pref')){
-          ev.preventDefault();
-          ev.stopPropagation();
-          return;
-        }
         if(sheetDismissLocked(ev)){
           mailOnly('backdrop click ignored (open lock)', ev);
           ev.preventDefault();
@@ -3255,9 +3352,12 @@
       var startY=0, dragging=false, moved=false;
       panel.addEventListener('pointerdown', function(ev){
         if(desktopSheetUi())return;
-        if(sheet.hasAttribute('data-ghd-stable-pref'))return;
         if(ev.pointerType==='mouse')return;
         if(ev.target && ev.target.closest && ev.target.closest('input,textarea,button,a,label,select'))return;
+        if(ev.target && ev.target.closest && ev.target.closest('.ghd-sheet-handle')){
+          ev.preventDefault();
+          try{panel.setPointerCapture&&panel.setPointerCapture(ev.pointerId);}catch(err){}
+        }
         startY=ev.clientY;
         dragging=true;
         moved=false;
@@ -3298,10 +3398,32 @@
       error.textContent=message||'';
       error.hidden=!message;
     }
+    function setNotifySelection(id, message){
+      var note=document.getElementById(id);
+      if(!note)return;
+      note.textContent=message||'';
+      note.hidden=!message;
+    }
+    function notifyTimePresetValues(){
+      if(notifyTimeSlot==='second'||notifyTimeSlot==='interval-end')return ['18:00','20:30','22:00'];
+      return ['06:00','07:30','09:00'];
+    }
+    function syncNotifyTimePresets(){
+      var values=notifyTimePresetValues();
+      var buttons=Array.prototype.filter.call(document.querySelectorAll('#ghdNotifyTimeSheet [data-ghd-time]'),function(btn){
+        return btn.getAttribute('data-ghd-time')!=='custom';
+      });
+      buttons.forEach(function(btn,index){
+        if(values[index])btn.setAttribute('data-ghd-time',values[index]);
+      });
+    }
     function renderNotifyTimeDraft(){
-      var api=pushPrefsApi();
       var current=notifyTimeDraft;
-      var preset=api.isPreset?api.isPreset(current):false;
+      var preset=false;
+      document.querySelectorAll('#ghdNotifyTimeSheet [data-ghd-time]').forEach(function(btn){
+        var val=btn.getAttribute('data-ghd-time');
+        if(val!=='custom'&&val===current)preset=true;
+      });
       document.querySelectorAll('#ghdNotifyTimeSheet [data-ghd-time]').forEach(function(btn){
         var val=btn.getAttribute('data-ghd-time');
         var on=val==='custom'?!preset:val===current;
@@ -3324,12 +3446,20 @@
       var title=document.getElementById('ghdNotifyTimeTitle');
       var lead=document.getElementById('ghdNotifyTimeLead');
       if(title){
-        if(notifyTimeSlot==='interval-start')title.textContent='반복 시작 시간';
-        else if(notifyTimeSlot==='interval-end')title.textContent='반복 종료 시간';
+        if(notifyTimeSlot==='second')title.textContent=uiT('home.notify.secondTimeTitle','두 번째 알림 시간');
+        else if(notifyTimeSlot==='interval-start')title.textContent=uiT('home.notify.intervalStart','수신 시작 시간');
+        else if(notifyTimeSlot==='interval-end')title.textContent=uiT('home.notify.intervalEnd','수신 종료 시간');
         else title.textContent=uiT('home.notify.time','알림 시간');
       }
-      if(lead)lead.textContent=uiT('home.notify.timeLead','언제 오늘의 말씀을 받아볼까요?');
+      if(lead){
+        if(notifyTimeSlot==='second')lead.textContent=uiT('home.notify.secondTimeLead','두 번째 말씀은 언제 받아볼까요?');
+        else if(notifyTimeSlot==='interval-start')lead.textContent=uiT('home.notify.intervalStartLead','몇 시부터 말씀을 받을까요?');
+        else if(notifyTimeSlot==='interval-end')lead.textContent=uiT('home.notify.intervalEndLead','몇 시까지 말씀을 받을까요?');
+        else lead.textContent=uiT('home.notify.timeLead','언제 오늘의 말씀을 받아볼까요?');
+      }
+      syncNotifyTimePresets();
       setNotifyTimeError('');
+      setNotifySelection('ghdNotifyTimeSelection','');
       renderNotifyTimeDraft();
       openSheet('ghdNotifyTimeSheet');
     }
@@ -3349,14 +3479,20 @@
         setNotifyTimeError('종료 시간은 시작 시간보다 늦게 선택해 주세요.');
         return;
       }
+      var save=document.getElementById('ghdNotifyTimeSave');
+      if(save){save.disabled=true;save.textContent='저장 중…';}
       persistPushPrefs(next).then(function(){
         closeSheet('ghdNotifyTimeSheet','button');
-      }).catch(function(){});
+      }).catch(function(){
+        setNotifyTimeError('시간을 저장하지 못했습니다. 다시 시도해 주세요.');
+      }).then(function(){
+        if(save){save.disabled=false;save.textContent='완료';}
+      });
     }
     function openNotifyFreqSheet(){
       var prefs=currentPushPrefs();
       var title=document.getElementById('ghdNotifyFreqTitle');
-      if(title)title.textContent=uiT('home.notify.frequency','알림 횟수');
+      if(title)title.textContent=uiT('home.notify.frequency','알림 방식');
       notifyFreqDraft=prefs.scheduleMode==='interval'?'interval-'+String(prefs.intervalHours):'fixed-'+String(prefs.frequency);
       document.querySelectorAll('#ghdNotifyFreqSheet [data-ghd-freq]').forEach(function(btn){
         var key=btn.getAttribute('data-ghd-freq');
@@ -3367,6 +3503,9 @@
         var rec=btn.querySelector('.ghd-notify-option-rec');
         if(rec)rec.textContent=uiT('home.notify.recommended','추천');
       });
+      setNotifySelection('ghdNotifyFreqSelection','');
+      var freqError=document.getElementById('ghdNotifyFreqError');
+      if(freqError){freqError.hidden=true;freqError.textContent='';}
       openSheet('ghdNotifyFreqSheet');
     }
     function applyNotifyFrequency(){
@@ -3378,9 +3517,16 @@
         next.scheduleMode='fixed';
         next.frequency=Number(notifyFreqDraft.slice(6))===2?2:1;
       }
+      var save=document.getElementById('ghdNotifyFreqSave');
+      if(save){save.disabled=true;save.textContent='저장 중…';}
       persistPushPrefs(next).then(function(){
         closeSheet('ghdNotifyFreqSheet','button');
-      }).catch(function(){});
+      }).catch(function(){
+        var error=document.getElementById('ghdNotifyFreqError');
+        if(error){error.hidden=false;error.textContent='알림 방식을 저장하지 못했습니다. 다시 시도해 주세요.';}
+      }).then(function(){
+        if(save){save.disabled=false;save.textContent='완료';}
+      });
     }
     document.querySelectorAll('[data-ghd-notify-pref]').forEach(function(el){
       if(el.getAttribute('data-ghd-pref-bound')==='1')return;
@@ -3407,9 +3553,7 @@
           var wrap=document.getElementById('ghdNotifyTimeCustomWrap');
           var input=document.getElementById('ghdNotifyTimeCustom');
           if(wrap)wrap.hidden=false;
-          document.querySelectorAll('#ghdNotifyTimeSheet [data-ghd-time]').forEach(function(btn){
-            btn.classList.toggle('is-on', btn.getAttribute('data-ghd-time')==='custom');
-          });
+          setNotifySelection('ghdNotifyTimeSelection','시간을 선택해 주세요.');
           if(input){
             if(!input.value)input.value=notifyTimeDraft;
             try{input.focus();input.showPicker&&input.showPicker();}catch(err){}
@@ -3418,6 +3562,7 @@
         }
         notifyTimeDraft=val;
         renderNotifyTimeDraft();
+        setNotifySelection('ghdNotifyTimeSelection',formatPushClock(val)+' 선택됨 · 완료를 눌러 저장하세요.');
       });
     });
     var timeCustom=document.getElementById('ghdNotifyTimeCustom');
@@ -3429,6 +3574,7 @@
         document.querySelectorAll('#ghdNotifyTimeSheet [data-ghd-time]').forEach(function(btn){
           btn.classList.toggle('is-on', btn.getAttribute('data-ghd-time')==='custom');
         });
+        setNotifySelection('ghdNotifyTimeSelection',formatPushClock(notifyTimeDraft)+' 선택됨 · 아래 완료를 눌러 저장하세요.');
       }
       timeCustom.addEventListener('input', updateNotifyTimeDraftFromInput);
       timeCustom.addEventListener('change', updateNotifyTimeDraftFromInput);
@@ -3447,6 +3593,8 @@
         document.querySelectorAll('#ghdNotifyFreqSheet [data-ghd-freq]').forEach(function(btn){
           btn.classList.toggle('is-on', btn===el);
         });
+        var label=el.querySelector('.ghd-notify-option-label');
+        setNotifySelection('ghdNotifyFreqSelection',String(label&&label.textContent||'알림 방식')+' 선택됨 · 완료를 눌러 저장하세요.');
       });
     });
     var freqSave=document.getElementById('ghdNotifyFreqSave');
