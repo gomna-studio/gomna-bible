@@ -31,7 +31,7 @@ function todayHtml(payload: ReturnType<typeof buildPayload>, href: string, unsub
     + '<p style="margin:22px 0 6px;font-size:12px;font-weight:700;color:#5b6573;">오늘의 말씀</p>'
     + '<p style="margin:0 0 12px;font-size:15px;font-weight:650;">' + escapeHtml(ref) + '</p>'
     + '<p style="margin:0 0 24px;font-size:16px;line-height:1.65;">' + escapeHtml(body) + '</p>'
-    + '<p><a href="' + escapeHtml(href) + '" style="display:inline-block;padding:12px 18px;border-radius:14px;background:#1A2332;color:#fff;text-decoration:none;font-weight:700;">오늘의 말씀 보기</a></p>'
+    + '<p><a href="' + escapeHtml(href) + '" style="display:inline-block;padding:12px 18px;border-radius:14px;background:#1A2332;color:#fff;text-decoration:none;font-weight:700;">은혜의말씀에서 보기</a></p>'
     + '<p style="margin:28px 0 8px;font-size:12px;color:#8a929c;">이 이메일은 오늘의 말씀 수신 신청에 따라 발송되었습니다.</p>'
     + '<p><a href="' + escapeHtml(unsub) + '" style="font-size:12px;color:#8a929c;">수신 해지</a></p>'
   );
