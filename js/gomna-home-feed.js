@@ -2891,7 +2891,7 @@
       intervalHours:prefs.intervalHours,
       intervalStartTime:prefs.intervalStartTime,
       intervalEndTime:prefs.intervalEndTime,
-      sendProbe:!!(options&&options.sendProbe) && /iPhone|iPad|iPod/i.test(navigator.userAgent)
+      sendProbe:!!(options&&options.sendProbe)
     }).then(function(body){
       if(body&&body.preferences)writePushPrefsCache(Object.assign({}, body.preferences, {enabled:true}));
       else writePushPrefsCache(prefs);
@@ -3209,6 +3209,9 @@
       }
       writeMailEmail(email);
       showMailState(true, email);
+      if(body.already!==true && body.mailed!==true){
+        setMailError('수신 등록은 완료됐지만 확인 이메일을 보내지 못했습니다.');
+      }
     }).catch(function(){
       if(send)send.disabled=false;
       setMailError('잠시 후 다시 시도해 주세요.');
