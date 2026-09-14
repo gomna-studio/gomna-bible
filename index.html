@@ -56,7 +56,7 @@
 })();
 </script>
 <meta charset="UTF-8">
-<link rel="preload" as="style" href="js/gomna-home-feed.css?v=20260914-notify-interval-v1">
+<link rel="preload" as="style" href="js/gomna-home-feed.css?v=20260914-home-share-only-v13">
 <link rel="preload" as="style" href="js/gomna-bible-stair-picker.css?v=20260905-all66-v1">
 <script defer src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script>
@@ -249,7 +249,7 @@
 <style id="gomna-ui-i18n-boot-css">
 html.gomna-ui-i18n-boot [data-i18n-key]:not(img){visibility:hidden}
 </style>
-<script defer src="js/gomna-ui-i18n.js?v=20260909-locale-runtime-sync-v1"></script>
+<script defer src="js/gomna-ui-i18n.js?v=20260914-notify-reference-v2"></script>
 <script defer src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <style id="gt-translation-pending-css">
 html.gt-translation-pending,
@@ -364,7 +364,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
   var registerHomeServiceWorker = function () {
-    navigator.serviceWorker.register("/sw.js?v=20260912-first-visit-stable-v1", { scope: "/", updateViaCache: "none" })
+    navigator.serviceWorker.register("/sw.js?v=20260914-push-display-check-v1", { scope: "/", updateViaCache: "none" })
       .then(function(reg){ try { reg.update(); } catch (eUp) {} })
       .catch(function(){});
   };
@@ -1985,7 +1985,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
 <link rel="preload" as="image" href="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1">
 <link rel="preload" as="image" href="assets/home/card-meditation-life.png?v=20260910-home-photo-v1">
 <link rel="preload" as="image" href="assets/home/card-bible-stories-people.png?v=20260910-home-photo-v1">
-<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260914-notify-interval-v1">
+<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260914-home-share-only-v13">
 <style>
 /* 홈 데스크톱 선택창 폭 = 홈 메인 카드 폭. .container max-width 390 - padding 18+18. Reader 프레임 폭은 쓰지 않는다. */
 @media (min-width:700px) and (min-height:600px){
@@ -2066,12 +2066,12 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
             </div>
           </div>
         </div>
-        <div class="gomna-home-rail" role="toolbar" aria-label="오늘의 말씀 반응">
-          <button type="button" class="gomna-home-act" data-ghd-like aria-label="좋아요" aria-pressed="false">
+        <div class="gomna-home-rail" role="toolbar" aria-label="오늘의 말씀 공유">
+          <button type="button" class="gomna-home-act gomna-home-social-hidden" data-ghd-like aria-label="좋아요" aria-pressed="false">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19.3 6.7 14.5A4.1 4.1 0 1 1 12 8.6a4.1 4.1 0 1 1 5.3 5.9z"/></svg>
             <span class="gomna-home-act-count">0</span>
           </button>
-          <button type="button" class="gomna-home-act" data-ghd-comment aria-label="댓글">
+          <button type="button" class="gomna-home-act gomna-home-social-hidden" data-ghd-comment aria-label="댓글">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.4 17.6 4 20.4l3.3-.7A8.4 8.4 0 1 0 5.4 17.6z"/></svg>
             <span class="gomna-home-act-count">0</span>
           </button>
@@ -2440,8 +2440,15 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
       </div>
     </div>
     <div class="ghd-notify-row">
-      <span id="ghdNotifyRowLabel">매일 자동 수신하기</span>
+      <span id="ghdNotifyRowLabel">알림 자동 수신하기</span>
       <span id="ghdNotifyStateLabel">꺼짐</span>
+    </div>
+    <div class="ghd-notify-milestone" id="ghdNotifyMilestone" hidden>
+      <span class="ghd-notify-milestone-icon" id="ghdNotifyMilestoneIcon" aria-hidden="true"></span>
+      <div class="ghd-notify-milestone-copy">
+        <strong id="ghdNotifyMilestoneTitle"></strong>
+        <span id="ghdNotifyMilestoneBody"></span>
+      </div>
     </div>
     <div id="ghdNotifyPrefs" hidden>
       <button type="button" class="ghd-notify-pref-row" id="ghdNotifyTimeRow" data-ghd-notify-pref="time">
@@ -2457,15 +2464,15 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
         <span class="ghd-notify-pref-value" id="ghdNotifySecondValue">오후 8:30</span>
       </button>
       <button type="button" class="ghd-notify-pref-row" id="ghdNotifyIntervalStartRow" data-ghd-notify-pref="interval-start" hidden>
-        <span>반복 시작 시간</span>
+        <span data-i18n-key="home.notify.intervalStart">수신 시작 시간</span>
         <span class="ghd-notify-pref-value" id="ghdNotifyIntervalStartValue">오전 7:00</span>
       </button>
       <button type="button" class="ghd-notify-pref-row" id="ghdNotifyIntervalEndRow" data-ghd-notify-pref="interval-end" hidden>
-        <span>반복 종료 시간</span>
+        <span data-i18n-key="home.notify.intervalEnd">수신 종료 시간</span>
         <span class="ghd-notify-pref-value" id="ghdNotifyIntervalEndValue">오후 10:00</span>
       </button>
       <button type="button" class="ghd-notify-pref-row" id="ghdNotifyFreqRow" data-ghd-notify-pref="freq">
-        <span data-i18n-key="home.notify.frequency">알림 횟수</span>
+        <span data-i18n-key="home.notify.frequency">알림 방식</span>
         <span class="ghd-notify-pref-value" id="ghdNotifyFreqValue">하루 1회</span>
       </button>
       <p id="ghdNotifyPrefError" class="ghd-notify-pref-error" hidden></p>
@@ -2483,7 +2490,6 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
     <div class="ghd-sheet-handle" aria-hidden="true"></div>
     <div class="ghd-sheet-head">
       <h3 id="ghdNotifyTimeTitle">알림 시간</h3>
-      <button type="button" class="ghd-sheet-close" data-ghd-sheet-close aria-label="닫기">×</button>
     </div>
     <p id="ghdNotifyTimeLead" class="ghd-notify-lead">언제 오늘의 말씀을 받아볼까요?</p>
     <button type="button" class="ghd-notify-option" data-ghd-time="06:00"><span class="ghd-notify-option-label">오전 6:00</span></button>
@@ -2493,6 +2499,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
     <label class="ghd-notify-time-custom" id="ghdNotifyTimeCustomWrap" hidden>
       <input id="ghdNotifyTimeCustom" type="time" step="60">
     </label>
+    <p class="ghd-notify-selection-note" id="ghdNotifyTimeSelection" hidden></p>
     <p class="ghd-notify-pref-error" id="ghdNotifyTimeError" role="alert" hidden></p>
     <div class="ghd-notify-pref-actions">
       <button type="button" class="ghd-notify-pref-cancel" id="ghdNotifyTimeCancel">취소</button>
@@ -2504,8 +2511,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
   <div class="ghd-sheet-panel ghd-notify-pref-panel" role="dialog" aria-modal="true" aria-labelledby="ghdNotifyFreqTitle">
     <div class="ghd-sheet-handle" aria-hidden="true"></div>
     <div class="ghd-sheet-head">
-      <h3 id="ghdNotifyFreqTitle">알림 횟수</h3>
-      <button type="button" class="ghd-sheet-close" data-ghd-sheet-close aria-label="닫기">×</button>
+      <h3 id="ghdNotifyFreqTitle">알림 방식</h3>
     </div>
     <button type="button" class="ghd-notify-option" data-ghd-freq="fixed-1"><span class="ghd-notify-option-label">하루 1회</span> <span class="ghd-notify-option-rec">추천</span></button>
     <button type="button" class="ghd-notify-option" data-ghd-freq="fixed-2"><span class="ghd-notify-option-label">하루 2회</span></button>
@@ -2515,6 +2521,8 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
     <button type="button" class="ghd-notify-option" data-ghd-freq="interval-4"><span class="ghd-notify-option-label">4시간마다</span></button>
     <button type="button" class="ghd-notify-option" data-ghd-freq="interval-6"><span class="ghd-notify-option-label">6시간마다</span></button>
     <button type="button" class="ghd-notify-option" data-ghd-freq="interval-12"><span class="ghd-notify-option-label">12시간마다</span></button>
+    <p class="ghd-notify-selection-note" id="ghdNotifyFreqSelection" hidden></p>
+    <p class="ghd-notify-pref-error" id="ghdNotifyFreqError" role="alert" hidden></p>
     <div class="ghd-notify-pref-actions">
       <button type="button" class="ghd-notify-pref-cancel" id="ghdNotifyFreqCancel">취소</button>
       <button type="button" class="ghd-notify-pref-save" id="ghdNotifyFreqSave">완료</button>
@@ -3570,7 +3578,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <script src="js/gomna-push-config.js?v=20260909-push-pref-v1"></script>
 <script src="js/gomna-push-prefs.js?v=20260914-notify-interval-v1"></script>
 <script src="js/gomna-mail-config.js?v=20260909-mail-mac-v1"></script>
-<script src="js/gomna-home-feed.js?v=20260914-notify-interval-v1"></script>
+<script src="js/gomna-home-feed.js?v=20260914-home-share-only-v13"></script>
 <script src="js/gomna-bible-stair-picker.js?v=20260905-ot-back-v1"></script>
 <script src="settings_guide.js?v=20260807-settings-v3" defer></script>
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>
