@@ -12,7 +12,7 @@
   --gmd-navy:#1A2740;
   --gmd-radius:22px;
   --gmd-radius-sm:16px;
-  --gmd-page:min(100%,820px);
+  --gmd-page:min(100%,420px);
   --gmd-gutter:20px;
   --gmd-tab:calc(58px + env(safe-area-inset-bottom,0px));
   --gmd-serif:Georgia,'Times New Roman','Apple SD Gothic Neo','Noto Sans KR',serif;
@@ -37,7 +37,7 @@ body.gmd-page{
   padding-bottom:var(--gmd-tab);
 }
 .gmd-wrap{
-  width:min(820px, 100vw);
+  width:min(420px, 100vw);
   max-width:100vw;
   margin:0 auto;
   padding:calc(10px + env(safe-area-inset-top,0px)) var(--gmd-gutter) 28px;
@@ -752,7 +752,7 @@ button.gmd-quick-card{
 }
 .gmd-sheet[hidden]{display:none}
 .gmd-sheet-card{
-  width:min(100%,820px);
+  width:min(100%,420px);
   max-height:min(86vh, 720px);
   overflow:auto;
   background:#fff;
@@ -766,7 +766,7 @@ button.gmd-quick-card{
   .gmd-hero{max-height:520px}
   .gmd-sheet{align-items:center}
   .gmd-sheet-card{border-radius:22px}
-  .gomna-home-tabbar{left:50%;width:min(820px,100vw);transform:translateX(-50%)}
+  .gomna-home-tabbar{left:50%;width:min(420px,100vw);transform:translateX(-50%)}
 }
 .gomna-home-tabbar{
   position:fixed;
@@ -820,7 +820,7 @@ button.gmd-quick-card{
   .gmd-verse{font-size:16.5px}
 }
 @media (min-width:860px){
-  .gomna-home-tabbar{left:50%;width:min(820px,100vw);transform:translateX(-50%)}
+  .gomna-home-tabbar{left:50%;width:min(420px,100vw);transform:translateX(-50%)}
 }
 
 /* 묵상 화면 색상 위계. 레이아웃·기능은 유지하고 연한 단색만 나눈다. 로그인 overlay에는 적용하지 않는다. */

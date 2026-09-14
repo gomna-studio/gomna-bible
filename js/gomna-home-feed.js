@@ -2468,6 +2468,8 @@
   var PUSH_PREFS_KEY='gomna_push_prefs';
   var pushPrefsCache=null;
   var notifyTimeSlot='first';
+  var notifyTimeDraft='';
+  var notifyFreqDraft='fixed-1';
   function pushPrefsApi(){return window.GomnaPushPrefs||{};}
   function deviceTimezone(){
     var api=pushPrefsApi();
@@ -2477,7 +2479,7 @@
   function defaultPushPrefs(){
     var api=pushPrefsApi();
     if(typeof api.defaults==='function')return api.defaults({locale:uiLang(), timezone:deviceTimezone()});
-    return {enabled:false, frequency:1, firstTime:'07:30', secondTime:'20:30', timezone:deviceTimezone(), locale:uiLang()};
+    return {enabled:false, scheduleMode:'fixed', frequency:1, firstTime:'07:30', secondTime:'20:30', intervalHours:1, intervalStartTime:'07:00', intervalEndTime:'22:00', timezone:deviceTimezone(), locale:uiLang()};
   }
   function normalizePushPrefs(raw, prev){
     var api=pushPrefsApi();
@@ -2665,21 +2667,33 @@
     var timeRow=document.getElementById('ghdNotifyTimeRow');
     var firstRow=document.getElementById('ghdNotifyFirstRow');
     var secondRow=document.getElementById('ghdNotifySecondRow');
+    var intervalStartRow=document.getElementById('ghdNotifyIntervalStartRow');
+    var intervalEndRow=document.getElementById('ghdNotifyIntervalEndRow');
     var prefs=currentPushPrefs();
-    var twice=prefs.frequency===2;
+    var interval=prefs.scheduleMode==='interval';
+    var twice=!interval && prefs.frequency===2;
     if(box)box.hidden=!subscribed;
     if(!subscribed)return;
-    if(timeRow)timeRow.hidden=twice;
+    if(timeRow)timeRow.hidden=twice||interval;
     if(firstRow)firstRow.hidden=!twice;
     if(secondRow)secondRow.hidden=!twice;
+    if(intervalStartRow)intervalStartRow.hidden=!interval;
+    if(intervalEndRow)intervalEndRow.hidden=!interval;
     var timeVal=document.getElementById('ghdNotifyTimeValue');
     var firstVal=document.getElementById('ghdNotifyFirstValue');
     var secondVal=document.getElementById('ghdNotifySecondValue');
+    var intervalStartVal=document.getElementById('ghdNotifyIntervalStartValue');
+    var intervalEndVal=document.getElementById('ghdNotifyIntervalEndValue');
     var freqVal=document.getElementById('ghdNotifyFreqValue');
     if(timeVal)timeVal.textContent=formatPushClock(prefs.firstTime);
     if(firstVal)firstVal.textContent=formatPushClock(prefs.firstTime);
     if(secondVal)secondVal.textContent=formatPushClock(prefs.secondTime);
-    if(freqVal)freqVal.textContent=twice?uiT('home.notify.twice','하루 2회'):uiT('home.notify.once','하루 1회');
+    if(intervalStartVal)intervalStartVal.textContent=formatPushClock(prefs.intervalStartTime);
+    if(intervalEndVal)intervalEndVal.textContent=formatPushClock(prefs.intervalEndTime);
+    if(freqVal){
+      if(interval)freqVal.textContent=String(prefs.intervalHours)+'시간마다';
+      else freqVal.textContent=twice?uiT('home.notify.twice','하루 2회'):uiT('home.notify.once','하루 1회');
+    }
     var timeLabel=document.querySelector('#ghdNotifyTimeRow span[data-i18n-key]');
     var firstLabel=document.querySelector('#ghdNotifyFirstRow span[data-i18n-key]');
     var secondLabel=document.querySelector('#ghdNotifySecondRow span[data-i18n-key]');
@@ -2810,9 +2824,13 @@
       subscription:json,
       locale:prefs.locale,
       timezone:prefs.timezone,
+      scheduleMode:prefs.scheduleMode,
       frequency:prefs.frequency,
       firstTime:prefs.firstTime,
       secondTime:prefs.secondTime,
+      intervalHours:prefs.intervalHours,
+      intervalStartTime:prefs.intervalStartTime,
+      intervalEndTime:prefs.intervalEndTime,
       sendProbe:/iPhone|iPad|iPod/i.test(navigator.userAgent)
     }).then(function(body){
       if(body&&body.preferences)writePushPrefsCache(Object.assign({}, body.preferences, {enabled:true}));
@@ -3212,6 +3230,11 @@
         var isBackdrop=ev.target===sheet;
         mailOnly('backdrop click', ev, {isBackdrop:isBackdrop});
         if(!isBackdrop)return;
+        if(sheet.hasAttribute('data-ghd-stable-pref')){
+          ev.preventDefault();
+          ev.stopPropagation();
+          return;
+        }
         if(sheetDismissLocked(ev)){
           mailOnly('backdrop click ignored (open lock)', ev);
           ev.preventDefault();
@@ -3232,6 +3255,7 @@
       var startY=0, dragging=false, moved=false;
       panel.addEventListener('pointerdown', function(ev){
         if(desktopSheetUi())return;
+        if(sheet.hasAttribute('data-ghd-stable-pref'))return;
         if(ev.pointerType==='mouse')return;
         if(ev.target && ev.target.closest && ev.target.closest('input,textarea,button,a,label,select'))return;
         startY=ev.clientY;
@@ -3262,19 +3286,25 @@
     if(off)off.addEventListener('click', stopNotify);
     var test=document.getElementById('ghdNotifyTest');
     if(test)test.addEventListener('click', sendTestNotify);
-    function openNotifyTimeSheet(slot){
-      notifyTimeSlot=slot==='second'?'second':'first';
-      var prefs=currentPushPrefs();
-      var current=notifyTimeSlot==='second'?prefs.secondTime:prefs.firstTime;
+    function notifyTimeValue(prefs, slot){
+      if(slot==='second')return prefs.secondTime;
+      if(slot==='interval-start')return prefs.intervalStartTime;
+      if(slot==='interval-end')return prefs.intervalEndTime;
+      return prefs.firstTime;
+    }
+    function setNotifyTimeError(message){
+      var error=document.getElementById('ghdNotifyTimeError');
+      if(!error)return;
+      error.textContent=message||'';
+      error.hidden=!message;
+    }
+    function renderNotifyTimeDraft(){
       var api=pushPrefsApi();
-      var title=document.getElementById('ghdNotifyTimeTitle');
-      var lead=document.getElementById('ghdNotifyTimeLead');
-      if(title)title.textContent=uiT('home.notify.time','알림 시간');
-      if(lead)lead.textContent=uiT('home.notify.timeLead','언제 오늘의 말씀을 받아볼까요?');
+      var current=notifyTimeDraft;
+      var preset=api.isPreset?api.isPreset(current):false;
       document.querySelectorAll('#ghdNotifyTimeSheet [data-ghd-time]').forEach(function(btn){
         var val=btn.getAttribute('data-ghd-time');
-        var preset=api.isPreset?api.isPreset(current):false;
-        var on=val==='custom'? !preset : val===current;
+        var on=val==='custom'?!preset:val===current;
         btn.classList.toggle('is-on', !!on);
         var label=btn.querySelector('.ghd-notify-option-label');
         if(val==='custom' && label)label.textContent=uiT('home.notify.customTime','직접 선택');
@@ -3284,16 +3314,41 @@
       });
       var wrap=document.getElementById('ghdNotifyTimeCustomWrap');
       var input=document.getElementById('ghdNotifyTimeCustom');
-      var custom=!(api.isPreset && api.isPreset(current));
-      if(wrap)wrap.hidden=!custom;
+      if(wrap)wrap.hidden=!!preset;
       if(input)input.value=current;
+    }
+    function openNotifyTimeSheet(slot){
+      notifyTimeSlot=slot==='second'||slot==='interval-start'||slot==='interval-end'?slot:'first';
+      var prefs=currentPushPrefs();
+      notifyTimeDraft=notifyTimeValue(prefs, notifyTimeSlot);
+      var title=document.getElementById('ghdNotifyTimeTitle');
+      var lead=document.getElementById('ghdNotifyTimeLead');
+      if(title){
+        if(notifyTimeSlot==='interval-start')title.textContent='반복 시작 시간';
+        else if(notifyTimeSlot==='interval-end')title.textContent='반복 종료 시간';
+        else title.textContent=uiT('home.notify.time','알림 시간');
+      }
+      if(lead)lead.textContent=uiT('home.notify.timeLead','언제 오늘의 말씀을 받아볼까요?');
+      setNotifyTimeError('');
+      renderNotifyTimeDraft();
       openSheet('ghdNotifyTimeSheet');
     }
-    function applyNotifyTime(hhmm){
+    function applyNotifyTime(){
+      var api=pushPrefsApi();
+      if(!notifyTimeDraft || (api.parseTime && !api.parseTime(notifyTimeDraft))){
+        setNotifyTimeError('올바른 시간을 선택해 주세요.');
+        return;
+      }
       var prefs=currentPushPrefs();
       var next=Object.assign({}, prefs);
-      if(notifyTimeSlot==='second')next.secondTime=hhmm;
-      else next.firstTime=hhmm;
+      if(notifyTimeSlot==='second')next.secondTime=notifyTimeDraft;
+      else if(notifyTimeSlot==='interval-start')next.intervalStartTime=notifyTimeDraft;
+      else if(notifyTimeSlot==='interval-end')next.intervalEndTime=notifyTimeDraft;
+      else next.firstTime=notifyTimeDraft;
+      if(next.scheduleMode==='interval' && next.intervalStartTime>=next.intervalEndTime){
+        setNotifyTimeError('종료 시간은 시작 시간보다 늦게 선택해 주세요.');
+        return;
+      }
       persistPushPrefs(next).then(function(){
         closeSheet('ghdNotifyTimeSheet','button');
       }).catch(function(){});
@@ -3302,16 +3357,30 @@
       var prefs=currentPushPrefs();
       var title=document.getElementById('ghdNotifyFreqTitle');
       if(title)title.textContent=uiT('home.notify.frequency','알림 횟수');
+      notifyFreqDraft=prefs.scheduleMode==='interval'?'interval-'+String(prefs.intervalHours):'fixed-'+String(prefs.frequency);
       document.querySelectorAll('#ghdNotifyFreqSheet [data-ghd-freq]').forEach(function(btn){
-        var n=Number(btn.getAttribute('data-ghd-freq'));
-        btn.classList.toggle('is-on', n===prefs.frequency);
+        var key=btn.getAttribute('data-ghd-freq');
+        btn.classList.toggle('is-on', key===notifyFreqDraft);
         var label=btn.querySelector('.ghd-notify-option-label');
-        if(n===1 && label)label.textContent=uiT('home.notify.once','하루 1회');
-        if(n===2 && label)label.textContent=uiT('home.notify.twice','하루 2회');
+        if(key==='fixed-1' && label)label.textContent=uiT('home.notify.once','하루 1회');
+        if(key==='fixed-2' && label)label.textContent=uiT('home.notify.twice','하루 2회');
         var rec=btn.querySelector('.ghd-notify-option-rec');
         if(rec)rec.textContent=uiT('home.notify.recommended','추천');
       });
       openSheet('ghdNotifyFreqSheet');
+    }
+    function applyNotifyFrequency(){
+      var next=Object.assign({}, currentPushPrefs());
+      if(notifyFreqDraft.indexOf('interval-')===0){
+        next.scheduleMode='interval';
+        next.intervalHours=Number(notifyFreqDraft.slice(9));
+      }else{
+        next.scheduleMode='fixed';
+        next.frequency=Number(notifyFreqDraft.slice(6))===2?2:1;
+      }
+      persistPushPrefs(next).then(function(){
+        closeSheet('ghdNotifyFreqSheet','button');
+      }).catch(function(){});
     }
     document.querySelectorAll('[data-ghd-notify-pref]').forEach(function(el){
       if(el.getAttribute('data-ghd-pref-bound')==='1')return;
@@ -3322,6 +3391,8 @@
         var kind=el.getAttribute('data-ghd-notify-pref');
         if(kind==='freq')openNotifyFreqSheet();
         else if(kind==='second')openNotifyTimeSheet('second');
+        else if(kind==='interval-start')openNotifyTimeSheet('interval-start');
+        else if(kind==='interval-end')openNotifyTimeSheet('interval-end');
         else openNotifyTimeSheet('first');
       });
     });
@@ -3340,32 +3411,48 @@
             btn.classList.toggle('is-on', btn.getAttribute('data-ghd-time')==='custom');
           });
           if(input){
-            if(!input.value)input.value=currentPushPrefs().firstTime;
+            if(!input.value)input.value=notifyTimeDraft;
             try{input.focus();input.showPicker&&input.showPicker();}catch(err){}
           }
           return;
         }
-        applyNotifyTime(val);
+        notifyTimeDraft=val;
+        renderNotifyTimeDraft();
       });
     });
     var timeCustom=document.getElementById('ghdNotifyTimeCustom');
     if(timeCustom && timeCustom.getAttribute('data-ghd-time-bound')!=='1'){
       timeCustom.setAttribute('data-ghd-time-bound','1');
-      timeCustom.addEventListener('change', function(){
-        if(timeCustom.value)applyNotifyTime(timeCustom.value);
-      });
+      function updateNotifyTimeDraftFromInput(){
+        if(!timeCustom.value)return;
+        notifyTimeDraft=timeCustom.value;
+        document.querySelectorAll('#ghdNotifyTimeSheet [data-ghd-time]').forEach(function(btn){
+          btn.classList.toggle('is-on', btn.getAttribute('data-ghd-time')==='custom');
+        });
+      }
+      timeCustom.addEventListener('input', updateNotifyTimeDraftFromInput);
+      timeCustom.addEventListener('change', updateNotifyTimeDraftFromInput);
     }
+    var timeSave=document.getElementById('ghdNotifyTimeSave');
+    if(timeSave)timeSave.addEventListener('click', applyNotifyTime);
+    var timeCancel=document.getElementById('ghdNotifyTimeCancel');
+    if(timeCancel)timeCancel.addEventListener('click', function(){closeSheet('ghdNotifyTimeSheet','button');});
     document.querySelectorAll('#ghdNotifyFreqSheet [data-ghd-freq]').forEach(function(el){
       if(el.getAttribute('data-ghd-freq-bound')==='1')return;
       el.setAttribute('data-ghd-freq-bound','1');
       el.addEventListener('click', function(ev){
         ev.preventDefault();
         ev.stopPropagation();
-        persistPushPrefs(Object.assign({}, currentPushPrefs(), {frequency:Number(el.getAttribute('data-ghd-freq'))})).then(function(){
-          closeSheet('ghdNotifyFreqSheet','button');
-        }).catch(function(){});
+        notifyFreqDraft=el.getAttribute('data-ghd-freq')||'fixed-1';
+        document.querySelectorAll('#ghdNotifyFreqSheet [data-ghd-freq]').forEach(function(btn){
+          btn.classList.toggle('is-on', btn===el);
+        });
       });
     });
+    var freqSave=document.getElementById('ghdNotifyFreqSave');
+    if(freqSave)freqSave.addEventListener('click', applyNotifyFrequency);
+    var freqCancel=document.getElementById('ghdNotifyFreqCancel');
+    if(freqCancel)freqCancel.addEventListener('click', function(){closeSheet('ghdNotifyFreqSheet','button');});
     var mailSend=document.getElementById('ghdMailSend');
     if(mailSend)mailSend.addEventListener('click', saveMail);
     var mailOff=document.getElementById('ghdMailOff');
