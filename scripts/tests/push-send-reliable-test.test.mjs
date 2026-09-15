@@ -33,7 +33,11 @@ import {
   assertVaultSecretsForCron,
   inspectTeardownSql,
   responseStatusFor,
-  registerStatusFor
+  registerStatusFor,
+  sanitizeSendSlot,
+  buildReliableTestPayload,
+  reliableTestTag,
+  dummyPayload
 } from '../../supabase/functions/_shared/push-reliable-test.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -778,4 +782,159 @@ test('cron and manual callers must send apikey plus the test secret', () => {
     expectedSecret: 's',
     expectedApikey: 'k'
   }), false);
+});
+
+function collapsingTodayWordBuild(opts) {
+  const coerced = opts.slot === 'second' ? 'second' : 'first';
+  return {
+    title: coerced === 'second' ? '오늘의 말씀을 다시 묵상해보세요' : '오늘의 말씀',
+    tag: 'gomna-today-' + opts.date + '-' + coerced,
+    data: { source: 'home-today', date: opts.date, slot: coerced, locale: opts.locale }
+  };
+}
+
+test('interval-1855 and interval-1955 keep distinct tags and real data.slot', () => {
+  const a = buildReliableTestPayload(collapsingTodayWordBuild, {
+    date: '2026-09-15',
+    locale: 'ko',
+    slot: 'interval-1855'
+  });
+  const b = buildReliableTestPayload(collapsingTodayWordBuild, {
+    date: '2026-09-15',
+    locale: 'ko',
+    slot: 'interval-1955'
+  });
+  assert.equal(a.ok, true);
+  assert.equal(b.ok, true);
+  assert.equal(a.payload.tag, 'gomna-reliable-test-2026-09-15-interval-1855');
+  assert.equal(b.payload.tag, 'gomna-reliable-test-2026-09-15-interval-1955');
+  assert.notEqual(a.payload.tag, b.payload.tag);
+  assert.equal(a.payload.data.slot, 'interval-1855');
+  assert.equal(b.payload.data.slot, 'interval-1955');
+});
+
+test('same date and interval slot always reuse the same tag', () => {
+  const first = buildReliableTestPayload(collapsingTodayWordBuild, {
+    date: '2026-09-15',
+    locale: 'ko',
+    slot: 'interval-1855'
+  });
+  const second = buildReliableTestPayload(collapsingTodayWordBuild, {
+    date: '2026-09-15',
+    locale: 'en',
+    slot: 'interval-1855'
+  });
+  assert.equal(first.payload.tag, second.payload.tag);
+  assert.equal(first.payload.tag, reliableTestTag('2026-09-15', 'interval-1855'));
+  assert.equal(first.payload.tag.indexOf(String(Date.now())), -1);
+});
+
+test('first and second use the reliable-test tag namespace', () => {
+  const first = buildReliableTestPayload(collapsingTodayWordBuild, {
+    date: '2026-09-15',
+    locale: 'ko',
+    slot: 'first'
+  });
+  const second = buildReliableTestPayload(collapsingTodayWordBuild, {
+    date: '2026-09-15',
+    locale: 'ko',
+    slot: 'second'
+  });
+  assert.equal(first.payload.tag, 'gomna-reliable-test-2026-09-15-first');
+  assert.equal(second.payload.tag, 'gomna-reliable-test-2026-09-15-second');
+  assert.equal(first.payload.data.slot, 'first');
+  assert.equal(second.payload.data.slot, 'second');
+});
+
+test('unsafe or malformed slots are rejected', () => {
+  const rejected = [
+    'interval-9999',
+    'interval-2460',
+    'interval-1855-extra',
+    'interval-1855<script>',
+    '../../first',
+    'first\nsecond',
+    'INTERVAL-1855',
+    '',
+    null,
+    'manual'
+  ];
+  for (const slot of rejected) {
+    const checked = sanitizeSendSlot(slot);
+    assert.equal(checked.ok, false, String(slot));
+    const built = buildReliableTestPayload(collapsingTodayWordBuild, {
+      date: '2026-09-15',
+      slot
+    });
+    assert.equal(built.ok, false, String(slot));
+    assert.equal(built.reason, 'invalid_slot');
+    assert.equal(built.payload, null);
+  }
+});
+
+test('send path preserves interval slots even when production builder collapses them', async () => {
+  const { sends } = await runAt(new Date('2026-09-15T09:55:00.000Z'), {
+    subscriptions: [seoulFixed({
+      schedule_mode: 'interval',
+      interval_hours: 1,
+      interval_start_time: '18:55',
+      interval_end_time: '20:55'
+    })],
+    buildPayload: collapsingTodayWordBuild
+  });
+  assert.equal(sends.length, 1);
+  assert.equal(sends[0].payload.data.slot, 'interval-1855');
+  assert.equal(sends[0].payload.tag, 'gomna-reliable-test-2026-09-15-interval-1855');
+  assert.equal(sends[0].payload.tag.startsWith('gomna-today-'), false);
+});
+
+test('reliable-test tags never use the production gomna-today- namespace', () => {
+  const slots = ['first', 'second', 'interval-1855', 'interval-1955'];
+  for (const slot of slots) {
+    const built = buildReliableTestPayload(collapsingTodayWordBuild, {
+      date: '2026-09-15',
+      locale: 'ko',
+      slot
+    });
+    assert.equal(built.ok, true, slot);
+    assert.equal(built.payload.tag, 'gomna-reliable-test-2026-09-15-' + slot);
+    assert.equal(built.payload.tag.startsWith('gomna-today-'), false, slot);
+    assert.equal(built.payload.tag.startsWith('gomna-reliable-test-'), true, slot);
+  }
+  const dummy = dummyPayload({ date: '2026-09-15', locale: 'ko', slot: 'interval-1855' });
+  assert.equal(dummy.tag, 'gomna-reliable-test-2026-09-15-interval-1855');
+  assert.equal(dummy.data.slot, 'interval-1855');
+  assert.equal(dummy.tag.startsWith('gomna-today-'), false);
+  assert.equal(reliableTestTag('2026-09-15', 'first'), 'gomna-reliable-test-2026-09-15-first');
+});
+
+test('slot correction runs only once inside runReliableSend', async () => {
+  const indexSrc = readFileSync(resolve(HERE, '../../supabase/functions/push-send-reliable-test/index.ts'), 'utf8');
+  assert.match(indexSrc, /buildPayload:\s*\(opts:[^)]*\)\s*=>\s*buildPayload\(opts\)/);
+  assert.doesNotMatch(indexSrc, /buildReliableTestPayload\(/);
+
+  let productionCalls = 0;
+  let wrapCalls = 0;
+  const result = await runReliableSend({
+    now: new Date('2026-09-15T09:55:00.000Z'),
+    targets: [target(DEVICE)],
+    subscriptions: [seoulFixed({
+      schedule_mode: 'interval',
+      interval_hours: 1,
+      interval_start_time: '18:55',
+      interval_end_time: '20:55'
+    })],
+    store: createMemorySendStore(),
+    buildPayload(opts) {
+      productionCalls += 1;
+      return collapsingTodayWordBuild(opts);
+    },
+    buildReliableTestPayload(productionBuild, opts) {
+      wrapCalls += 1;
+      return buildReliableTestPayload(productionBuild, opts);
+    }
+  });
+  assert.equal(result.sent, 1);
+  assert.equal(wrapCalls, 1);
+  assert.equal(productionCalls, 1);
 });

@@ -502,7 +502,50 @@ export function createMemorySendStore() {
   return createConditionalSendStore();
 }
 
-function dummyPayload(opts) {
+const INTERVAL_SLOT_RE = /^interval-([01][0-9]|2[0-3])[0-5][0-9]$/;
+const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function sanitizeSendSlot(raw) {
+  const slot = String(raw == null ? '' : raw).trim();
+  if (slot === 'first' || slot === 'second') return { ok: true, slot };
+  if (INTERVAL_SLOT_RE.test(slot)) return { ok: true, slot };
+  return { ok: false, reason: 'invalid_slot', slot: null };
+}
+
+export function sanitizeDateKey(raw) {
+  const date = String(raw == null ? '' : raw).trim();
+  if (DATE_KEY_RE.test(date)) return { ok: true, date };
+  return { ok: false, reason: 'invalid_date', date: null };
+}
+
+export function reliableTestTag(date, slot) {
+  return 'gomna-reliable-test-' + date + '-' + slot;
+}
+
+export function buildReliableTestPayload(productionBuild, opts) {
+  const slotCheck = sanitizeSendSlot(opts && opts.slot);
+  if (!slotCheck.ok) return { ok: false, reason: 'invalid_slot', payload: null };
+  const dateCheck = sanitizeDateKey(opts && opts.date);
+  if (!dateCheck.ok) return { ok: false, reason: 'invalid_date', payload: null };
+  const titleSlot = slotCheck.slot === 'second' ? 'second' : 'first';
+  const base = typeof productionBuild === 'function'
+    ? productionBuild({ date: dateCheck.date, locale: opts && opts.locale, slot: titleSlot })
+    : {};
+  const data = Object.assign({}, base && base.data, {
+    date: dateCheck.date,
+    slot: slotCheck.slot
+  });
+  return {
+    ok: true,
+    reason: null,
+    payload: Object.assign({}, base, {
+      tag: reliableTestTag(dateCheck.date, slotCheck.slot),
+      data
+    })
+  };
+}
+
+export function dummyPayload(opts) {
   return {
     title: 'reliable-test',
     body: String(opts.slot || ''),
@@ -542,6 +585,7 @@ export async function runReliableSend(input) {
   const store = input.store;
   const sendPush = input.sendPush || (async () => ({ ok: true, statusCode: 201 }));
   const buildPayload = input.buildPayload || dummyPayload;
+  const stampPayload = input.buildReliableTestPayload || buildReliableTestPayload;
   const deactivate = input.deactivate || (async () => ({ ok: true }));
   const counts = emptyCounts();
   const exclusions = [];
@@ -618,6 +662,17 @@ export async function runReliableSend(input) {
     }
 
     for (const slotInfo of evaluated.slots) {
+      const slotCheck = sanitizeSendSlot(slotInfo.slot);
+      if (!slotCheck.ok) {
+        exclusions.push({
+          endpoint_hash: row.endpoint_hash,
+          slot: String(slotInfo.slot || ''),
+          sendDate: slotInfo.sendDate,
+          reason: 'invalid_slot',
+          disposition: 'invalid_slot'
+        });
+        continue;
+      }
       counts.due += 1;
       const detail = {
         endpoint_hash: row.endpoint_hash,
@@ -660,11 +715,22 @@ export async function runReliableSend(input) {
       if (claim.status === 'retry') counts.retried += 1;
       counts.attempted += 1;
 
-      const payload = buildPayload({
+      const built = stampPayload(buildPayload, {
         date: slotInfo.sendDate,
         locale: parsed.prefs.locale,
-        slot: slotInfo.slot
+        slot: slotCheck.slot
       });
+      if (!built.ok || !built.payload) {
+        storageErrors.push({
+          op: 'buildPayload',
+          reason: built.reason || 'invalid_slot',
+          endpoint_hash: row.endpoint_hash,
+          slot: slotCheck.slot,
+          sendDate: slotInfo.sendDate
+        });
+        continue;
+      }
+      const payload = built.payload;
       let result;
       try {
         result = await sendPush(row, payload);
