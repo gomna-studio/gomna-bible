@@ -39,6 +39,8 @@ test('timezone and local date are evaluated per subscriber', () => {
 });
 
 test('invalid delivery time and timezone are rejected', () => {
+  assert.deepEqual(parseMailTime('08:30:00'), { hour: 8, minute: 30, hhmm: '08:30' });
+  assert.equal(parseMailTime('08:30:01'), null);
   assert.equal(parseMailTime('24:00'), null);
   assert.equal(readMailPrefs(subscriber({ send_time: '25:10' })).reason, 'invalid_send_time');
   assert.equal(readMailPrefs(subscriber({ timezone: 'Not/AZone' })).reason, 'invalid_timezone');
