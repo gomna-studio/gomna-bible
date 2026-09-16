@@ -1494,9 +1494,9 @@
     var onAction=isAction(ev.target);
     if(beginSwipe(ev.clientX, ev.clientY, ev.pointerId) && root && !layerDetailOpen()){
       /* Mouse/pen capture retargets pointerup+click onto the deck, so Mac
-         clicks never reach selectLifeTheme / selectStoryPerson. iPhone tap
-         still uses pointerType=touch capture for stack swipe. */
-      if(!(onAction && ev.pointerType!=='touch')){
+         clicks never reach the first card or selectLifeTheme / selectStoryPerson.
+         Keep capture for touch swipe only. */
+      if(ev.pointerType==='touch'){
         try{root.setPointerCapture(ev.pointerId);}catch(err){}
       }
     }
