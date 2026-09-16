@@ -12,7 +12,7 @@ export const MAIL_VAULT_SECRETS = [
 const pad2 = (value) => String(value).padStart(2, '0');
 
 export function parseMailTime(raw) {
-  const match = String(raw == null ? '' : raw).trim().match(/^(\d{1,2}):(\d{2})$/);
+  const match = String(raw == null ? '' : raw).trim().match(/^(\d{1,2}):(\d{2})(?::00(?:\.0+)?)?$/);
   if (!match) return null;
   const hour = Number(match[1]);
   const minute = Number(match[2]);
