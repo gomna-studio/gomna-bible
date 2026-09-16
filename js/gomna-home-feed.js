@@ -2513,6 +2513,69 @@
     if(typeof api.formatClock==='function')return api.formatClock(hhmm, uiLang());
     return hhmm;
   }
+  function padNotifyTimePart(value){
+    return String(value).padStart(2,'0');
+  }
+  function splitNotifyClock(value){
+    var match=String(value||'').match(/^(\d{2}):(\d{2})$/);
+    var hour24=match?Number(match[1]):7;
+    var minute=match?Number(match[2]):30;
+    if(hour24<0||hour24>23)hour24=7;
+    if(minute<0||minute>59)minute=30;
+    return {
+      period:hour24>=12?'pm':'am',
+      hour:String((hour24%12)||12),
+      minute:padNotifyTimePart(minute)
+    };
+  }
+  function joinNotifyClock(period,hour,minute){
+    var hour12=Number(hour);
+    var minuteNumber=Number(minute);
+    if(hour12<1||hour12>12||minuteNumber<0||minuteNumber>59)return '';
+    var hour24=(hour12%12)+(period==='pm'?12:0);
+    return padNotifyTimePart(hour24)+':'+padNotifyTimePart(minuteNumber);
+  }
+  function ensureNotifyTimeOptions(){
+    var hour=document.getElementById('ghdNotifyTimeHour');
+    var minute=document.getElementById('ghdNotifyTimeMinute');
+    var i;
+    if(hour&&!hour.options.length){
+      for(i=1;i<=12;i++)hour.add(new Option(String(i),String(i)));
+    }
+    if(minute&&!minute.options.length){
+      for(i=0;i<60;i++)minute.add(new Option(padNotifyTimePart(i),padNotifyTimePart(i)));
+    }
+  }
+  function syncNotifyTimeCustomControls(){
+    ensureNotifyTimeOptions();
+    var parts=splitNotifyClock(notifyTimeDraft);
+    var hour=document.getElementById('ghdNotifyTimeHour');
+    var minute=document.getElementById('ghdNotifyTimeMinute');
+    var hidden=document.getElementById('ghdNotifyTimeCustom');
+    if(hour)hour.value=parts.hour;
+    if(minute)minute.value=parts.minute;
+    if(hidden)hidden.value=joinNotifyClock(parts.period,parts.hour,parts.minute);
+    document.querySelectorAll('#ghdNotifyTimeCustomWrap [data-ghd-time-period]').forEach(function(btn){
+      var on=btn.getAttribute('data-ghd-time-period')===parts.period;
+      btn.classList.toggle('is-on',on);
+      btn.setAttribute('aria-pressed',on?'true':'false');
+    });
+  }
+  function updateNotifyTimeDraftFromControls(){
+    var active=document.querySelector('#ghdNotifyTimeCustomWrap [data-ghd-time-period].is-on');
+    var hour=document.getElementById('ghdNotifyTimeHour');
+    var minute=document.getElementById('ghdNotifyTimeMinute');
+    var hidden=document.getElementById('ghdNotifyTimeCustom');
+    var period=active?active.getAttribute('data-ghd-time-period'):'am';
+    var value=joinNotifyClock(period,hour&&hour.value,minute&&minute.value);
+    if(!value)return;
+    notifyTimeDraft=value;
+    if(hidden)hidden.value=value;
+    document.querySelectorAll('#ghdNotifyTimeSheet [data-ghd-time]').forEach(function(btn){
+      btn.classList.toggle('is-on',btn.getAttribute('data-ghd-time')==='custom');
+    });
+    setNotifySelection('ghdNotifyTimeSelection',formatPushClock(value)+' 선택됨 · 아래 완료를 눌러 저장하세요.');
+  }
   function setNotifyPrefError(msg){
     var el=document.getElementById('ghdNotifyPrefError');
     if(!el)return;
@@ -2741,8 +2804,8 @@
     if(timeLabel)timeLabel.textContent=uiT('home.notify.time','알림 시간');
     if(firstLabel)firstLabel.textContent=uiT('home.notify.first','첫 번째 알림');
     if(secondLabel)secondLabel.textContent=uiT('home.notify.second','두 번째 알림');
-    if(intervalStartLabel)intervalStartLabel.textContent=uiT('home.notify.intervalStart','수신 시작 시간');
-    if(intervalEndLabel)intervalEndLabel.textContent=uiT('home.notify.intervalEnd','수신 종료 시간');
+    if(intervalStartLabel)intervalStartLabel.textContent=uiT('home.notify.intervalStart','알림 시작 시간');
+    if(intervalEndLabel)intervalEndLabel.textContent=uiT('home.notify.intervalEnd','알림 종료 시간');
     if(freqLabel)freqLabel.textContent=uiT('home.notify.frequency','알림 방식');
   }
   function renderNotifySheet(){
@@ -2873,6 +2936,9 @@
       });
     });
   }
+  function supportsPushConfirmationProbe(){
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
   function savePushSubscription(sub, extra, options){
     var json=sub&&typeof sub.toJSON==='function'?sub.toJSON():sub;
     var prefs=normalizePushPrefs(Object.assign({}, currentPushPrefs(), extra||{}, {
@@ -2891,7 +2957,7 @@
       intervalHours:prefs.intervalHours,
       intervalStartTime:prefs.intervalStartTime,
       intervalEndTime:prefs.intervalEndTime,
-      sendProbe:!!(options&&options.sendProbe) && /iPhone|iPad|iPod/i.test(navigator.userAgent)
+      sendProbe:!!(options&&options.sendProbe) && supportsPushConfirmationProbe()
     }).then(function(body){
       if(body&&body.preferences)writePushPrefsCache(Object.assign({}, body.preferences, {enabled:true}));
       else writePushPrefsCache(prefs);
@@ -2901,6 +2967,10 @@
   function ensurePushConfirmation(){
     var permission='default';
     try{permission=Notification.permission;}catch(e){}
+    if(!supportsPushConfirmationProbe()){
+      setNotifyPrefError('');
+      return Promise.resolve(null);
+    }
     if(permission!=='granted' || !pushSubCache || pushConfirmationDone())return Promise.resolve(null);
     return savePushSubscription(pushSubCache, currentPushPrefs(), {sendProbe:true}).then(function(body){
       if(body&&body.confirmationSent===true){
@@ -3438,6 +3508,7 @@
       var input=document.getElementById('ghdNotifyTimeCustom');
       if(wrap)wrap.hidden=!!preset;
       if(input)input.value=current;
+      syncNotifyTimeCustomControls();
     }
     function openNotifyTimeSheet(slot){
       notifyTimeSlot=slot==='second'||slot==='interval-start'||slot==='interval-end'?slot:'first';
@@ -3447,8 +3518,8 @@
       var lead=document.getElementById('ghdNotifyTimeLead');
       if(title){
         if(notifyTimeSlot==='second')title.textContent=uiT('home.notify.secondTimeTitle','두 번째 알림 시간');
-        else if(notifyTimeSlot==='interval-start')title.textContent=uiT('home.notify.intervalStart','수신 시작 시간');
-        else if(notifyTimeSlot==='interval-end')title.textContent=uiT('home.notify.intervalEnd','수신 종료 시간');
+        else if(notifyTimeSlot==='interval-start')title.textContent=uiT('home.notify.intervalStart','알림 시작 시간');
+        else if(notifyTimeSlot==='interval-end')title.textContent=uiT('home.notify.intervalEnd','알림 종료 시간');
         else title.textContent=uiT('home.notify.time','알림 시간');
       }
       if(lead){
@@ -3465,23 +3536,32 @@
     }
     function applyNotifyTime(){
       var api=pushPrefsApi();
+      var input=document.getElementById('ghdNotifyTimeCustom');
+      if(input&&input.value)notifyTimeDraft=input.value;
       if(!notifyTimeDraft || (api.parseTime && !api.parseTime(notifyTimeDraft))){
         setNotifyTimeError('올바른 시간을 선택해 주세요.');
         return;
       }
+      var selectedTime=notifyTimeDraft;
       var prefs=currentPushPrefs();
       var next=Object.assign({}, prefs);
-      if(notifyTimeSlot==='second')next.secondTime=notifyTimeDraft;
-      else if(notifyTimeSlot==='interval-start')next.intervalStartTime=notifyTimeDraft;
-      else if(notifyTimeSlot==='interval-end')next.intervalEndTime=notifyTimeDraft;
-      else next.firstTime=notifyTimeDraft;
+      if(notifyTimeSlot==='second')next.secondTime=selectedTime;
+      else if(notifyTimeSlot==='interval-start')next.intervalStartTime=selectedTime;
+      else if(notifyTimeSlot==='interval-end')next.intervalEndTime=selectedTime;
+      else next.firstTime=selectedTime;
       if(next.scheduleMode==='interval' && next.intervalStartTime>=next.intervalEndTime){
         setNotifyTimeError('종료 시간은 시작 시간보다 늦게 선택해 주세요.');
         return;
       }
       var save=document.getElementById('ghdNotifyTimeSave');
       if(save){save.disabled=true;save.textContent='저장 중…';}
-      persistPushPrefs(next).then(function(){
+      persistPushPrefs(next).then(function(saved){
+        if(notifyTimeValue(saved||currentPushPrefs(), notifyTimeSlot)!==selectedTime){
+          notifyTimeDraft=notifyTimeValue(saved||currentPushPrefs(), notifyTimeSlot)||selectedTime;
+          renderNotifyTimeDraft();
+          setNotifyTimeError('선택한 시간과 저장된 시간이 다릅니다. 다시 선택해 주세요.');
+          return;
+        }
         closeSheet('ghdNotifyTimeSheet','button');
       }).catch(function(){
         setNotifyTimeError('시간을 저장하지 못했습니다. 다시 시도해 주세요.');
@@ -3551,13 +3631,11 @@
         var val=el.getAttribute('data-ghd-time');
         if(val==='custom'){
           var wrap=document.getElementById('ghdNotifyTimeCustomWrap');
-          var input=document.getElementById('ghdNotifyTimeCustom');
           if(wrap)wrap.hidden=false;
           setNotifySelection('ghdNotifyTimeSelection','시간을 선택해 주세요.');
-          if(input){
-            if(!input.value)input.value=notifyTimeDraft;
-            try{input.focus();input.showPicker&&input.showPicker();}catch(err){}
-          }
+          syncNotifyTimeCustomControls();
+          var hour=document.getElementById('ghdNotifyTimeHour');
+          try{hour&&hour.focus();}catch(err){}
           return;
         }
         notifyTimeDraft=val;
@@ -3565,20 +3643,24 @@
         setNotifySelection('ghdNotifyTimeSelection',formatPushClock(val)+' 선택됨 · 완료를 눌러 저장하세요.');
       });
     });
-    var timeCustom=document.getElementById('ghdNotifyTimeCustom');
-    if(timeCustom && timeCustom.getAttribute('data-ghd-time-bound')!=='1'){
-      timeCustom.setAttribute('data-ghd-time-bound','1');
-      function updateNotifyTimeDraftFromInput(){
-        if(!timeCustom.value)return;
-        notifyTimeDraft=timeCustom.value;
-        document.querySelectorAll('#ghdNotifyTimeSheet [data-ghd-time]').forEach(function(btn){
-          btn.classList.toggle('is-on', btn.getAttribute('data-ghd-time')==='custom');
+    document.querySelectorAll('#ghdNotifyTimeCustomWrap [data-ghd-time-period]').forEach(function(btn){
+      if(btn.getAttribute('data-ghd-period-bound')==='1')return;
+      btn.setAttribute('data-ghd-period-bound','1');
+      btn.addEventListener('click',function(){
+        document.querySelectorAll('#ghdNotifyTimeCustomWrap [data-ghd-time-period]').forEach(function(item){
+          var on=item===btn;
+          item.classList.toggle('is-on',on);
+          item.setAttribute('aria-pressed',on?'true':'false');
         });
-        setNotifySelection('ghdNotifyTimeSelection',formatPushClock(notifyTimeDraft)+' 선택됨 · 아래 완료를 눌러 저장하세요.');
-      }
-      timeCustom.addEventListener('input', updateNotifyTimeDraftFromInput);
-      timeCustom.addEventListener('change', updateNotifyTimeDraftFromInput);
-    }
+        updateNotifyTimeDraftFromControls();
+      });
+    });
+    ['ghdNotifyTimeHour','ghdNotifyTimeMinute'].forEach(function(id){
+      var select=document.getElementById(id);
+      if(!select||select.getAttribute('data-ghd-time-bound')==='1')return;
+      select.setAttribute('data-ghd-time-bound','1');
+      select.addEventListener('change',updateNotifyTimeDraftFromControls);
+    });
     var timeSave=document.getElementById('ghdNotifyTimeSave');
     if(timeSave)timeSave.addEventListener('click', applyNotifyTime);
     var timeCancel=document.getElementById('ghdNotifyTimeCancel');
