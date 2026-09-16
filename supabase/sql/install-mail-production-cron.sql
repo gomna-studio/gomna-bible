@@ -37,7 +37,6 @@ select cron.schedule(
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
       'apikey', (select decrypted_secret from vault.decrypted_secrets where name = 'gomna_mail_gateway_apikey' order by updated_at desc limit 1),
-      'Authorization', 'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name = 'gomna_mail_gateway_apikey' order by updated_at desc limit 1),
       'x-gomna-mail-cron', (select decrypted_secret from vault.decrypted_secrets where name = 'gomna_mail_cron_secret' order by updated_at desc limit 1)
     ),
     body := '{"mode":"daily","source":"supabase-cron"}'::jsonb,
