@@ -42,6 +42,10 @@ test('time controls keep one explicit two-row layout at every width', () => {
   assert.match(html, /#ghdNotifyTimeSheet \.ghd-notify-pref-panel\{[\s\S]*?max-height:calc\(var\(--ghd-vv-h,100dvh\) - 20px\);[\s\S]*?overflow-x:hidden/);
 });
 
+test('Android time controls cannot scroll beneath the action buttons', () => {
+  assert.match(html, /#ghdNotifyTimeSheet \.ghd-notify-pref-actions\{[\s\S]*?position:static;[\s\S]*?bottom:auto;[\s\S]*?z-index:auto/);
+});
+
 test('notification and email time controls share the AM and PM button height', () => {
   assert.match(html, /\.ghd-notify-time-period button\{\s*height:37px;min-height:37px/);
   assert.match(html, /\.ghd-notify-time-field select\{[\s\S]*?height:37px;min-height:37px/);
@@ -55,8 +59,8 @@ test('active AM or PM uses one very slim border', () => {
 });
 
 test('installed apps request the current time-control service worker', () => {
-  assert.match(html, /serviceWorker\.register\("\/sw\.js\?v=20260916-unified-time-ui-v3"/);
-  assert.match(serviceWorker, /CACHE_VERSION = '2026-09-16-unified-time-ui-v3'/);
+  assert.match(html, /serviceWorker\.register\("\/sw\.js\?v=20260916-android-time-footer-v4"/);
+  assert.match(serviceWorker, /CACHE_VERSION = '2026-09-16-android-time-footer-v4'/);
 });
 
 test('picker preserves exact minutes and noon or midnight correctly', () => {
