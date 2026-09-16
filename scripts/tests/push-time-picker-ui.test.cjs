@@ -22,7 +22,15 @@ test('custom time picker does not depend on browser type=time UI', () => {
   assert.match(block[0], /data-ghd-time-period="am"/);
   assert.match(block[0], /data-ghd-time-period="pm"/);
   assert.match(block[0], /id="ghdNotifyTimeHour"/);
+  assert.match(block[0], /id="ghdNotifyTimeHourVisible"/);
   assert.match(block[0], /id="ghdNotifyTimeMinute"/);
+});
+
+test('selected hour has a browser-independent visible value', () => {
+  assert.match(html, /#ghdNotifyTimeHourVisible\{/);
+  assert.match(html, /#ghdNotifyTimeHourVisible[\s\S]*?pointer-events:none/);
+  assert.match(source, /hourVisible\.textContent=parts\.hour/);
+  assert.match(source, /hourVisible\.textContent=hour&&hour\.value\|\|''/);
 });
 
 test('picker preserves exact minutes and noon or midnight correctly', () => {

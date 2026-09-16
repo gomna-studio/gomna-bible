@@ -2550,9 +2550,11 @@
     ensureNotifyTimeOptions();
     var parts=splitNotifyClock(notifyTimeDraft);
     var hour=document.getElementById('ghdNotifyTimeHour');
+    var hourVisible=document.getElementById('ghdNotifyTimeHourVisible');
     var minute=document.getElementById('ghdNotifyTimeMinute');
     var hidden=document.getElementById('ghdNotifyTimeCustom');
     if(hour)hour.value=parts.hour;
+    if(hourVisible)hourVisible.textContent=parts.hour;
     if(minute)minute.value=parts.minute;
     if(hidden)hidden.value=joinNotifyClock(parts.period,parts.hour,parts.minute);
     document.querySelectorAll('#ghdNotifyTimeCustomWrap [data-ghd-time-period]').forEach(function(btn){
@@ -2564,12 +2566,14 @@
   function updateNotifyTimeDraftFromControls(){
     var active=document.querySelector('#ghdNotifyTimeCustomWrap [data-ghd-time-period].is-on');
     var hour=document.getElementById('ghdNotifyTimeHour');
+    var hourVisible=document.getElementById('ghdNotifyTimeHourVisible');
     var minute=document.getElementById('ghdNotifyTimeMinute');
     var hidden=document.getElementById('ghdNotifyTimeCustom');
     var period=active?active.getAttribute('data-ghd-time-period'):'am';
     var value=joinNotifyClock(period,hour&&hour.value,minute&&minute.value);
     if(!value)return;
     notifyTimeDraft=value;
+    if(hourVisible)hourVisible.textContent=hour&&hour.value||'';
     if(hidden)hidden.value=value;
     document.querySelectorAll('#ghdNotifyTimeSheet [data-ghd-time]').forEach(function(btn){
       btn.classList.toggle('is-on',btn.getAttribute('data-ghd-time')==='custom');

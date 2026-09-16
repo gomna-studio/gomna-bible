@@ -2519,10 +2519,16 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
   .ghd-notify-time-period button.is-on{
     border-color:#315f9e;background:#e8f0fc;color:#173f78;box-shadow:inset 0 0 0 1px #315f9e;
   }
-  .ghd-notify-time-field{display:grid;gap:6px;color:#53647a;font-size:13px;font-weight:800}
+  .ghd-notify-time-field{position:relative;display:grid;gap:6px;color:#53647a;font-size:13px;font-weight:800}
   .ghd-notify-time-field select{
     width:100%;min-height:52px;padding:0 34px 0 14px;border:1px solid #d7e1ee;
     border-radius:14px;background:#fff;color:#17243a;font:inherit;font-size:20px;font-weight:800;
+  }
+  #ghdNotifyTimeHourVisible{
+    position:absolute;left:2px;right:36px;bottom:2px;z-index:1;height:48px;
+    display:flex;align-items:center;justify-content:center;border-radius:12px;
+    background:#fff;color:#17243a;font-size:20px;font-weight:800;line-height:1;
+    pointer-events:none;
   }
   .ghd-notify-time-colon{
     align-self:end;padding-bottom:13px;color:#596a80;font-size:24px;font-weight:900;
@@ -2551,6 +2557,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
       <label class="ghd-notify-time-field">
         <span>시</span>
         <select id="ghdNotifyTimeHour" aria-label="시 선택"></select>
+        <span id="ghdNotifyTimeHourVisible" aria-hidden="true">7</span>
       </label>
       <span class="ghd-notify-time-colon" aria-hidden="true">:</span>
       <label class="ghd-notify-time-field">
@@ -3673,7 +3680,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <script src="js/gomna-push-config.js?v=20260909-push-pref-v1"></script>
 <script src="js/gomna-push-prefs.js?v=20260914-notify-interval-v1"></script>
 <script src="js/gomna-mail-config.js?v=20260909-mail-mac-v1"></script>
-<script src="js/gomna-home-feed.js?v=20260916-mail-delivery-time-v4"></script>
+<script src="js/gomna-home-feed.js?v=20260916-time-hour-visible-v1"></script>
 <script src="js/gomna-bible-stair-picker.js?v=20260905-ot-back-v1"></script>
 <script src="settings_guide.js?v=20260807-settings-v3" defer></script>
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>
