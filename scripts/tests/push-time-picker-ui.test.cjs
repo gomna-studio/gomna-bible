@@ -8,6 +8,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '../..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const source = fs.readFileSync(path.join(root, 'js/gomna-home-feed.js'), 'utf8');
+const serviceWorker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 
 function clockHelpers() {
   const match = source.match(/function padNotifyTimePart[\s\S]*?(?=  function ensureNotifyTimeOptions)/);
@@ -44,6 +45,11 @@ test('notification and email time controls share the AM and PM button height', (
 test('active AM or PM uses one very slim border', () => {
   assert.match(html, /\.ghd-notify-time-period button\.is-on\{\s*border:\.5px solid #315f9e;[\s\S]*?box-shadow:none/);
   assert.doesNotMatch(html, /box-shadow:inset 0 0 0 1px #315f9e/);
+});
+
+test('installed apps request the current time-control service worker', () => {
+  assert.match(html, /serviceWorker\.register\("\/sw\.js\?v=20260916-time-controls-refresh-v2"/);
+  assert.match(serviceWorker, /CACHE_VERSION = '2026-09-16-time-controls-refresh-v2'/);
 });
 
 test('picker preserves exact minutes and noon or midnight correctly', () => {
