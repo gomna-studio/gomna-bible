@@ -1,5 +1,5 @@
 # 푸시는 사용자 현지 알림 시간에 맞춰 15분마다 대상을 고른다.
-# 이메일은 하루 1회(KST 00:10 = UTC 15:10)만 보낸다.
+# 이메일 예약 발송은 사용자 현지 시각에 맞춘 Supabase Cron이 담당한다.
 name: Daily today-word push
 on:
   workflow_dispatch:
@@ -13,7 +13,6 @@ on:
         default: '0'
   schedule:
     - cron: '*/15 * * * *'
-    - cron: '10 15 * * *'
 jobs:
   push:
     runs-on: ubuntu-latest
@@ -45,7 +44,8 @@ jobs:
             -H "x-gomna-push-cron: $PUSH_CRON_SECRET" \
             -d "$BODY"
   mail:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '10 15 * * *'
+    # 운영 예약 발송과 겹치지 않도록 수동 점검 때만 실행한다.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Send daily today-word email
@@ -58,9 +58,9 @@ jobs:
             echo "mail secrets not set; skip"
             exit 0
           fi
-          BODY='{"mode":"daily"}'
+          BODY='{"mode":"daily","force":true}'
           if [ -n "$SEND_DATE" ]; then
-            BODY=$(printf '{"mode":"daily","date":"%s"}' "$SEND_DATE")
+            BODY=$(printf '{"mode":"daily","force":true,"date":"%s"}' "$SEND_DATE")
           fi
           curl -fsS -X POST "$MAIL_URL" \
             -H "Content-Type: application/json" \

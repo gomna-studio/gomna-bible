@@ -15,7 +15,14 @@ Deno.serve(async (req) => {
   const email = normalizeEmail(body.email);
   if (!email) return json(200, { ok: true, active: false }, origin);
   const hash = await sha32(email);
-  const res = await sb('gomna_mail_subscribers?email_hash=eq.' + hash + '&select=active', { method: 'GET' });
-  const rows = res.ok ? await res.json() as { active?: boolean }[] : [];
-  return json(200, { ok: true, active: !!(rows[0] && rows[0].active), email }, origin);
+  const res = await sb('gomna_mail_subscribers?email_hash=eq.' + hash + '&select=active,send_time,timezone', { method: 'GET' });
+  const rows = res.ok ? await res.json() as { active?: boolean; send_time?: string; timezone?: string }[] : [];
+  const row = rows[0] || null;
+  return json(200, {
+    ok: true,
+    active: !!(row && row.active),
+    email,
+    sendTime: String(row && row.send_time || '07:30').slice(0, 5),
+    timezone: String(row && row.timezone || '')
+  }, origin);
 });
