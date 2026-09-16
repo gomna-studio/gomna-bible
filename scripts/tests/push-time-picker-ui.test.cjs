@@ -23,16 +23,23 @@ test('custom time picker does not depend on browser type=time UI', () => {
   assert.match(block[0], /data-ghd-time-period="am"/);
   assert.match(block[0], /data-ghd-time-period="pm"/);
   assert.match(block[0], /id="ghdNotifyTimeHour"/);
-  assert.match(block[0], /id="ghdNotifyTimeHourVisible"/);
   assert.match(block[0], /id="ghdNotifyTimeMinute"/);
+  assert.doesNotMatch(block[0], /id="ghdNotifyTimeHourVisible"/);
 });
 
-test('selected hour has a browser-independent visible value', () => {
-  assert.match(html, /#ghdNotifyTimeHourVisible\{/);
-  assert.match(html, /#ghdNotifyTimeHourVisible[\s\S]*?pointer-events:none/);
+test('hour and minute use the same browser-normalized closed control', () => {
+  assert.match(html, /\.ghd-notify-time-field select\{[\s\S]*?-webkit-appearance:none;appearance:none/);
+  assert.match(html, /\.ghd-notify-time-field select\{[\s\S]*?text-align:center;text-align-last:center/);
+  assert.match(html, /\.ghd-notify-time-field::after\{[\s\S]*?pointer-events:none/);
+  assert.doesNotMatch(html, /#ghdNotifyTimeHourVisible\{/);
   assert.match(html, /\.ghd-notify-time-field select:focus,\.ghd-notify-time-field select:focus-visible\{[\s\S]*?outline:none!important;[\s\S]*?border-color:#d7e1ee!important/);
-  assert.match(source, /hourVisible\.textContent=parts\.hour/);
-  assert.match(source, /hourVisible\.textContent=hour&&hour\.value\|\|''/);
+});
+
+test('time controls keep one explicit two-row layout at every width', () => {
+  assert.match(html, /\.ghd-notify-time-custom\{[\s\S]*?grid-template-columns:minmax\(0,1fr\) auto minmax\(0,1fr\)/);
+  assert.match(html, /\.ghd-notify-time-period\{grid-column:1\/-1;/);
+  assert.doesNotMatch(html, /grid-template-columns:1fr 1fr auto 1fr/);
+  assert.match(html, /#ghdNotifyTimeSheet \.ghd-notify-pref-panel\{[\s\S]*?max-height:calc\(var\(--ghd-vv-h,100dvh\) - 20px\);[\s\S]*?overflow-x:hidden/);
 });
 
 test('notification and email time controls share the AM and PM button height', () => {
@@ -48,8 +55,8 @@ test('active AM or PM uses one very slim border', () => {
 });
 
 test('installed apps request the current time-control service worker', () => {
-  assert.match(html, /serviceWorker\.register\("\/sw\.js\?v=20260916-time-controls-refresh-v2"/);
-  assert.match(serviceWorker, /CACHE_VERSION = '2026-09-16-time-controls-refresh-v2'/);
+  assert.match(html, /serviceWorker\.register\("\/sw\.js\?v=20260916-unified-time-ui-v3"/);
+  assert.match(serviceWorker, /CACHE_VERSION = '2026-09-16-unified-time-ui-v3'/);
 });
 
 test('picker preserves exact minutes and noon or midnight correctly', () => {

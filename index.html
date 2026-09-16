@@ -364,7 +364,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
   var registerHomeServiceWorker = function () {
-    navigator.serviceWorker.register("/sw.js?v=20260916-time-controls-refresh-v2", { scope: "/", updateViaCache: "none" })
+    navigator.serviceWorker.register("/sw.js?v=20260916-unified-time-ui-v3", { scope: "/", updateViaCache: "none" })
       .then(function(reg){ try { reg.update(); } catch (eUp) {} })
       .catch(function(){});
   };
@@ -2485,7 +2485,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
     <button type="button" class="ghd-sheet-text" id="ghdNotifyTest" hidden>테스트 알림 보내기</button>
   </div>
 </div>
-<style id="gomna-notify-time-picker-v4">
+<style id="gomna-notify-time-picker-v5">
   #ghdNotifySheet .ghd-notify-panel{
     max-height:calc(100dvh - 20px);
     padding-bottom:max(14px,env(safe-area-inset-bottom));
@@ -2499,19 +2499,23 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
   #ghdNotifySheet .ghd-notify-preview{margin-bottom:10px}
   #ghdNotifySheet .ghd-notify-milestone{margin-top:8px;margin-bottom:8px}
   #ghdNotifySheet .ghd-notify-pref-row{min-height:46px}
+  #ghdNotifyTimeSheet .ghd-notify-pref-panel{
+    max-height:calc(var(--ghd-vv-h,100dvh) - 20px);
+    overflow-x:hidden;
+  }
   .ghd-notify-time-custom[hidden]{display:none!important}
   .ghd-notify-time-custom{
     display:grid;
-    grid-template-columns:minmax(136px,1fr) minmax(92px,.72fr) auto minmax(92px,.72fr);
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
     align-items:end;
-    gap:10px;
+    gap:8px;
     margin:10px 0 4px;
-    padding:14px;
+    padding:12px;
     border:1px solid #dfe7f2;
     border-radius:18px;
     background:#f7faff;
   }
-  .ghd-notify-time-period{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .ghd-notify-time-period{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .ghd-notify-time-period button{
     height:37px;min-height:37px;padding:0 12px;border:1px solid #d7e1ee;border-radius:14px;
     background:#fff;color:#263750;font:inherit;font-weight:800;cursor:pointer;
@@ -2519,19 +2523,20 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
   .ghd-notify-time-period button.is-on{
     border:.5px solid #315f9e;background:#e8f0fc;color:#173f78;box-shadow:none;
   }
-  .ghd-notify-time-field{position:relative;display:grid;gap:6px;color:#53647a;font-size:13px;font-weight:800}
+  .ghd-notify-time-field{position:relative;display:grid;min-width:0;gap:6px;color:#53647a;font-size:13px;font-weight:800}
+  .ghd-notify-time-field::after{
+    content:'';position:absolute;right:14px;bottom:14px;width:7px;height:7px;
+    border-right:1px solid #64748b;border-bottom:1px solid #64748b;
+    transform:rotate(45deg);pointer-events:none;
+  }
   .ghd-notify-time-field select{
-    width:100%;height:37px;min-height:37px;padding:0 34px 0 14px;border:1px solid #d7e1ee;
-    border-radius:14px;background:#fff;color:#17243a;font:inherit;font-size:20px;font-weight:800;
+    width:100%;max-width:100%;height:37px;min-height:37px;min-width:0;padding:0 30px 0 12px;
+    border:1px solid #d7e1ee;border-radius:14px;background:#fff;color:#17243a;
+    font:inherit;font-size:20px;font-weight:800;line-height:1;text-align:center;text-align-last:center;
+    -webkit-appearance:none;appearance:none;
   }
   .ghd-notify-time-field select:focus,.ghd-notify-time-field select:focus-visible{
     outline:none!important;border-color:#d7e1ee!important;box-shadow:none!important;
-  }
-  #ghdNotifyTimeHourVisible{
-    position:absolute;left:2px;right:36px;bottom:2px;z-index:1;height:33px;
-    display:flex;align-items:center;justify-content:center;border-radius:12px;
-    background:#fff;color:#17243a;font-size:20px;font-weight:800;line-height:1;
-    pointer-events:none;
   }
   .ghd-notify-time-colon{
     align-self:end;padding-bottom:5px;color:#596a80;font-size:24px;font-weight:900;
@@ -2540,9 +2545,9 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
   #ghdNotifyTimeSheet .ghd-notify-pref-actions button{
     height:37px;min-height:37px;padding-top:0;padding-bottom:0;
   }
+  #ghdNotifyTimeSheet .ghd-notify-pref-actions{z-index:3}
   @media (max-width:560px){
-    .ghd-notify-time-custom{grid-template-columns:1fr 1fr auto 1fr;gap:7px;padding:12px}
-    .ghd-notify-time-period{grid-column:1/-1}
+    .ghd-notify-time-custom{gap:7px;padding:12px}
   }
 </style>
 <div class="ghd-sheet" id="ghdNotifyTimeSheet" data-ghd-stable-pref hidden>
@@ -2564,7 +2569,6 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
       <label class="ghd-notify-time-field">
         <span>시</span>
         <select id="ghdNotifyTimeHour" aria-label="시 선택"></select>
-        <span id="ghdNotifyTimeHourVisible" aria-hidden="true">7</span>
       </label>
       <span class="ghd-notify-time-colon" aria-hidden="true">:</span>
       <label class="ghd-notify-time-field">
