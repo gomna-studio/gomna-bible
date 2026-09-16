@@ -3472,23 +3472,32 @@
     }
     function applyNotifyTime(){
       var api=pushPrefsApi();
+      var input=document.getElementById('ghdNotifyTimeCustom');
+      if(input&&input.value)notifyTimeDraft=input.value;
       if(!notifyTimeDraft || (api.parseTime && !api.parseTime(notifyTimeDraft))){
         setNotifyTimeError('올바른 시간을 선택해 주세요.');
         return;
       }
+      var selectedTime=notifyTimeDraft;
       var prefs=currentPushPrefs();
       var next=Object.assign({}, prefs);
-      if(notifyTimeSlot==='second')next.secondTime=notifyTimeDraft;
-      else if(notifyTimeSlot==='interval-start')next.intervalStartTime=notifyTimeDraft;
-      else if(notifyTimeSlot==='interval-end')next.intervalEndTime=notifyTimeDraft;
-      else next.firstTime=notifyTimeDraft;
+      if(notifyTimeSlot==='second')next.secondTime=selectedTime;
+      else if(notifyTimeSlot==='interval-start')next.intervalStartTime=selectedTime;
+      else if(notifyTimeSlot==='interval-end')next.intervalEndTime=selectedTime;
+      else next.firstTime=selectedTime;
       if(next.scheduleMode==='interval' && next.intervalStartTime>=next.intervalEndTime){
         setNotifyTimeError('종료 시간은 시작 시간보다 늦게 선택해 주세요.');
         return;
       }
       var save=document.getElementById('ghdNotifyTimeSave');
       if(save){save.disabled=true;save.textContent='저장 중…';}
-      persistPushPrefs(next).then(function(){
+      persistPushPrefs(next).then(function(saved){
+        if(notifyTimeValue(saved||currentPushPrefs(), notifyTimeSlot)!==selectedTime){
+          notifyTimeDraft=notifyTimeValue(saved||currentPushPrefs(), notifyTimeSlot)||selectedTime;
+          renderNotifyTimeDraft();
+          setNotifyTimeError('선택한 시간과 저장된 시간이 다릅니다. 다시 선택해 주세요.');
+          return;
+        }
         closeSheet('ghdNotifyTimeSheet','button');
       }).catch(function(){
         setNotifyTimeError('시간을 저장하지 못했습니다. 다시 시도해 주세요.');
