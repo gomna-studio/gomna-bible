@@ -14,7 +14,17 @@ async function authorized(req: Request, mode: string) {
   const secret = mode === 'daily' ? Deno.env.get('MAIL_CRON_SECRET') || '' : Deno.env.get('MAIL_DEV_SECRET') || '';
   const header = mode === 'daily' ? req.headers.get('x-gomna-mail-cron') || '' : req.headers.get('x-gomna-mail-dev') || '';
   const bearer = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
-  return !!secret && (header === secret || bearer === secret);
+  if (secret && (header === secret || bearer === secret)) return true;
+  if (mode !== 'daily' || !header) return false;
+  try {
+    const response = await sb('rpc/gomna_verify_mail_cron_secret', {
+      method: 'POST',
+      body: JSON.stringify({ p_candidate: header })
+    });
+    return response.ok && await response.json().catch(() => false) === true;
+  } catch {
+    return false;
+  }
 }
 
 function escapeHtml(value: string) {
