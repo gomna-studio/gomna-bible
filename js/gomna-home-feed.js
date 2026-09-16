@@ -2873,6 +2873,9 @@
       });
     });
   }
+  function supportsPushConfirmationProbe(){
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
   function savePushSubscription(sub, extra, options){
     var json=sub&&typeof sub.toJSON==='function'?sub.toJSON():sub;
     var prefs=normalizePushPrefs(Object.assign({}, currentPushPrefs(), extra||{}, {
@@ -2891,7 +2894,7 @@
       intervalHours:prefs.intervalHours,
       intervalStartTime:prefs.intervalStartTime,
       intervalEndTime:prefs.intervalEndTime,
-      sendProbe:!!(options&&options.sendProbe) && /iPhone|iPad|iPod/i.test(navigator.userAgent)
+      sendProbe:!!(options&&options.sendProbe) && supportsPushConfirmationProbe()
     }).then(function(body){
       if(body&&body.preferences)writePushPrefsCache(Object.assign({}, body.preferences, {enabled:true}));
       else writePushPrefsCache(prefs);
@@ -2901,6 +2904,10 @@
   function ensurePushConfirmation(){
     var permission='default';
     try{permission=Notification.permission;}catch(e){}
+    if(!supportsPushConfirmationProbe()){
+      setNotifyPrefError('');
+      return Promise.resolve(null);
+    }
     if(permission!=='granted' || !pushSubCache || pushConfirmationDone())return Promise.resolve(null);
     return savePushSubscription(pushSubCache, currentPushPrefs(), {sendProbe:true}).then(function(body){
       if(body&&body.confirmationSent===true){
