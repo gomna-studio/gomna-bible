@@ -29,14 +29,21 @@ test('custom time picker does not depend on browser type=time UI', () => {
 test('selected hour has a browser-independent visible value', () => {
   assert.match(html, /#ghdNotifyTimeHourVisible\{/);
   assert.match(html, /#ghdNotifyTimeHourVisible[\s\S]*?pointer-events:none/);
-  assert.match(html, /#ghdNotifyTimeHour:focus,#ghdNotifyTimeHour:focus-visible\{[\s\S]*?outline:none!important;[\s\S]*?border-color:#d7e1ee!important/);
+  assert.match(html, /\.ghd-notify-time-field select:focus,\.ghd-notify-time-field select:focus-visible\{[\s\S]*?outline:none!important;[\s\S]*?border-color:#d7e1ee!important/);
   assert.match(source, /hourVisible\.textContent=parts\.hour/);
   assert.match(source, /hourVisible\.textContent=hour&&hour\.value\|\|''/);
 });
 
-test('only the AM and PM buttons are about 4mm shorter', () => {
-  assert.match(html, /\.ghd-notify-time-period button\{\s*min-height:37px/);
-  assert.doesNotMatch(html, /\.ghd-notify-time-field select\{[\s\S]*?min-height:37px/);
+test('notification and email time controls share the AM and PM button height', () => {
+  assert.match(html, /\.ghd-notify-time-period button\{\s*height:37px;min-height:37px/);
+  assert.match(html, /\.ghd-notify-time-field select\{[\s\S]*?height:37px;min-height:37px/);
+  assert.match(html, /#ghdNotifyTimeSheet \.ghd-notify-option,[\s\S]*?#ghdNotifyTimeSheet \.ghd-notify-pref-actions button\{\s*height:37px;min-height:37px/);
+  assert.match(html, /#ghdMailSheet \.ghd-sheet-cta,[\s\S]*?#ghdMailSheet \.ghd-sheet-text\{height:37px;min-height:37px/);
+});
+
+test('active AM or PM uses one very slim border', () => {
+  assert.match(html, /\.ghd-notify-time-period button\.is-on\{\s*border:\.5px solid #315f9e;[\s\S]*?box-shadow:none/);
+  assert.doesNotMatch(html, /box-shadow:inset 0 0 0 1px #315f9e/);
 });
 
 test('picker preserves exact minutes and noon or midnight correctly', () => {
