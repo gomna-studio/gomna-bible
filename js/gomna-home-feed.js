@@ -2513,6 +2513,69 @@
     if(typeof api.formatClock==='function')return api.formatClock(hhmm, uiLang());
     return hhmm;
   }
+  function padNotifyTimePart(value){
+    return String(value).padStart(2,'0');
+  }
+  function splitNotifyClock(value){
+    var match=String(value||'').match(/^(\d{2}):(\d{2})$/);
+    var hour24=match?Number(match[1]):7;
+    var minute=match?Number(match[2]):30;
+    if(hour24<0||hour24>23)hour24=7;
+    if(minute<0||minute>59)minute=30;
+    return {
+      period:hour24>=12?'pm':'am',
+      hour:String((hour24%12)||12),
+      minute:padNotifyTimePart(minute)
+    };
+  }
+  function joinNotifyClock(period,hour,minute){
+    var hour12=Number(hour);
+    var minuteNumber=Number(minute);
+    if(hour12<1||hour12>12||minuteNumber<0||minuteNumber>59)return '';
+    var hour24=(hour12%12)+(period==='pm'?12:0);
+    return padNotifyTimePart(hour24)+':'+padNotifyTimePart(minuteNumber);
+  }
+  function ensureNotifyTimeOptions(){
+    var hour=document.getElementById('ghdNotifyTimeHour');
+    var minute=document.getElementById('ghdNotifyTimeMinute');
+    var i;
+    if(hour&&!hour.options.length){
+      for(i=1;i<=12;i++)hour.add(new Option(String(i),String(i)));
+    }
+    if(minute&&!minute.options.length){
+      for(i=0;i<60;i++)minute.add(new Option(padNotifyTimePart(i),padNotifyTimePart(i)));
+    }
+  }
+  function syncNotifyTimeCustomControls(){
+    ensureNotifyTimeOptions();
+    var parts=splitNotifyClock(notifyTimeDraft);
+    var hour=document.getElementById('ghdNotifyTimeHour');
+    var minute=document.getElementById('ghdNotifyTimeMinute');
+    var hidden=document.getElementById('ghdNotifyTimeCustom');
+    if(hour)hour.value=parts.hour;
+    if(minute)minute.value=parts.minute;
+    if(hidden)hidden.value=joinNotifyClock(parts.period,parts.hour,parts.minute);
+    document.querySelectorAll('#ghdNotifyTimeCustomWrap [data-ghd-time-period]').forEach(function(btn){
+      var on=btn.getAttribute('data-ghd-time-period')===parts.period;
+      btn.classList.toggle('is-on',on);
+      btn.setAttribute('aria-pressed',on?'true':'false');
+    });
+  }
+  function updateNotifyTimeDraftFromControls(){
+    var active=document.querySelector('#ghdNotifyTimeCustomWrap [data-ghd-time-period].is-on');
+    var hour=document.getElementById('ghdNotifyTimeHour');
+    var minute=document.getElementById('ghdNotifyTimeMinute');
+    var hidden=document.getElementById('ghdNotifyTimeCustom');
+    var period=active?active.getAttribute('data-ghd-time-period'):'am';
+    var value=joinNotifyClock(period,hour&&hour.value,minute&&minute.value);
+    if(!value)return;
+    notifyTimeDraft=value;
+    if(hidden)hidden.value=value;
+    document.querySelectorAll('#ghdNotifyTimeSheet [data-ghd-time]').forEach(function(btn){
+      btn.classList.toggle('is-on',btn.getAttribute('data-ghd-time')==='custom');
+    });
+    setNotifySelection('ghdNotifyTimeSelection',formatPushClock(value)+' 선택됨 · 아래 완료를 눌러 저장하세요.');
+  }
   function setNotifyPrefError(msg){
     var el=document.getElementById('ghdNotifyPrefError');
     if(!el)return;
@@ -2741,8 +2804,8 @@
     if(timeLabel)timeLabel.textContent=uiT('home.notify.time','알림 시간');
     if(firstLabel)firstLabel.textContent=uiT('home.notify.first','첫 번째 알림');
     if(secondLabel)secondLabel.textContent=uiT('home.notify.second','두 번째 알림');
-    if(intervalStartLabel)intervalStartLabel.textContent=uiT('home.notify.intervalStart','수신 시작 시간');
-    if(intervalEndLabel)intervalEndLabel.textContent=uiT('home.notify.intervalEnd','수신 종료 시간');
+    if(intervalStartLabel)intervalStartLabel.textContent=uiT('home.notify.intervalStart','알림 시작 시간');
+    if(intervalEndLabel)intervalEndLabel.textContent=uiT('home.notify.intervalEnd','알림 종료 시간');
     if(freqLabel)freqLabel.textContent=uiT('home.notify.frequency','알림 방식');
   }
   function renderNotifySheet(){
@@ -3102,6 +3165,7 @@
     postPush('send-test', {subscription:json, locale:uiLang()}).catch(function(){});
   }
   var MAIL_KEY='gomna_today_mail_email';
+  var MAIL_TIME_KEY='gomna_today_mail_time';
   function mailApiUrl(kind){
     var cfg=window.GomnaMailConfig||{};
     var base='';
@@ -3141,6 +3205,56 @@
       else localStorage.removeItem(MAIL_KEY);
     }catch(e){}
   }
+  function validMailTime(value){
+    var match=String(value||'').match(/^(\d{2}):(\d{2})$/);
+    return !!(match&&Number(match[1])<24&&Number(match[2])<60);
+  }
+  function readMailTime(){
+    try{
+      var saved=String(localStorage.getItem(MAIL_TIME_KEY)||'');
+      return validMailTime(saved)?saved:'07:30';
+    }catch(e){return '07:30';}
+  }
+  function writeMailTime(value){
+    var safe=validMailTime(value)?value:'07:30';
+    try{localStorage.setItem(MAIL_TIME_KEY,safe);}catch(e){}
+    return safe;
+  }
+  function ensureMailTimeOptions(){
+    var hour=document.getElementById('ghdMailTimeHour');
+    var minute=document.getElementById('ghdMailTimeMinute');
+    var i;
+    if(hour&&!hour.options.length){for(i=1;i<=12;i++)hour.add(new Option(String(i),String(i)));}
+    if(minute&&!minute.options.length){for(i=0;i<60;i++)minute.add(new Option(padNotifyTimePart(i),padNotifyTimePart(i)));}
+  }
+  function renderMailTime(value){
+    var safe=validMailTime(value)?value:readMailTime();
+    ensureMailTimeOptions();
+    var parts=splitNotifyClock(safe);
+    document.querySelectorAll('#ghdMailTimeCustomWrap [data-ghd-mail-period]').forEach(function(btn){
+      var on=btn.getAttribute('data-ghd-mail-period')===parts.period;
+      btn.classList.toggle('is-on',on);
+      btn.setAttribute('aria-pressed',on?'true':'false');
+    });
+    var hour=document.getElementById('ghdMailTimeHour');
+    var minute=document.getElementById('ghdMailTimeMinute');
+    var hidden=document.getElementById('ghdMailTime');
+    var summary=document.getElementById('ghdMailTimeSummary');
+    if(hour)hour.value=parts.hour;
+    if(minute)minute.value=parts.minute;
+    if(hidden)hidden.value=safe;
+    if(summary)summary.textContent='매일 '+formatPushClock(safe)+'에 보내드립니다.';
+  }
+  function mailTimeFromControls(){
+    var period='am';
+    var selected=document.querySelector('#ghdMailTimeCustomWrap [data-ghd-mail-period].is-on');
+    if(selected)period=selected.getAttribute('data-ghd-mail-period')||'am';
+    var hour=document.getElementById('ghdMailTimeHour');
+    var minute=document.getElementById('ghdMailTimeMinute');
+    var value=joinNotifyClock(period,hour&&hour.value,minute&&minute.value);
+    if(value)renderMailTime(value);
+    return value;
+  }
   function mailUserId(){
     try{
       if(window.GomnaAuth&&typeof window.GomnaAuth.getAccount==='function'){
@@ -3156,17 +3270,23 @@
     if(msg){el.hidden=false;el.textContent=msg;}
     else {el.hidden=true;el.textContent='';}
   }
-  function showMailState(active, email){
+  function showMailState(active, email, sendTime){
     sheetLog('email state 변경', null, {active:!!active, hasEmail:!!email, sheetOpen:mailSheetOpen()});
     sheetLog('renderEmailSheet', null, {kind:'state-only', active:!!active, sheetOpen:mailSheetOpen()});
     var form=document.getElementById('ghdMailForm');
+    var formActions=document.getElementById('ghdMailFormActions');
     var on=document.getElementById('ghdMailActive');
     var lead=document.getElementById('ghdMailLead');
     var input=document.getElementById('ghdMailEmail');
     if(lead)lead.textContent=active?'':'매일 새로운 오늘의 말씀을 이메일로 받아보세요.';
     if(form)form.hidden=!!active;
+    if(formActions)formActions.hidden=!!active;
     if(on)on.hidden=!active;
     if(input && email && !input.value)input.value=email;
+    if(sendTime)writeMailTime(sendTime);
+    renderMailTime(sendTime||readMailTime());
+    var activeLead=document.getElementById('ghdMailActiveLead');
+    if(activeLead&&active)activeLead.textContent=email+' 주소로 매일 말씀을 보내고 있습니다.';
     setMailError('');
   }
   function openMail(ev){
@@ -3175,22 +3295,24 @@
     var saved=readMailEmail();
     var input=document.getElementById('ghdMailEmail');
     if(input && saved && !input.value)input.value=saved;
-    showMailState(false, saved);
+    renderMailTime(readMailTime());
+    showMailState(false, saved, readMailTime());
     openSheet('ghdMailSheet');
     if(!saved)return;
     postMail('status',{email:saved}).then(function(body){
       if(!mailSheetOpen())return;
-      if(body&&body.active)showMailState(true, saved);
-      else showMailState(false, saved);
+      if(body&&body.active)showMailState(true, saved, body.sendTime);
+      else showMailState(false, saved, body&&body.sendTime);
     }).catch(function(){
       if(!mailSheetOpen())return;
-      showMailState(false, saved);
+      showMailState(false, saved, readMailTime());
     });
   }
   function saveMail(){
     var input=document.getElementById('ghdMailEmail');
     var consent=document.getElementById('ghdMailConsent');
     var send=document.getElementById('ghdMailSend');
+    var sendTime=mailTimeFromControls()||readMailTime();
     var email=String((input&&input.value)||'').trim().toLowerCase();
     if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
       setMailError('이메일 주소를 확인해 주세요.');
@@ -3206,7 +3328,8 @@
       email:email,
       consent:true,
       locale:uiLang(),
-      timezone:'Asia/Seoul',
+      timezone:deviceTimezone(),
+      sendTime:sendTime,
       userId:mailUserId()
     }).then(function(body){
       if(send)send.disabled=false;
@@ -3215,10 +3338,31 @@
         return;
       }
       writeMailEmail(email);
-      showMailState(true, email);
+      writeMailTime(body.sendTime||sendTime);
+      showMailState(true, email, body.sendTime||sendTime);
     }).catch(function(){
       if(send)send.disabled=false;
       setMailError('잠시 후 다시 시도해 주세요.');
+    });
+  }
+  function saveMailTime(){
+    var email=readMailEmail();
+    var button=document.getElementById('ghdMailSaveTime');
+    var sendTime=mailTimeFromControls();
+    if(!email||!sendTime){setMailError('이메일과 수신 시간을 확인해 주세요.');return;}
+    if(button){button.disabled=true;button.textContent='저장 중…';}
+    setMailError('');
+    postMail('subscribe',{
+      email:email,consent:true,locale:uiLang(),timezone:deviceTimezone(),
+      sendTime:sendTime,userId:mailUserId()
+    }).then(function(body){
+      if(!body||!body.ok)throw new Error('save-failed');
+      writeMailTime(body.sendTime||sendTime);
+      showMailState(true,email,body.sendTime||sendTime);
+      var summary=document.getElementById('ghdMailTimeSummary');
+      if(summary)summary.textContent='저장되었습니다. 매일 '+formatPushClock(body.sendTime||sendTime)+'에 보내드립니다.';
+    }).catch(function(){setMailError('수신 시간을 저장하지 못했습니다. 다시 시도해 주세요.');}).then(function(){
+      if(button){button.disabled=false;button.textContent='수신 시간 저장';}
     });
   }
   function stopMail(){
@@ -3228,7 +3372,7 @@
     postMail('unsubscribe',{email:email}).then(function(body){
       if(body&&body.ok){
         writeMailEmail(email);
-        showMailState(false, email);
+        showMailState(false, email, readMailTime());
         var consent=document.getElementById('ghdMailConsent');
         if(consent)consent.checked=false;
       }else setMailError('잠시 후 다시 시도해 주세요.');
@@ -3445,6 +3589,7 @@
       var input=document.getElementById('ghdNotifyTimeCustom');
       if(wrap)wrap.hidden=!!preset;
       if(input)input.value=current;
+      syncNotifyTimeCustomControls();
     }
     function openNotifyTimeSheet(slot){
       notifyTimeSlot=slot==='second'||slot==='interval-start'||slot==='interval-end'?slot:'first';
@@ -3454,8 +3599,8 @@
       var lead=document.getElementById('ghdNotifyTimeLead');
       if(title){
         if(notifyTimeSlot==='second')title.textContent=uiT('home.notify.secondTimeTitle','두 번째 알림 시간');
-        else if(notifyTimeSlot==='interval-start')title.textContent=uiT('home.notify.intervalStart','수신 시작 시간');
-        else if(notifyTimeSlot==='interval-end')title.textContent=uiT('home.notify.intervalEnd','수신 종료 시간');
+        else if(notifyTimeSlot==='interval-start')title.textContent=uiT('home.notify.intervalStart','알림 시작 시간');
+        else if(notifyTimeSlot==='interval-end')title.textContent=uiT('home.notify.intervalEnd','알림 종료 시간');
         else title.textContent=uiT('home.notify.time','알림 시간');
       }
       if(lead){
@@ -3567,13 +3712,11 @@
         var val=el.getAttribute('data-ghd-time');
         if(val==='custom'){
           var wrap=document.getElementById('ghdNotifyTimeCustomWrap');
-          var input=document.getElementById('ghdNotifyTimeCustom');
           if(wrap)wrap.hidden=false;
           setNotifySelection('ghdNotifyTimeSelection','시간을 선택해 주세요.');
-          if(input){
-            if(!input.value)input.value=notifyTimeDraft;
-            try{input.focus();input.showPicker&&input.showPicker();}catch(err){}
-          }
+          syncNotifyTimeCustomControls();
+          var hour=document.getElementById('ghdNotifyTimeHour');
+          try{hour&&hour.focus();}catch(err){}
           return;
         }
         notifyTimeDraft=val;
@@ -3581,20 +3724,24 @@
         setNotifySelection('ghdNotifyTimeSelection',formatPushClock(val)+' 선택됨 · 완료를 눌러 저장하세요.');
       });
     });
-    var timeCustom=document.getElementById('ghdNotifyTimeCustom');
-    if(timeCustom && timeCustom.getAttribute('data-ghd-time-bound')!=='1'){
-      timeCustom.setAttribute('data-ghd-time-bound','1');
-      function updateNotifyTimeDraftFromInput(){
-        if(!timeCustom.value)return;
-        notifyTimeDraft=timeCustom.value;
-        document.querySelectorAll('#ghdNotifyTimeSheet [data-ghd-time]').forEach(function(btn){
-          btn.classList.toggle('is-on', btn.getAttribute('data-ghd-time')==='custom');
+    document.querySelectorAll('#ghdNotifyTimeCustomWrap [data-ghd-time-period]').forEach(function(btn){
+      if(btn.getAttribute('data-ghd-period-bound')==='1')return;
+      btn.setAttribute('data-ghd-period-bound','1');
+      btn.addEventListener('click',function(){
+        document.querySelectorAll('#ghdNotifyTimeCustomWrap [data-ghd-time-period]').forEach(function(item){
+          var on=item===btn;
+          item.classList.toggle('is-on',on);
+          item.setAttribute('aria-pressed',on?'true':'false');
         });
-        setNotifySelection('ghdNotifyTimeSelection',formatPushClock(notifyTimeDraft)+' 선택됨 · 아래 완료를 눌러 저장하세요.');
-      }
-      timeCustom.addEventListener('input', updateNotifyTimeDraftFromInput);
-      timeCustom.addEventListener('change', updateNotifyTimeDraftFromInput);
-    }
+        updateNotifyTimeDraftFromControls();
+      });
+    });
+    ['ghdNotifyTimeHour','ghdNotifyTimeMinute'].forEach(function(id){
+      var select=document.getElementById(id);
+      if(!select||select.getAttribute('data-ghd-time-bound')==='1')return;
+      select.setAttribute('data-ghd-time-bound','1');
+      select.addEventListener('change',updateNotifyTimeDraftFromControls);
+    });
     var timeSave=document.getElementById('ghdNotifyTimeSave');
     if(timeSave)timeSave.addEventListener('click', applyNotifyTime);
     var timeCancel=document.getElementById('ghdNotifyTimeCancel');
@@ -3619,6 +3766,27 @@
     if(freqCancel)freqCancel.addEventListener('click', function(){closeSheet('ghdNotifyFreqSheet','button');});
     var mailSend=document.getElementById('ghdMailSend');
     if(mailSend)mailSend.addEventListener('click', saveMail);
+    document.querySelectorAll('#ghdMailTimeCustomWrap [data-ghd-mail-period]').forEach(function(btn){
+      if(btn.getAttribute('data-ghd-mail-time-bound')==='1')return;
+      btn.setAttribute('data-ghd-mail-time-bound','1');
+      btn.addEventListener('click',function(ev){
+        ev.preventDefault();ev.stopPropagation();
+        document.querySelectorAll('#ghdMailTimeCustomWrap [data-ghd-mail-period]').forEach(function(item){
+          item.classList.toggle('is-on',item===btn);
+          item.setAttribute('aria-pressed',item===btn?'true':'false');
+        });
+        mailTimeFromControls();
+      });
+    });
+    ['ghdMailTimeHour','ghdMailTimeMinute'].forEach(function(id){
+      var select=document.getElementById(id);
+      if(select&&select.getAttribute('data-ghd-mail-time-bound')!=='1'){
+        select.setAttribute('data-ghd-mail-time-bound','1');
+        select.addEventListener('change',mailTimeFromControls);
+      }
+    });
+    var mailSaveTime=document.getElementById('ghdMailSaveTime');
+    if(mailSaveTime)mailSaveTime.addEventListener('click',saveMailTime);
     var mailOff=document.getElementById('ghdMailOff');
     if(mailOff)mailOff.addEventListener('click', stopMail);
     var mailEmail=document.getElementById('ghdMailEmail');
