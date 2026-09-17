@@ -8,6 +8,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '../..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const source = fs.readFileSync(path.join(root, 'js/gomna-home-feed.js'), 'utf8');
+const serviceWorker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 
 function clockHelpers() {
   const match = source.match(/function padNotifyTimePart[\s\S]*?(?=  function ensureNotifyTimeOptions)/);
@@ -23,6 +24,43 @@ test('custom time picker does not depend on browser type=time UI', () => {
   assert.match(block[0], /data-ghd-time-period="pm"/);
   assert.match(block[0], /id="ghdNotifyTimeHour"/);
   assert.match(block[0], /id="ghdNotifyTimeMinute"/);
+  assert.doesNotMatch(block[0], /id="ghdNotifyTimeHourVisible"/);
+});
+
+test('hour and minute use the same browser-normalized closed control', () => {
+  assert.match(html, /\.ghd-notify-time-field select\{[\s\S]*?-webkit-appearance:none;appearance:none/);
+  assert.match(html, /\.ghd-notify-time-field select\{[\s\S]*?text-align:center;text-align-last:center/);
+  assert.match(html, /\.ghd-notify-time-field::after\{[\s\S]*?pointer-events:none/);
+  assert.doesNotMatch(html, /#ghdNotifyTimeHourVisible\{/);
+  assert.match(html, /\.ghd-notify-time-field select:focus,\.ghd-notify-time-field select:focus-visible\{[\s\S]*?outline:none!important;[\s\S]*?border-color:#d7e1ee!important/);
+});
+
+test('time controls keep one explicit two-row layout at every width', () => {
+  assert.match(html, /\.ghd-notify-time-custom\{[\s\S]*?grid-template-columns:minmax\(0,1fr\) auto minmax\(0,1fr\)/);
+  assert.match(html, /\.ghd-notify-time-period\{grid-column:1\/-1;/);
+  assert.doesNotMatch(html, /grid-template-columns:1fr 1fr auto 1fr/);
+  assert.match(html, /#ghdNotifyTimeSheet \.ghd-notify-pref-panel\{[\s\S]*?max-height:calc\(var\(--ghd-vv-h,100dvh\) - 20px\);[\s\S]*?overflow-x:hidden/);
+});
+
+test('Android time controls cannot scroll beneath the action buttons', () => {
+  assert.match(html, /#ghdNotifyTimeSheet \.ghd-notify-pref-actions\{[\s\S]*?position:static;[\s\S]*?bottom:auto;[\s\S]*?z-index:auto/);
+});
+
+test('notification and email time controls share the AM and PM button height', () => {
+  assert.match(html, /\.ghd-notify-time-period button\{\s*height:37px;min-height:37px/);
+  assert.match(html, /\.ghd-notify-time-field select\{[\s\S]*?height:37px;min-height:37px/);
+  assert.match(html, /#ghdNotifyTimeSheet \.ghd-notify-option,[\s\S]*?#ghdNotifyTimeSheet \.ghd-notify-pref-actions button\{\s*height:37px;min-height:37px/);
+  assert.match(html, /#ghdMailSheet \.ghd-sheet-cta,[\s\S]*?#ghdMailSheet \.ghd-sheet-text\{height:37px;min-height:37px/);
+});
+
+test('active AM or PM uses one very slim border', () => {
+  assert.match(html, /\.ghd-notify-time-period button\.is-on\{\s*border:\.5px solid #315f9e;[\s\S]*?box-shadow:none/);
+  assert.doesNotMatch(html, /box-shadow:inset 0 0 0 1px #315f9e/);
+});
+
+test('installed apps request the current time-control service worker', () => {
+  assert.match(html, /serviceWorker\.register\("\/sw\.js\?v=20260918-ui-help-save-v6"/);
+  assert.match(serviceWorker, /CACHE_VERSION = '2026-09-18-ui-help-save-v6'/);
 });
 
 test('picker preserves exact minutes and noon or midnight correctly', () => {

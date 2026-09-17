@@ -89,7 +89,9 @@ export function buildPayload(opts: { date?: string; locale?: string; slot?: stri
   const refText = localizeRef(v.r, locale);
   return {
     title: slot === 'second' ? (SECOND_TITLES[locale] || SECOND_TITLES.ko) : (TITLES[locale] || TITLES.ko),
-    body: refText + '\n' + truncateBody(body),
+    body: locale === 'ko'
+      ? truncateBody(body) + ' [' + refText + ' · KRV]'
+      : refText + '\n' + truncateBody(body),
     lang: locale,
     tag: 'gomna-today-' + date + '-' + slot,
     icon: '/icon-192.png',
