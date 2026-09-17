@@ -370,9 +370,11 @@
   }
 
   /* 카카오·네이버는 성공했던 Supabase OAuth/PKCE만 쓴다.
+     Google은 Mac 브라우저에서 공식 GIS 버튼이 클릭을 받지 못할 때만 같은 경로를 예비로 쓴다.
      Kakao.Auth.authorize · kakao-mobile-login · signInWithIdToken(kakao)는 쓰지 않는다. */
-  function startOAuth(provider, button) {
-    if (ALLOWED_PROVIDERS.indexOf(provider) === -1) return;
+  function startOAuth(provider, button, allowGoogleFallback) {
+    var googleFallback = allowGoogleFallback === true && provider === 'google';
+    if (ALLOWED_PROVIDERS.indexOf(provider) === -1 && !googleFallback) return;
     if (signInBusy) return;
     clearOwnStaleState();
     if (!isConfigured()) { notify(MSG.notConfigured); return; }
@@ -427,6 +429,15 @@
     return (window.google && window.google.accounts && window.google.accounts.id)
       ? window.google.accounts.id
       : null;
+  }
+
+  /* iPhone은 정상 작동하는 GIS 버튼을 그대로 쓴다.
+     Mac Chrome·Safari에서만 투명 iframe 겹침을 사용하지 않고,
+     눈에 보이는 기존 버튼이 Supabase Google OAuth를 직접 시작하게 한다. */
+  function useMacGoogleOAuthFallback() {
+    var ua = '';
+    try { ua = String(window.navigator && window.navigator.userAgent || ''); } catch (e) {}
+    return /Macintosh/i.test(ua) && !/(iPhone|iPad|iPod|Mobile)/i.test(ua);
   }
 
   function loadGoogleGis(done) {
@@ -576,6 +587,7 @@
   function refreshGoogleButtons() {
     var list = document.querySelectorAll('[data-auth-provider="google"]');
     if (!list.length) return;
+    if (useMacGoogleOAuthFallback()) return;
     loadGoogleGis(function (ok) {
       if (!ok || !initGoogleGis()) return;
       for (var i = 0; i < list.length; i++) renderGoogleButton(list[i]);
@@ -588,10 +600,13 @@
     window.setTimeout(refreshGoogleButtons, 300);
   }
 
-  /* 공식 버튼이 아직 자리 잡지 못했을 때만 이 처리기가 쓰인다.
-     자리를 잡은 뒤에는 겹친 공식 버튼이 pill 전체를 덮으므로 여기까지 오지 않는다.
-     실패해도 예전 Supabase OAuth로 되돌아가지 않는다. */
+  /* iPhone에서는 공식 버튼이 아직 자리 잡지 못했을 때만 이 처리기가 쓰인다.
+     Mac에서는 투명 공식 버튼을 만들지 않으므로 이 처리기가 Google OAuth를 바로 시작한다. */
   function onGoogleButtonClick(button) {
+    if (useMacGoogleOAuthFallback()) {
+      startOAuth('google', button, true);
+      return;
+    }
     setButtonBusy(button, true);
     loadGoogleGis(function (ok) {
       setButtonBusy(button, false);
