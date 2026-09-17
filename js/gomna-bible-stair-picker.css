@@ -1,12 +1,5 @@
-/* Home 3-step bible stair picker. Reuses Reader --gm-select-* edge-fade tokens. */
+/* Bible picker: the flat full-screen card UI is the only supported design. */
 #bibleStairOverlay{
-  --gm-select-base:#FBFBFC;
-  --gm-select-edge:#D5D7DA;
-  --gm-select-edge-rgb:190,195,200;
-  --gm-select-edge-fade:inset 0 0 4px 2px rgba(var(--gm-select-edge-rgb),.92),inset 0 0 8px 5px rgba(var(--gm-select-edge-rgb),.5),inset 0 0 11px 9px rgba(var(--gm-select-edge-rgb),.22),inset 0 0 13px 12px rgba(var(--gm-select-edge-rgb),.08);
-  --gm-select-cur-rgb:70,70,70;
-  --gm-select-cur-fade:inset 0 0 4px 2px rgba(var(--gm-select-cur-rgb),.92),inset 0 0 8px 5px rgba(var(--gm-select-cur-rgb),.5),inset 0 0 11px 9px rgba(var(--gm-select-cur-rgb),.22),inset 0 0 13px 12px rgba(var(--gm-select-cur-rgb),.08);
-  --gm-select-book-fade:inset 0 0 5px 3px rgba(var(--gm-select-cur-rgb),.9),inset 0 0 10px 6px rgba(var(--gm-select-cur-rgb),.58),inset 0 0 15px 9px rgba(var(--gm-select-cur-rgb),.3),inset 0 0 20px 13px rgba(var(--gm-select-cur-rgb),.12);
   position:fixed;
   inset:0;
   z-index:1500;
@@ -64,51 +57,6 @@ html.bible-stair-lock,html.bible-stair-lock body{overflow:hidden!important}
 }
 #bibleStairSteps[hidden]{display:none}
 
-.bible-stair-step{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:35px;
-  height:35px;
-  padding:0 16px;
-  box-sizing:border-box;
-  border:1px solid #D5D7DA;
-  border-radius:999px;
-  background:var(--gm-select-base);
-  box-shadow:var(--gm-select-edge-fade);
-  color:#222;
-  font-family:inherit;
-  font-size:15px;
-  font-weight:700;
-  letter-spacing:-.03em;
-  line-height:1.2;
-  white-space:nowrap;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-}
-.bible-stair-step.is-selected-book{
-  width:calc((100% - 24px) / 4);
-  min-width:0;
-  height:auto;
-  min-height:42px;
-  padding:8px 4px;
-  border-color:transparent;
-  background:var(--gm-select-base);
-  box-shadow:var(--gm-select-book-fade);
-  color:#222;
-  font-size:13px;
-  font-weight:700;
-  line-height:1.2;
-  letter-spacing:-.04em;
-  white-space:normal;
-  overflow:hidden;
-  text-overflow:clip;
-  overflow-wrap:anywhere;
-  word-break:break-word;
-  text-align:center;
-}
-.bible-stair-step:focus-visible{outline:2px solid rgba(70,70,70,.35);outline-offset:2px}
-
 #bibleStairBody{
   flex:1 1 auto;
   min-height:0;
@@ -123,32 +71,27 @@ html.bible-stair-lock,html.bible-stair-lock body{overflow:hidden!important}
 #bibleStairBody::-webkit-scrollbar{width:0;height:0;display:none}
 #bibleStairBody.is-stage-in{animation:bible-stair-in 180ms ease}
 
-.bible-stair-books{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:8px;
-}
 .bible-stair-nums{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:8px;
+  gap:10px;
 }
 
 .bible-stair-item{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-height:44px;
-  padding:10px 12px;
+  min-height:52px;
+  padding:12px 6px;
   box-sizing:border-box;
-  border:1px solid #D5D7DA;
-  border-radius:12px;
-  background:var(--gm-select-base);
-  box-shadow:var(--gm-select-edge-fade);
-  color:#1F1F1F;
+  border:0.5px solid rgba(23,25,29,.14);
+  border-radius:14px;
+  background:#FFFFFF;
+  box-shadow:none;
+  color:#1F2329;
   font-family:inherit;
-  font-size:15px;
-  font-weight:700;
+  font-size:16px;
+  font-weight:650;
   letter-spacing:-.03em;
   line-height:1.25;
   white-space:normal;
@@ -159,15 +102,12 @@ html.bible-stair-lock,html.bible-stair-lock body{overflow:hidden!important}
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
 }
-.bible-stair-nums .bible-stair-item{
-  min-height:44px;
-  padding:8px 4px;
-  border-radius:999px;
-  font-variant-numeric:tabular-nums;
-}
+.bible-stair-nums .bible-stair-item{font-variant-numeric:tabular-nums}
 .bible-stair-item.is-cur{
-  box-shadow:var(--gm-select-cur-fade);
-  font-weight:800;
+  background:#E8F0FC;
+  border-color:rgba(53,95,154,.22);
+  color:#355F9A;
+  box-shadow:none;
 }
 .bible-stair-item:focus-visible{outline:2px solid rgba(70,70,70,.35);outline-offset:2px}
 
@@ -186,7 +126,7 @@ html.bible-stair-lock,html.bible-stair-lock body{overflow:hidden!important}
   #bibleStairPanel{max-width:calc(390px - 18px - 18px)}
 }
 
-/* Find → 구약/신약에서 찾기 : full-screen grouped explorer. Home sheets stay unchanged. */
+/* Full-screen grouped explorer shared by every entry path. */
 .bible-stair-head{
   display:flex;
   align-items:flex-start;

@@ -57,7 +57,7 @@
 </script>
 <meta charset="UTF-8">
 <link rel="preload" as="style" href="js/gomna-home-feed.css?v=20260914-home-share-only-v13">
-<link rel="preload" as="style" href="js/gomna-bible-stair-picker.css?v=20260905-all66-v1">
+<link rel="preload" as="style" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
 <script defer src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script>
 (function () {
@@ -1981,7 +1981,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
 <script defer src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
 <script defer src="js/gomna-theme.js?v=20260807-theme-v7"></script>
-<link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260905-all66-v1">
+<link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
 <link rel="preload" as="image" href="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1">
 <link rel="preload" as="image" href="assets/home/card-meditation-life.png?v=20260910-home-photo-v1">
 <link rel="preload" as="image" href="assets/home/card-bible-stories-people.png?v=20260910-home-photo-v1">
@@ -1994,6 +1994,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
   }
 }
 </style>
+<link rel="stylesheet" href="js/gomna-home-legal-footer-v1.css?v=20260917-v1">
 </head>
 <body data-gomna-page="home" class="gomna-home-deck-on">
 <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
@@ -2331,6 +2332,12 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
     <span data-ghd-me-label data-i18n-key="home.tab.login">로그인</span>
   </button>
 </nav>
+<footer class="gomna-home-legal-footer" aria-label="서비스 안내">
+  <a href="/studio">소개</a><span aria-hidden="true">·</span>
+  <a href="mailto:ceo@gomnastudio.com">문의</a><span aria-hidden="true">·</span>
+  <a href="/privacy.html">개인정보</a><span aria-hidden="true">·</span>
+  <a href="/terms.html">이용약관</a>
+</footer>
 <div class="home-account-scrim" id="homeAccountScrim" onclick="closeHomeAccountPanel()" hidden></div>
 <div class="home-account-panel" id="homeAccountPanel" role="dialog" aria-labelledby="homeAccountPanelTitle" hidden>
   <span class="home-account-sheet-handle" aria-hidden="true"></span>
@@ -3673,8 +3680,8 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <script src="js/gomna-push-config.js?v=20260909-push-pref-v1"></script>
 <script src="js/gomna-push-prefs.js?v=20260914-notify-interval-v1"></script>
 <script src="js/gomna-mail-config.js?v=20260909-mail-mac-v1"></script>
-<script src="js/gomna-home-feed.js?v=20260916-mail-delivery-time-v4"></script>
-<script src="js/gomna-bible-stair-picker.js?v=20260905-ot-back-v1"></script>
+<script src="js/gomna-home-feed.js?v=20260917-zoom-tap-reset-v3"></script>
+<script src="js/gomna-bible-stair-picker.js?v=20260917-old-card-removed-v8"></script>
 <script src="settings_guide.js?v=20260807-settings-v3" defer></script>
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>
 <script>

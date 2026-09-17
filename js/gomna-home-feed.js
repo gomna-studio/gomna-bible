@@ -1363,6 +1363,8 @@
   }
   function beginSwipe(x, y, pointerId){
     if(pinching || swipeDrag)return false;
+    var zoomedInner=root&&root.querySelector('.gomna-home-card.is-active .gomna-home-card-inner');
+    if(zoomedInner && (parseFloat(zoomedInner.getAttribute('data-ghd-pinch')||'1')||1)>1.001)return false;
     var layerOpen=layerDetailOpen();
     if(flipping && !layerOpen)return false;
     if(document.documentElement.classList.contains('gomna-home-viewer-open'))return false;
@@ -1491,12 +1493,10 @@
       return;
     }
     if(ev.pointerType==='mouse' && ev.buttons!==1)return;
-    var onAction=isAction(ev.target);
     if(beginSwipe(ev.clientX, ev.clientY, ev.pointerId) && root && !layerDetailOpen()){
-      /* Mouse/pen capture retargets pointerup+click onto the deck, so Mac
-         clicks never reach selectLifeTheme / selectStoryPerson. iPhone tap
-         still uses pointerType=touch capture for stack swipe. */
-      if(!(onAction && ev.pointerType!=='touch')){
+      /* Pointer capture changes the click target to the deck on Mac.
+         Capture touch only; document listeners already keep mouse/pen swipe working. */
+      if(ev.pointerType==='touch'){
         try{root.setPointerCapture(ev.pointerId);}catch(err){}
       }
     }
@@ -1641,9 +1641,16 @@
       else if(incoming>0)y=reserved+incoming*(parkY-reserved);
       else y=reserved-(behind*peek);
       var active=i===activeIndex;
+      var inner=card.querySelector('.gomna-home-card-inner');
+      if(!active && !pinching && inner && inner.getAttribute('data-ghd-pinch') && inner.getAttribute('data-ghd-pinch')!=='1'){
+        resetPinchSurface(inner);
+      }
+      var pinchScale=active&&inner?parseFloat(inner.getAttribute('data-ghd-pinch')||'1')||1:1;
+      var pinchX=active&&inner?parseFloat(inner.getAttribute('data-ghd-pinx')||'0')||0:0;
+      var pinchY=active&&inner?parseFloat(inner.getAttribute('data-ghd-piny')||'0')||0:0;
       if(!card.classList.contains('is-open'))card.style.height=cardH+'px';
       card.style.width='100%';
-      card.style.transform='translate3d(-50%,'+y+'px,0) scale('+scale+')';
+      card.style.transform='translate3d(-50%,'+y+'px,0) translate3d('+pinchX+'px,'+pinchY+'px,0) scale('+(scale*pinchScale)+')';
       card.style.transition=dur;
       card.classList.toggle('is-active', active);
       card.classList.toggle('is-behind', !active);
@@ -1651,12 +1658,6 @@
       if(active)card.setAttribute('tabindex','0');
       else card.removeAttribute('tabindex');
       card.style.zIndex=String(10+i);
-      if(!active && !pinching){
-        var inner=card.querySelector('.gomna-home-card-inner');
-        if(inner && inner.getAttribute('data-ghd-pinch') && inner.getAttribute('data-ghd-pinch')!=='1'){
-          resetPinchSurface(inner);
-        }
-      }
     });
     if(root)root.setAttribute('data-ghd-active', String(Math.round(p)));
   }
@@ -1849,68 +1850,89 @@
     inner.removeAttribute('data-ghd-pinx');
     inner.removeAttribute('data-ghd-piny');
     inner.style.transform='';
+    var card=inner.closest?inner.closest('.gomna-home-card'):null;
+    if(card)card.style.transformOrigin='top center';
   }
   function bindPinch(card){
-    var id=card.getAttribute('data-card');
-    if(id!=='0' && id!=='1')return;
     var inner=card.querySelector('.gomna-home-card-inner');
     if(!inner || inner.getAttribute('data-ghd-pinch-bound')==='1')return;
     inner.setAttribute('data-ghd-pinch-bound','1');
-    var startDist=0, base=1, startTx=0, startTy=0, startMid=null, startRect=null, surface=false;
-    card.addEventListener('touchstart', function(ev){
-      if(ev.touches.length<2)return;
-      if(!card.classList.contains('is-active') && !card.classList.contains('is-open'))return;
+    var startDist=0, base=1, baseX=0, baseY=0, startMid=null, baseCenter=null, panOnly=false;
+    var zoomPanMoved=false, zoomPanStartedAt=0;
+    function touchMid(ev){
+      if(!ev.touches || !ev.touches.length)return null;
+      if(ev.touches.length>=2)return {
+        x:(ev.touches[0].clientX+ev.touches[1].clientX)/2,
+        y:(ev.touches[0].clientY+ev.touches[1].clientY)/2
+      };
+      return {x:ev.touches[0].clientX,y:ev.touches[0].clientY};
+    }
+    function beginZoomMove(ev){
+      if(!card.classList.contains('is-active'))return false;
+      base=parseFloat(inner.getAttribute('data-ghd-pinch')||'1')||1;
+      panOnly=ev.touches.length===1;
+      if(panOnly && base<=1.001)return false;
+      zoomPanMoved=false;
+      zoomPanStartedAt=Date.now();
       pinching=true;
       pinchScrollY=deckScrollY();
       awaitingDir=false;
       gestureLive=false;
       swipeDrag=null;
       pointerMoved=true;
-      startDist=pinchDist(ev)||1;
-      base=parseFloat(inner.getAttribute('data-ghd-pinch')||'1')||1;
-      surface=(id==='1' && card.classList.contains('is-open'));
-      if(surface){
-        startTx=parseFloat(inner.getAttribute('data-ghd-pinx')||'0')||0;
-        startTy=parseFloat(inner.getAttribute('data-ghd-piny')||'0')||0;
-        startMid=pinchMid(ev);
-        startRect=inner.getBoundingClientRect();
+      startDist=ev.touches.length>=2?(pinchDist(ev)||1):1;
+      baseX=parseFloat(inner.getAttribute('data-ghd-pinx')||'0')||0;
+      baseY=parseFloat(inner.getAttribute('data-ghd-piny')||'0')||0;
+      startMid=touchMid(ev);
+      var rect=card.getBoundingClientRect();
+      baseCenter={x:rect.left+rect.width/2-baseX,y:rect.top+rect.height/2-baseY};
+      card.style.transformOrigin='center center';
+      return true;
+    }
+    card.addEventListener('touchstart',function(ev){
+      if(!ev.touches || !ev.touches.length)return;
+      if(ev.touches.length>=2 || (parseFloat(inner.getAttribute('data-ghd-pinch')||'1')||1)>1.001){
+        beginZoomMove(ev);
       }
-    }, {passive:true});
-    card.addEventListener('touchmove', function(ev){
-      if(!pinching || ev.touches.length<2)return;
+    },{passive:true});
+    card.addEventListener('touchmove',function(ev){
+      if(!pinching || !startMid || !baseCenter || !ev.touches || !ev.touches.length)return;
       if(ev.cancelable)ev.preventDefault();
-      var s=clamp(base*(pinchDist(ev)/startDist), 1, 1.72);
-      if(surface && startMid && startRect){
-        var mid=pinchMid(ev);
-        var tx, ty;
-        if(s<=1){
-          resetPinchSurface(inner);
-        }else{
-          tx=mid.x-startRect.left+startTx-(startMid.x-startRect.left)/base*s;
-          ty=mid.y-startRect.top+startTy-(startMid.y-startRect.top)/base*s;
-          inner.setAttribute('data-ghd-pinch', String(s));
-          inner.setAttribute('data-ghd-pinx', String(tx));
-          inner.setAttribute('data-ghd-piny', String(ty));
-          inner.style.transform='translate('+tx+'px,'+ty+'px) scale('+s+')';
-        }
-      }else{
-        inner.setAttribute('data-ghd-pinch', String(s));
-        inner.style.transform=s===1?'':'scale('+s+')';
-      }
+      var mid=touchMid(ev);
+      if(!mid)return;
+      if(panOnly && (Math.abs(mid.x-startMid.x)>7 || Math.abs(mid.y-startMid.y)>7))zoomPanMoved=true;
+      var s=panOnly?base:clamp(base*(pinchDist(ev)/startDist),1,1.72);
+      var ratio=s/base;
+      var tx=mid.x-baseCenter.x-ratio*(startMid.x-baseCenter.x-baseX);
+      var ty=mid.y-baseCenter.y-ratio*(startMid.y-baseCenter.y-baseY);
+      var maxX=Math.max(0,card.offsetWidth*(s-1)/2);
+      var maxY=Math.max(0,card.offsetHeight*(s-1)/2);
+      tx=clamp(tx,-maxX,maxX);
+      ty=clamp(ty,-maxY,maxY);
+      if(s<=1.001){s=1;tx=0;ty=0;}
+      inner.setAttribute('data-ghd-pinch',String(s));
+      inner.setAttribute('data-ghd-pinx',String(tx));
+      inner.setAttribute('data-ghd-piny',String(ty));
+      inner.style.transform='';
+      /* Home card zoom-pan v2: never smaller than the original card. */
+      apply(progress,true);
       pinDeckScroll(pinchScrollY);
-    }, {passive:false});
+    },{passive:false});
     function endPinch(ev){
       if(ev.touches && ev.touches.length>=2)return;
       if(!pinching)return;
       pinching=false;
-      var s=parseFloat(inner.getAttribute('data-ghd-pinch')||'1')||1;
-      if(s<1.04)resetPinchSurface(inner);
-      surface=false;
+      var wasTap=panOnly && !zoomPanMoved && (Date.now()-zoomPanStartedAt)<=420;
       startMid=null;
-      startRect=null;
+      baseCenter=null;
+      panOnly=false;
+      var s=parseFloat(inner.getAttribute('data-ghd-pinch')||'1')||1;
+      /* Enlarged card: a short stationary tap returns scale and position to normal. */
+      if(wasTap || s<=1.04)resetPinchSurface(inner);
+      apply(progress,true);
     }
-    card.addEventListener('touchend', endPinch, {passive:true});
-    card.addEventListener('touchcancel', endPinch, {passive:true});
+    card.addEventListener('touchend',endPinch,{passive:true});
+    card.addEventListener('touchcancel',endPinch,{passive:true});
   }
   function bindCard(card){
     bindPinch(card);
@@ -1920,6 +1942,9 @@
       ['touchstart','touchmove','wheel'].forEach(function(type){
         sc.addEventListener(type, function(ev){
           if(ev.touches && ev.touches.length>=2)return;
+          var zoomInner=card.querySelector('.gomna-home-card-inner');
+          var zoomScale=zoomInner?(parseFloat(zoomInner.getAttribute('data-ghd-pinch')||'1')||1):1;
+          if(ev.touches && zoomScale>1.001)return;
           ev.stopPropagation();
         },{passive:true});
       });
