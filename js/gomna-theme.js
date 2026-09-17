@@ -60,6 +60,19 @@
     return 'light';   /* 저장값이 없으면 지금 화면(라이트) 그대로 */
   }
 
+  /* 로컬 확인 전용: 로그인 없이 ?gomnaTheme=dark|light 로 테마를 볼 수 있다.
+     운영 도메인에서는 쿼리를 무시하고 사용자가 저장한 설정만 따른다. */
+  function readLocalPreviewPref() {
+    var host = '';
+    try { host = String(window.location.hostname || '').toLowerCase(); } catch (e) {}
+    var local = host === 'localhost' || host === '127.0.0.1' || host === '::1' || /\.local$/.test(host);
+    if (!local) return '';
+    try {
+      var value = new URLSearchParams(window.location.search || '').get('gomnaTheme');
+      return value === 'dark' || value === 'light' ? value : '';
+    } catch (e) { return ''; }
+  }
+
   function deviceDark() {
     try { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); }
     catch (e) { return false; }
@@ -157,6 +170,11 @@
 
   /* 사진·장식 그림은 테마 때문에 바꾸지 않는다. */
   var DECOR_RE = /\.b-|verse-card|globe|logo|icon|badge|photo|shade|avatar|thumb|spinner|skeleton/i;
+  /* 홈의 세 말씀 카드는 사진·안개·글자색을 한 세트로 직접 설계했다.
+     공용 다크 변환이 글자색만 바꾸면 밝은 사진 위의 글자가 사라지므로,
+     카드 내부 규칙은 원래 조합을 통째로 보존한다. 헤더·탭바·시트 등 앱 바깥틀은
+     계속 공용 다크 테마를 따른다. */
+  var HOME_CARD_RE = /\.gomna-home-(?:card|poster|leaf|detail|open-msg|msg-title|kicker|ref|sub|lead|lines|goldline|related|story|life|act|after|step|prompt|full|back|ctrl)/i;
   /* 토글 손잡이처럼 흰색이어야 하는 부품은 배경을 바꾸지 않는다. */
   var KEEP_WHITE_RE = /knob|handle|thumb|switch-dot|toggle-dot/i;
   var COLOR_TOKEN_RE = /#[0-9a-fA-F]{3,8}\b|rgba?\([^()]*\)/g;
@@ -326,6 +344,7 @@
         continue;
       }
       if (!rule.style || typeof rule.selectorText !== 'string') continue;
+      if (HOME_CARD_RE.test(rule.selectorText)) continue;
       var decls = overridesFor(rule.style, rule.selectorText);
       if (!decls) continue;
       var selector = scopeSelector(rule.selectorText);
@@ -418,6 +437,17 @@
       /* 사진 위에 얹힌 글자는 라이트와 같게 둔다(사진은 그대로이므로) */
       'html[data-gomna-theme="dark"] .verse-card .verse-date-btn{color:#5a4632;border-color:rgba(180,140,90,.42)}' +
       'html[data-gomna-theme="dark"] .verse-card .verse-date-btn svg{stroke:#6a5542}' +
+      /* 홈의 두 번째 카드 화면은 밝은 사진·안개 위에 진한 글자를 쓰는 완성 디자인이다.
+         공용 다크 글자색이 상속되거나 자동 생성 규칙이 남아 있어도 카드 안에서는
+         원래 잉크색이 반드시 이기도록 명시한다. */
+      'html[data-gomna-theme="dark"] .gomna-home-card[data-card="1"].is-open .gomna-home-card-face[data-face="open"],' +
+      'html[data-gomna-theme="dark"] .gomna-home-card[data-card="1"].is-open .gomna-home-card-face[data-face="open"] :where(h1,h2,h3,h4,p,span,b,strong,button,a)' +
+      '{color:#241F1B!important;-webkit-text-fill-color:#241F1B!important}' +
+      'html[data-gomna-theme="dark"] .gomna-home-card[data-card="2"].is-open .gomna-home-card-face[data-face="open"],' +
+      'html[data-gomna-theme="dark"] .gomna-home-card[data-card="2"].is-open .gomna-home-card-face[data-face="open"] :where(h1,h2,h3,h4,p,span,b,strong,button,a)' +
+      '{color:#1E242C!important;-webkit-text-fill-color:#1E242C!important}' +
+      'html[data-gomna-theme="dark"] .gomna-home-card:is([data-card="1"],[data-card="2"]).is-open .gomna-home-card-face[data-face="open"] svg' +
+      '{stroke:currentColor!important}' +
       /* 입력칸은 라이트 색이 남지 않게 한 번 더 맞춘다 */
       'html[data-gomna-theme="dark"] :where(input,select,textarea)' +
       '{background-color:var(--gomna-surface-soft);color:var(--gomna-text);border-color:var(--gomna-border)}' +
@@ -493,7 +523,7 @@
   }
 
   ensureStyles();
-  apply(readPref(), false);   /* 저장값은 첫 그림 전에 반영해 깜빡임을 막는다 */
+  apply(readLocalPreviewPref() || readPref(), false);   /* 로컬 시험값 또는 저장값을 첫 그림 전에 반영 */
 
   /* 나중에 붙는 스타일(계정·프로필·설정·언어창·오디오 등)도 같은 방식으로 처리한다. */
   try {

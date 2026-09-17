@@ -59,8 +59,8 @@ test('active AM or PM uses one very slim border', () => {
 });
 
 test('installed apps request the current time-control service worker', () => {
-  assert.match(html, /serviceWorker\.register\("\/sw\.js\?v=20260916-android-time-footer-v4"/);
-  assert.match(serviceWorker, /CACHE_VERSION = '2026-09-16-android-time-footer-v4'/);
+  assert.match(html, /serviceWorker\.register\("\/sw\.js\?v=20260918-ui-help-save-v6"/);
+  assert.match(serviceWorker, /CACHE_VERSION = '2026-09-18-ui-help-save-v6'/);
 });
 
 test('picker preserves exact minutes and noon or midnight correctly', () => {

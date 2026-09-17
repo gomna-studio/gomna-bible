@@ -2,7 +2,7 @@
 (function(){
   'use strict';
 
-  var state = { mode: 'old', catalog: 'old', stage: 'book', bookName: '', chapter: 0, layout: '', bookNames: [], selectionTitle: '' };
+  var state = { mode: 'old', catalog: 'old', stage: 'book', bookName: '', chapter: 0, bookNames: [], selectionTitle: '' };
   var bound = false;
   var lastFocus = null;
   var OT_EXPLORE_GROUPS = [
@@ -59,21 +59,11 @@
     return 0;
   }
 
-  function isExplore(){
-    return state.layout === 'explore';
-  }
-
   function titleOf(mode){
-    if (isExplore() && state.stage === 'chapter' && state.bookName) return state.bookName;
-    if (isExplore() && state.catalog === 'selection' && state.stage === 'book') return state.selectionTitle || '성경책 선택';
-    if (isExplore() && state.catalog === 'all' && state.stage === 'book') return '성경 66권';
-    if (state.catalog === 'all' && state.stage === 'book') return '성경';
+    if (state.stage === 'chapter' && state.bookName) return state.bookName;
+    if (state.catalog === 'selection' && state.stage === 'book') return state.selectionTitle || '성경책 선택';
+    if (state.catalog === 'all' && state.stage === 'book') return '성경 66권';
     return mode === 'new' ? '신약성경' : '구약성경';
-  }
-
-  function chapterUnit(bookName){
-    try { return typeof getChapterUnit === 'function' ? getChapterUnit(bookName) : '장'; }
-    catch (e) { return '장'; }
   }
 
   function readerHref(bookName, chapter, verse){
@@ -180,9 +170,9 @@
 
   function syncExploreChrome(overlay){
     var kicker = document.getElementById('bibleStairKicker');
-    if (overlay) overlay.classList.toggle('is-explore', isExplore());
+    if (overlay) overlay.classList.add('is-explore');
     if (kicker) {
-      kicker.hidden = !(isExplore() && state.stage === 'book');
+      kicker.hidden = state.stage !== 'book';
       kicker.textContent = state.catalog === 'all' ? '창세기부터 요한계시록까지' : '원하는 책을 선택하세요';
     }
   }
@@ -191,16 +181,9 @@
     var host = document.getElementById('bibleStairSteps');
     if (!host) return;
     var html = '';
-    if (isExplore() && state.stage === 'chapter' && state.bookName) {
+    if (state.stage === 'chapter' && state.bookName) {
       html += '<button type="button" class="bible-explore-back" data-stair-back="book">← '
         + (state.catalog === 'selection' ? esc(state.selectionTitle || '성경책 선택') : (state.catalog === 'all' ? '성경 66권' : (state.mode === 'new' ? '신약성경' : '구약성경'))) + '</button>';
-    } else if (!isExplore() && state.bookName) {
-      html += '<button type="button" class="bible-stair-step is-selected-book" id="bibleStairStepBook" data-stair-back="book">'
-        + esc(state.bookName) + '</button>';
-    }
-    if (!isExplore() && state.bookName && state.chapter && state.stage === 'verse') {
-      html += '<button type="button" class="bible-stair-step" id="bibleStairStepChapter" data-stair-back="chapter">'
-        + esc(state.chapter + chapterUnit(state.bookName)) + '</button>';
     }
     host.innerHTML = html;
     host.hidden = !html;
@@ -270,20 +253,10 @@
     var i;
     var n;
     if (state.stage === 'book') {
-      if (isExplore()) {
-        html = renderExploreBookBody();
-      } else {
-        html += '<div class="bible-stair-books" id="bibleStairBookGrid">';
-        booksOf(state.mode).forEach(function(b){
-          var cur = b.name === state.bookName ? ' is-cur' : '';
-          html += '<button type="button" class="bible-stair-item' + cur + '" data-stair-book="' + esc(b.name) + '">'
-            + esc(b.name) + '</button>';
-        });
-        html += '</div>';
-      }
+      html = renderExploreBookBody();
     } else if (state.stage === 'chapter') {
       n = chapterCountOf(state.bookName);
-      html += '<div class="bible-stair-nums' + (isExplore() ? ' is-explore-nums' : '') + '" id="bibleStairChapterGrid">';
+      html += '<div class="bible-stair-nums is-explore-nums" id="bibleStairChapterGrid">';
       for (i = 1; i <= n; i++) {
         var chCur = i === state.chapter ? ' is-cur' : '';
         html += '<button type="button" class="bible-stair-item' + chCur + '" data-stair-chapter="' + i + '">' + i + '</button>';
@@ -319,7 +292,6 @@
   }
 
   function switchExploreTestament(mode){
-    if (!isExplore()) return;
     state.mode = mode === 'new' ? 'new' : 'old';
     state.catalog = state.mode;
     state.stage = 'book';
@@ -421,7 +393,6 @@
     state.selectionTitle = String(opts.title || '').trim();
     state.catalog = state.bookNames.length ? 'selection' : (opts.catalog === 'all' ? 'all' : (opts.mode === 'new' ? 'new' : 'old'));
     state.mode = opts.mode === 'new' ? 'new' : 'old';
-    state.layout = opts.layout === 'explore' ? 'explore' : '';
     state.bookName = String(opts.bookName || '').trim();
     if (state.bookName) {
       found = bookByName(state.bookName);

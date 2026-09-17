@@ -1,0 +1,15 @@
+/* 성경 본문 전용: 다른 카드·검색·스크롤에는 적용하지 않는다. */
+#verseView #verseList .verse-top {
+  margin-left: -4mm;
+  width: calc(100% + 4mm);
+}
+
+/* 직전 1.5배 화면을 1.3으로 나눈 크기: 최초 대비 약 1.1538배 */
+#verseView #verseList .verse-text {
+  font-size: 1.153846em;
+}
+
+/* 기존 절 번호 0.84em × 1.153846 */
+#verseView #verseList .verse-num {
+  font-size: 0.969231em !important;
+}

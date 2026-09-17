@@ -468,7 +468,8 @@
     global.openBibleStairPicker({
       mode: book.testament === 'new' ? 'new' : 'old',
       bookName: book.name,
-      stage: 'chapter'
+      stage: 'chapter',
+      layout: 'explore'
     });
   }
 
