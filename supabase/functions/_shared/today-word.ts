@@ -90,7 +90,7 @@ export function buildPayload(opts: { date?: string; locale?: string; slot?: stri
   return {
     title: slot === 'second' ? (SECOND_TITLES[locale] || SECOND_TITLES.ko) : (TITLES[locale] || TITLES.ko),
     body: locale === 'ko'
-      ? truncateBody(body) + '\n' + refText + ' · KRV'
+      ? truncateBody(body) + ' ' + refText + ' · KRV'
       : refText + '\n' + truncateBody(body),
     lang: locale,
     tag: 'gomna-today-' + date + '-' + slot,
