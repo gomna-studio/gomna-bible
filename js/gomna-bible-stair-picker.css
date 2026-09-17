@@ -411,3 +411,49 @@ html.bible-stair-lock,html.bible-stair-lock body{overflow:hidden!important}
     max-height:none;
   }
 }
+
+/* 2026-09-17: 성경 본문 표시 UI만 조정. 동작·스크롤·오디오·말씀풀이 로직은 변경하지 않는다. */
+:root{
+  --gm-scripture-ui-body-size:calc(var(--font-size,17px) + 3px);
+  --gm-scripture-ui-ref-size:17.3px;
+  --gm-scripture-ui-shift-left:3mm;
+}
+
+/* Reader 66권 본문 + 관련구절/검색/가이드에서 Reader로 들어오는 모든 본문 */
+#verseView #verseList.verse-list{
+  position:relative;
+  left:calc(-1 * var(--gm-scripture-ui-shift-left));
+}
+#verseView #verseList .verse-text{
+  font-size:var(--gm-scripture-ui-body-size)!important;
+}
+#verseView #verseList .verse-num{
+  font-size:calc(0.84em + 3px)!important;
+  font-weight:700!important;
+}
+
+/* 찾기 화면에서 본문을 직접 보여 주는 구절 카드 */
+#easyView .easy-find-verse{
+  position:relative!important;
+  left:calc(-1 * var(--gm-scripture-ui-shift-left))!important;
+}
+#easyView .easy-find-verse-ref{
+  font-size:var(--gm-scripture-ui-ref-size)!important;
+  font-weight:700!important;
+}
+#easyView .easy-find-verse-text{
+  font-size:var(--gm-scripture-ui-body-size)!important;
+}
+
+/* 일반 말씀 검색 결과 카드 */
+.search-result{
+  position:relative;
+  left:calc(-1 * var(--gm-scripture-ui-shift-left));
+}
+.search-result .ref{
+  font-size:var(--gm-scripture-ui-ref-size)!important;
+  font-weight:700!important;
+}
+.search-result .text{
+  font-size:var(--gm-scripture-ui-body-size)!important;
+}
