@@ -364,7 +364,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
   var registerHomeServiceWorker = function () {
-    navigator.serviceWorker.register("/sw.js?v=20260914-push-display-check-v1", { scope: "/", updateViaCache: "none" })
+    navigator.serviceWorker.register("/sw.js?v=20260918-ui-help-save-v6", { scope: "/", updateViaCache: "none" })
       .then(function(reg){ try { reg.update(); } catch (eUp) {} })
       .catch(function(){});
   };
@@ -1980,7 +1980,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
 <!-- 사용자 글자 크기(공용). 첫 그림 전에 저장된 비율을 적용하려고 head에서 바로 읽는다. -->
 <script defer src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
-<script defer src="js/gomna-theme.js?v=20260807-theme-v7"></script>
+<script defer src="js/gomna-theme.js?v=20260917-local-theme-preview-v10"></script>
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
 <link rel="preload" as="image" href="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1">
 <link rel="preload" as="image" href="assets/home/card-meditation-life.png?v=20260910-home-photo-v1">
@@ -3846,7 +3846,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="js/gomna-auth.js?v=20260910-auth-unify-v1"></script>
 <!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
-<script defer src="js/gomna-help.js?v=20260808-help-v8"></script>
+<script defer src="js/gomna-help.js?v=20260917-help-hide-language-v11"></script>
 <!-- 로컬 미리보기: 로그인 상단 카드 3장 교차 셔플(표시 전용). 되돌릴 때는 이 줄과 파일만 지운다. -->
 <script defer src="js/gomna-login-brand-shuffle.js?v=20260910-lead-rotate-v1"></script>
 </body>
