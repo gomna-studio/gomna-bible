@@ -364,7 +364,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
   var registerHomeServiceWorker = function () {
-    navigator.serviceWorker.register("/sw.js?v=20260916-android-time-footer-v4", { scope: "/", updateViaCache: "none" })
+    navigator.serviceWorker.register("/sw.js?v=20260917-installed-app-refresh-v5", { scope: "/", updateViaCache: "none" })
       .then(function(reg){ try { reg.update(); } catch (eUp) {} })
       .catch(function(){});
   };
