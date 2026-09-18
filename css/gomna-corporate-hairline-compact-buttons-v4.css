@@ -1,0 +1,155 @@
+@import url("/css/gomna-corporate-modern-ui-v1.css?v=20260918-modern-blue-v1");
+
+/* Static ultra-hairline: no travelling light, gradient, glow, or shadow. */
+.gs-app-text::after,
+html[data-theme="light"] .gs-app-text::after {
+  width: 100% !important;
+  left: 0 !important;
+  bottom: -2px !important;
+  height: 1px !important;
+  opacity: 1 !important;
+  transform: scaleY(0.25) !important;
+  transform-origin: center center !important;
+  animation: none !important;
+  background: rgba(150, 169, 194, 0.32) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+html[data-theme="light"] .gs-app-text::after {
+  background: rgba(49, 79, 116, 0.28) !important;
+}
+
+/* Deeper, calmer button tone for OLED and mobile displays. */
+:root {
+  --gomna-action-bg: #233F5E;
+  --gomna-action-bg-hover: #2B4B6E;
+  --gomna-action-bg-active: #192E46;
+  --gomna-action-border: rgba(101, 135, 173, 0.34);
+}
+
+html[data-theme="light"] {
+  --gomna-action-bg: #294F75;
+  --gomna-action-bg-hover: #315D89;
+  --gomna-action-bg-active: #1F3C5A;
+  --gomna-action-border: rgba(41, 79, 117, 0.30);
+}
+
+/* About 3 mm shorter than the former 48 px class of action buttons. */
+.btn-primary,
+.btn-secondary,
+.cta-btn,
+.hq-btn-google,
+.hq-btn-apple,
+a[href*="google.com/maps/search"],
+a[href*="maps.apple.com"] {
+  box-sizing: border-box !important;
+  min-height: 36px !important;
+  padding: 7px 16px !important;
+  border-radius: 7px !important;
+  background: var(--gomna-action-bg) !important;
+  background-image: none !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--gomna-action-border) !important;
+  box-shadow: none !important;
+  filter: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1.25 !important;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.cta-btn:hover,
+.hq-btn-google:hover,
+.hq-btn-apple:hover,
+a[href*="google.com/maps/search"]:hover,
+a[href*="maps.apple.com"]:hover,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.cta-btn:focus-visible,
+.hq-btn-google:focus-visible,
+.hq-btn-apple:focus-visible,
+a[href*="google.com/maps/search"]:focus-visible,
+a[href*="maps.apple.com"]:focus-visible {
+  background: var(--gomna-action-bg-hover) !important;
+  border-color: rgba(112, 148, 187, 0.44) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.btn-primary:active,
+.btn-secondary:active,
+.cta-btn:active,
+.hq-btn-google:active,
+.hq-btn-apple:active,
+a[href*="google.com/maps/search"]:active,
+a[href*="maps.apple.com"]:active {
+  background: var(--gomna-action-bg-active) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+@media (max-width: 768px) {
+  .hero-buttons,
+  .cta-buttons {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 360px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .hero-buttons .btn-primary,
+  .hero-buttons .btn-secondary,
+  .cta-buttons .btn-primary,
+  .cta-buttons .btn-secondary {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 36px !important;
+    padding: 7px 8px !important;
+    margin: 0 !important;
+    font-size: clamp(12px, 3.35vw, 13.5px) !important;
+    white-space: nowrap !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  .cta-btn {
+    min-height: 36px !important;
+    padding: 7px 16px !important;
+    font-size: 13px !important;
+  }
+
+  .hq-map-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .hq-map-actions a,
+  .hq-map-actions a.hq-btn-google,
+  .hq-map-actions a.hq-btn-apple {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 36px !important;
+    padding: 7px 6px !important;
+    font-size: 11.5px !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (max-width: 359px) {
+  .hero-buttons .btn-primary,
+  .hero-buttons .btn-secondary,
+  .cta-buttons .btn-primary,
+  .cta-buttons .btn-secondary {
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    font-size: 11.5px !important;
+  }
+}
