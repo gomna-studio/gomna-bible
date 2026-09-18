@@ -705,7 +705,7 @@ html[data-gomna-ui-lang="zh"] .quick-desc{font-size:8.5px}
 .search-inline-topics{max-height:0;opacity:0;overflow:hidden;display:flex;flex-wrap:wrap;gap:5px;padding:0 12px;margin-top:-1px;background:var(--gm-card-bg);border-left:var(--gm-card-border-slim);border-right:var(--gm-card-border-slim);border-bottom:var(--gm-card-border-slim);border-top:0;border-radius:0 0 var(--gm-radius-card) var(--gm-radius-card);transform:translateY(-4px);box-shadow:none;transition:max-height .75s cubic-bezier(.22,.75,.25,1),opacity .55s ease,transform .65s cubic-bezier(.22,.75,.25,1),padding .55s ease}
 .search-shell.topic-search-open .search-inline-topics{max-height:110px;opacity:1;transform:translateY(0);padding:8px 12px 9px}
 .search-shell.topic-search-open{box-shadow:var(--gm-card-shadow);border-radius:var(--gm-radius-card)}
-.search-inline-chip{border:1px solid var(--gm-card-border);background:var(--gm-btn-bg);color:#17120f;border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:700;white-space:nowrap;cursor:pointer;font-family:inherit;line-height:1.2;-webkit-tap-highlight-color:transparent;transition:background .2s ease,transform .15s ease}
+.search-inline-chip{border:1px solid var(--gm-card-border);background:var(--gm-btn-bg);color:#17120f;border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:700;white-space:nowrap;cursor:pointer;font-family:inherit;line-height:1.2;-webkit-tap-highlight-color:transparent;transition:background .2s ease,transform .15s ease;text-decoration:none}
 .search-inline-chip:hover{background:var(--gm-hover-chip)}
 .search-inline-topics.topic-panel-reveal .search-inline-chip{animation:searchTopicReveal .7s cubic-bezier(.22,.75,.25,1) both}
 .search-inline-topics.topic-panel-reveal .search-inline-chip:nth-child(1){animation-delay:0ms}
@@ -807,7 +807,7 @@ html.translated-ltr .home-continue-info,html.translated-rtl .home-continue-info{
 }
 /* 빠른 메뉴 4칸 */
 .quick-menu{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--gm-card-bg);border:var(--gm-card-border-slim);border-radius:var(--gm-radius-card);overflow:hidden;box-shadow:var(--gm-card-shadow);margin-bottom:4px}
-.quick-item{background:transparent;border:0;border-radius:0;box-shadow:none;padding:12px 2px 11px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-family:inherit;transition:background .22s ease,transform .15s ease;-webkit-tap-highlight-color:transparent;min-width:0}
+.quick-item{background:transparent;border:0;border-radius:0;box-shadow:none;padding:12px 2px 11px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-family:inherit;transition:background .22s ease,transform .15s ease;-webkit-tap-highlight-color:transparent;min-width:0;text-decoration:none;color:inherit}
 .quick-item:not(:last-child){border-right:1px solid var(--gm-card-divider)}
 .quick-item:hover{background:var(--gm-hover-surface)}
 .quick-item:active{background:var(--gm-hover-active);transform:scale(.98)}
@@ -2270,10 +2270,11 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
       <span class="quick-name" data-i18n-key="home.quick.audio">듣기</span>
     </button>
-    <button type="button" class="quick-item q-topic" onclick="scrollToTopics()" aria-label="주제별" data-i18n-aria-label="home.quick.topics">
+    <!-- gomna-topic-internal-links-v1: 사용 동작은 유지하고 검색용 실제 주소만 제공 -->
+    <a class="quick-item q-topic" href="/topics/" data-gomna-topic-link="v1" onclick="scrollToTopics(); return false;" aria-label="주제별" data-i18n-aria-label="home.quick.topics">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
       <span class="quick-name" data-i18n-key="home.quick.topics">주제별</span>
-    </button>
+    </a>
     <button type="button" class="quick-item q-archive" onclick="location.href='reader.html?favorites'" aria-label="보관함" data-i18n-aria-label="home.quick.archive">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
       <span class="quick-name" data-i18n-key="home.quick.archive">보관함</span>
@@ -2314,13 +2315,13 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
         <span class="search-hint" id="homeSearchHint" aria-hidden="true"></span>
       </form>
       <div class="search-inline-topics" id="searchInlineTopics" aria-label="검색창 안 주제별 검색" data-i18n-aria-label="search.topicsAria">
-        <button type="button" class="search-inline-chip" onclick="topic('사랑')" data-i18n-key="search.chip.love">#사랑</button>
-        <button type="button" class="search-inline-chip" onclick="topic('믿음')" data-i18n-key="search.chip.faith">#믿음</button>
-        <button type="button" class="search-inline-chip" onclick="topic('소망')" data-i18n-key="search.chip.hope">#소망</button>
-        <button type="button" class="search-inline-chip" onclick="topic('평안')" data-i18n-key="search.chip.peace">#평안</button>
-        <button type="button" class="search-inline-chip" onclick="topic('위로')" data-i18n-key="search.chip.comfort">#위로</button>
-        <button type="button" class="search-inline-chip" onclick="topic('감사')" data-i18n-key="search.chip.gratitude">#감사</button>
-        <button type="button" class="search-inline-chip" onclick="topic('기도')" data-i18n-key="search.chip.prayer">#기도</button>
+        <a class="search-inline-chip" href="/topics/" onclick="topic('사랑'); return false;" data-i18n-key="search.chip.love">#사랑</a>
+        <a class="search-inline-chip" href="/topics/" onclick="topic('믿음'); return false;" data-i18n-key="search.chip.faith">#믿음</a>
+        <a class="search-inline-chip" href="/topics/new-beginnings/" onclick="topic('소망'); return false;" data-i18n-key="search.chip.hope">#소망</a>
+        <a class="search-inline-chip" href="/topics/sleep/" onclick="topic('평안'); return false;" data-i18n-key="search.chip.peace">#평안</a>
+        <a class="search-inline-chip" href="/topics/comfort/" onclick="topic('위로'); return false;" data-i18n-key="search.chip.comfort">#위로</a>
+        <a class="search-inline-chip" href="/topics/gratitude/" onclick="topic('감사'); return false;" data-i18n-key="search.chip.gratitude">#감사</a>
+        <a class="search-inline-chip" href="/topics/dawn-prayer/" onclick="topic('기도'); return false;" data-i18n-key="search.chip.prayer">#기도</a>
       </div>
     </div>
   </div>

@@ -56,19 +56,19 @@
      face: ribbon | tall | inset | stack | bleed | split | quiet
      순서는 CSS dense 그리드 리듬용: 와이드 → 세로강조+소형 → 쌍 → 와이드 → 쌍 → 일반+소형 → 와이드. */
   var TOPICS = [
-    { id: 'love', title: '사랑', query: '사랑', face: 'ribbon' },
-    { id: 'prayer', title: '기도', query: '기도', face: 'tall' },
-    { id: 'peace', title: '평안', query: '평안', face: 'inset' },
-    { id: 'thanks', title: '감사', query: '감사', face: 'quiet' },
-    { id: 'heal', title: '치유', query: '고치', face: 'split' },
-    { id: 'comfort', title: '위로', query: '위로', face: 'inset' },
-    { id: 'family', title: '가족', query: '자녀', face: 'ribbon' },
-    { id: 'fear', title: '두려움', query: '두려워', face: 'stack' },
-    { id: 'grief', title: '상실', query: '상심', face: 'bleed' },
-    { id: 'wisdom', title: '지혜', query: '지혜', face: 'inset' },
-    { id: 'faith', title: '믿음', query: '믿음', face: 'quiet' },
-    { id: 'hope', title: '소망', query: '소망', face: 'quiet' },
-    { id: 'begin', title: '새출발', query: '새 일', face: 'ribbon' }
+    { id: 'love', title: '사랑', query: '사랑', face: 'ribbon', url: '/topics/' },
+    { id: 'prayer', title: '기도', query: '기도', face: 'tall', url: '/topics/dawn-prayer/' },
+    { id: 'peace', title: '평안', query: '평안', face: 'inset', url: '/topics/sleep/' },
+    { id: 'thanks', title: '감사', query: '감사', face: 'quiet', url: '/topics/gratitude/' },
+    { id: 'heal', title: '치유', query: '고치', face: 'split', url: '/topics/healing/' },
+    { id: 'comfort', title: '위로', query: '위로', face: 'inset', url: '/topics/comfort/' },
+    { id: 'family', title: '가족', query: '자녀', face: 'ribbon', url: '/topics/family/' },
+    { id: 'fear', title: '두려움', query: '두려워', face: 'stack', url: '/topics/anxiety/' },
+    { id: 'grief', title: '상실', query: '상심', face: 'bleed', url: '/topics/grief/' },
+    { id: 'wisdom', title: '지혜', query: '지혜', face: 'inset', url: '/topics/wisdom/' },
+    { id: 'faith', title: '믿음', query: '믿음', face: 'quiet', url: '/topics/' },
+    { id: 'hope', title: '소망', query: '소망', face: 'quiet', url: '/topics/new-beginnings/' },
+    { id: 'begin', title: '새출발', query: '새 일', face: 'ribbon', url: '/topics/new-beginnings/' }
   ];
 
   var state = {
@@ -756,10 +756,10 @@
       + '<h3 class="easy-find-section-title">어떤 말씀이 필요하세요?</h3>'
       + '<div class="easy-find-topics" id="easyFindTopics">'
       + TOPICS.map(function (t) {
-        return '<button type="button" class="easy-find-topic is-' + (t.face || 'inset') + ' is-' + t.id + '" data-easy-topic="' + esc(t.query) + '" aria-label="' + esc(t.title) + '">'
+        return '<a href="' + esc(t.url || '/topics/') + '" class="easy-find-topic is-' + (t.face || 'inset') + ' is-' + t.id + '" data-easy-topic="' + esc(t.query) + '" aria-label="' + esc(t.title) + '">'
           + '<span class="easy-find-topic-glow" aria-hidden="true"></span>'
           + '<span class="easy-find-topic-copy"><span class="easy-find-topic-title">' + esc(t.title) + '</span></span>'
-          + '</button>';
+          + '</a>';
       }).join('')
       + '</div></section>'
       + '<section class="easy-find-section">'
@@ -1137,7 +1137,7 @@
     if (view.getAttribute('data-easy-find-bound') === '1') return;
     view.setAttribute('data-easy-find-bound', '1');
     view.addEventListener('click', function (e) {
-      var btn = e.target && e.target.closest ? e.target.closest('button') : null;
+      var btn = e.target && e.target.closest ? e.target.closest('button, a[data-easy-topic]') : null;
       var resumeKind;
       var book;
       var ref;
@@ -1314,6 +1314,7 @@
         return;
       }
       if (btn.getAttribute('data-easy-topic')) {
+        e.preventDefault();
         openWordSearch(btn.getAttribute('data-easy-topic'));
         return;
       }
