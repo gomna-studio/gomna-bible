@@ -4451,7 +4451,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register("/sw.js?v=2026-09-18-pwa-auto-refresh-v35", { scope: "/", updateViaCache: "none" })
+  navigator.serviceWorker.register("/sw.js?v=2026-09-18-pwa-recovery-v36", { scope: "/", updateViaCache: "none" })
     .then(function(reg){ try { reg.update(); } catch (eUp) {} })
     .catch(function(){});
   if (!window.__gomnaSwUpdateBound) {
@@ -4459,8 +4459,8 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("controllerchange", function(){
       if (!hadSwController) return;
       try {
-        if (sessionStorage.getItem("gomna-sw-reloaded-2026-09-18-pwa-auto-refresh-v35") === "1") return;
-        sessionStorage.setItem("gomna-sw-reloaded-2026-09-18-pwa-auto-refresh-v35", "1");
+        if (sessionStorage.getItem("gomna-sw-reloaded-2026-09-18-pwa-recovery-v36") === "1") return;
+        sessionStorage.setItem("gomna-sw-reloaded-2026-09-18-pwa-recovery-v36", "1");
       } catch (eLock) {}
       location.reload();
     });
