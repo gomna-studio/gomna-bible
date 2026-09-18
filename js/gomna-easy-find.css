@@ -699,6 +699,7 @@ html.reader-hide-chrome .phone-frame:has(#easyView.active) .reader-dock-top-clos
   padding:0;
   display:flex;
   text-align:left;
+  text-decoration:none;
   color:#fff;
   background:linear-gradient(var(--g-angle), var(--g1) 0%, var(--g2) 54%, var(--g3) 100%);
   border:1px solid rgba(255,255,255,.14);
