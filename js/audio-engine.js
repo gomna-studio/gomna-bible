@@ -15,6 +15,11 @@
       currentAudioId: null,
       nextAudio: null,
       nextAudioId: null,
+      nextPrefetchId: null,
+      nextPrefetchUrl: null,
+      nextPrefetchPromise: null,
+      nextPrefetchReady: false,
+      nextPrefetchToken: 0,
       isPlaying: false,
       isPaused: false,
       playbackCancelled: false,
@@ -334,6 +339,33 @@
       state.nextAudioId = null;
     },
 
+    _clearNextPrefetch: function() {
+      var state = window.GOMNA_AUDIO_ENGINE._state;
+      state.nextPrefetchToken = (state.nextPrefetchToken || 0) + 1;
+      state.nextPrefetchId = null;
+      state.nextPrefetchUrl = null;
+      state.nextPrefetchPromise = null;
+      state.nextPrefetchReady = false;
+    },
+
+    _consumeNextPrefetch: function(audioId, audioUrl) {
+      var state = window.GOMNA_AUDIO_ENGINE._state;
+      var matched = !!(
+        audioId &&
+        state.nextPrefetchId === audioId &&
+        (!audioUrl || !state.nextPrefetchUrl || state.nextPrefetchUrl === audioUrl)
+      );
+
+      if (matched) {
+        state.nextPrefetchId = null;
+        state.nextPrefetchUrl = null;
+        state.nextPrefetchPromise = null;
+        state.nextPrefetchReady = false;
+      }
+
+      return matched;
+    },
+
     _clearQueue: function(options) {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
@@ -341,6 +373,7 @@
 
       if (!keepNext) {
         engine._cleanupNextAudio();
+        engine._clearNextPrefetch();
       }
 
       state.queueAudioIds = [];
@@ -426,10 +459,78 @@
     _prepareNextInQueue: function() {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
-      /* iOS does not guarantee Audio preload. Keep one authorized element
-       * instead of creating a second element for every verse. */
-      engine._cleanupNextAudio();
-      if (!state.queueActive) return;
+      var config = window.GOMNA_AUDIO_CONFIG;
+      var nextIndex;
+      var nextId;
+      var entry;
+      var audioSrc;
+      var token;
+
+      /* Keep one authorized media element for playback. While the current
+       * verse is speaking, warm the browser HTTP cache with the next MP3.
+       * This avoids the long source-download gap without bringing back the
+       * two-player races that previously skipped verses on Mobile Safari. */
+      if (!state.queueActive || state.queueAudioIds.length === 0 || !config) {
+        engine._clearNextPrefetch();
+        return;
+      }
+
+      nextIndex = engine._findNextPlayableIndex(state.queueIndex + 1);
+      nextId = nextIndex === -1 ? null : state.queueAudioIds[nextIndex];
+
+      if (!nextId && typeof window.getContinuousNextChapterFirstAudioId === 'function') {
+        nextId = window.getContinuousNextChapterFirstAudioId();
+      }
+
+      if (!nextId) {
+        engine._clearNextPrefetch();
+        return;
+      }
+
+      entry = engine._getManifestEntry(nextId);
+      if (!entry || !engine._isEntryAvailableForCurrentVoice(entry)) {
+        engine._clearNextPrefetch();
+        return;
+      }
+
+      audioSrc = typeof config.buildAudioUrl === 'function'
+        ? config.buildAudioUrl(entry.filePath)
+        : entry.filePath;
+
+      if (state.nextPrefetchId === nextId && state.nextPrefetchUrl === audioSrc) {
+        return;
+      }
+
+      engine._clearNextPrefetch();
+      state.nextPrefetchId = nextId;
+      state.nextPrefetchUrl = audioSrc;
+      token = state.nextPrefetchToken;
+
+      if (typeof window.fetch !== 'function' || !audioSrc) return;
+
+      try {
+        state.nextPrefetchPromise = window.fetch(audioSrc, {
+          cache: 'force-cache',
+          credentials: 'same-origin'
+        }).then(function(response) {
+          if (!response || (!response.ok && response.type !== 'opaque')) {
+            throw new Error('HTTP ' + (response ? response.status : 0));
+          }
+          return typeof response.arrayBuffer === 'function'
+            ? response.arrayBuffer()
+            : null;
+        }).then(function() {
+          if (state.nextPrefetchToken !== token || state.nextPrefetchId !== nextId) return;
+          state.nextPrefetchReady = true;
+        }).catch(function(prefetchError) {
+          if (state.nextPrefetchToken !== token || state.nextPrefetchId !== nextId) return;
+          state.nextPrefetchReady = false;
+          console.warn('[GOMNA_AUDIO] next verse prefetch warning:', prefetchError);
+        });
+      } catch (prefetchStartError) {
+        state.nextPrefetchReady = false;
+        console.warn('[GOMNA_AUDIO] next verse prefetch start warning:', prefetchStartError);
+      }
     },
 
     _playNextInQueue: function(expectedEpoch) {
@@ -470,6 +571,7 @@
       var state = engine._state;
       var config = window.GOMNA_AUDIO_CONFIG;
       var startTime;
+      var preparedQueueHandoff = false;
       options = options || {};
       startTime = Number(options.startTime) || 0;
 
@@ -544,6 +646,15 @@
       var audioSrc = typeof config.buildAudioUrl === 'function'
         ? config.buildAudioUrl(entry.filePath)
         : entry.filePath;
+
+      preparedQueueHandoff = !!(
+        options.fromQueue &&
+        state.nextPrefetchId === audioId &&
+        (!state.nextPrefetchUrl || state.nextPrefetchUrl === audioSrc)
+      );
+      if (preparedQueueHandoff) {
+        engine._consumeNextPrefetch(audioId, audioSrc);
+      }
 
       engine._clearStallWatch();
       engine._clearRecoveryRetry();
@@ -719,10 +830,12 @@
 
       /* Bind every listener and publish the new session before load(). Safari
        * can report a cached media error immediately during load. */
-      try {
-        audio.load();
-      } catch (loadErr) {
-        console.warn('[GOMNA_AUDIO] source load warning:', loadErr);
+      if (!preparedQueueHandoff) {
+        try {
+          audio.load();
+        } catch (loadErr) {
+          console.warn('[GOMNA_AUDIO] source load warning:', loadErr);
+        }
       }
 
       engine._applyCurrentSpeed(audio);
@@ -897,7 +1010,10 @@
        * preloaded during the previous last verse), keep that element. */
       engine.prepareFreshQueuePlayback();
       engine._clearQueue({
-        keepNext: !!(state.nextAudio && state.nextAudioId === audioIds[startIndex])
+        keepNext: !!(
+          (state.nextAudio && state.nextAudioId === audioIds[startIndex]) ||
+          state.nextPrefetchId === audioIds[startIndex]
+        )
       });
       state.playbackCancelled = false;
 
