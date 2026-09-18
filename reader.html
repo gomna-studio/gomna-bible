@@ -4451,7 +4451,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register("/sw.js?v=20260918-ui-help-save-v6", { scope: "/", updateViaCache: "none" })
+  navigator.serviceWorker.register("/sw.js?v=2026-09-18-help-commentary-v29", { scope: "/", updateViaCache: "none" })
     .then(function(reg){ try { reg.update(); } catch (eUp) {} })
     .catch(function(){});
   if (!window.__gomnaSwUpdateBound) {
@@ -13607,6 +13607,22 @@ function getToolbarActionVerses() {
   return [getToolbarActionVerse()];
 }
 
+/* 홈 묵상에서 들어온 강조 구절은 선택 배열과 분리되어 있다.
+   말씀풀이에서만 현재 화면의 강조 구절을 우선 사용한다. */
+function getToolbarCommentaryVerses() {
+  if (selectedVerseNums && selectedVerseNums.length) return getToolbarActionVerses();
+  var focused = [];
+  document.querySelectorAll('#verseList .verse-item--entry-focus[data-verse]').forEach(function(item) {
+    var v = parseInt(item.getAttribute('data-verse'), 10);
+    if (!isNaN(v) && v > 0 && focused.indexOf(v) === -1) focused.push(v);
+  });
+  if (focused.length) {
+    focused.sort(function(a, b) { return a - b; });
+    return focused;
+  }
+  return getToolbarActionVerses();
+}
+
 function getVerseBodyText(verseNum) {
   var fromDom = getVersePlainText(verseNum);
   if (fromDom) return fromDom;
@@ -13954,7 +13970,7 @@ function opt4OpenEasyFind() {
 
 function opt4ToolbarCommentary() {
   if (typeof closeVerseListenModeMenu === 'function') closeVerseListenModeMenu();
-  var verses = getToolbarActionVerses();
+  var verses = getToolbarCommentaryVerses();
   if (!verses.length) return;
   if (verses.length > 1) {
     multiCommentaryList = verses.slice();
@@ -20041,7 +20057,7 @@ function loadAds() {
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="js/gomna-auth.js?v=20260910-auth-unify-v1"></script>
 <!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
-<script defer src="js/gomna-help.js?v=20260917-help-hide-language-v11"></script>
+<script defer src="js/gomna-help.js?v=2026-09-18-help-commentary-v29"></script>
 <!-- 로컬 미리보기: 로그인 상단 카드 3장 교차 셔플(표시 전용). 되돌릴 때는 이 줄과 파일만 지운다. -->
 <script defer src="js/gomna-login-brand-shuffle.js?v=20260910-lead-rotate-v1"></script>
 </body>

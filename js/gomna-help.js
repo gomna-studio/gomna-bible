@@ -33,7 +33,7 @@
             ['p', '화면 아래의 성경을 누르고 책과 장을 선택하면 본문을 읽을 수 있습니다. 찾기에서는 구약·신약이나 책 이름으로도 바로 찾을 수 있습니다.'],
             ['p', '본문 아래 도구모음에서 장 전체 듣기를 누르면 장을 처음부터 들을 수 있습니다.'],
             ['p', '구절을 선택한 뒤에는 절 듣기와 이어듣기 중에서 고를 수 있습니다. 절 듣기는 선택한 구절만, 이어듣기는 그 구절부터 계속 재생합니다.'],
-            ['p', '재생 중에는 듣기 화면에서 속도와 목소리를 바꾸거나, 장 끝까지 자동 재생을 켤 수 있습니다.']
+            ['p', '재생 중에는 듣기 화면에서 속도를 바꾸거나, 장 끝까지 자동 재생을 켤 수 있습니다.']
           ]
         },
         {
@@ -199,7 +199,7 @@
           body: [
             ['p', '기기의 음량과 무음 모드를 확인해 주세요.'],
             ['p', '인터넷 연결 상태를 확인한 뒤 말씀 듣기를 다시 실행해 주세요.'],
-            ['p', '오디오 준비 중입니다라는 안내가 보이면 잠시 뒤 다시 눌러 주세요. 해당 목소리는 준비 중입니다라고 나오면 듣기 화면에서 다른 목소리를 선택해 주세요.'],
+            ['p', '오디오 준비 중입니다라는 안내가 보이면 해당 구절의 음원이 아직 준비되지 않은 상태입니다. 잠시 뒤 다시 눌러 주세요. 해당 목소리는 준비 중입니다라는 안내가 보이면 현재는 차분한 낭독만 사용할 수 있으므로 목소리에서 차분한 낭독을 선택해 주세요.'],
             ['p', '다른 장도 재생되지 않으면 페이지를 다시 열어 확인해 주세요.']
           ]
         },
@@ -211,6 +211,19 @@
             ['p', '다른 기기에서 기록이 보이지 않는다면 같은 계정으로 로그인했는지 먼저 확인해 주세요.'],
             ['p', '내 정보 → 동기화를 눌러 기록을 다시 동기화해 주세요.'],
             ['p', '로그인하지 않은 상태에서 저장한 일부 기록은 현재 기기에만 남아 있을 수 있습니다. 로그인한 뒤 동기화를 누르면 계정 기록과 합쳐집니다.']
+          ]
+        },
+        {
+          id: 'beta-service-notice',
+          icon: 'help',
+          label: '시험 운영 안내',
+          body: [
+            ['h', '시험 운영 기간'],
+            ['note', '2026년 4월 28일 ~ 정식 서비스 전환 시까지'],
+            ['p', '은혜의말씀은 더 안정적이고 편안한 서비스를 제공하기 위해 현재 시험 운영 중입니다.'],
+            ['p', '시험 운영 기간에는 일부 기능이 원활하지 않거나 서비스 개선 과정에서 화면과 기능이 변경될 수 있습니다.'],
+            ['p', '이용 중 겪으시는 불편을 세심하게 살피고 신속하게 보완하여, 말씀을 읽고 듣고 묵상하는 시간이 더욱 편안하고 은혜로운 경험이 되도록 최선을 다하겠습니다.'],
+            ['note', '너그러운 이해와 따뜻한 관심에 감사드립니다.']
           ]
         },
         {
@@ -349,21 +362,25 @@
       '#gomnaHelpPopup .gomna-help-row-label{flex:1 1 auto;min-width:0}' +
       '#gomnaHelpPopup .gomna-help-row-arrow{flex-shrink:0;width:7px;height:7px;margin-left:2px;' +
       'border-right:2px solid #C3AB86;border-bottom:2px solid #C3AB86;transform:rotate(-45deg)}' +
-      /* 상세: 그룹과 같은 계열 표면 위에 짧은 문단 */
-      '#gomnaHelpPopup .gomna-help-detail{margin:16px 14px 0;padding:2px 16px 16px;border-radius:15px;' +
-      'background:#FFFCF7;border:1px solid rgba(180,140,90,.1)}' +
-      '#gomnaHelpPopup .gomna-help-detail p{margin:12px 0 0;font-size:15px;font-weight:500;line-height:1.72;' +
-      'color:#4A3423;word-break:keep-all;overflow-wrap:anywhere}' +
-      '#gomnaHelpPopup .gomna-help-detail h4{margin:18px 0 0;font-size:13px;font-weight:700;color:#A38F72;' +
-      'letter-spacing:-.1px;line-height:1.3}' +
-      /* 안내 상자는 불투명한 색으로 둔다. 공용 테마가 다크에서 알아서 어두운 면으로 바꿔 준다. */
-      '#gomnaHelpPopup .gomna-help-detail .gomna-help-note{margin-top:14px;padding:11px 13px;border-radius:12px;' +
-      'background:#F2E8D6;font-size:14px;color:#6E5536;line-height:1.65}' +
-      'html[data-gomna-theme="dark"] #gomnaHelpPopup .gomna-help-detail .gomna-help-note{background:rgba(233,220,200,.07)}' +
-      '#gomnaHelpPopup .gomna-help-mail{display:inline-block;margin-top:14px;font-size:15px;font-weight:700;' +
+      /* 도움말 상세 문단을 각각 독립 카드로 표시한다. */
+      '#gomnaHelpPopup .gomna-help-detail{margin:16px 14px 0;padding:0;' +
+      'background:transparent;border:none}' +
+      '#gomnaHelpPopup .gomna-help-detail p{box-sizing:border-box;margin:0 0 10px;padding:14px 15px;' +
+      'border-radius:14px;background:#FFFFFF;border:1px solid #DCE5F1;' +
+      'box-shadow:0 3px 12px rgba(36,55,82,.06);font-size:15px;font-weight:500;line-height:1.72;' +
+      'color:#27364A;word-break:keep-all;overflow-wrap:anywhere}' +
+      '#gomnaHelpPopup .gomna-help-detail h4{margin:18px 2px 9px;font-size:13px;font-weight:800;' +
+      'color:#506684;letter-spacing:-.1px;line-height:1.3}' +
+      '#gomnaHelpPopup .gomna-help-detail h4:first-child{margin-top:2px}' +
+      '#gomnaHelpPopup .gomna-help-detail .gomna-help-note{margin:0 0 10px;padding:13px 15px;' +
+      'border-radius:14px;background:#EDF4FF;border:1px solid #CBDCF2;' +
+      'box-shadow:none;font-size:14px;color:#334E73;line-height:1.65}' +
+      '#gomnaHelpPopup .gomna-help-mail{display:block;box-sizing:border-box;margin:0 0 10px;padding:14px 15px;' +
+      'border-radius:14px;background:#FFFFFF;border:1px solid #DCE5F1;' +
+      'box-shadow:0 3px 12px rgba(36,55,82,.06);font-size:15px;font-weight:700;' +
       'color:#2563EB;text-decoration:none;word-break:break-all}' +
-      '#gomnaHelpPopup .gomna-help-mail:hover{color:#1D4ED8;text-decoration:underline}' +
-      '#gomnaHelpPopup .gomna-help-mail:active{color:#1E40AF}' +
+      '#gomnaHelpPopup .gomna-help-mail:hover{color:#1D4ED8;border-color:#B9CBE2;text-decoration:none}' +
+      '#gomnaHelpPopup .gomna-help-mail:active{color:#1E40AF;background:#F5F8FC}' +
       /* 다크: 라이트와 같은 3단계 표면을 웜 다크(짙은 나무색)로 옮긴다.
          공용 테마가 만든 자동 변환보다 뒤에 와야 하므로 body를 한 단계 더 붙여 우선순위를 확보한다. */
       DARK + '.gomna-help-box{background:#211E1A;border-color:rgba(241,230,214,.09);' +
@@ -382,10 +399,14 @@
       DARK + '.gomna-help-row-icon{color:#E9DCC8}' +
       DARK + '.gomna-help-row-arrow{border-right-color:rgba(241,230,214,.42);' +
       'border-bottom-color:rgba(241,230,214,.42)}' +
-      DARK + '.gomna-help-detail{background:#2D2823;border-color:rgba(241,230,214,.07)}' +
-      DARK + '.gomna-help-detail p{color:#E4D8C4}' +
-      DARK + '.gomna-help-detail h4{color:#BCA68C}' +
-      DARK + '.gomna-help-detail .gomna-help-note{background:rgba(241,230,214,.06);color:#C9B79A}' +
+      DARK + '.gomna-help-detail{background:transparent;border-color:transparent}' +
+      DARK + '.gomna-help-detail p{background:#292D34;border-color:#3D4653;color:#F1F4F8;' +
+      'box-shadow:0 3px 12px rgba(0,0,0,.18)}' +
+      DARK + '.gomna-help-detail h4{color:#B9C9DC}' +
+      DARK + '.gomna-help-detail .gomna-help-note{background:#25364C;border-color:#3C5777;' +
+      'color:#DCEAFF;box-shadow:none}' +
+      DARK + '.gomna-help-mail{background:#292D34;border-color:#3D4653;color:#8BB8FF;' +
+      'box-shadow:0 3px 12px rgba(0,0,0,.18)}' +
       '@media(min-width:769px){#gomnaHelpPopup{align-items:center;padding:24px}' +
       '#gomnaHelpPopup .gomna-help-box{border-radius:20px;max-height:min(84vh,780px)}}';
     (document.head || document.documentElement).appendChild(style);
