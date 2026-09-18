@@ -6634,3 +6634,67 @@ body.gomna-audio-expanded-open #gomna-audio-expanded-player.gomna-audio-expanded
     }
   }
 }
+
+/* GOMNA AUDIO HOME HERO V42 */
+/* Expanded listening hero: exact first Home card image positioning and veil. */
+#gomna-audio-expanded-player .gomna-audio-expanded-hero img {
+  object-position: center 100% !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-expanded-hero::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  background: linear-gradient(180deg, rgba(6,12,22,.38) 0%, rgba(6,12,22,.08) 28%, rgba(6,12,22,.08) 58%, rgba(6,12,22,.42) 100%) !important;
+  box-shadow: none !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-hero-caption {
+  z-index: 2 !important;
+  color: #fff !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-hero-caption-text {
+  color: #fff !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,.52) !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-hero-caption-text .gomna-audio-hero-caption-word {
+  color: rgba(255,255,255,.58) !important;
+  -webkit-text-fill-color: rgba(255,255,255,.58) !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,.46) !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-hero-caption-text .gomna-audio-hero-caption-word.is-read,
+#gomna-audio-expanded-player .gomna-audio-hero-caption-text .gomna-audio-hero-caption-word.is-read.is-current {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,.62) !important;
+}
+
+/* GOMNA AUDIO CUSTOM HERO V43 */
+#gomna-audio-expanded-player .gomna-audio-expanded-hero img {
+  object-position: center 100% !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-expanded-hero::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-hero-caption {
+  top: auto !important;
+  bottom: calc(45% + 1cm) !important;
+  transform: none !important;
+  z-index: 2 !important;
+  color: #fff !important;
+}
+
+#gomna-audio-expanded-player .gomna-audio-hero-caption-text {
+  color: #fff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, .62) !important;
+}
