@@ -4300,7 +4300,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 </script>
 <link rel="manifest" href="manifest.json?v=20260910-app-icon-v1">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
-<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260905-warm-zoom-v1">
+<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260918-custom-hero-v43">
 <style id="gomna-commentary-unified-scroll-css">
 /* After audio CSS: one native scroll for header→verse-nav; footer stays fixed.
  * pinch-zoom + pan-x restore browser zoom/pan; do not use pan-y alone.
@@ -4451,7 +4451,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register("/sw.js?v=2026-09-18-pwa-recovery-v36", { scope: "/", updateViaCache: "none" })
+  navigator.serviceWorker.register("/sw.js?v=2026-09-18-corporate-audio-v44", { scope: "/", updateViaCache: "none" })
     .then(function(reg){ try { reg.update(); } catch (eUp) {} })
     .catch(function(){});
   if (!window.__gomnaSwUpdateBound) {
@@ -4459,8 +4459,8 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("controllerchange", function(){
       if (!hadSwController) return;
       try {
-        if (sessionStorage.getItem("gomna-sw-reloaded-2026-09-18-pwa-recovery-v36") === "1") return;
-        sessionStorage.setItem("gomna-sw-reloaded-2026-09-18-pwa-recovery-v36", "1");
+        if (sessionStorage.getItem("gomna-sw-reloaded-2026-09-18-corporate-audio-v44") === "1") return;
+        sessionStorage.setItem("gomna-sw-reloaded-2026-09-18-corporate-audio-v44", "1");
       } catch (eLock) {}
       location.reload();
     });
@@ -17492,7 +17492,11 @@ function continueBibleContinuousChapterPlayback() {
     if (window.__gomnaBibleContinuousChapterPlayback) {
       clearBibleContinuousChapterPlayback();
     }
-  }, 8000);
+  /* Mobile Safari can defer DOM work while the screen is locking/unlocking or
+   * while LTE hands over to Wi-Fi. Eight seconds ended a valid continuous
+   * session too aggressively; keep the handoff alive for a full recovery
+   * window. */
+  }, 30000);
 
   try {
     nextChapter();
@@ -18862,7 +18866,7 @@ function changeFont(delta) {
 </script>
 <script src="/js/audio-config.js?v=20260724-manifest-shard-v1" defer></script>
 <script src="/js/gomna-audio-manifest-shards.js?v=20260724-manifest-shard-v1" defer></script>
-<script src="/js/audio-engine.js?v=20260831-chapter-preload-v1" defer></script>
+<script src="/js/audio-engine.js?v=20260918-audio-speed-stability-v41" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260909-locale-canon-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
@@ -19139,7 +19143,7 @@ function loadAds() {
   </div>
 
   <div class="gomna-audio-expanded-hero">
-    <img src="/today-verse-slide-2-bg-v3.png"
+    <img src="/assets/images/gomna-audio-expanded-background-v43.png?v=20260918-v43"
          alt=""
          width="1672"
          height="941"
@@ -19481,6 +19485,22 @@ function loadAds() {
   function revealScriptureEntry(){
     if(document.documentElement.classList.contains('gomna-home-commentary-loading'))return;
     document.documentElement.classList.remove('scripture-entry-pending');
+
+    /* home direct-entry iOS toolbar reset v37:
+       가려진 상태에서 저장된 터치 기준과 하단 도구 막대를
+       본문이 실제로 표시된 다음 프레임에 다시 맞춘다. */
+    if(typeof opt4BarAutoHideTouchY!=='undefined')opt4BarAutoHideTouchY=null;
+    if(typeof opt4BarAutoHideReveal==='function')opt4BarAutoHideReveal();
+    function syncDirectEntryToolbar(){
+      if(typeof opt4BarAutoHideTouchY!=='undefined')opt4BarAutoHideTouchY=null;
+      if(typeof window.syncPlainVerseGestureMode==='function')window.syncPlainVerseGestureMode();
+      if(typeof opt4BarAutoHideReveal==='function')opt4BarAutoHideReveal();
+    }
+    if(typeof requestAnimationFrame==='function'){
+      requestAnimationFrame(function(){requestAnimationFrame(syncDirectEntryToolbar);});
+    }else{
+      setTimeout(syncDirectEntryToolbar,0);
+    }
   }
   window.__gomnaRevealScriptureEntry=revealScriptureEntry;
   window.__gomnaRevealHomeDailyRead=revealScriptureEntry;

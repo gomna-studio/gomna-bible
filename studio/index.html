@@ -926,7 +926,7 @@ section[id], div[id="us-location"], .tech {
 }
 
   </style>
-<link rel="stylesheet" href="/css/gomna-corporate-hairline-compact-buttons-v4.css?v=20260918-hairline-compact-v4">
+<link rel="stylesheet" href="/css/gomna-corporate-hairline-compact-buttons-v4.css?v=2026-09-18-corporate-audio-v44">
 </head>
 <body>
 
@@ -939,7 +939,7 @@ section[id], div[id="us-location"], .tech {
       <li><a href="/contact">Contact</a></li>
       <li><a href="/guide">User Guide</a></li>
       <li><a href="/" class="gs-app-link">
-        <span class="gs-app-text">은혜의말씀(Words of Grace)</span>
+        <span class="gs-app-text">은혜의말씀</span>
         <span class="gs-app-book" aria-hidden="true">
           <svg viewBox="0 0 28 18" xmlns="http://www.w3.org/2000/svg" focusable="false">
             <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">
@@ -1524,6 +1524,83 @@ section[id], div[id="us-location"], .tech {
       if (window.innerWidth > 768) nav.classList.remove('nav-hidden');
     });
   })();
+</script>
+
+
+<!-- corporate full header tap v39 -->
+<style>
+@media (max-width: 768px) {
+  html.gomna-corporate-header-revealed nav {
+    transform: translateY(0) !important;
+  }
+  html.gomna-corporate-header-revealed .anchor-nav {
+    position: fixed !important;
+    top: var(--studio-nav-height, 0px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 99 !important;
+    margin: 0 !important;
+  }
+}
+</style>
+<script>
+(function(){
+  'use strict';
+  var root=document.documentElement;
+  var nav=document.querySelector('nav');
+  var anchor=document.querySelector('.anchor-nav');
+  if(!nav||!anchor)return;
+
+  var start=null;
+  var MAX_MOVE=10;
+  var MAX_TIME=380;
+  var interactive='a,button,input,textarea,select,label,[role="button"],[contenteditable="true"],nav,.anchor-nav';
+
+  function mobile(){return window.innerWidth<=768;}
+  function blocked(target){return !!(target&&target.closest&&target.closest(interactive));}
+  function hasSelection(){
+    try{return !!String(window.getSelection&&window.getSelection()||'').trim();}
+    catch(e){return false;}
+  }
+  function clearStart(){start=null;}
+
+  document.addEventListener('pointerdown',function(ev){
+    if(!mobile()||!ev.isPrimary||blocked(ev.target)){clearStart();return;}
+    start={id:ev.pointerId,x:ev.clientX,y:ev.clientY,t:Date.now(),moved:false,target:ev.target};
+  },{passive:true});
+
+  document.addEventListener('pointermove',function(ev){
+    if(!start||ev.pointerId!==start.id)return;
+    var dx=ev.clientX-start.x;
+    var dy=ev.clientY-start.y;
+    if(Math.sqrt(dx*dx+dy*dy)>MAX_MOVE)start.moved=true;
+  },{passive:true});
+
+  document.addEventListener('pointerup',function(ev){
+    if(!start||ev.pointerId!==start.id)return;
+    var tap=start;
+    clearStart();
+    var dx=ev.clientX-tap.x;
+    var dy=ev.clientY-tap.y;
+    var moved=tap.moved||Math.sqrt(dx*dx+dy*dy)>MAX_MOVE;
+    var held=Date.now()-tap.t>MAX_TIME;
+    if(moved||held||blocked(ev.target)||hasSelection())return;
+    root.classList.toggle('gomna-corporate-header-revealed');
+  },{passive:true});
+
+  document.addEventListener('pointercancel',clearStart,{passive:true});
+
+  anchor.addEventListener('click',function(ev){
+    if(ev.target&&ev.target.closest&&ev.target.closest('a')){
+      root.classList.remove('gomna-corporate-header-revealed');
+    }
+  });
+
+  window.addEventListener('resize',function(){
+    if(!mobile())root.classList.remove('gomna-corporate-header-revealed');
+  },{passive:true});
+})();
 </script>
 
 </body>

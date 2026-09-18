@@ -153,3 +153,27 @@ a[href*="maps.apple.com"]:active {
     font-size: 11.5px !important;
   }
 }
+
+
+/* corporate Korean-only brand v38 */
+.gs-app-link .gs-app-book {
+  display: none !important;
+}
+
+.gs-app-link .gs-app-text,
+.gs-app-link:hover .gs-app-text {
+  font-size: 1.5em !important;
+  color: #AFC7E8 !important;
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: #AFC7E8 !important;
+  filter: none !important;
+}
+
+[data-theme="light"] .gs-app-link .gs-app-text,
+[data-theme="light"] .gs-app-link:hover .gs-app-text {
+  color: #315F9E !important;
+  -webkit-text-fill-color: #315F9E !important;
+}

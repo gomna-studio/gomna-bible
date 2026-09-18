@@ -29,14 +29,19 @@
       restoreStartTime: 0,
       timerId: null,
       stallWatchTimer: null,
-      stallRecoveryCount: 0
+      stallRecoveryCount: 0,
+      recoveryRetryTimer: null,
+      recoveryAttempt: 0,
+      recoverySavedTime: 0,
+      isRecovering: false
     },
 
     _MAX_QUEUE_SOFT_FAIL_STREAK: 12,
-    _STALL_GRACE_MS: 2000,
+    _STALL_GRACE_MS: 8000,
     _STALL_TIME_EPS: 0.2,
-    _MAX_STALL_RECOVERY: 2,
-    _STALL_RECOVER_WAIT_MS: 6000,
+    _MAX_STALL_RECOVERY: 5,
+    _STALL_RECOVER_WAIT_MS: 12000,
+    _RECOVERY_BACKOFF_MS: [800, 2000, 5000, 10000, 20000],
 
     _bumpQueueEpoch: function() {
       var state = window.GOMNA_AUDIO_ENGINE._state;
@@ -100,6 +105,56 @@
       }
     },
 
+    _clearRecoveryRetry: function() {
+      var state = window.GOMNA_AUDIO_ENGINE._state;
+      if (state.recoveryRetryTimer) {
+        clearTimeout(state.recoveryRetryTimer);
+        state.recoveryRetryTimer = null;
+      }
+    },
+
+    _clearTrackListeners: function(audio) {
+      var listeners;
+      var i;
+      if (!audio || !audio.__gomnaTrackListeners) return;
+      listeners = audio.__gomnaTrackListeners;
+      for (i = 0; i < listeners.length; i++) {
+        try {
+          audio.removeEventListener(listeners[i].name, listeners[i].handler, listeners[i].options);
+        } catch (e) { /* ignore stale listener cleanup */ }
+      }
+      audio.__gomnaTrackListeners = [];
+    },
+
+    _addTrackListener: function(audio, name, handler, options) {
+      if (!audio) return;
+      if (!audio.__gomnaTrackListeners) audio.__gomnaTrackListeners = [];
+      audio.addEventListener(name, handler, options);
+      audio.__gomnaTrackListeners.push({ name: name, handler: handler, options: options });
+    },
+
+    _applyCurrentSpeed: function(audio) {
+      var state = window.GOMNA_AUDIO_ENGINE._state;
+      var nextRate = Number(state.currentSpeed) || 1;
+
+      if (!audio) return false;
+
+      try {
+        /* load()/src changes can restore playbackRate to 1.0 in Mobile Safari.
+         * Keep both the default for the new resource and the active rate equal. */
+        if (audio.defaultPlaybackRate !== nextRate) {
+          audio.defaultPlaybackRate = nextRate;
+        }
+        if (audio.playbackRate !== nextRate) {
+          audio.playbackRate = nextRate;
+        }
+        return Math.abs(Number(audio.playbackRate) - nextRate) < 0.001;
+      } catch (rateErr) {
+        console.warn('[GOMNA_AUDIO] speed apply warning:', rateErr);
+        return false;
+      }
+    },
+
     _isStallSessionCurrent: function(audio, audioId, playEpoch) {
       var state = window.GOMNA_AUDIO_ENGINE._state;
 
@@ -151,70 +206,52 @@
       }, engine._STALL_GRACE_MS);
     },
 
-    _recoverStalledCurrentAudio: function(audio, audioId, playEpoch) {
+    _recoverStalledCurrentAudio: function(audio, audioId, playEpoch, allowMediaError) {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
       var savedTime;
-      var settled = false;
-      var onReady;
+      var attempt;
+      var delay;
 
       if (!engine._isStallSessionCurrent(audio, audioId, playEpoch)) return;
-      if (audio.paused || audio.ended || audio.error) return;
+      if (!allowMediaError && (audio.paused || audio.ended || audio.error)) return;
       if ((state.stallRecoveryCount || 0) >= engine._MAX_STALL_RECOVERY) return;
 
       savedTime = audio.currentTime || 0;
       state.stallRecoveryCount = (state.stallRecoveryCount || 0) + 1;
+      state.recoveryAttempt = (state.recoveryAttempt || 0) + 1;
+      state.recoverySavedTime = savedTime;
+      state.isRecovering = true;
       engine._clearStallWatch();
+      engine._clearRecoveryRetry();
 
-      try {
-        audio.load();
-      } catch (e) {
-        console.warn('[GOMNA_AUDIO] stall recovery load warning:', e);
-        return;
-      }
+      attempt = Math.max(1, state.recoveryAttempt);
+      delay = engine._RECOVERY_BACKOFF_MS[Math.min(attempt - 1, engine._RECOVERY_BACKOFF_MS.length - 1)];
 
-      function finishRecover() {
-        var playPromise;
+      engine._emit('audio:recovering', {
+        audioId: audioId,
+        attempt: attempt,
+        currentTime: savedTime,
+        reason: 'stalled'
+      });
 
-        if (settled) return;
-        settled = true;
-        engine._clearStallWatch();
-
-        if (onReady) {
-          audio.removeEventListener('loadedmetadata', onReady);
-          audio.removeEventListener('canplay', onReady);
-        }
-
+      /*
+       * Never call load() and then swallow a rejected play(). That left iPhone
+       * showing "playing" while the media element was actually dead. Re-enter
+       * the normal queue play path so every rejection gets retry/skip handling.
+       */
+      state.recoveryRetryTimer = setTimeout(function() {
+        state.recoveryRetryTimer = null;
         if (!engine._isStallSessionCurrent(audio, audioId, playEpoch)) return;
-
-        try {
-          audio.currentTime = savedTime;
-        } catch (seekErr) {
-          console.warn('[GOMNA_AUDIO] stall recovery seek warning:', seekErr);
-        }
-
-        playPromise = audio.play();
-        if (playPromise && typeof playPromise.then === 'function') {
-          playPromise.catch(function() {
-            /* This recovery attempt failed. Do not skip the verse. */
-          });
-        }
-      }
-
-      onReady = function() {
-        finishRecover();
-      };
-
-      audio.addEventListener('loadedmetadata', onReady);
-      audio.addEventListener('canplay', onReady);
-
-      if (!settled) {
-        state.stallWatchTimer = setTimeout(function() {
-          state.stallWatchTimer = null;
-          if (settled) return;
-          finishRecover();
-        }, engine._STALL_RECOVER_WAIT_MS);
-      }
+        engine.playAudioById(audioId, {
+          fromQueue: true,
+          forceRestart: true,
+          startTime: savedTime,
+          queueEpoch: playEpoch,
+          _retryCount: 0,
+          _stallRecovery: true
+        });
+      }, delay);
     },
 
     _bindStallRecovery: function(audio, audioId, playEpoch) {
@@ -223,15 +260,24 @@
 
       if (!audio) return;
 
-      audio.addEventListener('playing', function() {
+      engine._addTrackListener(audio, 'playing', function() {
+        var wasRecovering;
         if (audio !== engine._state.currentAudio || audioId !== engine._state.currentAudioId) {
           return;
         }
         if (engine._state.queueEpoch !== playEpoch) return;
 
+        wasRecovering = !!engine._state.isRecovering;
         hasPlayed = true;
         engine._state.stallRecoveryCount = 0;
+        engine._state.recoveryAttempt = 0;
+        engine._state.recoverySavedTime = 0;
+        engine._state.isRecovering = false;
+        engine._clearRecoveryRetry();
         engine._clearStallWatch();
+        if (wasRecovering) {
+          engine._emit('audio:recovered', { audioId: audioId });
+        }
       });
 
       function onStarve() {
@@ -239,8 +285,8 @@
         engine._armStallWatch(audio, audioId, playEpoch);
       }
 
-      audio.addEventListener('waiting', onStarve);
-      audio.addEventListener('stalled', onStarve);
+      engine._addTrackListener(audio, 'waiting', onStarve);
+      engine._addTrackListener(audio, 'stalled', onStarve);
     },
 
     _cleanupCurrentAudio: function() {
@@ -248,9 +294,11 @@
       var state = engine._state;
 
       engine._clearStallWatch();
+      engine._clearRecoveryRetry();
 
       if (state.currentAudio) {
         try {
+          engine._clearTrackListeners(state.currentAudio);
           state.currentAudio.pause();
           state.currentAudio.src = '';
           state.currentAudio.load();
@@ -260,6 +308,10 @@
 
         state.currentAudio = null;
       }
+
+      state.isRecovering = false;
+      state.recoveryAttempt = 0;
+      state.recoverySavedTime = 0;
 
       engine._clearStallWatch();
     },
@@ -374,53 +426,10 @@
     _prepareNextInQueue: function() {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
-      var config = window.GOMNA_AUDIO_CONFIG;
-
-      if (!state.queueActive || state.queueAudioIds.length === 0 || !config) {
-        return;
-      }
-
-      var nextIndex = engine._findNextPlayableIndex(state.queueIndex + 1);
-      var nextId = nextIndex === -1 ? null : state.queueAudioIds[nextIndex];
-
-      /* Last verse of this queue: reuse the same nextAudio slot for next-chapter v1. */
-      if (!nextId && typeof window.getContinuousNextChapterFirstAudioId === 'function') {
-        nextId = window.getContinuousNextChapterFirstAudioId();
-      }
-
-      if (!nextId) {
-        engine._cleanupNextAudio();
-        return;
-      }
-
-      if (state.nextAudioId === nextId && state.nextAudio) {
-        return;
-      }
-
+      /* iOS does not guarantee Audio preload. Keep one authorized element
+       * instead of creating a second element for every verse. */
       engine._cleanupNextAudio();
-
-      var entry = engine._getManifestEntry(nextId);
-
-      if (!entry) {
-        return;
-      }
-
-      var audioSrc = typeof config.buildAudioUrl === 'function'
-        ? config.buildAudioUrl(entry.filePath)
-        : entry.filePath;
-
-      try {
-        var audio = new Audio();
-        audio.preload = 'auto';
-        audio.src = audioSrc;
-        audio.load();
-
-        state.nextAudio = audio;
-        state.nextAudioId = nextId;
-      } catch (e) {
-        console.warn('[GOMNA_AUDIO] preload warning:', e);
-        engine._cleanupNextAudio();
-      }
+      if (!state.queueActive) return;
     },
 
     _playNextInQueue: function(expectedEpoch) {
@@ -531,25 +540,31 @@
         return false;
       }
 
-      engine._cleanupCurrentAudio();
+      var audio = state.currentAudio;
+      var audioSrc = typeof config.buildAudioUrl === 'function'
+        ? config.buildAudioUrl(entry.filePath)
+        : entry.filePath;
 
-      var audio = null;
-
-      // 큐 진행 중이고 이 절이 미리 preload 되어 있으면 재사용해 즉시 재생한다.
-      if (options.fromQueue && state.nextAudio && state.nextAudioId === audioId) {
-        audio = state.nextAudio;
-        state.nextAudio = null;
-        state.nextAudioId = null;
-      }
+      engine._clearStallWatch();
+      engine._clearRecoveryRetry();
+      engine._cleanupNextAudio();
 
       if (!audio) {
-        var audioSrc = typeof config.buildAudioUrl === 'function'
-          ? config.buildAudioUrl(entry.filePath)
-          : entry.filePath;
-        audio = new Audio(audioSrc);
+        audio = new Audio();
+      } else {
+        try { audio.pause(); } catch (pauseErr) { /* ignore */ }
+        engine._clearTrackListeners(audio);
       }
 
-      audio.playbackRate = state.currentSpeed;
+      try {
+        if (audio.src !== audioSrc && audio.currentSrc !== audioSrc) {
+          audio.src = audioSrc;
+        }
+        audio.preload = 'auto';
+      } catch (sourceErr) {
+        console.warn('[GOMNA_AUDIO] source setup warning:', sourceErr);
+      }
+
       state.restoreStartTime = startTime > 0 ? startTime : 0;
 
       if (startTime > 0) {
@@ -568,7 +583,7 @@
           }
         };
 
-        audio.addEventListener('loadedmetadata', applyStartTime, { once: true });
+        engine._addTrackListener(audio, 'loadedmetadata', applyStartTime, { once: true });
         applyStartTime();
       }
 
@@ -579,7 +594,17 @@
        */
       var playEpoch = state.queueEpoch;
 
-      audio.addEventListener('ended', function() {
+      function applySessionSpeed() {
+        if (state.queueEpoch !== playEpoch) return;
+        if (audio !== state.currentAudio || audioId !== state.currentAudioId) return;
+        engine._applyCurrentSpeed(audio);
+      }
+
+      engine._addTrackListener(audio, 'loadedmetadata', applySessionSpeed);
+      engine._addTrackListener(audio, 'canplay', applySessionSpeed);
+      engine._addTrackListener(audio, 'playing', applySessionSpeed);
+
+      engine._addTrackListener(audio, 'ended', function() {
         if (state.queueEpoch !== playEpoch) return;
         if (audio !== state.currentAudio || audioId !== state.currentAudioId) return;
 
@@ -609,7 +634,7 @@
         });
       });
 
-      audio.addEventListener('error', function(e) {
+      engine._addTrackListener(audio, 'error', function(e) {
         var mediaError = audio.error;
         var errorDetail = {
           audioId: audioId,
@@ -631,11 +656,27 @@
         engine._clearStallWatch();
         console.error('[GOMNA_AUDIO] audio error:', e, errorDetail);
 
+        /* Network failure: preserve queue/index/currentTime and retry this
+         * verse. Do this before changing isPlaying, because recovery session
+         * validation deliberately rejects stopped sessions. */
+        if (
+          options.fromQueue &&
+          state.queueActive &&
+          (!mediaError || mediaError.code === 2) &&
+          state.stallRecoveryCount < engine._MAX_STALL_RECOVERY
+        ) {
+          state.isPlaying = true;
+          state.isPaused = false;
+          engine._recoverStalledCurrentAudio(audio, audioId, playEpoch, true);
+          return;
+        }
+
         state.isPlaying = false;
         state.isPaused = false;
         state.restoreStartTime = 0;
 
-        /* Queue playback: skip the broken verse instead of killing the chapter. */
+        /* A network media error is recoverable. Retry the same verse and time
+         * before considering a skip. Decode/source errors still skip safely. */
         if (options.fromQueue && state.queueActive) {
           if (engine._noteQueueSoftFailSkip() >= engine._MAX_QUEUE_SOFT_FAIL_STREAK) {
             engine._abortQueueSoftFailLimit(audioId, entry);
@@ -667,24 +708,37 @@
       // iOS Safari 대응:
       // manifest는 이미 audio-config.js에서 미리 로드되어 있어야 하며,
       // audio.play()는 사용자 클릭 흐름 안에서 바로 호출되어야 한다.
-      var playPromise = audio.play();
-
       state.currentAudio = audio;
       state.currentAudioId = audioId;
       state.isPlaying = true;
       state.isPaused = false;
 
+      /* Set the default before loading and reapply immediately afterwards.
+       * The media lifecycle listeners above enforce it once Safari is ready. */
+      engine._applyCurrentSpeed(audio);
+
+      /* Bind every listener and publish the new session before load(). Safari
+       * can report a cached media error immediately during load. */
+      try {
+        audio.load();
+      } catch (loadErr) {
+        console.warn('[GOMNA_AUDIO] source load warning:', loadErr);
+      }
+
+      engine._applyCurrentSpeed(audio);
+
+      var playPromise = audio.play();
+
       try {
         window.__gomnaAudioPlayStabilizeUntil = Date.now() + 450;
       } catch (stabilizeErr) { /* ignore */ }
 
-      audio.addEventListener('playing', function onPlayingResetSoftFail() {
+      engine._addTrackListener(audio, 'playing', function onPlayingResetSoftFail() {
         if (state.queueEpoch !== playEpoch) return;
         if (audio !== state.currentAudio || audioId !== state.currentAudioId) return;
         engine._resetQueueSoftFailStreak();
       }, { once: true });
 
-      state.stallRecoveryCount = 0;
       engine._bindStallRecovery(audio, audioId, playEpoch);
 
       engine._emit('audio:start', {
@@ -705,8 +759,9 @@
           }
         }).catch(function(err) {
           var retryCount;
+          var retryStartTime;
           var errName;
-          var maxRetry = 2;
+          var maxRetry = 5;
 
           if (state.queueEpoch !== playEpoch) return;
           if (audio !== state.currentAudio || audioId !== state.currentAudioId) {
@@ -724,6 +779,7 @@
           errName = err && err.name ? String(err.name) : '';
           retryCount = parseInt(options._retryCount, 10);
           if (isNaN(retryCount) || retryCount < 0) retryCount = 0;
+          retryStartTime = Number(audio.currentTime) || Number(options.startTime) || 0;
 
           console.warn('[GOMNA_AUDIO] play rejected:', audioId, errName || err);
 
@@ -745,11 +801,12 @@
                 }
                 engine.playAudioById(audioId, {
                   fromQueue: true,
-                  startTime: 0,
+                  forceRestart: true,
+                  startTime: retryStartTime,
                   _retryCount: retryCount + 1,
                   queueEpoch: playEpoch
                 });
-              }, 180 + retryCount * 120);
+              }, engine._RECOVERY_BACKOFF_MS[Math.min(retryCount, engine._RECOVERY_BACKOFF_MS.length - 1)]);
               return;
             }
 
@@ -961,6 +1018,30 @@
       }
     },
 
+    retryRecoveringAudio: function() {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+      var audioId = state.currentAudioId;
+      var currentTime;
+
+      if (!state.isRecovering || !state.queueActive || !audioId || state.playbackCancelled) {
+        return false;
+      }
+
+      currentTime = state.recoverySavedTime ||
+        (state.currentAudio && state.currentAudio.currentTime) || 0;
+      engine._clearRecoveryRetry();
+
+      return !!engine.playAudioById(audioId, {
+        fromQueue: true,
+        forceRestart: true,
+        startTime: currentTime,
+        queueEpoch: state.queueEpoch,
+        _retryCount: 0,
+        _stallRecovery: true
+      });
+    },
+
     stopAudio: function() {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
@@ -1038,7 +1119,7 @@
       state.currentSpeed = nextRate;
 
       if (state.currentAudio) {
-        state.currentAudio.playbackRate = nextRate;
+        engine._applyCurrentSpeed(state.currentAudio);
       }
 
       engine._emit('audio:speed_change', {
@@ -1153,6 +1234,23 @@
       };
     }
   };
+
+  /* A network handoff (LTE↔Wi-Fi) may not create another media event. Resume
+   * the preserved verse immediately when the browser reports connectivity. */
+  window.addEventListener('online', function() {
+    if (window.GOMNA_AUDIO_ENGINE) {
+      window.GOMNA_AUDIO_ENGINE.retryRecoveringAudio();
+    }
+  });
+
+  document.addEventListener('visibilitychange', function() {
+    if (
+      document.visibilityState === 'visible' &&
+      window.GOMNA_AUDIO_ENGINE
+    ) {
+      window.GOMNA_AUDIO_ENGINE.retryRecoveringAudio();
+    }
+  });
 
   console.log('[GOMNA_AUDIO_ENGINE] engine loaded (9-B all functions implemented)');
 })();
