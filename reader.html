@@ -4451,7 +4451,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register("/sw.js?v=2026-09-18-audio-seamless-v46", { scope: "/", updateViaCache: "none" })
+  navigator.serviceWorker.register("/sw.js?v=2026-09-19-mobile-entry-center-v60", { scope: "/", updateViaCache: "none" })
     .then(function(reg){ try { reg.update(); } catch (eUp) {} })
     .catch(function(){});
   if (!window.__gomnaSwUpdateBound) {
@@ -4459,8 +4459,8 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("controllerchange", function(){
       if (!hadSwController) return;
       try {
-        if (sessionStorage.getItem("gomna-sw-reloaded-2026-09-18-audio-seamless-v46") === "1") return;
-        sessionStorage.setItem("gomna-sw-reloaded-2026-09-18-audio-seamless-v46", "1");
+        if (sessionStorage.getItem("gomna-sw-reloaded-2026-09-19-mobile-entry-center-v60") === "1") return;
+        sessionStorage.setItem("gomna-sw-reloaded-2026-09-19-mobile-entry-center-v60", "1");
       } catch (eLock) {}
       location.reload();
     });
@@ -5913,7 +5913,7 @@ function applyNavigationFromQuery() {
       document.getElementById('verseView').classList.add('active');
       var entrySource = p.get('source');
       var isScriptureEntry = typeof isScriptureEntrySource === 'function'
-        ? isScriptureEntrySource(entrySource)
+        ? (isScriptureEntrySource(entrySource) || (typeof hasExplicitScriptureVerseQuery === 'function' && hasExplicitScriptureVerseQuery(p)))
         : (entrySource === 'home-daily-read' || entrySource === 'home-life' || entrySource === 'home-bible-person' || entrySource === 'home-card-listen' || entrySource === 'home-card-commentary' || entrySource === 'search-related' || entrySource === 'guide-related');
       var verseRaw = p.get('verseStart') || p.get('verse');
       var verseNum = verseRaw != null && verseRaw !== '' ? parseInt(verseRaw, 10) : NaN;
@@ -11749,7 +11749,13 @@ function unifiedBcApplyChapter(ch, verse) {
   if (window.GomnaAnalytics && currentBook) {
     GomnaAnalytics.trackNavigateChapter(name, ch, 'select', testament);
   }
+  if (typeof setLinkedVerseEntryTarget === 'function') {
+    setLinkedVerseEntryTarget(name, ch, [verseNum]);
+  }
   renderVerses(verseNum);
+  if (typeof applyLinkedVerseEntryTarget === 'function') {
+    applyLinkedVerseEntryTarget();
+  }
   if (typeof window.exitScriptureEntryView === 'function') {
     window.exitScriptureEntryView();
   } else if (typeof window.exitDailyWordView === 'function') {
@@ -13175,6 +13181,47 @@ function markEntryFocusVerses(verseNums) {
   });
 }
 
+/* 책 찾기에서 고른 절도 홈·검색의 연관 구절과 같은 강조·중앙 배치 경로를 쓴다. */
+var linkedVerseEntryTarget = null;
+
+function setLinkedVerseEntryTarget(book, chapter, verseNums) {
+  var verses = (verseNums || []).map(function(value) {
+    return parseInt(value, 10);
+  }).filter(function(value, index, list) {
+    return value >= 1 && list.indexOf(value) === index;
+  }).sort(function(a, b) { return a - b; });
+  linkedVerseEntryTarget = verses.length ? {
+    book: String(book || ''),
+    chapter: parseInt(chapter, 10),
+    verses: verses
+  } : null;
+}
+
+function applyLinkedVerseEntryTarget() {
+  var target = linkedVerseEntryTarget;
+  if (!target || !currentBook || currentBook.name !== target.book || Number(currentChapter) !== target.chapter) return false;
+  var firstVerse = target.verses[0];
+  var firstItem = document.querySelector('#verseList .verse-item[data-verse="' + firstVerse + '"]');
+  if (!firstItem) return false;
+  markEntryFocusVerses(target.verses);
+  if (typeof updateOpt4BottomBar === 'function') updateOpt4BottomBar();
+  function centerTargetVerse() {
+    if (typeof window.__gomnaCenterVerseInReadingArea === 'function' && window.__gomnaCenterVerseInReadingArea(firstVerse)) return;
+    scrollVerseIntoView(firstVerse);
+  }
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(function() {
+      requestAnimationFrame(centerTargetVerse);
+    });
+  } else {
+    setTimeout(centerTargetVerse, 0);
+  }
+  setTimeout(centerTargetVerse, 180);
+  return true;
+}
+
+window.addEventListener('gomna:verse_list_rendered', applyLinkedVerseEntryTarget);
+
 function clearEntryFocusHighlight() {
   document.querySelectorAll('#verseList .verse-item--entry-focus').forEach(function(item) {
     item.classList.remove('verse-item--entry-focus');
@@ -13580,6 +13627,11 @@ function syncVerseToolbarListenButton() {
 
 function getToolbarActionVerse() {
   if (selectedVerseNum) return selectedVerseNum;
+  var focused = document.querySelector('#verseList .verse-item--entry-focus[data-verse]');
+  if (focused) {
+    var focusedVerse = parseInt(focused.getAttribute('data-verse'), 10);
+    if (!isNaN(focusedVerse) && focusedVerse > 0) return focusedVerse;
+  }
   var first = document.querySelector('#verseList .verse-item[data-verse]');
   if (first) {
     var v = parseInt(first.getAttribute('data-verse'), 10);
@@ -15084,12 +15136,16 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
   function scrollToVerse(verseNum, options) {
     if (!active || !surface) return false;
     var item = document.querySelector('#verseList .verse-item[data-verse="' + verseNum + '"]');
+    return scrollToRange(item, item, options);
+  }
+  function scrollToRange(firstItem, lastItem, options) {
     var offset;
+    var lastOffset;
     var mid;
     var ratio;
     var idealPanY;
     var useSmooth;
-    if (!item) return false;
+    if (!active || !surface || !firstItem || !lastItem) return false;
     if (options && options.reason === 'audio-highlight') {
       if (shouldBlockAudioAutoCenter()) return false;
       /* Whole-chapter stop/pause must never keep yanking panY to a verse. */
@@ -15109,9 +15165,10 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
       }
     }
     measureBaseSizes();
-    offset = getItemOffsetYInSurface(item);
-    if (!offset) return false;
-    mid = offset.y + offset.height / 2;
+    offset = getItemOffsetYInSurface(firstItem);
+    lastOffset = firstItem === lastItem ? offset : getItemOffsetYInSurface(lastItem);
+    if (!offset || !lastOffset) return false;
+    mid = (offset.y + lastOffset.y + lastOffset.height) / 2;
     ratio = 0.35;
     if (
       options &&
@@ -15181,6 +15238,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
   window.syncPlainVerseGestureMode = syncMode;
   window.__gomnaPlainVerseGestureResetPan = resetPan;
   window.__gomnaPlainVerseGestureScrollToVerse = scrollToVerse;
+  window.__gomnaPlainVerseGestureScrollToRange = scrollToRange;
   window.__gomnaPlainVerseGestureCancelAudioPan = cancelAudioPanAnimation;
   window.__gomnaPlainVerseGestureIsUserInteracting = isPlainVerseUserInteracting;
   window.__gomnaPlainVerseGestureSyncChrome = layoutViewportOnly;
@@ -18403,6 +18461,13 @@ function isScriptureEntrySource(source) {
     source === 'guide-related';
 }
 
+function hasExplicitScriptureVerseQuery(p) {
+  if (!p || !(p.get('book') || '').trim()) return false;
+  var chapter = parseInt(p.get('chapter'), 10);
+  var verse = parseInt(p.get('verseStart') || p.get('startVerse') || p.get('verse') || '', 10);
+  return chapter >= 1 && verse >= 1;
+}
+
 function isHomeTodayEntryFocusSource(source) {
   return source === 'home-daily-read' || source === 'home-card-listen' || source === 'home-card-commentary';
 }
@@ -18628,8 +18693,8 @@ function getHomeSpecialListenLabel(parsed) {
 
 function parseScriptureEntryFromSearchParams(p) {
   if (!p) return null;
-  var source = p.get('source');
-  if (!isScriptureEntrySource(source)) return null;
+  var source = p.get('source') || 'direct-verse';
+  if (!isScriptureEntrySource(source) && !hasExplicitScriptureVerseQuery(p)) return null;
   var book = (p.get('book') || '').trim();
   if (!book) return null;
   var chapter = parseInt(p.get('chapter'), 10);
@@ -18866,7 +18931,7 @@ function changeFont(delta) {
 </script>
 <script src="/js/audio-config.js?v=20260724-manifest-shard-v1" defer></script>
 <script src="/js/gomna-audio-manifest-shards.js?v=20260724-manifest-shard-v1" defer></script>
-<script src="/js/audio-engine.js?v=20260918-seamless-verse-v45" defer></script>
+<script src="/js/audio-engine.js?v=20260919-ios-memory-handoff-v50-restored-v56" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260909-locale-canon-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
@@ -19584,6 +19649,10 @@ function loadAds() {
 
   function centerScriptureEntryRangeInViewport(firstItem,lastItem){
     if(!firstItem||!lastItem)return;
+    /* iPhone·Android 본문은 document 스크롤이 잠기고 전용 gesture surface가 움직인다.
+       연관 구절도 같은 이동기를 사용해 실제 읽기 영역의 정확한 중앙(50%)에 둔다. */
+    if(typeof window.__gomnaPlainVerseGestureScrollToRange==='function'&&
+       window.__gomnaPlainVerseGestureScrollToRange(firstItem,lastItem,{centerRatio:.5}))return;
     var scrollEl=typeof getBibleListScrollContainer==='function'
       ?getBibleListScrollContainer()
       :(document.scrollingElement||document.documentElement);
@@ -19713,41 +19782,36 @@ function loadAds() {
   }
   window.__gomnaRefreshSourceReturnLabel=refreshSourceReturnLabel;
 
+  /* 모바일 본문 이동기는 scripture-entry-pending 해제 뒤 두 번째 프레임에서 켜진다.
+     진입 가림을 먼저 풀고 이동기 활성화가 끝난 뒤 중앙 배치를 다시 실행한다. */
+  function centerScriptureEntryAfterReveal(firstItem,lastItem){
+    function placeAfterGestureReady(){
+      centerScriptureEntryRangeInViewport(firstItem,lastItem);
+    }
+    revealScriptureEntry();
+    placeAfterGestureReady();
+    if(typeof requestAnimationFrame==='function'){
+      requestAnimationFrame(function(){
+        requestAnimationFrame(placeAfterGestureReady);
+      });
+    }else{
+      setTimeout(placeAfterGestureReady,0);
+    }
+    setTimeout(placeAfterGestureReady,220);
+  }
+
   function finishScriptureEntryReveal(firstItem,lastItem){
     if(pending.source==='search-related'){
       attachSourceReturnUI(lastItem);
-      function applySearchRangeCenter(){
-        centerScriptureEntryRangeInViewport(firstItem,lastItem);
-        entryRevealCompleted=true;
-        revealScriptureEntry();
-      }
-      if(typeof requestAnimationFrame==='function'){
-        requestAnimationFrame(function(){
-          requestAnimationFrame(applySearchRangeCenter);
-        });
-      }else{
-        applySearchRangeCenter();
-      }
+      entryRevealCompleted=true;
+      centerScriptureEntryAfterReveal(firstItem,lastItem);
       return;
     }
-    var settleVerse=pending.scrollVerse||pending.verses[0];
     /* 헤더·도구막대·하단 탭을 뺀 '본문이 보이는 영역'의 한가운데에 놓는다.
        범위형 말씀은 시작 절부터 끝 절까지를 한 덩어리로 보고 그 중심을 맞춘다. */
-    function placeScriptureEntry(){
-      if(typeof centerScriptureEntryRangeInViewport==='function'){
-        centerScriptureEntryRangeInViewport(firstItem,lastItem);
-        return;
-      }
-      scrollScriptureEntryVerseInstant(settleVerse);
-    }
-    placeScriptureEntry();
-    revealScriptureEntry();
-    /* 가려져 있던 아래 막대가 나타난 뒤 한 번 더 맞춘다. 그러지 않으면 강조 절이 막대 뒤로 내려간다. */
-    if(typeof requestAnimationFrame==='function'){
-      requestAnimationFrame(placeScriptureEntry);
-    }
     attachSourceReturnUI(lastItem);
     entryRevealCompleted=true;
+    centerScriptureEntryAfterReveal(firstItem,lastItem);
   }
 
   function refreshPendingVerses(){

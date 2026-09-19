@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-09-18-audio-seamless-v46';
+const CACHE_VERSION = '2026-09-19-mobile-entry-center-v60';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE = 'gomna-data-v1';
@@ -39,7 +39,7 @@ const STATIC_URLS = [
   '/style.css',
   '/css/gomna-audio-player.css?v=20260918-custom-hero-v43',
   '/js/audio-config.js?v=1',
-  '/js/audio-engine.js?v=20260918-seamless-verse-v45',
+  '/js/audio-engine.js?v=20260919-ios-memory-handoff-v50-restored-v56',
   '/js/gomna-audio-listen-button.js?v=1',
   '/js/gomna-audio-commentary-buttons.js?v=20260723-verse-bind-v4',
   '/js/gomna-audio-highlight.js?v=1',
@@ -47,6 +47,8 @@ const STATIC_URLS = [
   '/manifest.json',
   '/favicon.png',
   '/logo-home.png',
+  '/assets/home/card-meditation-life.png?v=20260910-home-photo-v1',
+  '/assets/home/card-bible-stories-people.png?v=20260910-home-photo-v1',
   '/favicon.ico',
   '/favicon-16x16.png',
   '/favicon-32x32.png',
