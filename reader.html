@@ -4943,6 +4943,7 @@ if ("serviceWorker" in navigator) {
 
 // ===== 새로운 목회자용 주석 데이터 (9개 표 형식) =====
 var pastorCommentaryData = {};
+var commentaryData = pastorCommentaryData;
 
 // ── Lazy-load: 책별 주석 데이터는 사용자가 '말씀풀이'를 열 때만 동적 로드 ──
 // 첫 방문 시 ~270 MB 다운로드를 → 평균 5–15 MB로 감소시킴.
@@ -8729,6 +8730,13 @@ function showCommentary(verseNum) {
   var _ttl = document.getElementById('commentaryTitle');
   var _cnt = document.getElementById('commentaryContent');
   var _pop = document.getElementById('commentaryPopup');
+
+  if (
+    window.GOMNA_AUDIO_COMMENTARY_BUTTONS &&
+    typeof window.GOMNA_AUDIO_COMMENTARY_BUTTONS.onCommentaryTargetChange === 'function'
+  ) {
+    window.GOMNA_AUDIO_COMMENTARY_BUTTONS.onCommentaryTargetChange(bookId, currentChapter, verseNum);
+  }
 
   function showCommentaryLoadingState() {
     if (_ttl) {
@@ -18933,7 +18941,7 @@ function changeFont(delta) {
 <script src="/js/gomna-audio-manifest-shards.js?v=20260724-manifest-shard-v1" defer></script>
 <script src="/js/audio-engine.js?v=20260919-ios-memory-handoff-v50-restored-v56" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
-<script src="/js/gomna-audio-commentary-buttons.js?v=20260909-locale-canon-v1" defer></script>
+<script src="/js/gomna-audio-commentary-buttons.js?v=20260919-stale-context-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
 <script src="/js/gomna-audio-ui.js?v=20260803-card-skip-v1" defer></script>
 <script src="settings_guide.js?v=20260807-settings-v3" defer></script>

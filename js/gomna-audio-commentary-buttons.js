@@ -45,6 +45,7 @@
   var verseChainGeneration = 0;
   var verseChainActive = false;
   var verseChainTimer = null;
+  var verseChainTargetKey = null;
   var actionBarHidden = false;
   var commentaryPopupWasOpen = false;
   var barScrollLastTop = 0;
@@ -1192,7 +1193,8 @@
       listenBtn.setAttribute(INLINE_BOUND_ATTR, '1');
       listenBtn.addEventListener('click', function() {
         var item = getActiveCommentaryItem(getContent());
-        if (!item || !item.published) return;
+        if (listenBtn.disabled) return;
+        if (!item || !canPlayCommentaryAudioId(item.audioId)) return;
         CommentaryAudioController.listenFromHere(item.audioId);
       });
     }
@@ -1397,6 +1399,31 @@
     );
   }
 
+  function commentaryAudioBaseId(audioId) {
+    return String(audioId || '').replace(/\.(?:en-US|ja-JP)$/, '');
+  }
+
+  function isAnyCommentaryAudioId(audioId) {
+    var baseId = commentaryAudioBaseId(audioId);
+    var i;
+
+    for (i = 0; i < COMMENTARY_TYPE_TEMPLATES.length; i++) {
+      if (baseId.slice(-(COMMENTARY_TYPE_TEMPLATES[i].type.length + 1)) === '.' + COMMENTARY_TYPE_TEMPLATES[i].type) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function canPlayCommentaryAudioId(audioId) {
+    var expectedPrefix;
+
+    if (!currentContext || !audioId || !isPublishedAudioId(audioId)) return false;
+    expectedPrefix = contextKey(currentContext) + '.';
+    return commentaryAudioBaseId(audioId).indexOf(expectedPrefix) === 0;
+  }
+
   function getPublishedSequenceAudioIds() {
     var ids = [];
 
@@ -1483,6 +1510,65 @@
     replayGuardAudioId = null;
     currentCueKey = null;
     lastFollowedPlaybackAudioId = null;
+  }
+
+  function clearCommentaryTargetState() {
+    resetCommentaryPlaybackState();
+    currentContext = null;
+    currentCommentaryItems = [];
+    currentCommentaryAudioIds = [];
+    currentSequenceSource = '';
+  }
+
+  function stopStaleCommentaryPlayback() {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine.getState ? engine.getState() : null;
+    var hasCommentaryQueue = !!(
+      state &&
+      state.queueActive &&
+      String(state.queueSource || '').indexOf('commentary:') === 0
+    );
+    var hasCommentaryAudio = !!(state && isAnyCommentaryAudioId(state.currentAudioId));
+
+    if ((hasCommentaryQueue || hasCommentaryAudio) && engine && engine.stopAudio) {
+      engine.stopAudio();
+    }
+  }
+
+  function onCommentaryTargetChange(bookId, chapter, verse) {
+    var nextContext;
+    var nextKey;
+    var preserveVerseChain;
+
+    chapter = parseInt(chapter, 10);
+    verse = parseInt(verse, 10);
+    if (!bookId || !(chapter > 0) || !(verse > 0)) {
+      stopStaleCommentaryPlayback();
+      clearVerseChain();
+      clearCommentaryTargetState();
+      return false;
+    }
+
+    nextContext = {
+      bookName: window.currentBook && window.currentBook.name ? window.currentBook.name : '',
+      bookId: bookId,
+      chapter: chapter,
+      verse: verse
+    };
+    nextKey = contextKey(nextContext);
+    if (currentContext && contextKey(currentContext) === nextKey) return true;
+
+    preserveVerseChain = !!(verseChainActive && verseChainTargetKey === nextKey);
+    if (!preserveVerseChain) {
+      stopStaleCommentaryPlayback();
+      clearVerseChain();
+    } else {
+      verseChainTargetKey = null;
+    }
+
+    clearCommentaryTargetState();
+    syncCommentaryItemsForContext(nextContext);
+    return true;
   }
 
   function isCommentaryCompleted(audioId) {
@@ -1956,7 +2042,7 @@
     listenBtn.setAttribute('data-audio-id', item.audioId);
     listenBtn.setAttribute('data-gomna-commentary-type', item.type);
 
-    if (!item.published) {
+    if (!canPlayCommentaryAudioId(item.audioId)) {
       listenBtn.disabled = true;
       listenBtn.classList.add('gomna-commentary-inline-button--pending');
       listenBtn.classList.remove(ACTIVE_BUTTON_CLASS);
@@ -2606,6 +2692,7 @@
       if (!engine || !item) return false;
 
       target = applyResolvedCommentaryTarget(item);
+      if (!canPlayCommentaryAudioId(target.audioId)) return false;
 
       if (state && state.currentAudioId === target.audioId) {
         if (state.isPlaying) return true;
@@ -2684,6 +2771,7 @@
       var state = this.getState();
 
       if (!engine || !engine.playAudioById || !item) return false;
+      if (!canPlayCommentaryAudioId(item.audioId)) return false;
 
       clearCommentaryCompleted(item.audioId);
       currentCueKey = null;
@@ -2707,6 +2795,7 @@
 
       target = applyResolvedCommentaryTarget(item);
       resolvedAudioId = target.audioId;
+      if (!canPlayCommentaryAudioId(resolvedAudioId)) return false;
 
       if (
         (target.language === 'en' || target.language === 'ja') &&
@@ -2769,6 +2858,7 @@
       var startIndex = ids.indexOf(audioId);
 
       if (!engine || !engine.playAudioSequence || startIndex < 0) return false;
+      if (!canPlayCommentaryAudioId(audioId)) return false;
 
       clearVerseChain();
       clearCommentaryCompleted(audioId);
@@ -2810,6 +2900,7 @@
 
       if (!engine || !engine.playAudioById || !getItemByAudioId(audioId)) return false;
       if (typeof startTime !== 'number') return false;
+      if (!canPlayCommentaryAudioId(audioId)) return false;
 
       clearCommentaryCompleted(audioId);
       currentCueKey = buildCueKey(audioId, cueId);
@@ -2855,6 +2946,7 @@
   function clearVerseChain() {
     verseChainActive = false;
     verseChainGeneration += 1;
+    verseChainTargetKey = null;
 
     if (verseChainTimer) {
       clearTimeout(verseChainTimer);
@@ -2939,6 +3031,7 @@
       }
       target = { chapter: ctx.chapter, verse: ctx.verse + 1 };
       generation = armVerseChain();
+      verseChainTargetKey = ctx.bookId + '.' + pad3(target.chapter) + '.' + pad3(target.verse);
       window.goToVerseCommentary(target.verse);
     } else {
       chapterCount = window.currentBook && window.currentBook.chapters;
@@ -2952,6 +3045,7 @@
       }
       target = { chapter: ctx.chapter + 1, verse: 1 };
       generation = armVerseChain();
+      verseChainTargetKey = ctx.bookId + '.' + pad3(target.chapter) + '.' + pad3(target.verse);
       window.goToChapterCommentary(target.chapter);
     }
 
@@ -3694,6 +3788,12 @@
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
 
+    if (isAnyCommentaryAudioId(detail.audioId) && !canPlayCommentaryAudioId(detail.audioId)) {
+      if (engine && engine.stopAudio) engine.stopAudio();
+      updateCommentaryButtonLabels();
+      return;
+    }
+
     if (getItemByAudioId(detail.audioId)) {
       clearCommentaryCompleted(detail.audioId);
       if (!currentCueKey || currentCueKey.indexOf(detail.audioId + '#') !== 0) {
@@ -3794,7 +3894,8 @@
       return currentSelectedType;
     },
     getAppLanguage: getSelectedAppLanguageForAudio,
-    resolveAudioTarget: resolveCommentaryAudioTarget
+    resolveAudioTarget: resolveCommentaryAudioTarget,
+    onCommentaryTargetChange: onCommentaryTargetChange
   };
 
   // Latch current app language on boot so first play never falls back via stale defaults.
