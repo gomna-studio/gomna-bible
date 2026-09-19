@@ -13,16 +13,19 @@
     _state: {
       currentAudio: null,
       currentAudioId: null,
+      currentObjectUrl: null,
       nextAudio: null,
       nextAudioId: null,
       nextPrefetchId: null,
       nextPrefetchUrl: null,
       nextPrefetchPromise: null,
       nextPrefetchReady: false,
+      nextPrefetchObjectUrl: null,
       nextPrefetchToken: 0,
       isPlaying: false,
       isPaused: false,
       playbackCancelled: false,
+      manifestRequestToken: 0,
       currentSpeed: 1.0,
       currentVoice: 'calm',
       queueAudioIds: [],
@@ -90,6 +93,7 @@
       var state = engine._state;
       engine._bumpQueueEpoch();
       engine._resetQueueSoftFailStreak();
+      state.manifestRequestToken = (state.manifestRequestToken || 0) + 1;
       state.playbackCancelled = false;
       state.isPaused = false;
       state.restoreStartTime = 0;
@@ -314,6 +318,7 @@
         state.currentAudio = null;
       }
 
+      engine._releaseCurrentObjectUrl();
       state.isRecovering = false;
       state.recoveryAttempt = 0;
       state.recoverySavedTime = 0;
@@ -339,8 +344,23 @@
       state.nextAudioId = null;
     },
 
+    _revokeObjectUrl: function(objectUrl) {
+      if (!objectUrl || typeof URL === 'undefined' || typeof URL.revokeObjectURL !== 'function') return;
+      try { URL.revokeObjectURL(objectUrl); } catch (revokeErr) { /* ignore */ }
+    },
+
+    _releaseCurrentObjectUrl: function() {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+      engine._revokeObjectUrl(state.currentObjectUrl);
+      state.currentObjectUrl = null;
+    },
+
     _clearNextPrefetch: function() {
-      var state = window.GOMNA_AUDIO_ENGINE._state;
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+      engine._revokeObjectUrl(state.nextPrefetchObjectUrl);
+      state.nextPrefetchObjectUrl = null;
       state.nextPrefetchToken = (state.nextPrefetchToken || 0) + 1;
       state.nextPrefetchId = null;
       state.nextPrefetchUrl = null;
@@ -352,18 +372,22 @@
       var state = window.GOMNA_AUDIO_ENGINE._state;
       var matched = !!(
         audioId &&
+        state.nextPrefetchReady === true &&
+        state.nextPrefetchObjectUrl &&
         state.nextPrefetchId === audioId &&
         (!audioUrl || !state.nextPrefetchUrl || state.nextPrefetchUrl === audioUrl)
       );
+      var objectUrl = matched ? state.nextPrefetchObjectUrl : null;
 
       if (matched) {
         state.nextPrefetchId = null;
         state.nextPrefetchUrl = null;
         state.nextPrefetchPromise = null;
         state.nextPrefetchReady = false;
+        state.nextPrefetchObjectUrl = null;
       }
 
-      return matched;
+      return objectUrl;
     },
 
     _clearQueue: function(options) {
@@ -513,14 +537,34 @@
           cache: 'force-cache',
           credentials: 'same-origin'
         }).then(function(response) {
-          if (!response || (!response.ok && response.type !== 'opaque')) {
+          var contentType;
+          if (!response || !response.ok) {
             throw new Error('HTTP ' + (response ? response.status : 0));
           }
-          return typeof response.arrayBuffer === 'function'
-            ? response.arrayBuffer()
-            : null;
-        }).then(function() {
-          if (state.nextPrefetchToken !== token || state.nextPrefetchId !== nextId) return;
+          if (typeof response.arrayBuffer !== 'function') {
+            throw new Error('arrayBuffer unavailable');
+          }
+          contentType = response.headers && typeof response.headers.get === 'function'
+            ? response.headers.get('content-type')
+            : '';
+          return response.arrayBuffer().then(function(buffer) {
+            return { buffer: buffer, contentType: contentType || 'audio/mpeg' };
+          });
+        }).then(function(prefetched) {
+          var objectUrl;
+          if (!prefetched || !prefetched.buffer) throw new Error('empty audio body');
+          if (typeof Blob === 'undefined' || typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
+            throw new Error('Blob URL unavailable');
+          }
+          objectUrl = URL.createObjectURL(new Blob([prefetched.buffer], {
+            type: prefetched.contentType || 'audio/mpeg'
+          }));
+          if (state.nextPrefetchToken !== token || state.nextPrefetchId !== nextId) {
+            engine._revokeObjectUrl(objectUrl);
+            return;
+          }
+          engine._revokeObjectUrl(state.nextPrefetchObjectUrl);
+          state.nextPrefetchObjectUrl = objectUrl;
           state.nextPrefetchReady = true;
         }).catch(function(prefetchError) {
           if (state.nextPrefetchToken !== token || state.nextPrefetchId !== nextId) return;
@@ -572,6 +616,9 @@
       var config = window.GOMNA_AUDIO_CONFIG;
       var startTime;
       var preparedQueueHandoff = false;
+      var preparedObjectUrl = null;
+      var playbackSrc;
+      var previousObjectUrl;
       options = options || {};
       startTime = Number(options.startTime) || 0;
 
@@ -604,21 +651,33 @@
         return false;
       }
 
-      if (config.manifestLoadStatus === 'pending' || config.manifestLoadStatus === 'loading') {
-        showOrLog('오디오 데이터 로딩 중입니다. 잠시 후 다시 시도해주세요.');
-        return false;
-      }
-
-      if (config.manifestLoadStatus === 'error' || !config.manifestData) {
-        showOrLog('오디오 데이터 로딩 실패. 페이지를 새로고침해주세요.');
-        engine._emit('audio:error', {
-          audioId: audioId,
-          reason: 'manifest_not_loaded'
-        });
-        return false;
-      }
-
       var entry = engine._getManifestEntry(audioId);
+      if (!entry && typeof config.ensureAudioId === 'function' && !options._manifestReadyRetry) {
+        var manifestToken = (state.manifestRequestToken || 0) + 1;
+        var retryOptions = Object.assign({}, options, { _manifestReadyRetry: true });
+        state.manifestRequestToken = manifestToken;
+        state.playbackCancelled = false;
+        config.ensureAudioId(audioId).then(function(loadedEntry) {
+          if (state.manifestRequestToken !== manifestToken || state.playbackCancelled) return;
+          if (!loadedEntry) {
+            showOrLog('오디오 준비 중입니다.');
+            return;
+          }
+          engine.playAudioById(audioId, retryOptions);
+        }).catch(function(error) {
+          if (state.manifestRequestToken !== manifestToken) return;
+          console.warn('[GOMNA_AUDIO] book manifest load failed:', error);
+          showOrLog('오디오 목록을 불러오지 못했습니다.');
+        });
+        return true;
+      }
+
+      if (!config.manifestData) {
+        showOrLog('오디오 설정을 불러오지 못했습니다.');
+        return false;
+      }
+
+      entry = engine._getManifestEntry(audioId);
 
       if (!entry) {
         console.warn('[GOMNA_AUDIO] audioId not in manifest:', audioId);
@@ -649,12 +708,16 @@
 
       preparedQueueHandoff = !!(
         options.fromQueue &&
+        state.nextPrefetchReady === true &&
+        state.nextPrefetchObjectUrl &&
         state.nextPrefetchId === audioId &&
         (!state.nextPrefetchUrl || state.nextPrefetchUrl === audioSrc)
       );
       if (preparedQueueHandoff) {
-        engine._consumeNextPrefetch(audioId, audioSrc);
+        preparedObjectUrl = engine._consumeNextPrefetch(audioId, audioSrc);
+        preparedQueueHandoff = !!preparedObjectUrl;
       }
+      playbackSrc = preparedObjectUrl || audioSrc;
 
       engine._clearStallWatch();
       engine._clearRecoveryRetry();
@@ -667,12 +730,23 @@
         engine._clearTrackListeners(audio);
       }
 
+      previousObjectUrl = state.currentObjectUrl;
       try {
-        if (audio.src !== audioSrc && audio.currentSrc !== audioSrc) {
-          audio.src = audioSrc;
+        if (audio.src !== playbackSrc && audio.currentSrc !== playbackSrc) {
+          audio.src = playbackSrc;
         }
         audio.preload = 'auto';
+        state.currentObjectUrl = preparedObjectUrl;
+        if (previousObjectUrl && previousObjectUrl !== preparedObjectUrl) {
+          engine._revokeObjectUrl(previousObjectUrl);
+        }
       } catch (sourceErr) {
+        engine._revokeObjectUrl(preparedObjectUrl);
+        preparedObjectUrl = null;
+        preparedQueueHandoff = false;
+        playbackSrc = audioSrc;
+        state.currentObjectUrl = null;
+        try { audio.src = audioSrc; } catch (fallbackSourceErr) { /* handled by play */ }
         console.warn('[GOMNA_AUDIO] source setup warning:', sourceErr);
       }
 
@@ -968,6 +1042,10 @@
       var state = engine._state;
       var startIndex;
       var startTime;
+      var config;
+      var firstAudioId;
+      var manifestToken;
+      var retryOptions;
       options = options || {};
       startIndex = parseInt(options.startIndex, 10);
       startTime = Number(options.startTime) || 0;
@@ -983,6 +1061,32 @@
 
       if (startIndex >= audioIds.length) {
         startIndex = audioIds.length - 1;
+      }
+
+      config = window.GOMNA_AUDIO_CONFIG;
+      firstAudioId = audioIds[startIndex];
+      if (!engine._getManifestEntry(firstAudioId) && config && typeof config.ensureAudioId === 'function') {
+        if (options._manifestReadyRetry) {
+          showOrLog('오디오 준비 중입니다.');
+          return false;
+        }
+        manifestToken = (state.manifestRequestToken || 0) + 1;
+        state.manifestRequestToken = manifestToken;
+        state.playbackCancelled = false;
+        retryOptions = Object.assign({}, options, { _manifestReadyRetry: true });
+        config.ensureAudioId(firstAudioId).then(function(loadedEntry) {
+          if (state.manifestRequestToken !== manifestToken || state.playbackCancelled) return;
+          if (!loadedEntry) {
+            showOrLog('오디오 준비 중입니다.');
+            return;
+          }
+          engine.playAudioQueue(audioIds, retryOptions);
+        }).catch(function(error) {
+          if (state.manifestRequestToken !== manifestToken) return;
+          console.warn('[GOMNA_AUDIO] book manifest load failed:', error);
+          showOrLog('오디오 목록을 불러오지 못했습니다.');
+        });
+        return true;
       }
 
       /*
@@ -1167,6 +1271,7 @@
       /* Explicit user/system stop — do not soft-retry or continue chapters. */
       engine._clearStallWatch();
       state.playbackCancelled = true;
+      state.manifestRequestToken = (state.manifestRequestToken || 0) + 1;
       engine._bumpQueueEpoch();
       engine._clearQueue();
       engine._cleanupCurrentAudio();
