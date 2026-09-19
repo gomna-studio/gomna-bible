@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-09-19-audio-book-manifest-v53';
+const CACHE_VERSION = '2026-09-18-audio-seamless-v46';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE = 'gomna-data-v1';
@@ -38,8 +38,8 @@ const STATIC_URLS = [
   '/gomna_category_feature.js',
   '/style.css',
   '/css/gomna-audio-player.css?v=20260918-custom-hero-v43',
-  '/js/audio-config.js?v=20260919-book-manifest-v52',
-  '/js/audio-engine.js?v=20260919-book-manifest-v52',
+  '/js/audio-config.js?v=1',
+  '/js/audio-engine.js?v=20260918-seamless-verse-v45',
   '/js/gomna-audio-listen-button.js?v=1',
   '/js/gomna-audio-commentary-buttons.js?v=20260723-verse-bind-v4',
   '/js/gomna-audio-highlight.js?v=1',
@@ -174,13 +174,20 @@ async function audioManifestStaleWhileRevalidate(req) {
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(STATIC_CACHE).then(cache =>
-      Promise.all(STATIC_URLS.map(url =>
-        cache.add(url).catch(err => {
-          console.warn('[sw] failed to cache', url, err);
+    Promise.all([
+      caches.open(STATIC_CACHE).then(cache =>
+        Promise.all(STATIC_URLS.map(url =>
+          cache.add(url).catch(err => {
+            console.warn('[sw] failed to cache', url, err);
+          })
+        ))
+      ),
+      caches.open(AUDIO_MANIFEST_CACHE).then(cache =>
+        cache.add('/audio/audio-manifest.json').catch(err => {
+          console.warn('[sw] failed to prefetch audio manifest', err);
         })
-      ))
-    )
+      )
+    ])
   );
 });
 

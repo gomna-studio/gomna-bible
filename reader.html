@@ -339,13 +339,13 @@ html.gomna-reader-ui-ja .chapter-btn > span{display:-webkit-box;-webkit-box-orie
 }
 .verse-item{padding:14px 16px;border-bottom:1px solid rgba(245,240,235,.85);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background-color .08s ease,box-shadow .08s ease,opacity .18s ease}
 html.is-verse-focus-play #verseList .verse-item,
-html.is-verse-focus-select #verseList .verse-item{opacity:.3}
+html.is-verse-focus-select #verseList .verse-item{opacity:.5}
 html.is-verse-focus-play #verseList .verse-item.gomna-commentary-card-active,
 html.is-verse-focus-play #verseList .verse-item:has(.gomna-audio-reading),
 html.is-verse-focus-select #verseList .verse-item.verse-item--selected{opacity:1}
 html.playback-style-focus.is-verse-focus-play #verseList .verse-item.verse-item--selected,
 html.playback-style-focus.is-verse-focus-play #verseList .verse-item.verse-item--chapter-selected,
-html.playback-style-focus.is-verse-focus-play #verseList .verse-item.verse-item--entry-focus{opacity:.3}
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item.verse-item--entry-focus{opacity:.5}
 html.playback-style-focus.is-verse-focus-play #verseList .verse-item.gomna-commentary-card-active,
 html.playback-style-focus.is-verse-focus-play #verseList .verse-item:has(.gomna-audio-reading){opacity:1}
 html.playback-style-focus #verseList .verse-item.gomna-commentary-card-active,
@@ -4451,7 +4451,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register("/sw.js?v=2026-09-19-audio-book-manifest-v53", { scope: "/", updateViaCache: "none" })
+  navigator.serviceWorker.register("/sw.js?v=2026-09-18-audio-seamless-v46", { scope: "/", updateViaCache: "none" })
     .then(function(reg){ try { reg.update(); } catch (eUp) {} })
     .catch(function(){});
   if (!window.__gomnaSwUpdateBound) {
@@ -18864,9 +18864,9 @@ function changeFont(delta) {
   window.MutationObserver = GuardedMutationObserver;
 })();
 </script>
-<script src="/js/audio-config.js?v=20260919-book-manifest-v52" defer></script>
+<script src="/js/audio-config.js?v=20260724-manifest-shard-v1" defer></script>
 <script src="/js/gomna-audio-manifest-shards.js?v=20260724-manifest-shard-v1" defer></script>
-<script src="/js/audio-engine.js?v=20260919-book-manifest-v52" defer></script>
+<script src="/js/audio-engine.js?v=20260918-seamless-verse-v45" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260909-locale-canon-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
