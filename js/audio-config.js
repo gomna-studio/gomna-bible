@@ -118,35 +118,111 @@
     }
   };
 
-  // iOS Safari 대응:
-  // 사용자 클릭 전에 manifest를 미리 로드해서,
-  // 나중에 audio.play()가 클릭 핸들러 안에서 바로 실행될 수 있게 준비한다.
-  (function preloadManifest() {
-    window.GOMNA_AUDIO_CONFIG.manifestLoadStatus = 'loading';
+  // 한국어 전체 주소록(수십 MB)을 페이지마다 읽지 않는다.
+  // 현재 재생하려는 성경책의 작은 주소록만 한 번 불러와 합친다.
+  (function setupBookManifestLoader() {
+    var config = window.GOMNA_AUDIO_CONFIG;
+    var loadedBooks = Object.create(null);
+    var bookPromises = Object.create(null);
 
-    fetch(window.GOMNA_AUDIO_CONFIG.MANIFEST_PATH, { cache: 'no-cache' })
-      .then(function(res) {
-        if (!res.ok) {
-          throw new Error('HTTP ' + res.status);
-        }
-        return res.json();
-      })
-      .then(function(data) {
-        window.GOMNA_AUDIO_CONFIG.manifestData = data;
-        window.GOMNA_AUDIO_CONFIG.manifestLoadStatus = 'loaded';
+    config.manifestData = {
+      version: 'ko-book-shards-v1',
+      lastUpdated: null,
+      totalAudios: 0,
+      audios: {}
+    };
+    config.manifestLoadStatus = 'loaded';
+    config.manifestBookStatus = Object.create(null);
 
-        console.log('[GOMNA_AUDIO] manifest preloaded:', data.totalAudios, 'items');
+    function getBookId(audioId) {
+      var value = String(audioId || '');
+      var dot = value.indexOf('.');
+      return dot > 0 ? value.slice(0, dot) : '';
+    }
 
-        window.dispatchEvent(new CustomEvent('gomna:manifest_loaded', {
-          detail: {
-            totalAudios: data.totalAudios
-          }
-        }));
-      })
-      .catch(function(err) {
-        window.GOMNA_AUDIO_CONFIG.manifestLoadStatus = 'error';
-        console.error('[GOMNA_AUDIO] manifest preload failed:', err);
+    function mergeBook(data, bookId) {
+      var audios = data && data.audios;
+      var ids;
+      var i;
+      if (!audios || typeof audios !== 'object' || Array.isArray(audios)) {
+        throw new Error('invalid book manifest: ' + bookId);
+      }
+      ids = Object.keys(audios);
+      for (i = 0; i < ids.length; i += 1) {
+        config.manifestData.audios[ids[i]] = audios[ids[i]];
+      }
+      config.manifestData.totalAudios = Object.keys(config.manifestData.audios).length;
+      config.manifestData.lastUpdated = data.generatedAt || config.manifestData.lastUpdated;
+      loadedBooks[bookId] = true;
+      config.manifestBookStatus[bookId] = 'loaded';
+      window.dispatchEvent(new CustomEvent('gomna:manifest_loaded', {
+        detail: { bookId: bookId, entryCount: ids.length, totalAudios: config.manifestData.totalAudios }
+      }));
+      return data;
+    }
+
+    config.loadBookManifest = function(bookId) {
+      var normalized = String(bookId || '').trim().toLowerCase();
+      var url;
+      if (!/^[a-z0-9-]+$/.test(normalized)) {
+        return Promise.reject(new Error('invalid book id'));
+      }
+      if (loadedBooks[normalized]) return Promise.resolve(true);
+      if (bookPromises[normalized]) return bookPromises[normalized];
+
+      config.manifestBookStatus[normalized] = 'loading';
+      url = config.MANIFEST_SHARD_ROOT + '/ko-KR/' + normalized + '.json';
+      bookPromises[normalized] = fetch(url, { cache: 'default' })
+        .then(function(response) {
+          if (!response || !response.ok) throw new Error('HTTP ' + (response ? response.status : 0));
+          return response.json();
+        })
+        .then(function(data) {
+          return mergeBook(data, normalized);
+        })
+        .catch(function(error) {
+          config.manifestBookStatus[normalized] = 'error';
+          delete bookPromises[normalized];
+          throw error;
+        });
+      return bookPromises[normalized];
+    };
+
+    config.ensureAudioId = function(audioId) {
+      var existing = config.manifestData.audios[audioId];
+      var bookId;
+      if (existing) return Promise.resolve(existing);
+      bookId = getBookId(audioId);
+      if (!bookId) return Promise.reject(new Error('invalid audio id'));
+      return config.loadBookManifest(bookId).then(function() {
+        return config.manifestData.audios[audioId] || null;
       });
+    };
+
+    function prewarmCurrentBook() {
+      var params;
+      var bookName;
+      var bookId;
+      try {
+        params = new URLSearchParams(window.location.search || '');
+        bookName = String(params.get('book') || '').trim();
+        if (!bookName && window.currentBook) bookName = String(window.currentBook.name || '').trim();
+        if (!bookName || !window.GOMNA_AUDIO_BOOK || typeof window.GOMNA_AUDIO_BOOK.getBookAudioId !== 'function') return;
+        bookId = window.GOMNA_AUDIO_BOOK.getBookAudioId(bookName);
+        if (!bookId) return;
+        config.loadBookManifest(bookId).catch(function(error) {
+          console.warn('[GOMNA_AUDIO] book manifest prewarm warning:', error);
+        });
+      } catch (error) {
+        console.warn('[GOMNA_AUDIO] book manifest prewarm warning:', error);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() { setTimeout(prewarmCurrentBook, 0); }, { once: true });
+    } else {
+      setTimeout(prewarmCurrentBook, 0);
+    }
   })();
 
   console.log('[GOMNA_AUDIO] config loaded');
