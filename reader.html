@@ -196,7 +196,7 @@ body[data-gomna-page="reader"] #gomnaReaderBootOverlay .gomna-reader-boot-btn{
 <meta name="description" content="개역한글 성경 본문을 장·절로 읽고 들으며, 각 절의 원어·역사·신학·예표·매튜헨리·설교·찬송·상담·교차참조 말씀풀이를 함께 살펴보세요.">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
-<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if(src==='home-bible-picker'){document.documentElement.classList.add('home-bible-picker');}else if(((src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='guide-related'||src==='bible-tab'||src==='home-resume-read'||src==='home-resume-listen'||src==='home-resume-recent')&&p.get('book'))||(!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&!(p.get('q')||'').trim()&&p.get('focus')!=='search'&&p.get('testament')!=='old'&&p.get('testament')!=='new'))document.documentElement.classList.add('scripture-entry-pending');if(p.get('commentary')==='1'&&(src==='home-card-commentary'||src==='home-main-commentary')){document.documentElement.classList.add('gomna-home-commentary-loading');window.__gomnaHomeCommentaryRecovery=function(){var root=document.documentElement;if(!root.classList.contains('gomna-home-commentary-loading'))return;root.classList.remove('gomna-home-commentary-loading');root.classList.remove('scripture-entry-pending');root.setAttribute('data-gomna-commentary-recovered','1');};window.__gomnaHomeCommentaryRecoveryTimer=window.setTimeout(window.__gomnaHomeCommentaryRecovery,5000);window.addEventListener('pageshow',function(ev){if(ev&&ev.persisted)window.setTimeout(window.__gomnaHomeCommentaryRecovery,300);},{once:true});}var qEarly=(p.get('q')||'').trim();if(qEarly){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
+<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if(src==='home-bible-picker'){document.documentElement.classList.add('home-bible-picker');}else if(((src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='guide-related'||src==='bible-tab'||src==='home-resume-read'||src==='home-resume-listen'||src==='home-resume-recent')&&p.get('book'))||(!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&!(p.get('q')||'').trim()&&p.get('focus')!=='search'&&p.get('testament')!=='old'&&p.get('testament')!=='new'))document.documentElement.classList.add('scripture-entry-pending');if(p.get('commentary')==='1'&&(src==='home-card-commentary'||src==='home-main-commentary'))document.documentElement.classList.add('gomna-home-commentary-loading');var qEarly=(p.get('q')||'').trim();if(qEarly){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
 <meta name="theme-color" content="#FCFAF6">
 <link rel="canonical" href="https://gomnastudio.com/reader.html">
 <!-- Open Graph 메타 태그 (공유용) -->
@@ -339,13 +339,13 @@ html.gomna-reader-ui-ja .chapter-btn > span{display:-webkit-box;-webkit-box-orie
 }
 .verse-item{padding:14px 16px;border-bottom:1px solid rgba(245,240,235,.85);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background-color .08s ease,box-shadow .08s ease,opacity .18s ease}
 html.is-verse-focus-play #verseList .verse-item,
-html.is-verse-focus-select #verseList .verse-item{opacity:.3}
+html.is-verse-focus-select #verseList .verse-item{opacity:.5}
 html.is-verse-focus-play #verseList .verse-item.gomna-commentary-card-active,
 html.is-verse-focus-play #verseList .verse-item:has(.gomna-audio-reading),
 html.is-verse-focus-select #verseList .verse-item.verse-item--selected{opacity:1}
 html.playback-style-focus.is-verse-focus-play #verseList .verse-item.verse-item--selected,
 html.playback-style-focus.is-verse-focus-play #verseList .verse-item.verse-item--chapter-selected,
-html.playback-style-focus.is-verse-focus-play #verseList .verse-item.verse-item--entry-focus{opacity:.3}
+html.playback-style-focus.is-verse-focus-play #verseList .verse-item.verse-item--entry-focus{opacity:.5}
 html.playback-style-focus.is-verse-focus-play #verseList .verse-item.gomna-commentary-card-active,
 html.playback-style-focus.is-verse-focus-play #verseList .verse-item:has(.gomna-audio-reading){opacity:1}
 html.playback-style-focus #verseList .verse-item.gomna-commentary-card-active,
@@ -4451,7 +4451,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register("/sw.js?v=2026-09-19-pwa-commentary-recovery-v54", { scope: "/", updateViaCache: "none" })
+  navigator.serviceWorker.register("/sw.js?v=2026-09-18-audio-seamless-v46", { scope: "/", updateViaCache: "none" })
     .then(function(reg){ try { reg.update(); } catch (eUp) {} })
     .catch(function(){});
   if (!window.__gomnaSwUpdateBound) {
@@ -18864,9 +18864,9 @@ function changeFont(delta) {
   window.MutationObserver = GuardedMutationObserver;
 })();
 </script>
-<script src="/js/audio-config.js?v=20260919-book-manifest-v52" defer></script>
+<script src="/js/audio-config.js?v=20260724-manifest-shard-v1" defer></script>
 <script src="/js/gomna-audio-manifest-shards.js?v=20260724-manifest-shard-v1" defer></script>
-<script src="/js/audio-engine.js?v=20260919-book-manifest-v52" defer></script>
+<script src="/js/audio-engine.js?v=20260918-seamless-verse-v45" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260909-locale-canon-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
@@ -19326,10 +19326,6 @@ function loadAds() {
     if(revealed||!isHomeCommentaryReady())return false;
     revealed=true;
     function paint(){
-      if(window.__gomnaHomeCommentaryRecoveryTimer){
-        clearTimeout(window.__gomnaHomeCommentaryRecoveryTimer);
-        window.__gomnaHomeCommentaryRecoveryTimer=null;
-      }
       document.documentElement.classList.remove('gomna-home-commentary-loading');
       if(typeof window.__gomnaRevealScriptureEntry==='function')window.__gomnaRevealScriptureEntry();
     }
