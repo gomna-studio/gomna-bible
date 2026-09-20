@@ -12,7 +12,7 @@
   var homeImageCache=Object.create(null), lifeImageRequest=0, storyImageRequest=0, cardOpenImageRequest=0;
   var swipeDrag=null, swipeHandled=false;
   var relayoutQueued=false, relayoutPending=false;
-  var vvResizeTimer=0;
+  var vvResizeTimer=0;  var resumeRelayoutToken=0;
   var VV_RESIZE_WAIT=180;
   var SETTLE_AT=0.32;
   var SETTLE_MS=180;
@@ -1067,7 +1067,7 @@
     window.addEventListener('focus', refreshHomeReturnChrome, {passive:true});
     window.addEventListener('orientationchange', scheduleRelayout, {passive:true});
     document.addEventListener('visibilitychange', function(){
-      if(document.visibilityState==='visible')refreshHomeReturnChrome();
+      if(document.visibilityState==='visible')restoreHomeViewportAfterResume();
     });
   }
   syncViewportVars();
