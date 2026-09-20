@@ -1437,6 +1437,26 @@
   }
 
   function getCommentaryContext() {
+    /*
+     * Explicit target from showCommentary is authoritative.
+     * The old popup DOM can still contain the previous verse while the new
+     * verse is rendering, so reading that DOM first can briefly restore a
+     * stale chapter/verse and build the wrong audio queue.
+     */
+    if (
+      currentContext &&
+      currentContext.bookId &&
+      currentContext.chapter > 0 &&
+      currentContext.verse > 0
+    ) {
+      return {
+        bookName: currentContext.bookName,
+        bookId: currentContext.bookId,
+        chapter: currentContext.chapter,
+        verse: currentContext.verse
+      };
+    }
+
     var content = getContent();
     var pick = content && content.querySelector('.commentary-nav-pick-txt');
     var sourceRef = pick && pick.getAttribute('data-commentary-source-ref');
@@ -1557,6 +1577,15 @@
     };
     nextKey = contextKey(nextContext);
     if (currentContext && contextKey(currentContext) === nextKey) return true;
+
+    /*
+     * A newly selected verse always starts at the first commentary type.
+     * Do not carry a previously selected tab (for example Matthew Henry)
+     * into the next verse.
+     */
+    currentSelectedType = COMMENTARY_TYPE_TEMPLATES[0].type;
+    window.currentCommentaryType = COMMENTARY_TYPE_TEMPLATES[0].type;
+    window.currentCommentaryTab = COMMENTARY_TYPE_TEMPLATES[0].tabId;
 
     preserveVerseChain = !!(verseChainActive && verseChainTargetKey === nextKey);
     if (!preserveVerseChain) {
@@ -2400,18 +2429,33 @@
     var section;
     var row;
 
-    if (!item || !item.published) return;
-    if (!highlight || typeof highlight.getRowStartTime !== 'function') return;
+    if (!item || !item.published) return Promise.resolve(null);
+    if (!highlight || typeof highlight.getRowStartTime !== 'function') {
+      return Promise.resolve(null);
+    }
 
     section = document.getElementById(item.tabId);
     row = section && section.querySelector('tr[data-verse-ref]');
-    if (!row) return;
+    if (!row) return Promise.resolve(null);
 
     try {
-      highlight.getRowStartTime(item.audioId, row);
+      return Promise.resolve(highlight.getRowStartTime(item.audioId, row))
+        .catch(function() { return null; });
     } catch (e) {
-      /* ignore */
+      return Promise.resolve(null);
     }
+  }
+
+  /*
+   * Preload cue timing for all nine commentary tracks as soon as a verse is
+   * rendered. Sequence playback can then highlight the first matching card
+   * from the audio clock instead of waiting for a cue request after audio
+   * has already started.
+   */
+  function prewarmAllCardCues() {
+    return Promise.all(currentCommentaryItems.map(function(item) {
+      return prewarmCardCues(item);
+    }));
   }
 
   function handleCommentaryButtonClick(event) {
@@ -3618,7 +3662,7 @@
       }
 
       enhanceManualCueTargets(content);
-      prewarmCardCues(getItemByType(currentSelectedType));
+      prewarmAllCardCues();
       removeLegacySequenceControls(content);
       bindAllTabsAudio(content);
       bindCommentaryButtonReplayHandler();
