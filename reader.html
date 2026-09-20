@@ -15243,7 +15243,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     commitTransform();
   }
 
-  window.syncPlainVerseGestureMode = syncMode;
+  var resumeRemeasureToken = 0;  function restoreReaderViewportAfterResume() {    var token = ++resumeRemeasureToken;    function pass() {      if (token !== resumeRemeasureToken || document.visibilityState === 'hidden') return;      if (typeof syncScriptureDockRealHeight === 'function') syncScriptureDockRealHeight();      if (typeof syncOpt4BottomBarHeight === 'function') syncOpt4BottomBarHeight();      if (typeof positionReaderChapterFabs === 'function') positionReaderChapterFabs();      syncMode();      onResize();    }    pass();    if (typeof requestAnimationFrame === 'function') {      requestAnimationFrame(function() {        requestAnimationFrame(pass);      });    }    window.setTimeout(pass, 120);    window.setTimeout(pass, 420);  }  window.syncPlainVerseGestureMode = syncMode;
   window.__gomnaPlainVerseGestureResetPan = resetPan;
   window.__gomnaPlainVerseGestureScrollToVerse = scrollToVerse;
   window.__gomnaPlainVerseGestureScrollToRange = scrollToRange;
@@ -15258,7 +15258,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     flushPaint();
   };
   window.addEventListener('gomna:verse_list_rendered', onVerseRendered);
-  window.addEventListener('resize', onResize);
+  window.addEventListener('resize', onResize);  window.addEventListener('pageshow', restoreReaderViewportAfterResume, { passive: true });  window.addEventListener('focus', restoreReaderViewportAfterResume, { passive: true });  document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'visible') restoreReaderViewportAfterResume(); });
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', onResize);
     window.visualViewport.addEventListener('scroll', onResize);

@@ -12,7 +12,7 @@
   var homeImageCache=Object.create(null), lifeImageRequest=0, storyImageRequest=0, cardOpenImageRequest=0;
   var swipeDrag=null, swipeHandled=false;
   var relayoutQueued=false, relayoutPending=false;
-  var vvResizeTimer=0;
+  var vvResizeTimer=0;  var resumeRelayoutToken=0;
   var VV_RESIZE_WAIT=180;
   var SETTLE_AT=0.32;
   var SETTLE_MS=180;
@@ -1050,7 +1050,7 @@
     syncGreeting();
     syncSocial();
   }
-  function onVisualViewportResize(){
+  function restoreHomeViewportAfterResume(){var token=++resumeRelayoutToken;refreshHomeReturnChrome();function pass(){if(token!==resumeRelayoutToken||document.visibilityState==='hidden')return;syncViewportVars();scheduleRelayout();}pass();window.requestAnimationFrame(function(){window.requestAnimationFrame(pass);});window.setTimeout(pass,120);window.setTimeout(pass,420);}  function onVisualViewportResize(){
     if(vvResizeTimer)window.clearTimeout(vvResizeTimer);
     vvResizeTimer=window.setTimeout(function(){
       vvResizeTimer=0;
@@ -1063,11 +1063,11 @@
     if(window.visualViewport){
       window.visualViewport.addEventListener('resize', onVisualViewportResize, {passive:true});
     }
-    window.addEventListener('pageshow', refreshHomeReturnChrome, {passive:true});
-    window.addEventListener('focus', refreshHomeReturnChrome, {passive:true});
+    window.addEventListener('pageshow', restoreHomeViewportAfterResume, {passive:true});
+    window.addEventListener('focus', restoreHomeViewportAfterResume, {passive:true});
     window.addEventListener('orientationchange', scheduleRelayout, {passive:true});
     document.addEventListener('visibilitychange', function(){
-      if(document.visibilityState==='visible')refreshHomeReturnChrome();
+      if(document.visibilityState==='visible')restoreHomeViewportAfterResume();
     });
   }
   syncViewportVars();
