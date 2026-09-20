@@ -15258,7 +15258,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     flushPaint();
   };
   window.addEventListener('gomna:verse_list_rendered', onVerseRendered);
-  window.addEventListener('resize', onResize);
+  window.addEventListener('resize', onResize);  window.addEventListener('pageshow', restoreReaderViewportAfterResume, { passive: true });  window.addEventListener('focus', restoreReaderViewportAfterResume, { passive: true });  document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'visible') restoreReaderViewportAfterResume(); });
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', onResize);
     window.visualViewport.addEventListener('scroll', onResize);
