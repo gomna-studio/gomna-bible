@@ -1050,7 +1050,7 @@
     syncGreeting();
     syncSocial();
   }
-  function onVisualViewportResize(){
+  function restoreHomeViewportAfterResume(){var token=++resumeRelayoutToken;refreshHomeReturnChrome();function pass(){if(token!==resumeRelayoutToken||document.visibilityState==='hidden')return;syncViewportVars();scheduleRelayout();}pass();window.requestAnimationFrame(function(){window.requestAnimationFrame(pass);});window.setTimeout(pass,120);window.setTimeout(pass,420);}  function onVisualViewportResize(){
     if(vvResizeTimer)window.clearTimeout(vvResizeTimer);
     vvResizeTimer=window.setTimeout(function(){
       vvResizeTimer=0;
@@ -1063,8 +1063,8 @@
     if(window.visualViewport){
       window.visualViewport.addEventListener('resize', onVisualViewportResize, {passive:true});
     }
-    window.addEventListener('pageshow', refreshHomeReturnChrome, {passive:true});
-    window.addEventListener('focus', refreshHomeReturnChrome, {passive:true});
+    window.addEventListener('pageshow', restoreHomeViewportAfterResume, {passive:true});
+    window.addEventListener('focus', restoreHomeViewportAfterResume, {passive:true});
     window.addEventListener('orientationchange', scheduleRelayout, {passive:true});
     document.addEventListener('visibilitychange', function(){
       if(document.visibilityState==='visible')restoreHomeViewportAfterResume();
