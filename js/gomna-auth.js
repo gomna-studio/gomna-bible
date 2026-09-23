@@ -20,8 +20,8 @@
   var GOOGLE_GIS_SRC = 'https://accounts.google.com/gsi/client';
 
   var KEY_PLACEHOLDER = '__PASTE_SUPABASE_PUBLISHABLE_KEY_HERE__';
-  /* Supabase OAuth 리다이렉트를 쓰는 공급자만 남긴다.
-     Google은 Google Identity Services + signInWithIdToken 경로를 쓴다.
+  /* 기본 Supabase OAuth 리다이렉트를 쓰는 공급자만 남긴다.
+     Google은 전용 클릭 처리기에서 같은 OAuth 리다이렉트 경로를 명시적으로 시작한다.
      네이버는 Supabase Custom OIDC Provider라 이름이 'custom:naver'다.
      Client ID·Secret은 Supabase 서버에만 있고 여기서는 공급자 이름만 쓴다. */
   var ALLOWED_PROVIDERS = ['kakao', 'custom:naver'];
@@ -31,6 +31,7 @@
   var RETURN_TO_KEY = 'gomna.auth.returnTo';
   var MESSAGE_KEY = 'gomna.auth.message';
   var CODE_USED_KEY = 'gomna.auth.codeUsed';
+  var RECOVERY_KEY = 'gomna.auth.passwordRecovery';
   var BOUND_FLAG = 'data-gomna-auth-bound';
   var DEBUG_KEY = 'gomna.auth.debug'; /* [임시 진단] 원인 확정 후 제거 */
 
@@ -352,6 +353,7 @@
   function clearOwnStaleState() {
     dropStore(CODE_USED_KEY); /* 지난 콜백의 완료 표시가 새 흐름을 막지 않게 한다 */
     dropStore(MESSAGE_KEY);   /* 지난 실패 안내가 새 로그인 뒤에 뒤늦게 뜨지 않게 한다 */
+    dropStore(RECOVERY_KEY);  /* 중단된 비밀번호 재설정 표시가 일반 로그인에 섞이지 않게 한다 */
     dropStore('gomna.auth.kakaoState');
     dropStore('gomna.auth.kakaoRedirect');
     dropStore('gomna.auth.kakaoSdkOff');
@@ -366,6 +368,8 @@
     try {
       var list = document.querySelectorAll('[data-auth-provider]');
       for (var i = 0; i < list.length; i++) setButtonBusy(list[i], false);
+      var googleWraps = document.querySelectorAll('.' + GIS_WRAP_CLASS + '.gomna-google-oauth-busy');
+      for (var j = 0; j < googleWraps.length; j++) googleWraps[j].classList.remove('gomna-google-oauth-busy');
     } catch (e) {}
   }
 
@@ -383,12 +387,24 @@
 
     signInBusy = true;
     setButtonBusy(button, true);
+    if (provider === 'google') {
+      try {
+        var googleWrap = button && button.parentElement;
+        if (googleWrap && googleWrap.classList && googleWrap.classList.contains(GIS_WRAP_CLASS)) {
+          googleWrap.classList.add('gomna-google-oauth-busy');
+        }
+      } catch (e) {}
+    }
     writeStore(RETURN_TO_KEY, currentLocation());
 
     function recover(message) {
       dropStore(RETURN_TO_KEY);
       signInBusy = false;
       setButtonBusy(button, false);
+      try {
+        var wrap = button && button.parentElement;
+        if (wrap && wrap.classList) wrap.classList.remove('gomna-google-oauth-busy');
+      } catch (e) {}
       notify(message);
     }
 
@@ -514,6 +530,9 @@
         /* 공식 버튼이 차지하지 않은 자리가 남아도 상자가 클릭을 가로채지 않게 한다.
            그 자리는 아래 pill의 44px 터치 영역이 받는다. */
         + '.' + GIS_SLOT_CLASS + '>*{pointer-events:auto}'
+        /* 아래 자체 버튼이 OAuth fallback을 시작한 뒤 빠르게 다시 눌러
+           공식 popup까지 겹쳐 여는 일을 막는다. */
+        + '.gomna-google-oauth-busy .' + GIS_SLOT_CLASS + '>*{pointer-events:none!important}'
         /* 겹친 공식 버튼이 위에 있어 아래 pill에는 :hover가 걸리지 않는다.
            눌리는 느낌이 사라지지 않게 겉 버튼의 되짚음만 바깥 상자에서 되살린다. */
         + '.' + GIS_WRAP_CLASS + ':hover .login-provider--google{background:#F6F4EF;border-color:#DCD8D1}'
@@ -548,6 +567,7 @@
   }
 
   function renderGoogleButton(legacy) {
+    if (signInBusy) return false;
     var api = gisApi();
     if (!api || !legacy || !legacy.parentElement) return false;
     ensureGisSlotStyle();
@@ -584,35 +604,16 @@
     return true;
   }
 
-  function refreshGoogleButtons() {
-    var list = document.querySelectorAll('[data-auth-provider="google"]');
-    if (!list.length) return;
-    if (useMacGoogleOAuthFallback()) return;
-    loadGoogleGis(function (ok) {
-      if (!ok || !initGoogleGis()) return;
-      for (var i = 0; i < list.length; i++) renderGoogleButton(list[i]);
-    });
-  }
+  /* Android PWA·내장 브라우저에서 투명 GIS iframe이 터치를 가로채고도
+     인증창을 열지 않는 문제가 있어 더 이상 iframe을 만들지 않는다.
+     Google도 카카오와 같은 Supabase OAuth 리다이렉트 한 경로만 사용한다. */
+  function refreshGoogleButtons() {}
 
-  /* 로그인창이 열린 뒤에야 실제 폭을 잴 수 있어 두 번 확인한다. */
-  function queueGoogleButtonRefresh() {
-    window.setTimeout(refreshGoogleButtons, 0);
-    window.setTimeout(refreshGoogleButtons, 300);
-  }
+  function queueGoogleButtonRefresh() {}
 
-  /* iPhone에서는 공식 버튼이 아직 자리 잡지 못했을 때만 이 처리기가 쓰인다.
-     Mac에서는 투명 공식 버튼을 만들지 않으므로 이 처리기가 Google OAuth를 바로 시작한다. */
+  /* 모든 브라우저에서 첫 터치로 Supabase Google OAuth를 즉시 시작한다. */
   function onGoogleButtonClick(button) {
-    if (useMacGoogleOAuthFallback()) {
-      startOAuth('google', button, true);
-      return;
-    }
-    setButtonBusy(button, true);
-    loadGoogleGis(function (ok) {
-      setButtonBusy(button, false);
-      if (ok && initGoogleGis() && renderGoogleButton(button)) return;
-      notify(MSG.googleUnavailable);
-    });
+    startOAuth('google', button, true);
   }
 
   /* Google이 돌려준 ID 토큰을 기존 Supabase 클라이언트로 세션으로 바꾼다.
@@ -2294,7 +2295,10 @@
     var change = document.getElementById('gomnaEmailChange');
     if (toSignup) toSignup.hidden = (emailMode !== 'signin');
     if (toReset) toReset.hidden = (emailMode !== 'signin');
-    if (toSignin) toSignin.hidden = (emailMode !== 'signup' && emailMode !== 'reset');
+    if (toSignin) {
+      toSignin.hidden = (emailMode !== 'otp' && emailMode !== 'signup' && emailMode !== 'reset');
+      toSignin.textContent = (emailMode === 'otp') ? '비밀번호로 로그인' : '이미 계정이 있습니다';
+    }
     if (resend) resend.hidden = (emailMode !== 'otpverify');
     if (change) change.hidden = (emailMode !== 'otpverify');
     if (emailMode !== 'otpverify') stopOtpTimer();
@@ -2518,7 +2522,9 @@
       } else if (emailMode === 'signup') {
         request = client.auth.signUp({ email: email, password: password, options: { emailRedirectTo: redirectTo } });
       } else if (emailMode === 'reset') {
-        request = client.auth.resetPasswordForEmail(email, { redirectTo: redirectTo });
+        request = client.auth.resetPasswordForEmail(email, {
+          redirectTo: redirectTo + '?action=password-recovery'
+        });
       } else {
         request = client.auth.updateUser({ password: password });
       }
@@ -2613,6 +2619,7 @@
   }
 
   function callbackFailed(message, detail) {
+    dropStore(RECOVERY_KEY);
     cleanCallbackUrl();
     setCallbackStatus(message);
     debugNote('callback-failed', detail || { stage: 'unknown' });
@@ -2690,6 +2697,8 @@
   }
 
   function debugNote(stage, info) {
+    /* 운영 브라우저에는 진단 기록을 남기지 않는다. 오류 code/message는 로컬 조사에서만 보관한다. */
+    if (!isLocalHost()) return;
     var box = { stage: stage, info: info || null, at: new Date().toISOString() };
     try {
       var prev = [];
@@ -2729,6 +2738,7 @@
     try { params = new URLSearchParams(window.location.search); } catch (e) { params = null; }
     var errorCode = params ? params.get('error') : null;
     var errorDetail = params ? (params.get('error_description') || '') : '';
+    var recoveryAction = params ? params.get('action') === 'password-recovery' : false;
     var searchKeys = paramNames(window.location.search);
     var hashKeys = paramNames(window.location.hash);
     var note = 'params: ' + (searchKeys.join(',') || '없음') + ' / hash: ' + (hashKeys.join(',') || '없음');
@@ -2754,13 +2764,38 @@
     var supabaseClient = getClient();
     if (!supabaseClient) { callbackFailed(MSG.libMissing, { stage: 'Supabase 라이브러리 없음', note: note }); return; }
 
-    /* detectSessionInUrl: true 가 초기화 때 PKCE code를 처리한다. 여기서는 세션만 확인한다. */
+    /* 비밀번호 재설정은 callback에서만 PASSWORD_RECOVERY 이벤트가 발생할 수 있다.
+       홈으로 이동하기 전에 표시를 남겨 새 비밀번호 화면을 확실히 연다. */
+    var callbackDone = false;
+    var recoverySeen = recoveryAction;
+    if (recoverySeen) writeStore(RECOVERY_KEY, '1');
+    try {
+      supabaseClient.auth.onAuthStateChange(function (event, session) {
+        if (event !== 'PASSWORD_RECOVERY') return;
+        recoverySeen = true;
+        writeStore(RECOVERY_KEY, '1');
+        if (session && !callbackDone) {
+          callbackDone = true;
+          callbackSucceeded(session);
+        }
+      });
+    } catch (e) {}
+
+    /* detectSessionInUrl: true 가 초기화 때 PKCE code를 처리한다. 여기서는 세션만 확인한다.
+       recovery 이벤트와 getSession 완료 순서가 엇갈릴 수 있어 한 번의 짧은 이벤트 턴을 기다린다. */
     supabaseClient.auth.getSession().then(function (result) {
       var session = (result && result.data) ? result.data.session : null;
       debugNote('callback-session', { hasSession: !!session });
-      if (session) { callbackSucceeded(session); return; }
-      callbackFailed(MSG.failed, { stage: '세션을 만들지 못함', note: note });
+      window.setTimeout(function () {
+        if (callbackDone) return;
+        callbackDone = true;
+        if (recoverySeen) writeStore(RECOVERY_KEY, '1');
+        if (session) { callbackSucceeded(session); return; }
+        callbackFailed(MSG.failed, { stage: '세션을 만들지 못함', note: note });
+      }, 200);
     })['catch'](function (e) {
+      if (callbackDone) return;
+      callbackDone = true;
       callbackFailed(navigator.onLine === false ? MSG.network : MSG.failed, {
         stage: '세션 확인 중 예외',
         note: note,
@@ -2809,8 +2844,20 @@
     var early = storedSession();
     if (early) applySession(early);
 
+    function openPendingPasswordRecovery(session) {
+      if (!session || readStore(RECOVERY_KEY) !== '1') return;
+      dropStore(RECOVERY_KEY);
+      try {
+        if (typeof window.openLoginModal === 'function') window.openLoginModal('password-recovery');
+        setEmailMode('newpw');
+      } catch (e) {}
+    }
+    openPendingPasswordRecovery(early);
+
     supabaseClient.auth.getSession().then(function (result) {
-      applySession((result && result.data) ? result.data.session : null);
+      var session = (result && result.data) ? result.data.session : null;
+      applySession(session);
+      openPendingPasswordRecovery(session);
       if (currentUser) { probeCapabilities(); loadProfileRow(); }
     })['catch'](function () {
       applySession(null);
@@ -2820,6 +2867,7 @@
     supabaseClient.auth.onAuthStateChange(function (event, session) {
       applySession(session);
       if (event === 'PASSWORD_RECOVERY') {
+        dropStore(RECOVERY_KEY);
         /* 재설정 메일로 들어온 경우에만 새 비밀번호 화면을 연다. */
         try {
           if (typeof window.openLoginModal === 'function') window.openLoginModal('password-recovery');
