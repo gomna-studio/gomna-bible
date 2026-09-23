@@ -60,3 +60,39 @@ test('returning from an external provider unlocks login controls', () => {
   assert.match(auth, /addEventListener\('pageshow', resetSignInBusy\)/);
   assert.doesNotMatch(auth, /addEventListener\('focus', resetSignInBusy\)/);
 });
+
+test('Naver display name prefers member name, then nickname, without exposing the login id', () => {
+  const body = functionBody('metaDisplayName');
+  assert.match(body, /pickProvider\(user\) === 'naver'/);
+  assert.ok(body.indexOf('meta.name') < body.indexOf('meta.preferred_username'));
+  assert.ok(body.indexOf('meta.full_name') < body.indexOf('meta.nickname'));
+  assert.ok(body.indexOf('meta.nickname') < body.indexOf('meta.display_name'));
+  assert.doesNotMatch(body, /provider_id|meta\.user_name/);
+
+  const pickBody = functionBody('pickName');
+  assert.ok(
+    pickBody.indexOf("provider === 'kakao' || provider === 'naver'") < pickBody.indexOf('var email = pickEmail(user)'),
+    'social-provider fallback must run before any email local-part fallback'
+  );
+});
+
+test('profile loading is single-flight and account changes cannot update the new session metadata', () => {
+  const loadBody = functionBody('loadProfileRow');
+  assert.match(loadBody, /profileLoadPromise && profileLoadFor === uid/);
+  assert.doesNotMatch(loadBody, /profileRowFor = uid;\s*try/);
+
+  const persistBody = functionBody('persistDisplayName');
+  assert.match(persistBody, /if \(!currentUser \|\| currentUser\.id !== uid\) return true/);
+
+  const sessionBody = functionBody('applySession');
+  assert.match(sessionBody, /previousUserId !== nextUserId/);
+  assert.match(sessionBody, /nameConfirmShown = false/);
+});
+
+test('Naver asks for a display name when neither member name nor nickname is available', () => {
+  const body = functionBody('maybeCompleteSocialName');
+  assert.match(body, /provider !== 'kakao' && provider !== 'naver'/);
+  assert.match(body, /metaDisplayName\(currentUser\)/);
+  assert.match(body, /openNameConfirm\(\)/);
+  assert.match(functionBody('normalizeDisplayName'), /name === '네이버 사용자'/);
+});

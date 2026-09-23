@@ -169,16 +169,16 @@
 
   function normalizeDisplayName(raw) {
     var name = String(raw == null ? '' : raw).trim();
-    if (!name || name === '이름 없음' || name === '카카오 사용자') return '';
+    if (!name || name === '이름 없음' || name === '카카오 사용자' || name === '네이버 사용자') return '';
     return name.length > 30 ? name.slice(0, 30) : name;
   }
 
   function metaDisplayName(user) {
     var meta = (user && user.user_metadata) ? user.user_metadata : {};
-    var candidates = [
-      meta.display_name, meta.name, meta.full_name, meta.preferred_username,
-      meta.user_name, meta.nickname
-    ];
+    /* 네이버는 회원이름을 먼저, 별명을 그 다음에 쓴다. 로그인 아이디 계열 값은 후보에 넣지 않는다. */
+    var candidates = pickProvider(user) === 'naver'
+      ? [meta.name, meta.full_name, meta.preferred_username, meta.nickname, meta.display_name]
+      : [meta.display_name, meta.name, meta.full_name, meta.preferred_username, meta.nickname];
     for (var i = 0; i < candidates.length; i++) {
       var name = normalizeDisplayName(candidates[i]);
       if (name) return name;
@@ -194,10 +194,10 @@
     var provider = pickProvider(user);
     /* 이메일 주소 자체를 큰 제목으로 노출하지 않는다. */
     if (provider === 'email') return '이메일 사용자';
+    /* 카카오·네이버는 로그인 아이디나 이메일 앞부분 대신 이름·별명만 표시한다. */
+    if (provider === 'kakao' || provider === 'naver') return PROVIDER_LABEL[provider] + ' 사용자';
     var email = pickEmail(user);
     if (email && email.indexOf('@') > 0) return email.split('@')[0];
-    /* 카카오·네이버는 이메일 없이 로그인될 수 있어 이름 후보가 모두 비면 여기까지 온다. */
-    if (provider === 'kakao' || provider === 'naver') return PROVIDER_LABEL[provider] + ' 사용자';
     return '사용자';
   }
 
@@ -281,12 +281,18 @@
     var candidate = (session && session.user) ? session.user : null;
     var user = (candidate && text(candidate.id)) ? candidate : null;
     var wasSignedIn = !!currentUser;
+    var previousUserId = currentUser ? text(currentUser.id) : '';
     currentUser = user;
     currentAuthMethod = user ? readAuthMethod(session) : '';
+    var nextUserId = user ? text(user.id) : '';
     /* 다른 사용자로 바뀌면 앞 사용자의 표시 이름·사진을 쓰지 않는다. */
-    if (user && profileRowFor && profileRowFor !== user.id) {
+    if (previousUserId !== nextUserId) {
       profileRow = null;
       profileRowFor = '';
+      profileLoadPromise = null;
+      profileLoadFor = '';
+      nameConfirmShown = false;
+      closeNameConfirm();
     }
     if (!user) {
       caps.checked = false;
@@ -808,6 +814,8 @@
      없으면 기존처럼 OAuth 제공자가 준 이름·사진을 쓴다. */
   var profileRow = null;
   var profileRowFor = '';
+  var profileLoadPromise = null;
+  var profileLoadFor = '';
 
   function displayName(user) {
     if (profileRow && text(profileRow.display_name)) return text(profileRow.display_name);
@@ -1692,13 +1700,13 @@
     var client = getClient();
     if (!client || !currentUser) return Promise.resolve(null);
     var uid = currentUser.id;
+    if (!force && profileLoadPromise && profileLoadFor === uid) return profileLoadPromise;
     if (!force && profileRowFor === uid) {
-      maybeCompleteKakaoName();
+      maybeCompleteSocialName();
       return Promise.resolve(profileRow);
     }
-    profileRowFor = uid;
     try {
-      return client.from(PROFILES_TABLE).select('display_name,avatar_url').eq('user_id', uid).limit(1)
+      var request = client.from(PROFILES_TABLE).select('display_name,avatar_url').eq('user_id', uid).limit(1)
         .then(function (res) {
           if (res && res.error) {
             caps.profiles = classifyResult(res.error);
@@ -1707,13 +1715,25 @@
           }
           caps.profiles = 'ready';
           var row = (res && res.data && res.data.length) ? res.data[0] : null;
+          if (!currentUser || currentUser.id !== uid) return null;
           profileRow = row ? { display_name: text(row.display_name), avatar_url: text(row.avatar_url) } : null;
+          profileRowFor = uid;
           applyAccountDisplay();
+          maybeCompleteSocialName();
           return profileRow;
-        }).then(function (row) {
-          maybeCompleteKakaoName();
-          return row;
-        })['catch'](function (e) { reportProfileError('불러오기', e); return null; });
+        })['catch'](function (e) {
+          reportProfileError('불러오기', e);
+          return null;
+        });
+      profileLoadFor = uid;
+      profileLoadPromise = request.then(function (row) {
+        if (profileLoadFor === uid) {
+          profileLoadPromise = null;
+          profileLoadFor = '';
+        }
+        return row;
+      });
+      return profileLoadPromise;
     } catch (e) {
       reportProfileError('불러오기', e);
       return Promise.resolve(null);
@@ -1737,7 +1757,7 @@
     }
   }
 
-  /* 카카오 닉네임만 gomna_profiles.display_name과 표시용 메타데이터에 넣는다.
+  /* 소셜 로그인에서 받은 이름 또는 사용자가 확인한 이름을 gomna_profiles.display_name과 표시용 메타데이터에 넣는다.
      이미 이름이 있으면 덮어쓰지 않고, avatar_url은 읽거나 쓰지 않는다. */
   function persistDisplayName(uid, rawName) {
     var name = normalizeDisplayName(rawName);
@@ -1760,7 +1780,11 @@
           };
           profileRowFor = uid;
         }
-        dropStore(KAKAO_NICK_KEY);
+        if (currentUser && currentUser.id === uid && pickProvider(currentUser) === 'kakao') {
+          dropStore(KAKAO_NICK_KEY);
+        }
+        /* 계정 전환 중 옛 사용자의 이름을 새 세션 메타데이터에 쓰지 않는다. */
+        if (!currentUser || currentUser.id !== uid) return true;
         return client.auth.updateUser({ data: { display_name: name } }).then(function (up) {
           if (up && up.error) reportProfileError('표시 이름 메타데이터', up.error);
           if (up && up.data && up.data.user && currentUser && currentUser.id === uid) {
@@ -1779,20 +1803,27 @@
     }
   }
 
-  function maybeCompleteKakaoName() {
-    if (!currentUser || pickProvider(currentUser) !== 'kakao') return;
+  function maybeCompleteSocialName() {
+    if (!currentUser) return;
+    var provider = pickProvider(currentUser);
+    if (provider !== 'kakao' && provider !== 'naver') return;
     if (profileRow && normalizeDisplayName(profileRow.display_name)) {
-      pendingKakaoNickname = '';
-      dropStore(KAKAO_NICK_KEY);
+      if (provider === 'kakao') {
+        pendingKakaoNickname = '';
+        dropStore(KAKAO_NICK_KEY);
+      }
       return;
     }
-    if (!normalizeDisplayName(pendingKakaoNickname)) {
-      pendingKakaoNickname = normalizeDisplayName(readStore(KAKAO_NICK_KEY));
+    var name = metaDisplayName(currentUser);
+    if (provider === 'kakao') {
+      if (!normalizeDisplayName(pendingKakaoNickname)) {
+        pendingKakaoNickname = normalizeDisplayName(readStore(KAKAO_NICK_KEY));
+      }
+      name = normalizeDisplayName(pendingKakaoNickname) || name;
     }
-    var name = normalizeDisplayName(pendingKakaoNickname) || metaDisplayName(currentUser);
     if (name) {
       persistDisplayName(currentUser.id, name);
-      pendingKakaoNickname = '';
+      if (provider === 'kakao') pendingKakaoNickname = '';
       return;
     }
     if (isCallbackPage() || nameConfirmShown) return;

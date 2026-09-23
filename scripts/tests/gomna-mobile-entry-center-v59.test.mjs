@@ -35,7 +35,7 @@ test('post-reveal center uses the mobile gesture midpoint', () => {
 });
 
 test('installed app cache identifies the current release without forced navigation', () => {
-  assert.match(reader, /sw\.js\?v=2026-09-23-google-oauth-unified-v62/);
-  assert.match(sw, /CACHE_VERSION = '2026-09-23-google-oauth-unified-v62'/);
+  assert.match(reader, /sw\.js\?v=2026-09-23-naver-profile-name-v63/);
+  assert.match(sw, /CACHE_VERSION = '2026-09-23-naver-profile-name-v63'/);
   assert.doesNotMatch(sw, /\.then\(\(\) => refreshInstalledAppClients\(\)\)/);
 });
