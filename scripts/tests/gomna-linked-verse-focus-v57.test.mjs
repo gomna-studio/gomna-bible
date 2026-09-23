@@ -36,6 +36,6 @@ test('linked verse uses the approved blue highlight', () => {
 });
 
 test('installed app receives the latest linked-verse release cache', () => {
-  assert.match(reader, /sw\.js\?v=2026-09-19-mobile-entry-center-v60/);
-  assert.match(sw, /CACHE_VERSION = '2026-09-19-mobile-entry-center-v60'/);
+  assert.match(reader, /sw\.js\?v=2026-09-23-google-oauth-unified-v62/);
+  assert.match(sw, /CACHE_VERSION = '2026-09-23-google-oauth-unified-v62'/);
 });
