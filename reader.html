@@ -4451,7 +4451,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register("/sw.js?v=2026-09-23-google-oauth-unified-v62", { scope: "/", updateViaCache: "none" })
+  navigator.serviceWorker.register("/sw.js?v=2026-09-23-naver-profile-name-v63", { scope: "/", updateViaCache: "none" })
     .then(function(reg){ try { reg.update(); } catch (eUp) {} })
     .catch(function(){});
   if (!window.__gomnaSwUpdateBound) {
@@ -4459,8 +4459,8 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("controllerchange", function(){
       if (!hadSwController) return;
       try {
-        if (sessionStorage.getItem("gomna-sw-reloaded-2026-09-23-google-oauth-unified-v62") === "1") return;
-        sessionStorage.setItem("gomna-sw-reloaded-2026-09-23-google-oauth-unified-v62", "1");
+        if (sessionStorage.getItem("gomna-sw-reloaded-2026-09-23-naver-profile-name-v63") === "1") return;
+        sessionStorage.setItem("gomna-sw-reloaded-2026-09-23-naver-profile-name-v63", "1");
       } catch (eLock) {}
       location.reload();
     });
@@ -20147,7 +20147,7 @@ function loadAds() {
 </script>
 <!-- 로그인 연결: Supabase 공식 CDN이 먼저, 그 뒤에 gomna-auth.js. 순서를 바꾸지 않는다. -->
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="js/gomna-auth.js?v=20260923-google-oauth-unified-v2"></script>
+<script defer src="js/gomna-auth.js?v=20260923-naver-profile-name-v3"></script>
 <!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
 <script defer src="js/gomna-help.js?v=2026-09-18-help-commentary-v29"></script>
 <!-- 로컬 미리보기: 로그인 상단 카드 3장 교차 셔플(표시 전용). 되돌릴 때는 이 줄과 파일만 지운다. -->

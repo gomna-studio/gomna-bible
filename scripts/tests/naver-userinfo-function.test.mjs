@@ -34,6 +34,26 @@ test('rejects malformed Naver responses', () => {
   assert.equal(flattenNaverProfile({ resultcode: '99', response: { id: 'x' } }), null);
 });
 
+test('keeps member name and nickname independently so the app can prefer name', () => {
+  assert.deepEqual(flattenNaverProfile({
+    resultcode: '00', response: { id: 'name-only', name: '회원이름' }
+  }), {
+    sub: 'name-only', provider_id: 'name-only', name: '회원이름', full_name: '회원이름'
+  });
+
+  assert.deepEqual(flattenNaverProfile({
+    resultcode: '00', response: { id: 'nickname-only', nickname: '별명' }
+  }), {
+    sub: 'nickname-only', provider_id: 'nickname-only', nickname: '별명', preferred_username: '별명'
+  });
+});
+
+test('allows an identifier-only response for the direct-name-entry fallback', () => {
+  assert.deepEqual(flattenNaverProfile({
+    resultcode: '00', response: { id: 'identifier-only' }
+  }), { sub: 'identifier-only', provider_id: 'identifier-only' });
+});
+
 test('requires GET and a bearer token before contacting Naver', async () => {
   const wrongMethod = await handleNaverUserinfo(new Request('https://example.test', { method: 'POST' }));
   assert.equal(wrongMethod.status, 405);
