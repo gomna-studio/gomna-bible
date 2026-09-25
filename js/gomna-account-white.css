@@ -1,0 +1,139 @@
+/* Light theme: use white account surfaces and the existing icon shapes in black. */
+html:not([data-gomna-theme="dark"]) body .home-account-panel,
+html:not([data-gomna-theme="dark"]) body .home-account-switch,
+html:not([data-gomna-theme="dark"]) body .home-account-panel-status,
+html:not([data-gomna-theme="dark"]) body .home-account-panel-avatar,
+html:not([data-gomna-theme="dark"]) body .home-account-panel-badge,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-box,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-avatar,
+html:not([data-gomna-theme="dark"]) body .gomna-pe-avatar,
+html:not([data-gomna-theme="dark"]) body .gomna-pe-camera,
+html:not([data-gomna-theme="dark"]) body .gomna-pe-field input[readonly],
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-sheet-box,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-box,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-head,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-group,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-detail .gomna-help-note{
+  background:#FFFFFF;
+}
+
+/* The archive is a full Reader screen, so its three continuous surfaces match. */
+html:not([data-gomna-theme="dark"]).reader-hide-chrome body .phone-frame:has(#favView.active),
+html:not([data-gomna-theme="dark"]).reader-hide-chrome body .phone-frame:has(#favView.active) main.content,
+html:not([data-gomna-theme="dark"]).reader-hide-chrome body #favView.active{
+  background:#FFFFFF;
+}
+
+/* Keep the app's existing SVG shapes; change only their color and the account copy. */
+html:not([data-gomna-theme="dark"]) body .home-account-panel-name,
+html:not([data-gomna-theme="dark"]) body .home-account-switch-name,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-name,
+html:not([data-gomna-theme="dark"]) body .home-account-menu-item,
+html:not([data-gomna-theme="dark"]) body .home-account-menu-item-label,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-item{
+  color:#17191D !important;
+}
+html:not([data-gomna-theme="dark"]) body .home-account-panel-email,
+html:not([data-gomna-theme="dark"]) body .home-account-panel-badge,
+html:not([data-gomna-theme="dark"]) body .home-account-switch-line,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-line{
+  color:#30343A !important;
+}
+html:not([data-gomna-theme="dark"]) body .home-account-panel-avatar,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-avatar,
+html:not([data-gomna-theme="dark"]) body .gomna-pe-avatar{
+  border-color:#17191D !important;
+}
+html:not([data-gomna-theme="dark"]) body .home-account-panel-avatar .home-account-avatar-icon,
+html:not([data-gomna-theme="dark"]) body .home-account-menu-item svg,
+html:not([data-gomna-theme="dark"]) body .home-account-switch-check svg,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-avatar svg,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-item svg{
+  stroke:#17191D !important;
+}
+html:not([data-gomna-theme="dark"]) body .home-account-menu-item-arrow,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-arrow{
+  border-right-color:#17191D !important;
+  border-bottom-color:#17191D !important;
+}
+
+/* All text inside signed-in account screens, including headings, section labels,
+   current values and help details, uses the same black ink. */
+html:not([data-gomna-theme="dark"]) body .home-account-panel,
+html:not([data-gomna-theme="dark"]) body .home-account-panel *,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-box,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-box *,
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-sheet-box,
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-sheet-box *,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-box,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-box *,
+html:not([data-gomna-theme="dark"]) body #favView.active,
+html:not([data-gomna-theme="dark"]) body #favView.active *{
+  color:#17191D !important;
+}
+html:not([data-gomna-theme="dark"]) body .gomna-acc-box input::placeholder{
+  color:#17191D !important;
+}
+/* The original blue save button has white lettering; give black lettering a
+   white surface so it remains readable without changing its behavior. */
+html:not([data-gomna-theme="dark"]) body .gomna-acc-box .gomna-pe-save,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-box .gomna-pe-save:hover,
+html:not([data-gomna-theme="dark"]) body .gomna-acc-box .gomna-pe-save:active{
+  background:#FFFFFF !important;
+  border-color:#17191D !important;
+}
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-title-icon{
+  opacity:1 !important;
+}
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-row-arrow,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-row-arrow{
+  border-right-color:#17191D !important;
+  border-bottom-color:#17191D !important;
+}
+html:not([data-gomna-theme="dark"]) body .gomna-acc-box svg,
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-sheet-box svg,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-box svg{
+  stroke:#17191D !important;
+}
+
+/* Settings and help build their styles after page load. Target their visible
+   headings, values, rows and icons explicitly, regardless of injection order. */
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-head-title,
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-section-title,
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-menu-row,
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-row-label,
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-row-value,
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-option,
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-option-label,
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-option-check,
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-head-back,
+html:not([data-gomna-theme="dark"]) body #settingsPopup .settings-head-close,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-title,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-section-title,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-row,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-row-label,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-title-icon,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-row-icon,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-back,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-close,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-detail p,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-detail h4,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-detail .gomna-help-note,
+html:not([data-gomna-theme="dark"]) body #gomnaHelpPopup .gomna-help-mail{
+  color:#17191D !important;
+}
+
+/* Match the 420px settings/help dialog width on MacBook. Keep mobile sheets
+   and the natural height of each screen as they are. */
+@media (min-width:769px){
+  html:not([data-gomna-theme="dark"]) body .gomna-acc-box,
+  html:not([data-gomna-theme="dark"]) body .home-account-panel{
+    width:420px !important;
+    max-width:calc(100vw - 40px) !important;
+  }
+  html:not([data-gomna-theme="dark"]) body .home-cookie-banner{
+    width:420px !important;
+    max-width:calc(100vw - 32px) !important;
+    box-sizing:border-box;
+  }
+}

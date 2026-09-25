@@ -56,7 +56,7 @@
 })();
 </script>
 <meta charset="UTF-8">
-<link rel="preload" as="style" href="js/gomna-home-feed.css?v=20260914-home-share-only-v13">
+<link rel="preload" as="style" href="js/gomna-home-feed.css?v=20260925-home-login-icons-v3">
 <link rel="preload" as="style" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
 <script defer src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script>
@@ -364,7 +364,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
   var registerHomeServiceWorker = function () {
-    navigator.serviceWorker.register("/sw.js?v=2026-09-23-naver-profile-name-v63", { scope: "/", updateViaCache: "none" })
+    navigator.serviceWorker.register("/sw.js?v=2026-09-25-reviewed-home-account-ui-v64", { scope: "/", updateViaCache: "none" })
       .then(function(reg){ try { reg.update(); } catch (eUp) {} })
       .catch(function(){});
   };
@@ -384,8 +384,8 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("controllerchange", function(){
       if (!hadSwController) return;
       try {
-        if (sessionStorage.getItem("gomna-sw-reloaded-2026-09-23-naver-profile-name-v63") === "1") return;
-        sessionStorage.setItem("gomna-sw-reloaded-2026-09-23-naver-profile-name-v63", "1");
+        if (sessionStorage.getItem("gomna-sw-reloaded-2026-09-25-reviewed-home-account-ui-v64") === "1") return;
+        sessionStorage.setItem("gomna-sw-reloaded-2026-09-25-reviewed-home-account-ui-v64", "1");
       } catch (eLock) {}
       location.reload();
     });
@@ -1276,8 +1276,8 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 .home-cookie-text{margin:0 0 10px}
 .home-cookie-actions{display:flex;gap:8px;justify-content:flex-end}
 .home-cookie-button{border:none;border-radius:999px;padding:8px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
-.home-cookie-button-accept{background:#B8751F;color:#fff}
-.home-cookie-button-reject{background:#fff;color:#5D4516;border:1px solid rgba(184,134,11,.35)}
+.home-cookie-button-accept{background:#355F9A;color:#fff}
+.home-cookie-button-reject{background:#fff;color:#17191D;border:1px solid #D1D5DB}
 /* ── HOME COLOR TEST 20260715 (local only, revert via index-before-home-color-test-20260715.html) ── */
 .container .continue-label,.container .continue-arrow{color:#9A6A24}
 .container .card,.container .quick-menu{background:#FFF6E4;border-color:#E3CFAB}
@@ -2001,7 +2001,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
 <link rel="preload" as="image" href="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1">
 <link rel="preload" as="image" href="assets/home/card-meditation-life.png?v=20260910-home-photo-v1">
 <link rel="preload" as="image" href="assets/home/card-bible-stories-people.png?v=20260910-home-photo-v1">
-<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260914-home-share-only-v13">
+<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260925-home-login-icons-v3">
 <style>
 /* 홈 데스크톱 선택창 폭 = 홈 메인 카드 폭. .container max-width 390 - padding 18+18. Reader 프레임 폭은 쓰지 않는다. */
 @media (min-width:700px) and (min-height:600px){
@@ -2013,6 +2013,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
 body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
 </style>
 <link rel="stylesheet" href="js/gomna-home-legal-footer-v1.css?v=20260917-v1">
+<link rel="stylesheet" href="js/gomna-account-white.css?v=20260925-account-white-preview-v5">
 </head>
 <body data-gomna-page="home" class="gomna-home-deck-on">
 <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
@@ -2049,6 +2050,9 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
         <div class="gomna-home-card-inner">
           <p class="gomna-home-kicker">오늘의 말씀</p>
           <p class="gomna-home-ref gomna-home-ref-top" data-ghd-ref></p>
+          <button type="button" class="gomna-home-forward" data-ghd-forward aria-label="오늘의 메시지 보기">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+          </button>
           <div class="gomna-home-card-face is-shown" data-face="tease">
             <ul class="gomna-home-lines" data-ghd-lines></ul>
           </div>
@@ -2329,6 +2333,9 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
     <a class="gs-link" href="/studio" aria-label="Gomna Studio, Inc. 회사 소개"><span class="gs-copy" translate="no">© 2026 Gomna Studio, Inc.</span></a>
   </div>
 </div>
+<button type="button" class="gomna-home-return-top" id="gomnaHomeReturnTop" aria-label="첫 번째 말씀 카드 맨 위로 돌아가기" hidden>
+  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>
+</button>
 <nav class="gomna-home-tabbar" id="gomnaHomeTabbar" aria-label="주 메뉴">
   <button type="button" class="gomna-home-tab is-on" data-ghd-nav="home" aria-current="page" aria-label="홈">
     <span class="gomna-home-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg></span>
@@ -2345,6 +2352,10 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
   <a class="gomna-home-tab" data-ghd-nav="find" href="./reader.html?easy=1&amp;v=20260712-easyfind-direct-v3" aria-label="찾기">
     <span class="gomna-home-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M14.88 14.88L20.2 20.2"/></svg></span>
     <span data-i18n-key="home.tab.find">찾기</span>
+  </a>
+  <a class="gomna-home-tab" data-ghd-nav="archive" href="./reader.html?favorites" aria-label="보관함">
+    <span class="gomna-home-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
+    <span data-i18n-key="reader.tab.archive">보관함</span>
   </a>
   <button type="button" class="gomna-home-tab" data-ghd-nav="me" aria-label="로그인" aria-expanded="false" onclick="handleHomeAccountBtn()">
     <span class="gomna-home-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg></span>
@@ -2431,10 +2442,6 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
     <button type="button" class="home-account-menu-item" onclick="homeAccountPanelSettings()">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.3 14.1a1.5 1.5 0 0 0 .3 1.6l.1.1a1.8 1.8 0 1 1-2.5 2.5l-.1-.1a1.5 1.5 0 0 0-2.5 1v.3a1.8 1.8 0 1 1-3.6 0v-.2a1.5 1.5 0 0 0-2.6-1l-.1.1a1.8 1.8 0 1 1-2.5-2.5l.1-.1a1.5 1.5 0 0 0-1-2.5h-.3a1.8 1.8 0 1 1 0-3.6h.2a1.5 1.5 0 0 0 1-2.6l-.1-.1a1.8 1.8 0 1 1 2.5-2.5l.1.1a1.5 1.5 0 0 0 1.6.3h.1a1.5 1.5 0 0 0 .9-1.4v-.3a1.8 1.8 0 1 1 3.6 0v.2a1.5 1.5 0 0 0 2.5 1l.1-.1a1.8 1.8 0 1 1 2.5 2.5l-.1.1a1.5 1.5 0 0 0 1 2.5h.3a1.8 1.8 0 1 1 0 3.6h-.2a1.5 1.5 0 0 0-1.3.9z"/></svg>
       <span class="home-account-menu-item-label">설정</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
-    </button>
-    <button type="button" class="home-account-menu-item" onclick="homeAccountPanelLanguage()">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path d="M3.8 12h16.4"/><path d="M12 3.8c2.1 2.2 3.2 5.1 3.2 8.2s-1.1 6-3.2 8.2c-2.1-2.2-3.2-5.1-3.2-8.2s1.1-6 3.2-8.2z"/></svg>
-      <span class="home-account-menu-item-label">언어</span><span class="home-account-menu-item-arrow" aria-hidden="true"></span>
     </button>
   </div>
   <div class="home-account-panel-group--divided" data-account-group="signed-in" hidden>
@@ -3485,14 +3492,6 @@ function homeAccountPanelSettings(){
   closeHomeAccountPanel();
   openSettings();
 }
-/* 언어는 지구본 버튼이 열던 기존 언어창을 그대로 연다. */
-function homeAccountPanelLanguage(){
-  closeHomeAccountPanel();
-  if(typeof window.GomnaOpenLanguageModal==='function'){window.GomnaOpenLanguageModal();return;}
-  var globe=document.querySelector('.header-actions .gt-btn');
-  if(globe&&typeof globe.click==='function')globe.click();
-}
-
 /* 로그인 후 프로필 사진을 넣을 자리. Google·카카오 사진이나 사용자가 고른 URL을 그대로 전달한다. */
 function setHomeAccountAvatar(url){
   var ids=['homeAccountAvatarImg','homeAccountPanelAvatarImg','homeAccountSwitchAvatarImg'];
@@ -3724,9 +3723,9 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <script src="js/gomna-push-config.js?v=20260909-push-pref-v1"></script>
 <script src="js/gomna-push-prefs.js?v=20260914-notify-interval-v1"></script>
 <script src="js/gomna-mail-config.js?v=20260909-mail-mac-v1"></script>
-<script src="js/gomna-home-feed.js?v=20260920-iphone-resume-v1"></script>
+<script src="js/gomna-home-feed.js?v=20260925-account-wheel-v2-release"></script>
 <script src="js/gomna-bible-stair-picker.js?v=20260917-old-card-removed-v8"></script>
-<script src="settings_guide.js?v=20260807-settings-v3" defer></script>
+<script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>
 <script>
 (function(){

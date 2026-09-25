@@ -392,6 +392,7 @@
       if (!openLanguagePicker()) langRow.value.textContent = langLabel(currentLangCode());
     }
   });
+  basicSection.hidden = true;
 
   /* ── 화면 ──────────────────────────────────────────────── */
   var screenSection = addSection('화면');

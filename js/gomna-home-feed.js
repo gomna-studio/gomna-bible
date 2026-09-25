@@ -2,15 +2,15 @@
    Backup 로직(fillCopy, flip, social, reader target)을 3장만 쓰도록 재구성.
    묵상 패널·8장 덱·휠 가로채기는 복구하지 않는다. */
 (function(){
-  var root, stage, cards=[], count=3, progress=0, raf=0, reduce=false;
+  var root, stage, returnTopButton, cards=[], count=3, progress=0, raf=0, reduce=false;
   var pointerY=0, pointerX=0, pointerT=0, pointerMoved=false, scrollQuiet=true, scrollQuietTimer=0;
   var openScrollY=0, flipping=false;
   var card2Settled=false, card3Settled=false, allowCard3=false, allowCard1From2=false, allowCard2From3=false;
   var awaitingDir=false, gestureLive=false, gestureEndedSinceSettle=false;
-  var settleAnim=false, settleAnimTimer=0, wheelIdleTimer=0, wheelGesture=false, lastP=0;
+  var settleAnim=false, settleAnimTimer=0, wheelIdleTimer=0, wheelGesture=false, lastWheelAt=0, wheelStepDelta=0, lastP=0;
   var pinching=false, pinchScrollY=0, lifeImgsPreloaded=false, storyImgsPreloaded=false;
   var homeImageCache=Object.create(null), lifeImageRequest=0, storyImageRequest=0, cardOpenImageRequest=0;
-  var swipeDrag=null, swipeHandled=false;
+  var swipeDrag=null, swipeHandled=false, ignoreCardClickBefore=0;
   var relayoutQueued=false, relayoutPending=false;
   var vvResizeTimer=0;  var resumeRelayoutToken=0;
   var VV_RESIZE_WAIT=180;
@@ -851,7 +851,7 @@
     var bar=document.getElementById('gomnaHomeTabbar');
     if(!bar)return;
     bar.setAttribute('aria-label', uiLang()==='en'?'Main menu':(uiLang()==='ja'?'メインメニュー':'주 메뉴'));
-    var map={home:'home.tab.home',bible:'home.tab.bible',media:'home.tab.media',find:'home.tab.find',me:'home.tab.login'};
+    var map={home:'home.tab.home',bible:'home.tab.bible',media:'home.tab.media',find:'home.tab.find',archive:'reader.tab.archive',me:'home.tab.login'};
     bar.querySelectorAll('[data-ghd-nav]').forEach(function(el){
       var key=map[el.getAttribute('data-ghd-nav')];
       if(!key)return;
@@ -1191,6 +1191,7 @@
     return p;
   }
   function startSettleTo1(){
+    wheelStepDelta=0;
     card2Settled=false;
     card3Settled=false;
     allowCard3=false;
@@ -1208,6 +1209,7 @@
     apply(0, false);
   }
   function startSettleTo2(){
+    wheelStepDelta=0;
     card2Settled=true;
     card3Settled=false;
     allowCard3=false;
@@ -1228,6 +1230,7 @@
     apply(1, false);
   }
   function startSettleTo3(){
+    wheelStepDelta=0;
     card3Settled=true;
     card2Settled=false;
     allowCard3=false;
@@ -1269,6 +1272,7 @@
       return;
     }
     gestureLive=false;
+    wheelStepDelta=0;
     if(card2Settled || card3Settled)gestureEndedSinceSettle=true;
     if(swipeHandled){
       swipeHandled=false;
@@ -1297,10 +1301,43 @@
     if(card)card.style.visibility=masked?'hidden':'';
   }
   function onDeckWheel(){
+    var now=Date.now();
+    if((card2Settled || card3Settled) && !settleAnim && lastWheelAt && now-lastWheelAt>=75){
+      gestureEndedSinceSettle=true;
+    }
+    lastWheelAt=now;
     wheelGesture=true;
     markGestureStart();
     if(wheelIdleTimer)clearTimeout(wheelIdleTimer);
     wheelIdleTimer=setTimeout(markGestureEnd, 180);
+  }
+  function onWheelOutsideDeck(ev){
+    if(!root || ev.defaultPrevented || ev.ctrlKey || ev.metaKey)return;
+    if(document.querySelector('#settingsPopup.show, .gomna-acc-overlay:not([hidden])'))return;
+    var onSettledCard=(card2Settled || card3Settled) && !root.querySelector('.gomna-home-card.is-open');
+    if(root.contains(ev.target) && !onSettledCard)return;
+    if(document.documentElement.matches('.gomna-home-card-open, .ghd-sheet-open, .home-sheet-open, .home-overlay-open, .gomna-home-viewer-open, .home-bible-picker-open, .login-modal-open'))return;
+    if(Math.abs(ev.deltaY)<=Math.abs(ev.deltaX) || root.scrollHeight<=root.clientHeight+1)return;
+    var delta=ev.deltaY*(ev.deltaMode===1?16:ev.deltaMode===2?root.clientHeight:1);
+    if(!delta)return;
+    if(ev.cancelable)ev.preventDefault();
+    if(onSettledCard)ev.stopPropagation();
+    onDeckWheel();
+    if(onSettledCard){
+      if(settleAnim || !awaitingDir){wheelStepDelta=0;return;}
+      if(wheelStepDelta && (wheelStepDelta>0)!==(delta>0))wheelStepDelta=0;
+      wheelStepDelta+=delta;
+      if(Math.abs(wheelStepDelta)<18)return;
+      if(card2Settled){
+        if(wheelStepDelta>0)startSettleTo3();
+        else startSettleTo1();
+      }else if(card3Settled && wheelStepDelta<0){
+        startSettleTo2();
+      }
+      wheelStepDelta=0;
+      return;
+    }
+    root.scrollTop+=delta;
   }
   function swipePoint(ev){
     if(ev.touches && ev.touches[0])return {x:ev.touches[0].clientX, y:ev.touches[0].clientY};
@@ -1357,7 +1394,7 @@
   function pointInGestureCard(x, y){
     var card=root&&root.querySelector('.gomna-home-card.is-active');
     if(!card)return false;
-    if(card.classList.contains('is-open') && card.getAttribute('data-card')!=='1' && card.getAttribute('data-card')!=='2')return false;
+    if(card.classList.contains('is-open') && card.getAttribute('data-card')!=='0' && card.getAttribute('data-card')!=='1' && card.getAttribute('data-card')!=='2')return false;
     var r=card.getBoundingClientRect();
     return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
   }
@@ -1366,11 +1403,12 @@
     var zoomedInner=root&&root.querySelector('.gomna-home-card.is-active .gomna-home-card-inner');
     if(zoomedInner && (parseFloat(zoomedInner.getAttribute('data-ghd-pinch')||'1')||1)>1.001)return false;
     var layerOpen=layerDetailOpen();
-    if(flipping && !layerOpen)return false;
+    var firstOpen=!!root.querySelector('.gomna-home-card.is-active.is-open[data-card="0"]');
+    if(flipping && !layerOpen && !firstOpen)return false;
     if(document.documentElement.classList.contains('gomna-home-viewer-open'))return false;
     if(document.querySelector('.ghd-sheet.is-open'))return false;
     if(pointInHomeTabbar(x, y))return false;
-    if(root.querySelector('.gomna-home-card.is-open:not([data-card="1"]):not([data-card="2"])'))return false;
+    if(root.querySelector('.gomna-home-card.is-open:not([data-card="0"]):not([data-card="1"]):not([data-card="2"])'))return false;
     if(!pointInGestureCard(x, y))return false;
     swipeDrag={
       y:y,
@@ -1392,7 +1430,8 @@
   }
   function applySwipeMove(x, y, ev){
     if(!swipeDrag || pinching)return;
-    if(flipping && !swipeDrag.lifeOpen)return;
+    var firstOpen=!!root.querySelector('.gomna-home-card.is-active.is-open[data-card="0"]');
+    if(flipping && !swipeDrag.lifeOpen && !firstOpen)return;
     var dy=y-swipeDrag.y;
     var dx=x-swipeDrag.x;
     var adx=Math.abs(dx), ady=Math.abs(dy);
@@ -1400,6 +1439,17 @@
     var sc=lifeOpenNow?root.querySelector('.gomna-home-card[data-card="1"].is-open .gomna-home-leaf-scroll'):null;
     swipeDrag.lastX=x;
     swipeDrag.lastY=y;
+    if(firstOpen){
+      if(!swipeDrag.axis){
+        if(adx<AXIS_PX && ady<AXIS_PX)return;
+        if(adx<=ady*AXIS_RATIO){swipeDrag=null;return;}
+        swipeDrag.axis='x';
+        swipeDrag.swiping=true;
+        pointerMoved=true;
+      }
+      if(ev && ev.cancelable)ev.preventDefault();
+      return;
+    }
     if(lifeOpenNow){
       if(!swipeDrag.axis){
         if(adx<AXIS_PX && ady<AXIS_PX){
@@ -1525,11 +1575,24 @@
   }
   function applyLayerSwipe(left, right){
     if(!left && !right)return;
+    var firstOpen=root&&root.querySelector('.gomna-home-card.is-active.is-open[data-card="0"]');
+    if(firstOpen){
+      if(right){
+        ignoreCardClickBefore=Date.now()+450;
+        closeCard(firstOpen, false);
+      }
+      return;
+    }
     if(layerDetailOpen()){
       if(right)closeCard(layerDetailCard(), false);
       return;
     }
     var i=activeStackIndex();
+    if(i===0 && left){
+      ignoreCardClickBefore=Date.now()+450;
+      openCard(cards[0]);
+      return;
+    }
     if(right){
       if(i>=2)startSettleTo2();
       else if(i===1)startSettleTo1();
@@ -1660,6 +1723,7 @@
       card.style.zIndex=String(10+i);
     });
     if(root)root.setAttribute('data-ghd-active', String(Math.round(p)));
+    if(returnTopButton)returnTopButton.hidden=p<=0.02;
   }
   function onScroll(){
     if(pinching){
@@ -1961,6 +2025,7 @@
       if(Math.abs(ev.clientY-pointerY)>12||Math.abs(ev.clientX-pointerX)>12)pointerMoved=true;
     });
     card.addEventListener('click', function(ev){
+      if(Date.now()<ignoreCardClickBefore)return;
       if(isAction(ev.target)||pointerMoved)return;
       if(Date.now()-pointerT>420)return;
       if(card.classList.contains('is-open')&&!scrollQuiet)return;
@@ -3460,6 +3525,12 @@
         closeCard(cardFromEl(el), false);
       });
     });
+    root.querySelectorAll('[data-ghd-forward]').forEach(function(el){
+      el.addEventListener('click', function(ev){
+        ev.preventDefault();ev.stopPropagation();
+        openCard(cardFromEl(el));
+      });
+    });
     document.querySelectorAll('[data-ghd-notify]').forEach(function(el){
       if(el.getAttribute('data-ghd-notify-bound')==='1')return;
       el.setAttribute('data-ghd-notify-bound','1');
@@ -3861,7 +3932,7 @@
     document.querySelectorAll('[data-ghd-nav]').forEach(function(el){
       el.addEventListener('click', function(ev){
         var act=el.getAttribute('data-ghd-nav');
-        if(act==='find'||act==='me'||act==='media')return;
+        if(act==='find'||act==='me'||act==='media'||act==='archive')return;
         ev.preventDefault();
         if(act==='home')resetHomeToFirstCard();
         else if(act==='bible')openHomeBiblePicker();
@@ -3960,6 +4031,14 @@
     root=document.getElementById('gomnaHomeFeed');
     stage=document.getElementById('gomnaHomeFeedStage');
     if(!root||!stage||root.getAttribute('data-ghd-bound')==='1')return;
+    returnTopButton=document.getElementById('gomnaHomeReturnTop');
+    if(returnTopButton){
+      returnTopButton.addEventListener('click', function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        resetHomeToFirstCard();
+      });
+    }
     root.setAttribute('data-ghd-bound','1');
     document.body.classList.add('gomna-home-deck-on');
     hideLegacyHome();
@@ -4043,6 +4122,7 @@
     root.addEventListener('pointerup', markGestureEnd, {passive:true});
     root.addEventListener('pointercancel', markGestureEnd, {passive:true});
     root.addEventListener('wheel', onDeckWheel, {passive:true});
+    window.addEventListener('wheel', onWheelOutsideDeck, {passive:false, capture:true});
     window.addEventListener('scroll', onScroll, {passive:true});
     window.addEventListener('resize', function(){scheduleRelayout();}, {passive:true});
     window.addEventListener('keydown', function(ev){
