@@ -186,6 +186,53 @@ html.gomna-home-viewer-open body{
   touch-action:pan-x pan-y pinch-zoom;
 }
 .gomna-home-deck::-webkit-scrollbar{display:none;width:0;height:0}
+.gomna-home-return-top{
+  position:fixed;
+  right:max(15px, calc((100vw - 430px)/2 + 15px));
+  bottom:calc(var(--ghd-legal-h, calc(30px + env(safe-area-inset-bottom, 0px))) + 67px);
+  z-index:61;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  height:44px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#333D48;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.gomna-home-return-top[hidden],
+html.gomna-home-card-open .gomna-home-return-top,
+html.ghd-sheet-open .gomna-home-return-top,
+html.home-sheet-open .gomna-home-return-top,
+html.gomna-home-viewer-open .gomna-home-return-top,
+html.home-bible-picker-open .gomna-home-return-top,
+html.login-modal-open .gomna-home-return-top{display:none !important}
+.gomna-home-return-top::before{
+  content:"";
+  position:absolute;
+  width:37px;
+  height:37px;
+  border:1.5px solid #B8B8B8;
+  border-radius:50%;
+  background:rgba(255,255,255,.95);
+  box-shadow:0 2px 8px rgba(22,34,48,.12);
+  box-sizing:border-box;
+}
+.gomna-home-return-top svg{
+  position:relative;
+  width:26px;
+  height:26px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.gomna-home-return-top:focus-visible{outline:2px solid #355F9A;outline-offset:1px;border-radius:50%}
 .gomna-home-deck-stage{
   position:sticky;
   top:0;

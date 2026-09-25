@@ -2,7 +2,7 @@
    Backup 로직(fillCopy, flip, social, reader target)을 3장만 쓰도록 재구성.
    묵상 패널·8장 덱·휠 가로채기는 복구하지 않는다. */
 (function(){
-  var root, stage, cards=[], count=3, progress=0, raf=0, reduce=false;
+  var root, stage, returnTopButton, cards=[], count=3, progress=0, raf=0, reduce=false;
   var pointerY=0, pointerX=0, pointerT=0, pointerMoved=false, scrollQuiet=true, scrollQuietTimer=0;
   var openScrollY=0, flipping=false;
   var card2Settled=false, card3Settled=false, allowCard3=false, allowCard1From2=false, allowCard2From3=false;
@@ -1660,6 +1660,7 @@
       card.style.zIndex=String(10+i);
     });
     if(root)root.setAttribute('data-ghd-active', String(Math.round(p)));
+    if(returnTopButton)returnTopButton.hidden=p<=0.02;
   }
   function onScroll(){
     if(pinching){
@@ -3960,6 +3961,14 @@
     root=document.getElementById('gomnaHomeFeed');
     stage=document.getElementById('gomnaHomeFeedStage');
     if(!root||!stage||root.getAttribute('data-ghd-bound')==='1')return;
+    returnTopButton=document.getElementById('gomnaHomeReturnTop');
+    if(returnTopButton){
+      returnTopButton.addEventListener('click', function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        resetHomeToFirstCard();
+      });
+    }
     root.setAttribute('data-ghd-bound','1');
     document.body.classList.add('gomna-home-deck-on');
     hideLegacyHome();

@@ -56,7 +56,7 @@
 })();
 </script>
 <meta charset="UTF-8">
-<link rel="preload" as="style" href="js/gomna-home-feed.css?v=20260914-home-share-only-v13">
+<link rel="preload" as="style" href="js/gomna-home-feed.css?v=20260925-home-return-arrow-preview-v11">
 <link rel="preload" as="style" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
 <script defer src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script>
@@ -2001,7 +2001,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
 <link rel="preload" as="image" href="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1">
 <link rel="preload" as="image" href="assets/home/card-meditation-life.png?v=20260910-home-photo-v1">
 <link rel="preload" as="image" href="assets/home/card-bible-stories-people.png?v=20260910-home-photo-v1">
-<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260914-home-share-only-v13">
+<link rel="stylesheet" href="js/gomna-home-feed.css?v=20260925-home-return-arrow-preview-v11">
 <style>
 /* 홈 데스크톱 선택창 폭 = 홈 메인 카드 폭. .container max-width 390 - padding 18+18. Reader 프레임 폭은 쓰지 않는다. */
 @media (min-width:700px) and (min-height:600px){
@@ -2329,6 +2329,9 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
     <a class="gs-link" href="/studio" aria-label="Gomna Studio, Inc. 회사 소개"><span class="gs-copy" translate="no">© 2026 Gomna Studio, Inc.</span></a>
   </div>
 </div>
+<button type="button" class="gomna-home-return-top" id="gomnaHomeReturnTop" aria-label="첫 번째 말씀 카드 맨 위로 돌아가기" hidden>
+  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>
+</button>
 <nav class="gomna-home-tabbar" id="gomnaHomeTabbar" aria-label="주 메뉴">
   <button type="button" class="gomna-home-tab is-on" data-ghd-nav="home" aria-current="page" aria-label="홈">
     <span class="gomna-home-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg></span>
@@ -3724,7 +3727,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <script src="js/gomna-push-config.js?v=20260909-push-pref-v1"></script>
 <script src="js/gomna-push-prefs.js?v=20260914-notify-interval-v1"></script>
 <script src="js/gomna-mail-config.js?v=20260909-mail-mac-v1"></script>
-<script src="js/gomna-home-feed.js?v=20260920-iphone-resume-v1"></script>
+<script src="js/gomna-home-feed.js?v=20260925-home-return-arrow-preview-v1"></script>
 <script src="js/gomna-bible-stair-picker.js?v=20260917-old-card-removed-v8"></script>
 <script src="settings_guide.js?v=20260807-settings-v3" defer></script>
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>
