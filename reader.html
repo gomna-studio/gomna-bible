@@ -3077,7 +3077,7 @@ html.unified-bc-gesture-engine-active #unifiedBcGestureSurface [onclick]{
   --scripture-dock-gap:10px;
   --reader-dock-top-height:54px;
   --opt4-bottom-bar-height:60px;
-  --scripture-dock-inactive:#6A4A2E;
+  --scripture-dock-inactive:#414C5C;
   --scripture-dock-active-color:#8A5A22;
   /* 선택 강조는 카드 전체를 기준으로 한다. 중앙 대부분은 원바탕색이고, 네 변과 모서리에서
      안쪽 약 3mm(12px)만 어두운 중성 회색이 되며 안쪽으로 갈수록 부드럽게 밝아진다.
@@ -3415,21 +3415,32 @@ html.reader-hide-chrome .scripture-dock{
     color:var(--scripture-dock-inactive);
     max-width:none;
     flex:1;
+    min-width:0;
+    min-height:44px;
+    box-sizing:border-box;
+    text-decoration:none;
   }
   html.reader-hide-chrome .scripture-dock-icon{
     color:var(--scripture-dock-inactive);
   }
   html.reader-hide-chrome .scripture-dock-icon svg{
     stroke:currentColor;
-    stroke-width:1.7;
+    stroke-width:2;
   }
   html.reader-hide-chrome .scripture-dock-item[data-dock="home"] .scripture-dock-icon svg,
   html.reader-hide-chrome .scripture-dock-item[data-dock="my"] .scripture-dock-icon svg{
-    stroke-width:2.15;
+    stroke-width:2.75;
   }
   html.reader-hide-chrome .scripture-dock-label{
     color:var(--scripture-dock-inactive);
-    font-weight:600;
+    font-weight:700;
+    font-size:11px;
+  }
+  html.reader-hide-chrome .scripture-dock-item[data-dock="home"],
+  html.reader-hide-chrome .scripture-dock-item[data-dock="home"] .scripture-dock-icon,
+  html.reader-hide-chrome .scripture-dock-item[data-dock="home"] .scripture-dock-label{
+    color:#152033;
+    font-weight:750;
   }
   html.reader-hide-chrome .scripture-dock-item.active{
     color:var(--scripture-dock-active-color);
@@ -3472,43 +3483,43 @@ html.reader-hide-chrome .scripture-dock{
     background:var(--scripture-dock-active-color);
     opacity:1;
   }
-  /* 성경·찾기·보관함 활성/눌림만 책 선택(#E8F0FC / #355F9A)과 같은 맑은 블루. 홈·MY는 기존 규칙 유지. */
-  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="find"],[data-dock="archive"]){
+  /* 성경·묵상·찾기·보관함 활성/눌림만 책 선택(#E8F0FC / #355F9A)과 같은 맑은 블루. 홈·MY는 기존 규칙 유지. */
+  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="meditation"],[data-dock="find"],[data-dock="archive"]){
     --dock-sel-bg:#E8F0FC;
     --dock-sel-fg:#355F9A;
     --dock-sel-pressed-bg:#D9E8FA;
   }
-  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="find"],[data-dock="archive"]).active{
+  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="meditation"],[data-dock="find"],[data-dock="archive"]).active{
     color:var(--dock-sel-fg);
     background:var(--dock-sel-bg);
     border-color:#D7E0EC;
     box-shadow:none;
   }
-  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="find"],[data-dock="archive"]).active .scripture-dock-icon,
-  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="find"],[data-dock="archive"]).active .scripture-dock-label{
+  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="meditation"],[data-dock="find"],[data-dock="archive"]).active .scripture-dock-icon,
+  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="meditation"],[data-dock="find"],[data-dock="archive"]).active .scripture-dock-label{
     color:var(--dock-sel-fg);
   }
-  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="find"],[data-dock="archive"]).active .scripture-dock-icon::after{
+  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="meditation"],[data-dock="find"],[data-dock="archive"]).active .scripture-dock-icon::after{
     background:var(--dock-sel-fg);
     opacity:1;
   }
-  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="find"],[data-dock="archive"]):active,
-  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="find"],[data-dock="archive"]).active:active{
+  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="meditation"],[data-dock="find"],[data-dock="archive"]):active,
+  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="meditation"],[data-dock="find"],[data-dock="archive"]).active:active{
     background:var(--dock-sel-pressed-bg);
     color:var(--dock-sel-fg);
     box-shadow:none;
     opacity:1;
     filter:none;
   }
-  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="find"],[data-dock="archive"]):active .scripture-dock-icon,
-  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="find"],[data-dock="archive"]):active .scripture-dock-label{
+  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="meditation"],[data-dock="find"],[data-dock="archive"]):active .scripture-dock-icon,
+  html.reader-hide-chrome .scripture-dock-item:is([data-dock="bible"],[data-dock="meditation"],[data-dock="find"],[data-dock="archive"]):active .scripture-dock-label{
     color:var(--dock-sel-fg);
   }
   /* MY 로그인 표시. 성경 active와 별개. 원형은 기존 22px 아이콘 칸 안에서만 그린다. */
   html.reader-hide-chrome .scripture-dock-item[data-dock="my"].is-signed-in,
   html.reader-hide-chrome .scripture-dock-item[data-dock="my"].is-signed-in .scripture-dock-icon,
   html.reader-hide-chrome .scripture-dock-item[data-dock="my"].is-signed-in .scripture-dock-label{
-    color:#2F67C7;
+    color:#24579B;
   }
   html.reader-hide-chrome .scripture-dock-item[data-dock="my"].is-signed-in .scripture-dock-icon::before{
     content:'';
@@ -3525,12 +3536,15 @@ html.reader-hide-chrome .scripture-dock{
   html.reader-hide-chrome .scripture-dock-item[data-dock="my"].is-signed-in .scripture-dock-icon svg{
     position:relative;
     z-index:1;
-    stroke:#2F67C7;
+    stroke:#24579B;
   }
   html.reader-hide-chrome .scripture-dock-item[data-dock="my"]:not(.is-signed-in),
   html.reader-hide-chrome .scripture-dock-item[data-dock="my"]:not(.is-signed-in) .scripture-dock-icon,
   html.reader-hide-chrome .scripture-dock-item[data-dock="my"]:not(.is-signed-in) .scripture-dock-label{
-    color:#355F9A;
+    color:#24579B;
+  }
+  html.reader-hide-chrome .scripture-dock-item[data-dock="my"] .scripture-dock-label{
+    font-weight:750;
   }
   html.reader-hide-chrome.reader-verse-active .opt4-bottom-bar,
   html.reader-hide-chrome.reader-books-toolbar .opt4-bottom-bar{
@@ -4451,7 +4465,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 if ("serviceWorker" in navigator) {
   var hadSwController = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.register("/sw.js?v=2026-09-23-naver-profile-name-v63", { scope: "/", updateViaCache: "none" })
+  navigator.serviceWorker.register("/sw.js?v=2026-09-25-reviewed-home-account-ui-v64", { scope: "/", updateViaCache: "none" })
     .then(function(reg){ try { reg.update(); } catch (eUp) {} })
     .catch(function(){});
   if (!window.__gomnaSwUpdateBound) {
@@ -4459,8 +4473,8 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("controllerchange", function(){
       if (!hadSwController) return;
       try {
-        if (sessionStorage.getItem("gomna-sw-reloaded-2026-09-23-naver-profile-name-v63") === "1") return;
-        sessionStorage.setItem("gomna-sw-reloaded-2026-09-23-naver-profile-name-v63", "1");
+        if (sessionStorage.getItem("gomna-sw-reloaded-2026-09-25-reviewed-home-account-ui-v64") === "1") return;
+        sessionStorage.setItem("gomna-sw-reloaded-2026-09-25-reviewed-home-account-ui-v64", "1");
       } catch (eLock) {}
       location.reload();
     });
@@ -4481,6 +4495,7 @@ if ("serviceWorker" in navigator) {
 <script src="js/gomna-ui-i18n.js?v=20260909-locale-runtime-sync-v1"></script>
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
+<link rel="stylesheet" href="js/gomna-account-white.css?v=20260925-account-white-preview-v5">
 </head>
 <body data-gomna-page="reader">
 <div id="gomnaReaderBootOverlay" class="gomna-reader-boot-overlay" aria-hidden="true">
@@ -4742,6 +4757,7 @@ if ("serviceWorker" in navigator) {
   <nav id="scriptureDock" class="scripture-dock" aria-label="주 메뉴">
     <button type="button" class="scripture-dock-item" data-dock="home" onclick="handleScriptureDock('home')" aria-label="홈" data-i18n-aria-label="home.tab.home"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg></span><span class="scripture-dock-label" data-i18n-key="home.tab.home">홈</span></span></button>
     <button type="button" class="scripture-dock-item active" data-dock="bible" onclick="handleScriptureDock('bible')" aria-label="성경" data-i18n-aria-label="home.tab.bible"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:1.8"><path d="M12 6.3v13"/><path d="M12 6.3C10.8 5.5 9.2 5 7.5 5S4.2 5.5 3 6.3v13C4.2 18.5 5.8 18 7.5 18s3.3.5 4.5 1.3"/><path d="M12 6.3C13.2 5.5 14.8 5 16.5 5s3.3.5 4.5 1.3v13C19.8 18.5 18.2 18 16.5 18s-3.3.5-4.5 1.3"/></svg></span><span class="scripture-dock-label" data-i18n-key="home.tab.bible">성경</span></span></button>
+    <a class="scripture-dock-item" data-dock="meditation" href="./meditation.html" aria-label="묵상" data-i18n-aria-label="home.tab.media"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 23 23"><rect x="5.75" y="4.25" width="11.5" height="14.5" rx="2.1"/><path d="M8.2 9.55h6.6M8.2 13.45h6.6"/></svg></span><span class="scripture-dock-label" data-i18n-key="home.tab.media">묵상</span></span></a>
     <button type="button" class="scripture-dock-item" data-dock="find" onclick="handleScriptureDock('find')" aria-label="찾기" title="찾기" data-i18n-aria-label="home.tab.find" data-i18n-title="home.tab.find"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M14.88 14.88L20.2 20.2"/></svg></span><span class="scripture-dock-label" data-i18n-key="home.tab.find">찾기</span></span></button>
     <button type="button" class="scripture-dock-item" data-dock="archive" onclick="handleScriptureDock('archive')" aria-label="보관함" data-i18n-aria-label="reader.tab.archive"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></span><span class="scripture-dock-label" data-i18n-key="reader.tab.archive">보관함</span></span></button>
     <button type="button" class="scripture-dock-item" data-dock="my" onclick="handleScriptureDock('my')" aria-label="로그인" title="로그인"><span class="scripture-dock-surface"><span class="scripture-dock-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c.7-3.7 3.6-5.9 7.2-5.9s6.5 2.2 7.2 5.9"/></svg></span><span class="scripture-dock-label">로그인</span></span></button>
@@ -10837,6 +10853,13 @@ function resetUbcReaderTestamentPopStyle(pop) {
   pop.style.left = '';
   pop.style.top = '';
   pop.style.right = '';
+  pop.style.height = '';
+  pop.style.paddingTop = '';
+  var items = pop.querySelectorAll('.ubc-reader-testament-item');
+  for (var i = 0; i < items.length; i++) {
+    items[i].style.height = '';
+    items[i].style.minHeight = '';
+  }
 }
 
 function closeUbcReaderTestamentPop() {
@@ -10852,40 +10875,59 @@ function closeUbcReaderTestamentPop() {
 }
 
 function unifiedBcDrawerRailRect() {
-  var overlay = document.getElementById('unifiedBookChapterModal');
-  var box = overlay && overlay.querySelector('.unified-bc-box');
-  var boxRect;
-  var railW;
-  if (!box) return null;
-  boxRect = box.getBoundingClientRect();
-  railW = parseFloat(getComputedStyle(overlay).getPropertyValue('--ubc-drawer-w'));
-  if (!railW || !isFinite(railW)) railW = boxRect.width;
-  return {
-    top: boxRect.top,
-    left: boxRect.right - railW,
-    right: boxRect.right,
-    width: railW
-  };
+  // The chapter card widens the drawer box to the left. The visible Bible title
+  // stays on the right rail in both states, so anchor the menu to that title.
+  var title = document.getElementById('unifiedBcBookDrawerTitle');
+  var titleRect = title && title.getBoundingClientRect();
+  if (!titleRect) return null;
+  return { top: titleRect.top, left: titleRect.left };
 }
 
 function positionUbcReaderTestamentPop() {
   var pop = document.getElementById('ubcReaderTestamentPop');
   var overlay = document.getElementById('unifiedBookChapterModal');
   var rail = unifiedBcDrawerRailRect();
+  var title = document.getElementById('unifiedBcBookDrawerTitle');
+  var list = document.getElementById('unifiedBcBookList');
+  var items = pop && pop.querySelectorAll('.ubc-reader-testament-item');
   var popRect;
+  var titleRect;
+  var listRect;
+  var rows;
+  var firstRowBottom;
   var gap = 6;
   var margin = 8;
   var left;
   var top;
-  if (!pop || !overlay || !rail) return;
+  var divider;
+  var bottom;
+  if (!pop || !overlay || !rail || !title || !list || !items || items.length !== 2) return;
   if (pop.parentNode !== overlay) overlay.appendChild(pop);
   pop.hidden = false;
   popRect = pop.getBoundingClientRect();
+  titleRect = title.getBoundingClientRect();
+  listRect = list.getBoundingClientRect();
+  rows = list.querySelectorAll('.ubc-book-row');
+  firstRowBottom = listRect.top + 44;
+  for (var i = 0; i < rows.length; i++) {
+    var rowRect = rows[i].getBoundingClientRect();
+    if (rowRect.bottom > listRect.top + 1) {
+      firstRowBottom = Math.max(firstRowBottom, rowRect.bottom);
+      break;
+    }
+  }
   left = rail.left - gap - popRect.width;
   if (left < margin) left = margin;
-  top = rail.top;
+  top = Math.round(titleRect.top);
+  divider = Math.round((titleRect.bottom + listRect.top) / 2);
+  bottom = Math.round(firstRowBottom);
   pop.style.left = Math.round(left) + 'px';
-  pop.style.top = Math.round(top) + 'px';
+  pop.style.top = 'calc(' + top + 'px - 2mm)';
+  pop.style.height = 'calc(' + (bottom - top) + 'px + 2mm)';
+  pop.style.paddingTop = '2mm';
+  items[0].style.minHeight = items[1].style.minHeight = '0';
+  items[0].style.height = (divider - top - 1) + 'px';
+  items[1].style.height = (bottom - divider - 1) + 'px';
 }
 
 function openUbcReaderTestamentPop() {
@@ -18551,6 +18593,7 @@ function applyReaderChromeI18n(localeOverride) {
     var dockMap = {
       home: readerUiT('home.tab.home', '홈'),
       bible: readerUiT('home.tab.bible', '성경'),
+      meditation: readerUiT('home.tab.media', '묵상'),
       find: readerUiT('home.tab.find', '찾기'),
       archive: readerUiT('reader.tab.archive', '보관함')
     };
@@ -18944,7 +18987,7 @@ function changeFont(delta) {
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260919-stale-context-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
 <script src="/js/gomna-audio-ui.js?v=20260803-card-skip-v1" defer></script>
-<script src="settings_guide.js?v=20260807-settings-v3" defer></script>
+<script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)
 - "서비스 개선" 자동 체크
