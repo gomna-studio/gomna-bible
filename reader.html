@@ -16798,6 +16798,7 @@ function initVerseToolbarEvents() {
         playRangeAudio();
       } else if (selCount >= 1) {
         closeVerseListenModeMenu();
+        if (window.gomnaReaderWaitForAudioManifest && window.gomnaReaderWaitForAudioManifest(playSelectedVersesQueue)) return;
         playSelectedVersesQueue();
       } else if (isVerseListenModeMenuOpen()) {
         closeVerseListenModeMenu();
@@ -16824,6 +16825,7 @@ function initVerseToolbarEvents() {
     listenOnlyBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       e.preventDefault();
+      if (window.gomnaReaderWaitForAudioManifest && window.gomnaReaderWaitForAudioManifest(playSingleVerseOnly)) return;
       playSingleVerseOnly();
     });
   }
@@ -16831,6 +16833,7 @@ function initVerseToolbarEvents() {
     listenFromBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       e.preventDefault();
+      if (window.gomnaReaderWaitForAudioManifest && window.gomnaReaderWaitForAudioManifest(playSingleSelectedVerse)) return;
       playSingleSelectedVerse();
     });
   }
@@ -16848,6 +16851,7 @@ function initVerseToolbarEvents() {
     listenModeChapterBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       e.preventDefault();
+      if (window.gomnaReaderWaitForAudioManifest && window.gomnaReaderWaitForAudioManifest(function(){ playChapterFromListenMode(false); })) return;
       playChapterFromListenMode(false);
     });
   }
@@ -16855,6 +16859,7 @@ function initVerseToolbarEvents() {
     listenModeContinuousBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       e.preventDefault();
+      if (window.gomnaReaderWaitForAudioManifest && window.gomnaReaderWaitForAudioManifest(function(){ playChapterFromListenMode(true); })) return;
       playChapterFromListenMode(true);
     });
   }
@@ -20195,5 +20200,155 @@ function loadAds() {
 <script defer src="js/gomna-help.js?v=2026-09-18-help-commentary-v29"></script>
 <!-- 로컬 미리보기: 로그인 상단 카드 3장 교차 셔플(표시 전용). 되돌릴 때는 이 줄과 파일만 지운다. -->
 <script defer src="js/gomna-login-brand-shuffle.js?v=20260910-lead-rotate-v1"></script>
+<!-- Topic entry: offer an explicit continuation after a completed single verse. -->
+<style>
+#gomnaTopicListenNext{position:fixed;left:50%;transform:translateX(-50%);bottom:155px;width:calc(100% - 32px);max-width:420px;box-sizing:border-box;padding:16px;background:#fff;color:#000;border:1px solid #d6dce4;border-radius:16px;box-shadow:0 6px 24px #0002;z-index:490;font-family:inherit}
+#gomnaTopicListenNext[hidden]{display:none!important}
+#gomnaTopicListenNext p{margin:0 30px 12px 0;font-size:15px;color:#000;line-height:1.5}
+#gomnaTopicListenNext button,#gomnaTopicListenNext a{font:inherit;font-size:14px;min-height:44px;box-sizing:border-box}
+#gomnaTopicListenNext .topic-listen-actions{display:flex;gap:8px}
+#gomnaTopicListenNext .topic-listen-actions button{flex:1;padding:10px 8px;border:1px solid #294f75;border-radius:8px;background:#fff;color:#000}
+#gomnaTopicListenNext #gomnaTopicContinue{background:#294f75;color:#fff}
+#gomnaTopicListenNext .topic-listen-close{position:absolute;right:6px;top:3px;width:44px;border:0;background:transparent;color:#000;font-size:24px}
+#gomnaTopicListenNext a{display:flex;align-items:center;justify-content:center;color:#000;margin-top:6px;text-decoration:underline}
+</style>
+<script>
+(function(){
+  'use strict';
+  var topics=['anxiety','comfort','grief','sleep','family','wisdom','healing','gratitude','new-beginnings','dawn-prayer'];
+  var source=new URLSearchParams(location.search).get('source')||'';
+  var topic=source.indexOf('topic-')===0?source.slice(6):'';
+  if(topics.indexOf(topic)<0)return;
+  var pending=null,card=null;
+  function samePlace(item){return !!(item&&currentBook&&currentBook.name===item.book&&Number(currentChapter)===item.chapter);}
+  function hide(){pending=null;if(card)card.hidden=true;}
+  function position(){
+    if(!card||card.hidden)return;
+    var toolbar=document.getElementById('opt4VerseToolbar');
+    var rect=toolbar&&toolbar.getBoundingClientRect();
+    card.style.bottom=(rect&&rect.height&&rect.top>0&&rect.top<innerHeight?innerHeight-rect.top+8:155)+'px';
+  }
+  function createCard(){
+    if(card)return;
+    card=document.createElement('section');card.id='gomnaTopicListenNext';card.hidden=true;
+    card.setAttribute('aria-label','말씀 이어 듣기');
+    card.innerHTML='<button type="button" class="topic-listen-close" aria-label="닫기">×</button><p role="status"></p><div class="topic-listen-actions"><button type="button" id="gomnaTopicContinue"></button><button type="button" id="gomnaTopicReplay">다시 듣기</button></div><a>상황별 말씀 목록으로 돌아가기</a>';
+    card.querySelector('a').href='/topics/'+topic+'/';
+    card.querySelector('.topic-listen-close').onclick=hide;
+    card.querySelector('#gomnaTopicReplay').onclick=function(){
+      var item=pending;if(!samePlace(item)){hide();return;}
+      hide();clearBibleContinuousChapterPlayback();window.__gomnaBibleChapterListenMode=null;
+      window.GOMNA_AUDIO_ENGINE.playAudioQueue([item.audioId],{source:'bible-single-verse:'+item.audioId.replace(/\.bible$/,''),forceRestart:true});
+    };
+    card.querySelector('#gomnaTopicContinue').onclick=function(){
+      var item=pending;if(!samePlace(item)){hide();return;}hide();
+      if(item.verse<currentVerseCount){playChapterAudio({startVerse:item.verse+1});}
+      else if(currentChapter<currentBook.chapters){
+        setBibleContinuousChapterPlayback(true);window.__gomnaBibleChapterListenMode='continuous';continueBibleContinuousChapterPlayback();
+      }
+    };
+    document.body.appendChild(card);
+  }
+  window.addEventListener('audio:start',function(e){
+    hide();
+    var engine=window.GOMNA_AUDIO_ENGINE,state=engine&&engine.getState&&engine.getState();
+    var detail=e.detail||{},id=detail.audioId;
+    if(!currentBook||!state||!/^bible-single-verse:/.test(state.queueSource||'')||state.queueAudioIds.length!==1||state.queueAudioIds[0]!==id)return;
+    var segment=/^(\d+)(?:o(\d+))?$/.exec((id||'').split('.')[2]||'');
+    var verse=segment?Number(segment[1]):0,occurrence=segment&&segment[2]?Number(segment[2]):1;
+    if(!Number.isInteger(verse)||verse<1||verse>currentVerseCount||getVerseAudioId(verse,occurrence)!==id)return;
+    pending={audioId:id,book:currentBook.name,chapter:Number(currentChapter),verse:verse,media:engine._state&&engine._state.currentAudio};
+  });
+  window.addEventListener('audio:end',function(e){
+    var detail=e.detail||{},item=pending;
+    if(detail.reason!=='queue_completed'||!samePlace(item)||detail.audioId!==item.audioId||!item.media||!item.media.ended||item.media.error){hide();return;}
+    if(document.querySelector('#settingsPopup.show, .gomna-acc-overlay:not([hidden]), #verseToolbarMoreOverlay.active, #verseReadMoreOverlay.active, [role="dialog"][aria-modal="true"][aria-hidden="false"]:not([hidden])')){hide();return;}
+    createCard();
+    card.querySelector('p').textContent=item.book+' '+item.chapter+(item.book==='시편'?'편 ':'장 ')+item.verse+'절을 다 들었습니다';
+    var next=card.querySelector('#gomnaTopicContinue');
+    next.hidden=item.verse>=currentVerseCount&&currentChapter>=currentBook.chapters;
+    next.textContent=item.verse<currentVerseCount?(item.verse+1)+'절부터 이어 듣기':(item.chapter+1)+(item.book==='시편'?'편':'장')+' 이어 듣기';
+    card.hidden=false;position();
+  });
+  window.addEventListener('audio:error',hide);
+  window.addEventListener('gomna:verse_list_rendered',hide);
+  window.addEventListener('pagehide',hide);
+  window.addEventListener('resize',position);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')hide();});
+  document.addEventListener('click',function(e){if(!card||!card.contains(e.target))hide();},true);
+})();
+</script>
+
+<!-- Reader audio startup feedback: wait for the manifest once and offer manual retry for a stalled first sound. -->
+<style>
+#gomnaAudioStartNotice{position:fixed;left:50%;bottom:136px;transform:translateX(-50%);z-index:485;max-width:420px;width:calc(100% - 32px);box-sizing:border-box;border:1px solid #cfdae8;border-radius:12px;padding:10px 12px;background:#fff;color:#000;font:600 14px/1.4 inherit;box-shadow:0 5px 18px #0002;display:flex;align-items:center;justify-content:space-between;gap:12px}
+#gomnaAudioStartNotice[hidden]{display:none!important}
+#gomnaAudioStartNotice button{border:0;border-radius:8px;background:#294f75;color:#fff;padding:9px 14px;font:600 14px/1.2 inherit;white-space:nowrap;min-height:40px}
+#gomnaAudioStartNotice button[hidden]{display:none!important}
+</style>
+<script>
+(function(){
+'use strict';
+var pending=null,active=null,notice=null,watchTimer=0;
+function view(){
+ if(notice)return notice;
+ notice=document.createElement('div');notice.id='gomnaAudioStartNotice';notice.hidden=true;notice.setAttribute('role','status');
+ notice.innerHTML='<span id="gomnaAudioStartMessage"></span><button type="button" hidden>다시 시도</button>';
+ notice.querySelector('button').addEventListener('click',function(){
+   if(pending){
+     var queued=pending;
+     if(!matchPlace(queued)||!window.GOMNA_AUDIO_CONFIG||window.GOMNA_AUDIO_CONFIG.manifestLoadStatus!=='loaded'){pending=null;hide();return;}
+     pending=null;hide();queued.action();return;
+   }
+   var item=active,engine=window.GOMNA_AUDIO_ENGINE;
+   if(!item||!engine||!engine.getState)return;
+   var state=engine.getState();
+   if(!state.queueActive||state.currentAudioId!==item.id||state.queueSource!==item.source||engine._state.queueEpoch!==item.epoch||engine._state.currentAudio!==item.media)return;
+   var remaining=state.queueAudioIds.slice(state.queueIndex);
+   if(!remaining.length||remaining[0]!==item.id)return;
+   hide();engine.playAudioQueue(remaining,{source:item.source,forceRestart:true});
+ });
+ document.body.appendChild(notice);return notice;
+}
+function show(message,retry){var el=view();el.querySelector('span').textContent=message;el.querySelector('button').hidden=!retry;el.querySelector('button').textContent=pending?'듣기 시작':'다시 시도';el.hidden=false;}
+function hide(){clearTimeout(watchTimer);watchTimer=0;active=null;if(notice)notice.hidden=true;}
+function matchPlace(item){return !!(item&&window.currentBook&&window.currentBook.name===item.book&&Number(window.currentChapter)===item.chapter);}
+function queueUntilManifest(action){
+ var config=window.GOMNA_AUDIO_CONFIG;
+ if(pending){if(config&&config.manifestLoadStatus==='loaded'){pending=null;hide();return false;}return true;}
+ if(!config||config.manifestLoadStatus==='loaded')return false;
+ var item={book:window.currentBook&&window.currentBook.name,chapter:Number(window.currentChapter),action:action};pending=item;
+ show('음성 준비 중…',false);
+ function ready(){
+   clearTimeout(expired);
+   if(pending!==item)return;
+   if(!matchPlace(item)){pending=null;hide();return;}
+   show('음성 준비 완료',true);
+ }
+ var expired=setTimeout(function(){if(pending===item){pending=null;window.removeEventListener('gomna:manifest_loaded',ready);show('음성을 불러오지 못했습니다. 다시 눌러주세요.',false);}},60000);
+ window.addEventListener('gomna:manifest_loaded',ready,{once:true});
+ return true;
+}
+window.gomnaReaderWaitForAudioManifest=queueUntilManifest;
+window.addEventListener('audio:start',function(e){
+ hide();var engine=window.GOMNA_AUDIO_ENGINE,state=engine&&engine.getState&&engine.getState(),id=e.detail&&e.detail.audioId;
+ if(!state||!id||!/\.bible$/.test(id)||state.currentAudioId!==id)return;
+ active={id:id,epoch:engine._state&&engine._state.queueEpoch,source:state.queueSource,book:window.currentBook&&window.currentBook.name,chapter:Number(window.currentChapter),media:engine._state&&engine._state.currentAudio};
+ if(!active.media)return;
+ var item=active;
+ show('음성 연결 중…',false);
+ item.media.addEventListener('playing',function(){if(active===item)hide();},{once:true});
+ watchTimer=setTimeout(function(){
+   if(active!==item||!matchPlace(item))return;
+   var latest=engine.getState();
+   if(!latest.queueActive||latest.currentAudioId!==item.id||engine._state.queueEpoch!==item.epoch||engine._state.currentAudio!==item.media||latest.isPaused||item.media.readyState>=3){hide();return;}
+   show('음성 연결이 지연되고 있습니다.',true);
+ },10000);
+});
+['audio:pause','audio:end','audio:error'].forEach(function(eventName){window.addEventListener(eventName,hide);});
+window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!matchPlace(active))hide();if(pending){pending=null;hide();}});
+})();
+</script>
+
 </body>
 </html>
