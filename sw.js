@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-09-26-ios-audio-ready-controls-v65';
+const CACHE_VERSION = '2026-09-27-pwa-recovery-v66';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE = 'gomna-data-v1';
@@ -30,6 +30,8 @@ const STATIC_URLS = [
   '/',
   '/index.html',
   '/reader.html',
+  '/meditation.html',
+  '/js/gomna-pwa-recovery.js?v=2026-09-27-pwa-recovery-v66',
   '/translate_feature.js?v=20260724-first-visit-detect-v2',
   '/js/gomna-ui-i18n.js?v=20260729-resume-i18n-books',
   '/analytics-control.js?v=20260826-internal-exclusion-v1',
@@ -37,7 +39,7 @@ const STATIC_URLS = [
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
   '/js/gomna-account-white.css?v=20260925-account-white-preview-v5',
-  '/js/gomna-home-feed.js?v=20260925-account-wheel-v2-release',
+  '/js/gomna-home-feed.js?v=2026-09-27-pwa-recovery-v66',
   '/js/gomna-home-feed.css?v=20260925-home-login-icons-v3',
   '/gomna_category_feature.js',
   '/style.css',
@@ -178,77 +180,48 @@ async function audioManifestStaleWhileRevalidate(req) {
   }
 }
 
+// No unconditional skipWaiting: older clients cannot report whether audio is playing.
+// Existing clients without this protocol upgrade on natural close/navigation.
 self.addEventListener('install', event => {
-  self.skipWaiting();
-  event.waitUntil(
-    Promise.all([
-      caches.open(STATIC_CACHE).then(cache =>
-        Promise.all(STATIC_URLS.map(url =>
-          cache.add(url).catch(err => {
-            console.warn('[sw] failed to cache', url, err);
-          })
-        ))
-      ),
-      caches.open(AUDIO_MANIFEST_CACHE).then(cache =>
-        cache.add('/audio/audio-manifest.json').catch(err => {
-          console.warn('[sw] failed to prefetch audio manifest', err);
-        })
-      )
-    ])
-  );
+  event.waitUntil(caches.open(STATIC_CACHE).then(cache => Promise.all(STATIC_URLS.map(async url => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch(new Request(url, { cache: 'reload', signal: controller.signal }));
+      if (response.ok) await cache.put(url, response);
+    } catch (err) { console.warn('[sw] optional precache failed', url); }
+    finally { clearTimeout(timer); }
+  }))));
+  // The audio manifest remains in its dedicated cache and refreshes when requested.
 });
 
-function isInstalledAppHtmlClient(client) {
-  if (!client || !client.url) return false;
-  try {
-    const url = new URL(client.url);
-    if (url.origin !== self.location.origin) return false;
-    const path = url.pathname || '/';
-    if (path.indexOf('/auth/') === 0) return false;
-    if (/callback/i.test(path)) return false;
-    return path === '/'
-      || path === '/index.html'
-      || path === '/reader.html';
-  } catch (eUrl) {
-    return false;
+let updateProbe = null;
+async function requestSafeActivation() {
+  if (updateProbe) return;
+  const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+  if (!clients.length) { await self.skipWaiting(); return; }
+  if (updateProbe) return;
+  const token = CACHE_VERSION + ':' + Date.now();
+  const answers = new Map();
+  updateProbe = { token, answers, ids: new Set(clients.map(client => client.id)) };
+  clients.forEach(client => client.postMessage({ type: 'GOMNA_UPDATE_PROBE', token }));
+  await new Promise(resolve => setTimeout(resolve, 1200));
+  const current = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+  const safe = current.every(client => updateProbe.ids.has(client.id) && answers.get(client.id) === true);
+  updateProbe = null;
+  if (safe) await self.skipWaiting();
+}
+self.addEventListener('message', event => {
+  const data = event.data || {};
+  if (data.type === 'GOMNA_GET_RELEASE' && event.source) {
+    event.source.postMessage({ type: 'GOMNA_RELEASE', version: CACHE_VERSION });
+  } else if (data.type === 'GOMNA_REQUEST_ACTIVATION') {
+    event.waitUntil(requestSafeActivation());
+  } else if (data.type === 'GOMNA_UPDATE_REPLY' && updateProbe && event.source &&
+      data.token === updateProbe.token && updateProbe.ids.has(event.source.id)) {
+    updateProbe.answers.set(event.source.id, data.safe === true);
   }
-}
-
-function refreshUrlForClient(clientUrl) {
-  const url = new URL(clientUrl);
-  // Same-URL and hash-only navigations do not reload the document.
-  // Flip a reserved flag so path plus book/chapter/source stay in place.
-  if (url.searchParams.get('swr') === '1') url.searchParams.delete('swr');
-  else url.searchParams.set('swr', '1');
-  url.hash = '';
-  return url.href;
-}
-
-let refreshedInstalledAppClients = false;
-
-function refreshInstalledAppClients() {
-  if (refreshedInstalledAppClients) return Promise.resolve();
-  refreshedInstalledAppClients = true;
-  return new Promise((resolve) => { setTimeout(resolve, 50); })
-    .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
-    .then((list) => {
-      const jobs = [];
-      for (let i = 0; i < list.length; i++) {
-        const client = list[i];
-        if (!isInstalledAppHtmlClient(client)) continue;
-        if (typeof client.navigate !== 'function') continue;
-        jobs.push(
-          Promise.resolve(client.navigate(refreshUrlForClient(client.url))).catch((eNav) => {
-            console.warn('[sw] client.navigate failed', client.url, eNav);
-          })
-        );
-      }
-      return Promise.all(jobs);
-    })
-    .catch((err) => {
-      console.warn('[sw] installed app client refresh failed', err);
-    });
-}
+});
 
 self.addEventListener('activate', event => {
   event.waitUntil(
@@ -311,7 +284,7 @@ function isFreshAppAsset(req, url) {
 }
 
 function networkFirst(req, fallbackUrl) {
-  const networkPromise = fetch(req).then(resp => {
+  const networkPromise = fetch(req, { cache: 'no-cache' }).then(resp => {
     if (resp.ok && resp.type === 'basic') {
       const clone = resp.clone();
       caches.open(STATIC_CACHE).then(cache => cache.put(req, clone));
@@ -337,7 +310,7 @@ function networkFirst(req, fallbackUrl) {
 // 로컬 미리보기 전용: HTML 이동 요청은 4초 timeout으로 옛 캐시로 되돌리지 않는다.
 // 네트워크 응답을 기다려 디스크의 현재 화면을 보여주고, 네트워크가 실제로 실패할 때만 캐시를 쓴다.
 function networkFirstWithoutTimeout(req, fallbackUrl) {
-  return fetch(req).then(resp => {
+  return fetch(req, { cache: 'no-cache' }).then(resp => {
     if (resp.ok && resp.type === 'basic') {
       const clone = resp.clone();
       caches.open(STATIC_CACHE).then(cache => cache.put(req, clone));

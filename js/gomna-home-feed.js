@@ -1005,6 +1005,7 @@
     if(typeof openDailyVerse==='function')openDailyVerse(mode, extra);
   }
   function viewH(){
+    if(window.GOMNA_PWA_VIEWPORT)return window.GOMNA_PWA_VIEWPORT.read().height;
     var vv=window.visualViewport;
     var h=(vv&&vv.height)||window.innerHeight;
     if(!(h>0))h=window.innerHeight;
@@ -1063,6 +1064,7 @@
     if(window.visualViewport){
       window.visualViewport.addEventListener('resize', onVisualViewportResize, {passive:true});
     }
+    window.addEventListener('gomna:viewport-restored', scheduleRelayout, {passive:true});
     window.addEventListener('pageshow', restoreHomeViewportAfterResume, {passive:true});
     window.addEventListener('focus', restoreHomeViewportAfterResume, {passive:true});
     window.addEventListener('orientationchange', scheduleRelayout, {passive:true});
