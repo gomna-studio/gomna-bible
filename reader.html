@@ -20350,5 +20350,107 @@ window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!match
 })();
 </script>
 
+
+<!-- iPhone audio timing diagnostic panel: active only with ?audioDiag=1 -->
+<script id="gomna-ios-audio-diag-panel">
+(function(){
+  'use strict';
+  try {
+    var p = new URLSearchParams(location.search);
+    if (p.get('audioDiag') !== '1') return;
+  } catch(e) { return; }
+
+  function ms(v){ return (typeof v === 'number' && isFinite(v)) ? Math.round(v) + 'ms' : '-'; }
+  function esc(v){ return String(v == null ? '' : v); }
+
+  function summarize(){
+    var logs = Array.isArray(window.__gomnaAudioDiag) ? window.__gomnaAudioDiag.slice() : [];
+    if (!logs.length) return '아직 재생 기록이 없습니다.\n\n듣기를 한 번 누르고 실제 소리가 날 때까지 기다려 주세요.';
+
+    var sessions = {};
+    logs.forEach(function(r){
+      var d=r && r.detail || {};
+      var key=d.session || 'no-session';
+      if(!sessions[key]) sessions[key]={rows:[],audioId:d.audioId||''};
+      sessions[key].rows.push(r);
+      if(d.audioId) sessions[key].audioId=d.audioId;
+    });
+
+    var out=[];
+    Object.keys(sessions).slice(-6).forEach(function(key,idx){
+      var sess=sessions[key], rows=sess.rows;
+      function first(name){ for(var i=0;i<rows.length;i++) if(rows[i].event===name) return rows[i]; return null; }
+      var enter=first('playAudioById:enter');
+      var source=first('source:selected');
+      var load=first('load:call');
+      var play=first('play:call');
+      var loadstart=first('media:loadstart');
+      var meta=first('media:loadedmetadata');
+      var canplay=first('media:canplay');
+      var playing=first('media:playing');
+      var resource=first('resource:audio');
+      var t0=enter ? enter.t : (play ? play.t : (rows[0] ? rows[0].t : 0));
+      function delta(r){ return r ? (r.t - t0) : null; }
+
+      out.push(
+        '--- 재생 ' + (idx+1) + ' ---',
+        'audioId: ' + esc(sess.audioId),
+        '미리받은 다음절 사용: ' + (source && source.detail && source.detail.usingPrefetchedBlob ? 'O' : 'X'),
+        '진입→load(): ' + ms(delta(load)),
+        '진입→play(): ' + ms(delta(play)),
+        '진입→loadstart: ' + ms(delta(loadstart)),
+        '진입→metadata: ' + ms(delta(meta)),
+        '진입→canplay: ' + ms(delta(canplay)),
+        '진입→실제 playing: ' + ms(delta(playing))
+      );
+
+      if(resource && resource.detail){
+        var rd=resource.detail;
+        out.push(
+          '네트워크 request→first byte: ' +
+            (typeof rd.responseStart==='number' && typeof rd.requestStart==='number' ? ms(rd.responseStart-rd.requestStart) : '-'),
+          '네트워크 first byte→완료: ' +
+            (typeof rd.responseEnd==='number' && typeof rd.responseStart==='number' ? ms(rd.responseEnd-rd.responseStart) : '-'),
+          'resource 총시간: ' + (typeof rd.duration==='number' ? ms(rd.duration) : '-')
+        );
+      }
+      out.push('');
+    });
+    return out.join('\n');
+  }
+
+  function make(){
+    var box=document.createElement('div');
+    box.id='gomnaAudioDiagBox';
+    box.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:2147483647;background:rgba(0,0,0,.92);color:#fff;border-radius:12px;padding:10px;font:12px/1.45 -apple-system,BlinkMacSystemFont,sans-serif;max-height:38vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,.35)';
+    box.innerHTML='<div style="display:flex;gap:8px;align-items:center;position:sticky;top:0;background:#111;padding-bottom:6px"><strong style="flex:1">iPhone 오디오 진단</strong><button id="gomnaDiagCopy" type="button" style="padding:6px 10px;border:0;border-radius:8px">결과 복사</button><button id="gomnaDiagClear" type="button" style="padding:6px 10px;border:0;border-radius:8px">지우기</button></div><pre id="gomnaDiagText" style="white-space:pre-wrap;margin:0"></pre>';
+    document.body.appendChild(box);
+
+    function render(){ var el=document.getElementById('gomnaDiagText'); if(el) el.textContent=summarize(); }
+    render();
+    setInterval(render,500);
+
+    document.getElementById('gomnaDiagClear').addEventListener('click',function(){
+      window.__gomnaAudioDiag=[];
+      render();
+    });
+    document.getElementById('gomnaDiagCopy').addEventListener('click',function(){
+      var text=summarize();
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).catch(function(){});
+      } else {
+        var ta=document.createElement('textarea');
+        ta.value=text; document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(e){}
+        ta.remove();
+      }
+    });
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',make,{once:true});
+  else make();
+})();
+</script>
+
 </body>
 </html>
