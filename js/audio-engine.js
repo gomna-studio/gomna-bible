@@ -9,6 +9,37 @@
     }
   }
 
+  // iPhone first-audio timing diagnostics.
+  // Passive logging only: does not change playback decisions or retry behavior.
+  function audioDiagNow() {
+    try {
+      return (window.performance && typeof window.performance.now === 'function')
+        ? window.performance.now()
+        : Date.now();
+    } catch (e) {
+      return Date.now();
+    }
+  }
+
+  function audioDiag(eventName, detail) {
+    try {
+      var record = {
+        event: eventName,
+        t: audioDiagNow(),
+        wall: Date.now(),
+        detail: detail || {}
+      };
+      if (!window.__gomnaAudioDiag) window.__gomnaAudioDiag = [];
+      window.__gomnaAudioDiag.push(record);
+      if (window.__gomnaAudioDiag.length > 500) {
+        window.__gomnaAudioDiag.splice(0, window.__gomnaAudioDiag.length - 500);
+      }
+      console.log('[GOMNA_AUDIO_DIAG]', record);
+    } catch (e) {
+      /* diagnostics must never affect playback */
+    }
+  }
+
   window.GOMNA_AUDIO_ENGINE = {
     _state: {
       currentAudio: null,
@@ -621,6 +652,16 @@
       startTime = Number(options.startTime) || 0;
 
       console.log('[GOMNA_AUDIO] play:', audioId);
+      var diagSession = audioId + ':' + Date.now() + ':' + Math.random().toString(36).slice(2, 7);
+      audioDiag('playAudioById:enter', {
+        session: diagSession,
+        audioId: audioId,
+        fromQueue: !!options.fromQueue,
+        forceRestart: !!options.forceRestart,
+        startTime: startTime,
+        queueIndex: state.queueIndex,
+        queueLength: state.queueAudioIds ? state.queueAudioIds.length : 0
+      });
 
       if (state.currentAudio && state.currentAudioId === audioId && !options.forceRestart) {
         if (state.isPlaying) {
@@ -704,6 +745,13 @@
         preparedQueueHandoff = !!preparedObjectUrl;
       }
       playbackSrc = preparedObjectUrl || audioSrc;
+      audioDiag('source:selected', {
+        session: diagSession,
+        audioId: audioId,
+        preparedQueueHandoff: preparedQueueHandoff,
+        usingPrefetchedBlob: !!preparedObjectUrl,
+        source: preparedObjectUrl ? 'prefetched-blob' : 'network-url'
+      });
 
       engine._clearStallWatch();
       engine._clearRecoveryRetry();
@@ -774,6 +822,57 @@
       engine._addTrackListener(audio, 'loadedmetadata', applySessionSpeed);
       engine._addTrackListener(audio, 'canplay', applySessionSpeed);
       engine._addTrackListener(audio, 'playing', applySessionSpeed);
+
+      [
+        'loadstart',
+        'loadedmetadata',
+        'loadeddata',
+        'canplay',
+        'canplaythrough',
+        'playing',
+        'waiting',
+        'stalled',
+        'suspend'
+      ].forEach(function(diagEventName) {
+        engine._addTrackListener(audio, diagEventName, function() {
+          var bufferedEnd = null;
+          try {
+            if (audio.buffered && audio.buffered.length) {
+              bufferedEnd = audio.buffered.end(audio.buffered.length - 1);
+            }
+          } catch (e) { /* ignore Safari buffered read errors */ }
+
+          audioDiag('media:' + diagEventName, {
+            session: diagSession,
+            audioId: audioId,
+            currentTime: Number(audio.currentTime) || 0,
+            readyState: audio.readyState,
+            networkState: audio.networkState,
+            bufferedEnd: bufferedEnd,
+            paused: audio.paused
+          });
+
+          if (diagEventName === 'playing' && window.performance && typeof window.performance.getEntriesByName === 'function') {
+            try {
+              var entries = window.performance.getEntriesByName(audioSrc);
+              var perfEntry = entries && entries.length ? entries[entries.length - 1] : null;
+              if (perfEntry) {
+                audioDiag('resource:audio', {
+                  session: diagSession,
+                  audioId: audioId,
+                  startTime: perfEntry.startTime,
+                  requestStart: perfEntry.requestStart,
+                  responseStart: perfEntry.responseStart,
+                  responseEnd: perfEntry.responseEnd,
+                  duration: perfEntry.duration,
+                  transferSize: perfEntry.transferSize,
+                  encodedBodySize: perfEntry.encodedBodySize
+                });
+              }
+            } catch (e) { /* resource timing may be unavailable cross-origin */ }
+          }
+        });
+      });
 
       engine._addTrackListener(audio, 'ended', function() {
         if (state.queueEpoch !== playEpoch) return;
@@ -892,6 +991,11 @@
        * can report a cached media error immediately during load. */
       if (!preparedQueueHandoff) {
         try {
+          audioDiag('load:call', {
+            session: diagSession,
+            audioId: audioId,
+            source: 'network-url'
+          });
           audio.load();
         } catch (loadErr) {
           console.warn('[GOMNA_AUDIO] source load warning:', loadErr);
@@ -900,6 +1004,13 @@
 
       engine._applyCurrentSpeed(audio);
 
+      audioDiag('play:call', {
+        session: diagSession,
+        audioId: audioId,
+        preparedQueueHandoff: preparedQueueHandoff,
+        readyState: audio.readyState,
+        networkState: audio.networkState
+      });
       var playPromise = audio.play();
 
       try {
@@ -926,6 +1037,12 @@
 
       if (playPromise !== undefined) {
         playPromise.then(function() {
+          audioDiag('play:promise-resolved', {
+            session: diagSession,
+            audioId: audioId,
+            readyState: audio.readyState,
+            currentTime: Number(audio.currentTime) || 0
+          });
           if (state.queueEpoch !== playEpoch) return;
           if (audio === state.currentAudio && audioId === state.currentAudioId) {
             engine._resetQueueSoftFailStreak();
