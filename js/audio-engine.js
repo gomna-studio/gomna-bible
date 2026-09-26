@@ -22,6 +22,11 @@
       nextPrefetchReady: false,
       nextPrefetchObjectUrl: null,
       nextPrefetchToken: 0,
+      nextPrefetchController: null,
+      preparedAudio: null,
+      preparedAudioId: null,
+      preparedAudioUrl: null,
+      isLoading: false,
       isPlaying: false,
       isPaused: false,
       playbackCancelled: false,
@@ -147,6 +152,9 @@
       if (!audio) return false;
 
       try {
+        // Preserve the original pitch at the user's selected speed.
+        if ('preservesPitch' in audio) audio.preservesPitch = true;
+        if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = true;
         /* load()/src changes can restore playbackRate to 1.0 in Mobile Safari.
          * Keep both the default for the new resource and the active rate equal. */
         if (audio.defaultPlaybackRate !== nextRate) {
@@ -296,7 +304,7 @@
       engine._addTrackListener(audio, 'stalled', onStarve);
     },
 
-    _cleanupCurrentAudio: function() {
+    _cleanupCurrentAudio: function(options) {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
 
@@ -307,21 +315,66 @@
         try {
           engine._clearTrackListeners(state.currentAudio);
           state.currentAudio.pause();
-          state.currentAudio.src = '';
-          state.currentAudio.load();
+          if (!(options && options.keepElement)) {
+            state.currentAudio.src = '';
+            state.currentAudio.load();
+          }
         } catch (e) {
           console.warn('[GOMNA_AUDIO] cleanup warning:', e);
         }
 
-        state.currentAudio = null;
+        if (!(options && options.keepElement)) state.currentAudio = null;
       }
 
-      engine._releaseCurrentObjectUrl();
+      if (!(options && options.keepElement)) engine._releaseCurrentObjectUrl();
+      state.isLoading = false;
       state.isRecovering = false;
       state.recoveryAttempt = 0;
       state.recoverySavedTime = 0;
 
       engine._clearStallWatch();
+    },
+
+    _clearPreparedAudio: function() {
+      var state = window.GOMNA_AUDIO_ENGINE._state;
+      var audio = state.preparedAudio;
+      state.preparedAudio = null;
+      state.preparedAudioId = null;
+      state.preparedAudioUrl = null;
+      if (audio) {
+        try { audio.pause(); audio.removeAttribute('src'); audio.load(); } catch (e) { /* idle cleanup */ }
+      }
+    },
+
+    // One silent preload for the visible/selected Bible target, before a tap.
+    // Reuse the same element at the tap, including its in-flight media request.
+    // Never call play() here or fetch a second copy of this first MP3.
+    prepareBibleAudio: function(audioId) {
+      var engine = window.GOMNA_AUDIO_ENGINE;
+      var state = engine._state;
+      var config = window.GOMNA_AUDIO_CONFIG;
+      var entry = engine._getManifestEntry(audioId);
+      if (state.queueActive || state.isPlaying || state.isPaused) return false;
+      if (!entry || entry.type !== 'bible' || entry.status !== 'published' ||
+          !entry.filePath || !engine._isEntryAvailableForCurrentVoice(entry)) return false;
+      var src = typeof config.buildAudioUrl === 'function' ? config.buildAudioUrl(entry.filePath) : entry.filePath;
+      if (state.preparedAudioId === audioId && state.preparedAudioUrl === src &&
+          state.preparedAudio && !state.preparedAudio.error) return true;
+      engine._clearPreparedAudio();
+      try {
+        var audio = new Audio();
+        state.preparedAudio = audio;
+        state.preparedAudioId = audioId;
+        state.preparedAudioUrl = src;
+        audio.preload = 'auto';
+        engine._applyCurrentSpeed(audio);
+        audio.src = src;
+        audio.load();
+        return true;
+      } catch (e) {
+        engine._clearPreparedAudio();
+        return false;
+      }
     },
 
     _cleanupNextAudio: function() {
@@ -357,6 +410,8 @@
     _clearNextPrefetch: function() {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
+      if (state.nextPrefetchController) state.nextPrefetchController.abort();
+      state.nextPrefetchController = null;
       engine._revokeObjectUrl(state.nextPrefetchObjectUrl);
       state.nextPrefetchObjectUrl = null;
       state.nextPrefetchToken = (state.nextPrefetchToken || 0) + 1;
@@ -378,6 +433,7 @@
       var objectUrl = matched ? state.nextPrefetchObjectUrl : null;
 
       if (matched) {
+        state.nextPrefetchController = null;
         state.nextPrefetchId = null;
         state.nextPrefetchUrl = null;
         state.nextPrefetchPromise = null;
@@ -391,7 +447,9 @@
     _clearQueue: function(options) {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
-      var keepNext = !!(options && options.keepNext && state.nextAudio && state.nextAudioId);
+      var keepNext = !!(options && options.keepNext && (
+        (state.nextAudio && state.nextAudioId) || state.nextPrefetchId
+      ));
 
       if (!keepNext) {
         engine._cleanupNextAudio();
@@ -531,10 +589,13 @@
       if (typeof window.fetch !== 'function' || !audioSrc) return;
 
       try {
-        state.nextPrefetchPromise = window.fetch(audioSrc, {
+        state.nextPrefetchController = typeof AbortController === 'function' ? new AbortController() : null;
+        var fetchOptions = {
           cache: 'force-cache',
           credentials: 'same-origin'
-        }).then(function(response) {
+        };
+        if (state.nextPrefetchController) fetchOptions.signal = state.nextPrefetchController.signal;
+        state.nextPrefetchPromise = window.fetch(audioSrc, fetchOptions).then(function(response) {
           var contentType;
           if (!response || !response.ok) {
             throw new Error('HTTP ' + (response ? response.status : 0));
@@ -615,6 +676,7 @@
       var startTime;
       var preparedQueueHandoff = false;
       var preparedObjectUrl = null;
+      var preparedFirstHandoff = false;
       var playbackSrc;
       var previousObjectUrl;
       options = options || {};
@@ -623,6 +685,8 @@
       console.log('[GOMNA_AUDIO] play:', audioId);
 
       if (state.currentAudio && state.currentAudioId === audioId && !options.forceRestart) {
+        // Repeated Listen taps while starting must not cancel the pending play.
+        if (state.isLoading) return true;
         if (state.isPlaying) {
           engine.pauseAudio();
           return true;
@@ -703,7 +767,25 @@
         preparedObjectUrl = engine._consumeNextPrefetch(audioId, audioSrc);
         preparedQueueHandoff = !!preparedObjectUrl;
       }
+      // A partial fetch cannot be played as a Blob. Cancel it before falling
+      // back to native media loading so two requests do not compete for a verse.
+      if (!preparedQueueHandoff && state.nextPrefetchId === audioId) {
+        engine._clearNextPrefetch();
+      }
       playbackSrc = preparedObjectUrl || audioSrc;
+
+      if (!preparedQueueHandoff && state.preparedAudio &&
+          state.preparedAudioId === audioId && state.preparedAudioUrl === audioSrc &&
+          !state.preparedAudio.error) {
+        if (audio && audio !== state.preparedAudio) engine._cleanupCurrentAudio();
+        audio = state.preparedAudio;
+        state.preparedAudio = null;
+        state.preparedAudioId = null;
+        state.preparedAudioUrl = null;
+        preparedFirstHandoff = true;
+      } else {
+        engine._clearPreparedAudio();
+      }
 
       engine._clearStallWatch();
       engine._clearRecoveryRetry();
@@ -774,6 +856,13 @@
       engine._addTrackListener(audio, 'loadedmetadata', applySessionSpeed);
       engine._addTrackListener(audio, 'canplay', applySessionSpeed);
       engine._addTrackListener(audio, 'playing', applySessionSpeed);
+      engine._addTrackListener(audio, 'playing', function() {
+        if (state.queueEpoch !== playEpoch || audio !== state.currentAudio || audioId !== state.currentAudioId) return;
+        state.isLoading = false;
+        engine._resetQueueSoftFailStreak();
+        // Give the first sound priority; prefetch the next verse once it plays.
+        if (options.fromQueue && state.queueActive) engine._prepareNextInQueue();
+      }, { once: true });
 
       engine._addTrackListener(audio, 'ended', function() {
         if (state.queueEpoch !== playEpoch) return;
@@ -781,6 +870,7 @@
 
         engine._clearStallWatch();
         state.stallRecoveryCount = 0;
+        state.isLoading = false;
         state.isPlaying = false;
         state.isPaused = false;
         state.restoreStartTime = 0;
@@ -795,7 +885,8 @@
 
         if (state.queueEpoch !== playEpoch) return;
 
-        state.currentAudio = null;
+        // Keep the ended, authorized element for a following chapter/replay.
+        // stopAudio still releases it and its Blob URL explicitly.
         state.currentAudioId = null;
 
         engine._emit('audio:end', {
@@ -826,6 +917,7 @@
 
         engine._clearStallWatch();
         console.error('[GOMNA_AUDIO] audio error:', e, errorDetail);
+        state.isLoading = false;
 
         /* Network failure: preserve queue/index/currentTime and retry this
          * verse. Do this before changing isPlaying, because recovery session
@@ -881,6 +973,7 @@
       // audio.play()는 사용자 클릭 흐름 안에서 바로 호출되어야 한다.
       state.currentAudio = audio;
       state.currentAudioId = audioId;
+      state.isLoading = true;
       state.isPlaying = true;
       state.isPaused = false;
 
@@ -890,7 +983,7 @@
 
       /* Bind every listener and publish the new session before load(). Safari
        * can report a cached media error immediately during load. */
-      if (!preparedQueueHandoff) {
+      if (!preparedQueueHandoff && !preparedFirstHandoff) {
         try {
           audio.load();
         } catch (loadErr) {
@@ -919,10 +1012,7 @@
         entry: entry
       });
 
-      // 현재 절이 재생되는 동안 다음 절 MP3를 미리 로딩해 전환 지연을 없앤다.
-      if (options.fromQueue && state.queueActive) {
-        engine._prepareNextInQueue();
-      }
+      // Next-verse prefetch starts in the playing listener above.
 
       if (playPromise !== undefined) {
         playPromise.then(function() {
@@ -956,6 +1046,7 @@
 
           console.warn('[GOMNA_AUDIO] play rejected:', audioId, errName || err);
 
+          state.isLoading = false;
           state.isPlaying = false;
           state.restoreStartTime = 0;
 
@@ -1054,6 +1145,7 @@
         engine._isSameQueue(audioIds, options.source || null) &&
         state.currentAudio
       ) {
+        if (state.isLoading) return true;
         if (state.isPlaying) {
           engine.pauseAudio();
           return true;
@@ -1077,8 +1169,8 @@
       });
       state.playbackCancelled = false;
 
-      /* Drop current element without stopAudio/user_stop or audio:pause. */
-      engine._cleanupCurrentAudio();
+      /* Retain the authorized media element across queue/chapter handoffs. */
+      engine._cleanupCurrentAudio({ keepElement: true });
       state.currentAudioId = null;
       state.isPlaying = false;
       state.isPaused = false;
@@ -1149,6 +1241,7 @@
 
       if (state.currentAudio && state.isPlaying) {
         state.currentAudio.pause();
+        state.isLoading = false;
         state.isPlaying = false;
         state.isPaused = true;
 
@@ -1163,6 +1256,7 @@
       var state = engine._state;
 
       if (state.currentAudio && state.isPaused) {
+        engine._applyCurrentSpeed(state.currentAudio);
         var playPromise = state.currentAudio.play();
 
         if (playPromise !== undefined) {
@@ -1230,6 +1324,7 @@
       engine._bumpQueueEpoch();
       engine._clearQueue();
       engine._cleanupCurrentAudio();
+      engine._clearPreparedAudio();
 
       state.currentAudioId = null;
       state.isPlaying = false;
@@ -1396,6 +1491,7 @@
       return {
         currentAudioId: state.currentAudioId,
         isPlaying: state.isPlaying,
+        isLoading: state.isLoading,
         isPaused: state.isPaused,
         currentSpeed: state.currentSpeed,
         currentVoice: state.currentVoice,

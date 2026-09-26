@@ -37,5 +37,7 @@ test('reader requests the iPhone memory handoff engine version', () => {
 test('single-player recovery and playback-speed safeguards remain', () => {
   assert.match(engine, /_bindStallRecovery/);
   assert.match(engine, /_applyCurrentSpeed/);
-  assert.equal((engine.match(/new Audio\(\)/g) || []).length, 1);
+  // Idle preparation may allocate an element, but must never start playback.
+  const warmup = engine.slice(engine.indexOf('prepareBibleAudio: function'), engine.indexOf('_cleanupNextAudio: function'));
+  assert.doesNotMatch(warmup, /\.play\(/);
 });

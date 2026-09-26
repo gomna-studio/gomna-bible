@@ -12852,6 +12852,31 @@ function getVerseOccurrenceFromItem(item) {
   return !isNaN(occ) && occ > 1 ? occ : 1;
 }
 
+// Warm only the current Bible listen target; never autoplay or preload a book.
+var bibleAudioWarmTimer = null;
+function scheduleBibleAudioWarmup() {
+  if (bibleAudioWarmTimer !== null) clearTimeout(bibleAudioWarmTimer);
+  bibleAudioWarmTimer = setTimeout(function() {
+    bibleAudioWarmTimer = null;
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var config = window.GOMNA_AUDIO_CONFIG;
+    var view = document.getElementById('verseView');
+    if (!engine || !engine.prepareBibleAudio || !config || config.manifestLoadStatus !== 'loaded') return;
+    if (!view || !view.classList.contains('active') || !currentBook || !currentChapter) return;
+    var state = engine.getState();
+    if (state.queueActive || state.isPlaying || state.isPaused) return;
+    var selected = getSortedUniqueSelectedVerseNums();
+    var daily = !selected.length ? getHomeDailyListenRange() : null;
+    var verse = selected.length ? selected[0] : (daily ? daily.start : 1);
+    var occurrence = selected.length === 1 ? (selectedVerseOccurrence || 1) : 1;
+    var id = getVerseAudioId(verse, occurrence);
+    if (id) engine.prepareBibleAudio(id);
+  }, 0);
+}
+window.addEventListener('gomna:manifest_loaded', scheduleBibleAudioWarmup);
+window.addEventListener('gomna:verse_list_rendered', scheduleBibleAudioWarmup);
+document.addEventListener('DOMContentLoaded', scheduleBibleAudioWarmup);
+
 function getVerseAudioId(verseNum, occurrence) {
   if (!window.GOMNA_AUDIO_BOOK || !window.GOMNA_AUDIO_BOOK.getBookAudioId || !currentBook || !verseNum) return null;
   var bookId = GOMNA_AUDIO_BOOK.getBookAudioId(currentBook.name);
@@ -14000,6 +14025,7 @@ function chooseVerseListenTargetMode(mode) {
 }
 
 function updateVerseToolbar() {
+  scheduleBibleAudioWarmup();
   var chromeLang = typeof resolveReaderChromeLang === 'function' ? resolveReaderChromeLang() : getReaderUiLangCode();
   syncReaderNativeUiLangClass();
   syncVerseToolbarTargetButton();
@@ -18987,7 +19013,7 @@ function changeFont(delta) {
 </script>
 <script src="/js/audio-config.js?v=20260724-manifest-shard-v1" defer></script>
 <script src="/js/gomna-audio-manifest-shards.js?v=20260724-manifest-shard-v1" defer></script>
-<script src="/js/audio-engine.js?v=20260919-ios-memory-handoff-v50-restored-v56" defer></script>
+<script src="/js/audio-engine.js?v=20260919-ios-memory-handoff-v50-start-ready-20260926" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260919-stale-context-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>

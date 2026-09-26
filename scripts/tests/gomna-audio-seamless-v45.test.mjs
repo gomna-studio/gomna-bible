@@ -105,6 +105,9 @@ function createEngine() {
     CustomEvent,
     Event,
     EventTarget,
+    Blob,
+    URL,
+    AbortController,
     Audio: FakeAudio,
     setTimeout,
     clearTimeout
