@@ -1694,6 +1694,7 @@
     if (!engine || (!engine.playAudioQueue && !engine.playAudioRange)) return;
 
     if (state && state.queueActive) {
+      if (state.isLoading) return;
       if (state.isPlaying) {
         engine.pauseAudio();
       } else if (state.isPaused) {
@@ -1761,6 +1762,7 @@
       state.queueSource &&
       state.queueSource.indexOf('bible-to-end:') === 0
     ) {
+      if (state.isLoading) return;
       if (state.isPlaying) {
         engine.pauseAudio();
       } else if (state.isPaused) {
@@ -2044,6 +2046,7 @@
         break;
 
       case 'toggle':
+        if (state && state.isLoading) break;
         if (!allowVerseScreenAudioPlayback()) {
           if (engine.stopAudio) engine.stopAudio();
           break;
@@ -2110,7 +2113,10 @@
         break;
 
       case 'stop':
+        var closedBible = actionEl.classList.contains('gomna-audio-btn-stop-mini') &&
+          state && /\.bible$/.test(state.currentAudioId || '');
         engine.stopAudio();
+        if (closedBible) window.dispatchEvent(new CustomEvent('gomna:bible-listen-closed'));
         break;
 
       default:

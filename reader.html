@@ -16818,6 +16818,7 @@ function initVerseToolbarEvents() {
       var sameChapterQueue;
       e.stopPropagation();
       e.preventDefault();
+      if (window.gomnaBibleListenControlsHandleListen && window.gomnaBibleListenControlsHandleListen()) return;
       selCount = typeof getSelectedVerseCount === 'function' ? getSelectedVerseCount() : selectedVerseNums.length;
       if (verseListenMode === 'range') {
         closeVerseListenModeMenu();
@@ -19017,7 +19018,7 @@ function changeFont(delta) {
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260919-stale-context-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
-<script src="/js/gomna-audio-ui.js?v=20260803-card-skip-v1" defer></script>
+<script src="/js/gomna-audio-ui.js?v=20260926-controls-1" defer></script>
 <script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)
@@ -20376,5 +20377,6 @@ window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!match
 })();
 </script>
 
+<script src="js/gomna-bible-listen-controls.js?v=20260926-controls-1"></script>
 </body>
 </html>

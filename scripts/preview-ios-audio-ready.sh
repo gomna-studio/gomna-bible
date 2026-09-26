@@ -3,12 +3,12 @@
 set -euo pipefail
 REPO="${1:?Pass the existing clone path}"
 REF="${2:?Pass the fetched trial commit}"
-PORT=8798
+PORT=8799
 command -v python3 >/dev/null
 GIT=/opt/homebrew/bin/git
 [ -x "$GIT" ] || GIT=/usr/bin/git
 if lsof -nP -iTCP:$PORT -sTCP:LISTEN >/dev/null 2>&1; then
-  echo "8798 포트가 사용 중입니다. 기존 프로세스는 종료하지 않았습니다. 결과를 보내주세요."
+  echo "8799 포트가 사용 중입니다. 기존 프로세스는 종료하지 않았습니다. 결과를 보내주세요."
   exit 1
 fi
 COMMIT="$("$GIT" -C "$REPO" rev-parse --verify "${REF}^{commit}")"
@@ -41,6 +41,11 @@ fi
 cmp "$ROOT/site/reader.html" "$ROOT/served-reader.html"
 curl --max-time 5 -fsS "http://127.0.0.1:$PORT/js/audio-engine.js" -o "$ROOT/served-engine.js"
 cmp "$ROOT/site/js/audio-engine.js" "$ROOT/served-engine.js"
+for name in gomna-audio-ui.js gomna-bible-listen-controls.js; do
+  curl --max-time 5 -fsS "http://127.0.0.1:$PORT/js/$name" -o "$ROOT/served-$name"
+  cmp "$ROOT/site/js/$name" "$ROOT/served-$name"
+done
+grep -q 'gomna-bible-listen-controls.js?v=20260926-controls-1' "$ROOT/served-reader.html"
 curl --max-time 10 --compressed -fsS "http://127.0.0.1:$PORT/audio/audio-manifest.json" \
   -D "$ROOT/manifest-headers.txt" -o "$ROOT/served-manifest.json"
 grep -qi '^Content-Encoding: gzip' "$ROOT/manifest-headers.txt"
@@ -48,10 +53,10 @@ cmp "$ROOT/site/audio/audio-manifest.json" "$ROOT/served-manifest.json"
 IP="$(ipconfig getifaddr en0 2>/dev/null || true)"
 [ -n "$IP" ] || IP="$(ipconfig getifaddr en1 2>/dev/null || true)"
 printf '\n시험본: %s\n파일 일치: O / 음원 목록 압축·내용 일치: O / 진단 패널: 없음\n' "$COMMIT"
-printf '\nMac 홈 URL:\nhttp://127.0.0.1:%s/?v=audio-ready-1\n' "$PORT"
+printf '\nMac 홈 URL:\nhttp://127.0.0.1:%s/?v=audio-ready-2\n' "$PORT"
 if [ -n "$IP" ]; then
-  printf '\niPhone 홈 URL:\nhttp://%s:%s/?v=audio-ready-1\n' "$IP" "$PORT"
-  printf '\niPhone 본문 URL:\nhttp://%s:%s/reader.html?v=audio-ready-1\n' "$IP" "$PORT"
+  printf '\niPhone 홈 URL:\nhttp://%s:%s/?v=audio-ready-2\n' "$IP" "$PORT"
+  printf '\niPhone 본문 URL:\nhttp://%s:%s/reader.html?v=audio-ready-2\n' "$IP" "$PORT"
 else
   echo 'iPhone용 Mac IP 확인이 필요합니다.'
 fi
