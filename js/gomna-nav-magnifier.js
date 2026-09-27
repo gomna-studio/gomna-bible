@@ -6,9 +6,9 @@
   var selector = '#gomnaHomeTabbar .gomna-home-tab, #scriptureDock .scripture-dock-item, #opt4VerseToolbar > button';
   var style = document.createElement('style');
   style.textContent = selector + '{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}' +
-    '#gomnaNavMagnifier{position:fixed;z-index:2147483647;box-sizing:border-box;width:144px;min-height:132px;padding:20px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;border:1px solid #d9dfe8;border-radius:22px;background:#fff;color:#25334a;box-shadow:0 8px 32px #10203933;pointer-events:none;text-align:center;font:700 22px/1.3 system-ui,sans-serif}' +
+    '#gomnaNavMagnifier{position:fixed;z-index:2147483647;box-sizing:border-box;width:144px;min-height:132px;padding:20px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;border:1px solid #d9dfe8;border-radius:22px;background:#fff;color:#172235;opacity:1;filter:none;transform:none;box-shadow:0 6px 20px #10203926;pointer-events:none;text-align:center;font:700 22px/1.35 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;text-shadow:none;letter-spacing:0}' +
     '#gomnaNavMagnifier[hidden]{display:none}' +
-    '#gomnaNavMagnifier svg{display:block;width:60px;height:60px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}';
+    '#gomnaNavMagnifier svg{display:block;width:60px;height:60px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;shape-rendering:geometricPrecision;opacity:1;filter:none;transform:none}';
   document.head.appendChild(style);
   var popup = document.createElement('div');
   popup.id = 'gomnaNavMagnifier';
@@ -28,10 +28,28 @@
     var el = press.el, icon = el.querySelector('svg');
 
     popup.replaceChildren();
-    var clone = icon ? icon.cloneNode(true) : document.createElement('span');
-    if (!icon) { clone.textContent = '⋯'; clone.style.fontSize = '52px'; }
-    clone.removeAttribute('id');
-    clone.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); });
+    var clone;
+    if (icon) {
+      clone = icon.cloneNode(true);
+      // Keep vector geometry; drop source button effects and fixed small-icon styling.
+      [clone].concat(Array.from(clone.querySelectorAll('*'))).forEach(function (n) {
+        ['id', 'class', 'style', 'filter', 'opacity'].forEach(function (a) { n.removeAttribute(a); });
+      });
+      clone.removeAttribute('width');
+      clone.removeAttribute('height');
+      clone.setAttribute('stroke-width', '2');
+    } else {
+      // Three vector dots stay crisp at every display density, unlike a font glyph.
+      clone = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      clone.setAttribute('viewBox', '0 0 24 24');
+      [5, 12, 19].forEach(function (x) {
+        var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', x); dot.setAttribute('cy', '12'); dot.setAttribute('r', '1.5');
+        dot.setAttribute('fill', 'currentColor'); dot.setAttribute('stroke', 'none');
+        clone.appendChild(dot);
+      });
+    }
+    clone.setAttribute('aria-hidden', 'true');
     popup.appendChild(clone);
     var label = document.createElement('span');
     var text = el.querySelector('.opt4-bar-label, .verse-toolbar-location-text');
@@ -42,8 +60,10 @@
     var vv = window.visualViewport;
     var left = vv ? vv.offsetLeft : 0, top = vv ? vv.offsetTop : 0;
     var width = vv ? vv.width : window.innerWidth;
-    popup.style.left = Math.max(left + 8, Math.min(rect.left + rect.width / 2 - 72, left + width - 152)) + 'px';
-    popup.style.top = Math.max(top + 8, Math.min(rect.top, press.y) - popup.offsetHeight - 24) + 'px';
+    var pixelRatio = window.devicePixelRatio || 1;
+    function snap(value) { return Math.round(value * pixelRatio) / pixelRatio; }
+    popup.style.left = snap(Math.max(left + 8, Math.min(rect.left + rect.width / 2 - 72, left + width - 152))) + 'px';
+    popup.style.top = snap(Math.max(top + 8, Math.min(rect.top, press.y) - popup.offsetHeight - 24)) + 'px';
     press.shown = true;
     blocked = el;
     blockedUntil = Infinity;

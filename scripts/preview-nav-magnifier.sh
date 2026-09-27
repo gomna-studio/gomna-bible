@@ -3,12 +3,12 @@
 set -euo pipefail
 REPO="${1:?Pass the existing clone path}"
 REF="${2:?Pass the fetched trial commit}"
-PORT=8801
+PORT=8802
 command -v python3 >/dev/null
 GIT=/opt/homebrew/bin/git
 [ -x "$GIT" ] || GIT=/usr/bin/git
 if lsof -nP -iTCP:$PORT -sTCP:LISTEN >/dev/null 2>&1; then
-  echo "8801 포트가 사용 중입니다. 기존 프로세스는 종료하지 않았습니다. 결과를 보내주세요."
+  echo "8802 포트가 사용 중입니다. 기존 프로세스는 종료하지 않았습니다. 결과를 보내주세요."
   exit 1
 fi
 COMMIT="$("$GIT" -C "$REPO" rev-parse --verify "${REF}^{commit}")"
@@ -58,10 +58,10 @@ printf '\n하단 아이콘 확대 코드와 서버 파일 일치: O\n'
 IP="$(ipconfig getifaddr en0 2>/dev/null || true)"
 [ -n "$IP" ] || IP="$(ipconfig getifaddr en1 2>/dev/null || true)"
 printf '\n시험본: %s\n파일 일치: O / 음원 목록 압축·내용 일치: O / 진단 패널: 없음\n' "$COMMIT"
-printf '\nMac 홈 URL:\nhttp://127.0.0.1:%s/?v=nav-magnifier-2\n' "$PORT"
+printf '\nMac 홈 URL:\nhttp://127.0.0.1:%s/?v=nav-magnifier-3\n' "$PORT"
 if [ -n "$IP" ]; then
-  printf '\niPhone 홈 URL:\nhttp://%s:%s/?v=nav-magnifier-2\n' "$IP" "$PORT"
-  printf '\niPhone 본문 URL:\nhttp://%s:%s/reader.html?v=nav-magnifier-2\n' "$IP" "$PORT"
+  printf '\niPhone 홈 URL:\nhttp://%s:%s/?v=nav-magnifier-3\n' "$IP" "$PORT"
+  printf '\niPhone 본문 URL:\nhttp://%s:%s/reader.html?v=nav-magnifier-3\n' "$IP" "$PORT"
 else
   echo 'iPhone용 Mac IP 확인이 필요합니다.'
 fi
