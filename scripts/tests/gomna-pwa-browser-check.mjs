@@ -7,7 +7,7 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 const root=new URL('../../',import.meta.url);
 const helper=fs.readFileSync(new URL('js/gomna-pwa-recovery.js',root),'utf8');
 const worker=fs.readFileSync(new URL('sw.js',root),'utf8');
-const version='2026-09-27-pwa-recovery-v66';
+const version=worker.match(/const CACHE_VERSION = '([^']+)'/)[1];
 let phase='legacy',manifestRequests=0;
 const server=http.createServer((req,res)=>{
  const u=new URL(req.url,'http://localhost');res.setHeader('Cache-Control','no-store');
