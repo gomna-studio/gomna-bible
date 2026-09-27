@@ -13,9 +13,7 @@
 .gbl-discover-copy {font-size:16px;line-height:1.9;margin:0;color:#fffaf3;word-break:keep-all}
 .gbl-discover-buttons {display:flex;flex-direction:column;align-items:flex-start;gap:18px;margin-top:32px}
 .gbl-discover-buttons .gomna-home-poster-pill {flex:none;height:34px}
-.gbl-discover-hint {font-size:11px;color:#f0e7db;line-height:1.6;margin:auto 0 0;padding-top:24px;word-break:keep-all}
 .gbl-discover-link:focus-visible,.gbl-discover-back:focus-visible {outline:2px solid #fff;outline-offset:4px}
-@media(max-height:650px) {.gbl-discover-back{margin-bottom:10px}.gbl-discover-title{font-size:26px;margin-bottom:12px}.gbl-discover-copy{font-size:14px;line-height:1.6}.gbl-discover-buttons{margin-top:18px;gap:12px}.gbl-discover-hint{padding-top:12px}}
 #gomnaBibleLibrary {--gbl-navy:#172c46;--gbl-gold:#927347;position:fixed;z-index:1000;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#faf9f6;color:var(--gbl-navy);display:flex;flex-direction:column;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",system-ui,sans-serif;isolation:isolate;box-shadow:0 0 0 100vmax rgba(250,249,246,.98);clip-path:inset(0 -100vmax 0 -100vmax);}
 #gomnaBibleLibrary[hidden] {display:none!important}
 #gomnaBibleLibrary * {box-sizing:border-box}
@@ -80,3 +78,29 @@ body.gbl-open .gomna-home-return-top {visibility:hidden!important}
 #gomnaBibleLibrary .gbl-grid:not(.gbl-stories) {align-items:start}
 #gomnaBibleLibrary .gbl-person-detail .gbl-hero {padding:16px 16px 0;text-align:center}
 #gomnaBibleLibrary .gbl-person-detail .gbl-hero img {width:auto;max-width:100%;height:auto;max-height:440px;object-fit:contain;object-position:center;border-radius:16px;margin:0 auto}
+
+/* Discovery uses the actual available card height, including Safari toolbar changes. */
+.gomna-home-card[data-card="2"].gbl-discover-open:not(.is-open) {
+  background-image:url("../assets/home/bible-discovery-journey-v1.webp");
+  background-position:center center;
+}
+.gomna-home-card[data-card="2"].gbl-discover-open .gomna-home-card-face[data-face="tease"] {
+  container-type:size;container-name:discovery;
+}
+.gbl-discover-page > * {flex-shrink:0}
+.gbl-discover-page .gbl-discover-back {margin-bottom:clamp(4px,3cqh,20px)}
+.gbl-discover-page .gbl-discover-kicker {margin-bottom:clamp(8px,2cqh,14px)}
+.gbl-discover-page .gbl-discover-title {margin-bottom:clamp(12px,4cqh,24px)}
+.gbl-discover-page .gbl-discover-buttons {margin-top:clamp(14px,4cqh,28px);gap:12px}
+.gbl-discover-page .gbl-discover-buttons .gomna-home-poster-pill {height:36px;min-height:36px;max-height:none}
+@container discovery (max-height:480px) {
+  .gbl-discover-page .gbl-discover-title {font-size:28px;line-height:1.3}
+  .gbl-discover-page .gbl-discover-copy {font-size:15px;line-height:1.65}
+  .gbl-discover-page .gbl-discover-back {margin-bottom:4px}
+}
+@container discovery (max-height:360px) {
+  .gbl-discover-page .gbl-discover-kicker {font-size:12px;line-height:1.4;margin-bottom:6px}
+  .gbl-discover-page .gbl-discover-title {font-size:25px;line-height:1.25;margin-bottom:10px}
+  .gbl-discover-page .gbl-discover-copy {font-size:14px;line-height:1.5}
+  .gbl-discover-page .gbl-discover-buttons {flex-direction:row;gap:10px;margin-top:12px;flex-wrap:wrap}
+}

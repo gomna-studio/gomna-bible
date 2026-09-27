@@ -73,6 +73,28 @@ try{
  await horizontal(320,65);assert.ok(await tp.locator('.gbl-discover-page').isVisible());
  assert.equal(await tp.locator('.gbl-discover-back').textContent(),'');
  for(const sel of ['.gbl-discover-link svg','.gbl-discover-back svg'])assert.equal(await tp.locator(sel).evaluate(e=>getComputedStyle(e).width),'22px');
+
+ assert.equal(await tp.locator('.gbl-discover-hint').count(),0);
+ for(const [width,height] of [[390,600],[390,667],[375,630],[430,740],[768,1000],[390,844]]){
+  await tp.setViewportSize({width,height});await tp.goto(origin+'/');await tp.waitForTimeout(500);
+  for(let n=0;n<4;n++){
+   const start=Math.min(height-110,520);
+   await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:190,y:start}]});
+   for(const delta of [40,80,120,160,200]){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:190,y:start-delta}]});await tp.waitForTimeout(35);}
+   await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await tp.waitForTimeout(500);
+  }
+  await tp.locator('[data-gbl-discover="open"]').tap();await tp.waitForTimeout(500);
+  const bounds=await tp.evaluate(()=>{
+   const card=document.querySelector('.gbl-discover-open'),nav=document.querySelector('#gomnaHomeTabbar');
+   const c=card.getBoundingClientRect(),n=nav.getBoundingClientRect();
+   return {bg:getComputedStyle(card).backgroundImage,parts:[...card.querySelectorAll('.gbl-discover-title,.gbl-discover-copy,[data-gbl-open]')].map(e=>{const r=e.getBoundingClientRect();return {text:e.textContent,top:r.top,bottom:r.bottom,left:r.left,right:r.right,limit:Math.min(c.bottom,n.top),cardTop:c.top,cardLeft:c.left,cardRight:c.right};})};
+  });
+  assert.ok(bounds.bg.includes('bible-discovery-journey-v1.webp'));
+  for(const r of bounds.parts){assert.ok(r.bottom<=r.limit-5,JSON.stringify({width,height,r}));assert.ok(r.top>=r.cardTop&&r.left>=r.cardLeft&&r.right<=r.cardRight,JSON.stringify({width,height,r}));}
+  if(width===390&&height===600)await tp.screenshot({path:'/tmp/gomna-discovery-compact.png'});
+ }
+ await tp.setViewportSize({width:390,height:844});await tp.waitForTimeout(400);
+ console.log('PASS discovery text and both buttons inside card above navigation at short/tall viewports');
  await tp.screenshot({path:'/tmp/gomna-discover-updated.png'});
  await horizontal(65,320);assert.ok(await tp.locator('.gbl-original-page').isVisible());
  console.log('PASS third card touch left/right opens discovery and restores seven original pills');
