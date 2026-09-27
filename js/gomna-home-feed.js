@@ -1314,6 +1314,7 @@
     wheelIdleTimer=setTimeout(markGestureEnd, 180);
   }
   function onWheelOutsideDeck(ev){
+    if(document.body.classList.contains('gbl-open'))return;
     if(!root || ev.defaultPrevented || ev.ctrlKey || ev.metaKey)return;
     if(document.querySelector('#settingsPopup.show, .gomna-acc-overlay:not([hidden])'))return;
     var onSettledCard=(card2Settled || card3Settled) && !root.querySelector('.gomna-home-card.is-open');
@@ -1401,6 +1402,7 @@
     return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
   }
   function beginSwipe(x, y, pointerId){
+    if(document.body.classList.contains('gbl-open'))return false;
     if(pinching || swipeDrag)return false;
     var zoomedInner=root&&root.querySelector('.gomna-home-card.is-active .gomna-home-card-inner');
     if(zoomedInner && (parseFloat(zoomedInner.getAttribute('data-ghd-pinch')||'1')||1)>1.001)return false;
