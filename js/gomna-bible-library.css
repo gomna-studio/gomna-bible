@@ -81,7 +81,7 @@ body.gbl-open .gomna-home-return-top {visibility:hidden!important}
 
 /* Discovery uses the actual available card height, including Safari toolbar changes. */
 .gomna-home-card[data-card="2"].gbl-discover-open:not(.is-open) {
-  background-image:url("../assets/home/bible-discovery-journey-v4.webp");
+  background-image:url("../assets/home/bible-discovery-journey-v5.webp");
   background-position:right center;
 }
 .gomna-home-card[data-card="2"].gbl-discover-open .gomna-home-card-face[data-face="tease"] {
