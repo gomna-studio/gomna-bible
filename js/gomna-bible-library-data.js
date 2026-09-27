@@ -13,9 +13,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "하나님의 약속을 믿고 익숙한 곳을 떠난 사람",
     "body": "아브라함은 하나님의 부르심을 따라 고향을 떠났습니다. 모든 길을 알지는 못했지만 하나님의 약속을 믿고 한 걸음을 내디뎠습니다. 그의 삶에는 두려움과 실수도 있었으며, 성경은 그 여정 속에서 이어지는 하나님의 약속을 보여 줍니다.",
     "question": "오늘 내가 믿음으로 내디딜 작은 한 걸음은 무엇인가요?",
-    "image": "assets/home/stories/v1-story-abraham.png",
-    "imageWidth": 864,
-    "imageHeight": 1152
+    "image": "assets/home/people/v1/abraham.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "moses",
@@ -30,9 +30,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "두려움 속에서도 하나님의 부르심에 응답한 지도자",
     "body": "하나님은 이스라엘 백성의 고통을 보시고 모세를 부르셨습니다. 모세는 자신이 누구이기에 그 일을 할 수 있느냐고 물었습니다. 하나님은 그에게 함께하겠다고 말씀하셨습니다. 출애굽의 여정은 모세의 능력만이 아니라 하나님의 인도하심을 보여 줍니다.",
     "question": "혼자 감당해야 한다고 느끼는 일은 무엇인가요?",
-    "image": "assets/home/stories/v1-story-moses.png",
-    "imageWidth": 864,
-    "imageHeight": 1152
+    "image": "assets/home/people/v1/moses.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "david",
@@ -47,9 +47,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "들판의 목자에서 이스라엘의 왕이 된 사람",
     "body": "사무엘이 이새의 아들들을 만났을 때 하나님은 외모보다 마음을 보신다고 말씀하셨습니다. 들에서 양을 돌보던 다윗은 기름 부음을 받았습니다. 다윗의 삶에는 믿음뿐 아니라 큰 잘못과 회개도 기록되어 있습니다. 그의 이야기는 한 사람을 겉모습이나 성공만으로 판단할 수 없음을 생각하게 합니다.",
     "question": "나는 사람을 볼 때 무엇을 먼저 보고 있나요?",
-    "image": "assets/home/stories/v1-story-david.png",
-    "imageWidth": 864,
-    "imageHeight": 1152
+    "image": "assets/home/people/v1/david.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "joseph",
@@ -64,9 +64,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "고난을 지나 형제들을 돌본 사람",
     "body": "형들에게 팔려 애굽으로 간 요셉은 종살이와 감옥 생활을 겪었습니다. 뒤에 기근을 대비하는 일을 맡았고, 양식을 구하러 온 형들을 다시 만났습니다. 요셉은 형들의 악한 행동을 선하다고 하지 않았습니다. 그러나 하나님이 그 일을 생명을 살리는 길로 바꾸셨음을 고백하며 가족을 돌보았습니다.",
     "question": "상처를 외면하지 않으면서도 선을 선택할 길이 있을까요?",
-    "image": "assets/home/stories/v1-story-joseph.png",
-    "imageWidth": 864,
-    "imageHeight": 1152
+    "image": "assets/home/people/v1/joseph.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "lot",
@@ -81,9 +81,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "아브람과 갈라져 요단 지역을 택한 사람",
     "body": "아브람과 롯의 가축과 소유가 많아지자 목자들 사이에 다툼이 생겼습니다. 아브람은 다투지 말고 서로 갈라서자고 제안했습니다. 롯은 물이 넉넉한 요단 지역을 바라보고 그곳을 택했습니다. 이 장면은 눈에 좋아 보이는 조건과 삶의 방향을 함께 살펴보게 합니다.",
     "question": "지금의 선택에서 눈에 보이는 조건 외에 살펴볼 것은 무엇인가요?",
-    "image": "assets/home/stories/v1-story-lot.png",
-    "imageWidth": 864,
-    "imageHeight": 1152
+    "image": "assets/home/people/v1/lot.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "esther",
@@ -98,9 +98,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "위험을 무릅쓰고 자기 민족을 위해 나선 왕후",
     "body": "유다 민족이 위기에 처하자 모르드개는 에스더에게 왕에게 나아가 도움을 구하라고 전했습니다. 허락 없이 왕을 만나는 일은 위험했습니다. 에스더는 함께 금식해 달라고 요청하고 왕에게 나아가기로 했습니다. 그녀의 선택에는 두려움 속에서도 다른 사람을 위해 나서는 용기가 담겨 있습니다.",
     "question": "누군가를 위해 용기를 내야 할 자리가 있나요?",
-    "image": "assets/home/stories/v1-story-esther.png",
-    "imageWidth": 864,
-    "imageHeight": 1152
+    "image": "assets/home/people/v1/esther.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "paul",
@@ -115,9 +115,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "교회를 박해하던 사람에서 복음을 전하는 사도가 된 사람",
     "body": "사울이라고도 불린 바울은 예수님을 따르는 사람들을 박해했습니다. 다메섹으로 가는 길에서 예수님을 만난 뒤 그의 삶의 방향은 바뀌었습니다. 그는 여러 지역에서 복음을 전하고 교회에 편지를 보냈습니다. 그의 변화는 과거의 잘못을 감추는 이야기가 아니라 은혜로 새 길을 걷는 이야기입니다.",
     "question": "내 삶에서 새롭게 바뀌기를 바라는 방향은 무엇인가요?",
-    "image": "assets/home/stories/v1-story-paul.png",
-    "imageWidth": 864,
-    "imageHeight": 1152
+    "image": "assets/home/people/v1/paul.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "noah",

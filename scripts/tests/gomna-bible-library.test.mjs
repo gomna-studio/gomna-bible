@@ -14,7 +14,7 @@ assert.equal(items.filter(i=>i.kind==='people').length,27);assert.equal(items.fi
 assert.equal(new Set(items.map(i=>i.id)).size,39);
 const people=items.filter(i=>i.kind==='people');
 assert.equal(new Set(people.map(i=>i.image)).size,27);
-assert.equal(people.filter(i=>i.image.startsWith('assets/home/people/v1/')).length,20);
+assert.equal(people.filter(i=>i.image.startsWith('assets/home/people/v1/')).length,27);
 for(const i of people){assert.ok(i.imageWidth>0&&i.imageHeight>0);}
 assert.ok(!fs.readFileSync(path.join(root,'index.html'),'utf8').includes('인물 버튼으로'));
 const books={'창세기':1,'출애굽기':2,'여호수아':6,'사사기':7,'룻기':8,'사무엘상':9,'열왕기상':11,'느헤미야':16,'에스더':17,'다니엘':27,'요나':32,'마가복음':41,'누가복음':42,'요한복음':43,'사도행전':44};
@@ -30,7 +30,7 @@ try{
  const p=await ctx.newPage();const errors=[];p.on('pageerror',e=>{if(e.stack?.includes('gomna-bible-library'))errors.push(e.message);});
  await p.goto(origin+'/#bible-library/people');await p.locator('[data-gbl-item="abraham"]').waitFor();
  assert.equal(await p.locator('.gbl-tile').count(),27);
- for(const id of ['esther','joseph','noah','ruth']){
+ for(const id of ['abraham','moses','david','joseph','lot','esther','paul','noah','ruth']){
   const portrait=p.locator('[data-gbl-item="'+id+'"] img');await portrait.scrollIntoViewIfNeeded();await p.waitForFunction(id=>document.querySelector('[data-gbl-item="'+id+'"] img')?.naturalWidth>0,id);await portrait.evaluate(e=>e.decode()).catch(e=>{throw new Error(id+': '+e.message);});
   const metrics=await portrait.evaluate(e=>({fit:getComputedStyle(e).objectFit,radius:parseFloat(getComputedStyle(e).borderRadius),ratio:e.getBoundingClientRect().width/e.getBoundingClientRect().height,natural:e.naturalWidth/e.naturalHeight}));
   assert.equal(metrics.fit,'contain');assert.ok(metrics.radius>=12);assert.ok(Math.abs(metrics.ratio-metrics.natural)<0.01,id+' full portrait ratio');
