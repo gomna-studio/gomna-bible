@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-09-27-pwa-recovery-v66';
+const CACHE_VERSION = '2026-09-27-nav-guide-v67';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const DATA_CACHE = 'gomna-data-v1';
@@ -31,7 +31,7 @@ const STATIC_URLS = [
   '/index.html',
   '/reader.html',
   '/meditation.html',
-  '/js/gomna-pwa-recovery.js?v=2026-09-27-pwa-recovery-v66',
+  '/js/gomna-pwa-recovery.js?v=2026-09-27-nav-guide-v67',
   '/translate_feature.js?v=20260724-first-visit-detect-v2',
   '/js/gomna-ui-i18n.js?v=20260729-resume-i18n-books',
   '/analytics-control.js?v=20260826-internal-exclusion-v1',
@@ -39,9 +39,11 @@ const STATIC_URLS = [
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
   '/js/gomna-account-white.css?v=20260925-account-white-preview-v5',
-  '/js/gomna-home-feed.js?v=2026-09-27-pwa-recovery-v66',
+  '/js/gomna-home-feed.js?v=2026-09-27-nav-guide-v67',
   '/js/gomna-home-feed.css?v=20260925-home-login-icons-v3',
   '/gomna_category_feature.js',
+  '/gomna_category_feature.js?v=20260927-reader-guide-width-v1',
+  '/js/gomna-nav-magnifier.js?v=20260927-6',
   '/style.css',
   '/css/gomna-audio-player.css?v=20260918-custom-hero-v43',
   '/js/audio-config.js?v=1',

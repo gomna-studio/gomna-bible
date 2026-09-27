@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 const helper = fs.readFileSync(new URL('../../js/gomna-pwa-recovery.js', import.meta.url), 'utf8');
 const swCode = fs.readFileSync(new URL('../../sw.js', import.meta.url), 'utf8');
-const version = '2026-09-27-pwa-recovery-v66';
+const version = swCode.match(/const CACHE_VERSION = '([^']+)'/)[1];
 function page({ ios=true, keyboard=false, scale=1, cssHeight=780, visualHeight=430, playing=false, pageVersion=version, meditation=false }={}) {
  const events={}, docEvents={}, timers=[], messages=[], reloads=[], storage=new Map();
  let now=10000;
