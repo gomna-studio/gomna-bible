@@ -94,7 +94,7 @@ try{
   for(let i=1;i<pills.length;i++){assert.ok(Math.abs(pills[i].left-pills[0].left)<1);assert.ok(pills[i].top>=pills[i-1].bottom);}
   for(const r of original)assert.ok(r.bottom<=r.limit+1&&r.top>=r.cardTop&&r.left>=r.cardLeft&&r.right<=r.cardRight,JSON.stringify({width,height,r}));
   assert.equal(await tp.locator('.gbl-original-page .gomna-home-poster-foot-copy').count(),0);
-  assert.ok((await tp.locator('.gbl-original-page .gomna-home-poster-lead').textContent()).includes('그들의 이야기는'));
+  assert.ok(!(await tp.locator('.gbl-original-page').textContent()).includes('그들의 이야기는'));
   if(width===390&&height===600)await tp.screenshot({path:'/tmp/gomna-original-compact.png'});
   await tp.locator('[data-gbl-discover="open"]').tap();await tp.waitForTimeout(500);
   const bounds=await tp.evaluate(()=>{
@@ -102,7 +102,7 @@ try{
    const c=card.getBoundingClientRect(),n=nav.getBoundingClientRect();
    return {bg:getComputedStyle(card).backgroundImage,parts:[...card.querySelectorAll('.gbl-discover-title,.gbl-discover-copy,[data-gbl-open]')].map(e=>{const r=e.getBoundingClientRect();return {text:e.textContent,top:r.top,bottom:r.bottom,left:r.left,right:r.right,limit:Math.min(c.bottom,n.top),cardTop:c.top,cardLeft:c.left,cardRight:c.right};})};
   });
-  assert.ok(bounds.bg.includes('bible-discovery-journey-v1.webp'));
+  assert.ok(bounds.bg.includes('bible-discovery-journey-v2.webp'));
   for(const r of bounds.parts){assert.ok(r.bottom<=r.limit-5,JSON.stringify({width,height,r}));assert.ok(r.top>=r.cardTop&&r.left>=r.cardLeft&&r.right<=r.cardRight,JSON.stringify({width,height,r}));}
   if(width===390&&height===600)await tp.screenshot({path:'/tmp/gomna-discovery-compact.png'});
  }
