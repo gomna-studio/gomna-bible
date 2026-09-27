@@ -89,6 +89,9 @@ try{
    const page=document.querySelector('.gbl-original-page'),c=page.getBoundingClientRect(),nav=document.querySelector('#gomnaHomeTabbar').getBoundingClientRect();
    return [...page.querySelectorAll('[data-ghd-story-chip],.gbl-discover-link')].map(e=>{const r=e.getBoundingClientRect(),parent=e.parentElement.getBoundingClientRect();return {name:e.textContent,top:r.top,bottom:r.bottom,left:r.left,right:r.right,limit:Math.min(c.bottom,nav.top,parent.bottom),cardTop:c.top,cardLeft:c.left,cardRight:c.right};});
   });
+  const gapState=await tp.locator('.gbl-original-page .gomna-home-poster-pills').evaluate(e=>({gap:parseFloat(getComputedStyle(e).rowGap),height:document.querySelector('.gomna-home-card[data-card="2"] .gomna-home-card-face[data-face="tease"]').clientHeight}));
+  const oldGap=width>=700?6:gapState.height<=380?2:gapState.height<=470?3:4;
+  assert.ok(Math.abs(gapState.gap-(oldGap+1.5*96/25.4))<0.1,JSON.stringify(gapState));
   const pills=original.slice(0,7);
   assert.equal(pills.length,7);
   for(let i=1;i<pills.length;i++){assert.ok(Math.abs(pills[i].left-pills[0].left)<1);assert.ok(pills[i].top>=pills[i-1].bottom);}
@@ -102,7 +105,7 @@ try{
    const c=card.getBoundingClientRect(),n=nav.getBoundingClientRect();
    return {bg:getComputedStyle(card).backgroundImage,parts:[...card.querySelectorAll('.gbl-discover-title,.gbl-discover-copy,[data-gbl-open]')].map(e=>{const r=e.getBoundingClientRect();return {text:e.textContent,top:r.top,bottom:r.bottom,left:r.left,right:r.right,limit:Math.min(c.bottom,n.top),cardTop:c.top,cardLeft:c.left,cardRight:c.right};})};
   });
-  assert.ok(bounds.bg.includes('bible-discovery-journey-v2.webp'));
+  assert.ok(bounds.bg.includes('bible-discovery-journey-v3.webp'));
   for(const r of bounds.parts){assert.ok(r.bottom<=r.limit-5,JSON.stringify({width,height,r}));assert.ok(r.top>=r.cardTop&&r.left>=r.cardLeft&&r.right<=r.cardRight,JSON.stringify({width,height,r}));}
   if(width===390&&height===600)await tp.screenshot({path:'/tmp/gomna-discovery-compact.png'});
  }
