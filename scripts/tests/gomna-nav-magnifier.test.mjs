@@ -6,6 +6,13 @@ const root=new URL('../../',import.meta.url);
 const browser=await chromium.launch({executablePath:process.env.GOMNA_CHROME_BIN,headless:true});
 try {
  const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,deviceScaleFactor:3});
+ const home=fs.readFileSync(new URL('index.html',root),'utf8');
+ await page.setContent(home.match(/<style id="gomna-home-card-no-selection">[\s\S]*?<\/style>/)[0] + '<section id="gomnaHomeFeed"><h2>성경 속 이야기와 인물</h2><input value="편집"><div contenteditable="true"><span>메모</span></div></section><p id="outside">본문</p>');
+ assert.equal(await page.locator('h2').evaluate(e=>getComputedStyle(e).userSelect),'none');
+ for(const selector of ['input','[contenteditable] span']) assert.equal(await page.locator(selector).evaluate(e=>getComputedStyle(e).userSelect),'text');
+ assert.notEqual(await page.locator('#outside').evaluate(e=>getComputedStyle(e).userSelect),'none');
+ console.log('PASS home card selection disabled; editable fields and outside text preserved');
+ await page.goto('about:blank');
  for(const file of ['index.html','meditation.html','reader.html','toolbar','home-books']) {
   const html=fs.readFileSync(new URL(file==='toolbar'?'reader.html':file==='home-books'?'index.html':file,root),'utf8');
   assert.ok(html.includes('/js/gomna-nav-magnifier.js?v=20260927-4'));
