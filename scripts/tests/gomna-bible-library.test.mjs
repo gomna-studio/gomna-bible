@@ -38,9 +38,12 @@ try{
  await p.locator('[data-gbl-item="esther"]').scrollIntoViewIfNeeded();await p.screenshot({path:'/tmp/gomna-people-portraits.png'});
  await p.locator('.gbl-scroll').evaluate(e=>e.scrollTop=0);
  console.log('PASS unique portraits, Esther/Joseph uncropped and rounded, dimensions reserved');
- await p.locator('#gblSearch').fill('없는이름');assert.equal(await p.locator('.gbl-tile').count(),0);assert.ok(await p.locator('.gbl-empty').isVisible());
- await p.locator('#gblSearch').fill('룻');assert.equal(await p.locator('.gbl-tile').count(),1);await p.locator('[data-gbl-item="ruth"]').click();assert.equal(await p.locator('#gblTitle').textContent(),'룻');await p.locator('[data-gbl-back]').click();assert.equal(await p.locator('#gblSearch').inputValue(),'룻');
- await p.locator('#gblSearch').fill('');await p.locator('[data-gbl-group="신약"]').click();assert.equal(await p.locator('.gbl-tile').count(),9);
+ assert.equal(await p.locator('#gblSearch').count(),0);
+ await p.screenshot({path:'/tmp/gomna-people-compact-buttons.png'});
+ const filterHeight=await p.locator('[data-gbl-group="전체"]').evaluate(e=>e.getBoundingClientRect().height);
+ assert.ok(Math.abs(filterHeight-(44-4*96/25.4))<1);
+ await p.locator('[data-gbl-item="ruth"]').click();assert.equal(await p.locator('#gblTitle').textContent(),'룻');await p.locator('[data-gbl-back]').click();
+ await p.locator('[data-gbl-group="신약"]').click();assert.equal(await p.locator('.gbl-tile').count(),9);
  await p.locator('[data-gbl-kind="stories"]').click();assert.equal(await p.locator('.gbl-tile').count(),12);await p.locator('[data-gbl-group="비유"]').click();assert.equal(await p.locator('.gbl-tile').count(),3);
  await p.locator('[data-gbl-item="samaritan"]').click();assert.ok((await p.locator('.gbl-article').textContent()).includes('예수님이 들려주신 비유'));
  const read=new URL(await p.locator('.gbl-actions a').first().getAttribute('href'),origin);assert.equal(read.searchParams.get('book'),'누가복음');assert.equal(read.searchParams.get('chapter'),'10');assert.equal(read.searchParams.get('verse'),'25');assert.equal(read.searchParams.get('verseEnd'),'37');
@@ -50,7 +53,7 @@ try{
  await p.mouse.move(190,500);await p.mouse.wheel(0,650);await p.waitForTimeout(250);const position=await p.locator('.gbl-scroll').evaluate(e=>e.scrollTop);assert.ok(position>0,'wheel must scroll list, not home');
  const target=p.locator('[data-gbl-item="hannah"]');await target.scrollIntoViewIfNeeded();const before=await p.locator('.gbl-scroll').evaluate(e=>e.scrollTop);await target.click();await p.locator('[data-gbl-back]').click();assert.ok(Math.abs((await p.locator('.gbl-scroll').evaluate(e=>e.scrollTop))-before)<3);
  await p.reload();await p.locator('[data-gbl-item="hannah"]').waitFor();assert.ok(Math.abs((await p.locator('.gbl-scroll').evaluate(e=>e.scrollTop))-before)<3);
- console.log('PASS search, empty results, filters, story types, passage ranges, browser back and scroll restore');
+ console.log('PASS no people search, compact filter height, filters, story types, passage ranges, browser back and scroll restore');
  for(const width of [320,390,430,768,1440]){
   await p.setViewportSize({width,height:844});await p.goto(origin+'/#bible-library/people/abraham');await p.locator('.gbl-detail').waitFor();
   assert.equal(await p.locator('.gbl-hero img').evaluate(e=>getComputedStyle(e).objectFit),'contain');
