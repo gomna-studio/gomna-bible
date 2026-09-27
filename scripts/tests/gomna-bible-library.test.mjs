@@ -89,6 +89,9 @@ try{
    const page=document.querySelector('.gbl-original-page'),c=page.getBoundingClientRect(),nav=document.querySelector('#gomnaHomeTabbar').getBoundingClientRect();
    return [...page.querySelectorAll('[data-ghd-story-chip],.gbl-discover-link')].map(e=>{const r=e.getBoundingClientRect(),parent=e.parentElement.getBoundingClientRect();return {name:e.textContent,top:r.top,bottom:r.bottom,left:r.left,right:r.right,limit:Math.min(c.bottom,nav.top,parent.bottom),cardTop:c.top,cardLeft:c.left,cardRight:c.right};});
   });
+  const pills=original.slice(0,7);
+  assert.equal(pills.length,7);
+  for(let i=1;i<pills.length;i++){assert.ok(Math.abs(pills[i].left-pills[0].left)<1);assert.ok(pills[i].top>=pills[i-1].bottom);}
   for(const r of original)assert.ok(r.bottom<=r.limit+1&&r.top>=r.cardTop&&r.left>=r.cardLeft&&r.right<=r.cardRight,JSON.stringify({width,height,r}));
   assert.equal(await tp.locator('.gbl-original-page .gomna-home-poster-foot-copy').count(),0);
   assert.ok((await tp.locator('.gbl-original-page .gomna-home-poster-lead').textContent()).includes('그들의 이야기는'));
