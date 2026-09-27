@@ -12,11 +12,16 @@ const context={window:{}};vm.runInNewContext(fs.readFileSync(path.join(root,'js/
 const items=context.window.GOMNA_BIBLE_LIBRARY_DATA;
 assert.equal(items.filter(i=>i.kind==='people').length,27);assert.equal(items.filter(i=>i.kind==='stories').length,12);
 assert.equal(new Set(items.map(i=>i.id)).size,39);
+const people=items.filter(i=>i.kind==='people');
+assert.equal(new Set(people.map(i=>i.image)).size,27);
+assert.equal(people.filter(i=>i.image.startsWith('assets/home/people/v1/')).length,20);
+for(const i of people){assert.ok(i.imageWidth>0&&i.imageHeight>0);}
+assert.ok(!fs.readFileSync(path.join(root,'index.html'),'utf8').includes('인물 버튼으로'));
 const books={'창세기':1,'출애굽기':2,'여호수아':6,'사사기':7,'룻기':8,'사무엘상':9,'열왕기상':11,'느헤미야':16,'에스더':17,'다니엘':27,'요나':32,'마가복음':41,'누가복음':42,'요한복음':43,'사도행전':44};
 const bible=JSON.parse(fs.readFileSync(path.join(root,'js/bible/webp.json'),'utf8')).books;
 for(const i of items){assert.ok(fs.existsSync(path.join(root,i.image)),i.image);assert.ok(i.body.length>80);assert.ok(i.start<=i.end);for(let v=i.start;v<=i.end;v++)assert.ok(bible[books[i.book]]?.[i.chapter]?.[v],i.id+' missing verse '+v);}
 console.log('PASS 39 unique entries, images and every referenced verse exist; Lot/Ruth distinct');
-const server=http.createServer((req,res)=>{const u=new URL(req.url,'http://localhost');const f=path.join(root,decodeURIComponent(u.pathname==='/'?'/index.html':u.pathname));if(!f.startsWith(root)||!fs.existsSync(f)||!fs.statSync(f).isFile()){res.statusCode=404;res.end();return;}res.setHeader('Content-Type',({'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.png':'image/png'})[path.extname(f)]||'application/octet-stream');fs.createReadStream(f).pipe(res);});
+const server=http.createServer((req,res)=>{const u=new URL(req.url,'http://localhost');const f=path.join(root,decodeURIComponent(u.pathname==='/'?'/index.html':u.pathname));if(!f.startsWith(root)||!fs.existsSync(f)||!fs.statSync(f).isFile()){res.statusCode=404;res.end();return;}res.setHeader('Content-Type',({'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.png':'image/png','.webp':'image/webp'})[path.extname(f)]||'application/octet-stream');fs.createReadStream(f).pipe(res);});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;
 const browser=await chromium.launch({executablePath:process.env.GOMNA_CHROME_BIN});
 try{
@@ -25,6 +30,14 @@ try{
  const p=await ctx.newPage();const errors=[];p.on('pageerror',e=>{if(e.stack?.includes('gomna-bible-library'))errors.push(e.message);});
  await p.goto(origin+'/#bible-library/people');await p.locator('[data-gbl-item="abraham"]').waitFor();
  assert.equal(await p.locator('.gbl-tile').count(),27);
+ for(const id of ['esther','joseph','noah','ruth']){
+  const portrait=p.locator('[data-gbl-item="'+id+'"] img');await portrait.scrollIntoViewIfNeeded();await p.waitForFunction(id=>document.querySelector('[data-gbl-item="'+id+'"] img')?.naturalWidth>0,id);await portrait.evaluate(e=>e.decode()).catch(e=>{throw new Error(id+': '+e.message);});
+  const metrics=await portrait.evaluate(e=>({fit:getComputedStyle(e).objectFit,radius:parseFloat(getComputedStyle(e).borderRadius),ratio:e.getBoundingClientRect().width/e.getBoundingClientRect().height,natural:e.naturalWidth/e.naturalHeight}));
+  assert.equal(metrics.fit,'contain');assert.ok(metrics.radius>=12);assert.ok(Math.abs(metrics.ratio-metrics.natural)<0.01,id+' full portrait ratio');
+ }
+ await p.locator('[data-gbl-item="esther"]').scrollIntoViewIfNeeded();await p.screenshot({path:'/tmp/gomna-people-portraits.png'});
+ await p.locator('.gbl-scroll').evaluate(e=>e.scrollTop=0);
+ console.log('PASS unique portraits, Esther/Joseph uncropped and rounded, dimensions reserved');
  await p.locator('#gblSearch').fill('없는이름');assert.equal(await p.locator('.gbl-tile').count(),0);assert.ok(await p.locator('.gbl-empty').isVisible());
  await p.locator('#gblSearch').fill('룻');assert.equal(await p.locator('.gbl-tile').count(),1);await p.locator('[data-gbl-item="ruth"]').click();assert.equal(await p.locator('#gblTitle').textContent(),'룻');await p.locator('[data-gbl-back]').click();assert.equal(await p.locator('#gblSearch').inputValue(),'룻');
  await p.locator('#gblSearch').fill('');await p.locator('[data-gbl-group="신약"]').click();assert.equal(await p.locator('.gbl-tile').count(),9);
@@ -40,6 +53,7 @@ try{
  console.log('PASS search, empty results, filters, story types, passage ranges, browser back and scroll restore');
  for(const width of [320,390,430,768,1440]){
   await p.setViewportSize({width,height:844});await p.goto(origin+'/#bible-library/people/abraham');await p.locator('.gbl-detail').waitFor();
+  assert.equal(await p.locator('.gbl-hero img').evaluate(e=>getComputedStyle(e).objectFit),'contain');
   const box=await p.locator('#gomnaBibleLibrary').boundingBox();assert.equal(box.width,Math.min(width,420));
   const overflow=await p.locator('.gbl-scroll').evaluate(e=>e.scrollWidth>e.clientWidth);assert.equal(overflow,false);
   await p.locator('.gbl-actions').scrollIntoViewIfNeeded();for(const a of await p.locator('.gbl-actions a').all()){const ab=await a.boundingBox();assert.ok(ab.x>=box.x&&ab.x+ab.width<=box.x+box.width+1);}
@@ -57,6 +71,9 @@ try{
  assert.equal(await tp.locator('[data-ghd-story-chip]').count(),7);
  async function horizontal(from,to){await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:from,y:410}]});for(let n=1;n<=6;n++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:from+(to-from)*n/6,y:410}]});await tp.waitForTimeout(35);}await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await tp.waitForTimeout(500);}
  await horizontal(320,65);assert.ok(await tp.locator('.gbl-discover-page').isVisible());
+ assert.equal(await tp.locator('.gbl-discover-back').textContent(),'');
+ for(const sel of ['.gbl-discover-link svg','.gbl-discover-back svg'])assert.equal(await tp.locator(sel).evaluate(e=>getComputedStyle(e).width),'22px');
+ await tp.screenshot({path:'/tmp/gomna-discover-updated.png'});
  await horizontal(65,320);assert.ok(await tp.locator('.gbl-original-page').isVisible());
  console.log('PASS third card touch left/right opens discovery and restores seven original pills');
  await tp.locator('[data-gbl-discover="open"]').tap();await tp.locator('[data-gbl-open="people"]').tap();assert.ok(await tp.locator('#gomnaBibleLibrary').isVisible());console.log('PASS touch swipes through real home and taps new entry');

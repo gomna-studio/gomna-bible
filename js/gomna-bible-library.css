@@ -71,3 +71,12 @@ body.gbl-open .gomna-home-return-top {visibility:hidden!important}
 @media(prefers-reduced-motion:no-preference) {#gomnaBibleLibrary .gbl-tile:active {transform:translateY(1px)}}
 
 #gomnaBibleLibrary #gblTitle:focus {outline:none}
+
+/* Full-image people thumbnails: preserve every edge rather than filling/cropping. */
+.gbl-discover-link {display:inline-flex;align-items:center;gap:6px}
+.gbl-discover-link svg,.gbl-discover-back svg {width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.gbl-discover-back {display:grid;place-items:center;width:44px;height:44px;padding:0}
+#gomnaBibleLibrary .gbl-grid:not(.gbl-stories) .gbl-tile img {width:calc(100% - 16px);height:auto;aspect-ratio:auto;object-fit:contain;object-position:center;border-radius:12px;margin:8px 8px 0;background:#eeeae3}
+#gomnaBibleLibrary .gbl-grid:not(.gbl-stories) {align-items:start}
+#gomnaBibleLibrary .gbl-person-detail .gbl-hero {padding:16px 16px 0;text-align:center}
+#gomnaBibleLibrary .gbl-person-detail .gbl-hero img {width:auto;max-width:100%;height:auto;max-height:440px;object-fit:contain;object-position:center;border-radius:16px;margin:0 auto}

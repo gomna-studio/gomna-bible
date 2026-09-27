@@ -3,12 +3,12 @@
 set -euo pipefail
 REPO="${1:?Pass the existing clone path}"
 REF="${2:?Pass the fetched trial commit}"
-PORT=8808
+PORT=8809
 command -v python3 >/dev/null
 GIT=/opt/homebrew/bin/git
 [ -x "$GIT" ] || GIT=/usr/bin/git
 if lsof -nP -iTCP:$PORT -sTCP:LISTEN >/dev/null 2>&1; then
-  echo "8808 포트가 사용 중입니다. 기존 프로세스는 종료하지 않았습니다. 결과를 보내주세요."
+  echo "8809 포트가 사용 중입니다. 기존 프로세스는 종료하지 않았습니다. 결과를 보내주세요."
   exit 1
 fi
 COMMIT="$("$GIT" -C "$REPO" rev-parse --verify "${REF}^{commit}")"
@@ -55,14 +55,19 @@ for name in index.html reader.html meditation.html js/gomna-nav-magnifier.js gom
   curl --max-time 5 -fsS "http://127.0.0.1:$PORT/$name" -o "$ROOT/verify-file"
   cmp "$ROOT/site/$name" "$ROOT/verify-file"
 done
+for file in "$ROOT/site/assets/home/people/v1/"*.webp; do
+  name="assets/home/people/v1/$(basename "$file")"
+  curl --max-time 5 -fsS "http://127.0.0.1:$PORT/$name" -o "$ROOT/verify-file"
+  cmp "$file" "$ROOT/verify-file"
+done
 printf '\n홈·인물·이야기 코드와 서버 파일 일치: O\n'
 IP="$(ipconfig getifaddr en0 2>/dev/null || true)"
 [ -n "$IP" ] || IP="$(ipconfig getifaddr en1 2>/dev/null || true)"
 printf '\n시험본: %s\n파일 일치: O / 음원 목록 압축·내용 일치: O / 진단 패널: 없음\n' "$COMMIT"
-printf '\nMac 홈 URL:\nhttp://127.0.0.1:%s/?v=bible-stories-2\n' "$PORT"
+printf '\nMac 홈 URL:\nhttp://127.0.0.1:%s/?v=bible-stories-3\n' "$PORT"
 if [ -n "$IP" ]; then
-  printf '\niPhone 홈 URL:\nhttp://%s:%s/?v=bible-stories-2\n' "$IP" "$PORT"
-  printf '\niPhone 인물 목록 바로 보기:\nhttp://%s:%s/?v=bible-stories-2#bible-library/people\n' "$IP" "$PORT"
+  printf '\niPhone 홈 URL:\nhttp://%s:%s/?v=bible-stories-3\n' "$IP" "$PORT"
+  printf '\niPhone 인물 목록 바로 보기:\nhttp://%s:%s/?v=bible-stories-3#bible-library/people\n' "$IP" "$PORT"
 else
   echo 'iPhone용 Mac IP 확인이 필요합니다.'
 fi

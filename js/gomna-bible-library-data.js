@@ -13,7 +13,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "하나님의 약속을 믿고 익숙한 곳을 떠난 사람",
     "body": "아브라함은 하나님의 부르심을 따라 고향을 떠났습니다. 모든 길을 알지는 못했지만 하나님의 약속을 믿고 한 걸음을 내디뎠습니다. 그의 삶에는 두려움과 실수도 있었으며, 성경은 그 여정 속에서 이어지는 하나님의 약속을 보여 줍니다.",
     "question": "오늘 내가 믿음으로 내디딜 작은 한 걸음은 무엇인가요?",
-    "image": "assets/home/stories/v1-story-abraham.png"
+    "image": "assets/home/stories/v1-story-abraham.png",
+    "imageWidth": 864,
+    "imageHeight": 1152
   },
   {
     "id": "moses",
@@ -28,7 +30,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "두려움 속에서도 하나님의 부르심에 응답한 지도자",
     "body": "하나님은 이스라엘 백성의 고통을 보시고 모세를 부르셨습니다. 모세는 자신이 누구이기에 그 일을 할 수 있느냐고 물었습니다. 하나님은 그에게 함께하겠다고 말씀하셨습니다. 출애굽의 여정은 모세의 능력만이 아니라 하나님의 인도하심을 보여 줍니다.",
     "question": "혼자 감당해야 한다고 느끼는 일은 무엇인가요?",
-    "image": "assets/home/stories/v1-story-moses.png"
+    "image": "assets/home/stories/v1-story-moses.png",
+    "imageWidth": 864,
+    "imageHeight": 1152
   },
   {
     "id": "david",
@@ -43,7 +47,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "들판의 목자에서 이스라엘의 왕이 된 사람",
     "body": "사무엘이 이새의 아들들을 만났을 때 하나님은 외모보다 마음을 보신다고 말씀하셨습니다. 들에서 양을 돌보던 다윗은 기름 부음을 받았습니다. 다윗의 삶에는 믿음뿐 아니라 큰 잘못과 회개도 기록되어 있습니다. 그의 이야기는 한 사람을 겉모습이나 성공만으로 판단할 수 없음을 생각하게 합니다.",
     "question": "나는 사람을 볼 때 무엇을 먼저 보고 있나요?",
-    "image": "assets/home/stories/v1-story-david.png"
+    "image": "assets/home/stories/v1-story-david.png",
+    "imageWidth": 864,
+    "imageHeight": 1152
   },
   {
     "id": "joseph",
@@ -58,7 +64,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "고난을 지나 형제들을 돌본 사람",
     "body": "형들에게 팔려 애굽으로 간 요셉은 종살이와 감옥 생활을 겪었습니다. 뒤에 기근을 대비하는 일을 맡았고, 양식을 구하러 온 형들을 다시 만났습니다. 요셉은 형들의 악한 행동을 선하다고 하지 않았습니다. 그러나 하나님이 그 일을 생명을 살리는 길로 바꾸셨음을 고백하며 가족을 돌보았습니다.",
     "question": "상처를 외면하지 않으면서도 선을 선택할 길이 있을까요?",
-    "image": "assets/home/stories/v1-story-joseph.png"
+    "image": "assets/home/stories/v1-story-joseph.png",
+    "imageWidth": 864,
+    "imageHeight": 1152
   },
   {
     "id": "lot",
@@ -73,7 +81,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "아브람과 갈라져 요단 지역을 택한 사람",
     "body": "아브람과 롯의 가축과 소유가 많아지자 목자들 사이에 다툼이 생겼습니다. 아브람은 다투지 말고 서로 갈라서자고 제안했습니다. 롯은 물이 넉넉한 요단 지역을 바라보고 그곳을 택했습니다. 이 장면은 눈에 좋아 보이는 조건과 삶의 방향을 함께 살펴보게 합니다.",
     "question": "지금의 선택에서 눈에 보이는 조건 외에 살펴볼 것은 무엇인가요?",
-    "image": "assets/home/stories/v1-story-lot.png"
+    "image": "assets/home/stories/v1-story-lot.png",
+    "imageWidth": 864,
+    "imageHeight": 1152
   },
   {
     "id": "esther",
@@ -88,7 +98,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "위험을 무릅쓰고 자기 민족을 위해 나선 왕후",
     "body": "유다 민족이 위기에 처하자 모르드개는 에스더에게 왕에게 나아가 도움을 구하라고 전했습니다. 허락 없이 왕을 만나는 일은 위험했습니다. 에스더는 함께 금식해 달라고 요청하고 왕에게 나아가기로 했습니다. 그녀의 선택에는 두려움 속에서도 다른 사람을 위해 나서는 용기가 담겨 있습니다.",
     "question": "누군가를 위해 용기를 내야 할 자리가 있나요?",
-    "image": "assets/home/stories/v1-story-esther.png"
+    "image": "assets/home/stories/v1-story-esther.png",
+    "imageWidth": 864,
+    "imageHeight": 1152
   },
   {
     "id": "paul",
@@ -103,7 +115,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "교회를 박해하던 사람에서 복음을 전하는 사도가 된 사람",
     "body": "사울이라고도 불린 바울은 예수님을 따르는 사람들을 박해했습니다. 다메섹으로 가는 길에서 예수님을 만난 뒤 그의 삶의 방향은 바뀌었습니다. 그는 여러 지역에서 복음을 전하고 교회에 편지를 보냈습니다. 그의 변화는 과거의 잘못을 감추는 이야기가 아니라 은혜로 새 길을 걷는 이야기입니다.",
     "question": "내 삶에서 새롭게 바뀌기를 바라는 방향은 무엇인가요?",
-    "image": "assets/home/stories/v1-story-paul.png"
+    "image": "assets/home/stories/v1-story-paul.png",
+    "imageWidth": 864,
+    "imageHeight": 1152
   },
   {
     "id": "noah",
@@ -118,7 +132,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "하나님의 말씀을 따라 방주를 지은 사람",
     "body": "하나님은 노아에게 방주를 만들도록 말씀하셨습니다. 노아는 그 말씀에 따라 방주를 준비했습니다. 홍수 이야기는 심판의 엄중함과 함께 생명을 보존하시는 하나님을 보여 줍니다. 노아의 순종은 눈앞의 상황만으로 결정하지 않는 믿음을 생각하게 합니다.",
     "question": "오늘 꾸준히 실천할 수 있는 순종은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/noah.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "jacob",
@@ -133,7 +149,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "두려운 만남을 앞두고 하나님께 매달린 사람",
     "body": "야곱은 형 에서를 다시 만나기 전에 두려워했습니다. 얍복 나루에서 홀로 남은 밤, 그는 날이 새도록 씨름했습니다. 그곳에서 이스라엘이라는 이름을 받았고 절뚝거리며 길을 이어 갔습니다. 이 이야기는 야곱의 삶이 자기 힘과 계산만으로 이루어지지 않았음을 보여 줍니다.",
     "question": "내 힘만으로 해결하려고 붙들고 있는 것은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/jacob.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "joshua",
@@ -148,7 +166,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "모세 뒤를 이어 백성을 이끈 지도자",
     "body": "모세가 죽은 뒤 여호수아는 백성을 이끌 사명을 받았습니다. 하나님은 그에게 강하고 담대하라고 말씀하시며 함께하겠다고 약속하셨습니다. 그 담대함은 말씀을 가까이하며 따르는 삶과 연결되어 있었습니다. 새로운 책임 앞에 선 사람에게 이 장면은 깊은 격려가 됩니다.",
     "question": "새로운 책임 앞에서 내가 붙들 말씀은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/joshua.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "hannah",
@@ -163,7 +183,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "깊은 괴로움을 하나님께 아뢴 사람",
     "body": "한나는 괴로운 마음으로 성전에 나아가 기도했습니다. 제사장 엘리는 처음에 그 모습을 잘못 이해했지만, 한나는 자신의 마음을 하나님 앞에 쏟아 놓고 있다고 설명했습니다. 성경은 이후 사무엘의 탄생을 전합니다. 이 이야기는 모든 기도가 같은 방식으로 이루어진다는 공식이 아니라 한나의 아픔과 기도를 기록한 이야기입니다.",
     "question": "하나님께 솔직하게 아뢰고 싶은 마음은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/hannah.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "samuel",
@@ -178,7 +200,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "어린 시절 하나님의 부르심을 들은 선지자",
     "body": "어린 사무엘은 엘리 곁에서 하나님을 섬겼습니다. 밤에 자신을 부르는 소리를 듣고 엘리에게 달려갔지만, 엘리는 하나님이 부르시는 줄 깨닫고 응답하는 법을 알려 주었습니다. 사무엘은 말씀을 듣겠다고 대답했습니다. 그의 이야기는 경청과 배움의 자세를 생각하게 합니다.",
     "question": "말씀을 듣기 위해 잠시 멈출 시간은 언제인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/samuel.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "deborah",
@@ -193,7 +217,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "이스라엘을 재판하고 바락을 격려한 선지자",
     "body": "드보라는 선지자이자 이스라엘의 사사였습니다. 그는 바락에게 하나님의 명령을 전했고, 바락의 요청에 함께 길을 나섰습니다. 이 이야기는 드보라의 판단과 용기, 그리고 공동체를 위해 맡은 역할을 보여 줍니다.",
     "question": "다른 사람이 맡은 일을 해내도록 어떻게 격려할 수 있을까요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/deborah.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "elijah",
@@ -208,7 +234,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "두려움과 지침 속에서 돌봄을 받은 선지자",
     "body": "엘리야는 위협을 피해 광야로 달아났고 몹시 지쳐 있었습니다. 그가 누워 있을 때 천사가 먹을 것과 물을 주었습니다. 엘리야는 먹고 쉬며 다시 길을 갈 힘을 얻었습니다. 성경은 믿음의 사람에게도 지침이 있음을 숨기지 않습니다.",
     "question": "지금 내게 필요한 쉼과 돌봄은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/elijah.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "daniel",
@@ -223,7 +251,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "위협 속에서도 하나님께 기도한 사람",
     "body": "왕 외의 대상에게 기도하지 못하게 하는 법령이 내려졌지만 다니엘은 평소처럼 하나님께 기도했습니다. 그 일로 사자 굴에 던져졌고, 하나님은 그를 지키셨습니다. 이 사건은 모든 위험이 즉시 사라진다는 약속이 아니라 어려움 속에서도 이어진 다니엘의 믿음을 보여 줍니다.",
     "question": "어려운 상황에서도 지키고 싶은 믿음의 습관은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/daniel.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "jonah",
@@ -238,7 +268,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "하나님의 자비를 받아들이는 데 어려움을 겪은 선지자",
     "body": "요나는 니느웨에 말씀을 전했지만, 하나님이 그 성을 불쌍히 여기시자 화를 냈습니다. 하나님은 박넝쿨을 통해 요나에게 질문하셨습니다. 요나서는 하나님의 자비가 내가 좋아하는 사람들에게만 머물지 않음을 생각하게 합니다.",
     "question": "나는 누구에게 자비를 베풀기 어려워하나요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/jonah.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "nehemiah",
@@ -253,7 +285,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "예루살렘 성벽의 재건을 이끈 사람",
     "body": "느헤미야는 예루살렘의 형편을 듣고 슬퍼하며 기도했습니다. 예루살렘에 도착한 뒤에는 성벽의 상태를 직접 살펴보고 백성에게 함께 다시 세우자고 말했습니다. 재건은 한 사람의 열심만이 아니라 여러 사람이 함께 맡은 일을 감당하는 과정이었습니다.",
     "question": "우리 함께 다시 세워야 할 것은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/nehemiah.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "mary",
@@ -268,7 +302,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "예수님의 탄생을 알리는 소식을 받은 어머니",
     "body": "천사 가브리엘은 마리아에게 예수님의 탄생을 알렸습니다. 마리아는 놀라며 질문했고, 천사의 말을 들은 뒤 주의 종으로서 말씀대로 이루어지기를 바란다고 응답했습니다. 이 장면은 이해하기 어려운 부르심 앞에서 질문하며 응답하는 모습을 보여 줍니다.",
     "question": "이해하기 어려워도 하나님께 맡기고 싶은 일은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/mary.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "john-baptist",
@@ -283,7 +319,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "회개를 선포하며 예수님의 길을 준비한 사람",
     "body": "세례 요한은 광야에서 회개의 세례를 전했습니다. 사람들은 자신의 죄를 고백하며 나아왔습니다. 요한은 자신보다 능력 있는 분이 오신다고 알리며 사람들의 시선을 예수님께 향하게 했습니다.",
     "question": "내가 중심에 서기보다 다른 이를 드러낼 수 있는 자리는 어디인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/john-baptist.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "peter",
@@ -298,7 +336,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "실패를 겪고 다시 돌봄의 사명을 받은 제자",
     "body": "베드로는 예수님을 모른다고 부인한 경험이 있었습니다. 부활하신 예수님은 그에게 사랑하느냐고 물으시고 자신의 양을 돌보라고 말씀하셨습니다. 이 만남은 베드로의 실패를 마지막 장면으로 남겨 두지 않았습니다. 사랑의 고백은 다른 사람을 돌보는 사명으로 이어졌습니다.",
     "question": "다시 시작한다면 누구를 어떻게 돌보고 싶나요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/peter.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "john",
@@ -313,7 +353,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "형제 야고보와 함께 예수님을 따른 제자",
     "body": "요한은 형제 야고보와 함께 배에서 그물을 손질하다가 예수님의 부르심을 받았습니다. 그들은 아버지를 품꾼들과 함께 배에 두고 예수님을 따라 나섰습니다. 짧게 기록된 이 장면에는 일상의 자리에서 시작된 제자의 길이 담겨 있습니다.",
     "question": "내 일상에서 예수님의 가르침을 따를 자리는 어디인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/john.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "thomas",
@@ -328,7 +370,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "부활에 대한 의문을 품었다가 예수님을 만난 제자",
     "body": "도마는 다른 제자들이 예수님을 보았다는 말을 쉽게 받아들이지 못했습니다. 예수님은 다시 제자들 가운데 오셔서 도마에게 말씀하셨습니다. 도마는 예수님을 자신의 주님과 하나님으로 고백했습니다. 성경은 그의 질문과 변화된 고백을 함께 전합니다.",
     "question": "믿음에 관해 솔직하게 묻고 싶은 질문은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/thomas.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "mary-magdalene",
@@ -343,7 +387,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "부활하신 예수님을 만나 제자들에게 알린 사람",
     "body": "막달라 마리아는 빈 무덤 밖에서 울고 있었습니다. 예수님이 자신의 이름을 부르시자 그분을 알아보았습니다. 마리아는 제자들에게 가서 주님을 보았다고 전했습니다. 슬픔 가운데 있던 사람이 부활의 소식을 전하는 증인이 되었습니다.",
     "question": "슬픔 가운데 있는 이에게 어떤 위로를 건넬 수 있을까요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/mary-magdalene.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "zacchaeus",
@@ -358,7 +404,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "예수님을 만난 뒤 삶의 변화를 말한 세리장",
     "body": "삭개오는 예수님을 보기 위해 나무에 올라갔습니다. 예수님은 그를 부르시며 그의 집에 머물겠다고 하셨습니다. 삭개오는 자신의 재산을 나누고 부당하게 빼앗은 것을 갚겠다고 말했습니다. 이 만남은 변화가 구체적인 삶의 선택과 연결됨을 보여 줍니다.",
     "question": "바로잡거나 나누어야 할 것이 내게 있나요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/zacchaeus.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "barnabas",
@@ -373,7 +421,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "사울을 제자들에게 소개하며 연결해 준 사람",
     "body": "사울이 예루살렘의 제자들과 함께하려 했을 때 사람들은 그를 두려워했습니다. 바나바는 사울을 사도들에게 데려가 그가 주님을 만나고 복음을 전한 일을 설명했습니다. 바나바의 행동은 두려움 속에 끊어진 관계를 잇는 역할을 했습니다.",
     "question": "누군가에게 새로운 기회를 열어 줄 수 있을까요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/barnabas.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "ruth",
@@ -388,7 +438,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "나오미 곁에 남아 함께 길을 떠난 사람",
     "body": "모압 여인 룻은 남편을 잃은 뒤 시어머니 나오미와 함께할 것을 택했습니다. 나오미가 돌아가라고 권했지만 룻은 나오미의 백성과 하나님을 자신의 백성과 하나님으로 받아들이겠다고 말했습니다. 그 선택은 두 사람이 함께 베들레헴으로 가는 길로 이어졌습니다.",
     "question": "어려운 시간을 보내는 누구의 곁에 머물 수 있을까요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/ruth.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "gideon",
@@ -403,7 +455,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "자신의 부족함을 말하며 부르심을 받은 사사",
     "body": "기드온은 미디안 사람들을 피해 밀을 타작하던 중 부르심을 받았습니다. 그는 자신과 집안의 약함을 말했지만 하나님은 함께하겠다고 말씀하셨습니다. 이 첫 만남은 기드온이 자신을 바라보는 시선과 하나님이 맡기시는 일이 어떻게 다른지 보여 줍니다.",
     "question": "부족하다는 이유로 미루고 있는 작은 책임은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/people/v1/gideon.webp",
+    "imageWidth": 1254,
+    "imageHeight": 1254
   },
   {
     "id": "creation",

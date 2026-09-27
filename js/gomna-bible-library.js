@@ -23,7 +23,7 @@
     return 'reader.html?' + p.toString();
   }
   function image(item, detail) {
-    return '<img src="' + esc(item.image) + '" alt="" ' + (detail?'fetchpriority="high"':'loading="lazy"') + ' decoding="async">';
+    return '<img src="' + esc(item.image) + '" alt="" ' + (detail?'fetchpriority="high"':'loading="lazy"') + ' decoding="async"' + (item.imageWidth ? ' width="'+item.imageWidth+'" height="'+item.imageHeight+'" style="aspect-ratio:'+item.imageWidth+'/'+item.imageHeight+'"' : '') + '>';
   }
   function tile(item) {
     return '<button class="gbl-tile" data-gbl-item="'+item.id+'">'+image(item,false)+'<span class="gbl-tile-copy"><strong>'+esc(item.name)+'</strong><span>'+esc(item.title)+'</span></span></button>';
@@ -42,7 +42,7 @@
   }
   function detail(item) {
     const related=items.filter(i=>i.id!==item.id && i.book===item.book).slice(0,3);
-    scroll.innerHTML='<article class="gbl-detail"><div class="gbl-hero">'+image(item,true)+'</div><div class="gbl-article"><p class="gbl-eyebrow">'+esc(item.group)+' · '+esc(item.book)+'</p><h2>'+esc(item.title)+'</h2><p class="gbl-intro">'+esc(item.intro)+'</p><hr><h3>'+esc(item.kind==='people'?item.name+'의 이야기':item.group==='비유'?'예수님이 들려주신 비유':'성경 속 이야기')+'</h3><p class="gbl-body">'+esc(item.body)+'</p><section class="gbl-scripture"><p>함께 읽는 말씀</p><h3>'+esc(item.book)+' '+item.chapter+'장 '+item.start+'–'+item.end+'절</h3><div class="gbl-actions"><a href="'+esc(readerUrl(item,false))+'">본문 읽기</a><a href="'+esc(readerUrl(item,true))+'"><span aria-hidden="true">▷</span> 본문 듣기</a></div></section><section class="gbl-question"><h3>오늘 생각해 볼 질문</h3><p>'+esc(item.question)+'</p></section>'+(related.length?'<section class="gbl-related"><h3>함께 만나는 이야기</h3>'+related.map(i=>'<button data-gbl-related="'+i.id+'"><span>'+esc(i.name)+'</span><span aria-hidden="true">›</span></button>').join(''):'')+'<p class="gbl-source-note">성경 본문을 바탕으로 정리한 소개입니다.<br>그림은 이해를 돕는 이미지입니다.</p></div></article>';
+    scroll.innerHTML='<article class="gbl-detail '+(item.kind==='people'?'gbl-person-detail':'')+'"><div class="gbl-hero">'+image(item,true)+'</div><div class="gbl-article"><p class="gbl-eyebrow">'+esc(item.group)+' · '+esc(item.book)+'</p><h2>'+esc(item.title)+'</h2><p class="gbl-intro">'+esc(item.intro)+'</p><hr><h3>'+esc(item.kind==='people'?item.name+'의 이야기':item.group==='비유'?'예수님이 들려주신 비유':'성경 속 이야기')+'</h3><p class="gbl-body">'+esc(item.body)+'</p><section class="gbl-scripture"><p>함께 읽는 말씀</p><h3>'+esc(item.book)+' '+item.chapter+'장 '+item.start+'–'+item.end+'절</h3><div class="gbl-actions"><a href="'+esc(readerUrl(item,false))+'">본문 읽기</a><a href="'+esc(readerUrl(item,true))+'"><span aria-hidden="true">▷</span> 본문 듣기</a></div></section><section class="gbl-question"><h3>오늘 생각해 볼 질문</h3><p>'+esc(item.question)+'</p></section>'+(related.length?'<section class="gbl-related"><h3>함께 만나는 이야기</h3>'+related.map(i=>'<button data-gbl-related="'+i.id+'"><span>'+esc(i.name)+'</span><span aria-hidden="true">›</span></button>').join(''):'')+'<p class="gbl-source-note">성경 본문을 바탕으로 정리한 소개입니다.<br>그림은 이해를 돕는 이미지입니다.</p></div></article>';
     scroll.scrollTop=0;
   }
   function layout() {
