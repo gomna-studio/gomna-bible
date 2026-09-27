@@ -15,24 +15,24 @@ try {
  await page.goto('about:blank');
  for(const file of ['index.html','meditation.html','reader.html','toolbar','home-books']) {
   const html=fs.readFileSync(new URL(file==='toolbar'?'reader.html':file==='home-books'?'index.html':file,root),'utf8');
-  assert.ok(html.includes('/js/gomna-nav-magnifier.js?v=20260927-4'));
-  const nav=file==='home-books'?'<nav>'+html.match(/<button[^>]*data-ghd-read[^>]*>[\s\S]*?<\/button>/g).join('')+'</nav>':file==='toolbar'?'<nav id="opt4VerseToolbar">'+html.match(/<div id="opt4VerseToolbar"[\s\S]*?<\/nav>/)[0].match(/<button[^>]*id="(?:verseToolbarLocationButton|opt4VerseListen|opt4VerseCommentary|opt4VerseMore)"[\s\S]*?<\/button>/g).join('')+'</nav>':html.match(file==='reader.html'?/<nav id="scriptureDock"[\s\S]*?<\/nav>/:/<nav class="gomna-home-tabbar"[\s\S]*?<\/nav>/)[0];
+  assert.ok(html.includes('/js/gomna-nav-magnifier.js?v=20260927-6'));
+  const nav=file==='home-books'?'<nav>'+html.match(/<button[^>]*data-ghd-related[^>]*>[\s\S]*?<\/button>/g).join('')+'</nav>':file==='toolbar'?'<nav id="opt4VerseToolbar">'+html.match(/<div id="opt4VerseToolbar"[\s\S]*?<\/nav>/)[0].match(/<button[^>]*id="(?:verseToolbarLocationButton|opt4VerseListen|opt4VerseCommentary|opt4VerseMore)"[\s\S]*?<\/button>/g).join('')+'</nav>':html.match(file==='reader.html'?/<nav id="scriptureDock"[\s\S]*?<\/nav>/:/<nav class="gomna-home-tabbar"[\s\S]*?<\/nav>/)[0];
   await page.setContent(`<style>nav{position:fixed;bottom:0;display:flex;width:374px}nav>a,nav>button{flex:1;min-width:0}nav svg{width:24px;height:24px}nav span{display:block}.home-policy-links{display:none}</style>${nav}`);
   await page.evaluate(()=>{
    window.actions=0;
    document.querySelectorAll('nav a,nav button').forEach(e=>{e.removeAttribute('onclick');e.addEventListener('click',ev=>{ev.preventDefault();window.actions++;});});
   });
   await page.addScriptTag({path:new URL('js/gomna-nav-magnifier.js',root).pathname});
-  const items=page.locator('nav .gomna-home-tab,nav .scripture-dock-item, #opt4VerseToolbar > button, button[data-ghd-read]');
+  const items=page.locator('nav .gomna-home-tab,nav .scripture-dock-item, #opt4VerseToolbar > button, button.gomna-home-related[data-ghd-related]');
   const count=await items.count();
   for(let i=0;i<count;i++) {
    const el=items.nth(i), b=await el.boundingBox();
    const x=b.x+b.width/2,y=b.y+b.height/2;
    await page.mouse.move(x,y);await page.mouse.down();await page.waitForTimeout(550);
    assert.equal(await page.locator('#gomnaNavMagnifier').isVisible(),true);
-   assert.equal(await page.locator('#gomnaNavMagnifier svg').count(),1);
-   assert.equal(await page.locator('#gomnaNavMagnifier svg').evaluate(e=>getComputedStyle(e).filter),'none');
-   assert.equal((await page.locator('#gomnaNavMagnifier > span').last().textContent()).trim(),await el.evaluate(e=>(e.querySelector('.opt4-bar-label, .verse-toolbar-location-text')||e).textContent.trim()));
+   assert.equal(await page.locator('#gomnaNavMagnifier svg, #gomnaNavMagnifier img').count(),1);
+   assert.equal(await page.locator('#gomnaNavMagnifier svg, #gomnaNavMagnifier img').evaluate(e=>getComputedStyle(e).filter),'none');
+   assert.equal((await page.locator('#gomnaNavMagnifier > span').last().textContent()).trim(),await el.evaluate(e=>(e.querySelector('.opt4-bar-label, .verse-toolbar-location-text')||e).textContent.trim() || e.getAttribute('aria-label')));
    const box=await page.locator('#gomnaNavMagnifier').boundingBox();
    assert.ok(box.x>=0 && box.x+box.width<=390 && box.y+box.height<y);
    await page.mouse.up();
@@ -49,8 +49,8 @@ try {
   await el.dispatchEvent('pointerdown',{pointerId:9,isPrimary:true,button:0,clientX:20,clientY:800,pointerType:'touch'});
   await page.waitForTimeout(550);
   assert.equal(await page.locator('#gomnaNavMagnifier').isVisible(),true);
-   assert.equal(await page.locator('#gomnaNavMagnifier svg').count(),1);
-   assert.equal(await page.locator('#gomnaNavMagnifier svg').evaluate(e=>getComputedStyle(e).filter),'none');
+   assert.equal(await page.locator('#gomnaNavMagnifier svg, #gomnaNavMagnifier img').count(),1);
+   assert.equal(await page.locator('#gomnaNavMagnifier svg, #gomnaNavMagnifier img').evaluate(e=>getComputedStyle(e).filter),'none');
   await el.dispatchEvent('pointercancel',{pointerId:9});
   assert.equal(await page.locator('#gomnaNavMagnifier').isVisible(),false);
   // A second finger cancels the pending long press, allowing pinch gestures.
@@ -58,6 +58,13 @@ try {
   await el.dispatchEvent('pointerdown',{pointerId:11,isPrimary:false,button:0});
   await page.waitForTimeout(550);
   assert.equal(await page.locator('#gomnaNavMagnifier').isVisible(),false);
+  if(file==='home-books') {
+   assert.ok(await page.locator('#gomnaNavMagnifier img').getAttribute('src').then(s=>s.includes('home-thumbnail-bible-gold.png')));
+   await page.evaluate(()=>{const b=document.createElement('button');b.dataset.ghdRead='';b.textContent='본문 보기';document.body.appendChild(b);});
+   await page.locator('[data-ghd-read]').dispatchEvent('pointerdown',{pointerId:20,isPrimary:true,button:0,clientX:30,clientY:30});
+   await page.waitForTimeout(550);
+   assert.equal(await page.locator('#gomnaNavMagnifier').isVisible(),false);
+  }
   console.log(`PASS ${file}: ${count} icons; hold/release, next tap, bounds, drag, cancel, multitouch`);
   await page.goto('about:blank');
  }

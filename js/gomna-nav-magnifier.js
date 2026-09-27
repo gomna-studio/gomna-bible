@@ -3,11 +3,12 @@
   'use strict';
   if (window.__gomnaNavMagnifier) return;
   window.__gomnaNavMagnifier = true;
-  var selector = '#gomnaHomeTabbar .gomna-home-tab, #scriptureDock .scripture-dock-item, #opt4VerseToolbar > button, button[data-ghd-read]';
+  var selector = '#gomnaHomeTabbar .gomna-home-tab, #scriptureDock .scripture-dock-item, #opt4VerseToolbar > button, button.gomna-home-related[data-ghd-related]';
   var style = document.createElement('style');
   style.textContent = selector + '{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}' +
     '#gomnaNavMagnifier{position:fixed;z-index:2147483647;box-sizing:border-box;width:144px;min-height:132px;padding:20px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;border:1px solid #d9dfe8;border-radius:22px;background:#fff;color:#172235;opacity:1;filter:none;transform:none;box-shadow:0 6px 20px #10203926;pointer-events:none;text-align:center;font:700 22px/1.35 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;text-shadow:none;letter-spacing:0}' +
     '#gomnaNavMagnifier[hidden]{display:none}' +
+    '#gomnaNavMagnifier img{display:block;width:88px;height:88px;object-fit:contain;opacity:1;filter:none;transform:none}' +
     '#gomnaNavMagnifier svg{display:block;width:60px;height:60px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;shape-rendering:geometricPrecision;opacity:1;filter:none;transform:none}';
   document.head.appendChild(style);
   var popup = document.createElement('div');
@@ -25,11 +26,16 @@
   }
   function show() {
     if (!press || !press.el.isConnected) return dismiss();
-    var el = press.el, icon = el.querySelector('svg');
+    var el = press.el, icon = el.querySelector('svg'), picture = el.querySelector('img');
 
     popup.replaceChildren();
     var clone;
-    if (icon) {
+    if (picture) {
+      clone = document.createElement('img');
+      clone.src = picture.currentSrc || picture.src;
+      clone.alt = '';
+      clone.draggable = false;
+    } else if (icon) {
       clone = icon.cloneNode(true);
       // Keep vector geometry; drop source button effects and fixed small-icon styling.
       [clone].concat(Array.from(clone.querySelectorAll('*'))).forEach(function (n) {
