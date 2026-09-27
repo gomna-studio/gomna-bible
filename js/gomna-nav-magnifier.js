@@ -3,7 +3,7 @@
   'use strict';
   if (window.__gomnaNavMagnifier) return;
   window.__gomnaNavMagnifier = true;
-  var selector = '#gomnaHomeTabbar .gomna-home-tab, #scriptureDock .scripture-dock-item, #opt4VerseToolbar > button';
+  var selector = '#gomnaHomeTabbar .gomna-home-tab, #scriptureDock .scripture-dock-item, #opt4VerseToolbar > button, button[data-ghd-read]';
   var style = document.createElement('style');
   style.textContent = selector + '{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}' +
     '#gomnaNavMagnifier{position:fixed;z-index:2147483647;box-sizing:border-box;width:144px;min-height:132px;padding:20px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;border:1px solid #d9dfe8;border-radius:22px;background:#fff;color:#172235;opacity:1;filter:none;transform:none;box-shadow:0 6px 20px #10203926;pointer-events:none;text-align:center;font:700 22px/1.35 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;text-shadow:none;letter-spacing:0}' +

@@ -6,17 +6,17 @@ const root=new URL('../../',import.meta.url);
 const browser=await chromium.launch({executablePath:process.env.GOMNA_CHROME_BIN,headless:true});
 try {
  const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,deviceScaleFactor:3});
- for(const file of ['index.html','meditation.html','reader.html','toolbar']) {
-  const html=fs.readFileSync(new URL(file==='toolbar'?'reader.html':file,root),'utf8');
-  assert.ok(html.includes('/js/gomna-nav-magnifier.js?v=20260927-3'));
-  const nav=file==='toolbar'?'<nav id="opt4VerseToolbar">'+html.match(/<div id="opt4VerseToolbar"[\s\S]*?<\/nav>/)[0].match(/<button[^>]*id="(?:verseToolbarLocationButton|opt4VerseListen|opt4VerseCommentary|opt4VerseMore)"[\s\S]*?<\/button>/g).join('')+'</nav>':html.match(file==='reader.html'?/<nav id="scriptureDock"[\s\S]*?<\/nav>/:/<nav class="gomna-home-tabbar"[\s\S]*?<\/nav>/)[0];
+ for(const file of ['index.html','meditation.html','reader.html','toolbar','home-books']) {
+  const html=fs.readFileSync(new URL(file==='toolbar'?'reader.html':file==='home-books'?'index.html':file,root),'utf8');
+  assert.ok(html.includes('/js/gomna-nav-magnifier.js?v=20260927-4'));
+  const nav=file==='home-books'?'<nav>'+html.match(/<button[^>]*data-ghd-read[^>]*>[\s\S]*?<\/button>/g).join('')+'</nav>':file==='toolbar'?'<nav id="opt4VerseToolbar">'+html.match(/<div id="opt4VerseToolbar"[\s\S]*?<\/nav>/)[0].match(/<button[^>]*id="(?:verseToolbarLocationButton|opt4VerseListen|opt4VerseCommentary|opt4VerseMore)"[\s\S]*?<\/button>/g).join('')+'</nav>':html.match(file==='reader.html'?/<nav id="scriptureDock"[\s\S]*?<\/nav>/:/<nav class="gomna-home-tabbar"[\s\S]*?<\/nav>/)[0];
   await page.setContent(`<style>nav{position:fixed;bottom:0;display:flex;width:374px}nav>a,nav>button{flex:1;min-width:0}nav svg{width:24px;height:24px}nav span{display:block}.home-policy-links{display:none}</style>${nav}`);
   await page.evaluate(()=>{
    window.actions=0;
    document.querySelectorAll('nav a,nav button').forEach(e=>{e.removeAttribute('onclick');e.addEventListener('click',ev=>{ev.preventDefault();window.actions++;});});
   });
   await page.addScriptTag({path:new URL('js/gomna-nav-magnifier.js',root).pathname});
-  const items=page.locator('nav .gomna-home-tab,nav .scripture-dock-item, #opt4VerseToolbar > button');
+  const items=page.locator('nav .gomna-home-tab,nav .scripture-dock-item, #opt4VerseToolbar > button, button[data-ghd-read]');
   const count=await items.count();
   for(let i=0;i<count;i++) {
    const el=items.nth(i), b=await el.boundingBox();
