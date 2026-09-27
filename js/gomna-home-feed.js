@@ -1577,6 +1577,17 @@
     }
     settleTo(from);
   }
+  function showStoryDiscovery(show){
+    var card=cards[2];
+    if(!card || card.classList.contains('is-open'))return;
+    var original=card.querySelector('.gbl-original-page');
+    var discover=card.querySelector('.gbl-discover-page');
+    if(!original || !discover)return;
+    original.hidden=!!show;original.inert=!!show;
+    discover.hidden=!show;discover.inert=!show;
+    card.classList.toggle('gbl-discover-open',!!show);
+    ignoreCardClickBefore=Date.now()+450;
+  }
   function applyLayerSwipe(left, right){
     if(!left && !right)return;
     var firstOpen=root&&root.querySelector('.gomna-home-card.is-active.is-open[data-card="0"]');
@@ -1592,6 +1603,7 @@
       return;
     }
     var i=activeStackIndex();
+    if(i===2){showStoryDiscovery(!!left);return;}
     if(i===0 && left){
       ignoreCardClickBefore=Date.now()+450;
       openCard(cards[0]);
@@ -3511,6 +3523,9 @@
       el.addEventListener('click', function(ev){
         selectLifeTheme(el.getAttribute('data-ghd-life-chip'), ev);
       });
+    });
+    root.querySelectorAll('[data-gbl-discover]').forEach(function(el){
+      el.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();showStoryDiscovery(el.getAttribute('data-gbl-discover')==='open');});
     });
     root.querySelectorAll('[data-ghd-story-chip]').forEach(function(el){
       el.addEventListener('click', function(ev){

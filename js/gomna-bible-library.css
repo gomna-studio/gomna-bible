@@ -1,10 +1,21 @@
 /* Scoped to the third home card and its explorer; Reader and other cards unchanged. */
-.gomna-home-card[data-card="2"] .gbl-entry {display:flex;flex-direction:column;gap:12px;margin-top:auto;padding-top:24px;width:100%}
-.gomna-home-card[data-card="2"] .gbl-entry button {display:flex;align-items:center;justify-content:space-between;min-height:56px;width:100%;padding:14px 20px;border:1px solid #c8b28a;border-radius:13px;background:#172c46;color:#fff;font-family:inherit;font-size:20px;font-weight:600;line-height:1.35;text-align:left;cursor:pointer;touch-action:manipulation}
-.gomna-home-card[data-card="2"] .gbl-entry button span {font-size:27px;font-weight:300;color:#e8d5ab}
-.gomna-home-card[data-card="2"] .gomna-home-poster:has(.gbl-entry) {display:flex;flex-direction:column;padding-bottom:24px}
-.gomna-home-card[data-card="2"] .gomna-home-poster:has(.gbl-entry) .gomna-home-poster-foot {display:none}
-.gomna-home-card[data-card="2"] .gbl-entry button:focus-visible {outline:3px solid white;outline-offset:3px}
+/* The original seven pills retain the production stylesheet and click handlers. */
+.gomna-home-card[data-card="2"] .gbl-original-page,
+.gomna-home-card[data-card="2"] .gbl-discover-page {display:flex;flex-direction:column;min-height:0;height:100%;width:100%;box-sizing:border-box}
+.gomna-home-card[data-card="2"] .gbl-original-page[hidden],
+.gomna-home-card[data-card="2"] .gbl-discover-page[hidden] {display:none!important}
+.gomna-home-card[data-card="2"] .gbl-original-page .gomna-home-poster-foot {flex-direction:column;align-items:flex-start;gap:7px}
+.gbl-discover-link,.gbl-discover-back {border:0;padding:4px 0;background:none;color:#fff6e5;font-family:inherit;font-size:12px;line-height:1.5;cursor:pointer;text-align:left;flex:none}
+.gbl-discover-link span {padding-left:5px}
+.gbl-discover-back {align-self:flex-start;margin-bottom:24px}
+.gbl-discover-kicker {font-size:13px;line-height:1.6;margin:0 0 14px;color:#f0e7db;word-break:keep-all}
+.gbl-discover-title {font-family:'AppleMyungjo','Nanum Myeongjo','Noto Serif KR',Georgia,serif;font-size:clamp(28px,8vw,36px);font-weight:700;line-height:1.4;letter-spacing:-.035em;margin:0 0 24px;color:#fffaf3}
+.gbl-discover-copy {font-size:16px;line-height:1.9;margin:0;color:#fffaf3;word-break:keep-all}
+.gbl-discover-buttons {display:flex;flex-direction:column;align-items:flex-start;gap:18px;margin-top:32px}
+.gbl-discover-buttons .gomna-home-poster-pill {flex:none;height:34px}
+.gbl-discover-hint {font-size:11px;color:#f0e7db;line-height:1.6;margin:auto 0 0;padding-top:24px;word-break:keep-all}
+.gbl-discover-link:focus-visible,.gbl-discover-back:focus-visible {outline:2px solid #fff;outline-offset:4px}
+@media(max-height:650px) {.gbl-discover-back{margin-bottom:10px}.gbl-discover-title{font-size:26px;margin-bottom:12px}.gbl-discover-copy{font-size:14px;line-height:1.6}.gbl-discover-buttons{margin-top:18px;gap:12px}.gbl-discover-hint{padding-top:12px}}
 #gomnaBibleLibrary {--gbl-navy:#172c46;--gbl-gold:#927347;position:fixed;z-index:1000;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#faf9f6;color:var(--gbl-navy);display:flex;flex-direction:column;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",system-ui,sans-serif;isolation:isolate;box-shadow:0 0 0 100vmax rgba(250,249,246,.98);clip-path:inset(0 -100vmax 0 -100vmax);}
 #gomnaBibleLibrary[hidden] {display:none!important}
 #gomnaBibleLibrary * {box-sizing:border-box}
