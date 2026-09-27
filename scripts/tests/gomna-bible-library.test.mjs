@@ -72,7 +72,8 @@ try{
  async function horizontal(from,to){await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:from,y:410}]});for(let n=1;n<=6;n++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:from+(to-from)*n/6,y:410}]});await tp.waitForTimeout(35);}await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await tp.waitForTimeout(500);}
  await horizontal(320,65);assert.ok(await tp.locator('.gbl-discover-page').isVisible());
  assert.equal(await tp.locator('.gbl-discover-back').textContent(),'');
- for(const sel of ['.gbl-discover-link svg','.gbl-discover-back svg'])assert.equal(await tp.locator(sel).evaluate(e=>getComputedStyle(e).width),'22px');
+ assert.equal(await tp.locator('.gbl-discover-link svg').evaluate(e=>getComputedStyle(e).width),'18px');
+ assert.equal(await tp.locator('.gbl-discover-back svg').evaluate(e=>getComputedStyle(e).width),'22px');
 
  assert.equal(await tp.locator('.gbl-discover-hint').count(),0);
  for(const [width,height] of [[390,600],[390,667],[375,630],[430,740],[768,1000],[390,844]]){
@@ -83,6 +84,15 @@ try{
    for(const delta of [40,80,120,160,200]){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:190,y:start-delta}]});await tp.waitForTimeout(35);}
    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await tp.waitForTimeout(500);
   }
+
+  const original=await tp.evaluate(()=>{
+   const page=document.querySelector('.gbl-original-page'),c=page.getBoundingClientRect(),nav=document.querySelector('#gomnaHomeTabbar').getBoundingClientRect();
+   return [...page.querySelectorAll('[data-ghd-story-chip],.gbl-discover-link')].map(e=>{const r=e.getBoundingClientRect(),parent=e.parentElement.getBoundingClientRect();return {name:e.textContent,top:r.top,bottom:r.bottom,left:r.left,right:r.right,limit:Math.min(c.bottom,nav.top,parent.bottom),cardTop:c.top,cardLeft:c.left,cardRight:c.right};});
+  });
+  for(const r of original)assert.ok(r.bottom<=r.limit+1&&r.top>=r.cardTop&&r.left>=r.cardLeft&&r.right<=r.cardRight,JSON.stringify({width,height,r}));
+  assert.equal(await tp.locator('.gbl-original-page .gomna-home-poster-foot-copy').count(),0);
+  assert.ok((await tp.locator('.gbl-original-page .gomna-home-poster-lead').textContent()).includes('그들의 이야기는'));
+  if(width===390&&height===600)await tp.screenshot({path:'/tmp/gomna-original-compact.png'});
   await tp.locator('[data-gbl-discover="open"]').tap();await tp.waitForTimeout(500);
   const bounds=await tp.evaluate(()=>{
    const card=document.querySelector('.gbl-discover-open'),nav=document.querySelector('#gomnaHomeTabbar');

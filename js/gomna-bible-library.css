@@ -104,3 +104,22 @@ body.gbl-open .gomna-home-return-top {visibility:hidden!important}
   .gbl-discover-page .gbl-discover-copy {font-size:14px;line-height:1.5}
   .gbl-discover-page .gbl-discover-buttons {flex-direction:row;gap:10px;margin-top:12px;flex-wrap:wrap}
 }
+
+/* Keep every original person button visible, including Paul, on shorter cards. */
+.gomna-home-card[data-card="2"]:not(.gbl-discover-open):not(.is-open) .gomna-home-card-face[data-face="tease"] {container-type:size;container-name:original-people}
+.gbl-original-page .gomna-home-poster-kicker,
+.gbl-original-page .gomna-home-poster-title,
+.gbl-original-page .gomna-home-poster-lead {flex-shrink:0}
+.gbl-original-page .gomna-home-poster-lead {max-width:none}
+.gbl-original-page .gbl-discover-link {font-size:16px;font-weight:600;min-height:40px}
+.gbl-original-page .gbl-discover-link svg {width:18px;height:18px}
+@container original-people (max-height:470px) {
+  .gbl-original-page .gomna-home-poster-pills {display:grid;grid-template-columns:max-content max-content;align-content:start;justify-content:start;gap:7px 12px;flex:0 0 auto;overflow:visible;margin-top:12px}
+  .gbl-original-page .gomna-home-poster-pill {height:28px;min-height:28px;max-height:none;justify-self:start}
+  .gbl-original-page .gomna-home-poster-foot {padding-top:10px}
+}
+@container original-people (max-height:350px) {
+  .gbl-original-page .gomna-home-poster-title {font-size:24px;margin-top:8px}
+  .gbl-original-page .gomna-home-poster-lead {font-size:13px;line-height:1.4;margin-top:8px}
+  .gbl-original-page .gomna-home-poster-pills {grid-template-columns:repeat(3,max-content);gap:6px 8px;margin-top:10px}
+}

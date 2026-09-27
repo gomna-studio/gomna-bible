@@ -799,7 +799,7 @@
     if(storyPoster){
       setText(storyPoster.querySelector('.gomna-home-poster-kicker'), uiT('home.story.posterKicker','사람들의 이야기 속 하나님의 역사'));
       setText(storyPoster.querySelector('.gomna-home-poster-title'), uiT('home.story.posterTitle','성경 속 이야기와 인물'));
-      fillHtmlLines(storyPoster.querySelector('.gomna-home-poster-lead'), uiT('home.story.posterLead','평범한 사람들의 삶을 통해\n일하시는 하나님의 놀라운 이야기'));
+      fillHtmlLines(storyPoster.querySelector('.gomna-home-poster-lead'), uiT('home.story.posterLead','평범한 사람들의 삶을 통해\n일하시는 하나님의 놀라운 이야기')+'\n'+uiT('home.story.posterFoot','그들의 이야기는\n지금도 우리에게 말씀합니다.'));
       fillHtmlLines(storyPoster.querySelector('.gomna-home-poster-foot-copy'), uiT('home.story.posterFoot','그들의 이야기는\n지금도 우리에게 말씀합니다.'));
       var storyGroup=storyPoster.querySelector('.gomna-home-poster-pills');
       if(storyGroup)storyGroup.setAttribute('aria-label', uiT('home.story.peopleAria','성경 속 인물'));
