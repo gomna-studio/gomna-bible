@@ -105,7 +105,7 @@ try{
    const c=card.getBoundingClientRect(),n=nav.getBoundingClientRect();
    return {bg:getComputedStyle(card).backgroundImage,parts:[...card.querySelectorAll('.gbl-discover-title,.gbl-discover-copy,[data-gbl-open]')].map(e=>{const r=e.getBoundingClientRect();return {text:e.textContent,top:r.top,bottom:r.bottom,left:r.left,right:r.right,limit:Math.min(c.bottom,n.top),cardTop:c.top,cardLeft:c.left,cardRight:c.right};})};
   });
-  assert.ok(bounds.bg.includes('bible-discovery-journey-v3.webp'));
+  assert.ok(bounds.bg.includes('bible-discovery-journey-v4.webp'));
   for(const r of bounds.parts){assert.ok(r.bottom<=r.limit-5,JSON.stringify({width,height,r}));assert.ok(r.top>=r.cardTop&&r.left>=r.cardLeft&&r.right<=r.cardRight,JSON.stringify({width,height,r}));}
   if(width===390&&height===600)await tp.screenshot({path:'/tmp/gomna-discovery-compact.png'});
  }
