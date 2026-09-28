@@ -4,18 +4,22 @@ set -euo pipefail
 REPO="${1:?Pass the existing clone path}"
 REF="${2:?Pass the fetched trial commit}"
 PORT=8847
+LAST_PORT=8867
 command -v python3 >/dev/null
 GIT=/opt/homebrew/bin/git
 [ -x "$GIT" ] || GIT=/usr/bin/git
-if lsof -nP -iTCP:$PORT -sTCP:LISTEN >/dev/null 2>&1; then
-  echo "8847 포트가 사용 중입니다. 기존 프로세스는 종료하지 않았습니다. 결과를 보내주세요."
-  exit 1
-fi
+while lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; do
+  PORT=$((PORT + 1))
+  if [ "$PORT" -gt "$LAST_PORT" ]; then
+    echo "8847–8867 포트가 모두 사용 중입니다. 결과를 보내주세요."
+    exit 1
+  fi
+done
 COMMIT="$("$GIT" -C "$REPO" rev-parse --verify "${REF}^{commit}")"
 mkdir -p "$HOME/gomna-previews"
 ROOT="$(mktemp -d "$HOME/gomna-previews/bible-stories-trial.XXXXXX")"
 "$GIT" -C "$REPO" worktree add --detach "$ROOT/site" "$COMMIT"
-grep -q 'start-ready-20260926' "$ROOT/site/reader.html"
+grep -q 'gomna-library-return.js?v=20260928-34' "$ROOT/site/reader.html"
 grep -q 'prepareBibleAudio: function' "$ROOT/site/js/audio-engine.js"
 if grep -q 'id="gomna-ios-audio-diag-panel"' "$ROOT/site/reader.html"; then
   echo '진단 패널이 남아 있어 중단했습니다.'
@@ -64,10 +68,15 @@ printf '\n홈·인물·이야기 코드와 서버 파일 일치: O\n'
 IP="$(ipconfig getifaddr en0 2>/dev/null || true)"
 [ -n "$IP" ] || IP="$(ipconfig getifaddr en1 2>/dev/null || true)"
 printf '\n시험본: %s\n파일 일치: O / 음원 목록 압축·내용 일치: O / 진단 패널: 없음\n' "$COMMIT"
-printf '\nMac 홈 URL:\nhttp://127.0.0.1:%s/?v=bible-stories-33\n' "$PORT"
+printf '\nMac 홈 URL:\nhttp://127.0.0.1:%s/?v=bible-stories-34\n' "$PORT"
 if [ -n "$IP" ]; then
-  printf '\niPhone 홈 URL:\nhttp://%s:%s/?v=bible-stories-33\n' "$IP" "$PORT"
-  printf '\niPhone 인물 목록 바로 보기:\nhttp://%s:%s/?v=bible-stories-33#bible-library/people\n' "$IP" "$PORT"
+  printf '\niPhone 홈 URL:\nhttp://%s:%s/?v=bible-stories-34\n' "$IP" "$PORT"
+  printf '\niPhone 인물 목록 바로 보기:\nhttp://%s:%s/?v=bible-stories-34#bible-library/people\n' "$IP" "$PORT"
 else
   echo 'iPhone용 Mac IP 확인이 필요합니다.'
+fi
+
+
+if command -v open >/dev/null 2>&1; then
+  open "http://127.0.0.1:$PORT/?v=bible-stories-34#bible-library/people/esther" || true
 fi

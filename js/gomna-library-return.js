@@ -7,7 +7,7 @@
   var book = p.get('book'), chapter = Number(p.get('chapter'));
   var start = Number(p.get('verseStart')), end = Number(p.get('verseEnd'));
   if (!book || !Number.isInteger(chapter) || chapter < 1 || !Number.isInteger(start) || start < 1 || !Number.isInteger(end) || end < start) return;
-  var listening = p.get('listen') === '1', finished = false, active = null;
+  var listening = p.get('listen') === '1', finished = false;
   function samePlace() {
     return typeof currentBook !== 'undefined' && currentBook && currentBook.name === book &&
       typeof currentChapter !== 'undefined' && Number(currentChapter) === chapter;
@@ -22,7 +22,7 @@
       box = document.createElement('div'); box.id = 'gomnaLibraryReturn';
       box.style.cssText = 'margin:0;padding:0;';
       var link = document.createElement('a');
-      link.href = './?v=bible-stories-33#bible-library/' + kind + '/' + id;
+      link.href = './?v=bible-stories-34#bible-library/' + kind + '/' + id;
       link.className = 'daily-word-return-btn';
       link.setAttribute('data-daily-word-return', '1');
       link.textContent = '← ' + name + (kind === 'stories' ? ' 이야기' : '') + '로 돌아가기';
@@ -31,48 +31,68 @@
     }
     box.hidden = !samePlace() || (listening && !finished);
   }
-  window.addEventListener('audio:start', function (event) {
-    if (!listening || finished) return;
-    var previous = active; active = null;
-    var engine = window.GOMNA_AUDIO_ENGINE, state = engine && engine.getState();
-    if (!samePlace() || !state || typeof getChapterAudioIds !== 'function') return;
-    var expected = getChapterAudioIds({startVerse:start, endVerse:end});
-    var signature = JSON.stringify(expected);
-    if (!expected.length || signature !== JSON.stringify(state.queueAudioIds)) return;
-    var media = engine._state.currentAudio, epoch = engine._state.queueEpoch;
-    var audioId = (event.detail || {}).audioId;
-    if (!media || expected[state.queueIndex] !== audioId) return;
-    // The engine reuses one Audio element for the next verse. Record ended
-    // before the engine resets that element's src, then carry the count forward.
-    var completed = 0;
-    if (state.queueIndex > 0) {
-      if (!previous || previous.epoch !== epoch || previous.signature !== signature ||
-          previous.index !== state.queueIndex - 1 ||
-          previous.completed !== state.queueIndex) return;
-      completed = previous.completed;
+  var source = 'bible-library:' + kind + ':' + id;
+  function isActive() {
+    return listening && samePlace() &&
+      (typeof isReaderVerseViewActive !== 'function' || isReaderVerseViewActive());
+  }
+  function expectedIds() {
+    return typeof getChapterAudioIds === 'function'
+      ? getChapterAudioIds({startVerse:start, endVerse:end}) : [];
+  }
+  function playIds(ids, restart) {
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    if (!engine || !ids.length) return true;
+    if (typeof clearBibleContinuousChapterPlayback === 'function') clearBibleContinuousChapterPlayback();
+    if (typeof closeVerseListenModeMenu === 'function') closeVerseListenModeMenu();
+    engine.playAudioQueue(ids, {source:source, forceRestart:!!restart});
+    return true;
+  }
+  window.gomnaLibraryListen = {
+    source: source,
+    isActive: isActive,
+    range: function () { return isActive() ? {start:start, end:end} : null; },
+    play: function () {
+      if (!isActive()) return false;
+      if (window.gomnaReaderWaitForAudioManifest &&
+          window.gomnaReaderWaitForAudioManifest(window.gomnaLibraryListen.play)) return true;
+      return playIds(expectedIds(), false);
+    },
+    jump: function (verse) {
+      if (!isActive()) return false;
+      if (verse < start || verse > end) return true;
+      var ids = getChapterAudioIds({startVerse:verse, endVerse:end});
+      return playIds(ids, true);
+    },
+    jumpAudio: function (audioId) {
+      if (!isActive()) return false;
+      var ids = expectedIds(), index = ids.indexOf(audioId);
+      return index < 0 ? true : playIds(ids.slice(index), true);
     }
-    var item = active = {epoch:epoch, media:media, id:audioId, index:state.queueIndex,
-      signature:signature, count:expected.length, completed:completed};
-    media.addEventListener('ended', function () {
-      if (active === item && media.ended && !media.error &&
-          engine._state.queueEpoch === epoch && !engine._state.playbackCancelled) {
-        item.completed = item.index + 1;
-      }
-    }, {once:true, capture:true});
+  };
+  window.addEventListener('audio:start', function () {
+    var engine = window.GOMNA_AUDIO_ENGINE, state = engine && engine.getState();
+    if (!isActive() || !state || state.queueSource !== source) return;
+    finished = false;
+    render();
   });
   window.addEventListener('audio:end', function (event) {
-    var item = active; active = null;
-    var engine = window.GOMNA_AUDIO_ENGINE, detail = event.detail || {};
-    if (!item || !samePlace() || detail.reason !== 'queue_completed' || detail.audioId !== item.id ||
-        !engine || engine._state.queueEpoch !== item.epoch || engine._state.playbackCancelled ||
-        engine._state.currentAudioId || engine._state.currentAudio !== item.media ||
-        item.index !== item.count - 1 || !item.media.ended || item.media.error ||
-        (item.completed !== item.count && item.completed !== item.count - 1)) return;
-    finished = true; render();
+    var detail = event.detail || {}, ids = detail.queueAudioIds || [];
+    if (!isActive() || detail.reason !== 'queue_completed' || detail.queueSource !== source || !ids.length) return;
+    var expected = expectedIds(), offset = expected.indexOf(ids[0]);
+    // A deliberate in-range seek can start later, but must still end at the
+    // final highlighted verse, with no failed/skipped tracks in that queue.
+    if (offset < 0 || JSON.stringify(ids) !== JSON.stringify(expected.slice(offset)) ||
+        JSON.stringify(ids) !== JSON.stringify(detail.completedAudioIds)) return;
+    finished = true;
+    render();
+    var box = document.getElementById('gomnaLibraryReturn');
+    var lastVerse = document.querySelector('#verseList .verse-item[data-verse="' + end + '"]');
+    if (box && lastVerse && typeof window.__gomnaPlainVerseGestureScrollToRange === 'function' &&
+        window.__gomnaPlainVerseGestureScrollToRange(lastVerse, box, {centerRatio:0.5})) return;
+    if (box && box.scrollIntoView) box.scrollIntoView({behavior:'smooth', block:'nearest'});
   });
-  window.addEventListener('audio:error', function () { active = null; });
-  window.addEventListener('gomna:bible-listen-closed', function () { active = null; });
-  window.addEventListener('gomna:verse_list_rendered', function () { active = null; render(); });
+  window.addEventListener('gomna:verse_list_rendered', render);
   window.addEventListener('pageshow', render);
   render();
 })();
