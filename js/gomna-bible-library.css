@@ -40,14 +40,11 @@
 #gomnaBibleLibrary #gblCount {font-size:15px;margin:0 0 15px;font-weight:700}
 #gomnaBibleLibrary .gbl-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(150px * var(--gomna-text-scale,1))),1fr));gap:14px 12px}
 #gomnaBibleLibrary .gbl-tile {padding:0;border:1px solid #e6e1d8;border-radius:13px;overflow:hidden;background:#fff;text-align:left;box-shadow:0 3px 9px #1b2e4610;min-width:0}
-#gomnaBibleLibrary .gbl-grid:not(.gbl-stories) .gbl-tile {border:0;box-shadow:none}
+#gomnaBibleLibrary .gbl-grid .gbl-tile {border:0;box-shadow:none}
 #gomnaBibleLibrary .gbl-tile img {display:block;width:100%;aspect-ratio:1.55;object-fit:cover;object-position:center 65%;background:#dbd3c6}
 #gomnaBibleLibrary .gbl-tile-copy {display:flex;flex-direction:column;gap:5px;padding:12px}
 #gomnaBibleLibrary .gbl-tile strong {font-size:18px;line-height:1.4;word-break:keep-all}
 #gomnaBibleLibrary .gbl-tile-copy>span {font-size:14px;line-height:1.5;color:#58616a;word-break:keep-all}
-#gomnaBibleLibrary .gbl-stories {grid-template-columns:1fr}
-#gomnaBibleLibrary .gbl-stories .gbl-tile {display:flex;align-items:center}
-#gomnaBibleLibrary .gbl-stories img {width:30%;height:110px;aspect-ratio:auto;flex:none}
 #gomnaBibleLibrary .gbl-empty {grid-column:1/-1;padding:32px 8px;text-align:center;color:#64707c;line-height:1.8}
 #gomnaBibleLibrary .gbl-hero img {display:block;width:100%;height:220px;object-fit:cover;object-position:center 65%;background:#d6caba}
 #gomnaBibleLibrary .gbl-article {padding:24px 22px 36px}
@@ -69,7 +66,7 @@
 #gomnaBibleLibrary .gbl-related button {display:flex;justify-content:space-between;align-items:center;width:100%;border:0;border-bottom:1px solid #e6e1d8;background:none;min-height:48px;text-align:left;padding:12px 0}
 #gomnaBibleLibrary .gbl-source-note {font-size:12px;line-height:1.7;color:#747b81;margin-top:28px}
 body.gbl-open .gomna-home-return-top {visibility:hidden!important}
-@media(max-width:350px) {#gomnaBibleLibrary .gbl-grid:not(.gbl-stories) {grid-template-columns:1fr}#gomnaBibleLibrary h1 {font-size:17px}}
+@media(max-width:350px) {#gomnaBibleLibrary .gbl-grid {grid-template-columns:1fr}#gomnaBibleLibrary h1 {font-size:17px}}
 @media(prefers-reduced-motion:no-preference) {#gomnaBibleLibrary .gbl-tile:active {transform:translateY(1px)}}
 
 #gomnaBibleLibrary #gblTitle:focus {outline:none}
@@ -78,10 +75,10 @@ body.gbl-open .gomna-home-return-top {visibility:hidden!important}
 .gbl-discover-link {display:inline-flex;align-items:center;gap:6px}
 .gbl-discover-link svg,.gbl-discover-back svg {width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .gbl-discover-back {display:grid;place-items:center;width:44px;height:44px;padding:0}
-#gomnaBibleLibrary .gbl-grid:not(.gbl-stories) .gbl-tile img {width:calc(100% - 16px);height:auto;aspect-ratio:auto;object-fit:contain;object-position:center;border-radius:12px;margin:8px 8px 0;background:#eeeae3}
-#gomnaBibleLibrary .gbl-grid:not(.gbl-stories) {align-items:start}
-#gomnaBibleLibrary .gbl-person-detail .gbl-hero {padding:16px 16px 0;text-align:center}
-#gomnaBibleLibrary .gbl-person-detail .gbl-hero img {width:auto;max-width:100%;height:auto;max-height:440px;object-fit:contain;object-position:center;border-radius:16px;margin:0 auto}
+#gomnaBibleLibrary .gbl-grid .gbl-tile img {width:calc(100% - 16px);height:auto;aspect-ratio:auto;object-fit:contain;object-position:center;border-radius:12px;margin:8px 8px 0;background:#eeeae3}
+#gomnaBibleLibrary .gbl-grid {align-items:start}
+#gomnaBibleLibrary .gbl-detail .gbl-hero {padding:16px 16px 0;text-align:center}
+#gomnaBibleLibrary .gbl-detail .gbl-hero img {width:auto;max-width:100%;height:auto;max-height:440px;object-fit:contain;object-position:center;border-radius:16px;margin:0 auto}
 
 /* Discovery uses the actual available card height, including Safari toolbar changes. */
 .gomna-home-card[data-card="2"].gbl-discover-open:not(.is-open) {

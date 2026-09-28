@@ -472,7 +472,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "세상의 시작과 생명의 선함을 만나는 이야기",
     "body": "창세기는 하나님이 세상을 창조하셨다고 선포합니다. 빛과 땅과 바다, 식물과 생물, 그리고 사람이 등장합니다. 하나님은 지으신 것을 보시고 좋다고 하셨습니다. 이 이야기는 세상을 함부로 대할 대상이 아니라 돌보아야 할 창조 세계로 바라보게 합니다.",
     "question": "오늘 소중히 돌볼 생명과 환경은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/stories/v2/creation.webp",
+    "imageWidth": 1000,
+    "imageHeight": 1000
   },
   {
     "id": "ark",
@@ -487,7 +489,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "홍수 가운데 방주에 들어간 노아의 가족과 생물들",
     "body": "노아는 하나님의 말씀에 따라 가족과 함께 방주에 들어갔습니다. 여러 생물도 함께 들어갔고 홍수가 시작되었습니다. 방주는 성경의 심판 이야기 속에서 생명을 보존하는 장소로 등장합니다. 이어지는 창세기 8–9장은 홍수 이후의 새 출발과 언약을 전합니다.",
     "question": "맡겨진 생명을 돌보기 위해 무엇을 준비할 수 있을까요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/stories/v2/ark.webp",
+    "imageWidth": 1000,
+    "imageHeight": 1000
   },
   {
     "id": "red-sea",
@@ -502,7 +506,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "이스라엘 백성이 바다를 건너는 이야기",
     "body": "애굽 군대와 바다 사이에 놓인 이스라엘 백성은 두려워했습니다. 하나님은 바다 가운데 길을 내셨고 백성은 마른 땅으로 건넜습니다. 출애굽기는 이 구원을 기억하며 하나님을 신뢰하도록 이끕니다.",
     "question": "두려운 상황에서 누구와 함께 도움을 구할 수 있을까요?",
-    "image": "assets/home/stories/v1-story-moses.png"
+    "image": "assets/home/stories/v2/red-sea.webp",
+    "imageWidth": 1000,
+    "imageHeight": 1000
   },
   {
     "id": "goliath",
@@ -517,7 +523,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "목동 다윗이 골리앗 앞에 나선 이야기",
     "body": "다윗은 물매와 돌을 가지고 골리앗 앞에 나섰습니다. 그는 이 싸움이 무기나 체격에만 달려 있지 않다고 말했습니다. 다윗과 골리앗 이야기는 자신의 힘을 자랑하기보다 하나님을 의지하는 믿음을 보여 줍니다.",
     "question": "나를 압도하는 두려움은 무엇인가요?",
-    "image": "assets/home/stories/v1-story-david.png"
+    "image": "assets/home/stories/v2/goliath.webp",
+    "imageWidth": 1000,
+    "imageHeight": 1000
   },
   {
     "id": "lions",
@@ -532,7 +540,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "사자 굴에 던져진 다니엘을 하나님이 지키신 이야기",
     "body": "다니엘은 기도한 일 때문에 사자 굴에 던져졌습니다. 다음 날 왕이 찾아와 부르자 다니엘은 하나님이 천사를 보내 사자들의 입을 막으셨다고 대답했습니다. 이 사건에서 다니엘의 구원은 하나님의 돌보심으로 전해집니다.",
     "question": "어려운 상황에서도 이어 가고 싶은 기도는 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/stories/v2/lions.webp",
+    "imageWidth": 1000,
+    "imageHeight": 1000
   },
   {
     "id": "nativity",
@@ -547,7 +557,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "베들레헴에서 태어나신 예수님과 목자들의 이야기",
     "body": "마리아는 베들레헴에서 예수님을 낳아 구유에 뉘었습니다. 들에서 양을 지키던 목자들은 천사가 전하는 기쁜 소식을 듣고 아기를 찾아갔습니다. 그들은 들은 말과 본 일을 전하며 하나님께 영광을 돌렸습니다.",
     "question": "기쁜 소식과 따뜻한 돌봄을 누구와 나눌까요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/stories/v2/nativity.webp",
+    "imageWidth": 1000,
+    "imageHeight": 1000
   },
   {
     "id": "loaves",
@@ -562,7 +574,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "보리떡 다섯 개와 물고기 두 마리로 무리를 먹이신 이야기",
     "body": "많은 사람이 예수님께 모였습니다. 한 아이에게 보리떡 다섯 개와 물고기 두 마리가 있었고, 예수님은 감사하신 뒤 사람들에게 나누어 주셨습니다. 사람들은 배불리 먹었고 남은 조각을 거두었습니다. 이 표적은 요한복음에서 예수님이 누구신지 묻는 흐름으로 이어집니다.",
     "question": "오늘 내가 나눌 수 있는 것은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/stories/v2/loaves.webp",
+    "imageWidth": 1000,
+    "imageHeight": 1000
   },
   {
     "id": "resurrection",
@@ -577,7 +591,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "십자가에서 죽으신 예수님의 부활 소식을 들은 이야기",
     "body": "여인들은 향품을 가지고 무덤을 찾았지만 예수님의 시신을 보지 못했습니다. 그들은 예수님이 살아나셨다는 소식을 들었고, 예수님이 하셨던 말씀을 기억했습니다. 여인들은 돌아가 사도들에게 이 일을 전했습니다.",
     "question": "절망 속에서 다시 기억하고 싶은 말씀은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/stories/v2/resurrection.webp",
+    "imageWidth": 1000,
+    "imageHeight": 1000
   },
   {
     "id": "samaritan",
@@ -592,7 +608,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "예수님이 들려주신 이웃 사랑의 비유",
     "body": "예수님은 강도를 만난 사람과 그를 도운 사마리아인의 이야기를 들려주셨습니다. 사마리아인은 다친 사람에게 가까이 가서 상처를 돌보고 안전한 곳으로 데려갔습니다. 예수님은 누가 이웃인지 묻는 질문을, 이웃이 되어 주는 행동으로 이끄셨습니다.",
     "question": "도움이 필요한 사람에게 가까이 갈 방법은 무엇인가요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/stories/v2/samaritan.webp",
+    "imageWidth": 1000,
+    "imageHeight": 1000
   },
   {
     "id": "prodigal",
@@ -607,7 +625,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "두 아들과 아버지를 통해 들려주신 비유",
     "body": "작은아들은 재산을 탕진한 뒤 아버지께 돌아왔습니다. 아버지는 그를 맞아 잔치를 열었지만 큰아들은 이를 기뻐하지 못했습니다. 예수님의 비유는 돌아오는 사람을 향한 환대와 그 기쁨에 함께하라는 초대를 담고 있습니다.",
     "question": "용서와 환대를 받아들이기 어려운 마음은 없나요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/stories/v2/prodigal.webp",
+    "imageWidth": 1000,
+    "imageHeight": 1000
   },
   {
     "id": "lost-sheep",
@@ -622,7 +642,9 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "잃은 양을 찾는 목자의 비유",
     "body": "예수님은 잃은 양 한 마리를 찾아 나서는 목자의 이야기를 들려주셨습니다. 목자는 양을 찾으면 기뻐하며 돌아와 이웃들과 그 기쁨을 나눕니다. 예수님은 이 기쁨을 회개하는 한 사람을 향한 하늘의 기쁨과 연결하셨습니다.",
     "question": "잊힌 듯 느끼는 사람에게 어떻게 관심을 표현할까요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/stories/v2/lost-sheep.webp",
+    "imageWidth": 1000,
+    "imageHeight": 1000
   },
   {
     "id": "pentecost",
@@ -637,6 +659,8 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "성령이 임하시고 여러 언어로 말하기 시작한 이야기",
     "body": "오순절에 함께 모인 사람들에게 성령이 임하셨습니다. 그들은 성령이 말하게 하시는 대로 다른 언어들로 말하기 시작했습니다. 여러 지역에서 온 사람들은 자신들의 언어로 하나님의 큰 일을 듣고 놀랐습니다. 이 사건은 사도행전에 기록된 복음 전파의 중요한 시작입니다.",
     "question": "서로 다른 사람의 말을 듣기 위해 어떤 노력을 할 수 있을까요?",
-    "image": "assets/home/card-bible-stories-people.png"
+    "image": "assets/home/stories/v2/pentecost.webp",
+    "imageWidth": 1000,
+    "imageHeight": 1000
   }
 ];
