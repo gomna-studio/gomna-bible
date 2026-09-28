@@ -22,7 +22,7 @@
       box = document.createElement('div'); box.id = 'gomnaLibraryReturn';
       box.style.cssText = 'margin:0;padding:0;';
       var link = document.createElement('a');
-      link.href = './?v=bible-stories-32#bible-library/' + kind + '/' + id;
+      link.href = './?v=bible-stories-33#bible-library/' + kind + '/' + id;
       link.className = 'daily-word-return-btn';
       link.setAttribute('data-daily-word-return', '1');
       link.textContent = '← ' + name + (kind === 'stories' ? ' 이야기' : '') + '로 돌아가기';
@@ -42,18 +42,23 @@
     var media = engine._state.currentAudio, epoch = engine._state.queueEpoch;
     var audioId = (event.detail || {}).audioId;
     if (!media || expected[state.queueIndex] !== audioId) return;
-    // The engine emits audio:end from its own ended listener. On Safari that
-    // event can precede other ended listeners on the same media element.
-    // Verify each finished element at the next start, and the final one at end.
+    // The engine reuses one Audio element for the next verse. Record ended
+    // before the engine resets that element's src, then carry the count forward.
     var completed = 0;
     if (state.queueIndex > 0) {
       if (!previous || previous.epoch !== epoch || previous.signature !== signature ||
-          previous.index !== state.queueIndex - 1 || previous.completed !== previous.index ||
-          !previous.media.ended || previous.media.error) return;
-      completed = state.queueIndex;
+          previous.index !== state.queueIndex - 1 ||
+          previous.completed !== state.queueIndex) return;
+      completed = previous.completed;
     }
-    active = {epoch:epoch, media:media, id:audioId, index:state.queueIndex,
+    var item = active = {epoch:epoch, media:media, id:audioId, index:state.queueIndex,
       signature:signature, count:expected.length, completed:completed};
+    media.addEventListener('ended', function () {
+      if (active === item && media.ended && !media.error &&
+          engine._state.queueEpoch === epoch && !engine._state.playbackCancelled) {
+        item.completed = item.index + 1;
+      }
+    }, {once:true, capture:true});
   });
   window.addEventListener('audio:end', function (event) {
     var item = active; active = null;
@@ -61,8 +66,8 @@
     if (!item || !samePlace() || detail.reason !== 'queue_completed' || detail.audioId !== item.id ||
         !engine || engine._state.queueEpoch !== item.epoch || engine._state.playbackCancelled ||
         engine._state.currentAudioId || engine._state.currentAudio !== item.media ||
-        item.index !== item.count - 1 || item.completed !== item.index ||
-        !item.media.ended || item.media.error) return;
+        item.index !== item.count - 1 || !item.media.ended || item.media.error ||
+        (item.completed !== item.count && item.completed !== item.count - 1)) return;
     finished = true; render();
   });
   window.addEventListener('audio:error', function () { active = null; });
