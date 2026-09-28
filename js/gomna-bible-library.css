@@ -39,6 +39,7 @@
 #gomnaBibleLibrary #gblCount {font-size:18px;margin:0 0 15px;font-weight:700}
 #gomnaBibleLibrary .gbl-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(150px * var(--gomna-text-scale,1))),1fr));gap:14px 12px}
 #gomnaBibleLibrary .gbl-tile {padding:0;border:1px solid #e6e1d8;border-radius:13px;overflow:hidden;background:#fff;text-align:left;box-shadow:0 3px 9px #1b2e4610;min-width:0}
+#gomnaBibleLibrary .gbl-grid:not(.gbl-stories) .gbl-tile {border:0;box-shadow:none}
 #gomnaBibleLibrary .gbl-tile img {display:block;width:100%;aspect-ratio:1.55;object-fit:cover;object-position:center 65%;background:#dbd3c6}
 #gomnaBibleLibrary .gbl-tile-copy {display:flex;flex-direction:column;gap:5px;padding:12px}
 #gomnaBibleLibrary .gbl-tile strong {font-size:18px;line-height:1.4;word-break:keep-all}
