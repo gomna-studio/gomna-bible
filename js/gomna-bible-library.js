@@ -19,6 +19,9 @@
     const p = new URLSearchParams({book:item.book, chapter:item.chapter, verse:item.start,
       verseStart:item.start, verseEnd:item.end, startVerse:item.start, endVerse:item.end,
       source:listen ? 'home-main-listen' : 'guide-related'});
+    p.set('libraryKind',item.kind);
+    p.set('libraryId',item.id);
+    p.set('libraryName',item.name);
     if (listen) p.set('listen','1');
     return 'reader.html?' + p.toString();
   }
