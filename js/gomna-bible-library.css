@@ -14,15 +14,16 @@
 .gbl-discover-buttons {display:flex;flex-direction:column;align-items:flex-start;gap:18px;margin-top:32px}
 .gbl-discover-buttons .gomna-home-poster-pill {flex:none;height:34px}
 .gbl-discover-link:focus-visible,.gbl-discover-back:focus-visible {outline:2px solid #fff;outline-offset:4px}
-#gomnaBibleLibrary {--gbl-navy:#172c46;--gbl-gold:#927347;position:fixed;z-index:1000;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#faf9f6;color:var(--gbl-navy);display:flex;flex-direction:column;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",system-ui,sans-serif;isolation:isolate;box-shadow:0 0 0 100vmax rgba(250,249,246,.98);clip-path:inset(0 -100vmax 0 -100vmax);}
+#gomnaBibleLibrary {--gbl-navy:#172c46;--gbl-gold:#927347;position:fixed;z-index:1000;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#fff;color:var(--gbl-navy);display:flex;flex-direction:column;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",system-ui,sans-serif;isolation:isolate;box-shadow:0 0 0 100vmax rgba(255,255,255,.98);clip-path:inset(0 -100vmax 0 -100vmax);}
 #gomnaBibleLibrary[hidden] {display:none!important}
 #gomnaBibleLibrary * {box-sizing:border-box}
 #gomnaBibleLibrary button,#gomnaBibleLibrary a,#gomnaBibleLibrary input {font:inherit}
 #gomnaBibleLibrary button,#gomnaBibleLibrary a {touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 #gomnaBibleLibrary button {color:inherit;cursor:pointer}
 #gomnaBibleLibrary button:focus-visible,#gomnaBibleLibrary a:focus-visible,#gomnaBibleLibrary input:focus-visible {outline:3px solid #a78142;outline-offset:3px}
-#gomnaBibleLibrary .gbl-header {display:flex;align-items:center;justify-content:space-between;gap:4px;flex:none;min-height:64px;padding:8px 12px;border-bottom:1px solid #e5e1d9;background:#faf9f6}
+#gomnaBibleLibrary .gbl-header {display:flex;align-items:center;justify-content:space-between;gap:4px;flex:none;min-height:64px;padding:8px 12px;border-bottom:1px solid #e5e1d9;background:#fff}
 #gomnaBibleLibrary .gbl-header button {flex:none;display:grid;place-items:center;width:44px;height:44px;background:none;border:0;font-size:30px}
+#gomnaBibleLibrary .gbl-header [data-gbl-home] {font-size:22px;font-weight:400;line-height:1}
 #gomnaBibleLibrary .gbl-header svg {width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7}
 #gomnaBibleLibrary h1 {font-size:19px;line-height:1.45;text-align:center;margin:0;word-break:keep-all}
 #gomnaBibleLibrary .gbl-scroll {flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
