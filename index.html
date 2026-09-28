@@ -1995,6 +1995,9 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
   -webkit-touch-callout: default;
 }
 </style>
+<link rel="stylesheet" href="js/gomna-bible-library.css?v=20260928-31">
+<script defer src="js/gomna-bible-library-data.js?v=20260928-29"></script>
+<script defer src="js/gomna-bible-library.js?v=20260928-31"></script>
 </head>
 <body data-gomna-page="home" class="gomna-home-deck-on">
 <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
@@ -2108,6 +2111,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
             </div>
           </div>
           <div class="gomna-home-card-face gomna-home-leaf" data-face="open">
+            <button type="button" class="gomna-home-back gomna-home-life-back" data-ghd-back aria-label="묵상 주제 선택으로 돌아가기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg></button>
             <div class="gomna-home-detail-scroll gomna-home-leaf-scroll" tabindex="0" aria-label="오늘의 묵상">
               <p class="gomna-home-leaf-kicker">오늘의 묵상</p>
               <span class="gomna-home-leaf-kicker-rule" aria-hidden="true"></span>
@@ -2149,6 +2153,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
       <article class="gomna-home-card" data-card="2" data-story-person="david" data-ghd-deck="home" data-kind="content" aria-hidden="true" aria-label="성경 속 이야기와 인물">
         <div class="gomna-home-card-inner">
           <div class="gomna-home-card-face is-shown gomna-home-poster" data-face="tease">
+            <div class="gbl-original-page">
             <p class="gomna-home-poster-kicker">사람들의 이야기 속 하나님의 역사</p>
             <h2 class="gomna-home-poster-title">성경 속 이야기와 인물</h2>
             <p class="gomna-home-poster-lead">평범한 사람들의 삶을 통해<br>일하시는 하나님의 놀라운 이야기</p>
@@ -2162,10 +2167,22 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
               <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="paul" aria-pressed="false">바울</button>
             </div>
             <div class="gomna-home-poster-foot">
-              <p class="gomna-home-poster-foot-copy">그들의 이야기는<br>지금도 우리에게 말씀합니다.</p>
+              <button type="button" class="gbl-discover-link" data-gbl-discover="open">인물과 이야기 더 보기 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+            </div>
+            </div>
+            <div class="gbl-discover-page" hidden inert>
+              <button type="button" class="gbl-discover-back" data-gbl-discover="back" aria-label="이전 인물 카드로 돌아가기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg></button>
+              <p class="gbl-discover-kicker">사람들의 삶 속에 이어지는 하나님의 역사</p>
+              <h2 class="gbl-discover-title">성경 속<br>이야기와 인물</h2>
+              <p class="gbl-discover-copy">믿음과 기다림, 실패와 회복의 순간들.<br>그들의 이야기는<br>지금도 우리에게 말씀합니다.</p>
+              <div class="gbl-discover-buttons" role="group" aria-label="성경 속 이야기와 인물 탐색">
+                <button type="button" class="gomna-home-poster-pill" data-gbl-open="people">인물로 보기</button>
+                <button type="button" class="gomna-home-poster-pill" data-gbl-open="stories">이야기로 보기</button>
+              </div>
             </div>
           </div>
           <div class="gomna-home-card-face gomna-home-leaf" data-face="open">
+            <button type="button" class="gomna-home-back gomna-home-story-back" data-ghd-back aria-label="성경 속 인물 선택으로 돌아가기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg></button>
             <div class="gomna-home-detail-scroll gomna-home-leaf-scroll" tabindex="0" aria-label="성경 속 이야기">
               <p class="gomna-home-leaf-kicker">성경 속 이야기</p>
               <span class="gomna-home-leaf-kicker-rule" aria-hidden="true"></span>
@@ -3704,7 +3721,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <script src="js/gomna-push-config.js?v=20260909-push-pref-v1"></script>
 <script src="js/gomna-push-prefs.js?v=20260914-notify-interval-v1"></script>
 <script src="js/gomna-mail-config.js?v=20260909-mail-mac-v1"></script>
-<script src="js/gomna-home-feed.js?v=2026-09-27-nav-guide-v67"></script>
+<script src="js/gomna-home-feed.js?v=20260927-library-8"></script>
 <script src="js/gomna-bible-stair-picker.js?v=20260917-old-card-removed-v8"></script>
 <script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>

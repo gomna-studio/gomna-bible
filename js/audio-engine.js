@@ -33,6 +33,7 @@
       currentSpeed: 1.0,
       currentVoice: 'calm',
       queueAudioIds: [],
+      queueCompletedAudioIds: [],
       queueIndex: -1,
       queueActive: false,
       queueSource: null,
@@ -457,6 +458,7 @@
       }
 
       state.queueAudioIds = [];
+      state.queueCompletedAudioIds = [];
       state.queueIndex = -1;
       state.queueActive = false;
       state.queueSource = null;
@@ -879,6 +881,15 @@
           return;
         }
 
+        // Capture native completion before the reused element advances/resets.
+        // Retries do not count; skipped/failed tracks leave a detectable gap.
+        if (options.fromQueue && state.queueActive) {
+          state.queueCompletedAudioIds.push(audioId);
+        }
+        var completedQueue = state.queueAudioIds.slice();
+        var completedIds = state.queueCompletedAudioIds.slice();
+        var completedSource = state.queueSource;
+
         if (engine._playNextInQueue(playEpoch)) {
           return;
         }
@@ -892,7 +903,10 @@
         engine._emit('audio:end', {
           audioId: audioId,
           entry: entry,
-          reason: 'queue_completed'
+          reason: 'queue_completed',
+          queueSource: completedSource,
+          queueAudioIds: completedQueue,
+          completedAudioIds: completedIds
         });
       });
 
@@ -1197,7 +1211,7 @@
       return window.GOMNA_AUDIO_ENGINE.playAudioQueue(audioIds, options || {});
     },
 
-    playAudioRange: function(bookId, chapter, startVerse, endVerse) {
+    playAudioRange: function(bookId, chapter, startVerse, endVerse, options) {
       var audioIds = [];
       var chapter3 = String(chapter).padStart(3, '0');
       var start = Number(startVerse);
@@ -1230,7 +1244,7 @@
         }
       }
 
-      return window.GOMNA_AUDIO_ENGINE.playAudioQueue(audioIds);
+      return window.GOMNA_AUDIO_ENGINE.playAudioQueue(audioIds, options || {});
     },
 
     pauseAudio: function() {

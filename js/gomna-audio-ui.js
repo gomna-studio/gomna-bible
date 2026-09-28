@@ -1682,6 +1682,7 @@
   }
 
   function playVisibleVerseRange(toChapterEnd) {
+    if (window.gomnaLibraryListen && window.gomnaLibraryListen.play()) return;
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
     var audioIds;
@@ -1740,6 +1741,7 @@
   }
 
   function playVerseToChapterEnd(audioId) {
+    if (window.gomnaLibraryListen && window.gomnaLibraryListen.jumpAudio(audioId)) return;
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState ? engine.getState() : null;
     var parts = parseAudioIdParts(audioId);
@@ -1816,6 +1818,11 @@
     /* Disabled by verse number only — never by queue index. */
     var atStart = commentaryPlayback ? false : (!parts || parts.verse <= 1);
     var atEnd = commentaryPlayback ? false : (!parts || !endVerse || parts.verse >= endVerse);
+    var libraryRange = window.gomnaLibraryListen && window.gomnaLibraryListen.range();
+    if (parts && libraryRange) {
+      atStart = parts.verse <= libraryRange.start;
+      atEnd = parts.verse >= libraryRange.end;
+    }
     var prevButtons = document.querySelectorAll(
       '[data-audio-action="skip-verse-prev"], .gomna-audio-btn-seek-back'
     );
@@ -1879,6 +1886,10 @@
 
     endVerse = getCurrentVerseCountValue();
     targetVerse = parts.verse + (step > 0 ? 1 : -1);
+    if (window.gomnaLibraryListen && window.gomnaLibraryListen.jump(targetVerse)) {
+      updateVerseSkipButtons(engine.getState());
+      return true;
+    }
 
     /* Same-chapter only: never go to verse 0 / past chapter end. */
     if (targetVerse < 1) {

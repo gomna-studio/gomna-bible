@@ -5779,6 +5779,10 @@ function handleScriptureDock(action) {
         return;
       }
       // manifest 로딩 중은 "준비 중"이 아니다 — 로딩이 끝나면 같은 듣기 동작을 한 번 이어서 실행
+      if (window.gomnaLibraryListen && window.gomnaLibraryListen.play()) {
+        syncScriptureDockActive('listen');
+        return;
+      }
       if (!isBibleAudioManifestReady()) {
         queueDockListenAfterManifest();
         syncReaderNavActive();
@@ -16799,6 +16803,7 @@ function initVerseToolbarEvents() {
       var sameChapterQueue;
       e.stopPropagation();
       e.preventDefault();
+      if (window.gomnaLibraryListen && window.gomnaLibraryListen.play()) return;
       if (window.gomnaBibleListenControlsHandleListen && window.gomnaBibleListenControlsHandleListen()) return;
       selCount = typeof getSelectedVerseCount === 'function' ? getSelectedVerseCount() : selectedVerseNums.length;
       if (verseListenMode === 'range') {
@@ -17289,6 +17294,7 @@ function tryJumpBiblePlaybackToVerse(verseNum, itemEl) {
   startVerse = parseInt(verseNum, 10);
   if (isNaN(startVerse) || startVerse < 1) return false;
   if (!isBibleListenPlaybackActive()) return false;
+  if (window.gomnaLibraryListen && window.gomnaLibraryListen.jump(startVerse)) return true;
   if (window.__gomnaBibleContinuousChapterAdvancing) return true;
 
   engine = window.GOMNA_AUDIO_ENGINE;
@@ -17389,6 +17395,7 @@ function getSelectedVerseCount() {
 }
 
 function playChapterAudio(options) {
+  if (window.gomnaLibraryListen && window.gomnaLibraryListen.play()) return;
   var engine = window.GOMNA_AUDIO_ENGINE;
   var state;
   var audioIds;
@@ -17435,6 +17442,7 @@ function playChapterAudio(options) {
 }
 
 function playRangeAudio() {
+  if (window.gomnaLibraryListen && window.gomnaLibraryListen.play()) return;
   window.__gomnaBibleChapterListenMode = null;
   clearBibleContinuousChapterPlayback();
   var rangeBtn = document.querySelector('[data-audio-action="play-range"]');
@@ -17443,6 +17451,7 @@ function playRangeAudio() {
 
 /** One selected verse only: play that verse audioId and stop (no next verse/chapter). */
 function playSingleVerseOnly() {
+  if (window.gomnaLibraryListen && window.gomnaLibraryListen.play()) return;
   var engine = window.GOMNA_AUDIO_ENGINE;
   var verses;
   var verse;
@@ -17478,6 +17487,7 @@ function playSingleSelectedVerse() {
 }
 
 function playSelectedVersesQueue() {
+  if (window.gomnaLibraryListen && window.gomnaLibraryListen.play()) return;
   var engine = window.GOMNA_AUDIO_ENGINE;
   var verses;
   var audioIds;
@@ -17632,6 +17642,10 @@ window.addEventListener('audio:end', function(e) {
   var engine = window.GOMNA_AUDIO_ENGINE;
   var cancelled = !!(engine && engine._state && engine._state.playbackCancelled);
 
+  if (String(detail.queueSource || '').indexOf('bible-library:') === 0) {
+    clearBibleContinuousChapterPlayback();
+    return;
+  }
   if (detail.reason === 'user_stop' || detail.reason === 'soft_fail_limit') {
     clearBibleContinuousChapterPlayback();
     return;
@@ -18995,11 +19009,11 @@ function changeFont(delta) {
 </script>
 <script src="/js/audio-config.js?v=20260724-manifest-shard-v1" defer></script>
 <script src="/js/gomna-audio-manifest-shards.js?v=20260724-manifest-shard-v1" defer></script>
-<script src="/js/audio-engine.js?v=20260919-ios-memory-handoff-v50-start-ready-20260926" defer></script>
+<script src="/js/audio-engine.js?v=20260928-library-range-34" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260919-stale-context-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
-<script src="/js/gomna-audio-ui.js?v=20260926-controls-1" defer></script>
+<script src="/js/gomna-audio-ui.js?v=20260928-library-range-34" defer></script>
 <script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)
@@ -19570,7 +19584,9 @@ function loadAds() {
     window.addEventListener('audio:start',onStart);
     window.addEventListener('audio:error',onError);
 
-    var started=engine.playAudioRange(bookId,pending.chapter,pending.startVerse,pending.endVerse);
+    var started=window.gomnaLibraryListen && window.gomnaLibraryListen.isActive()
+      ? window.gomnaLibraryListen.play()
+      : engine.playAudioRange(bookId,pending.chapter,pending.startVerse,pending.endVerse);
     if(!started){
       cleanup();
       playbackRequested=false;
@@ -20359,5 +20375,6 @@ window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!match
 </script>
 
 <script src="js/gomna-bible-listen-controls.js?v=20260926-controls-1"></script>
+<script src="js/gomna-library-return.js?v=20260928-34"></script>
 </body>
 </html>
