@@ -1317,9 +1317,20 @@
     if(document.body.classList.contains('gbl-open'))return;
     if(!root || ev.defaultPrevented || ev.ctrlKey || ev.metaKey)return;
     if(document.querySelector('#settingsPopup.show, .gomna-acc-overlay:not([hidden])'))return;
+    if(document.documentElement.matches('.gomna-home-card-open, .ghd-sheet-open, .home-sheet-open, .home-overlay-open, .gomna-home-viewer-open, .home-bible-picker-open, .login-modal-open'))return;
+    var peopleScroll=originalPeopleScrollAt(ev.clientX, ev.clientY);
+    if(peopleScroll && Math.abs(ev.deltaY)>Math.abs(ev.deltaX)){
+      var peopleDelta=ev.deltaY*(ev.deltaMode===1?16:ev.deltaMode===2?peopleScroll.clientHeight:1);
+      if((peopleDelta>0 && peopleScroll.scrollTop<peopleScroll.scrollHeight-peopleScroll.clientHeight-1) ||
+         (peopleDelta<0 && peopleScroll.scrollTop>0)){
+        if(ev.cancelable)ev.preventDefault();
+        ev.stopPropagation();
+        peopleScroll.scrollTop+=peopleDelta;
+        return;
+      }
+    }
     var onSettledCard=(card2Settled || card3Settled) && !root.querySelector('.gomna-home-card.is-open');
     if(root.contains(ev.target) && !onSettledCard)return;
-    if(document.documentElement.matches('.gomna-home-card-open, .ghd-sheet-open, .home-sheet-open, .home-overlay-open, .gomna-home-viewer-open, .home-bible-picker-open, .login-modal-open'))return;
     if(Math.abs(ev.deltaY)<=Math.abs(ev.deltaX) || root.scrollHeight<=root.clientHeight+1)return;
     var delta=ev.deltaY*(ev.deltaMode===1?16:ev.deltaMode===2?root.clientHeight:1);
     if(!delta)return;
@@ -1401,6 +1412,15 @@
     var r=card.getBoundingClientRect();
     return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
   }
+  function originalPeopleScrollAt(x, y){
+    var card=root&&root.querySelector('.gomna-home-card.is-active[data-card="2"]:not(.is-open):not(.gbl-discover-open)');
+    var page=card&&card.querySelector('.gbl-original-page');
+    if(!page || page.hidden || page.scrollHeight<=page.clientHeight+1)return null;
+    var inner=card.querySelector('.gomna-home-card-inner');
+    if(inner && (parseFloat(inner.getAttribute('data-ghd-pinch')||'1')||1)>1.001)return null;
+    var r=page.getBoundingClientRect();
+    return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom?page:null;
+  }
   function beginSwipe(x, y, pointerId){
     if(document.body.classList.contains('gbl-open'))return false;
     if(pinching || swipeDrag)return false;
@@ -1425,6 +1445,7 @@
       axis:'',
       pointerId:pointerId,
       lifeOpen:layerOpen,
+      peopleScroll:originalPeopleScrollAt(x, y),
       from:activeStackIndex()
     };
     swipeHandled=false;
@@ -1484,7 +1505,15 @@
         swipeDrag.swiping=true;
         pointerMoved=true;
       }else if(ady>adx*AXIS_RATIO){
-        if(swipeDrag.lifeOpen){
+        var people=swipeDrag.peopleScroll;
+        if(people && ((dy<0 && people.scrollTop<people.scrollHeight-people.clientHeight-1) || (dy>0 && people.scrollTop>0))){
+          swipeDrag.axis='y';
+          swipeDrag.swiping=true;
+          swipeDrag.peopleScrolling=true;
+          swipeDrag.leaf=people;
+          swipeDrag.leafScroll=people.scrollTop;
+          pointerMoved=true;
+        }else if(swipeDrag.lifeOpen){
           var layer=layerDetailCard();
           var leaf=layer&&layer.querySelector('.gomna-home-leaf-scroll');
           swipeDrag.axis='y';
@@ -1634,7 +1663,7 @@
         markGestureEnd(ev && ev.pointerType==='touch'?null:ev);
         return;
       }
-      if(drag.lifeOpen && drag.axis==='y'){
+      if((drag.lifeOpen || drag.peopleScrolling) && drag.axis==='y'){
         markGestureEnd(ev && ev.pointerType==='touch'?null:ev);
         return;
       }
