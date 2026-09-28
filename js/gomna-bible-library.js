@@ -25,11 +25,11 @@
     if (listen) p.set('listen','1');
     return 'reader.html?' + p.toString();
   }
-  function image(item, detail) {
-    return '<img src="' + esc(item.image) + '" alt="" ' + (detail?'fetchpriority="high"':'loading="lazy"') + ' decoding="async"' + (item.imageWidth ? ' width="'+item.imageWidth+'" height="'+item.imageHeight+'" style="aspect-ratio:'+item.imageWidth+'/'+item.imageHeight+'"' : '') + '>';
+  function image(item, detail, eager) {
+    return '<img src="' + esc(item.image) + '" alt="" ' + (detail?'fetchpriority="high"':eager?'loading="eager"':'loading="lazy"') + ' decoding="sync"' + (item.imageWidth ? ' width="'+item.imageWidth+'" height="'+item.imageHeight+'" style="aspect-ratio:'+item.imageWidth+'/'+item.imageHeight+'"' : '') + '>';
   }
-  function tile(item) {
-    return '<button class="gbl-tile" data-gbl-item="'+item.id+'">'+image(item,false)+'<span class="gbl-tile-copy"><strong>'+esc(item.name)+'</strong><span>'+esc(item.title)+'</span></span></button>';
+  function tile(item, index) {
+    return '<button class="gbl-tile" data-gbl-item="'+item.id+'">'+image(item,false,index < 6)+'<span class="gbl-tile-copy"><strong>'+esc(item.name)+'</strong><span>'+esc(item.title)+'</span></span></button>';
   }
   function results() {
     const s=states[current.kind], q=s.q.trim().toLocaleLowerCase();

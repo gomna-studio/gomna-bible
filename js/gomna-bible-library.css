@@ -143,3 +143,11 @@ body.gbl-open .gomna-home-return-top {visibility:hidden!important}
 
 /* Original seven person buttons share this detail face and back handler. */
 .gomna-home-card[data-card="2"] .gomna-home-story-back {position:absolute;z-index:5;top:8px;right:8px;margin:0;color:#39434e}
+
+/* Keep the underlying home from flashing through iOS zoom/viewport updates. */
+body.gbl-open {background:#fff!important;overscroll-behavior:none}
+body.gbl-open #gomnaHomeFeed {visibility:hidden!important;pointer-events:none!important}
+body.gbl-open::before {content:"";position:fixed;inset:-100vmax;background:#fff;z-index:999;pointer-events:none}
+#gomnaBibleLibrary {clip-path:none;box-shadow:none;overflow:hidden}
+#gomnaBibleLibrary .gbl-scroll {background:#fff}
+body.gbl-open #gomnaHomeTabbar {z-index:1001!important}

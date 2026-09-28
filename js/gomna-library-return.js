@@ -15,15 +15,19 @@
   function render() {
     var view = document.getElementById('verseView');
     if (!view) return;
+    var anchor = document.querySelector('#verseList .verse-item[data-verse="' + end + '"]');
+    if (!anchor) return;
     var box = document.getElementById('gomnaLibraryReturn');
     if (!box) {
       box = document.createElement('div'); box.id = 'gomnaLibraryReturn';
-      box.style.cssText = 'padding:20px 16px 32px;text-align:center;';
+      box.style.cssText = 'margin:0;padding:0;';
       var link = document.createElement('a');
-      link.href = './?v=bible-stories-30#bible-library/' + kind + '/' + id;
-      link.textContent = '‹ ' + name + (kind === 'stories' ? ' 이야기' : '') + '로 돌아가기';
-      link.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 22px;box-sizing:border-box;border:1px solid #c4c4c8;border-radius:999px;background:#ececec;color:#191a1b;font:inherit;font-size:15px;text-decoration:none;';
-      box.appendChild(link); view.appendChild(box);
+      link.href = './?v=bible-stories-31#bible-library/' + kind + '/' + id;
+      link.className = 'daily-word-return-btn';
+      link.setAttribute('data-daily-word-return', '1');
+      link.textContent = '← ' + name + (kind === 'stories' ? ' 이야기' : '') + '로 돌아가기';
+      link.style.cssText = 'text-decoration:none;';
+      box.appendChild(link); anchor.insertAdjacentElement('afterend', box);
     }
     box.hidden = !samePlace() || (listening && !finished);
   }
