@@ -10,7 +10,7 @@ function setup(listen=true,query='') {
  context.window.GOMNA_AUDIO_ENGINE={_state:state,getState:()=>state};
  vm.runInNewContext(source,context);
  const emit=(name,detail={})=>(events[name]||[]).forEach(fn=>fn({detail}));
- function track(index,natural=true){const listeners={};const media={paused:false,readyState:4,ended:false,error:null,addEventListener:(n,fn)=>(listeners[n]??=[]).push(fn)};Object.assign(state,{queueIndex:index,currentAudio:media,currentAudioId:state.queueAudioIds[index]});emit('audio:start',{audioId:state.currentAudioId});if(natural){media.ended=true;(listeners.ended||[]).forEach(fn=>fn());}return media;}
+ function track(index,natural=true){const media={paused:true,readyState:0,ended:false,error:null};Object.assign(state,{queueIndex:index,currentAudio:media,currentAudioId:state.queueAudioIds[index]});emit('audio:start',{audioId:state.currentAudioId});if(natural){media.ended=true;}return media;}
  function finish(reason='queue_completed'){state.currentAudioId=null;emit('audio:end',{reason,audioId:'b.bible'});}
  return {nodes,state,emit,track,finish,context};
 }
@@ -18,10 +18,11 @@ let t=setup(false);assert.equal(t.nodes.gomnaLibraryReturn.hidden,false);assert.
 t=setup();assert.equal(t.nodes.gomnaLibraryReturn.hidden,true);t.track(0);assert.equal(t.nodes.gomnaLibraryReturn.hidden,true);t.track(1);t.finish();assert.equal(t.nodes.gomnaLibraryReturn.hidden,false);
 for(const action of ['skip','error','closed','cancel','wrong-epoch']){t=setup();if(action!=='skip')t.track(0);t.track(1);if(action==='error')t.emit('audio:error');if(action==='closed')t.emit('gomna:bible-listen-closed');if(action==='cancel')t.state.playbackCancelled=true;if(action==='wrong-epoch')t.state.queueEpoch++;t.finish();assert.equal(t.nodes.gomnaLibraryReturn.hidden,true,action);}
 t=setup();t.track(0);t.track(1,false);t.finish();assert.equal(t.nodes.gomnaLibraryReturn.hidden,true);
+t=setup();t.track(0,false);t.track(1);t.finish();assert.equal(t.nodes.gomnaLibraryReturn.hidden,true);
 t=setup(false);t.context.currentChapter=13;t.emit('gomna:verse_list_rendered');assert.equal(t.nodes.gomnaLibraryReturn.hidden,true);
 t=setup(false,'?book=창세기');assert.equal(t.nodes.gomnaLibraryReturn,undefined);
 const ctx={window:{},URLSearchParams};vm.runInNewContext(fs.readFileSync('js/gomna-bible-library-data.js','utf8'),ctx);
 const init="  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();";
 vm.runInNewContext(fs.readFileSync('js/gomna-bible-library.js','utf8').replace(init,'window.url=readerUrl;'),ctx);
 for(const item of ctx.window.GOMNA_BIBLE_LIBRARY_DATA)for(const listen of [true,false]){const u=new URL(ctx.window.url(item,listen),'https://example.test/');assert.equal(u.searchParams.get('libraryId'),item.id);assert.equal(u.searchParams.get('libraryKind'),item.kind);assert.equal(u.searchParams.get('libraryName'),item.name);assert.equal(u.searchParams.get('listen'),listen?'1':null);}
-console.log('PASS: 78 links, read return, full playback return, partial/error/close/cancel/stale completion guards, chapter navigation, ordinary Reader isolation.');
+console.log('PASS: 78 links, read return, full playback return without playing/ended listener timing, partial/error/close/cancel/stale completion guards, chapter navigation, ordinary Reader isolation.');
