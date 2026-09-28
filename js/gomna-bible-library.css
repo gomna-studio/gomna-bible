@@ -27,14 +27,14 @@
 #gomnaBibleLibrary h1 {font-size:19px;line-height:1.45;text-align:center;margin:0;word-break:keep-all}
 #gomnaBibleLibrary .gbl-scroll {flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
 #gomnaBibleLibrary .gbl-list {padding:20px 16px 28px}
-#gomnaBibleLibrary .gbl-tabs {display:flex;gap:8px;background:transparent;border:0;border-radius:0;margin-bottom:20px}
-#gomnaBibleLibrary .gbl-tabs button {flex:1;border:1px solid #d5d9de;border-radius:5px;min-height:48px;padding:10px 5px;background:#fff;font-weight:600;font-size:16px}
-#gomnaBibleLibrary [aria-pressed="true"] {background:var(--gbl-navy)!important;color:#fff!important}
+#gomnaBibleLibrary .gbl-tabs {display:flex;gap:2px;padding:2px;background:#ededef;border:0;border-radius:999px;margin-bottom:16px}
+#gomnaBibleLibrary .gbl-tabs button {flex:1;border:0;border-radius:999px;min-height:28px;padding:3px 8px;background:transparent;color:#35383d;font-weight:600;font-size:14px;line-height:1.4}
+#gomnaBibleLibrary [aria-pressed="true"] {background:#fff!important;color:#20242a!important;box-shadow:0 1px 3px #18233312}
 #gomnaBibleLibrary .gbl-search {display:flex;align-items:center;gap:10px;border:1px solid #dcd7ce;border-radius:11px;padding:0 13px;background:#fff;margin-bottom:16px}
 #gomnaBibleLibrary .gbl-search span {font-size:28px;color:#727982}
 #gomnaBibleLibrary .gbl-search input {width:100%;min-width:0;border:0;background:none;font-size:16px;min-height:48px;color:#172c46}
 #gomnaBibleLibrary .gbl-filters {display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
-#gomnaBibleLibrary .gbl-filters button {border:1px solid #d5d9de;border-radius:5px;min-height:calc(44px - 4mm);min-width:64px;padding:2px 15px;line-height:1.4;background:#fff;font-size:15px}
+#gomnaBibleLibrary .gbl-filters button {border:1px solid #e5e5e8;border-radius:999px;min-height:calc(44px - 4mm);min-width:64px;padding:2px 15px;line-height:1.4;background:#ededef;color:#35383d;font-size:15px}
 #gomnaBibleLibrary #gblCount {font-size:18px;margin:0 0 15px;font-weight:700}
 #gomnaBibleLibrary .gbl-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(150px * var(--gomna-text-scale,1))),1fr));gap:14px 12px}
 #gomnaBibleLibrary .gbl-tile {padding:0;border:1px solid #e6e1d8;border-radius:13px;overflow:hidden;background:#fff;text-align:left;box-shadow:0 3px 9px #1b2e4610;min-width:0}
