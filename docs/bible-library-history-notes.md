@@ -44,3 +44,24 @@
 ## 아브라함 장문 교체 (2026-09-28)
 
 CEO 제공 원고를 13개 문단으로 나누고 지정된 굵은 강조를 유지했다. 아브라함 상세에서는 기존 짧은 시대 설명·이야기를 중복 표시하지 않고 제공 원고를 표시한다. 다른 38개 항목은 동일하다. 화면 폭에 따른 자동 줄바꿈과 기존 17px/1.95 본문 스타일을 사용한다. 이 교체는 제공 원고의 편집·반영이며 별도의 역사 재검증은 수행하지 않았다.
+
+## 전체 장문 확대 (2026-09-28)
+
+아브라함의 제공 원고와 렌더링은 그대로 유지하고, 나머지 인물 26명과 이야기 12편에 `article.heading`, `article.paragraphs`를 추가했다. 각 글은 8개 짧은 문단으로 시대·지리·생활 배경, 성경의 사건, 신앙적 의미를 연결한다. 연대가 논의되는 대목의 한정 표현은 유지한다. 기존 `body/history`는 데이터에 보존하지만 장문 상세에서는 중복 표시하지 않는다. 이미지, 목록 소개, 질문, 관련 항목, 본문 링크는 바꾸지 않는다.
+
+추가 확인 자료:
+
+- [UNESCO Susa](https://whc.unesco.org/en/list/1455/): 이란 남서부의 유적 위치. 현대 위치 안내에만 사용.
+- [Encyclopaedia Iranica, Susa](https://www.iranicaonline.org/articles/susa-parent/): 페르시아의 주요 왕도 중 하나. 제국의 유일한 수도로 표현하지 않음.
+- [Livius, Moab](https://www.livius.org/articles/place/moab/): 사해 동쪽, 오늘날 요르단에 해당하는 지리.
+- [Oxford Bibliographies, Midian](https://academic.oup.com/reference/62341/reference-article-abstract/554111915): 아라비아 북서부의 대략적 위치, 정확한 범위와 연대의 한계.
+- [BibleProject Esther](https://bibleproject.com/guides/book-of-esther/): 하나님을 직접 언급하지 않는 에스더서의 서술 특징.
+- [Sea of Galilee, Bible Gateway Encyclopedia](https://www.biblegateway.com/resources/encyclopedia-of-the-bible/Sea-Galilee): 지역의 어업·생업 배경.
+- [누가복음 3:1–3](https://www.biblegateway.com/passage/?search=Luke+3%3A1-3&version=KJV): 세례 요한의 활동을 둘러싼 통치자들.
+- [누가복음 19:2](https://www.biblegateway.com/verse/en/Luke%2019%3A2): 삭개오를 세리장·부자로 소개하는 본문.
+- [사사기 4:4–7](https://www.biblegateway.com/passage/?search=Judges+4%3A4-7&version=KJV): 드보라의 활동 지역과 다볼산·기손강.
+- [룻기 4:17](https://www.biblegateway.com/verse/en/Ruth%204%3A17): 다윗으로 이어지는 가계.
+- [레위기 23:15–21](https://www.biblegateway.com/passage/?search=Leviticus+23%3A15-21&version=KJV): 칠칠절의 추수·감사 배경.
+- [사도행전 2](https://www.biblegateway.com/passage/?search=Acts+2&version=WEB): 여러 지역·언어와 절기에 모인 사람들.
+
+성경 사건의 근거는 앞의 항목별 표와 해당 장의 문맥을 사용했다. 추가로 다윗의 잘못과 회개는 삼하 11–12장, 기드온 후반의 경계할 선택은 삿 8장, 노아 언약은 창 9장, 도마 장면의 독자를 향한 초대는 요 20:30–31, 베드로·마리아 관련 장례 및 부활 문맥은 요 19–21장, 바나바의 구브로 출신은 행 4:36을 근거로 삼았다. 사색과 적용은 역사 자료의 주장으로 포장하지 않고 본문을 읽는 독자에게 건네는 질문으로 서술했다. 직접 인용문 대신 자체 한국어 요약을 사용했다.
