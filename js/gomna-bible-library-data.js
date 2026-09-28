@@ -15,7 +15,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "오늘 내가 믿음으로 내디딜 작은 한 걸음은 무엇인가요?",
     "image": "assets/home/people/v1/abraham.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "족장 시대 · 전통적으로 기원전 2000년 무렵으로 설명",
+      "place": "메소포타미아와 가나안",
+      "text": "메소포타미아는 오늘날 이라크를 중심으로 두 큰 강 사이에 도시들이 발달했던 지역입니다. 창세기는 아브라함이 우르와 하란을 거쳐 가나안으로 향했다고 전합니다. 가족과 가축을 이끌고 살아가던 배경 속에서 하나님의 부르심을 만납니다. 정확한 활동 연대는 확인되지 않았습니다."
+    }
   },
   {
     "id": "moses",
@@ -32,7 +37,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "혼자 감당해야 한다고 느끼는 일은 무엇인가요?",
     "image": "assets/home/people/v1/moses.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "출애굽 시대 · 기원전 15세기설과 13세기설",
+      "place": "이집트와 시나이 광야",
+      "text": "나일강을 중심으로 왕국이 발달한 고대 이집트가 배경입니다. 성경은 강제 노동에 시달리던 이스라엘을 하나님이 모세를 통해 이끄셨다고 전합니다. 출애굽 연대와 당시 파라오는 확정되지 않았으며, 람세스 2세와 연결하는 설명은 여러 견해 중 하나입니다."
+    }
   },
   {
     "id": "david",
@@ -49,7 +59,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "나는 사람을 볼 때 무엇을 먼저 보고 있나요?",
     "image": "assets/home/people/v1/david.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원전 1000년 무렵 · 철기시대 초기 왕국",
+      "place": "베들레헴과 예루살렘 일대",
+      "text": "이스라엘에 왕정이 자리 잡고 주변 세력과 충돌하던 시기입니다. 성경은 베들레헴의 목자 다윗이 왕이 되어 예루살렘을 다스리는 과정을 전합니다. 들판의 일상과 왕국의 역사 속에서 하나님을 향한 믿음과 인간의 연약함이 함께 드러납니다."
+    }
   },
   {
     "id": "joseph",
@@ -66,7 +81,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "상처를 외면하지 않으면서도 선을 선택할 길이 있을까요?",
     "image": "assets/home/people/v1/joseph.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "족장 시대 · 전통적으로 기원전 두 번째 천년기",
+      "place": "가나안과 고대 이집트",
+      "text": "기원전 두 번째 천년기는 기원전 2000~1001년을 뜻합니다. 창세기는 요셉의 가족이 살던 가나안과 나일강의 농업에 의지하던 이집트를 연결합니다. 기근 속에서 식량을 구하는 일이 가족의 생존과 맞닿아 있었습니다. 요셉의 정확한 연대와 당시 왕조는 확정되지 않았습니다."
+    }
   },
   {
     "id": "lot",
@@ -83,7 +103,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "지금의 선택에서 눈에 보이는 조건 외에 살펴볼 것은 무엇인가요?",
     "image": "assets/home/people/v1/lot.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "아브라함과 같은 족장 시대 · 정확한 연대 미상",
+      "place": "가나안과 요단 지역",
+      "text": "요단 지역은 오늘날 이스라엘·팔레스타인·요르단에 걸친 강 주변입니다. 창세기에서 롯과 아브라함은 가축을 기를 물과 땅을 찾아야 했습니다. 좋은 목초지를 고르는 일이 삶의 방향을 바꾸는 중요한 선택이었던 배경입니다."
+    }
   },
   {
     "id": "esther",
@@ -100,7 +125,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "누군가를 위해 용기를 내야 할 자리가 있나요?",
     "image": "assets/home/people/v1/esther.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원전 5세기 · 페르시아 제국 시대",
+      "place": "수산 · 오늘날 이란의 수사",
+      "text": "에스더서는 여러 민족을 다스리던 페르시아 궁정을 배경으로 합니다. 아하수에로 왕은 보통 크세르크세스 1세(기원전 486~465년 재위)와 연결해 이해합니다. 고향 밖에서 살아가던 유다인들의 위기 속에 에스더의 용기 있는 선택이 놓여 있습니다."
+    }
   },
   {
     "id": "paul",
@@ -117,7 +147,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "내 삶에서 새롭게 바뀌기를 바라는 방향은 무엇인가요?",
     "image": "assets/home/people/v1/paul.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원후 1세기 · 로마 제국 시대",
+      "place": "다메섹과 동부 지중해의 여러 도시",
+      "text": "다메섹은 오늘날 시리아의 다마스쿠스입니다. 이후 바울의 여정은 오늘날 튀르키예·그리스·이탈리아로 이어집니다. 바닷길과 육로로 연결된 도시들을 오가며, 서로 다른 언어와 문화를 가진 사람들에게 복음을 전하던 시대입니다."
+    }
   },
   {
     "id": "noah",
@@ -134,7 +169,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "오늘 꾸준히 실천할 수 있는 순종은 무엇인가요?",
     "image": "assets/home/people/v1/noah.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "창세기의 초기 인류 이야기 · 역사 연대 미상",
+      "place": "홍수 이전의 세상",
+      "text": "노아 이야기는 창세기에서 아브라함보다 앞선 인류의 이야기로 나옵니다. 성경의 계보를 연도로 계산하는 방식에는 차이가 있어 특정 기원전 연도로 단정하기 어렵습니다. 폭력이 가득한 세상에서 가족과 생물을 보존하도록 부르시는 하나님의 뜻이 이야기의 배경입니다."
+    }
   },
   {
     "id": "jacob",
@@ -151,7 +191,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "내 힘만으로 해결하려고 붙들고 있는 것은 무엇인가요?",
     "image": "assets/home/people/v1/jacob.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "족장 시대 · 전통적으로 기원전 두 번째 천년기",
+      "place": "가나안·하란·얍복강 일대",
+      "text": "하란은 오늘날 튀르키예 남동부, 얍복강은 오늘날 요르단의 자르카강과 연결됩니다. 성경 속 야곱은 가족과 가축을 이끌고 이 지역들을 오갔습니다. 형을 만나기 위해 고향으로 돌아가는 길에서 하나님께 매달린 장면이며, 정확한 연대는 확인되지 않았습니다."
+    }
   },
   {
     "id": "joshua",
@@ -168,7 +213,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "새로운 책임 앞에서 내가 붙들 말씀은 무엇인가요?",
     "image": "assets/home/people/v1/joshua.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "출애굽 이후 가나안 정착 시기 · 연대에 여러 견해",
+      "place": "요단강과 가나안",
+      "text": "가나안은 오늘날 이스라엘·팔레스타인과 그 주변에 해당하는 고대 지역입니다. 성경은 여호수아가 모세의 뒤를 이어 요단강을 건너는 백성을 이끌었다고 전합니다. 이 시기를 기원전 14세기 또는 13~12세기와 연결하는 견해가 있어 하나의 연도로 단정하지 않습니다."
+    }
   },
   {
     "id": "hannah",
@@ -185,7 +235,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "하나님께 솔직하게 아뢰고 싶은 마음은 무엇인가요?",
     "image": "assets/home/people/v1/hannah.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "왕정 성립 이전 · 대체로 기원전 11세기 무렵",
+      "place": "실로 · 오늘날 요르단강 서안 지역",
+      "text": "예루살렘 성전이 세워지기 전, 실로는 이스라엘 사람들이 예배하러 모이던 곳이었습니다. 한나는 가족과 함께 이곳을 찾았습니다. 이스라엘에 왕이 세워지기 전의 공동체 안에서 한 사람의 아픔과 기도가 펼쳐집니다. 정확한 기도 연도는 알 수 없습니다."
+    }
   },
   {
     "id": "samuel",
@@ -202,7 +257,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "말씀을 듣기 위해 잠시 멈출 시간은 언제인가요?",
     "image": "assets/home/people/v1/samuel.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원전 11세기 무렵 · 사사에서 왕정으로",
+      "place": "실로와 이스라엘 산지",
+      "text": "사사는 왕이 없던 시절 백성을 이끌던 지도자입니다. 사무엘의 생애는 그 시대에서 사울과 다윗의 왕정으로 이어지는 변화와 맞닿아 있습니다. 어린 사무엘이 실로에서 부르심을 듣는 장면은 이 큰 변화보다 앞선 이야기입니다."
+    }
   },
   {
     "id": "deborah",
@@ -219,7 +279,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "다른 사람이 맡은 일을 해내도록 어떻게 격려할 수 있을까요?",
     "image": "assets/home/people/v1/deborah.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "왕정 이전 사사 시대 · 정확한 활동 연대 미상",
+      "place": "이스라엘 산지와 기손강 일대",
+      "text": "사사 시대는 여호수아 이후부터 이스라엘에 왕이 세워지기 전까지를 가리킵니다. 여러 지파가 지역별로 살아가며 주변 세력의 위협을 겪던 배경입니다. 사사기는 드보라가 판단을 내려 주고 바락과 함께 백성을 이끌었다고 전합니다."
+    }
   },
   {
     "id": "elijah",
@@ -236,7 +301,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "지금 내게 필요한 쉼과 돌봄은 무엇인가요?",
     "image": "assets/home/people/v1/elijah.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원전 9세기 · 남북 왕국이 나뉜 시대",
+      "place": "북이스라엘과 남쪽 광야",
+      "text": "아합 왕이 다스리던 북이스라엘에서 하나님을 섬기는 신앙과 바알 숭배가 충돌했습니다. 열왕기는 엘리야가 위협을 피해 브엘세바를 지나 광야로 향했다고 전합니다. 지친 선지자를 먹이고 쉬게 하시는 장면은 이 갈등 속에서 펼쳐집니다."
+    }
   },
   {
     "id": "daniel",
@@ -253,7 +323,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "어려운 상황에서도 지키고 싶은 믿음의 습관은 무엇인가요?",
     "image": "assets/home/people/v1/daniel.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "이야기의 배경: 기원전 6세기 · 바빌로니아와 페르시아",
+      "place": "바빌론 · 오늘날 이라크",
+      "text": "유다인들이 고향을 떠나 제국의 지배 아래 살아가던 시대가 배경입니다. 다니엘서는 왕권이 바뀌는 낯선 궁정에서도 기도를 이어 가는 믿음을 전합니다. 사자 굴 이야기의 왕인 메대 사람 다리오를 역사 속 누구와 연결할지는 견해가 나뉩니다."
+    }
   },
   {
     "id": "jonah",
@@ -270,7 +345,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "나는 누구에게 자비를 베풀기 어려워하나요?",
     "image": "assets/home/people/v1/jonah.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "배경 인물: 기원전 8세기 북이스라엘의 선지자",
+      "place": "니느웨 · 오늘날 이라크 모술 인근",
+      "text": "열왕기하 14장은 여로보암 2세 때 활동한 요나를 언급합니다. 요나서는 그 이름의 선지자와 앗수르의 도시 니느웨를 배경으로 하나님의 자비를 전합니다. 니느웨 방문의 정확한 연도는 제시되지 않으며, 이야기의 시대와 책이 기록된 시기는 구분해야 합니다."
+    }
   },
   {
     "id": "nehemiah",
@@ -287,7 +367,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "우리 함께 다시 세워야 할 것은 무엇인가요?",
     "image": "assets/home/people/v1/nehemiah.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원전 445~444년 무렵 · 페르시아 제국 시대",
+      "place": "수산에서 예루살렘으로",
+      "text": "예루살렘으로 돌아온 유다 공동체도 페르시아의 지배 아래 있었습니다. 느헤미야는 아닥사스다 왕의 허락을 받고 무너진 성벽을 다시 세우러 나섰습니다. 성벽은 도시를 지키는 시설이자 공동체의 일상을 회복하는 중요한 기반이었습니다."
+    }
   },
   {
     "id": "mary",
@@ -304,7 +389,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "이해하기 어려워도 하나님께 맡기고 싶은 일은 무엇인가요?",
     "image": "assets/home/people/v1/mary.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원전 1세기 말 · 예수님의 탄생을 앞둔 때",
+      "place": "나사렛 · 갈릴리 지역",
+      "text": "로마의 영향 아래 헤롯 왕이 다스리던 시대입니다. 누가복음은 갈릴리의 나사렛에서 마리아가 천사의 소식을 들었다고 전합니다. 예수님의 탄생은 흔히 기원전 6~4년 무렵으로 추정하지만 정확한 연도에는 견해 차이가 있습니다."
+    }
   },
   {
     "id": "john-baptist",
@@ -321,7 +411,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "내가 중심에 서기보다 다른 이를 드러낼 수 있는 자리는 어디인가요?",
     "image": "assets/home/people/v1/john-baptist.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원후 1세기 전반 · 예수님의 활동을 앞둔 때",
+      "place": "유대 광야와 요단강",
+      "text": "로마 제국의 지배와 헤롯 가문의 통치가 이어지던 시기입니다. 세례 요한은 도성의 궁정이 아니라 광야와 강가에서 사람들에게 회개를 전했습니다. 누가복음은 그의 활동을 로마 황제 디베료가 다스리던 때와 연결해 소개합니다."
+    }
   },
   {
     "id": "peter",
@@ -338,7 +433,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "다시 시작한다면 누구를 어떻게 돌보고 싶나요?",
     "image": "assets/home/people/v1/peter.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원후 1세기 전반 · 예수님의 부활 이후",
+      "place": "갈릴리 호숫가",
+      "text": "갈릴리 호수 주변에서는 어업이 중요한 생업이었습니다. 요한복음 21장은 제자들이 물고기를 잡던 일상의 자리에서 부활하신 예수님을 만났다고 전합니다. 예수님의 죽음과 부활은 보통 기원후 30년 또는 33년과 연결해 설명합니다."
+    }
   },
   {
     "id": "john",
@@ -355,7 +455,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "내 일상에서 예수님의 가르침을 따를 자리는 어디인가요?",
     "image": "assets/home/people/v1/john.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원후 1세기 전반 · 로마 제국 시대",
+      "place": "갈릴리 호수 주변",
+      "text": "헤롯 안티파스가 다스리던 갈릴리에는 어부들이 배와 그물을 손질하며 살아가는 마을들이 있었습니다. 마가복음은 요한이 아버지와 형제, 품꾼들과 함께 일하다 예수님의 부르심을 받았다고 전합니다. 제자의 길은 이런 평범한 생업의 자리에서 시작됩니다."
+    }
   },
   {
     "id": "thomas",
@@ -372,7 +477,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "믿음에 관해 솔직하게 묻고 싶은 질문은 무엇인가요?",
     "image": "assets/home/people/v1/thomas.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원후 1세기 전반 · 예수님의 부활 이후",
+      "place": "제자들이 함께 모인 곳",
+      "text": "로마 총독 본디오 빌라도가 유대를 다스리던 시기가 배경입니다. 요한복음은 예수님의 죽음 뒤 두려움 속에 모인 제자들과 도마의 만남을 전합니다. 보통 기원후 30년 또는 33년과 연결해 이해하지만 이 만남의 정확한 날짜를 확정하지는 않습니다."
+    }
   },
   {
     "id": "mary-magdalene",
@@ -389,7 +499,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "슬픔 가운데 있는 이에게 어떤 위로를 건넬 수 있을까요?",
     "image": "assets/home/people/v1/mary-magdalene.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원후 1세기 전반 · 예수님의 부활 무렵",
+      "place": "예루살렘의 무덤과 그 주변",
+      "text": "당시 유대에서는 시신을 천으로 싸고 향품을 사용하는 장례 관습이 있었습니다. 요한복음은 막달라 마리아가 예수님의 무덤을 찾아갔다가 부활하신 주님을 만났다고 전합니다. 이 배경은 보통 기원후 30년 또는 33년의 유월절 무렵과 연결됩니다."
+    }
   },
   {
     "id": "zacchaeus",
@@ -406,7 +521,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "바로잡거나 나누어야 할 것이 내게 있나요?",
     "image": "assets/home/people/v1/zacchaeus.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원후 1세기 전반 · 로마 제국 시대",
+      "place": "여리고 · 오늘날 요르단강 서안 지역",
+      "text": "여리고는 예루살렘으로 향하는 길에 있는 도시였습니다. 누가복음은 삭개오를 세금을 거두는 일을 맡은 세리장으로 소개합니다. 재산과 세금, 이웃의 시선이 얽힌 사회 속에서 예수님과의 만남이 나눔과 보상이라는 구체적인 선택으로 이어집니다."
+    }
   },
   {
     "id": "barnabas",
@@ -423,7 +543,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "누군가에게 새로운 기회를 열어 줄 수 있을까요?",
     "image": "assets/home/people/v1/barnabas.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "기원후 1세기 · 초기 교회 시대",
+      "place": "예루살렘과 동부 지중해 지역",
+      "text": "사도행전은 바나바를 구브로, 곧 오늘날 키프로스 출신으로 소개합니다. 예루살렘의 제자들이 박해의 기억 때문에 사울을 두려워하던 때, 바나바는 그를 공동체에 연결했습니다. 이후 복음이 여러 도시로 전해지는 과정에서도 바울과 함께 활동합니다."
+    }
   },
   {
     "id": "ruth",
@@ -440,7 +565,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "어려운 시간을 보내는 누구의 곁에 머물 수 있을까요?",
     "image": "assets/home/people/v1/ruth.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "이스라엘에 왕이 세워지기 전 · 사사 시대",
+      "place": "모압과 베들레헴",
+      "text": "모압은 오늘날 요르단의 사해 동쪽 지역, 베들레헴은 오늘날 요르단강 서안에 있습니다. 룻기는 기근과 가족의 죽음으로 삶의 터전을 옮겨야 했던 두 여인의 이야기입니다. 추수 뒤 남은 이삭을 줍는 장면에는 가난한 사람과 이주민의 생계가 담겨 있으며 정확한 연대는 알 수 없습니다."
+    }
   },
   {
     "id": "gideon",
@@ -457,7 +587,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "부족하다는 이유로 미루고 있는 작은 책임은 무엇인가요?",
     "image": "assets/home/people/v1/gideon.webp",
     "imageWidth": 1254,
-    "imageHeight": 1254
+    "imageHeight": 1254,
+    "history": {
+      "era": "왕정 이전 사사 시대 · 정확한 활동 연대 미상",
+      "place": "이스라엘의 농경 지역",
+      "text": "사사기는 미디안의 습격으로 곡식과 가축을 지키기 어려웠던 형편을 전합니다. 기드온이 포도주 틀에서 숨어 밀을 타작한 까닭도 이런 두려움 때문입니다. 왕이 없던 공동체의 불안한 일상 속에서 하나님의 부르심이 찾아옵니다."
+    }
   },
   {
     "id": "creation",
@@ -474,7 +609,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "오늘 소중히 돌볼 생명과 환경은 무엇인가요?",
     "image": "assets/home/stories/v2/creation.webp",
     "imageWidth": 1000,
-    "imageHeight": 1000
+    "imageHeight": 1000,
+    "history": {
+      "era": "세상의 시작 · 특정 역사 연도로 표시하지 않음",
+      "place": "하늘과 땅, 모든 생명의 세계",
+      "text": "창세기 1장은 아브라함이나 이스라엘 왕국보다 앞서 세상의 시작을 전합니다. 특정 도시 문명의 시대에 창조가 일어났다고 말하는 본문은 아닙니다. 고대 근동의 성경 세계를 이해하는 데 도움을 주되, 창조 자체에 확정된 기원전 연도를 붙이지 않습니다."
+    }
   },
   {
     "id": "ark",
@@ -491,7 +631,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "맡겨진 생명을 돌보기 위해 무엇을 준비할 수 있을까요?",
     "image": "assets/home/stories/v2/ark.webp",
     "imageWidth": 1000,
-    "imageHeight": 1000
+    "imageHeight": 1000,
+    "history": {
+      "era": "창세기의 초기 인류 이야기 · 역사 연대 미상",
+      "place": "홍수와 방주를 배경으로 한 세상",
+      "text": "창세기에서 이 이야기는 아브라함의 부르심보다 앞에 놓입니다. 고대 메소포타미아에도 홍수에 관한 전승이 있지만, 이를 곧바로 노아 홍수의 날짜나 장소를 확정하는 증거로 삼을 수는 없습니다. 성경은 심판 가운데 생명을 보존하시는 하나님과 홍수 뒤의 언약을 전합니다."
+    }
   },
   {
     "id": "red-sea",
@@ -508,7 +653,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "두려운 상황에서 누구와 함께 도움을 구할 수 있을까요?",
     "image": "assets/home/stories/v2/red-sea.webp",
     "imageWidth": 1000,
-    "imageHeight": 1000
+    "imageHeight": 1000,
+    "history": {
+      "era": "출애굽 시대 · 기원전 15세기설과 13세기설",
+      "place": "이집트를 떠나 광야로 향하는 길",
+      "text": "파라오의 군대와 바다 사이에 놓인 이스라엘이 이야기의 배경입니다. 출애굽 연대와 실제 이동 경로, 바다를 건넌 지점에 대해서는 여러 견해가 있습니다. 람세스 2세 때의 사건으로 단정하지 않고, 성경이 전하는 구원의 여정에 초점을 맞춥니다."
+    }
   },
   {
     "id": "goliath",
@@ -525,7 +675,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "나를 압도하는 두려움은 무엇인가요?",
     "image": "assets/home/stories/v2/goliath.webp",
     "imageWidth": 1000,
-    "imageHeight": 1000
+    "imageHeight": 1000,
+    "history": {
+      "era": "기원전 11세기 말 무렵 · 사울 왕 시대",
+      "place": "엘라 골짜기 · 유다 구릉 지역",
+      "text": "철기시대에 이스라엘과 블레셋이 충돌하던 배경입니다. 사무엘상은 두 군대가 골짜기를 사이에 두고 마주 선 곳에서 다윗이 골리앗 앞에 나섰다고 전합니다. 다윗이 왕이 되기 전의 사건이며, 정확한 전투 연도는 확인되지 않았습니다."
+    }
   },
   {
     "id": "lions",
@@ -542,7 +697,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "어려운 상황에서도 이어 가고 싶은 기도는 무엇인가요?",
     "image": "assets/home/stories/v2/lions.webp",
     "imageWidth": 1000,
-    "imageHeight": 1000
+    "imageHeight": 1000,
+    "history": {
+      "era": "이야기의 배경: 기원전 6세기 · 제국의 통치가 바뀌던 때",
+      "place": "바빌론 · 오늘날 이라크",
+      "text": "다니엘 6장은 메대 사람 다리오의 통치를 배경으로 합니다. 바빌론이 페르시아에 넘어간 기원전 539년 무렵의 변화와 연결해 읽지만, 이 왕의 역사적 신원과 사건의 세부 연대에는 견해 차이가 있습니다. 낯선 권력 아래에서도 기도를 지키는 믿음이 중심입니다."
+    }
   },
   {
     "id": "nativity",
@@ -559,7 +719,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "기쁜 소식과 따뜻한 돌봄을 누구와 나눌까요?",
     "image": "assets/home/stories/v2/nativity.webp",
     "imageWidth": 1000,
-    "imageHeight": 1000
+    "imageHeight": 1000,
+    "history": {
+      "era": "기원전 6~4년 무렵으로 흔히 추정 · 정확한 연도는 논의 중",
+      "place": "베들레헴 · 오늘날 요르단강 서안 지역",
+      "text": "로마의 아우구스투스 황제와 유대의 헤롯 왕이 살던 시대입니다. 복음서의 연대 단서를 역사 기록과 맞추는 데에는 어려움도 있습니다. 누가복음은 제국의 큰 질서 속에서 구유에 누운 아기와 들판의 목자들에게 시선을 돌립니다."
+    }
   },
   {
     "id": "loaves",
@@ -576,7 +741,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "오늘 내가 나눌 수 있는 것은 무엇인가요?",
     "image": "assets/home/stories/v2/loaves.webp",
     "imageWidth": 1000,
-    "imageHeight": 1000
+    "imageHeight": 1000,
+    "history": {
+      "era": "기원후 1세기 전반 · 예수님의 활동 시기",
+      "place": "갈릴리 호수 건너편",
+      "text": "호숫가의 어업과 주변 마을의 농업이 일상을 이루던 배경입니다. 요한복음은 유월절이 가까운 때 사람들이 예수님께 모였고, 한 아이에게 보리떡과 물고기가 있었다고 전합니다. 일상의 먹을거리가 많은 사람을 돌보시는 표적의 장면에 등장합니다."
+    }
   },
   {
     "id": "resurrection",
@@ -593,7 +763,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "절망 속에서 다시 기억하고 싶은 말씀은 무엇인가요?",
     "image": "assets/home/stories/v2/resurrection.webp",
     "imageWidth": 1000,
-    "imageHeight": 1000
+    "imageHeight": 1000,
+    "history": {
+      "era": "기원후 30년 또는 33년으로 주로 논의",
+      "place": "예루살렘 · 로마 통치 아래의 유대",
+      "text": "본디오 빌라도가 총독으로 있던 때, 예수님의 십자가 죽음과 유월절이 배경입니다. 누가복음은 안식일이 지난 뒤 향품을 준비한 여인들이 무덤을 찾았다고 전합니다. 이 연대 표시는 역사적 배경을 설명하는 것으로 정확한 부활 날짜를 확정한 것은 아닙니다."
+    }
   },
   {
     "id": "samaritan",
@@ -610,7 +785,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "도움이 필요한 사람에게 가까이 갈 방법은 무엇인가요?",
     "image": "assets/home/stories/v2/samaritan.webp",
     "imageWidth": 1000,
-    "imageHeight": 1000
+    "imageHeight": 1000,
+    "history": {
+      "era": "비유를 들려주신 때: 기원후 1세기 전반",
+      "place": "예루살렘에서 여리고로 내려가는 길",
+      "text": "실제 사건의 발생 연도를 기록한 이야기가 아니라 예수님이 들려주신 비유입니다. 유대인과 사마리아인 사이에는 종교적·사회적 거리감이 있었습니다. 그 배경을 알면 뜻밖의 사람이 상처 입은 이웃을 돌본다는 가르침이 더 선명해집니다."
+    }
   },
   {
     "id": "prodigal",
@@ -627,7 +807,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "용서와 환대를 받아들이기 어려운 마음은 없나요?",
     "image": "assets/home/stories/v2/prodigal.webp",
     "imageWidth": 1000,
-    "imageHeight": 1000
+    "imageHeight": 1000,
+    "history": {
+      "era": "비유를 들려주신 때: 기원후 1세기 전반",
+      "place": "당시 유대 사회의 가족과 농경 생활",
+      "text": "어느 집안에서 몇 년에 일어난 사건인지 알려 주는 기록은 아닙니다. 예수님은 재산 상속과 품꾼의 일, 가족의 잔치처럼 청중에게 익숙한 일상을 사용하셨습니다. 아버지의 환대와 두 아들의 반응을 통해 용서와 함께 기뻐하는 마음을 생각하게 하십니다."
+    }
   },
   {
     "id": "lost-sheep",
@@ -644,7 +829,12 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "잊힌 듯 느끼는 사람에게 어떻게 관심을 표현할까요?",
     "image": "assets/home/stories/v2/lost-sheep.webp",
     "imageWidth": 1000,
-    "imageHeight": 1000
+    "imageHeight": 1000,
+    "history": {
+      "era": "비유를 들려주신 때: 기원후 1세기 전반",
+      "place": "유대와 갈릴리의 목축 생활",
+      "text": "예수님이 들려주신 비유이므로 양을 잃은 특정 연도를 붙이지 않습니다. 양 떼를 돌보고 잃은 양을 찾는 일은 당시 사람들이 이해할 수 있는 삶의 장면이었습니다. 누가복음은 예수님이 죄인들을 맞아들이신다는 비판에 답하며 이 비유를 들려주셨다고 전합니다."
+    }
   },
   {
     "id": "pentecost",
@@ -661,6 +851,11 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "question": "서로 다른 사람의 말을 듣기 위해 어떤 노력을 할 수 있을까요?",
     "image": "assets/home/stories/v2/pentecost.webp",
     "imageWidth": 1000,
-    "imageHeight": 1000
+    "imageHeight": 1000,
+    "history": {
+      "era": "기원후 1세기 전반 · 예수님의 부활 이후",
+      "place": "예루살렘 · 여러 지역의 순례자들이 모인 곳",
+      "text": "오순절은 유대인들이 지키던 절기로, 예루살렘에는 여러 지역에서 온 사람들이 모여 있었습니다. 사도행전은 이들이 저마다의 언어로 하나님의 큰 일을 들었다고 전합니다. 로마 제국과 그 주변에 흩어져 살던 공동체의 다양한 언어가 이 장면의 배경입니다."
+    }
   }
 ];
