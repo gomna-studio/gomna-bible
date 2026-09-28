@@ -31,4 +31,12 @@ assert.ok(esther);
 const estherListen=new URL(ctx.window.url(esther,true),'https://example.test/');
 assert.equal(estherListen.searchParams.get('startVerse'),'13');
 assert.equal(estherListen.searchParams.get('endVerse'),'17');
-console.log('PASS: 78 links and Esther 4:13–17 exact queue target, read return, full playback return with reused Audio and capture before source reset, partial/error/close/cancel/stale completion guards, chapter navigation, ordinary Reader isolation.');
+const engineSource=fs.readFileSync('js/audio-engine.js','utf8');
+const method=engineSource.match(/playAudioRange: function\(bookId, chapter, startVerse, endVerse\) \{[\s\S]*?\n    \},/);
+assert.ok(method);
+const playRange=vm.runInNewContext('('+method[0].replace(/^playAudioRange:\s*/,'').replace(/,$/,'')+')',{
+ document:{querySelectorAll:()=>Array.from({length:20},(_,i)=>({getAttribute:k=>k==='data-verse'?String(i+1):null}))},
+ window:{GOMNA_AUDIO_ENGINE:{playAudioQueue:ids=>{assert.equal(ids.length,5);assert.deepEqual(Array.from(ids),[13,14,15,16,17].map(n=>'17.004.'+String(n).padStart(3,'0')+'.bible'));return true;}}}
+});
+assert.equal(playRange('17',4,13,17),true);
+console.log('PASS: 78 links and Esther 4:13–17 exact five-track queue, read return, full playback return with reused Audio and capture before source reset, partial/error/close/cancel/stale completion guards, chapter navigation, ordinary Reader isolation.');
