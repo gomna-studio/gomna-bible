@@ -1348,7 +1348,7 @@ window.GOMNA_BIBLE_LIBRARY_DATA = [
     "intro": "성령이 임하시고 여러 언어로 말하기 시작한 이야기",
     "body": "오순절에 함께 모인 사람들에게 성령이 임하셨습니다. 그들은 성령이 말하게 하시는 대로 다른 언어들로 말하기 시작했습니다. 여러 지역에서 온 사람들은 자신들의 언어로 하나님의 큰 일을 듣고 놀랐습니다. 이 사건은 사도행전에 기록된 복음 전파의 중요한 시작입니다.",
     "question": "서로 다른 사람의 말을 듣기 위해 어떤 노력을 할 수 있을까요?",
-    "image": "assets/home/stories/v2/pentecost.webp",
+    "image": "assets/home/stories/v2/pentecost-light.webp",
     "imageWidth": 1000,
     "imageHeight": 1000,
     "history": {
