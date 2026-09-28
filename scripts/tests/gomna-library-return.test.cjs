@@ -10,7 +10,8 @@ function setup(listen=true,query='') {
  context.window.GOMNA_AUDIO_ENGINE={_state:state,getState:()=>state};
  vm.runInNewContext(source,context);
  const emit=(name,detail={})=>(events[name]||[]).forEach(fn=>fn({detail}));
- function track(index,natural=true){const media={paused:true,readyState:0,ended:false,error:null};Object.assign(state,{queueIndex:index,currentAudio:media,currentAudioId:state.queueAudioIds[index]});emit('audio:start',{audioId:state.currentAudioId});if(natural){media.ended=true;}return media;}
+ const listeners={};const media={paused:true,readyState:0,ended:false,error:null,addEventListener:(n,fn)=>(listeners[n]??=[]).push(fn)};
+ function track(index,natural=true){media.ended=false;Object.assign(state,{queueIndex:index,currentAudio:media,currentAudioId:state.queueAudioIds[index]});emit('audio:start',{audioId:state.currentAudioId});if(natural){media.ended=true;const calls=(listeners.ended||[]).splice(0);calls.forEach(fn=>fn());}return media;}
  function finish(reason='queue_completed'){state.currentAudioId=null;emit('audio:end',{reason,audioId:'b.bible'});}
  return {nodes,state,emit,track,finish,context};
 }
@@ -25,4 +26,9 @@ const ctx={window:{},URLSearchParams};vm.runInNewContext(fs.readFileSync('js/gom
 const init="  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();";
 vm.runInNewContext(fs.readFileSync('js/gomna-bible-library.js','utf8').replace(init,'window.url=readerUrl;'),ctx);
 for(const item of ctx.window.GOMNA_BIBLE_LIBRARY_DATA)for(const listen of [true,false]){const u=new URL(ctx.window.url(item,listen),'https://example.test/');assert.equal(u.searchParams.get('libraryId'),item.id);assert.equal(u.searchParams.get('libraryKind'),item.kind);assert.equal(u.searchParams.get('libraryName'),item.name);assert.equal(u.searchParams.get('listen'),listen?'1':null);}
-console.log('PASS: 78 links, read return, full playback return without playing/ended listener timing, partial/error/close/cancel/stale completion guards, chapter navigation, ordinary Reader isolation.');
+const esther=ctx.window.GOMNA_BIBLE_LIBRARY_DATA.find(i=>i.id==='esther');
+assert.ok(esther);
+const estherListen=new URL(ctx.window.url(esther,true),'https://example.test/');
+assert.equal(estherListen.searchParams.get('startVerse'),'13');
+assert.equal(estherListen.searchParams.get('endVerse'),'17');
+console.log('PASS: 78 links and Esther 4:13–17 exact queue target, read return, full playback return with reused Audio and capture before source reset, partial/error/close/cancel/stale completion guards, chapter navigation, ordinary Reader isolation.');
