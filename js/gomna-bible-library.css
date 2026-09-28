@@ -2,6 +2,8 @@
 /* The original seven pills retain the production stylesheet and click handlers. */
 .gomna-home-card[data-card="2"] .gbl-original-page,
 .gomna-home-card[data-card="2"] .gbl-discover-page {display:flex;flex-direction:column;min-height:0;height:100%;width:100%;box-sizing:border-box}
+.gomna-home-card[data-card="2"] .gbl-original-page {overflow-x:hidden;overflow-y:auto;scrollbar-width:none}
+.gomna-home-card[data-card="2"] .gbl-original-page::-webkit-scrollbar {display:none}
 .gomna-home-card[data-card="2"] .gbl-original-page[hidden],
 .gomna-home-card[data-card="2"] .gbl-discover-page[hidden] {display:none!important}
 .gomna-home-card[data-card="2"] .gbl-original-page .gomna-home-poster-foot {flex-direction:column;align-items:flex-start;gap:7px}
@@ -115,12 +117,12 @@ body.gbl-open .gomna-home-return-top {visibility:hidden!important}
 .gbl-original-page .gbl-discover-link {font-size:16px;font-weight:600;min-height:40px}
 .gbl-original-page .gbl-discover-link svg {width:18px;height:18px}
 
-.gbl-original-page .gomna-home-poster-pills {display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;flex:0 0 auto;gap:calc(4px + 1.5mm);overflow:visible}
+.gbl-original-page .gomna-home-poster-pills {display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;flex:0 0 auto;gap:calc(4px + 4mm);overflow:visible}
 .gbl-original-page .gomna-home-poster-pill {flex:none;height:28px;min-height:28px;max-height:none}
 @container original-people (max-height:470px) {
   .gbl-original-page .gomna-home-poster-title {font-size:26px;margin-top:8px}
   .gbl-original-page .gomna-home-poster-lead {font-size:13px;line-height:1.35;margin-top:8px}
-  .gbl-original-page .gomna-home-poster-pills {gap:calc(3px + 1.5mm);margin-top:8px}
+  .gbl-original-page .gomna-home-poster-pills {gap:calc(3px + 4mm);margin-top:8px}
   .gbl-original-page .gomna-home-poster-pill {height:28px;min-height:28px}
   .gbl-original-page .gomna-home-poster-foot {padding-top:4px}
 }
@@ -129,13 +131,13 @@ body.gbl-open .gomna-home-return-top {visibility:hidden!important}
   .gbl-original-page .gomna-home-poster-kicker {font-size:11px;line-height:1.3}
   .gbl-original-page .gomna-home-poster-title {font-size:22px;margin-top:3px}
   .gbl-original-page .gomna-home-poster-lead {font-size:12px;line-height:1.3;margin-top:3px}
-  .gbl-original-page .gomna-home-poster-pills {gap:calc(2px + 1.5mm);margin-top:3px}
+  .gbl-original-page .gomna-home-poster-pills {gap:calc(2px + 4mm);margin-top:3px}
   .gbl-original-page .gomna-home-poster-foot {padding-top:0}
   .gbl-original-page .gbl-discover-link {min-height:32px}
 }
 
 @media (min-width:700px) {
-  .gomna-home-card[data-card="2"]:not(.is-open) .gbl-original-page .gomna-home-poster-pills {gap:calc(6px + 1.5mm)}
+  .gomna-home-card[data-card="2"]:not(.is-open) .gbl-original-page .gomna-home-poster-pills {gap:calc(6px + 4mm)}
 }
 
 /* Reuse the first card chevron and existing closeCard click handler. */

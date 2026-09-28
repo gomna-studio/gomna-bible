@@ -39,8 +39,8 @@
   }
   function list() {
     const s=states[current.kind], people=current.kind==='people';
-    if(people)s.q='';
-    scroll.innerHTML='<div class="gbl-list"><div class="gbl-tabs" role="group" aria-label="탐색 종류"><button data-gbl-kind="people" aria-pressed="'+people+'">인물로 보기</button><button data-gbl-kind="stories" aria-pressed="'+!people+'">이야기로 보기</button></div>'+(people?'':'<label class="gbl-search"><span aria-hidden="true">⌕</span><input id="gblSearch" type="search" maxlength="80" autocomplete="off" placeholder="'+(people?'인물 이름 찾기':'이야기 찾기')+'" aria-label="'+(people?'인물 이름 찾기':'이야기 찾기')+'" value="'+esc(s.q)+'"></label>')+'<div class="gbl-filters" role="group" aria-label="성경 분류">'+(people?['전체','구약','신약']:['전체','구약','신약','비유']).map(g=>'<button data-gbl-group="'+g+'" aria-pressed="'+(s.group===g)+'">'+g+'</button>').join('')+'</div><h2 id="gblCount" aria-live="polite"></h2><div id="gblResults" class="gbl-grid '+(people?'':'gbl-stories')+'"></div></div>';
+    s.q='';
+    scroll.innerHTML='<div class="gbl-list"><div class="gbl-tabs" role="group" aria-label="탐색 종류"><button data-gbl-kind="people" aria-pressed="'+people+'">인물로 보기</button><button data-gbl-kind="stories" aria-pressed="'+!people+'">이야기로 보기</button></div>'+'<div class="gbl-filters" role="group" aria-label="성경 분류">'+(people?['전체','구약','신약']:['전체','구약','신약','비유']).map(g=>'<button data-gbl-group="'+g+'" aria-pressed="'+(s.group===g)+'">'+g+'</button>').join('')+'</div><h2 id="gblCount" aria-live="polite"></h2><div id="gblResults" class="gbl-grid '+(people?'':'gbl-stories')+'"></div></div>';
     results();
     scroll.scrollTop=s.scroll;
   }
@@ -126,7 +126,6 @@
       else if(b.dataset.gblItem)navigate(current.kind,b.dataset.gblItem,false);
       else if(b.dataset.gblRelated){const i=items.find(x=>x.id===b.dataset.gblRelated);if(i)navigate(i.kind,i.id,false);}
     });
-    panel.addEventListener('input',e=>{if(e.target.id==='gblSearch'){states[current.kind].q=e.target.value;states[current.kind].scroll=0;results();save();}});
     panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();back();}});
     window.addEventListener('popstate',()=>{save();render();});
     window.addEventListener('hashchange',()=>{if(JSON.stringify(route())!==JSON.stringify(current)){save();render();}});

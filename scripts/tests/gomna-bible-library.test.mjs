@@ -44,7 +44,7 @@ try{
  assert.ok(Math.abs(filterHeight-(44-4*96/25.4))<1);
  await p.locator('[data-gbl-item="ruth"]').click();assert.equal(await p.locator('#gblTitle').textContent(),'룻');await p.locator('[data-gbl-back]').click();
  await p.locator('[data-gbl-group="신약"]').click();assert.equal(await p.locator('.gbl-tile').count(),9);
- await p.locator('[data-gbl-kind="stories"]').click();assert.equal(await p.locator('.gbl-tile').count(),12);await p.locator('[data-gbl-group="비유"]').click();assert.equal(await p.locator('.gbl-tile').count(),3);
+ await p.locator('[data-gbl-kind="stories"]').click();assert.equal(await p.locator('#gblSearch').count(),0);assert.equal(await p.locator('.gbl-tile').count(),12);await p.locator('[data-gbl-group="비유"]').click();assert.equal(await p.locator('.gbl-tile').count(),3);
  await p.locator('[data-gbl-item="samaritan"]').click();assert.ok((await p.locator('.gbl-article').textContent()).includes('예수님이 들려주신 비유'));
  const read=new URL(await p.locator('.gbl-actions a').first().getAttribute('href'),origin);assert.equal(read.searchParams.get('book'),'누가복음');assert.equal(read.searchParams.get('chapter'),'10');assert.equal(read.searchParams.get('verse'),'25');assert.equal(read.searchParams.get('verseEnd'),'37');
  const listen=new URL(await p.locator('.gbl-actions a').last().getAttribute('href'),origin);assert.equal(listen.searchParams.get('listen'),'1');assert.equal(listen.searchParams.get('source'),'home-main-listen');assert.ok(fs.readFileSync(path.join(root,'reader.html'),'utf8').includes("src==='home-main-listen'"));assert.equal(listen.searchParams.get('startVerse'),'25');assert.equal(listen.searchParams.get('endVerse'),'37');
@@ -53,7 +53,7 @@ try{
  await p.mouse.move(190,500);await p.mouse.wheel(0,650);await p.waitForTimeout(250);const position=await p.locator('.gbl-scroll').evaluate(e=>e.scrollTop);assert.ok(position>0,'wheel must scroll list, not home');
  const target=p.locator('[data-gbl-item="hannah"]');await target.scrollIntoViewIfNeeded();const before=await p.locator('.gbl-scroll').evaluate(e=>e.scrollTop);await target.click();await p.locator('[data-gbl-back]').click();assert.ok(Math.abs((await p.locator('.gbl-scroll').evaluate(e=>e.scrollTop))-before)<3);
  await p.reload();await p.locator('[data-gbl-item="hannah"]').waitFor();assert.ok(Math.abs((await p.locator('.gbl-scroll').evaluate(e=>e.scrollTop))-before)<3);
- console.log('PASS no people search, compact filter height, filters, story types, passage ranges, browser back and scroll restore');
+ console.log('PASS no people or stories search, compact filter height, filters, story types, passage ranges, browser back and scroll restore');
  for(const width of [320,390,430,768,1440]){
   await p.setViewportSize({width,height:844});await p.goto(origin+'/#bible-library/people/abraham');await p.locator('.gbl-detail').waitFor();
   assert.equal(await p.locator('.gbl-hero img').evaluate(e=>getComputedStyle(e).objectFit),'contain');
@@ -94,11 +94,16 @@ try{
   });
   const gapState=await tp.locator('.gbl-original-page .gomna-home-poster-pills').evaluate(e=>({gap:parseFloat(getComputedStyle(e).rowGap),height:document.querySelector('.gomna-home-card[data-card="2"] .gomna-home-card-face[data-face="tease"]').clientHeight}));
   const oldGap=width>=700?6:gapState.height<=380?2:gapState.height<=470?3:4;
-  assert.ok(Math.abs(gapState.gap-(oldGap+1.5*96/25.4))<0.1,JSON.stringify(gapState));
+  assert.ok(Math.abs(gapState.gap-(oldGap+4*96/25.4))<0.1,JSON.stringify(gapState));
   const pills=original.slice(0,7);
   assert.equal(pills.length,7);
   for(let i=1;i<pills.length;i++){assert.ok(Math.abs(pills[i].left-pills[0].left)<1);assert.ok(pills[i].top>=pills[i-1].bottom);}
-  for(const r of original)assert.ok(r.bottom<=r.limit+1&&r.top>=r.cardTop&&r.left>=r.cardLeft&&r.right<=r.cardRight,JSON.stringify({width,height,r}));
+  for(const r of original)assert.ok(r.left>=r.cardLeft&&r.right<=r.cardRight,JSON.stringify({width,height,r}));
+  for(const button of await tp.locator('.gbl-original-page [data-ghd-story-chip],.gbl-original-page .gbl-discover-link').all()){
+   await button.scrollIntoViewIfNeeded();
+   const visible=await button.evaluate(e=>{const r=e.getBoundingClientRect(),p=e.closest('.gbl-original-page').getBoundingClientRect();return r.top>=p.top-1&&r.bottom<=p.bottom+1;});
+   assert.ok(visible,'every person button and the discovery link remain reachable');
+  }
   assert.equal(await tp.locator('.gbl-original-page .gomna-home-poster-foot-copy').count(),0);
   assert.ok(!(await tp.locator('.gbl-original-page').textContent()).includes('그들의 이야기는'));
   if(width===390&&height===600)await tp.screenshot({path:'/tmp/gomna-original-compact.png'});
