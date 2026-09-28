@@ -1,4 +1,4 @@
-/* Scoped to the third home card and its explorer; Reader and other cards unchanged. */
+/* Home story explorer and scoped meditation back navigation. */
 /* The original seven pills retain the production stylesheet and click handlers. */
 .gomna-home-card[data-card="2"] .gbl-original-page,
 .gomna-home-card[data-card="2"] .gbl-discover-page {display:flex;flex-direction:column;min-height:0;height:100%;width:100%;box-sizing:border-box}
@@ -7,7 +7,7 @@
 .gomna-home-card[data-card="2"] .gbl-original-page .gomna-home-poster-foot {flex-direction:column;align-items:flex-start;gap:7px}
 .gbl-discover-link,.gbl-discover-back {border:0;padding:4px 0;background:none;color:#fff6e5;font-family:inherit;font-size:12px;line-height:1.5;cursor:pointer;text-align:left;flex:none}
 .gbl-discover-link span {padding-left:5px}
-.gbl-discover-back {align-self:flex-start;margin-bottom:24px}
+.gbl-discover-back {align-self:flex-end;margin-bottom:24px}
 .gbl-discover-kicker {font-size:13px;line-height:1.6;margin:0 0 14px;color:#f0e7db;word-break:keep-all}
 .gbl-discover-title {font-family:'AppleMyungjo','Nanum Myeongjo','Noto Serif KR',Georgia,serif;font-size:clamp(28px,8vw,36px);font-weight:700;line-height:1.4;letter-spacing:-.035em;margin:0 0 24px;color:#fffaf3}
 .gbl-discover-copy {font-size:16px;line-height:1.9;margin:0;color:#fffaf3;word-break:keep-all}
@@ -137,3 +137,6 @@ body.gbl-open .gomna-home-return-top {visibility:hidden!important}
 @media (min-width:700px) {
   .gomna-home-card[data-card="2"]:not(.is-open) .gbl-original-page .gomna-home-poster-pills {gap:calc(6px + 1.5mm)}
 }
+
+/* Reuse the first card chevron and existing closeCard click handler. */
+.gomna-home-card[data-card="1"] .gomna-home-life-back {position:absolute;z-index:5;top:8px;right:8px;margin:0;color:#39434e}
