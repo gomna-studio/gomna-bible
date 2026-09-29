@@ -1,191 +1,7 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>개인정보처리방침 - 은혜의말씀 (Words of Grace)</title>
-<meta name="description" content="은혜의말씀 웹 앱 개인정보처리방침 - Privacy Policy">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://gomnastudio.com/privacy.html">
-<link rel="icon" type="image/x-icon" href="favicon.ico?v=6">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=6">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=6">
-<link rel="icon" type="image/png" href="favicon.png?v=6">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=5">
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f5f4ed"><title>개인정보처리방침 | Gomna Studio</title><meta name="description" content="은혜의말씀 개인정보처리방침"><link rel="canonical" href="https://gomnastudio.com/privacy.html"><link rel="icon" type="image/svg+xml" href="/studio/assets/mark.svg"><link rel="stylesheet" href="/studio/company-v1.css"><script src="/studio/company-v1.js" defer></script></head><body><a class="skip" href="#main">본문 바로가기</a><header class="site-header"><a class="wordmark" href="/studio/" aria-label="Gomna Studio 홈">gomna<span>studio</span></a><nav class="desktop-nav" aria-label="회사 홈페이지"><a href="/studio/">Studio</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/guide/">User Guide</a></nav><div class="header-tools"><a class="app-link" href="https://gomnastudio.com/">은혜의말씀 <span aria-hidden="true">↗</span></a><button class="theme-toggle" aria-label="어두운 화면으로 전환" aria-pressed="false"><span aria-hidden="true">◐</span></button><button class="menu-toggle" aria-expanded="false" aria-controls="mobile-menu">메뉴 <span aria-hidden="true">＋</span></button></div><nav id="mobile-menu" class="mobile-nav" aria-label="모바일 회사 홈페이지" hidden><a href="/studio/">Studio<span aria-hidden="true">↗</span></a><a href="/about/">About<span aria-hidden="true">↗</span></a><a href="/contact/">Contact<span aria-hidden="true">↗</span></a><a href="/guide/">User Guide<span aria-hidden="true">↗</span></a><a href="https://gomnastudio.com/">은혜의말씀으로 돌아가기 <span aria-hidden="true">↗</span></a></nav></header><main id="main"><section class="page-hero legal-hero"><span class="eyebrow">PRIVACY POLICY</span><h1>개인정보처리방침</h1><p>시행일자: 2026년 4월 28일</p></section><div class="legal-wrap">
 
-  :root {
-    --bg:       #0f1729;
-    --bg2:      #162040;
-    --gold:     #c9973a;
-    --gold-lt:  #e8b85a;
-    --gold-dim: rgba(201,151,58,0.13);
-    --text:     #e8e4d8;
-    --muted:    #8a8070;
-    --border:   rgba(201,151,58,0.18);
-    --card:     rgba(255,255,255,0.035);
-    --radius:   14px;
-  }
-
-  [data-theme="light"] {
-    --bg:       #faf7f0;
-    --bg2:      #f0ebe0;
-    --gold:     #a87a25;
-    --gold-lt:  #8c6520;
-    --gold-dim: rgba(168,122,37,0.10);
-    --text:     #2a2418;
-    --muted:    #6b5d4a;
-    --border:   rgba(168,122,37,0.25);
-    --card:     rgba(0,0,0,0.025);
-  }
-
-  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    font-weight: 300;
-    font-size: 14px;
-    line-height: 1.95;
-    min-height: 100vh;
-    transition: background 0.3s ease, color 0.3s ease;
-  }
-
-  .site-header {
-    position: sticky; top: 0; z-index: 200;
-    background: rgba(15,23,41,0.94);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 24px;
-    height: 60px;
-    display: flex; align-items: center; gap: 12px;
-    transition: background 0.3s ease;
-  }
-  [data-theme="light"] .site-header {
-    background: rgba(250,247,240,0.94);
-  }
-  .site-header img { width:36px; height:36px; border-radius:9px; object-fit:cover; }
-  .brand { font-family:'Noto Serif KR',serif; font-size:15px; font-weight:600; color:var(--gold-lt); }
-  .brand span { display:block; font-family:'Noto Sans KR',sans-serif; font-size:10px; font-weight:300; color:var(--muted); letter-spacing:1px; }
-  .header-actions { margin-left:auto; display:flex; align-items:center; gap:8px; }
-  .theme-btn { background:transparent; border:1px solid var(--border); color:var(--gold); width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:all .2s; }
-  .theme-btn:hover { background:var(--gold); color:var(--bg); }
-  .back-btn { color:var(--gold); font-size:12px; text-decoration:none; border:1px solid var(--border); padding:6px 16px; border-radius:20px; transition:all .2s; }
-  .back-btn:hover { background:var(--gold); color:var(--bg); }
-
-  .hero { background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%); border-bottom:1px solid var(--border); padding:52px 24px 44px; text-align:center; }
-  .hero-tag { display:inline-block; background:var(--gold-dim); border:1px solid var(--border); color:var(--gold); font-size:10px; font-weight:500; letter-spacing:2px; padding:4px 16px; border-radius:20px; margin-bottom:18px; }
-  .hero h1 { font-family:'Noto Serif KR',serif; font-size:26px; font-weight:700; color:var(--gold-lt); margin-bottom:10px; }
-  .hero-meta { font-size:12px; color:var(--muted); line-height:1.8; }
-  .hero-meta strong { color:var(--text); font-weight:400; }
-
-  .wrap { max-width:740px; margin:0 auto; padding:44px 24px 90px; }
-
-  .toc { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:22px 26px; margin-bottom:36px; }
-  .toc-title { font-size:11px; font-weight:500; color:var(--gold); letter-spacing:1.5px; margin-bottom:12px; }
-  .toc ol { padding-left:18px; }
-  .toc li { font-size:13px; padding:3px 0; }
-  .toc a { color:var(--text); text-decoration:none; transition:color .15s; }
-  .toc a:hover { color:var(--gold); }
-
-  .sec { margin-bottom:28px; }
-  .sec-head { display:flex; align-items:center; gap:10px; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius) var(--radius) 0 0; padding:14px 22px; }
-  .sec-num { width:24px; height:24px; flex-shrink:0; background:var(--gold); color:var(--bg); border-radius:50%; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
-  .sec-title { font-family:'Noto Serif KR',serif; font-size:14px; font-weight:600; color:var(--gold-lt); }
-  .sec-body { background:var(--card); border:1px solid var(--border); border-top:none; border-radius:0 0 var(--radius) var(--radius); padding:22px 26px; }
-  .sec-body p { margin-bottom:10px; }
-  .sec-body p:last-child { margin-bottom:0; }
-
-  .tbl { width:100%; border-collapse:collapse; font-size:13px; margin:14px 0 4px; }
-  .tbl th { background:var(--gold-dim); color:var(--gold); font-weight:500; font-size:11px; letter-spacing:.5px; padding:10px 14px; text-align:left; border-bottom:1px solid var(--border); }
-  .tbl td { padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:top; }
-  .tbl tr:last-child td { border-bottom:none; }
-  .tbl td.lb { color:var(--muted); font-size:12px; width:36%; }
-
-  .ul { list-style:none; padding:0; margin:10px 0; }
-  .ul li { padding:4px 0 4px 20px; position:relative; font-size:13.5px; }
-  .ul li::before { content:'›'; position:absolute; left:4px; color:var(--gold); font-size:16px; line-height:1.5; }
-
-  .ol { padding-left:20px; margin:10px 0; }
-  .ol li { padding:4px 0; font-size:13.5px; }
-
-  .callout { background:var(--gold-dim); border-left:3px solid var(--gold); border-radius:0 8px 8px 0; padding:13px 18px; margin-top:14px; font-size:13px; line-height:1.8; }
-  .callout strong { color:var(--gold-lt); }
-
-  .sub-label { margin-top:16px; margin-bottom:4px; color:var(--gold); font-size:13px; font-weight:500; }
-
-  a.ext { color:var(--gold); text-decoration:none; border-bottom:1px dashed var(--border); transition:border-color .2s; }
-  a.ext:hover { border-color:var(--gold); }
-
-  .contact { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:28px 26px; text-align:center; margin-top:44px; }
-  .contact h3 { font-family:'Noto Serif KR',serif; font-size:15px; color:var(--gold-lt); margin-bottom:10px; }
-  .contact a { color:var(--gold); text-decoration:none; font-size:15px; font-weight:500; }
-  .contact p { font-size:12px; color:var(--muted); margin-top:6px; }
-
-  footer { border-top:1px solid var(--border); padding:26px 24px; text-align:center; font-size:11px; color:var(--muted); line-height:1.8; }
-
-  @media(max-width:480px){
-    .hero h1 { font-size:21px; }
-    .sec-body { padding:16px; }
-    .toc { padding:16px 18px; }
-  }
-</style>
-<style id="gomna-legal-black-blue-v1">
-/* Match the app's black text and blue controls in light mode. */
-html[data-theme="light"] body,
-html[data-theme="light"] body *{
-  color:#17191D !important;
-}
-html[data-theme="light"] .ul li::before,
-html[data-theme="light"] li::marker{
-  color:#17191D;
-}
-html[data-theme="light"] .sec-num{
-  background:#E8F0FC;
-}
-html[data-theme="light"] .theme-btn,
-html[data-theme="light"] .back-btn,
-body a[href^="https://www.google.com/maps/search/"],
-body a[href^="https://maps.apple.com/"]{
-  background:#E8F0FC !important;
-  color:#17191D !important;
-  border:1px solid #355F9A !important;
-}
-html[data-theme="light"] .theme-btn:hover,
-html[data-theme="light"] .back-btn:hover,
-body a[href^="https://www.google.com/maps/search/"]:hover,
-body a[href^="https://maps.apple.com/"]:hover{
-  background:#D9E8FA !important;
-}
-</style>
-</head>
-<body>
-
-<header class="site-header">
-  <img src="apple-touch-icon.png?v=5" alt="은혜의말씀" width="36" height="36">
-  <div class="brand">은혜의말씀<span>WORDS OF GRACE</span></div>
-  <div class="header-actions">
-    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="테마 전환" aria-label="다크/라이트 모드 전환">🌓</button>
-    <a class="back-btn" href="/">← 홈으로</a>
-  </div>
-</header>
-
-<div class="hero">
-  <div class="hero-tag">PRIVACY POLICY</div>
-  <h1>개인정보처리방침</h1>
-  <div class="hero-meta">
-    <strong>시행일자: 2026년 4월 28일</strong><br>
-    본 방침은 관련 법령 또는 서비스 정책 변경 시 업데이트될 수 있습니다.
-  </div>
-</div>
-
-<div class="wrap">
-
-  <nav class="toc">
-    <div class="toc-title">— 목차 (TABLE OF CONTENTS)</div>
+  <details class="toc" open>
+    <summary class="toc-title">— 목차 (TABLE OF CONTENTS)</summary>
     <ol>
       <li><a href="#s1">제1조 · 총칙</a></li>
       <li><a href="#s2">제2조 · 수집하는 정보</a></li>
@@ -204,11 +20,11 @@ body a[href^="https://maps.apple.com/"]:hover{
       <li><a href="#s15">제15조 · 개인정보처리방침 변경</a></li>
       <li><a href="#s16">제16조 · 문의</a></li>
     </ol>
-  </nav>
+  </details>
 
   <!-- 1 -->
   <div class="sec" id="s1">
-    <div class="sec-head"><div class="sec-num">1</div><div class="sec-title">제1조 · 총칙</div></div>
+    <div class="sec-head"><div class="sec-num">1</div><h2 class="sec-title">제1조 · 총칙</h2></div>
     <div class="sec-body">
       <p><strong>Gomna Studio, Inc.</strong>(이하 "회사")는 이용자의 개인정보를 중요하게 생각하며, 관련 법령 및 국제 데이터 보호 기준을 준수합니다.</p>
       <p>본 개인정보처리방침은 회사가 수집하는 정보, 이용 목적, 보관 기간 및 보호 조치에 대해 설명합니다.</p>
@@ -217,7 +33,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 2 -->
   <div class="sec" id="s2">
-    <div class="sec-head"><div class="sec-num">2</div><div class="sec-title">제2조 · 수집하는 정보</div></div>
+    <div class="sec-head"><div class="sec-num">2</div><h2 class="sec-title">제2조 · 수집하는 정보</h2></div>
     <div class="sec-body">
       <p>회사는 다음과 같은 정보를 수집할 수 있습니다.</p>
 
@@ -243,7 +59,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 3 -->
   <div class="sec" id="s3">
-    <div class="sec-head"><div class="sec-num">3</div><div class="sec-title">제3조 · 수집 방법</div></div>
+    <div class="sec-head"><div class="sec-num">3</div><h2 class="sec-title">제3조 · 수집 방법</h2></div>
     <div class="sec-body">
       <p>회사는 다음 방법으로 정보를 수집합니다.</p>
       <ul class="ul">
@@ -256,7 +72,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 4 -->
   <div class="sec" id="s4">
-    <div class="sec-head"><div class="sec-num">4</div><div class="sec-title">제4조 · 이용 목적</div></div>
+    <div class="sec-head"><div class="sec-num">4</div><h2 class="sec-title">제4조 · 이용 목적</h2></div>
     <div class="sec-body">
       <p>회사는 수집한 정보를 다음 목적을 위해 사용합니다.</p>
       <ul class="ul">
@@ -271,7 +87,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 5 -->
   <div class="sec" id="s5">
-    <div class="sec-head"><div class="sec-num">5</div><div class="sec-title">제5조 · 개인정보 처리의 법적 근거</div></div>
+    <div class="sec-head"><div class="sec-num">5</div><h2 class="sec-title">제5조 · 개인정보 처리의 법적 근거</h2></div>
     <div class="sec-body">
       <p>회사는 다음과 같은 법적 근거에 따라 개인정보를 처리합니다.</p>
       <ul class="ul">
@@ -285,7 +101,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 6 -->
   <div class="sec" id="s6">
-    <div class="sec-head"><div class="sec-num">6</div><div class="sec-title">제6조 · 보유 및 이용 기간</div></div>
+    <div class="sec-head"><div class="sec-num">6</div><h2 class="sec-title">제6조 · 보유 및 이용 기간</h2></div>
     <div class="sec-body">
       <p>회사는 개인정보를 다음 기준에 따라 보관합니다.</p>
       <ul class="ul">
@@ -298,7 +114,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 7 -->
   <div class="sec" id="s7">
-    <div class="sec-head"><div class="sec-num">7</div><div class="sec-title">제7조 · 개인정보의 제3자 제공</div></div>
+    <div class="sec-head"><div class="sec-num">7</div><h2 class="sec-title">제7조 · 개인정보의 제3자 제공</h2></div>
     <div class="sec-body">
       <p>회사는 원칙적으로 개인정보를 제3자에게 제공하지 않습니다. 다만 다음의 경우 예외로 합니다.</p>
       <ul class="ul">
@@ -314,7 +130,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 8 -->
   <div class="sec" id="s8">
-    <div class="sec-head"><div class="sec-num">8</div><div class="sec-title">제8조 · 처리 위탁 및 제3자 서비스</div></div>
+    <div class="sec-head"><div class="sec-num">8</div><h2 class="sec-title">제8조 · 처리 위탁 및 제3자 서비스</h2></div>
     <div class="sec-body">
       <p>회사는 서비스 운영을 위해 다음과 같은 외부 서비스를 이용합니다.</p>
       <ul class="ul">
@@ -331,7 +147,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 9 -->
   <div class="sec" id="s9">
-    <div class="sec-head"><div class="sec-num">9</div><div class="sec-title">제9조 · 쿠키 및 추적 기술</div></div>
+    <div class="sec-head"><div class="sec-num">9</div><h2 class="sec-title">제9조 · 쿠키 및 추적 기술</h2></div>
     <div class="sec-body">
       <p>회사는 서비스 제공, 분석 및 광고를 위해 쿠키를 사용할 수 있습니다.</p>
       <ul class="ul">
@@ -344,7 +160,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 10 -->
   <div class="sec" id="s10">
-    <div class="sec-head"><div class="sec-num">10</div><div class="sec-title">제10조 · 맞춤형 광고</div></div>
+    <div class="sec-head"><div class="sec-num">10</div><h2 class="sec-title">제10조 · 맞춤형 광고</h2></div>
     <div class="sec-body">
       <p>회사는 제3자 광고 서비스를 통해 맞춤형 광고를 제공할 수 있습니다.</p>
       <p>이용자는 다음 방법을 통해 맞춤형 광고를 거부할 수 있습니다.</p>
@@ -357,7 +173,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 11 -->
   <div class="sec" id="s11">
-    <div class="sec-head"><div class="sec-num">11</div><div class="sec-title">제11조 · 데이터 보호 조치</div></div>
+    <div class="sec-head"><div class="sec-num">11</div><h2 class="sec-title">제11조 · 데이터 보호 조치</h2></div>
     <div class="sec-body">
       <p>회사는 개인정보 보호를 위해 다음과 같은 조치를 시행합니다.</p>
       <ul class="ul">
@@ -370,7 +186,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 12 -->
   <div class="sec" id="s12">
-    <div class="sec-head"><div class="sec-num">12</div><div class="sec-title">제12조 · 이용자의 권리 및 행사 방법</div></div>
+    <div class="sec-head"><div class="sec-num">12</div><h2 class="sec-title">제12조 · 이용자의 권리 및 행사 방법</h2></div>
     <div class="sec-body">
       <p>이용자는 언제든지 다음 권리를 행사할 수 있습니다.</p>
       <ul class="ul">
@@ -387,7 +203,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 13 -->
   <div class="sec" id="s13">
-    <div class="sec-head"><div class="sec-num">13</div><div class="sec-title">제13조 · 국외 이전</div></div>
+    <div class="sec-head"><div class="sec-num">13</div><h2 class="sec-title">제13조 · 국외 이전</h2></div>
     <div class="sec-body">
       <p>회사는 서비스 운영 과정에서 개인정보를 해외로 이전할 수 있습니다.</p>
       <p>이 경우 관련 법령에 따른 보호 조치를 적용합니다.</p>
@@ -396,7 +212,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 14 -->
   <div class="sec" id="s14">
-    <div class="sec-head"><div class="sec-num">14</div><div class="sec-title">제14조 · 아동의 개인정보</div></div>
+    <div class="sec-head"><div class="sec-num">14</div><h2 class="sec-title">제14조 · 아동의 개인정보</h2></div>
     <div class="sec-body">
       <p>회사는 <strong>만 13세 미만 아동</strong>의 개인정보를 의도적으로 수집하지 않습니다.</p>
       <p>만 13세 미만 아동의 정보가 확인될 경우 지체 없이 삭제합니다.</p>
@@ -405,7 +221,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 15 -->
   <div class="sec" id="s15">
-    <div class="sec-head"><div class="sec-num">15</div><div class="sec-title">제15조 · 개인정보처리방침 변경</div></div>
+    <div class="sec-head"><div class="sec-num">15</div><h2 class="sec-title">제15조 · 개인정보처리방침 변경</h2></div>
     <div class="sec-body">
       <p>회사는 본 방침을 변경할 수 있습니다.</p>
       <ul class="ul">
@@ -417,7 +233,7 @@ body a[href^="https://maps.apple.com/"]:hover{
 
   <!-- 16 -->
   <div class="sec" id="s16">
-    <div class="sec-head"><div class="sec-num">16</div><div class="sec-title">제16조 · 문의</div></div>
+    <div class="sec-head"><div class="sec-num">16</div><h2 class="sec-title">제16조 · 문의</h2></div>
     <div class="sec-body">
       <table class="tbl">
         <tr><td class="lb">운영 주체</td><td>Gomna Studio, Inc.</td></tr>
@@ -427,102 +243,10 @@ body a[href^="https://maps.apple.com/"]:hover{
   </div>
 
   <div class="contact">
-    <h3><img src="app-icon-180.png?v=20260916-mail-app-icon-v2" alt="" style="width:32px;height:32px;border-radius:8px;vertical-align:middle;margin-right:8px;">개인정보 관련 문의</h3>
-    <p style="font-size:13px; color:var(--muted); margin-bottom:10px;">서비스 이용 중 개인정보와 관련된 문의사항은 아래로 연락해 주시기 바랍니다.</p>
-    <p style="font-size:13px; color:var(--text); margin-bottom:10px;"><strong>Gomna Studio, Inc. (델라웨어 C-Corp, USA)</strong></p>
+    <h3>개인정보 관련 문의</h3>
+    <p>서비스 이용 중 개인정보와 관련된 문의사항은 아래로 연락해 주시기 바랍니다.</p>
+    <p><strong>Gomna Studio, Inc. (델라웨어 C-Corp, USA)</strong></p>
     <a href="mailto:ceo@gomnastudio.com">ceo@gomnastudio.com</a>
   </div>
 
-  <!-- ========== HQ Map ========== -->
-  <div style="
-  margin-top:32px;
-  padding:24px;
-  background:#FFFBF0;
-  border:1px solid rgba(184,134,11,0.2);
-  border-radius:16px;
-  color:#5D4516;
-  font-size:14px;
-  line-height:1.6;
-  box-sizing:border-box;
-  ">
-    <div style="text-align:center;margin-bottom:18px;">
-      <div style="font-size:11px;letter-spacing:2px;color:#B8860B;font-weight:600;margin-bottom:8px;">HEADQUARTERS</div>
-      <div style="font-size:16px;font-weight:700;color:#5D4516;margin-bottom:4px;">Gomna Studio, Inc.</div>
-      <div style="font-size:13px;color:#6B5028;">131 Continental Dr, Suite 305, Newark, Delaware, USA</div>
-    </div>
-    <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(184,134,11,0.2);margin-bottom:16px;line-height:0;">
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3068.3!2d-75.7452!3d39.6776!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTMxIENvbnRpbmVudGFsIERyLCBOZXdhcmssIERFLCBVU0E!5e0!3m2!1sko!2sus!4v1714000000000"
-        width="100%"
-        height="280"
-        style="border:0;display:block;"
-        allowfullscreen=""
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-        title="Gomna Studio HQ"></iframe>
-    </div>
-    <div style="display:flex;gap:10px;margin-bottom:16px;">
-      <a href="https://www.google.com/maps/search/?api=1&query=131+Continental+Dr+Suite+305+Newark+DE+19713" target="_blank" rel="noopener" style="
-      flex:1;
-      text-align:center;
-      padding:11px;
-      background:#B8860B;
-      color:#fff;
-      text-decoration:none;
-      border-radius:8px;
-      font-weight:600;
-      font-size:13px;
-      ">Google Maps에서 열기</a>
-      <a href="https://maps.apple.com/?q=Gomna+Studio&ll=39.6776,-75.7452&address=131+Continental+Dr+Suite+305,Newark,DE" target="_blank" rel="noopener" style="
-      flex:1;
-      text-align:center;
-      padding:11px;
-      background:#fff;
-      color:#5D4516;
-      text-decoration:none;
-      border:1px solid rgba(184,134,11,0.4);
-      border-radius:8px;
-      font-weight:600;
-      font-size:13px;
-      ">Apple Maps에서 열기</a>
-    </div>
-    <div style="text-align:center;font-size:11px;letter-spacing:1.5px;color:#8B6914;font-weight:500;padding-top:12px;border-top:1px solid rgba(184,134,11,0.15);">
-      DELAWARE C-CORP
-    </div>
-  </div>
-
-</div>
-
-<footer>
-  © 2026 은혜의말씀 (Words of Grace) · Gomna Studio, Inc. · All rights reserved.<br>
-  본 방침은 2026년 4월 28일부터 시행됩니다.
-</footer>
-
-<script>
-  // 페이지 로드 시 저장된 테마 적용
-  (function() {
-    const saved = localStorage.getItem('gomna_theme') || 'dark';
-    if (saved === 'light') {
-      document.documentElement.setAttribute('data-theme', 'light');
-      const btn = document.getElementById('themeBtn');
-      if (btn) btn.textContent = '☀️';
-    }
-  })();
-
-  function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme');
-    const btn = document.getElementById('themeBtn');
-    if (current === 'light') {
-      document.documentElement.removeAttribute('data-theme');
-      btn.textContent = '🌓';
-      localStorage.setItem('gomna_theme', 'dark');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-      btn.textContent = '☀️';
-      localStorage.setItem('gomna_theme', 'light');
-    }
-  }
-</script>
-
-</body>
-</html>
+  </div></main><footer class="site-footer"><div class="footer-top"><a class="wordmark" href="/studio/">gomna<span>studio</span></a><p>콘텐츠와 기술로 만드는<br>더 깊은 일상의 경험.</p><a class="text-link" href="/contact/">문의하기 <span aria-hidden="true">↗</span></a></div><div class="footer-bottom"><div><strong>Gomna Studio, Inc.</strong><address>131 Continental Dr, Suite 305<br>Newark, DE 19713, United States</address><a href="mailto:ceo@gomnastudio.com">ceo@gomnastudio.com</a></div><nav aria-label="정책 및 서비스"><a href="/privacy.html">개인정보처리방침</a><a href="/terms.html">이용약관</a><a href="https://gomnastudio.com/">앱으로 돌아가기 ↗</a></nav><small>© 2026 Gomna Studio, Inc.</small></div></footer></body></html>
