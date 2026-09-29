@@ -99,10 +99,19 @@ try{
   assert.equal(pills.length,7);
   for(let i=1;i<pills.length;i++){assert.ok(Math.abs(pills[i].left-pills[0].left)<1);assert.ok(pills[i].top>=pills[i-1].bottom);}
   for(const r of original)assert.ok(r.left>=r.cardLeft&&r.right<=r.cardRight,JSON.stringify({width,height,r}));
-  for(const button of await tp.locator('.gbl-original-page [data-ghd-story-chip],.gbl-original-page .gbl-discover-link').all()){
+  const footer=await tp.locator('.gbl-original-page .gbl-discover-link').evaluate(e=>{
+   const r=e.getBoundingClientRect(),p=e.closest('.gbl-original-page').getBoundingClientRect(),list=e.closest('.gbl-original-page').querySelector('.gomna-home-poster-pills').getBoundingClientRect();
+   return {top:r.top,bottom:r.bottom,inset:p.bottom-r.bottom,listBottom:list.bottom,visible:r.top>=p.top&&r.bottom<=p.bottom};
+  });
+  assert.ok(footer.visible,'discovery link is fully visible without scrolling');
+  assert.ok(Math.abs(footer.inset-7*96/25.4)<1,'discovery link is 7mm above the card content bottom');
+  assert.ok(footer.listBottom<=footer.top,'people list cannot overlap discovery link');
+  for(const button of await tp.locator('.gbl-original-page [data-ghd-story-chip]').all()){
    await button.scrollIntoViewIfNeeded();
-   const visible=await button.evaluate(e=>{const r=e.getBoundingClientRect(),p=e.closest('.gbl-original-page').getBoundingClientRect();return r.top>=p.top-1&&r.bottom<=p.bottom+1;});
-   assert.ok(visible,'every person button and the discovery link remain reachable');
+   const visible=await button.evaluate(e=>{const r=e.getBoundingClientRect(),p=e.closest('.gomna-home-poster-pills').getBoundingClientRect();return r.top>=p.top-1&&r.bottom<=p.bottom+1;});
+   assert.ok(visible,'every person remains reachable inside the list');
+   const bottom=await tp.locator('.gbl-original-page .gbl-discover-link').evaluate(e=>e.getBoundingClientRect().bottom);
+   assert.ok(Math.abs(bottom-footer.bottom)<1,'discovery link stays visible while the people list scrolls');
   }
   assert.equal(await tp.locator('.gbl-original-page .gomna-home-poster-foot-copy').count(),0);
   assert.ok(!(await tp.locator('.gbl-original-page').textContent()).includes('그들의 이야기는'));
