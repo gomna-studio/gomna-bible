@@ -1414,7 +1414,7 @@
   }
   function originalPeopleScrollAt(x, y){
     var card=root&&root.querySelector('.gomna-home-card.is-active[data-card="2"]:not(.is-open):not(.gbl-discover-open)');
-    var page=card&&card.querySelector('.gbl-original-page');
+    var page=card&&card.querySelector('.gbl-original-page:not([hidden]) .gomna-home-poster-pills');
     if(!page || page.hidden || page.scrollHeight<=page.clientHeight+1)return null;
     var inner=card.querySelector('.gomna-home-card-inner');
     if(inner && (parseFloat(inner.getAttribute('data-ghd-pinch')||'1')||1)>1.001)return null;
