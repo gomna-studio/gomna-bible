@@ -39,8 +39,13 @@
     const status = document.querySelector('.copy-status');
     try {
       if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText('ceo@gomnastudio.com');
-      } else {
+        try {
+          await navigator.clipboard.writeText('ceo@gomnastudio.com');
+          status.textContent = '이메일 주소를 복사했습니다.';
+          return;
+        } catch (_) { /* Try the compatible copy path when clipboard permission is unavailable. */ }
+      }
+      {
         const field = document.createElement('textarea');
         field.value = 'ceo@gomnastudio.com';
         field.setAttribute('readonly', '');
