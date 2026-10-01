@@ -34,6 +34,8 @@ a { color: var(--topic-blue); text-underline-offset: 3px; }
   text-decoration: none;
 }
 .topic-brand img { width: 48px; height: 48px; display: block; border-radius: 22.5%; object-fit: contain; }
+.topic-brand:focus { outline: none; }
+.topic-brand:focus-visible .topic-brand-copy strong { text-decoration: underline; text-underline-offset: 3px; }
 .topic-brand-copy { display: flex; flex-direction: column; line-height: 1.1; }
 .topic-brand-copy strong { color: var(--topic-ink); font-size: 1.05rem; font-weight: 750; letter-spacing: -.02em; }
 .topic-brand-copy em { margin-top: .25rem; color: #73767c; font-family: Georgia, serif; font-size: .78rem; font-weight: 400; letter-spacing: .02em; }
