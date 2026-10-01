@@ -4474,7 +4474,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20260925-account-white-preview-v5">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-01-analytics-v68" data-release="2026-10-01-analytics-v68" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-01-topic-listen-ui-v69" data-release="2026-10-01-topic-listen-ui-v69" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20260927-6" defer></script>
 </head>
 <body data-gomna-page="reader">
@@ -20223,9 +20223,11 @@ function loadAds() {
 #gomnaTopicListenNext[hidden]{display:none!important}
 #gomnaTopicListenNext p{margin:0 30px 12px 0;font-size:15px;color:#000;line-height:1.5}
 #gomnaTopicListenNext button,#gomnaTopicListenNext a{font:inherit;font-size:14px;min-height:44px;box-sizing:border-box}
-#gomnaTopicListenNext .topic-listen-actions{display:flex;gap:8px}
-#gomnaTopicListenNext .topic-listen-actions button{flex:1;padding:10px 8px;border:1px solid #294f75;border-radius:8px;background:#fff;color:#000}
-#gomnaTopicListenNext #gomnaTopicContinue{background:#294f75;color:#fff}
+#gomnaTopicListenNext .topic-listen-actions{display:flex;gap:0;padding:3px;border-radius:999px;background:#000}
+#gomnaTopicListenNext .topic-listen-actions button{flex:1;min-width:0;padding:10px 8px;border:0;border-radius:999px;background:#000;color:#fff;font-weight:700}
+#gomnaTopicListenNext #gomnaTopicContinue{background:#fff;color:#000}
+#gomnaTopicListenNext .topic-listen-actions button[hidden]{display:none!important}
+#gomnaTopicListenNext .topic-listen-actions button:focus-visible{outline:2px solid #777;outline-offset:-4px}
 #gomnaTopicListenNext .topic-listen-close{position:absolute;right:6px;top:3px;width:44px;border:0;background:transparent;color:#000;font-size:24px}
 #gomnaTopicListenNext a{display:flex;align-items:center;justify-content:center;color:#000;margin-top:6px;text-decoration:underline}
 </style>
@@ -20281,7 +20283,7 @@ function loadAds() {
     if(detail.reason!=='queue_completed'||!samePlace(item)||detail.audioId!==item.audioId||!item.media||!item.media.ended||item.media.error){hide();return;}
     if(document.querySelector('#settingsPopup.show, .gomna-acc-overlay:not([hidden]), #verseToolbarMoreOverlay.active, #verseReadMoreOverlay.active, [role="dialog"][aria-modal="true"][aria-hidden="false"]:not([hidden])')){hide();return;}
     createCard();
-    card.querySelector('p').textContent=item.book+' '+item.chapter+(item.book==='시편'?'편 ':'장 ')+item.verse+'절을 다 들었습니다';
+    card.querySelector('p').textContent=item.book+' '+item.chapter+(item.book==='시편'?'편 ':'장 ')+item.verse+'절 입니다';
     var next=card.querySelector('#gomnaTopicContinue');
     next.hidden=item.verse>=currentVerseCount&&currentChapter>=currentBook.chapters;
     next.textContent=item.verse<currentVerseCount?(item.verse+1)+'절부터 이어 듣기':(item.chapter+1)+(item.book==='시편'?'편':'장')+' 이어 듣기';
