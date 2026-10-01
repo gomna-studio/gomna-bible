@@ -58,7 +58,8 @@
 <meta charset="UTF-8">
 <link rel="preload" as="style" href="js/gomna-home-feed.css?v=20260925-home-login-icons-v3">
 <link rel="preload" as="style" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
-<script defer src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
+<script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
+<script src="/js/gomna-ga4.js?v=20261001-analytics-v1"></script>
 <script>
 (function () {
   try {
@@ -1867,7 +1868,6 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
 (function(){
     'use strict';
 
-    const GA4_ID = 'G-1K6DBVER5W';
     const VIEW_HOME_KEY = 'gomna:view_home:sent';
 
     function getCookieChoice() {
@@ -1890,28 +1890,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
     }
 
     function loadGa4() {
-        if (isInternalAnalytics()) return;
-        if (window.__gomnaHomeGa4Loaded) return;
-        window.__gomnaHomeGa4Loaded = true;
-        window.dataLayer = window.dataLayer || [];
-        window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
-
-        const existingGa4Script = document.getElementById('gomna-ga4-script') ||
-            document.querySelector('script[src*="googletagmanager.com/gtag/js?id=' + GA4_ID + '"]');
-
-        if (!existingGa4Script) {
-            const script = document.createElement('script');
-            script.id = 'gomna-ga4-script';
-            script.async = true;
-            script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA4_ID);
-            document.head.appendChild(script);
-        }
-
-        if (!window.__gomnaHomeGa4Configured) {
-            window.__gomnaHomeGa4Configured = true;
-            window.gtag('js', new Date());
-            window.gtag('config', GA4_ID);
-        }
+        return !!(window.GomnaGa4 && window.GomnaGa4.start());
     }
 
     function trackViewHomeOnce() {
@@ -1978,7 +1957,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 </style>
 <link rel="stylesheet" href="js/gomna-home-legal-footer-v1.css?v=20260917-v1">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20260925-account-white-preview-v5">
-<script src="/js/gomna-pwa-recovery.js?v=2026-09-27-nav-guide-v67" data-release="2026-09-27-nav-guide-v67" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-01-analytics-v68" data-release="2026-10-01-analytics-v68" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20260927-6" defer></script>
 <style id="gomna-home-card-no-selection">
 /* Home cards are touch controls: prevent iOS text handles/callouts on a hold. */

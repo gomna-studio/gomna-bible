@@ -29,6 +29,7 @@
   }
 
   function track(eventName, params) {
+    if (window.GomnaGa4) return window.GomnaGa4.track(eventName, params || {});
     if (window.GomnaAnalyticsControl && window.GomnaAnalyticsControl.isInternal()) return;
     if (!hasAnalyticsConsent()) return;
     if (typeof window.gtag !== 'function') return;
@@ -95,4 +96,28 @@
       track('click_premium', { source: source || 'unknown' });
     }
   };
+
+  // Observe successful playback without changing the engine, queues or audio files.
+  var lastPlayed = '';
+  window.addEventListener('audio:end', function () { lastPlayed = ''; });
+  window.addEventListener('audio:start', function (event) {
+    var detail = event.detail || {};
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    var state = engine && engine._state;
+    var audio = state && state.currentAudio;
+    if (!audio || !detail.entry) return;
+    var audioId = detail.audioId;
+    var epoch = state.queueEpoch;
+    var key = epoch + ':' + audioId;
+    function onPlaying() {
+      audio.removeEventListener('playing', onPlaying);
+      if (state.currentAudio !== audio || state.currentAudioId !== audioId || state.queueEpoch !== epoch) return;
+      if (lastPlayed === key) return;
+      var entry = detail.entry;
+      var params = verseParams(entry.bookId || entry.book, entry.chapter, entry.verse || 1, entry.testament);
+      params.audio_type = entry.type || 'unknown';
+      if (track('audio_play', params)) lastPlayed = key;
+    }
+    audio.addEventListener('playing', onPlaying);
+  });
 })();

@@ -2,7 +2,6 @@
 (function () {
   'use strict';
 
-  var GA4_ID = 'G-1K6DBVER5W';
   var POSTHOG_KEY = 'phc_A2jrYTmvvhXuobAgHXfKmiApwrnV8oS4ySqwmgJGXvuG';
   var banner = document.getElementById('topic-cookie-banner');
 
@@ -39,15 +38,8 @@
   function loadGa4() {
     if (window.__gomnaEntryGa4Loaded || isInternal()) return;
     window.__gomnaEntryGa4Loaded = true;
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
-    var script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA4_ID);
-    document.head.appendChild(script);
-    window.gtag('js', new Date());
-    window.gtag('config', GA4_ID);
-    window.gtag('event', 'view_topic_page', { topic_slug: topicSlug() });
+    if (!window.GomnaGa4 || !window.GomnaGa4.start()) return;
+    window.GomnaGa4.track('view_topic_page', { topic_slug: topicSlug() });
   }
 
   function loadPostHog() {
