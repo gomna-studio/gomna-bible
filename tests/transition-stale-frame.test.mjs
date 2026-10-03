@@ -5,13 +5,17 @@ import vm from 'node:vm';
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
 const homeCss = read('js/gomna-home-feed.css');
+const homeJs = read('js/gomna-home-feed.js');
 const indexHtml = read('index.html');
 const readerHtml = read('reader.html');
 const meditationHtml = read('meditation.html');
 const serviceWorker = read('sw.js');
 const guardSource = read('js/gomna-screen-transition.js');
 
-assert.match(homeCss, /\.gomna-home-card\.is-behind\s*\{[^}]*visibility:hidden;[^}]*opacity:0;/s);
+assert.match(homeCss, /\.gomna-home-card\.is-past\s*\{[^}]*visibility:hidden;[^}]*opacity:0;/s);
+assert.match(homeJs, /classList\.toggle\('is-past', i<activeIndex\)/);
+assert.match(homeJs, /classList\.toggle\('is-future', i>activeIndex\)/);
+assert.match(indexHtml, /gomna-home-feed\.js\?v=20261003-stale-frame-v1/);
 assert.doesNotMatch(indexHtml, /(?:^|,)button:active(?:\{|:)/m);
 assert.doesNotMatch(readerHtml, /(?:^|,)button:active(?:\{|:)/m);
 
@@ -23,6 +27,7 @@ for (const html of [indexHtml, readerHtml, meditationHtml]) {
 assert.match(serviceWorker, /2026-10-03-transition-stale-frame-v71/);
 assert.match(serviceWorker, /gomna-screen-transition\.js\?v=20261003-stale-frame-v1/);
 assert.match(serviceWorker, /gomna-home-feed\.css\?v=20261003-stale-frame-v1/);
+assert.match(serviceWorker, /gomna-home-feed\.js\?v=20261003-stale-frame-v1/);
 
 const classes = new Set();
 let clickHandler = null;

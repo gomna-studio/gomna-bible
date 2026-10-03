@@ -309,7 +309,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
 .gomna-home-card[data-card="2"].is-open .gomna-home-leaf-scroll *{
   touch-action:pan-y pinch-zoom;
 }
-.gomna-home-card.is-behind{
+.gomna-home-card.is-past{
   visibility:hidden;
   opacity:0;
   pointer-events:none;

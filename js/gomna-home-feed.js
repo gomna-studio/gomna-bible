@@ -1762,6 +1762,8 @@
       card.style.transition=dur;
       card.classList.toggle('is-active', active);
       card.classList.toggle('is-behind', !active);
+      card.classList.toggle('is-past', i<activeIndex);
+      card.classList.toggle('is-future', i>activeIndex);
       card.setAttribute('aria-hidden', active?'false':'true');
       if(active)card.setAttribute('tabindex','0');
       else card.removeAttribute('tabindex');

@@ -41,7 +41,7 @@ const STATIC_URLS = [
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
   '/js/gomna-account-white.css?v=20260925-account-white-preview-v5',
-  '/js/gomna-home-feed.js?v=2026-09-27-nav-guide-v67',
+  '/js/gomna-home-feed.js?v=20261003-stale-frame-v1',
   '/js/gomna-home-feed.css?v=20261003-stale-frame-v1',
   '/gomna_category_feature.js',
   '/gomna_category_feature.js?v=20260927-reader-guide-width-v1',
