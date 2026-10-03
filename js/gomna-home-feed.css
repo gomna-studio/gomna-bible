@@ -283,7 +283,11 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   -webkit-tap-highlight-color:transparent;
   background:#1b2433;
 }
-.gomna-home-card.is-active{pointer-events:auto}
+.gomna-home-card.is-active{
+  visibility:visible;
+  opacity:1;
+  pointer-events:auto;
+}
 .gomna-home-card.is-active:not(.is-open),
 .gomna-home-card.is-active:not(.is-open) .gomna-home-card-inner,
 .gomna-home-card.is-active:not(.is-open) .gomna-home-card-inner *{
@@ -305,8 +309,8 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
 .gomna-home-card[data-card="2"].is-open .gomna-home-leaf-scroll *{
   touch-action:pan-y pinch-zoom;
 }
-.gomna-home-card.is-behind .gomna-home-card-inner,
-.gomna-home-card.is-behind .gomna-home-rail{
+.gomna-home-card.is-past{
+  visibility:hidden;
   opacity:0;
   pointer-events:none;
 }
