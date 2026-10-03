@@ -11,11 +11,11 @@
     style.id = 'gomna-route-transition-css';
     style.textContent =
       'html.gomna-route-leaving,html.gomna-route-leaving body{' +
-        'background:#FCFAF6!important;' +
+        'pointer-events:none;' +
       '}' +
       'html.gomna-route-leaving::after{' +
         'content:"";position:fixed;inset:0;z-index:2147483646;' +
-        'background:#FCFAF6;pointer-events:auto;' +
+        'background:transparent;pointer-events:auto;' +
       '}';
     (document.head || root).appendChild(style);
   }
