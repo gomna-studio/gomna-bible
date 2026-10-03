@@ -1,6 +1,73 @@
 <!DOCTYPE html>
 <html lang="ko" class="reader-hide-chrome">
 <head>
+<meta charset="UTF-8">
+<style id="reader-panel-entry-style">
+/* Hide the default Reader chrome before the requested panel is initialized. */
+html.reader-panel-entry-pending body{visibility:hidden!important}
+html.reader-panel-entry-pending::after{content:'';position:fixed;inset:0;display:grid;place-items:center;background:#FCFAF6;color:#3D2817;font:14px sans-serif;z-index:2147483647}
+html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다. 새로고침해 주세요.'}
+</style>
+<script id="reader-panel-entry-boot">
+(function () {
+  var p = new URLSearchParams(location.search);
+  if (p.get('source') === 'home-bible-picker') return;
+  /* Use the URL destination, never the default Reader shell. */
+  var target = p.get('book') ? (parseInt(p.get('chapter'), 10) >= 1 ? 'verseView' : 'chapterView') :
+    p.has('easy') ? 'easyView' : p.has('favorites') ? 'favView' :
+    ((p.get('q') || '').trim() || p.get('focus') === 'search') ? 'searchView' : 'verseView';
+  var root = document.documentElement;
+  var navigationReady = false, stableFrames = 0, previousLayout = '', finished = false;
+  root.classList.add('reader-panel-entry-pending');
+  window.__gomnaRevealPanelEntry = function () {
+    navigationReady = true;
+    return finished;
+  };
+  function ready() {
+    var view = document.getElementById(target);
+    if (!navigationReady || !view || !view.classList.contains('active') || !view.childElementCount) return false;
+    if (root.classList.contains('scripture-entry-pending') || root.classList.contains('search-entry-pending') ||
+        root.classList.contains('gomna-home-commentary-loading') || window.__gomnaScriptureLayoutPending) return false;
+    if (target === 'verseView' && !view.querySelector('#verseList .verse-item')) return false;
+    var src = p.get('source') || '';
+    if (p.get('commentary') === '1' && /^(home-card-commentary|home-main-commentary|meditation-commentary)$/.test(src)) {
+      var popup = document.getElementById('commentaryPopup');
+      if (!popup || !popup.classList.contains('show') || !popup.querySelector('.commentary-tabs')) return false;
+    }
+    return view;
+  }
+  function layoutSignature(view) {
+    var nodes = [view, document.getElementById('verseReadHeader'), document.getElementById('opt4BottomBar'),
+      document.getElementById('scriptureDock'), view.querySelector('.verse-item--entry-focus')];
+    return nodes.map(function (node) {
+      if (!node) return '';
+      var r = node.getBoundingClientRect();
+      return [r.x,r.y,r.width,r.height,node.textContent.length].join(',');
+    }).join('|') + '|' + window.scrollY;
+  }
+  function settle() {
+    if (finished) return;
+    var view = ready();
+    if (view) {
+      var signature = layoutSignature(view);
+      stableFrames = signature === previousLayout ? stableFrames + 1 : 0;
+      previousLayout = signature;
+      if (stableFrames >= 3) {
+        finished = true;
+        root.classList.remove('reader-panel-entry-pending', 'reader-panel-entry-failed');
+        return;
+      }
+    } else { stableFrames = 0; previousLayout = ''; }
+    if (root.classList.contains('reader-panel-entry-failed')) setTimeout(settle, 250);
+    else requestAnimationFrame(settle);
+  }
+  requestAnimationFrame(settle);
+  /* Failure must not expose the wrong screen or leave an unexplained blank page. */
+  setTimeout(function () {
+    if (root.classList.contains('reader-panel-entry-pending')) root.classList.add('reader-panel-entry-failed');
+  }, 15000);
+})();
+</script>
 <script id="gomna-language-hard-off">
 (function () {
   'use strict';
@@ -42,8 +109,7 @@
 })();
 </script>
 
-<meta charset="UTF-8">
-<script src="/js/gomna-screen-transition.js?v=20261003-stale-frame-v1"></script>
+<script src="/js/gomna-screen-transition.js?v=20261003-clean-entry-v3"></script>
 <script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script src="/js/gomna-ga4.js?v=20261001-analytics-v1"></script>
 <script>
@@ -4475,7 +4541,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20260925-account-white-preview-v5">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-03-transition-stale-frame-v71" data-release="2026-10-03-transition-stale-frame-v71" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-03-reader-clean-entry-v72" data-release="2026-10-03-reader-clean-entry-v72" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20260927-6" defer></script>
 </head>
 <body data-gomna-page="reader">
@@ -6061,6 +6127,9 @@ function runDeferredUrlNavigation() {
         }
       }
       syncReaderNavActive();
+      if (typeof window.__gomnaRevealPanelEntry === 'function') {
+        window.__gomnaRevealPanelEntry();
+      }
     }
     if (typeof requestAnimationFrame === 'function') {
       requestAnimationFrame(finishRun);
@@ -19859,6 +19928,7 @@ function loadAds() {
   /* 모바일 본문 이동기는 scripture-entry-pending 해제 뒤 두 번째 프레임에서 켜진다.
      진입 가림을 먼저 풀고 이동기 활성화가 끝난 뒤 중앙 배치를 다시 실행한다. */
   function centerScriptureEntryAfterReveal(firstItem,lastItem){
+    window.__gomnaScriptureLayoutPending=true;
     function placeAfterGestureReady(){
       centerScriptureEntryRangeInViewport(firstItem,lastItem);
     }
@@ -19866,12 +19936,14 @@ function loadAds() {
     placeAfterGestureReady();
     if(typeof requestAnimationFrame==='function'){
       requestAnimationFrame(function(){
-        requestAnimationFrame(placeAfterGestureReady);
+        requestAnimationFrame(function(){
+          placeAfterGestureReady();
+          window.__gomnaScriptureLayoutPending=false;
+        });
       });
     }else{
-      setTimeout(placeAfterGestureReady,0);
+      setTimeout(function(){placeAfterGestureReady();window.__gomnaScriptureLayoutPending=false;},0);
     }
-    setTimeout(placeAfterGestureReady,220);
   }
 
   function finishScriptureEntryReveal(firstItem,lastItem){
