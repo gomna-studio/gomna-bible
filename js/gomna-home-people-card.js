@@ -9,7 +9,6 @@
     var name = card.querySelector('[data-home-person-name]');
     var title = card.querySelector('[data-home-person-title]');
     var intro = card.querySelector('[data-home-person-intro]');
-    var more = card.querySelector('[data-home-person-more]');
     var status = card.querySelector('[data-home-person-status]');
     var items = window.GOMNA_BIBLE_LIBRARY_DATA || [];
     select.replaceChildren();
@@ -51,7 +50,6 @@
         name.textContent = item.name; trigger.textContent=item.name;
         title.textContent = item.title;
         intro.textContent = item.intro;
-        more.textContent = item.name + ' 더 알아보기 →';
         card.querySelectorAll('[data-home-person-link]').forEach(function (link) {
           link.setAttribute('data-gbl-id', id);
           link.setAttribute('aria-label', item.name + ' 인물 소개 보기');
