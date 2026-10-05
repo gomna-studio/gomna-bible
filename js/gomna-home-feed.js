@@ -37,7 +37,7 @@
     moses:'assets/home/stories/v1-story-moses.webp?v=20261005-home-approved-clean-v74',
     david:'assets/home/stories/v1-story-david.webp?v=20261005-home-approved-clean-v74',
     joseph:'assets/home/stories/v1-story-joseph.webp?v=20261005-home-approved-clean-v74',
-    lot:'assets/home/stories/v1-story-lot.webp?v=20261005-home-approved-clean-v74',
+    lot:'assets/home/stories/v1-story-lot-ready-v75.webp?v=20261005-home-approved-clean-v75',
     esther:'assets/home/stories/v1-story-esther.webp?v=20261005-home-approved-clean-v74',
     paul:'assets/home/stories/v1-story-paul.webp?v=20261005-home-approved-clean-v74'
   };
