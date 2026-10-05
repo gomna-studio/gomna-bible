@@ -33,7 +33,7 @@ const STATIC_URLS = [
   '/index.html',
   '/reader.html',
   '/meditation.html',
-  '/js/gomna-pwa-recovery.js?v=2026-10-05-home-approved-clean-v74',
+  '/js/gomna-pwa-recovery.js?v=2026-10-05-home-approved-clean-v75',
   '/translate_feature.js?v=20260724-first-visit-detect-v2',
   '/js/gomna-ui-i18n.js?v=20260729-resume-i18n-books',
   '/analytics-control.js?v=20260826-internal-exclusion-v1',
