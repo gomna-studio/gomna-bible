@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-10-05-home-approved-clean-v74';
+const CACHE_VERSION = '2026-10-05-home-approved-clean-v75';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const IMAGE_CACHE = 'gomna-images-v1';
@@ -43,7 +43,7 @@ const STATIC_URLS = [
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
   '/js/gomna-account-white.css?v=20260925-account-white-preview-v5',
-  '/js/gomna-home-feed.js?v=20261005-home-approved-clean-v74',
+  '/js/gomna-home-feed.js?v=20261005-home-approved-clean-v75',
   '/js/gomna-home-feed.css?v=20261005-home-approved-clean-v74',
   '/gomna_category_feature.js',
   '/gomna_category_feature.js?v=20260927-reader-guide-width-v1',
