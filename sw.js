@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-10-06-person-picker-size-v79';
+const CACHE_VERSION = '2026-10-06-mary-default-v80';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const IMAGE_CACHE = 'gomna-images-v1';
@@ -63,10 +63,10 @@ const STATIC_URLS = [
   '/assets/home/card-meditation-life-20261005.webp?v=20261005-background-v1',
   '/assets/home/card-people-journey-20261005.webp?v=20261005-home-approved-clean-v74',
   '/js/gomna-home-people-card.css?v=20261006-person-picker-size-v79',
-  '/js/gomna-home-people-card.js?v=20261006-remove-person-more-v77',
+  '/js/gomna-home-people-card.js?v=20261006-mary-default-v80',
   '/js/gomna-bible-library.js?v=20261005-home-approved-clean-v74',
   '/js/gomna-bible-library-data.js?v=20261005-home-approved-clean-v74',
-  '/assets/home/people/v1/david.webp',
+  '/assets/home/people/v1/mary.webp',
   '/favicon.ico',
   '/favicon-16x16.png',
   '/favicon-32x32.png',

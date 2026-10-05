@@ -16,11 +16,11 @@
       var option = document.createElement('option');
       option.value = item.id;
       option.textContent = item.name;
-      option.selected = item.id === 'david';
+      option.selected = item.id === 'mary';
       select.appendChild(option);
     });
     var picker=select.parentElement;
-    var trigger=document.createElement('button');trigger.type='button';trigger.className='home-person-picker-trigger';trigger.textContent='다윗';trigger.setAttribute('aria-expanded','false');trigger.setAttribute('aria-controls','homePersonChoices');
+    var trigger=document.createElement('button');trigger.type='button';trigger.className='home-person-picker-trigger';trigger.textContent='마리아';trigger.setAttribute('aria-expanded','false');trigger.setAttribute('aria-controls','homePersonChoices');
     function setChoicesOpen(open){choices.hidden=!open;card.classList.toggle('home-person-picker-open',open);trigger.setAttribute('aria-expanded',String(open));}
     var choices=document.createElement('div');choices.id='homePersonChoices';choices.className='home-person-choices';setChoicesOpen(false);
     items.filter(function(x){return x.kind==='people';}).forEach(function(item){var b=document.createElement('button');b.type='button';b.textContent=item.name;b.dataset.personChoice=item.id;b.addEventListener('click',function(e){e.stopPropagation();setChoicesOpen(false);trigger.setAttribute('aria-expanded','false');select.value=item.id;select.dispatchEvent(new Event('change',{bubbles:true}));trigger.focus();});choices.appendChild(b);});
@@ -28,7 +28,7 @@
     trigger.addEventListener('click',function(e){e.stopPropagation();var cardRect=card.getBoundingClientRect(),buttonRect=trigger.getBoundingClientRect();choices.style.top=(buttonRect.bottom-cardRect.top)+'px';choices.style.maxHeight=Math.max(0,cardRect.bottom-buttonRect.bottom)+'px';setChoicesOpen(choices.hidden);trigger.setAttribute('aria-expanded',String(!choices.hidden));if(!choices.hidden){var active=choices.querySelector('[data-person-choice="'+select.value+'"]');if(active){active.focus({preventScroll:true});choices.scrollTop=Math.max(0,active.offsetTop-(choices.clientHeight-active.offsetHeight)/2);}}});
     card.addEventListener('keydown',function(e){if(e.key==='Escape'){setChoicesOpen(false);trigger.setAttribute('aria-expanded','false');trigger.focus();}});
     document.addEventListener('click',function(e){if(!picker.contains(e.target)&&!choices.contains(e.target)){setChoicesOpen(false);trigger.setAttribute('aria-expanded','false');}});
-    var current = 'david', request = 0;
+    var current = 'mary', request = 0;
     function show(id) {
       var item = items.find(function (x) { return x.kind === 'people' && x.id === id; });
       if (!item) return;
