@@ -5,9 +5,11 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-10-03-reader-clean-entry-v72';
+const CACHE_VERSION = '2026-10-05-home-approved-clean-v74';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
+const IMAGE_CACHE = 'gomna-images-v1';
+const BIBLE_CACHE = 'gomna-bible-text-v1';
 const DATA_CACHE = 'gomna-data-v1';
 const AUDIO_MANIFEST_CACHE = 'gomna-audio-manifest-v1';
 const NETWORK_FIRST_TIMEOUT_MS = 4000;
@@ -31,7 +33,7 @@ const STATIC_URLS = [
   '/index.html',
   '/reader.html',
   '/meditation.html',
-  '/js/gomna-pwa-recovery.js?v=2026-10-03-reader-clean-entry-v72',
+  '/js/gomna-pwa-recovery.js?v=2026-10-05-home-approved-clean-v74',
   '/translate_feature.js?v=20260724-first-visit-detect-v2',
   '/js/gomna-ui-i18n.js?v=20260729-resume-i18n-books',
   '/analytics-control.js?v=20260826-internal-exclusion-v1',
@@ -41,8 +43,8 @@ const STATIC_URLS = [
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
   '/js/gomna-account-white.css?v=20260925-account-white-preview-v5',
-  '/js/gomna-home-feed.js?v=20261003-stale-frame-v1',
-  '/js/gomna-home-feed.css?v=20261003-stale-frame-v1',
+  '/js/gomna-home-feed.js?v=20261005-home-approved-clean-v74',
+  '/js/gomna-home-feed.css?v=20261005-home-approved-clean-v74',
   '/gomna_category_feature.js',
   '/gomna_category_feature.js?v=20260927-reader-guide-width-v1',
   '/js/gomna-nav-magnifier.js?v=20260927-6',
@@ -58,8 +60,13 @@ const STATIC_URLS = [
   '/manifest.json',
   '/favicon.png',
   '/logo-home.png',
-  '/assets/home/card-meditation-life.png?v=20260910-home-photo-v1',
-  '/assets/home/card-bible-stories-people.png?v=20260910-home-photo-v1',
+  '/assets/home/card-meditation-life-20261005.webp?v=20261005-background-v1',
+  '/assets/home/card-people-journey-20261005.webp?v=20261005-home-approved-clean-v74',
+  '/js/gomna-home-people-card.css?v=20261005-home-approved-clean-v74',
+  '/js/gomna-home-people-card.js?v=20261005-home-approved-clean-v74',
+  '/js/gomna-bible-library.js?v=20261005-home-approved-clean-v74',
+  '/js/gomna-bible-library-data.js?v=20261005-home-approved-clean-v74',
+  '/assets/home/people/v1/david.webp',
   '/favicon.ico',
   '/favicon-16x16.png',
   '/favicon-32x32.png',
@@ -231,6 +238,18 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     migrateAudioManifestFromStaticCaches()
       .catch(err => console.warn('[sw] audio manifest migrate failed', err))
+      .then(async () => {
+        const images=await caches.open(IMAGE_CACHE), bible=await caches.open(BIBLE_CACHE);
+        for(const name of await caches.keys()) {
+          if(!name.startsWith(`${CACHE_PREFIX}static-`))continue;
+          const source=await caches.open(name);
+          for(const req of await source.keys()) {
+            const url=new URL(req.url);
+            const dest=isLargeBibleDataScript(url)?bible:/\.(png|webp|jpg|jpeg|svg|ico)$/i.test(url.pathname)?images:null;
+            if(dest && !(await dest.match(req))) { const hit=await source.match(req); if(hit && hit.ok)await dest.put(req,hit); }
+          }
+        }
+      })
       .then(() => caches.keys())
       .then(names => {
         return Promise.all(
@@ -333,7 +352,7 @@ function networkFirstWithoutTimeout(req, fallbackUrl) {
 
 // 대형 성경 데이터: 캐시가 있으면 즉시 제공 후 백그라운드 갱신, 없으면 네트워크를 timeout 없이 대기
 function bibleDataStaleWhileRevalidate(req) {
-  return caches.open(STATIC_CACHE).then(cache =>
+  return caches.open(BIBLE_CACHE).then(cache =>
     cache.match(req).then(hit => {
       const fetching = fetch(req).then(resp => {
         if (resp.ok && resp.type === 'basic') {
@@ -406,7 +425,7 @@ self.addEventListener('fetch', event => {
       return fetch(req).then(resp => {
         if (resp.ok && resp.type === 'basic') {
           const clone = resp.clone();
-          caches.open(STATIC_CACHE).then(c => c.put(req, clone));
+          caches.open(/\.(png|webp|jpg|jpeg|svg|ico)$/i.test(url.pathname) ? IMAGE_CACHE : STATIC_CACHE).then(c => c.put(req, clone));
         }
         return resp;
       });

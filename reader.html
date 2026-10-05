@@ -4527,7 +4527,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
 <script src="js/gomna-bible-stair-picker.js?v=20260917-old-card-removed-v8"></script>
 <link rel="stylesheet" href="js/gomna-easy-find.css?v=20260918-topic-links-v1">
-<script src="js/gomna-easy-find.js?v=20260918-topic-links-v1"></script>
+<script src="js/gomna-easy-find.js?v=20261005-home-approved-clean-v74"></script>
 <script src="/js/gomna-commentary-multilang-policy.js?v=20260725-multilang-structured-refs-v1"></script>
 <script>
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
@@ -4541,7 +4541,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20260925-account-white-preview-v5">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-03-reader-clean-entry-v72" data-release="2026-10-03-reader-clean-entry-v72" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-05-home-approved-clean-v74" data-release="2026-10-05-home-approved-clean-v74" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20260927-6" defer></script>
 </head>
 <body data-gomna-page="reader">
@@ -6144,7 +6144,41 @@ function runDeferredUrlNavigation() {
   }
 }
 
+var _gomnaEasyEntryEarly = false;
+window.__gomnaBibleDataReady = false;
+if (typeof oldTestamentData === 'undefined') window.oldTestamentData = null;
+if (typeof newTestamentData === 'undefined') window.newTestamentData = null;
+var _gomnaPendingEasyAction = null;
 document.addEventListener('DOMContentLoaded', function() {
+  var p = new URLSearchParams(location.search);
+  if (p.has('easy') && !p.get('book')) {
+    try {
+      renderEasyFind();
+      switchTab('easy');
+      syncScriptureDockActive('find');
+      window.__gomnaRevealPanelEntry();
+      _gomnaEasyEntryEarly = true;
+      var view = document.getElementById('easyView');
+      // Keep typing responsive; replay only the latest requested action after data is ready.
+      function deferAction(e) {
+        if (window.__gomnaBibleDataReady) return;
+        if (e.type === 'keydown' && e.key !== 'Enter') return;
+        var target = e.target.closest('button,a,input');
+        if (!target) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        var note = document.getElementById('easyEntryDataStatus');
+        if (!note) { note=document.createElement('div'); note.id='easyEntryDataStatus'; note.setAttribute('role','status'); view.appendChild(note); }
+        note.textContent = _gomnaOldTestamentLoadState === 'error' || _gomnaNewTestamentLoadState === 'error' ? '본문을 불러오지 못했습니다. 새로고침해 주세요.' : '본문을 준비하고 있습니다.';
+        _gomnaPendingEasyAction = function() {
+          if (!target.isConnected || !view.classList.contains('active')) return;
+          if (e.type === 'click') target.click();
+          else target.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+        };
+      }
+      view.addEventListener('click',deferAction,true);
+      view.addEventListener('keydown',deferAction,true);
+    } catch (e) { console.error('[GOMNA] early find entry failed', e); }
+  }
   loadBibleData();
 });
 
@@ -6267,7 +6301,7 @@ function initializeApp() {
   if (typeof newTestamentData !== 'undefined' && newTestamentData && testamentListNeedsRender('newView')) {
     renderNewTestament();
   }
-  renderEasyFind();
+  if (!_gomnaEasyEntryEarly) renderEasyFind();
   renderFavorites();
   var _si=document.getElementById('searchInput');if(_si)_si.addEventListener('keypress', function(e) { if(e.key === 'Enter') doSearch(); });
   initVerseToolbarEvents();
@@ -6328,7 +6362,14 @@ function initializeApp() {
   window.addEventListener('resize', function() {
     syncOpt4ToolbarWrapMode();
   });
-  runDeferredUrlNavigation();
+  window.__gomnaBibleDataReady = _gomnaOldTestamentLoadState === 'loaded' && _gomnaNewTestamentLoadState === 'loaded';
+  var entryStatus=document.getElementById('easyEntryDataStatus');
+  if(entryStatus){ if(window.__gomnaBibleDataReady)entryStatus.remove(); else entryStatus.textContent='본문을 불러오지 못했습니다. 새로고침해 주세요.'; }
+  window.dispatchEvent(new Event('gomna:bible-data-settled'));
+  if (!_gomnaEasyEntryEarly) runDeferredUrlNavigation();
+  else if (window.__gomnaBibleDataReady && _gomnaPendingEasyAction) {
+    var action = _gomnaPendingEasyAction; _gomnaPendingEasyAction = null; action();
+  }
   syncReaderDockMode();
   // 기본 구약 첫 화면 진입 시에도 스페이서 오프셋을 적용해 헤더와 첫 분류 제목(모세오경 Guide)이 겹치지 않게 한다
   try {
@@ -7542,7 +7583,9 @@ function renderNewTestament() {
   document.getElementById('newView').innerHTML = html;
 }
 
+var GOMNA_BOOK_CATALOG = [{"name":"창세기","chapters":50,"testament":"old"},{"name":"출애굽기","chapters":40,"testament":"old"},{"name":"레위기","chapters":27,"testament":"old"},{"name":"민수기","chapters":36,"testament":"old"},{"name":"신명기","chapters":34,"testament":"old"},{"name":"여호수아","chapters":24,"testament":"old"},{"name":"사사기","chapters":21,"testament":"old"},{"name":"룻기","chapters":4,"testament":"old"},{"name":"사무엘상","chapters":31,"testament":"old"},{"name":"사무엘하","chapters":24,"testament":"old"},{"name":"열왕기상","chapters":22,"testament":"old"},{"name":"열왕기하","chapters":25,"testament":"old"},{"name":"역대상","chapters":29,"testament":"old"},{"name":"역대하","chapters":36,"testament":"old"},{"name":"에스라","chapters":10,"testament":"old"},{"name":"느헤미야","chapters":13,"testament":"old"},{"name":"에스더","chapters":10,"testament":"old"},{"name":"욥기","chapters":42,"testament":"old"},{"name":"시편","chapters":150,"testament":"old"},{"name":"잠언","chapters":31,"testament":"old"},{"name":"전도서","chapters":12,"testament":"old"},{"name":"아가","chapters":8,"testament":"old"},{"name":"이사야","chapters":66,"testament":"old"},{"name":"예레미야","chapters":52,"testament":"old"},{"name":"예레미야애가","chapters":5,"testament":"old"},{"name":"에스겔","chapters":48,"testament":"old"},{"name":"다니엘","chapters":12,"testament":"old"},{"name":"호세아","chapters":14,"testament":"old"},{"name":"요엘","chapters":3,"testament":"old"},{"name":"아모스","chapters":9,"testament":"old"},{"name":"오바댜","chapters":1,"testament":"old"},{"name":"요나","chapters":4,"testament":"old"},{"name":"미가","chapters":7,"testament":"old"},{"name":"나훔","chapters":3,"testament":"old"},{"name":"하박국","chapters":3,"testament":"old"},{"name":"스바냐","chapters":3,"testament":"old"},{"name":"학개","chapters":2,"testament":"old"},{"name":"스가랴","chapters":14,"testament":"old"},{"name":"말라기","chapters":4,"testament":"old"},{"name":"마태복음","chapters":28,"testament":"new"},{"name":"마가복음","chapters":16,"testament":"new"},{"name":"누가복음","chapters":24,"testament":"new"},{"name":"요한복음","chapters":21,"testament":"new"},{"name":"사도행전","chapters":28,"testament":"new"},{"name":"로마서","chapters":16,"testament":"new"},{"name":"고린도전서","chapters":16,"testament":"new"},{"name":"고린도후서","chapters":13,"testament":"new"},{"name":"갈라디아서","chapters":6,"testament":"new"},{"name":"에베소서","chapters":6,"testament":"new"},{"name":"빌립보서","chapters":4,"testament":"new"},{"name":"골로새서","chapters":4,"testament":"new"},{"name":"데살로니가전서","chapters":5,"testament":"new"},{"name":"데살로니가후서","chapters":3,"testament":"new"},{"name":"디모데전서","chapters":6,"testament":"new"},{"name":"디모데후서","chapters":4,"testament":"new"},{"name":"디도서","chapters":3,"testament":"new"},{"name":"빌레몬서","chapters":1,"testament":"new"},{"name":"히브리서","chapters":13,"testament":"new"},{"name":"야고보서","chapters":5,"testament":"new"},{"name":"베드로전서","chapters":5,"testament":"new"},{"name":"베드로후서","chapters":3,"testament":"new"},{"name":"요한일서","chapters":5,"testament":"new"},{"name":"요한이서","chapters":1,"testament":"new"},{"name":"요한삼서","chapters":1,"testament":"new"},{"name":"유다서","chapters":1,"testament":"new"},{"name":"요한계시록","chapters":22,"testament":"new"}];
 function getAllBooks() {
+  if (!window.__gomnaBibleDataReady && _gomnaEasyEntryEarly) return GOMNA_BOOK_CATALOG.slice();
   var all = [];
   if(oldTestamentData && oldTestamentData.books) oldTestamentData.books.forEach(function(b) { all.push({name: b.name, chapters: getDisplayedChapterCount(b), testament: 'old'}); });
   if(newTestamentData && newTestamentData.books) newTestamentData.books.forEach(function(b) { all.push({name: b.name, chapters: getDisplayedChapterCount(b), testament: 'new'}); });

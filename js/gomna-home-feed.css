@@ -324,7 +324,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
 .gomna-home-card[data-card="0"]{
   transform:translate3d(-50%,0,0);
   background-color:#061018;
-  background-image:url("../assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1");
+  background-image:url("../assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74");
   background-size:cover;
   background-position:center 100%;
   background-repeat:no-repeat;
@@ -335,7 +335,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
 .gomna-home-card[data-card="1"]:not(.is-open){
   color:#f7f3eb;
   background-color:#c4b49a;
-  background-image:url("../assets/home/card-meditation-life.png?v=20260910-home-photo-v1");
+  background-image:url("../assets/home/card-meditation-life-20261005.webp?v=20261005-background-v1");
   background-size:cover;
   background-position:82% 72%;
   background-repeat:no-repeat;
@@ -350,7 +350,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   box-shadow:0 14px 36px rgba(40,44,48,.08);
   --ghd-base:#F7F6F4;
   --ghd-base-rgb:247,246,244;
-  --ghd-med-img:url("../assets/home/meditation/v5-card-new-life.png?v=20260908-mist-v1");
+  --ghd-med-img:url("../assets/home/meditation/v5-card-new-life.webp?v=20261005-home-approved-clean-v74");
   --ghd-med-pos:72% 42%;
   --ghd-veil-a:.18;
   --ghd-veil-b:.10;
@@ -359,7 +359,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-text-glow:.22;
 }
 .gomna-home-card[data-card="1"].is-open[data-life-theme="new"]{
-  --ghd-med-img:url("../assets/home/meditation/v5-card-new-life.png?v=20260908-mist-v1");
+  --ghd-med-img:url("../assets/home/meditation/v5-card-new-life.webp?v=20261005-home-approved-clean-v74");
   --ghd-med-pos:74% 44%;
   --ghd-base:#F7F3EC;
   --ghd-base-rgb:247,243,236;
@@ -370,7 +370,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-text-glow:.30;
 }
 .gomna-home-card[data-card="1"].is-open[data-life-theme="prayer"]{
-  --ghd-med-img:url("../assets/home/meditation/v10-card-prayer-life.png?v=20260909-clean-v1");
+  --ghd-med-img:url("../assets/home/meditation/v10-card-prayer-life.webp?v=20261005-home-approved-clean-v74");
   --ghd-med-pos:66% 38%;
   --ghd-base:#F6F7F8;
   --ghd-base-rgb:246,247,248;
@@ -386,7 +386,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-mist-4:.0;
 }
 .gomna-home-card[data-card="1"].is-open[data-life-theme="blessed"]{
-  --ghd-med-img:url("../assets/home/meditation/v12-card-blessed-life.png?v=20260909-blessed-v12b");
+  --ghd-med-img:url("../assets/home/meditation/v12-card-blessed-life.webp?v=20261005-home-approved-clean-v74");
   --ghd-med-pos:80% 48%;
   --ghd-base:#F6F9F6;
   --ghd-base-rgb:246,249,246;
@@ -397,7 +397,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-text-glow:.28;
 }
 .gomna-home-card[data-card="1"].is-open[data-life-theme="faith"]{
-  --ghd-med-img:url("../assets/home/meditation/v6-card-faith-life.png?v=20260908-partial-v1");
+  --ghd-med-img:url("../assets/home/meditation/v6-card-faith-life.webp?v=20261005-home-approved-clean-v74");
   --ghd-med-pos:76% 40%;
   --ghd-base:#F4F5F3;
   --ghd-base-rgb:244,245,243;
@@ -408,7 +408,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-text-glow:.28;
 }
 .gomna-home-card[data-card="1"].is-open[data-life-theme="love"]{
-  --ghd-med-img:url("../assets/home/meditation/v10-card-love-life.png?v=20260909-clean-v1");
+  --ghd-med-img:url("../assets/home/meditation/v10-card-love-life.webp?v=20261005-home-approved-clean-v74");
   --ghd-med-pos:72% 42%;
   --ghd-base:#F6F7F8;
   --ghd-base-rgb:246,247,248;
@@ -424,7 +424,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-mist-4:.0;
 }
 .gomna-home-card[data-card="1"].is-open[data-life-theme="wisdom"]{
-  --ghd-med-img:url("../assets/home/meditation/v5-card-wisdom-life.png?v=20260908-mist-v1");
+  --ghd-med-img:url("../assets/home/meditation/v5-card-wisdom-life.webp?v=20261005-home-approved-clean-v74");
   --ghd-med-pos:76% 40%;
   --ghd-base:#F6F5F3;
   --ghd-base-rgb:246,245,243;
@@ -435,7 +435,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-text-glow:.30;
 }
 .gomna-home-card[data-card="1"].is-open[data-life-theme="hope"]{
-  --ghd-med-img:url("../assets/home/meditation/v11-card-hope-life.png?v=20260909-hope-v11");
+  --ghd-med-img:url("../assets/home/meditation/v11-card-hope-life.webp?v=20261005-home-approved-clean-v74");
   --ghd-med-pos:78% 38%;
   --ghd-base:#F3F7FA;
   --ghd-base-rgb:243,247,250;
@@ -561,7 +561,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
 .gomna-home-card[data-card="2"]:not(.is-open){
   color:#f6f3ec;
   background-color:#4a5a68;
-  background-image:url("../assets/home/card-bible-stories-people.png?v=20260910-home-photo-v1");
+  background-image:url("../assets/home/card-people-journey-20261005.webp?v=20261005-home-approved-clean-v74");
   background-size:cover;
   background-position:50% 42%;
   background-repeat:no-repeat;
@@ -582,7 +582,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   box-shadow:0 14px 36px rgba(32,40,52,.10);
   --ghd-base:#F4F6F8;
   --ghd-base-rgb:244,246,248;
-  --ghd-story-img:url("../assets/home/stories/v1-story-david.png?v=20260909-story-v1");
+  --ghd-story-img:url("../assets/home/stories/v1-story-david.webp?v=20261005-home-approved-clean-v74");
   --ghd-story-pos:76% 42%;
   --ghd-mist-0:.34;
   --ghd-mist-1:.22;
@@ -591,7 +591,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-mist-4:.0;
 }
 .gomna-home-card[data-card="2"].is-open[data-story-person="abraham"]{
-  --ghd-story-img:url("../assets/home/stories/v1-story-abraham.png?v=20260909-story-v1");
+  --ghd-story-img:url("../assets/home/stories/v1-story-abraham.webp?v=20261005-home-approved-clean-v74");
   --ghd-story-pos:72% 46%;
   --ghd-base:#F3F6F8;
   --ghd-base-rgb:243,246,248;
@@ -602,7 +602,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-mist-4:.0;
 }
 .gomna-home-card[data-card="2"].is-open[data-story-person="moses"]{
-  --ghd-story-img:url("../assets/home/stories/v1-story-moses.png?v=20260909-story-v1");
+  --ghd-story-img:url("../assets/home/stories/v1-story-moses.webp?v=20261005-home-approved-clean-v74");
   --ghd-story-pos:78% 38%;
   --ghd-base:#F4F6F7;
   --ghd-base-rgb:244,246,247;
@@ -613,7 +613,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-mist-4:.0;
 }
 .gomna-home-card[data-card="2"].is-open[data-story-person="david"]{
-  --ghd-story-img:url("../assets/home/stories/v1-story-david.png?v=20260909-story-v1");
+  --ghd-story-img:url("../assets/home/stories/v1-story-david.webp?v=20261005-home-approved-clean-v74");
   --ghd-story-pos:76% 40%;
   --ghd-base:#F3F6F5;
   --ghd-base-rgb:243,246,245;
@@ -624,7 +624,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-mist-4:.0;
 }
 .gomna-home-card[data-card="2"].is-open[data-story-person="joseph"]{
-  --ghd-story-img:url("../assets/home/stories/v1-story-joseph.png?v=20260909-story-v1");
+  --ghd-story-img:url("../assets/home/stories/v1-story-joseph.webp?v=20261005-home-approved-clean-v74");
   --ghd-story-pos:80% 40%;
   --ghd-base:#F5F6F7;
   --ghd-base-rgb:245,246,247;
@@ -635,7 +635,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-mist-4:.0;
 }
 .gomna-home-card[data-card="2"].is-open[data-story-person="lot"]{
-  --ghd-story-img:url("../assets/home/stories/v1-story-lot.png?v=20260909-story-v1");
+  --ghd-story-img:url("../assets/home/stories/v1-story-lot.webp?v=20261005-home-approved-clean-v74");
   --ghd-story-pos:74% 42%;
   --ghd-base:#F3F5F7;
   --ghd-base-rgb:243,245,247;
@@ -646,7 +646,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-mist-4:.0;
 }
 .gomna-home-card[data-card="2"].is-open[data-story-person="esther"]{
-  --ghd-story-img:url("../assets/home/stories/v1-story-esther.png?v=20260909-story-v1");
+  --ghd-story-img:url("../assets/home/stories/v1-story-esther.webp?v=20261005-home-approved-clean-v74");
   --ghd-story-pos:78% 38%;
   --ghd-base:#F5F6F8;
   --ghd-base-rgb:245,246,248;
@@ -657,7 +657,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   --ghd-mist-4:.0;
 }
 .gomna-home-card[data-card="2"].is-open[data-story-person="paul"]{
-  --ghd-story-img:url("../assets/home/stories/v1-story-paul.png?v=20260909-story-v1");
+  --ghd-story-img:url("../assets/home/stories/v1-story-paul.webp?v=20261005-home-approved-clean-v74");
   --ghd-story-pos:80% 42%;
   --ghd-base:#F3F6F8;
   --ghd-base-rgb:243,246,248;
@@ -2651,3 +2651,7 @@ html[data-gomna-ui-lang="ja"] .gomna-home-poster-title,
 html[data-gomna-ui-lang="zh"] .gomna-home-poster-title{
   max-width:100%;
 }
+
+/* Text and background enter together, including cold first paint. */
+.gomna-home-card.ghd-image-pending > *{visibility:hidden!important}
+.gomna-home-card.ghd-image-pending::after{visibility:hidden}
