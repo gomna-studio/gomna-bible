@@ -18,18 +18,18 @@
 .gomna-home-card[data-card="2"] .home-people-heading .home-people-lead {
   font-size:14px; line-height:1.55; margin:15px 0 0; max-width:24em; color:#fffaf3; word-break:keep-all;
 }
-.home-person-picker { position:relative; width:164px; margin-top:20px; }
+.home-person-picker { position:relative; width:132px; margin-top:20px; }
 .home-person-picker select {
-  appearance:none; -webkit-appearance:none; width:100%; height:38px;
+  appearance:none; -webkit-appearance:none; width:100%; height:calc(38px - 1mm);
   padding:0 32px 0 15px; border:1px solid rgba(255,250,240,.85);
   border-radius:22px; background:rgba(17,28,40,.35); color:#fffaf3;
   font:600 15px/1.2 -apple-system,BlinkMacSystemFont,sans-serif;
   cursor:pointer; touch-action:manipulation;
 }
 .home-person-picker::after {
-  content:""; position:absolute; right:15px; top:13px; width:7px; height:7px;
+  content:""; position:absolute; right:15px; top:50%; width:7px; height:7px;
   border-right:1.5px solid #fff; border-bottom:1.5px solid #fff;
-  transform:rotate(45deg); pointer-events:none;
+  transform:translateY(-50%) rotate(45deg); pointer-events:none;
 }
 .home-person-picker option { color:#242424; background:#fff; }
 .home-person-summary {
@@ -87,7 +87,7 @@
 .home-person-photo-link img, #gomnaBibleLibrary img[src*="assets/home/people/v1/"]{filter:brightness(1.08) contrast(1.015);}
 
 .home-person-picker-trigger{width:100%;height:38px;padding:0 32px 0 15px;text-align:left;border:1px solid #fff9;border-radius:22px;background:#11283866;color:#fffaf3;font:600 15px/1.2 -apple-system,sans-serif;cursor:pointer;}
-.home-person-choices{position:absolute;left:18px;top:0;bottom:auto;width:164px;max-height:min(300px,calc(100% - 16px));overflow:auto;z-index:100;background:rgba(25,37,46,.96);border:1px solid #fff9;border-radius:16px;padding:6px;box-sizing:border-box;box-shadow:0 8px 24px #0005;overscroll-behavior:contain;}
+.home-person-choices{position:absolute;left:18px;top:0;bottom:auto;width:132px;max-height:min(300px,calc(100% - 16px));overflow:auto;z-index:100;background:rgba(25,37,46,.96);border:1px solid #fff9;border-radius:16px;padding:6px;box-sizing:border-box;box-shadow:0 8px 24px #0005;overscroll-behavior:contain;}
 .home-person-choices[hidden]{display:none;}
 .home-person-choices button{display:block;width:100%;min-height:34px;border:0;background:none;color:white;text-align:left;padding:7px 10px;font:600 14px/1.4 -apple-system,sans-serif;border-radius:8px;cursor:pointer;}
 .home-person-choices button:hover,.home-person-choices button:focus-visible{background:#ffffff22;}
