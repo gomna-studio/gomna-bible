@@ -20,6 +20,8 @@
 
   function showToast(message, duration, options) {
     if (typeof message !== 'string' || !message) return;
+    // Routine preparation and buffering must not interrupt listening.
+    if (/준비 중|준비 완료|연결 중|연결이 지연|데이터 로딩 중|기본 재생으로 전환/.test(message)) return;
 
     options = options || {};
     // 절 본문 밖 듣기 안내만 4초 — 다른 토스트는 기본 3초 유지
@@ -761,7 +763,7 @@
     duration = Number(state && state.duration) || Number(audio.duration) || 0;
     if (duration <= 0) return;
 
-    currentTime = Number(audio.currentTime) || 0;
+    currentTime = state ? Number(state.currentTime) || 0 : Number(audio.currentTime) || 0;
     targetTime = Math.min(duration, Math.max(0, duration * ratio));
     deltaSeconds = targetTime - currentTime;
 

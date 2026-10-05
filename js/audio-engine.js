@@ -2,6 +2,7 @@
   'use strict';
 
   function showOrLog(message) {
+    if (/준비 중|데이터 로딩 중/.test(message)) return;
     if (typeof window.GOMNA_AUDIO_TOAST === 'function') {
       window.GOMNA_AUDIO_TOAST(message);
     } else {
@@ -20,6 +21,8 @@
       nextPrefetchUrl: null,
       nextPrefetchPromise: null,
       nextPrefetchReady: false,
+      nextPrefetchSettled: false,
+      queueHandoff: null,
       nextPrefetchObjectUrl: null,
       nextPrefetchToken: 0,
       nextPrefetchController: null,
@@ -58,6 +61,8 @@
 
     _bumpQueueEpoch: function() {
       var state = window.GOMNA_AUDIO_ENGINE._state;
+      if (state.queueHandoff) clearTimeout(state.queueHandoff.timer);
+      state.queueHandoff = null;
       state.queueEpoch = (state.queueEpoch || 0) + 1;
       return state.queueEpoch;
     },
@@ -420,6 +425,7 @@
       state.nextPrefetchUrl = null;
       state.nextPrefetchPromise = null;
       state.nextPrefetchReady = false;
+      state.nextPrefetchSettled = false;
     },
 
     _consumeNextPrefetch: function(audioId, audioUrl) {
@@ -627,9 +633,11 @@
           engine._revokeObjectUrl(state.nextPrefetchObjectUrl);
           state.nextPrefetchObjectUrl = objectUrl;
           state.nextPrefetchReady = true;
+          state.nextPrefetchSettled = true;
         }).catch(function(prefetchError) {
           if (state.nextPrefetchToken !== token || state.nextPrefetchId !== nextId) return;
           state.nextPrefetchReady = false;
+          state.nextPrefetchSettled = true;
           console.warn('[GOMNA_AUDIO] next verse prefetch warning:', prefetchError);
         });
       } catch (prefetchStartError) {
@@ -651,6 +659,31 @@
         state.queueEpoch !== expectedEpoch
       ) {
         return false;
+      }
+
+      // Preserve a nearly finished download instead of aborting it and
+      // requesting the same verse again. Ready tracks still advance immediately.
+      var nextIndex = engine._findNextPlayableIndex(state.queueIndex + 1);
+      if (typeof expectedEpoch === 'number' && nextIndex >= 0 &&
+          state.nextPrefetchId === state.queueAudioIds[nextIndex] &&
+          state.nextPrefetchPromise && !state.nextPrefetchReady && !state.nextPrefetchSettled) {
+        var handoff = { epoch: state.queueEpoch, index: state.queueIndex, timer: null, ready: false };
+        state.queueHandoff = handoff;
+        state.isLoading = true;
+        state.isPlaying = true;
+        handoff.advance = function() {
+          if (state.queueHandoff !== handoff || state.queueEpoch !== handoff.epoch ||
+              !state.queueActive || state.queueIndex !== handoff.index || state.playbackCancelled) return;
+          handoff.ready = true;
+          clearTimeout(handoff.timer);
+          if (state.isPaused) return;
+          state.queueHandoff = null;
+          state.nextPrefetchSettled = true;
+          engine._playNextInQueue(handoff.epoch);
+        };
+        handoff.timer = setTimeout(handoff.advance, 250);
+        state.nextPrefetchPromise.then(handoff.advance, handoff.advance);
+        return true;
       }
 
       state.queueIndex += 1;
@@ -1253,6 +1286,13 @@
 
       engine._clearStallWatch();
 
+      if (state.queueHandoff) {
+        state.isPlaying = false;
+        state.isPaused = true;
+        engine._emit('audio:pause', { audioId: state.currentAudioId });
+        return;
+      }
+
       if (state.currentAudio && state.isPlaying) {
         state.currentAudio.pause();
         state.isLoading = false;
@@ -1268,6 +1308,12 @@
     resumeAudio: function() {
       var engine = window.GOMNA_AUDIO_ENGINE;
       var state = engine._state;
+      if (state.queueHandoff) {
+        state.isPaused = false;
+        state.isPlaying = true;
+        if (state.queueHandoff.ready) state.queueHandoff.advance();
+        return;
+      }
 
       if (state.currentAudio && state.isPaused) {
         engine._applyCurrentSpeed(state.currentAudio);

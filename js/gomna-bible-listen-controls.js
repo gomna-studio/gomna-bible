@@ -4,11 +4,28 @@
   var closedSelection = null;
   var activeSingle = null;
   var completedChoice = false;
+  var completedReference = '';
+  var completedVerse = 0;
   function openFollowupMenu() {
     openVerseListenModeMenu();
     if (completedChoice) {
       var daily = document.getElementById('opt4VerseListenModeDaily');
       if (daily) daily.hidden = true;
+      var menu = document.getElementById('opt4VerseListenModeMenu');
+      if (!menu) return;
+      if (!menu.querySelector('.listen-completion-heading')) {
+        var heading = document.createElement('p'); heading.className = 'listen-completion-heading';
+        var sub = document.createElement('p'); sub.className = 'listen-completion-sub'; sub.textContent = '말씀을 이어서 들어보세요';
+        var close = document.createElement('button'); close.type = 'button'; close.className = 'listen-completion-close'; close.textContent = '×'; close.setAttribute('aria-label', '닫기'); close.onclick = closeVerseListenModeMenu;
+        menu.prepend(close, heading, sub);
+      }
+      menu.querySelector('.listen-completion-heading').textContent = completedReference;
+      document.getElementById('opt4VerseListenModeChapterLabel').textContent = '이 장 듣기';
+      document.getElementById('opt4VerseListenModeContinuousLabel').textContent = completedVerse < currentVerseCount ? (completedVerse + 1) + '절부터 이어 듣기' : '다음 장부터 이어 듣기';
+      menu.dataset.nextVerse = String(completedVerse + 1);
+      menu.classList.add('is-completion-card');
+      var backdrop = document.getElementById('opt4VerseListenModeBackdrop');
+      if (backdrop) { backdrop.classList.add('is-completion-backdrop'); backdrop.hidden = false; backdrop.style.display = 'block'; backdrop.onclick = closeVerseListenModeMenu; }
     }
   }
   function topicEntry() {
@@ -76,6 +93,16 @@
       item.completed[item.index] = true;
     }, { once: true, capture: true });
   });
+  window.addEventListener('audio:verse_complete', function (event) {
+    var item = activeSingle, detail = event.detail || {};
+    var engine = window.GOMNA_AUDIO_ENGINE;
+    if (!item || !engine || !detail.continuous || !item.played ||
+        detail.audioId !== item.id || detail.queueIndex !== item.index ||
+        detail.queueEpoch !== item.epoch || engine._state.queueEpoch !== item.epoch ||
+        engine._state.playbackCancelled ||
+        engine._state.queueCompletedAudioIds.indexOf(item.id) < 0) return;
+    item.completed[item.index] = true;
+  });
   window.addEventListener('audio:end', function (event) {
     var item = activeSingle;
     activeSingle = null;
@@ -89,6 +116,9 @@
     var view = document.getElementById('verseView');
     if (!view || !view.classList.contains('active')) return;
     if (document.querySelector('#settingsPopup.show, .gomna-acc-overlay:not([hidden]), [role="dialog"][aria-modal="true"][aria-hidden="false"]:not([hidden])')) return;
+    var verse = Number((item.id.split('.')[2] || '').split('o')[0]);
+    completedVerse = verse;
+    completedReference = currentBook.name + ' ' + currentChapter + (currentBook.name === '시편' ? '편 ' : '장 ') + verse + '절입니다';
     clearVerseSelection();
     clearEntryFocusHighlight();
     completedChoice = true;

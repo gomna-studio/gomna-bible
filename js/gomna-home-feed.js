@@ -1739,8 +1739,8 @@
     progress=p;
     var activeIndex=(allowCard2From3&&p>1)?1:Math.round(clamp(p, 0, count-1));
     var L=layoutNums();
-    var peek=16;
-    var scaleStep=0.08;
+    var peek=0;
+    var scaleStep=0;
     var reserved=p*peek;
     var cardH=Math.max(280, L.stageH-reserved);
     var parkY=L.stageH+32;
