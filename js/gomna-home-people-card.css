@@ -1,0 +1,104 @@
+/* Scoped to the third poster; existing other cards and detail layouts stay intact. */
+.gomna-home-card[data-card="2"]:not(.is-open) {
+  background-position: center center;
+}
+.gomna-home-card[data-card="2"]:not(.is-open)::after {
+  background: linear-gradient(180deg,rgba(9,18,29,.36),rgba(9,18,29,.08) 43%,rgba(9,18,29,.38) 67%,rgba(9,18,29,.76));
+}
+.gomna-home-card[data-card="2"]:not(.is-open) .gomna-home-card-inner {
+  padding: clamp(16px,3.5vh,24px) 18px 18px;
+}
+.gomna-home-card[data-card="2"] .home-people-poster {
+  display: flex; flex-direction: column; height:100%; min-height:0;
+}
+.gomna-home-card[data-card="2"] .home-people-heading { flex:0 0 auto; }
+.gomna-home-card[data-card="2"] .home-people-heading .gomna-home-poster-title {
+  font-size:clamp(25px,6.8vw,32px); margin-top:18px; max-width:none;
+}
+.gomna-home-card[data-card="2"] .home-people-heading .home-people-lead {
+  font-size:14px; line-height:1.55; margin:15px 0 0; max-width:24em; color:#fffaf3; word-break:keep-all;
+}
+.home-person-picker { position:relative; width:164px; margin-top:20px; }
+.home-person-picker select {
+  appearance:none; -webkit-appearance:none; width:100%; height:38px;
+  padding:0 32px 0 15px; border:1px solid rgba(255,250,240,.85);
+  border-radius:22px; background:rgba(17,28,40,.35); color:#fffaf3;
+  font:600 15px/1.2 -apple-system,BlinkMacSystemFont,sans-serif;
+  cursor:pointer; touch-action:manipulation;
+}
+.home-person-picker::after {
+  content:""; position:absolute; right:15px; top:13px; width:7px; height:7px;
+  border-right:1.5px solid #fff; border-bottom:1.5px solid #fff;
+  transform:rotate(45deg); pointer-events:none;
+}
+.home-person-picker option { color:#242424; background:#fff; }
+.home-person-summary {
+  display:grid; grid-template-columns:clamp(98px,29vw,132px) minmax(0,1fr);
+  align-items:center; gap:15px; margin-top:auto; padding-top:20px;
+}
+.home-person-summary[data-person-pending] { visibility:hidden; }
+.home-person-photo-link {
+  display:block; width:100%; aspect-ratio:1/1; padding:0; border:0;
+  border-radius:16px; overflow:hidden; background:#303b46;
+  cursor:pointer; touch-action:manipulation;
+}
+.home-person-photo-link img {
+  display:block; width:100%; height:100%; object-fit:cover; object-position:center 30%;
+}
+.home-person-copy p { margin:0; word-break:keep-all; }
+.home-person-copy [data-home-person-name] { color:#efe0b9; font-size:13px; font-weight:600; }
+.home-person-copy [data-home-person-title] {
+  margin-top:7px; font:600 clamp(20px,5.5vw,25px)/1.4 'AppleMyungjo','Nanum Myeongjo','Noto Serif KR',Georgia,serif;
+  color:#fffaf3;
+}
+.home-person-copy [data-home-person-intro] { margin-top:10px; font-size:13px; line-height:1.6; color:#fffaf3; }
+.home-person-more {
+  display:inline-flex; align-items:center; margin-top:14px; padding:7px 13px;
+  min-height:36px; align-self:flex-start; border:1px solid rgba(255,250,240,.8);
+  border-radius:22px; background:rgba(17,28,40,.18); color:#fffaf3;
+  font:600 13px/1.4 -apple-system,BlinkMacSystemFont,sans-serif;
+  cursor:pointer; touch-action:manipulation;
+}
+.home-people-all {
+  align-self:flex-start; border:0; background:none; color:#fffaf3;
+  padding:8px 0 0; margin-top:12px; font:500 13px/1.4 -apple-system,BlinkMacSystemFont,sans-serif;
+  cursor:pointer; touch-action:manipulation;
+}
+.home-person-status { font-size:11px; line-height:1.3; min-height:0; color:#fffaf3; margin:0; }
+.home-person-status:not(:empty) { margin-top:5px; }
+.home-people-poster button:focus-visible,.home-person-picker select:focus-visible {
+  outline:2px solid #fff; outline-offset:3px;
+}
+@media (max-height:700px) {
+  .gomna-home-card[data-card="2"]:not(.is-open) .gomna-home-card-inner { padding-top:14px; padding-bottom:12px; }
+  .gomna-home-card[data-card="2"] .home-people-heading .gomna-home-poster-title { margin-top:10px; font-size:25px; }
+  .gomna-home-card[data-card="2"] .home-people-heading .home-people-lead { margin-top:9px; font-size:12px; }
+  .home-person-picker { margin-top:12px; }
+  .home-person-summary { grid-template-columns:96px minmax(0,1fr); padding-top:12px; }
+  .home-person-copy [data-home-person-intro] { font-size:12px; }
+  .home-person-more { margin-top:10px; }
+  .home-people-all { margin-top:6px; }
+}
+
+.gomna-home-card[data-card="2"] .home-person-photo-link{aspect-ratio:1 / 1;}
+.gomna-home-card[data-card="2"] .home-person-photo-link img{aspect-ratio:1 / 1;object-fit:contain;object-position:center;image-rendering:auto;}
+
+/* Brighten original portraits gently, preserving all original image details. */
+.home-person-photo-link img, #gomnaBibleLibrary img[src*="assets/home/people/v1/"]{filter:brightness(1.08) contrast(1.015);}
+
+.home-person-picker-trigger{width:100%;height:38px;padding:0 32px 0 15px;text-align:left;border:1px solid #fff9;border-radius:22px;background:#11283866;color:#fffaf3;font:600 15px/1.2 -apple-system,sans-serif;cursor:pointer;}
+.home-person-choices{position:absolute;left:18px;top:0;bottom:auto;width:164px;max-height:min(300px,calc(100% - 16px));overflow:auto;z-index:100;background:rgba(25,37,46,.96);border:1px solid #fff9;border-radius:16px;padding:6px;box-sizing:border-box;box-shadow:0 8px 24px #0005;overscroll-behavior:contain;}
+.home-person-choices[hidden]{display:none;}
+.home-person-choices button{display:block;width:100%;min-height:34px;border:0;background:none;color:white;text-align:left;padding:7px 10px;font:600 14px/1.4 -apple-system,sans-serif;border-radius:8px;cursor:pointer;}
+.home-person-choices button:hover,.home-person-choices button:focus-visible{background:#ffffff22;}
+.gomna-home-card[data-card="2"] .home-person-summary{grid-template-columns:132px minmax(0,1fr);}
+.gomna-home-card[data-card="2"] .home-person-more{box-sizing:border-box;width:132px;min-height:28px;height:28px;padding:3px 5px;font-size:11px;justify-content:center;white-space:nowrap;}
+
+.gomna-home-card[data-card="2"].home-person-picker-open,
+.gomna-home-card[data-card="2"].home-person-picker-open .gomna-home-card-inner,
+.gomna-home-card[data-card="2"].home-person-picker-open .gomna-home-card-inner *,
+.gomna-home-card[data-card="2"].home-person-picker-open .home-person-choices,
+.gomna-home-card[data-card="2"].home-person-picker-open .home-person-choices *{touch-action:pan-y!important;}
+.home-person-choices{-webkit-overflow-scrolling:touch;}
+
+.gomna-home-card[data-card="2"] .home-person-more{border:0;box-shadow:inset 0 0 0 .5px rgba(255,250,240,.8);}

@@ -7,6 +7,21 @@
   let panel, scroll, current = null, opener, restored = false;
   const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const icon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>';
+  function revealWithImage(container, img) {
+    container.style.visibility='hidden';
+    container.setAttribute('aria-busy','true');
+    const loaded = img.decode ? img.decode() : new Promise(resolve=>{
+      if(img.complete)return resolve();
+      img.onload=resolve;img.onerror=resolve;
+    });
+    Promise.resolve(loaded).catch(()=>{img.hidden=true;img.style.display='none';}).then(()=>{
+      if(!container.isConnected)return;
+      requestAnimationFrame(()=>{
+        if(!container.isConnected)return;
+        container.style.visibility='';container.removeAttribute('aria-busy');
+      });
+    });
+  }
   function route() {
     const m = location.hash.match(/^#bible-library\/(people|stories)(?:\/([a-z-]+))?$/);
     return m ? {kind:m[1], id:m[2] || ''} : null;
@@ -36,6 +51,7 @@
     const matches=items.filter(i=>i.kind===current.kind && (s.group==='전체'||i.group===s.group || (s.group==='신약'&&i.group==='비유')) && (!q||(i.name+' '+i.title+' '+i.book).toLocaleLowerCase().includes(q)));
     panel.querySelector('#gblCount').textContent=(current.kind==='people'?'성경 속 인물':'성경 속 이야기')+' · '+matches.length;
     panel.querySelector('#gblResults').innerHTML=matches.length?matches.map(tile).join(''):'<p class="gbl-empty">찾는 내용이 없어요.<br>다른 이름이나 제목으로 찾아보세요.</p>';
+    panel.querySelectorAll('.gbl-tile').forEach(tile=>revealWithImage(tile,tile.querySelector('img')));
   }
   function list() {
     const s=states[current.kind], people=current.kind==='people';
@@ -59,6 +75,7 @@
     const related=items.filter(i=>i.id!==item.id && i.book===item.book).slice(0,3);
     scroll.innerHTML='<article class="gbl-detail '+(item.kind==='people'?'gbl-person-detail':'')+'"><div class="gbl-hero">'+image(item,true)+'</div><div class="gbl-article"><p class="gbl-eyebrow">'+esc(item.group)+' · '+esc(item.book)+'</p><h2>'+esc(item.title)+'</h2><p class="gbl-intro">'+esc(item.intro)+'</p><hr>'+storyContent(item)+'<section class="gbl-scripture"><p>함께 읽는 말씀</p><h3>'+esc(item.book)+' '+item.chapter+'장 '+item.start+'–'+item.end+'절</h3><div class="gbl-actions"><a href="'+esc(readerUrl(item,false))+'">본문 읽기</a><a href="'+esc(readerUrl(item,true))+'"><span aria-hidden="true">▷</span> 본문 듣기</a></div></section><section class="gbl-question"><h3>오늘 생각해 볼 질문</h3><p>'+esc(item.question)+'</p></section>'+(related.length?'<section class="gbl-related"><h3>함께 만나는 이야기</h3>'+related.map(i=>'<button data-gbl-related="'+i.id+'"><span>'+esc(i.name)+'</span><span aria-hidden="true">›</span></button>').join(''):'')+'</div></article>';
     scroll.scrollTop=0;
+    revealWithImage(scroll.querySelector('.gbl-detail'),scroll.querySelector('.gbl-hero img'));
   }
   function layout() {
     if (!panel || panel.hidden) return;
@@ -114,8 +131,10 @@
     document.body.appendChild(panel);scroll=panel.querySelector('.gbl-scroll');
     document.addEventListener('click',e=>{
       const entry=e.target.closest('[data-gbl-open]');
-      if(entry){e.preventDefault();e.stopPropagation();opener=entry;navigate(entry.dataset.gblOpen,'',false);return;}
-      if(current && e.target.closest('#gomnaHomeTabbar a, #gomnaHomeTabbar button'))home();
+      if(entry){e.preventDefault();e.stopPropagation();opener=entry;navigate(entry.dataset.gblOpen,entry.dataset.gblId || '',false);return;}
+      // Keep the current library screen in place while another destination
+      // loads. Closing it here exposed the underlying home card in between.
+      if(current && e.target.closest('#gomnaHomeTabbar [data-ghd-nav="home"]'))home();
     },true);
     panel.addEventListener('click',e=>{
       const b=e.target.closest('button');if(!b)return;

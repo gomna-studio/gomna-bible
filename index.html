@@ -57,7 +57,7 @@
 </script>
 <meta charset="UTF-8">
 <script src="/js/gomna-screen-transition.js?v=20261003-clean-entry-v3"></script>
-<link rel="preload" as="style" href="js/gomna-home-feed.css?v=20261003-stale-frame-v1">
+<link rel="preload" as="style" href="js/gomna-home-feed.css?v=20261005-home-approved-clean-v74">
 <link rel="preload" as="style" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
 <script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script src="/js/gomna-ga4.js?v=20261001-analytics-v1"></script>
@@ -1942,10 +1942,10 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
 <script defer src="js/gomna-theme.js?v=20260917-local-theme-preview-v10"></script>
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
-<link rel="preload" as="image" href="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1">
-<link rel="preload" as="image" href="assets/home/card-meditation-life.png?v=20260910-home-photo-v1">
-<link rel="preload" as="image" href="assets/home/card-bible-stories-people.png?v=20260910-home-photo-v1">
-<link rel="stylesheet" href="js/gomna-home-feed.css?v=20261003-stale-frame-v1">
+<link rel="preload" as="image" href="assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74">
+<link rel="preload" as="image" href="assets/home/card-meditation-life-20261005.webp?v=20261005-background-v1">
+<link rel="preload" as="image" href="assets/home/card-people-journey-20261005.webp?v=20261005-home-approved-clean-v74">
+<link rel="stylesheet" href="js/gomna-home-feed.css?v=20261005-home-approved-clean-v74">
 <style>
 /* 홈 데스크톱 선택창 폭 = 홈 메인 카드 폭. .container max-width 390 - padding 18+18. Reader 프레임 폭은 쓰지 않는다. */
 @media (min-width:700px) and (min-height:600px){
@@ -1958,7 +1958,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 </style>
 <link rel="stylesheet" href="js/gomna-home-legal-footer-v1.css?v=20260917-v1">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20260925-account-white-preview-v5">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-03-reader-clean-entry-v72" data-release="2026-10-03-reader-clean-entry-v72" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-05-home-approved-clean-v74" data-release="2026-10-05-home-approved-clean-v74" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20260927-6" defer></script>
 <style id="gomna-home-card-no-selection">
 /* Home cards are touch controls: prevent iOS text handles/callouts on a hold. */
@@ -1976,8 +1976,10 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 }
 </style>
 <link rel="stylesheet" href="js/gomna-bible-library.css?v=20260929-36">
-<script defer src="js/gomna-bible-library-data.js?v=20260928-29"></script>
-<script defer src="js/gomna-bible-library.js?v=20260928-35"></script>
+<script defer src="js/gomna-bible-library-data.js?v=20261005-home-approved-clean-v74"></script>
+<script defer src="js/gomna-bible-library.js?v=20261005-home-approved-clean-v74"></script>
+<link rel="stylesheet" href="js/gomna-home-people-card.css?v=20261005-home-approved-clean-v74">
+<script defer src="js/gomna-home-people-card.js?v=20261005-home-approved-clean-v74"></script>
 </head>
 <body data-gomna-page="home" class="gomna-home-deck-on">
 <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
@@ -2010,7 +2012,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
   <p class="gomna-home-hello" id="gomnaHomeHello">잠시 머물러 보세요</p>
   <section class="gomna-home-deck" id="gomnaHomeFeed" data-ghd-active="0" aria-label="말씀 카드">
     <div class="gomna-home-deck-stage" id="gomnaHomeFeedStage">
-      <article class="gomna-home-card is-active" data-card="0" data-ghd-deck="home" data-kind="content" tabindex="0" aria-label="오늘의 말씀">
+      <article class="gomna-home-card ghd-image-pending is-active" data-card="0" data-ghd-deck="home" data-kind="content" tabindex="0" aria-label="오늘의 말씀">
         <div class="gomna-home-card-inner">
           <p class="gomna-home-kicker">오늘의 말씀</p>
           <p class="gomna-home-ref gomna-home-ref-top" data-ghd-ref></p>
@@ -2071,7 +2073,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
           </button>
         </div>
       </article>
-      <article class="gomna-home-card" data-card="1" data-life-theme="new" data-ghd-deck="home" data-kind="content" aria-hidden="true" aria-label="오늘의 묵상과 삶">
+      <article class="gomna-home-card ghd-image-pending" data-card="1" data-life-theme="new" data-ghd-deck="home" data-kind="content" aria-hidden="true" aria-label="오늘의 묵상과 삶">
         <div class="gomna-home-card-inner">
           <div class="gomna-home-card-face is-shown gomna-home-poster" data-face="tease">
             <p class="gomna-home-poster-kicker">말씀과 함께하는 오늘의 삶</p>
@@ -2130,25 +2132,59 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
           </div>
         </div>
       </article>
-      <article class="gomna-home-card" data-card="2" data-story-person="david" data-ghd-deck="home" data-kind="content" aria-hidden="true" aria-label="성경 속 이야기와 인물">
+      <article class="gomna-home-card ghd-image-pending" data-card="2" data-story-person="david" data-ghd-deck="home" data-kind="content" aria-hidden="true" aria-label="성경 속 이야기와 인물">
         <div class="gomna-home-card-inner">
           <div class="gomna-home-card-face is-shown gomna-home-poster" data-face="tease">
-            <div class="gbl-original-page">
-            <p class="gomna-home-poster-kicker">사람들의 이야기 속 하나님의 역사</p>
-            <h2 class="gomna-home-poster-title">성경 속 이야기와 인물</h2>
-            <p class="gomna-home-poster-lead">평범한 사람들의 삶을 통해<br>일하시는 하나님의 놀라운 이야기</p>
-            <div class="gomna-home-poster-pills" role="group" aria-label="성경 속 인물">
-              <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="abraham" aria-pressed="false">아브라함</button>
-              <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="moses" aria-pressed="false">모세</button>
-              <button type="button" class="gomna-home-poster-pill is-on" data-ghd-story-chip="david" aria-pressed="true">다윗</button>
-              <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="joseph" aria-pressed="false">요셉</button>
-              <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="lot" aria-pressed="false">롯</button>
-              <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="esther" aria-pressed="false">에스더</button>
-              <button type="button" class="gomna-home-poster-pill" data-ghd-story-chip="paul" aria-pressed="false">바울</button>
-            </div>
-            <div class="gomna-home-poster-foot">
-              <button type="button" class="gbl-discover-link" data-gbl-discover="open">인물과 이야기 더 보기 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
-            </div>
+            <div class="gbl-original-page home-people-poster">
+              <div class="home-people-heading">
+                <p class="gomna-home-poster-kicker">사람들의 이야기 속 하나님의 역사</p>
+                <h2 class="gomna-home-poster-title">성경 속 이야기와 인물</h2>
+                <p class="home-people-lead">평범한 사람들의 삶을 통해<br>일하시는 하나님의 놀라운 이야기<br>그들의 이야기는 지금도 우리에게 말씀합니다.</p>
+                <div class="home-person-picker">
+                  <select data-home-person-select aria-label="성경 인물 선택">
+<option value="abraham">아브라함</option>
+<option value="moses">모세</option>
+<option value="david" selected>다윗</option>
+<option value="joseph">요셉</option>
+<option value="lot">롯</option>
+<option value="esther">에스더</option>
+<option value="paul">바울</option>
+<option value="noah">노아</option>
+<option value="jacob">야곱</option>
+<option value="joshua">여호수아</option>
+<option value="hannah">한나</option>
+<option value="samuel">사무엘</option>
+<option value="deborah">드보라</option>
+<option value="elijah">엘리야</option>
+<option value="daniel">다니엘</option>
+<option value="jonah">요나</option>
+<option value="nehemiah">느헤미야</option>
+<option value="mary">마리아</option>
+<option value="john-baptist">세례 요한</option>
+<option value="peter">베드로</option>
+<option value="john">요한</option>
+<option value="thomas">도마</option>
+<option value="mary-magdalene">막달라 마리아</option>
+<option value="zacchaeus">삭개오</option>
+<option value="barnabas">바나바</option>
+<option value="ruth">룻</option>
+<option value="gideon">기드온</option>
+</select>
+                </div>
+              </div>
+              <div class="home-person-summary" data-person-pending>
+                <button type="button" class="home-person-photo-link" data-home-person-link data-gbl-open="people" data-gbl-id="david" aria-label="다윗 인물 소개 보기">
+                  <img src="assets/home/people/v1/david.webp" data-home-person-photo alt="다윗 인물 소개 보기" width="1254" height="1254" decoding="sync">
+                </button>
+                <div class="home-person-copy">
+                  <p data-home-person-name>다윗</p>
+                  <p data-home-person-title>하나님이 보시는 마음</p>
+                  <p data-home-person-intro>들판의 목자에서 이스라엘의 왕이 된 사람</p>
+                </div>
+              </div>
+              <button type="button" class="home-person-more" data-home-person-link data-home-person-more data-gbl-open="people" data-gbl-id="david">다윗 더 알아보기 →</button>
+              <button type="button" class="home-people-all" data-gbl-open="people">인물과 이야기 더 보기 →</button>
+              <p class="home-person-status" data-home-person-status role="status" aria-live="polite"></p>
             </div>
             <div class="gbl-discover-page" hidden inert>
               <button type="button" class="gbl-discover-back" data-gbl-discover="back" aria-label="이전 인물 카드로 돌아가기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg></button>
@@ -2202,7 +2238,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
   </section>
   <div class="gomna-home-after" id="gomnaHomeAfter">
     <button type="button" class="gomna-home-media" id="gomnaHomeMedia" aria-label="오늘의 묵상 이미지 크게 보기">
-      <img src="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1" alt="" width="1200" height="675">
+      <img src="assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74" alt="" width="1200" height="675">
     </button>
     <div class="gomna-home-media-copy">
       <span class="gomna-home-goldline" aria-hidden="true"></span>
@@ -2432,7 +2468,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 <div class="gomna-home-viewer" id="gomnaHomeViewer" hidden>
   <p class="gomna-home-viewer-title">오늘의 묵상</p>
   <button type="button" class="gomna-home-viewer-close" id="gomnaHomeViewerClose" aria-label="닫기">×</button>
-  <img src="assets/images/home-card-dawn-sea.png?v=20260905-dawn-v1" alt="오늘의 묵상 배경">
+  <img src="assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74" alt="오늘의 묵상 배경">
 </div>
 <div class="ghd-sheet" id="ghdNotifySheet" hidden>
   <div class="ghd-sheet-panel ghd-notify-panel" role="dialog" aria-modal="true" aria-labelledby="ghdNotifyTitle">
@@ -3701,7 +3737,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <script src="js/gomna-push-config.js?v=20260909-push-pref-v1"></script>
 <script src="js/gomna-push-prefs.js?v=20260914-notify-interval-v1"></script>
 <script src="js/gomna-mail-config.js?v=20260909-mail-mac-v1"></script>
-<script src="js/gomna-home-feed.js?v=20261003-stale-frame-v1"></script>
+<script src="js/gomna-home-feed.js?v=20261005-home-approved-clean-v74"></script>
 <script src="js/gomna-bible-stair-picker.js?v=20260917-old-card-removed-v8"></script>
 <script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>

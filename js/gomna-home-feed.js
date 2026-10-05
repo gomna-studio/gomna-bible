@@ -22,23 +22,24 @@
   var H_SWIPE_VEL=0.22;
   var AXIS_PX=16;
   var AXIS_RATIO=1.25;
+  var BASE_CARD_IMAGES=["assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74", "assets/home/card-meditation-life-20261005.webp?v=20261005-background-v1", "assets/home/card-people-journey-20261005.webp?v=20261005-home-approved-clean-v74"];
   var LIFE_THEME_IMGS={
-    new:'assets/home/meditation/v5-card-new-life.png?v=20260908-mist-v1',
-    prayer:'assets/home/meditation/v10-card-prayer-life.png?v=20260909-clean-v1',
-    blessed:'assets/home/meditation/v12-card-blessed-life.png?v=20260909-blessed-v12b',
-    faith:'assets/home/meditation/v6-card-faith-life.png?v=20260908-partial-v1',
-    love:'assets/home/meditation/v10-card-love-life.png?v=20260909-clean-v1',
-    wisdom:'assets/home/meditation/v5-card-wisdom-life.png?v=20260908-mist-v1',
-    hope:'assets/home/meditation/v11-card-hope-life.png?v=20260909-hope-v11'
+    new:'assets/home/meditation/v5-card-new-life.webp?v=20261005-home-approved-clean-v74',
+    prayer:'assets/home/meditation/v10-card-prayer-life.webp?v=20261005-home-approved-clean-v74',
+    blessed:'assets/home/meditation/v12-card-blessed-life.webp?v=20261005-home-approved-clean-v74',
+    faith:'assets/home/meditation/v6-card-faith-life.webp?v=20261005-home-approved-clean-v74',
+    love:'assets/home/meditation/v10-card-love-life.webp?v=20261005-home-approved-clean-v74',
+    wisdom:'assets/home/meditation/v5-card-wisdom-life.webp?v=20261005-home-approved-clean-v74',
+    hope:'assets/home/meditation/v11-card-hope-life.webp?v=20261005-home-approved-clean-v74'
   };
   var STORY_PERSON_IMGS={
-    abraham:'assets/home/stories/v1-story-abraham.png?v=20260909-story-v1',
-    moses:'assets/home/stories/v1-story-moses.png?v=20260909-story-v1',
-    david:'assets/home/stories/v1-story-david.png?v=20260909-story-v1',
-    joseph:'assets/home/stories/v1-story-joseph.png?v=20260909-story-v1',
-    lot:'assets/home/stories/v1-story-lot.png?v=20260909-story-v1',
-    esther:'assets/home/stories/v1-story-esther.png?v=20260909-story-v1',
-    paul:'assets/home/stories/v1-story-paul.png?v=20260909-story-v1'
+    abraham:'assets/home/stories/v1-story-abraham.webp?v=20261005-home-approved-clean-v74',
+    moses:'assets/home/stories/v1-story-moses.webp?v=20261005-home-approved-clean-v74',
+    david:'assets/home/stories/v1-story-david.webp?v=20261005-home-approved-clean-v74',
+    joseph:'assets/home/stories/v1-story-joseph.webp?v=20261005-home-approved-clean-v74',
+    lot:'assets/home/stories/v1-story-lot.webp?v=20261005-home-approved-clean-v74',
+    esther:'assets/home/stories/v1-story-esther.webp?v=20261005-home-approved-clean-v74',
+    paul:'assets/home/stories/v1-story-paul.webp?v=20261005-home-approved-clean-v74'
   };
   var NOTE_KEY='gomna_home_response_';
   var socialState={verseId:'', likeCount:0, liked:false, commentCount:0, comments:null};
@@ -1144,6 +1145,7 @@
   function cardOpenImage(card){
     if(!card)return '';
     var id=card.getAttribute('data-card');
+    if(id==='0')return 'assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74';
     if(id==='1')return LIFE_THEME_IMGS[lifeThemeId]||'';
     if(id==='2')return STORY_PERSON_IMGS[storyPersonId]||'';
     return '';
@@ -1314,6 +1316,7 @@
     wheelIdleTimer=setTimeout(markGestureEnd, 180);
   }
   function onWheelOutsideDeck(ev){
+    if(ev.target.closest && ev.target.closest(".home-person-choices"))return;
     if(document.body.classList.contains('gbl-open'))return;
     if(!root || ev.defaultPrevented || ev.ctrlKey || ev.metaKey)return;
     if(document.querySelector('#settingsPopup.show, .gomna-acc-overlay:not([hidden])'))return;
@@ -1550,6 +1553,7 @@
     pinDeckScroll(clamp(swipeDrag.scroll-dy, 0, maxY));
   }
   function onSwipeStart(ev){
+    if(ev.target.closest && ev.target.closest(".home-person-choices")){swipeDrag=null;return;}
     if(isHomeChromeHit(ev.target))return;
     if(ev.touches && ev.touches.length!==1){
       swipeDrag=null;
@@ -1569,6 +1573,7 @@
     applySwipeMove(p.x, p.y, ev);
   }
   function onPtrStart(ev){
+    if(ev.target.closest && ev.target.closest(".home-person-choices")){swipeDrag=null;return;}
     if(isHomeChromeHit(ev.target))return;
     if(lifeDetailOpen() && ev.pointerType==='touch')return;
     if(!ev.isPrimary){
@@ -1924,6 +1929,11 @@
   function openCard(card, skipHistory){
     if(!card||!card.classList.contains('is-active')||card.classList.contains('is-open'))return;
     if(Math.abs(progress-cards.indexOf(card))>0.12)return;
+    var personLink=card.querySelector('[data-home-person-more]');
+    if(card.getAttribute('data-card')==='2' && personLink){
+      personLink.click();
+      return;
+    }
     var src=cardOpenImage(card);
     if(!src||isHomeImageReady(src)){
       openCardNow(card, skipHistory);
@@ -4098,6 +4108,13 @@
     var restoreEntry=readHomeRestoreEntry();
     if(restoreEntry&&restoreEntry.kind==='life')lifeThemeId=restoreEntry.id;
     if(restoreEntry&&restoreEntry.kind==='person')storyPersonId=restoreEntry.id;
+    cards.forEach(function(card,i){
+      card.classList.add('ghd-image-pending');
+      ensureHomeImageReady(BASE_CARD_IMAGES[i], i===0?'high':'low').then(function(ok){
+        card.classList.remove('ghd-image-pending');
+        card.classList.toggle('ghd-image-failed',!ok);
+      });
+    });
     fillCopy();
     syncGreeting();
     cards.forEach(bindCard);
@@ -4202,7 +4219,10 @@
       if(data.action==='ready')markHomeBiblePickerReady();
       if(data.action==='close')closeHomeBiblePicker(false);
     });
-    window.setTimeout(preloadHomeBiblePicker, 280);
+    // Do not compete with the first card's image on a cold connection.
+    ensureHomeImageReady(BASE_CARD_IMAGES[0], 'high').then(function(ok){
+      if(ok && document.visibilityState !== 'hidden')window.setTimeout(preloadHomeBiblePicker, 1200);
+    });
     if('requestIdleCallback' in window)window.requestIdleCallback(preloadCurrentHomeImages,{timeout:1200});
     else window.setTimeout(preloadCurrentHomeImages, 480);
     var prev=window.__gomnaOnLangApplied;

@@ -997,6 +997,12 @@
     }
   }
 
+  var pendingDataQuery=null, pendingDataOpts;
+  global.addEventListener('gomna:bible-data-settled',function(){
+    if(pendingDataQuery===null)return;
+    var q=pendingDataQuery; pendingDataQuery=null;
+    renderSearchResults(q,pendingDataOpts);
+  });
   function renderSearchResults(query, opts) {
     var host = document.getElementById('easyFindSearchResults');
     var body = document.getElementById('easyFindHomeBody');
@@ -1018,6 +1024,7 @@
     if (!host || !body) return;
     if (clearBtn) clearBtn.hidden = !q;
     if (!q && !topic) {
+      pendingDataQuery = null;
       host.hidden = true;
       host.innerHTML = '';
       body.hidden = false;
@@ -1031,6 +1038,12 @@
         if (opts && opts.restoreScroll != null) scroll.scrollTop = opts.restoreScroll;
         else if (!(opts && opts.keepScroll)) scroll.scrollTop = 0;
       }
+      return;
+    }
+    if (global.__gomnaBibleDataReady === false) {
+      host.hidden=false; body.hidden=true;
+      host.innerHTML='<div role="status">'+(_gomnaOldTestamentLoadState === 'error' || _gomnaNewTestamentLoadState === 'error' ? '본문을 불러오지 못했습니다. 새로고침해 주세요.' : '본문 검색을 준비하고 있습니다.')+'</div>';
+      pendingDataQuery = query; pendingDataOpts = opts;
       return;
     }
     if (body && !body.hidden) captureHomeScroll();
