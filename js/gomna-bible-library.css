@@ -153,3 +153,6 @@ body.gbl-open::before {content:"";position:fixed;inset:-100vmax;background:#fff;
 #gomnaBibleLibrary {clip-path:none;box-shadow:none;overflow:hidden}
 #gomnaBibleLibrary .gbl-scroll {background:#fff}
 body.gbl-open #gomnaHomeTabbar {z-index:1001!important}
+.gomna-home-card[data-card="2"] .gbl-discover-page .gbl-discover-buttons {
+  transform: none;
+}

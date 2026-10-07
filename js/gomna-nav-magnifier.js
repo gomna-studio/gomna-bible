@@ -81,7 +81,7 @@
     var el = item(e.target);
     if (!el || el.disabled) return;
     press = {el:el, id:e.pointerId, x:e.clientX, y:e.clientY, shown:false};
-    timer = setTimeout(show, 500);
+    timer = setTimeout(show, 800);
   }, true);
   document.addEventListener('pointermove', function (e) {
     if (press && press.id === e.pointerId && Math.hypot(e.clientX - press.x, e.clientY - press.y) > 12) {

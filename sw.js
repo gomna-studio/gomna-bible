@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-10-06-mary-default-v80';
+const CACHE_VERSION = '2026-10-07-home-coffee-nav-v81';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const IMAGE_CACHE = 'gomna-images-v1';
@@ -33,7 +33,7 @@ const STATIC_URLS = [
   '/index.html',
   '/reader.html',
   '/meditation.html',
-  '/js/gomna-pwa-recovery.js?v=2026-10-05-home-approved-clean-v75',
+  '/js/gomna-pwa-recovery.js?v=2026-10-07-home-coffee-nav-v81',
   '/translate_feature.js?v=20260724-first-visit-detect-v2',
   '/js/gomna-ui-i18n.js?v=20260729-resume-i18n-books',
   '/analytics-control.js?v=20260826-internal-exclusion-v1',
@@ -43,11 +43,11 @@ const STATIC_URLS = [
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
   '/js/gomna-account-white.css?v=20260925-account-white-preview-v5',
-  '/js/gomna-home-feed.js?v=20261005-home-approved-clean-v75',
+  '/js/gomna-home-feed.js?v=20261007-home-coffee-nav-v81',
   '/js/gomna-home-feed.css?v=20261005-home-approved-clean-v74',
   '/gomna_category_feature.js',
   '/gomna_category_feature.js?v=20260927-reader-guide-width-v1',
-  '/js/gomna-nav-magnifier.js?v=20260927-6',
+  '/js/gomna-nav-magnifier.js?v=20261007-tap-v10',
   '/style.css',
   '/css/gomna-audio-player.css?v=20260918-custom-hero-v43',
   '/js/audio-config.js?v=1',
@@ -63,7 +63,10 @@ const STATIC_URLS = [
   '/assets/home/card-meditation-life-20261005.webp?v=20261005-background-v1',
   '/assets/home/card-people-journey-20261005.webp?v=20261005-home-approved-clean-v74',
   '/js/gomna-home-people-card.css?v=20261006-person-picker-size-v79',
-  '/js/gomna-home-people-card.js?v=20261006-mary-default-v80',
+  '/js/gomna-nav-single-tap.js?v=20261007-tap-v10',
+  '/js/gomna-coffee-steam.css?v=20261007-steam-pause-v7',
+  '/js/gomna-bible-library.css?v=20261007-buttons-down-10mm-v9',
+  '/assets/home/meditation-coffee.png?v=20261007-coffee-v1',
   '/js/gomna-bible-library.js?v=20261005-home-approved-clean-v74',
   '/js/gomna-bible-library-data.js?v=20261005-home-approved-clean-v74',
   '/assets/home/people/v1/mary.webp',

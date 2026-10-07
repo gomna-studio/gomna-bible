@@ -22,7 +22,7 @@
   var H_SWIPE_VEL=0.22;
   var AXIS_PX=16;
   var AXIS_RATIO=1.25;
-  var BASE_CARD_IMAGES=["assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74", "assets/home/card-meditation-life-20261005.webp?v=20261005-background-v1", "assets/home/card-people-journey-20261005.webp?v=20261005-home-approved-clean-v74"];
+  var BASE_CARD_IMAGES=["assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74", "assets/home/meditation-coffee.png?v=20261007-coffee-v1", "assets/home/card-people-journey-20261005.webp?v=20261005-home-approved-clean-v74"];
   var LIFE_THEME_IMGS={
     new:'assets/home/meditation/v5-card-new-life.webp?v=20261005-home-approved-clean-v74',
     prayer:'assets/home/meditation/v10-card-prayer-life.webp?v=20261005-home-approved-clean-v74',

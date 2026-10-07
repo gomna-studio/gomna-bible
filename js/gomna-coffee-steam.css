@@ -1,0 +1,35 @@
+.gomna-home-card[data-card="1"]:not(.is-open) {
+  background-image:url('../assets/home/meditation-coffee.png');
+  background-size:100% 100%;background-position:center;
+}
+.gomna-coffee-steam {
+  position:absolute;left:82.5%;top:76.2%;width:64px;height:110px;
+  transform:translate(-50%,-100%);z-index:2;pointer-events:none;
+  overflow:hidden;
+}
+.gomna-coffee-steam .coffee-steam-wisps path {
+  fill:none;stroke:url(#coffee-steam-fade);stroke-width:4;
+  stroke-linecap:round;filter:blur(2.2px);opacity:0;
+  transform-box:view-box;transform-origin:32px 110px;
+  animation:gomna-steam-rise 4.2s ease-in-out infinite;
+}
+.gomna-coffee-steam .coffee-steam-wisps path:nth-child(2){animation-delay:-1.4s;stroke-width:3}
+.gomna-coffee-steam .coffee-steam-wisps path:nth-child(3){animation-delay:-2.8s;stroke-width:5}
+@keyframes gomna-steam-rise {
+  0%{opacity:0;transform:scale(.75,.6) rotate(-2deg)}
+  30%{opacity:.85}
+  65%{opacity:.6;transform:scale(1,1) rotate(2deg)}
+  100%{opacity:0;transform:scale(1.15,1.2) rotate(-1deg)}
+}
+.gomna-home-card[data-card="1"].is-open .gomna-coffee-steam{display:none}
+@media(prefers-reduced-motion:reduce){.gomna-coffee-steam .coffee-steam-wisps path{animation-duration:8s}}
+
+/* Pause all wisps together briefly, then softly resume. */
+.gomna-coffee-steam .coffee-steam-wisps {
+  animation:gomna-steam-breath 6.4s linear infinite;
+}
+@keyframes gomna-steam-breath {
+  0%,65% {opacity:1}
+  74%,84% {opacity:0}
+  94%,100% {opacity:1}
+}
