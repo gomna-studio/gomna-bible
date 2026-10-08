@@ -15,19 +15,20 @@ const guardSource = read('js/gomna-screen-transition.js');
 assert.match(homeCss, /\.gomna-home-card\.is-past\s*\{[^}]*visibility:hidden;[^}]*opacity:0;/s);
 assert.match(homeJs, /classList\.toggle\('is-past', i<activeIndex\)/);
 assert.match(homeJs, /classList\.toggle\('is-future', i>activeIndex\)/);
-assert.match(indexHtml, /gomna-home-feed\.js\?v=20261005-home-approved-clean-v75/);
+const release = /const CACHE_VERSION = '([^']+)'/.exec(serviceWorker)[1];
+const homeScript = /gomna-home-feed\.js\?v=[a-zA-Z0-9-]+/.exec(indexHtml)[0];
+const homeStyle = /gomna-home-feed\.css\?v=[a-zA-Z0-9-]+/.exec(indexHtml)[0];
+assert.ok(serviceWorker.includes(homeScript));
+assert.ok(serviceWorker.includes(homeStyle));
 assert.doesNotMatch(indexHtml, /(?:^|,)button:active(?:\{|:)/m);
 assert.doesNotMatch(readerHtml, /(?:^|,)button:active(?:\{|:)/m);
 
 for (const html of [indexHtml, readerHtml, meditationHtml]) {
   assert.match(html, /gomna-screen-transition\.js\?v=20261003-clean-entry-v3/);
-  assert.match(html, /gomna-pwa-recovery\.js\?v=2026-10-05-home-approved-clean-v75/);
-  assert.match(html, /data-release="2026-10-05-home-approved-clean-v75"/);
+  assert.ok(html.includes('gomna-pwa-recovery.js?v=' + release));
+  assert.ok(html.includes('data-release="' + release + '"'));
 }
-assert.match(serviceWorker, /2026-10-05-home-approved-clean-v75/);
 assert.match(serviceWorker, /gomna-screen-transition\.js\?v=20261003-clean-entry-v3/);
-assert.match(serviceWorker, /gomna-home-feed\.css\?v=20261005-home-approved-clean-v74/);
-assert.match(serviceWorker, /gomna-home-feed\.js\?v=20261005-home-approved-clean-v75/);
 
 const classes = new Set();
 let clickHandler = null;

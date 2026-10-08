@@ -97,6 +97,11 @@
     if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'GOMNA_GET_RELEASE' });
     if (registration && registration.waiting) registration.waiting.postMessage({ type: 'GOMNA_REQUEST_ACTIVATION' });
   }
+  function isNewerRelease(incoming, current) {
+    var a = /^(\d{4}-\d{2}-\d{2}).*-v(\d+)$/.exec(incoming || '');
+    var b = /^(\d{4}-\d{2}-\d{2}).*-v(\d+)$/.exec(current || '');
+    return !!(a && b && (a[1] > b[1] || (a[1] === b[1] && Number(a[2]) > Number(b[2]))));
+  }
   if ('serviceWorker' in navigator && pageVersion) {
     navigator.serviceWorker.addEventListener('message', function (event) {
       var data = event.data || {};
@@ -104,13 +109,13 @@
         event.source.postMessage({ type: 'GOMNA_UPDATE_REPLY', token: data.token, safe: !busy() });
       } else if (data.type === 'GOMNA_RELEASE' && event.source === navigator.serviceWorker.controller &&
           typeof data.version === 'string' && /^[a-zA-Z0-9-]{1,100}$/.test(data.version)) {
-        pendingVersion = data.version !== pageVersion ? data.version : null;
+        pendingVersion = isNewerRelease(data.version, pageVersion) ? data.version : null;
         maybeReload();
       }
     });
     navigator.serviceWorker.addEventListener('controllerchange', checkWorker);
     function registerWorker() {
-    navigator.serviceWorker.register('/sw.js?v=' + encodeURIComponent(pageVersion), { scope: '/', updateViaCache: 'none' })
+    navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' })
       .then(function (reg) {
         registration = reg;
         reg.addEventListener('updatefound', function () {
@@ -118,11 +123,9 @@
           if (worker) worker.addEventListener('statechange', function () { if (worker.state === 'installed') checkWorker(); });
         });
         checkWorker();
-        reg.update().catch(function () {});
       }).catch(function () {});
     }
-    if (navigator.serviceWorker.controller) registerWorker();
-    else if (document.readyState === 'complete') window.setTimeout(registerWorker, 1200);
+    if (document.readyState === 'complete') window.setTimeout(registerWorker, 1200);
     else window.addEventListener('load', function () {
       if (window.requestIdleCallback) window.requestIdleCallback(registerWorker, { timeout: 4000 });
       else window.setTimeout(registerWorker, 1200);
