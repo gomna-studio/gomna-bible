@@ -324,7 +324,7 @@
 
   function goReader(verse){
     var href = readerHref(state.bookName, state.chapter, verse);
-    close();
+    /* Keep the selected chapter visible until the destination replaces this document. */
     if (typeof window.navigateFromHomeBiblePicker === 'function' &&
         window.navigateFromHomeBiblePicker(state.bookName, state.chapter, verse, state.mode)) {
       return;

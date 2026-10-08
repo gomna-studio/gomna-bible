@@ -4521,11 +4521,11 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
   .verse-num{width:3ch!important;min-width:3ch!important;max-width:3ch!important;height:auto!important;font-size:0.84em!important;padding:0.32em 0 0!important}
 }
 </style>
-<script src="gomna_category_feature.js?v=20260927-reader-guide-width-v1" defer></script>
+<script src="gomna_category_feature.js?v=20261008-guide-v25" defer></script>
 <script src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
 <script src="/js/gomna-bible-ref.js?v=20260725-multilang-structured-refs-v1"></script>
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
-<script src="js/gomna-bible-stair-picker.js?v=20260917-old-card-removed-v8"></script>
+<script src="js/gomna-bible-stair-picker.js?v=20261008-clean-transition-v1"></script>
 <link rel="stylesheet" href="js/gomna-easy-find.css?v=20260918-topic-links-v1">
 <script src="js/gomna-easy-find.js?v=20261005-home-approved-clean-v74"></script>
 <script src="/js/gomna-commentary-multilang-policy.js?v=20260725-multilang-structured-refs-v1"></script>
@@ -4540,9 +4540,11 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <script src="js/gomna-ui-i18n.js?v=20260909-locale-runtime-sync-v1"></script>
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
-<link rel="stylesheet" href="js/gomna-account-white.css?v=20260925-account-white-preview-v5">
+<link rel="stylesheet" href="js/gomna-account-white.css?v=20261008-account-unified-v1">
 <script src="/js/gomna-pwa-recovery.js?v=2026-10-05-home-approved-clean-v75" data-release="2026-10-05-home-approved-clean-v75" defer></script>
-<script src="/js/gomna-nav-magnifier.js?v=20260927-6" defer></script>
+<script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
+<link rel="stylesheet" href="js/gomna-guide-colorful.css?v=20261008-guide-v25">
+<script>if(new URLSearchParams(location.search).get("homeGuide")==="1")document.documentElement.classList.add("gomna-home-guide-entering");</script><style>html.gomna-home-guide-entering body{visibility:hidden}</style>
 </head>
 <body data-gomna-page="reader">
 <div id="gomnaReaderBootOverlay" class="gomna-reader-boot-overlay" aria-hidden="true">
@@ -20355,7 +20357,7 @@ function loadAds() {
 </script>
 <!-- 로그인 연결: Supabase 공식 CDN이 먼저, 그 뒤에 gomna-auth.js. 순서를 바꾸지 않는다. -->
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="js/gomna-auth.js?v=20260923-naver-profile-name-v3"></script>
+<script defer src="js/gomna-auth.js?v=20261008-account-unified-v1"></script>
 <!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
 <script defer src="js/gomna-help.js?v=2026-09-18-help-commentary-v29"></script>
 <!-- 로컬 미리보기: 로그인 상단 카드 3장 교차 셔플(표시 전용). 되돌릴 때는 이 줄과 파일만 지운다. -->
@@ -20552,5 +20554,7 @@ window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!match
 
 <script src="js/gomna-bible-listen-controls.js?v=20261006-audio-v76"></script>
 <script src="js/gomna-library-return.js?v=20260928-34"></script>
+<script src="js/gomna-guide-home-entry.js?v=20261008-guide-v25"></script>
 </body>
 </html>
+

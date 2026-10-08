@@ -2,6 +2,11 @@
 (function(){
   'use strict';
   var tap=null;
+  function resetTap(){tap=null;}
+  window.addEventListener('pagehide',resetTap);
+  window.addEventListener('pageshow',resetTap);
+  window.addEventListener('blur',resetTap);
+  document.addEventListener('visibilitychange',resetTap);
   function control(el){return el&&el.closest?el.closest('#gomnaHomeTabbar .gomna-home-tab'):null;}
   document.addEventListener('touchstart',function(e){
     tap=null;

@@ -106,8 +106,14 @@
   document.addEventListener('contextmenu', function (e) {
     if (item(e.target)) e.preventDefault();
   }, true);
-  ['blur', 'pagehide', 'resize'].forEach(function (type) { window.addEventListener(type, dismiss); });
+  function resetPress() {
+    dismiss();
+    blocked = null;
+    blockedUntil = 0;
+  }
+  ['blur', 'pagehide', 'pageshow'].forEach(function (type) { window.addEventListener(type, resetPress); });
+  window.addEventListener('resize', dismiss);
   document.addEventListener('scroll', dismiss, true);
-  document.addEventListener('visibilitychange', dismiss);
+  document.addEventListener('visibilitychange', resetPress);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') dismiss(); });
 })();

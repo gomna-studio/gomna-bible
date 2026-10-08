@@ -1281,3 +1281,8 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
   .login-brand-card,
   .login-brand-lead{transition:none}
 }
+
+body.gmd-page .gmd-btn{border-width:2px}
+body.gmd-page .gmd-btn:focus{outline:none}
+body.gmd-page .gmd-btn:focus-visible{outline:2px solid #8998C4;outline-offset:2px}
+

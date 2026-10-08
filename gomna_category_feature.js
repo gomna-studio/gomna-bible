@@ -75,8 +75,8 @@
     '.scripture-guide-head-title{flex:1;text-align:center;font-size:16px;font-weight:700;color:#1F2329;margin:0;line-height:1.3}' +
     '.scripture-guide-head-sub{margin:3px 0 0;font-size:12px;font-weight:600;color:#6B7280;line-height:1.3}' +
     '.scripture-guide-head-sub[hidden]{display:none!important}' +
-    '.scripture-guide-head-close{width:36px;height:36px;min-width:36px;padding:0;border:none;background:#E8F0FC;border-radius:50%;color:#355F9A;font-size:16px;cursor:pointer;font-family:inherit;line-height:1}' +
-    '.scripture-guide-head-close:active{background:#D7E4F7}' +
+    '.scripture-guide-head-close{width:36px;height:36px;min-width:36px;padding:0;border:none;background:transparent;border-radius:0;color:#000;font-size:16px;cursor:pointer;font-family:inherit;line-height:1}' +
+    '.scripture-guide-head-close:active{background:transparent;color:#000}' +
     '.scripture-guide-detail-h{font-size:17px;font-weight:800;color:#1F2329;margin:0 0 14px}' +
     '.scripture-guide-q{font-size:15px;font-weight:700;color:#355F9A;margin:0 0 6px;line-height:1.45}' +
     '.scripture-guide-a{font-size:15px;line-height:1.75;font-weight:500;color:#1F2329;margin:0}' +
@@ -136,7 +136,7 @@
   };
   var ntInfo = {
     "복음서":   {tags:["복음서","복음기록서"], desc:"예수 그리스도의 생애와 십자가 죽음, 그리고 부활의 기쁜 소식입니다.", shortDesc:"마태복음부터 요한복음까지, 예수님의 삶과 가르침, 십자가와 부활을 기록한 네 권"},
-    "역사서":   {tags:["초대교회사","사도행전사"], desc:"성령의 임재로 세워진 교회가 땅끝까지 복음을 전해 가는 이야기입니다.", shortDesc:"사도행전, 초대교회의 시작과 복음이 전해진 역사를 기록한 책"},
+    "역사서":   {tags:["초대교회사","사도행전사"], desc:"성령의 임재로 세워진 교회가 땅끝까지 복음을 전해 가는 이야기입니다.", shortDesc:"사도행전, 초대복음의 여정과 복음이 전해진 역사를 기록한 책"},
     "바울서신": {tags:["바울서신","교리서신","목회서신"], desc:"교회의 질서를 세우고 복음의 진리를 가르치는 목회 편지입니다.", shortDesc:"로마서부터 빌레몬서까지, 사도 바울이 교회와 성도들에게 보낸 편지"},
     "공동서신": {tags:["공동서신","보편서신","권면서신"], desc:"고난과 박해 속에서도 성도들이 믿음을 지키도록 격려하는 권면의 말씀입니다.", shortDesc:"히브리서부터 유다서까지, 교회와 성도들에게 믿음의 삶을 권면하는 편지"},
     "예언서":   {tags:["묵시문학서","예언서","계시서"], desc:"다시 오실 예수님과 함께 완성될 영원한 하나님 나라의 승리의 약속입니다.", shortDesc:"요한계시록, 마지막 승리와 하나님 나라의 완성을 전하는 말씀"}
@@ -411,7 +411,7 @@
       "역사서": {
         testament: "new", categoryName: "역사서", returnLabel: "사도행전",
         altNames: "초대교회사 · 사도행전사 · 성령의 역사",
-        summaryLine1: "사도행전 한 권으로, 초대교회의 시작과 복음이 전해진 역사를 기록한 책입니다.",
+        summaryLine1: "사도행전 한 권으로, 초대복음의 여정과 복음이 전해진 역사를 기록한 책입니다.",
         summaryLine2: "성령의 임재로 세워진 교회가 땅끝까지 복음을 전해 가는 이야기입니다.",
         books: "사도행전",
         detailTitle: "신약 역사서 깊이 알아보기", bookListTitle: "포함된 성경",
@@ -576,6 +576,31 @@
     var range = getGuideBookRangeText(c);
     if (range) html += '<p class="scripture-guide-range">' + escGuideHtml(range) + '</p>';
     if (c.summaryLine2) html += '<p class="scripture-guide-p">' + escGuideHtml(c.summaryLine2) + '</p>';
+    if (c.categoryName === '모세오경') {
+      var commandments = [
+        ['לֹא יִהְיֶה לְךָ','로 이흐예 레카','너에게 …이 있어서는 안 된다','나 외에는 다른 신을 두지 말라'],
+        ['לֹא תַעֲשֶׂה לְךָ פֶסֶל','로 타아세 레카 페셀','너를 위하여 우상을 만들지 말라','우상을 만들거나 섬기지 말라'],
+        ['לֹא תִשָּׂא','로 티사','너는 …을 들지 말라','하나님의 이름을 망령되이 부르지 말라'],
+        ['זָכוֹר אֶת','자코르 엣','…을 기억하라','안식일을 기억하여 거룩하게 지키라'],
+        ['כַּבֵּד אֶת','카베드 엣','…을 공경하라','네 부모를 공경하라'],
+        ['לֹא תִרְצָח','로 티르차흐','살인하지 말라','살인하지 말라'],
+        ['לֹא תִנְאָף','로 티나프','간음하지 말라','간음하지 말라'],
+        ['לֹא תִגְנֹב','로 티그노브','도둑질하지 말라','도둑질하지 말라'],
+        ['לֹא תַעֲנֶה','로 타아네','너는 …에 대하여 증언하지 말라','네 이웃에 대하여 거짓 증언하지 말라'],
+        ['לֹא תַחְמֹד','로 타흐모드','탐내지 말라','네 이웃의 집과 그에게 속한 것을 탐내지 말라']
+      ];
+      html += '<div style="clear:both;padding-top:16px"><h3>시내산 — 성경 속 장소와 오늘날의 위치</h3><p class="scripture-guide-p"><strong>성경 속 시내산</strong><br>출애굽한 이스라엘 백성이 하나님과 언약을 맺고, 모세가 십계명 돌판을 받은 산입니다.(출애굽기 19장 · 31:18)</p><p class="scripture-guide-p"><strong>오늘날 전통적으로 알려진 위치</strong><br>이집트 시나이반도 남부, 성 카타리나 수도원 인근의 자발 무사(모세의 산)입니다. 성경 속 시내산의 정확한 위치는 확정되지 않았습니다.</p></div>';
+      html += '<div class="guide-tablets-meaning" style="clear:both;padding-top:20px;margin-top:18px;border-top:1px solid var(--guide-line,#e4e7ec)"><h3>돌판에 새겨진 십계명</h3><p class="scripture-guide-p">핵심 문구를 히브리어로 축약한 것입니다.(출애굽기20:1~20)</p>';
+      for (var side = 0; side < 2; side++) {
+        html += '<h4>' + (side === 0 ? '오른쪽 돌판 · 1~5계명' : '왼쪽 돌판 · 6~10계명') + '</h4><ol start="' + (side * 5 + 1) + '" style="padding-left:24px">';
+        for (var j = side * 5; j < side * 5 + 5; j++) {
+          var item = commandments[j];
+          html += '<li style="margin:0 0 16px;line-height:1.7"><strong>' + item[1] + '</strong> · <bdi lang="he" dir="rtl">' + item[0] + '</bdi><br>문구의 뜻: “' + item[2] + '”<br><strong>제' + (j + 1) + '계명:</strong> ' + item[3] + '</li>';
+        }
+        html += '</ol>';
+      }
+      html += '</div>';
+    }
     html += '</section>';
 
     var sections = c.sections || [];
@@ -697,7 +722,7 @@
           '<div class="scripture-guide-head">' +
             '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
             '<span class="scripture-guide-head-title">성경 길잡이</span>' +
-            '<button type="button" class="scripture-guide-head-close" data-guide-close aria-label="닫기">✕</button>' +
+            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:#000!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
           '</div>' +
           '<div class="scripture-guide-body"></div>' +
         '</div>' +
@@ -706,7 +731,7 @@
           '<div class="scripture-guide-head">' +
             '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
             '<span class="scripture-guide-head-title">성경 길잡이</span>' +
-            '<button type="button" class="scripture-guide-head-close" data-guide-close aria-label="닫기">✕</button>' +
+            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:#000!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
           '</div>' +
           '<div class="scripture-guide-body scripture-guide-detail-body"></div>' +
         '</div>' +
@@ -1553,7 +1578,15 @@
     var cls = 'scripture-all-guides-article' + (extraClass ? ' ' + extraClass : '');
     var testament = guide && guide.testament ? escGuideHtml(guide.testament) : '';
     var cat = guide && guide.categoryName ? escGuideHtml(guide.categoryName) : '';
-    return '<article class="' + cls + '" data-guide-testament="' + testament + '" data-guide-cat="' + cat + '">' + buildGuidePageHtml(guide) + '</article>';
+    var visuals = {"old:모세오경": ["guide-tablets-fire-v20.webp", "율법과 언약"], "old:역사서": ["guide-2-symbol-v16.webp", "이스라엘 왕국"], "old:시가서": ["guide-poetry-v15.webp", "기도와 찬양"], "old:대선지서": ["guide-4-symbol-v16.webp", "예언과 회복"], "old:소선지서": ["guide-5-symbol-v16.webp", "회개와 소망"], "new:복음서": ["guide-6-symbol-v16.webp", "부활과 복음"], "new:역사서": ["guide-7-symbol-v16.webp", "복음의 여정"], "new:바울서신": ["guide-8-symbol-v16.webp", "복음과 편지"], "new:공동서신": ["guide-9-symbol-v16.webp", "믿음의 공동체"], "new:예언서": ["guide-10-symbol-v16.webp", "계시와 소망"]};
+    var visual=visuals[testament+':'+cat];
+    var page=buildGuidePageHtml(guide);
+    if(cat==='모세오경' && testament==='old') {
+      var gallery='<div class="guide-tablets-gallery" style="max-width:210px;margin-bottom:20px">';
+      [['guide-tablets-fire-v20.webp','모세의 산']].forEach(function(item){gallery+='<figure class="guide-visual" style="float:none;width:auto;margin:0"><button type="button" class="guide-image-open" aria-label="'+item[1]+' 확대" style="width:100%"><img src="assets/guide-thumbnails/'+item[0]+'" alt="'+item[1]+'" style="width:100%;height:auto;aspect-ratio:1;object-fit:cover" decoding="async"></button><figcaption>'+item[1]+'</figcaption></figure>';});
+      page=page.replace('<section class="scripture-guide-summary">','<section class="scripture-guide-summary">'+gallery+'</div>');
+    } else if(visual)page=page.replace('<section class="scripture-guide-summary">','<section class="scripture-guide-summary"><figure class="guide-visual"><button type="button" class="guide-image-open" aria-label="'+visual[1]+' 이미지 확대"><img src="assets/guide-thumbnails/'+visual[0]+'" alt="'+visual[1]+'" width="180" height="180" decoding="async"></button><figcaption>'+visual[1]+'</figcaption></figure>');
+    return '<article class="' + cls + '" data-guide-testament="' + testament + '" data-guide-cat="' + cat + '">' + page + '</article>';
   }
 
   function buildAllGuidesHtml() {
@@ -1632,7 +1665,7 @@
           '<h1 class="scripture-guide-head-title" id="scriptureAllGuidesTitle">성경 길잡이</h1>' +
           '<p class="scripture-guide-head-sub" id="scriptureAllGuidesSub" hidden></p>' +
         '</div>' +
-        '<button type="button" class="scripture-guide-head-close" data-all-guides-close aria-label="닫기">✕</button>' +
+        '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:#000!important;box-shadow:none!important;border:0!important" data-all-guides-close aria-label="닫기">✕</button>' +
       '</div>' +
       '<div class="scripture-all-guides-body" id="scriptureAllGuidesBody"></div>';
     document.body.appendChild(overlay);
@@ -1719,3 +1752,4 @@
     init();
   }
 })();
+

@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-10-07-home-coffee-nav-v81';
+const CACHE_VERSION = '2026-10-08-guide-resume-v83';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const IMAGE_CACHE = 'gomna-images-v1';
@@ -29,6 +29,15 @@ function isLocalPreviewHost(hostname) {
 const IS_LOCAL_PREVIEW = isLocalPreviewHost(self.location.hostname);
 
 const STATIC_URLS = [
+  '/js/gomna-guide-colorful.css?v=20261008-guide-v25',
+  '/js/gomna-guide-home-entry.js?v=20261008-guide-v25',
+  '/gomna_category_feature.js?v=20261008-guide-v25',
+  '/js/gomna-auth.js?v=20261008-account-unified-v1',
+  '/js/gomna-account-white.css?v=20261008-account-unified-v1',
+  '/js/gomna-nav-single-tap.js?v=20261008-resume-v1',
+  '/js/gomna-nav-magnifier.js?v=20261008-resume-v1',
+  '/js/gomna-bible-stair-picker.js?v=20261008-clean-transition-v1',
+  '/js/gomna-meditation.css?v=20261008-border-2px-v1',
   '/',
   '/index.html',
   '/reader.html',
@@ -504,3 +513,4 @@ function openTodayWordFromPush(dest, data) {
     return self.clients.openWindow(abs);
   });
 }
+
