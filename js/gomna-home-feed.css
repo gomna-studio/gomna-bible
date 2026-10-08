@@ -2653,5 +2653,6 @@ html[data-gomna-ui-lang="zh"] .gomna-home-poster-title{
 }
 
 /* Text and background enter together, including cold first paint. */
-.gomna-home-card.ghd-image-pending > *{visibility:hidden!important}
-.gomna-home-card.ghd-image-pending::after{visibility:hidden}
+.gomna-home-card.ghd-image-pending:not(.is-open){visibility:hidden}
+.gomna-home-card.ghd-image-pending:not(.is-open) > *{visibility:hidden!important}
+.gomna-home-card.ghd-image-pending:not(.is-open)::after{visibility:hidden}

@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-10-08-guide-resume-v83';
+const CACHE_VERSION = '2026-10-08-startup-recovery-v84';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const IMAGE_CACHE = 'gomna-images-v1';
@@ -13,6 +13,7 @@ const BIBLE_CACHE = 'gomna-bible-text-v1';
 const DATA_CACHE = 'gomna-data-v1';
 const AUDIO_MANIFEST_CACHE = 'gomna-audio-manifest-v1';
 const NETWORK_FIRST_TIMEOUT_MS = 4000;
+const HTML_FALLBACK_TIMEOUT_MS = 1200;
 
 // 로컬 미리보기 주소에서만 적용하는 예외.
 // 운영 도메인에서는 아래 값이 false이므로 기존 동작이 그대로 유지된다.
@@ -29,6 +30,8 @@ function isLocalPreviewHost(hostname) {
 const IS_LOCAL_PREVIEW = isLocalPreviewHost(self.location.hostname);
 
 const STATIC_URLS = [
+  '/assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74',
+  '/assets/home/bible-discovery-journey-v5.webp',
   '/js/gomna-guide-colorful.css?v=20261008-guide-v25',
   '/js/gomna-guide-home-entry.js?v=20261008-guide-v25',
   '/gomna_category_feature.js?v=20261008-guide-v25',
@@ -42,7 +45,7 @@ const STATIC_URLS = [
   '/index.html',
   '/reader.html',
   '/meditation.html',
-  '/js/gomna-pwa-recovery.js?v=2026-10-07-home-coffee-nav-v81',
+  '/js/gomna-pwa-recovery.js?v=2026-10-08-startup-recovery-v84',
   '/translate_feature.js?v=20260724-first-visit-detect-v2',
   '/js/gomna-ui-i18n.js?v=20260729-resume-i18n-books',
   '/analytics-control.js?v=20260826-internal-exclusion-v1',
@@ -52,8 +55,8 @@ const STATIC_URLS = [
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
   '/js/gomna-account-white.css?v=20260925-account-white-preview-v5',
-  '/js/gomna-home-feed.js?v=20261007-home-coffee-nav-v81',
-  '/js/gomna-home-feed.css?v=20261005-home-approved-clean-v74',
+  '/js/gomna-home-feed.js?v=20261008-startup-v84',
+  '/js/gomna-home-feed.css?v=20261008-startup-v84',
   '/gomna_category_feature.js',
   '/gomna_category_feature.js?v=20260927-reader-guide-width-v1',
   '/js/gomna-nav-magnifier.js?v=20261007-tap-v10',
@@ -73,7 +76,7 @@ const STATIC_URLS = [
   '/assets/home/card-people-journey-20261005.webp?v=20261005-home-approved-clean-v74',
   '/js/gomna-home-people-card.css?v=20261006-person-picker-size-v79',
   '/js/gomna-nav-single-tap.js?v=20261007-tap-v10',
-  '/js/gomna-coffee-steam.css?v=20261007-steam-pause-v7',
+  '/js/gomna-coffee-steam.css?v=20261008-startup-v84',
   '/js/gomna-bible-library.css?v=20261007-buttons-down-10mm-v9',
   '/assets/home/meditation-coffee.png?v=20261007-coffee-v1',
   '/js/gomna-bible-library.js?v=20261005-home-approved-clean-v74',
@@ -206,15 +209,28 @@ async function audioManifestStaleWhileRevalidate(req) {
 // No unconditional skipWaiting: older clients cannot report whether audio is playing.
 // Existing clients without this protocol upgrade on natural close/navigation.
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(STATIC_CACHE).then(cache => Promise.all(STATIC_URLS.map(async url => {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 8000);
-    try {
-      const response = await fetch(new Request(url, { cache: 'reload', signal: controller.signal }));
-      if (response.ok) await cache.put(url, response);
-    } catch (err) { console.warn('[sw] optional precache failed', url); }
-    finally { clearTimeout(timer); }
-  }))));
+  event.waitUntil(caches.open(STATIC_CACHE).then(async cache => {
+    const required = ['/index.html', '/reader.html', '/meditation.html'];
+    const queue = [...new Set([...required, ...STATIC_URLS])];
+    let next = 0;
+    // Keep optional downloads from flooding the first screen's connection.
+    async function download() {
+      while (next < queue.length) {
+        const url = queue[next++];
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 15000);
+        try {
+          const response = await fetch(new Request(url, { cache: 'no-cache', priority: 'low', signal: controller.signal }));
+          if (!response.ok) throw new Error('precache HTTP ' + response.status);
+          await cache.put(url, response);
+        } catch (err) {
+          if (required.includes(url)) throw err; // Keep the active worker if core pages are unavailable.
+          console.warn('[sw] optional precache failed', url);
+        } finally { clearTimeout(timer); }
+      }
+    }
+    await Promise.all([download(), download(), download()]);
+  }));
   // The audio manifest remains in its dedicated cache and refreshes when requested.
 });
 
@@ -318,28 +334,37 @@ function isFreshAppAsset(req, url) {
     || url.pathname === '/manifest.json';
 }
 
-function networkFirst(req, fallbackUrl) {
+async function networkFirst(req, fallbackUrl, timeoutMs = NETWORK_FIRST_TIMEOUT_MS) {
+  const cachedPromise = caches.match(req).then(async hit => {
+    if (hit && hit.ok) return hit;
+    const fallback = fallbackUrl && await caches.match(fallbackUrl);
+    return fallback && fallback.ok ? fallback : null;
+  }).catch(() => null);
   const networkPromise = fetch(req, { cache: 'no-cache' }).then(resp => {
     if (resp.ok && resp.type === 'basic') {
       const clone = resp.clone();
-      caches.open(STATIC_CACHE).then(cache => cache.put(req, clone));
+      caches.open(STATIC_CACHE).then(cache => cache.put(req, clone)).catch(() => {});
     }
-    return resp;
+    return resp.ok ? resp : cachedPromise.then(hit => hit || resp);
+  }).catch(async () => {
+    const hit = await cachedPromise;
+    return hit || Response.error();
   });
+  const cached = await cachedPromise;
+  // A timeout can select a valid fallback, but must never turn an in-flight
+  // successful cold download into a network error just because no cache exists.
+  if (!cached) return networkPromise;
+  let timer;
+  try {
+    return await Promise.race([networkPromise, new Promise(resolve => {
+      timer = setTimeout(() => resolve(cached), timeoutMs);
+    })]);
+  } finally { clearTimeout(timer); }
+}
 
-  const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error('network-first-timeout')), NETWORK_FIRST_TIMEOUT_MS);
-  });
-
-  return Promise.race([networkPromise, timeoutPromise]).catch(() =>
-    caches.match(req).then(hit => {
-      if (hit) return hit;
-      if (fallbackUrl) {
-        return caches.match(fallbackUrl).then(fb => fb || Response.error());
-      }
-      return Response.error();
-    })
-  );
+async function versionedAppAsset(req) {
+  const hit = await caches.open(STATIC_CACHE).then(cache => cache.match(req)).catch(() => null);
+  return hit && hit.ok ? hit : networkFirst(req);
 }
 
 // 로컬 미리보기 전용: HTML 이동 요청은 4초 timeout으로 옛 캐시로 되돌리지 않는다.
@@ -420,13 +445,17 @@ self.addEventListener('fetch', event => {
 
   // ── 2) HTML 네비게이션: 네트워크 우선, 경로별 폴백 ──
   if (isHtmlNav(req)) {
-    event.respondWith(networkFirstWithoutTimeout(req, htmlFallbackFor(url)));
+    event.respondWith(IS_LOCAL_PREVIEW
+      ? networkFirstWithoutTimeout(req, htmlFallbackFor(url))
+      : networkFirst(req, htmlFallbackFor(url), HTML_FALLBACK_TIMEOUT_MS));
     return;
   }
 
   // ── 3) 앱 코드/manifest: 네트워크 우선, 실패 시 동일 URL 캐시 폴백 ──
   if (isFreshAppAsset(req, url)) {
-    event.respondWith(IS_LOCAL_PREVIEW ? networkFirstWithoutTimeout(req) : networkFirst(req));
+    const versionedCode = url.searchParams.has('v') && /\.(?:js|css)$/i.test(url.pathname);
+    event.respondWith(IS_LOCAL_PREVIEW ? networkFirstWithoutTimeout(req)
+      : versionedCode ? versionedAppAsset(req) : networkFirst(req));
     return;
   }
 

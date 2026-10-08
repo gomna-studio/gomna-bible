@@ -22,7 +22,7 @@
   var H_SWIPE_VEL=0.22;
   var AXIS_PX=16;
   var AXIS_RATIO=1.25;
-  var BASE_CARD_IMAGES=["assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74", "assets/home/meditation-coffee.png?v=20261007-coffee-v1", "assets/home/card-people-journey-20261005.webp?v=20261005-home-approved-clean-v74"];
+  var BASE_CARD_IMAGES=["assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74", "assets/home/meditation-coffee.png?v=20261007-coffee-v1", "assets/home/bible-discovery-journey-v5.webp"];
   var LIFE_THEME_IMGS={
     new:'assets/home/meditation/v5-card-new-life.webp?v=20261005-home-approved-clean-v74',
     prayer:'assets/home/meditation/v10-card-prayer-life.webp?v=20261005-home-approved-clean-v74',
@@ -1104,6 +1104,7 @@
     if(!src)return Promise.resolve(true);
     var cached=homeImageCache[src];
     if(cached){
+      if(cached.ready)return Promise.resolve(true);
       if(priority==='high'){
         try{cached.img.fetchPriority='high';}catch(ePriority){}
       }
@@ -1114,19 +1115,29 @@
     homeImageCache[src]=entry;
     entry.promise=new Promise(function(resolve){
       var settled=false;
-      function finish(ok){
+      var timer=window.setTimeout(function(){settle(false);},8000);
+      function settle(ok){
+        // A deadline releases text, but a late successful image is still usable.
+        if(ok){
+          entry.ready=true;
+          if(!homeImageCache[src])homeImageCache[src]=entry;
+        }
         if(settled)return;
         settled=true;
+        window.clearTimeout(timer);
+        entry.ready=ok;
         if(!ok){
           delete homeImageCache[src];
-          resolve(false);
-          return;
         }
+        resolve(ok);
+      }
+      function finish(ok){
+        if(settled && !ok)return;
+        if(!ok){settle(false);return;}
         var decoded;
         try{decoded=typeof img.decode==='function'?img.decode():null;}catch(eDecode){decoded=null;}
         Promise.resolve(decoded).catch(function(){}).then(function(){
-          entry.ready=true;
-          resolve(true);
+          settle(true);
         });
       }
       img.onload=function(){finish(true);};
@@ -4236,6 +4247,9 @@
   }
 
   window.GomnaHomeFeed={init:init,sync:fillCopy,syncSocial:syncSocial,refreshSocial:refreshSocial,syncGreeting:syncGreeting,relayout:relayoutHome};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded', init);
+  // This script follows the home markup and daily verse data. Do not make the
+  // first card wait for unrelated deferred downloads (including the auth CDN).
+  if(document.getElementById('gomnaHomeFeed') && document.getElementById('gomnaHomeFeedStage'))init();
+  else if(document.readyState==='loading')document.addEventListener('DOMContentLoaded', init, {once:true});
   else init();
 })();

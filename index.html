@@ -56,11 +56,12 @@
 })();
 </script>
 <meta charset="UTF-8">
+<link rel="preload" as="image" href="assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74" fetchpriority="high">
 <script src="/js/gomna-screen-transition.js?v=20261003-clean-entry-v3"></script>
-<link rel="preload" as="style" href="js/gomna-home-feed.css?v=20261005-home-approved-clean-v74">
+<link rel="preload" as="style" href="js/gomna-home-feed.css?v=20261008-startup-v84">
 <link rel="preload" as="style" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
-<script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
-<script src="/js/gomna-ga4.js?v=20261001-analytics-v1"></script>
+<script defer src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
+<script defer src="/js/gomna-ga4.js?v=20261001-analytics-v1"></script>
 <script>
 (function () {
   try {
@@ -360,7 +361,6 @@ html.gt-translation-pending body::after{
 }
 </script>
 <link rel="manifest" href="manifest.json?v=20260910-app-icon-v1">
-<link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
 <script>
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 </script>
@@ -1913,6 +1913,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
     }
 
     function initHomeAnalytics() {
+        if (!window.GomnaAnalyticsControl || !window.GomnaGa4) return;
         if (isInternalAnalytics()) return;
         if (!hasAnalyticsConsent()) return;
 
@@ -1942,10 +1943,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
 <script defer src="js/gomna-theme.js?v=20260917-local-theme-preview-v10"></script>
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
-<link rel="preload" as="image" href="assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74">
-<link rel="preload" as="image" href="assets/home/card-meditation-life-20261005.webp?v=20261005-background-v1">
-<link rel="preload" as="image" href="assets/home/card-people-journey-20261005.webp?v=20261005-home-approved-clean-v74">
-<link rel="stylesheet" href="js/gomna-home-feed.css?v=20261005-home-approved-clean-v74">
+<link rel="stylesheet" href="js/gomna-home-feed.css?v=20261008-startup-v84">
 <style>
 /* 홈 데스크톱 선택창 폭 = 홈 메인 카드 폭. .container max-width 390 - padding 18+18. Reader 프레임 폭은 쓰지 않는다. */
 @media (min-width:700px) and (min-height:600px){
@@ -1958,7 +1956,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 </style>
 <link rel="stylesheet" href="js/gomna-home-legal-footer-v1.css?v=20260917-v1">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261008-account-unified-v1">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-07-home-coffee-nav-v81" data-release="2026-10-07-home-coffee-nav-v81" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-08-startup-recovery-v84" data-release="2026-10-08-startup-recovery-v84" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
 <style id="gomna-home-card-no-selection">
 /* Home cards are touch controls: prevent iOS text handles/callouts on a hold. */
@@ -1976,7 +1974,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 }
 </style>
 <link rel="stylesheet" href="js/gomna-bible-library.css?v=20261007-buttons-down-10mm-v9">
-<link rel="stylesheet" href="js/gomna-coffee-steam.css?v=20261007-steam-pause-v7">
+<link rel="stylesheet" href="js/gomna-coffee-steam.css?v=20261008-startup-v84">
 <script defer src="js/gomna-bible-library-data.js?v=20261005-home-approved-clean-v74"></script>
 <script defer src="js/gomna-bible-library.js?v=20261005-home-approved-clean-v74"></script>
 <link rel="stylesheet" href="js/gomna-home-people-card.css?v=20261006-person-picker-size-v79">
@@ -1993,7 +1991,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
 <div class="container">
   <div class="header">
-    <span class="app-icon-frame" aria-hidden="true"><img src="assets/login/login-visual-blue.png?v=1" alt="은혜의말씀" class="logo-img" width="52" height="52" data-i18n-key="brand.logoAlt"></span>
+    <span class="app-icon-frame" aria-hidden="true"><img loading="lazy" src="assets/login/login-visual-blue.png?v=1" alt="은혜의말씀" class="logo-img" width="52" height="52" data-i18n-key="brand.logoAlt"></span>
     <div class="title-block">
       <h1 class="title" data-i18n-key="brand.title">은혜의말씀</h1>
       <div class="sub" data-i18n-key="brand.subtitle">Words of Grace</div>
@@ -2070,7 +2068,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
             <span class="gomna-home-act-count">공유</span>
           </button>
           <button type="button" class="gomna-home-related" data-ghd-related aria-label="관련 콘텐츠">
-            <img src="assets/images/home-thumbnail-bible-gold.png?v=20260906-thumb-bible-v1" alt="" width="40" height="40" decoding="async">
+            <img loading="lazy" src="assets/images/home-thumbnail-bible-gold.png?v=20260906-thumb-bible-v1" alt="" width="40" height="40" decoding="async">
           </button>
         </div>
       </article>
@@ -2189,7 +2187,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
   </section>
   <div class="gomna-home-after" id="gomnaHomeAfter">
     <button type="button" class="gomna-home-media" id="gomnaHomeMedia" aria-label="오늘의 묵상 이미지 크게 보기">
-      <img src="assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74" alt="" width="1200" height="675">
+      <img loading="lazy" src="assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74" alt="" width="1200" height="675">
     </button>
     <div class="gomna-home-media-copy">
       <span class="gomna-home-goldline" aria-hidden="true"></span>
@@ -2218,7 +2216,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
   <div class="verse-card" id="today-word-card" role="button" tabindex="-1" hidden inert aria-hidden="true" aria-label="묵상하기" data-i18n-aria-label="home.todayWord.open" ontouchstart="">
     <div class="verse-card-photo-layer" aria-hidden="true">
       <div class="verse-card-hero">
-        <img src="assets/images/today-word-shepherd-tree-final.webp" alt="" width="2062" height="1310" decoding="async" loading="eager">
+        <img src="assets/images/today-word-shepherd-tree-final.webp" alt="" width="2062" height="1310" decoding="async" loading="lazy">
       </div>
       <div class="verse-card-shade" aria-hidden="true"></div>
     </div>
@@ -2253,7 +2251,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
     <button type="button" class="card old" onclick="openBible('old')" ontouchstart="" aria-label="구약 39권 장·절로 읽기" data-i18n-aria-label="home.oldTestament.title">
       <div class="card-visual menu-icon-slot">
         <div class="book" id="book-old">
-          <img class="home-bible-cover testament-book-icon" src="assets/preview/old-testament-book.png" alt="" aria-hidden="true" decoding="async" width="32" height="46">
+          <img loading="lazy" class="home-bible-cover testament-book-icon" src="assets/preview/old-testament-book.png" alt="" aria-hidden="true" decoding="async" width="32" height="46">
         </div>
       </div>
       <div class="card-label"><div class="card-name" data-i18n-key="home.sheet.oldTestament">구약</div></div>
@@ -2262,7 +2260,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
     <button type="button" class="card new" onclick="openBible('new')" ontouchstart="" aria-label="신약 27권 장·절로 읽기" data-i18n-aria-label="home.newTestament.title">
       <div class="card-visual menu-icon-slot">
         <div class="book" id="book-new">
-          <img class="home-bible-cover testament-book-icon" src="assets/preview/new-testament-book.png" alt="" aria-hidden="true" decoding="async" width="32" height="46">
+          <img loading="lazy" class="home-bible-cover testament-book-icon" src="assets/preview/new-testament-book.png" alt="" aria-hidden="true" decoding="async" width="32" height="46">
         </div>
       </div>
       <div class="card-label"><div class="card-name" data-i18n-key="home.sheet.newTestament">신약</div></div>
@@ -2419,7 +2417,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 <div class="gomna-home-viewer" id="gomnaHomeViewer" hidden>
   <p class="gomna-home-viewer-title">오늘의 묵상</p>
   <button type="button" class="gomna-home-viewer-close" id="gomnaHomeViewerClose" aria-label="닫기">×</button>
-  <img src="assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74" alt="오늘의 묵상 배경">
+  <img loading="lazy" src="assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74" alt="오늘의 묵상 배경">
 </div>
 <div class="ghd-sheet" id="ghdNotifySheet" hidden>
   <div class="ghd-sheet-panel ghd-notify-panel" role="dialog" aria-modal="true" aria-labelledby="ghdNotifyTitle">
@@ -2429,7 +2427,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
       <button type="button" class="ghd-sheet-close" data-ghd-sheet-close aria-label="닫기">×</button>
     </div>
     <div class="ghd-notify-preview">
-      <img class="ghd-notify-bible" src="assets/images/home-thumbnail-bible-gold.png?v=20260906-thumb-bible-v1" alt="" width="52" height="52" decoding="async">
+      <img loading="lazy" class="ghd-notify-bible" src="assets/images/home-thumbnail-bible-gold.png?v=20260906-thumb-bible-v1" alt="" width="52" height="52" decoding="async">
       <div class="ghd-notify-preview-copy">
         <p class="ghd-notify-preview-kicker">
           <span class="ghd-notify-preview-title">오늘의 말씀</span>
@@ -2630,7 +2628,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
       <h3 id="ghdMailTitle">오늘의 말씀 이메일</h3>
     </div>
     <div class="ghd-mail-brand">
-      <img class="ghd-mail-app-icon" src="app-icon-180.png?v=20260916-mail-app-icon-v2" alt="은혜의말씀 앱 아이콘" width="64" height="64" decoding="async">
+      <img loading="lazy" class="ghd-mail-app-icon" src="app-icon-180.png?v=20260916-mail-app-icon-v2" alt="은혜의말씀 앱 아이콘" width="64" height="64" decoding="async">
     </div>
     <p id="ghdMailLead" class="ghd-notify-lead">매일 새로운 오늘의 말씀을 이메일로 받아보세요.</p>
     <div id="ghdMailForm">
@@ -2738,9 +2736,9 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
     <p class="login-brand-lead" id="loginBrandLead">오늘 필요한 말씀을 더 가까이 만나보세요.</p>
     <div class="login-brand-visual" id="loginBrandVisual" aria-hidden="true">
       <span class="login-brand-glow"></span>
-      <span class="login-brand-card login-brand-card--gold login-brand-card--slot-center" data-brand-card="1" data-brand-caption="오늘 필요한 말씀을 더 가까이 만나보세요."><img src="assets/login/login-visual-gold.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
-      <span class="login-brand-card login-brand-card--gomna login-brand-card--slot-left" data-brand-card="2" data-brand-caption="읽고, 듣고, 묵상하며 말씀을 더 깊이 알아가세요."><img src="assets/login/login-visual-gomna.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
-      <span class="login-brand-card login-brand-card--blue login-brand-card--slot-right" data-brand-card="3" data-brand-caption="말씀과 함께한 시간을 어디서든 이어가세요."><img src="assets/login/login-visual-blue.png?v=1" alt="" decoding="async" onerror="if(this.getAttribute('data-fallback-used')){var c=this.closest('.login-brand-card');if(c)c.hidden=true;return;}this.setAttribute('data-fallback-used','1');this.src='logo-home.png?v=1';"></span>
+      <span class="login-brand-card login-brand-card--gold login-brand-card--slot-center" data-brand-card="1" data-brand-caption="오늘 필요한 말씀을 더 가까이 만나보세요."><img loading="lazy" src="assets/login/login-visual-gold.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
+      <span class="login-brand-card login-brand-card--gomna login-brand-card--slot-left" data-brand-card="2" data-brand-caption="읽고, 듣고, 묵상하며 말씀을 더 깊이 알아가세요."><img loading="lazy" src="assets/login/login-visual-gomna.png?v=1" alt="" decoding="async" onerror="var c=this.closest('.login-brand-card');if(c)c.hidden=true;"></span>
+      <span class="login-brand-card login-brand-card--blue login-brand-card--slot-right" data-brand-card="3" data-brand-caption="말씀과 함께한 시간을 어디서든 이어가세요."><img loading="lazy" src="assets/login/login-visual-blue.png?v=1" alt="" decoding="async" onerror="if(this.getAttribute('data-fallback-used')){var c=this.closest('.login-brand-card');if(c)c.hidden=true;return;}this.setAttribute('data-fallback-used','1');this.src='logo-home.png?v=1';"></span>
     </div>
     <div class="login-brand-dots" id="loginBrandDots" aria-hidden="true">
       <button type="button" class="login-brand-dot is-on" tabindex="-1"></button>
@@ -2749,9 +2747,9 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
     </div>
     <div class="login-title" id="loginModalTitle">로그인을 선택하세요</div>
     <div class="login-providers">
-      <button type="button" class="login-provider login-provider--google" data-auth-provider="google"><span class="login-provider-icon" aria-hidden="true"><img src="assets/auth/google-g-logo.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">구글 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
-      <button type="button" class="login-provider login-provider--official login-provider--naver" data-auth-provider="custom:naver"><span class="login-provider-icon" aria-hidden="true"><img class="login-provider-official-img" src="assets/auth/naver-login-button-ko-wide.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">네이버 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
-      <button type="button" class="login-provider login-provider--official login-provider--kakao" id="loginKakaoBtn" data-auth-provider="kakao"><span class="login-provider-icon" aria-hidden="true"><img class="login-provider-official-img" src="assets/auth/kakao-login-button-ko-wide.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">카카오톡 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--google" data-auth-provider="google"><span class="login-provider-icon" aria-hidden="true"><img loading="lazy" src="assets/auth/google-g-logo.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">구글 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--official login-provider--naver" data-auth-provider="custom:naver"><span class="login-provider-icon" aria-hidden="true"><img loading="lazy" class="login-provider-official-img" src="assets/auth/naver-login-button-ko-wide.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">네이버 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
+      <button type="button" class="login-provider login-provider--official login-provider--kakao" id="loginKakaoBtn" data-auth-provider="kakao"><span class="login-provider-icon" aria-hidden="true"><img loading="lazy" class="login-provider-official-img" src="assets/auth/kakao-login-button-ko-wide.png?v=1" alt="" decoding="async" onerror="this.style.display='none';"></span><span class="login-provider-label">카카오톡 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
       <button type="button" class="login-provider login-provider--email" onclick="if(window.GomnaAuth)window.GomnaAuth.openEmailLogin();else showLoginNextStepNotice();"><span class="login-provider-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m4 7.5 8 5.2 8-5.2"/></svg></span><span class="login-provider-label">이메일 계정 사용</span><span class="login-provider-balance" aria-hidden="true"></span></button>
     </div>
     <div class="login-next-step-notice" id="loginNextStepNotice" role="status" aria-live="polite" hidden>로그인 연결은 다음 단계에서 작동합니다.</div>
@@ -3688,7 +3686,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <script src="js/gomna-push-config.js?v=20260909-push-pref-v1"></script>
 <script src="js/gomna-push-prefs.js?v=20260914-notify-interval-v1"></script>
 <script src="js/gomna-mail-config.js?v=20260909-mail-mac-v1"></script>
-<script src="js/gomna-home-feed.js?v=20261007-home-coffee-nav-v81"></script>
+<script src="js/gomna-home-feed.js?v=20261008-startup-v84"></script>
 <script src="js/gomna-bible-stair-picker.js?v=20261008-clean-transition-v1"></script>
 <script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>
