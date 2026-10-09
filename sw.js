@@ -31,7 +31,7 @@ const IS_LOCAL_PREVIEW = isLocalPreviewHost(self.location.hostname);
 
 const STATIC_URLS = [
   '/assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74',
-  '/assets/images/home-card-today-message-20261009.webp?v=20261009-today-message-v1',
+  '/assets/images/home-card-today-message-calm-20261010.webp?v=20261010-calm-v1',
   '/assets/home/bible-discovery-journey-v5.webp',
   '/js/gomna-guide-colorful.css?v=20261009-image-viewer-all-v27',
   '/js/gomna-guide-home-entry.js?v=20261009-image-viewer-all-v27',
@@ -56,8 +56,8 @@ const STATIC_URLS = [
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
   '/js/gomna-account-white.css?v=20260925-account-white-preview-v5',
-  '/js/gomna-home-feed.js?v=20261009-today-message-open-v87',
-  '/js/gomna-home-feed.css?v=20261009-today-message-open-v87',
+  '/js/gomna-home-feed.js?v=20261010-today-message-calm-v88',
+  '/js/gomna-home-feed.css?v=20261010-today-message-calm-v88',
   '/gomna_category_feature.js',
   '/gomna_category_feature.js?v=20260927-reader-guide-width-v1',
   '/js/gomna-nav-magnifier.js?v=20261007-tap-v10',

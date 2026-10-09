@@ -1156,7 +1156,7 @@
   function cardOpenImage(card){
     if(!card)return '';
     var id=card.getAttribute('data-card');
-    if(id==='0')return 'assets/images/home-card-today-message-20261009.webp?v=20261009-today-message-v1';
+    if(id==='0')return 'assets/images/home-card-today-message-calm-20261010.webp?v=20261010-calm-v1';
     if(id==='1')return LIFE_THEME_IMGS[lifeThemeId]||'';
     if(id==='2')return STORY_PERSON_IMGS[storyPersonId]||'';
     return '';

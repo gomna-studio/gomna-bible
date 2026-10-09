@@ -333,7 +333,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   background:linear-gradient(180deg,rgba(6,12,22,.38) 0%,rgba(6,12,22,.08) 28%,rgba(6,12,22,.08) 58%,rgba(6,12,22,.42) 100%);
 }
 .gomna-home-card[data-card="0"].is-open{
-  background-image:url("../assets/images/home-card-today-message-20261009.webp?v=20261009-today-message-v1");
+  background-image:url("../assets/images/home-card-today-message-calm-20261010.webp?v=20261010-calm-v1");
 }
 .gomna-home-card[data-card="1"]:not(.is-open){
   color:#f7f3eb;
