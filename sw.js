@@ -34,7 +34,7 @@ const STATIC_URLS = [
   '/assets/home/bible-discovery-journey-v5.webp',
   '/js/gomna-guide-colorful.css?v=20261008-guide-v25',
   '/js/gomna-guide-home-entry.js?v=20261008-guide-v25',
-  '/gomna_category_feature.js?v=20261008-guide-v25',
+  '/gomna_category_feature.js?v=20261009-commandment-meaning-v26',
   '/js/gomna-auth.js?v=20261008-account-unified-v1',
   '/js/gomna-account-white.css?v=20261008-account-unified-v1',
   '/js/gomna-nav-single-tap.js?v=20261008-resume-v1',
