@@ -69,30 +69,12 @@
   if(!window.gomnaGuideImageZoomInstalled){
     window.gomnaGuideImageZoomInstalled=true;
     document.addEventListener('click',function(event){
-      var trigger=event.target.closest('.guide-image-open');
+      var trigger=event.target.closest('#scriptureAllGuidesBody .guide-image-open');
       if(!trigger)return;
       var thumbnail=trigger.querySelector('img');
       if(!thumbnail)return;
       event.preventDefault();
-      if(trigger.getAttribute('data-guide-zoom')==='image-only'){
-        openImageOnlyViewer(trigger,thumbnail);
-        return;
-      }
-      var dialog=document.createElement('dialog');
-      dialog.className='guide-image-dialog';
-      dialog.setAttribute('aria-label',thumbnail.alt+' 확대 이미지');
-      var close=document.createElement('button');
-      close.type='button';close.className='guide-image-close';close.textContent='×';
-      close.setAttribute('aria-label','확대 이미지 닫기');
-      var image=document.createElement('img');
-      image.src=largeImageSrc(thumbnail);
-      image.alt=thumbnail.alt;
-      image.onerror=function(){image.onerror=null;image.src=thumbnail.src;};
-      dialog.appendChild(close);dialog.appendChild(image);document.body.appendChild(dialog);
-      close.addEventListener('click',function(){dialog.close();});
-      dialog.addEventListener('click',function(e){if(e.target===dialog)dialog.close();});
-      dialog.addEventListener('close',function(){dialog.remove();if(trigger.isConnected)trigger.focus({preventScroll:true});});
-      dialog.showModal();close.focus({preventScroll:true});
+      openImageOnlyViewer(trigger,thumbnail);
     });
   }
   if(new URLSearchParams(location.search).get('homeGuide')!=='1')return;

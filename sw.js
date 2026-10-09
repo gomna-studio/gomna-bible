@@ -32,9 +32,9 @@ const IS_LOCAL_PREVIEW = isLocalPreviewHost(self.location.hostname);
 const STATIC_URLS = [
   '/assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74',
   '/assets/home/bible-discovery-journey-v5.webp',
-  '/js/gomna-guide-colorful.css?v=20261009-image-viewer-v26',
-  '/js/gomna-guide-home-entry.js?v=20261009-image-viewer-v26',
-  '/gomna_category_feature.js?v=20261009-image-viewer-v27',
+  '/js/gomna-guide-colorful.css?v=20261009-image-viewer-all-v27',
+  '/js/gomna-guide-home-entry.js?v=20261009-image-viewer-all-v27',
+  '/gomna_category_feature.js?v=20261009-image-viewer-all-v28',
   '/js/gomna-auth.js?v=20261008-account-unified-v1',
   '/js/gomna-account-white.css?v=20261008-account-unified-v1',
   '/js/gomna-nav-single-tap.js?v=20261008-resume-v1',
