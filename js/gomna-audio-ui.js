@@ -2317,6 +2317,7 @@
     setCommentaryAudioExpanded: setCommentaryAudioExpanded,
     showExpandedPlayer: showExpandedPlayer,
     hideExpandedPlayer: hideExpandedPlayer,
-    bindExpandCollapseButtons: bindExpandCollapseButtons
+    bindExpandCollapseButtons: bindExpandCollapseButtons,
+    playVisibleVerseRange: playVisibleVerseRange
   };
 })();

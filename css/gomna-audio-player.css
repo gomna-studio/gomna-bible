@@ -90,24 +90,6 @@
   min-width: max-content;
 }
 
-.gomna-audio-mini-player-pc {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: min(380px, calc(100vw - 40px));
-  max-width: 380px;
-  z-index: 910;
-  box-sizing: border-box;
-  background: var(--gomna-audio-cream);
-  color: var(--gomna-audio-primary);
-  border-radius: 16px;
-  border: 1px solid rgba(201, 169, 97, 0.25);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  padding: 14px 16px;
-  gap: 12px;
-  align-items: center;
-}
-
 .gomna-audio-expanded-player {
   position: fixed;
   z-index: 920;
@@ -426,14 +408,12 @@ body.gomna-audio-body-padding {
 }
 
 .gomna-audio-mini-player button,
-.gomna-audio-mini-player-pc button,
 .gomna-audio-expanded-player button {
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
 }
 
 .gomna-audio-mini-player button:focus-visible,
-.gomna-audio-mini-player-pc button:focus-visible,
 .gomna-audio-expanded-player button:focus-visible,
 .gomna-audio-verse-button:focus-visible,
 .gomna-audio-commentary-button:focus-visible {
@@ -571,7 +551,6 @@ body.gomna-audio-body-padding {
   }
 }
 
-[data-theme="light"] .gomna-audio-mini-player-pc,
 [data-theme="light"] .gomna-audio-expanded-player {
   background: #FBFBFC;
   color: #1a2a4a;
@@ -585,7 +564,6 @@ body.gomna-audio-body-padding {
   -webkit-backdrop-filter: blur(22px) saturate(140%);
 }
 
-[data-theme="dark"] .gomna-audio-mini-player-pc,
 [data-theme="dark"] .gomna-audio-expanded-player {
   background: #1a2a4a;
   color: #faf6ed;
@@ -1488,15 +1466,6 @@ body[data-theme="dark"] .gomna-audio-btn-expand {
   box-sizing: border-box;
 }
 
-/* 3. 절 범위 카드: 실제 렌더링 선택자 기준 */
-.verse-range-box {
-  width: 100%;
-  max-width: var(--gomna-reader-card-width, 388px);
-  margin-left: auto;
-  margin-right: auto;
-  box-sizing: border-box;
-}
-
 /* 4. 하단 기본 바도 같은 reader 축 기준으로 통일 */
 .opt4-bottom-bar {
   width: min(calc(100vw - var(--gomna-reader-card-side-gap, 32px)), var(--gomna-reader-card-width, 388px));
@@ -1521,8 +1490,7 @@ body.gomna-audio-body-padding .opt4-bottom-bar {
   }
 
   .verse-list,
-  .verse-item,
-  .verse-range-box {
+  .verse-item {
     width: 100%;
     max-width: 100%;
   }
@@ -1777,105 +1745,6 @@ body.gomna-audio-body-padding .opt4-bottom-bar {
       );
   }
 }
-/* =========================================================
-   v25 audio mini player card finish override
-   오디오 미니 플레이어 양쪽 마감 정리
-========================================================= */
-
-.gomna-mini-player {
-  left: 50% !important;
-  right: auto !important;
-  bottom: 18px !important;
-  transform: translateX(-50%) !important;
-
-  width: calc(100% - 32px) !important;
-  max-width: 1260px !important;
-  min-height: 104px !important;
-
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 24px !important;
-
-  padding: 18px 28px !important;
-  box-sizing: border-box !important;
-
-  background: #3f3f3f !important;
-  border-radius: 28px !important;
-  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.22) !important;
-
-  overflow: visible !important;
-  z-index: 9999 !important;
-}
-
-/* 왼쪽 본문 영역 */
-.gomna-mini-player .audio-info,
-.gomna-mini-player .mini-player-info,
-.gomna-mini-player .player-info {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  padding-left: 0 !important;
-}
-
-/* 오른쪽 버튼 영역 */
-.gomna-mini-player .audio-controls,
-.gomna-mini-player .mini-player-controls,
-.gomna-mini-player .player-controls {
-  flex: 0 0 auto !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 14px !important;
-  margin-left: auto !important;
-}
-
-/* 27절 동그라미 배지 정리 */
-.gomna-mini-player .verse-badge,
-.gomna-mini-player .audio-verse-badge,
-.gomna-mini-player .current-verse-badge {
-  position: absolute !important;
-  top: -30px !important;
-  left: 54px !important;
-
-  width: 76px !important;
-  height: 76px !important;
-  border-radius: 50% !important;
-
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-
-  background: #b96557 !important;
-  color: #fff !important;
-  font-weight: 800 !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18) !important;
-}
-
-/* 오른쪽 끝 빈 공간 줄이기 */
-.gomna-mini-player > *:last-child {
-  margin-right: 0 !important;
-}
-
-/* 모바일 화면 정리 */
-@media (max-width: 768px) {
-  .gomna-mini-player {
-    width: calc(100% - 24px) !important;
-    bottom: 12px !important;
-    padding: 16px 18px !important;
-    border-radius: 24px !important;
-    gap: 14px !important;
-  }
-
-  .gomna-mini-player .verse-badge,
-  .gomna-mini-player .audio-verse-badge,
-  .gomna-mini-player .current-verse-badge {
-    top: -24px !important;
-    left: 28px !important;
-    width: 62px !important;
-    height: 62px !important;
-  }
-}
-
 /* =========================================================
    v25 audio mini player card finish override - actual classes
    오디오 미니 플레이어 양쪽 마감 정리
@@ -3454,10 +3323,6 @@ body.gomna-commentary-popup-open.gomna-audio-expanded-open #gomna-audio-expanded
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
-}
-
-body.gomna-audio-expanded-open #verseRangeBoxBtn {
-  margin-bottom: 0 !important;
 }
 
 body.gomna-audio-expanded-open #verseList {

@@ -24,11 +24,11 @@ assert.doesNotMatch(indexHtml, /(?:^|,)button:active(?:\{|:)/m);
 assert.doesNotMatch(readerHtml, /(?:^|,)button:active(?:\{|:)/m);
 
 for (const html of [indexHtml, readerHtml, meditationHtml]) {
-  assert.match(html, /gomna-screen-transition\.js\?v=20261003-clean-entry-v3/);
+  assert.match(html, /gomna-screen-transition\.js\?v=20261009-hide-leaving-v1/);
   assert.ok(html.includes('gomna-pwa-recovery.js?v=' + release));
   assert.ok(html.includes('data-release="' + release + '"'));
 }
-assert.match(serviceWorker, /gomna-screen-transition\.js\?v=20261003-clean-entry-v3/);
+assert.match(serviceWorker, /gomna-screen-transition\.js\?v=20261009-hide-leaving-v1/);
 
 const classes = new Set();
 let clickHandler = null;
@@ -74,6 +74,7 @@ vm.runInContext(guardSource, context, { filename: 'gomna-screen-transition.js' }
 
 assert.ok(installedStyle);
 assert.match(installedStyle.textContent, /background:transparent/);
+assert.match(installedStyle.textContent, /html\.gomna-route-leaving body\{visibility:hidden;\}/);
 assert.equal(typeof windowStub.GOMNA_SCREEN_TRANSITION.begin, 'function');
 assert.equal(typeof clickHandler, 'function');
 
