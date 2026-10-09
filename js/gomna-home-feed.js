@@ -22,7 +22,7 @@
   var H_SWIPE_VEL=0.22;
   var AXIS_PX=16;
   var AXIS_RATIO=1.25;
-  var BASE_CARD_IMAGES=["assets/images/home-card-today-message-20261009.webp?v=20261009-today-message-v1", "assets/home/meditation-coffee.png?v=20261007-coffee-v1", "assets/home/bible-discovery-journey-v5.webp"];
+  var BASE_CARD_IMAGES=["assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74", "assets/home/meditation-coffee.png?v=20261007-coffee-v1", "assets/home/bible-discovery-journey-v5.webp"];
   var LIFE_THEME_IMGS={
     new:'assets/home/meditation/v5-card-new-life.webp?v=20261005-home-approved-clean-v74',
     prayer:'assets/home/meditation/v10-card-prayer-life.webp?v=20261005-home-approved-clean-v74',
@@ -4124,6 +4124,7 @@
       ensureHomeImageReady(BASE_CARD_IMAGES[i], i===0?'high':'low').then(function(ok){
         card.classList.remove('ghd-image-pending');
         card.classList.toggle('ghd-image-failed',!ok);
+        if(i===0)ensureHomeImageReady(cardOpenImage(card), 'low');
       });
     });
     fillCopy();
