@@ -5427,18 +5427,18 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
 /* 듣기·닫기를 감싸는 하나의 긴 알약 트랙(인물로 보기/이야기로 보기와 같은 형태).
  * 컨테이너 padding 안쪽에 absolute로 그리므로 레이아웃 높이에는 영향이 없다
  * (액션 바 높이가 변하면 카드 자동 중앙정렬의 기준점이 흔들린다).
- * 버튼의 터치 영역(40px)은 트랙(34px)보다 크게 유지한다.
+ * 버튼의 터치 영역(40px)은 트랙(37.78px)보다 크게 유지한다.
  */
 #commentaryPopup #gomnaCommentaryInlineControls.gomna-commentary-inline-controls::before {
   content: '' !important;
   position: absolute !important;
-  top: 11px !important;
+  top: 9.11px !important;
   left: 12px !important;
   right: 12px !important;
-  bottom: calc(11px + env(safe-area-inset-bottom, 0px)) !important;
+  bottom: calc(9.11px + env(safe-area-inset-bottom, 0px)) !important;
   border: 1px solid rgba(100, 116, 139, 0.16) !important;
   border-radius: 999px !important;
-  background: #f4ede1 !important;
+  background: #ffffff !important;
   box-sizing: border-box !important;
   pointer-events: none !important;
   z-index: 0 !important;
@@ -5501,7 +5501,7 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
   transform: translateY(-50%) !important;
   width: auto !important;
   max-width: none !important;
-  height: 28px !important;
+  height: 31.78px !important;
   border-radius: 999px !important;
   pointer-events: none !important;
   z-index: 0 !important;
@@ -5527,7 +5527,7 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
   background: #397fc4 !important;
 }
 
-/* 닫기 — 트랙 배경 그대로 둔다. 듣기보다 시각적 우선순위를 낮춘다. */
+/* 닫기 — 흰 트랙 배경 그대로 둔다. 듣기보다 시각적 우선순위를 낮춘다. */
 #commentaryPopup #gomnaCommentaryInlineCloseBtn {
   color: #7b6552 !important;
   font-weight: 700 !important;

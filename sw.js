@@ -62,7 +62,7 @@ const STATIC_URLS = [
   '/gomna_category_feature.js?v=20260927-reader-guide-width-v1',
   '/js/gomna-nav-magnifier.js?v=20261007-tap-v10',
   '/style.css',
-  '/css/gomna-audio-player.css?v=20261010-commentary-buttons-v1',
+  '/css/gomna-audio-player.css?v=20261010-commentary-buttons-v2',
   '/js/audio-config.js?v=1',
   '/js/audio-engine.js?v=20261006-audio-v76',
   '/js/gomna-audio-listen-button.js?v=1',

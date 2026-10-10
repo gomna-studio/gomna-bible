@@ -15,8 +15,8 @@ assert.doesNotMatch(css, /#commentaryContent \.commentary-tab\.active \{/);
 const track = css.match(/#gomnaCommentaryInlineControls\.gomna-commentary-inline-controls::before \{([^}]*)\}/);
 assert.ok(track);
 assert.match(track[1], /border-radius: 999px !important/);
-assert.match(track[1], /background: #f4ede1 !important/);
-assert.match(track[1], /bottom: calc\(11px \+ env\(safe-area-inset-bottom, 0px\)\)/);
+assert.match(track[1], /background: #ffffff !important/);
+assert.match(track[1], /bottom: calc\(9\.11px \+ env\(safe-area-inset-bottom, 0px\)\)/);
 assert.match(css, /#gomnaCommentaryListenBtn::before \{\s*background: #397fc4 !important;/);
 assert.match(css, /min-height: 40px !important;\s*height: 40px !important;/);
 
