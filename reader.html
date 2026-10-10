@@ -4536,12 +4536,12 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <!-- 사용자 글자 크기(공용). 첫 그림 전에 저장된 비율을 적용하려고 head에서 바로 읽는다. -->
 <script src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
-<script src="js/gomna-theme.js?v=20260917-local-theme-preview-v10"></script>
+<script src="js/gomna-theme.js?v=20261010-cookie-simple-v11"></script>
 <script src="js/gomna-ui-i18n.js?v=20260909-locale-runtime-sync-v1"></script>
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261008-account-unified-v1">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-10-external-search-return-v88" data-release="2026-10-10-external-search-return-v88" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-10-cookie-simple-listen-v89" data-release="2026-10-10-cookie-simple-listen-v89" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
 <link rel="stylesheet" href="js/gomna-guide-colorful.css?v=20261010-guide-navigation-v30">
 </head>
@@ -19240,85 +19240,55 @@ function changeFont(delta) {
 <script src="/js/gomna-audio-ui.js?v=20261010-ui-release-v85" defer></script>
 <script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>
 <!-- ==========================
-쿠키 배너 (최종 v3 - 간결 + 모두 동의)
+쿠키 배너 (v4 - 말씀듣기 색상 + 간결한 카드)
 - "서비스 개선" 자동 체크
 - "맞춤 광고" 미체크
 - "모두 동의" 버튼 클릭 1번으로 모두 ON
 - "거부" 버튼 = 모두 OFF
 - 모바일/데스크톱 자동 반응형
 ========================== -->
-<div id="cookie-banner" style="
-position:fixed;
-bottom:20px;
-right:20px;
-left:auto;
-width:340px;
-max-width:calc(100vw - 40px);
-background:rgba(255,255,255,0.96);
-backdrop-filter:blur(12px);
--webkit-backdrop-filter:blur(12px);
-color:#5D4516;
-padding:18px;
-border-radius:16px;
-box-shadow:0 10px 30px rgba(15, 23, 42, 0.16);
-border:0.5px solid #E5E7EB;
-display:none;
-z-index:9999;
-font-size:13px;
-line-height:1.5;
-box-sizing:border-box;
-">
-  <div style="margin-bottom:12px;font-weight:600;font-size:14px;color:#5D4516;">
-    🍪 쿠키 사용 안내
-  </div>
-  <div style="margin-bottom:14px;color:#6B5028;">
+<div id="cookie-banner" role="dialog" aria-labelledby="cookie-banner-title" style="display:none">
+  <div id="cookie-banner-title" class="cookie-title">쿠키 사용 안내</div>
+  <div class="cookie-text">
     더 나은 서비스를 위해 쿠키를 사용합니다.
-    <a href="/privacy.html" style="color:#8B6914;text-decoration:underline;">자세히</a>
+    <a href="/privacy.html">자세히</a>
   </div>
-  <div style="margin-bottom:14px;">
-    <label style="display:flex;align-items:center;margin-bottom:8px;cursor:pointer;color:#5D4516;">
-      <input type="checkbox" id="analyticsToggle" checked style="margin-right:8px;accent-color:#B8860B;">
+  <div class="cookie-options">
+    <label>
+      <input type="checkbox" id="analyticsToggle" checked>
       <span>서비스 개선</span>
     </label>
-    <label style="display:flex;align-items:center;cursor:pointer;color:#5D4516;">
-      <input type="checkbox" id="marketingToggle" style="margin-right:8px;accent-color:#B8860B;">
+    <label>
+      <input type="checkbox" id="marketingToggle">
       <span>맞춤 광고</span>
     </label>
   </div>
-  <div style="display:flex;gap:8px;">
-    <button type="button" onclick="acceptAllCookies()" style="
-    flex:1.5;
-    padding:11px;
-    background:#B8860B;
-    color:#fff;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-    font-size:14px;
-    ">모두 동의</button>
-    <button type="button" onclick="rejectCookies()" style="
-    flex:1;
-    padding:11px;
-    background:#fff;
-    color:#5D4516;
-    border:0.5px solid rgba(184,134,11,0.4);
-    border-radius:8px;
-    cursor:pointer;
-    font-size:13px;
-    ">거부</button>
+  <div class="cookie-actions">
+    <button type="button" onclick="acceptAllCookies()">모두 동의</button>
+    <button type="button" onclick="rejectCookies()">거부</button>
   </div>
 </div>
 
 <style>
+#cookie-banner{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));right:20px;left:auto;width:340px;max-width:calc(100vw - 40px);box-sizing:border-box;padding:16px;background:#fff;color:#374151;border:1px solid #E5E7EB;border-radius:12px;box-shadow:0 4px 16px rgba(15,23,42,.08);z-index:9999;font-family:inherit;font-size:13px;line-height:1.5}
+#cookie-banner .cookie-title{margin:0 0 10px;font-size:14px;font-weight:600;color:#374151}
+#cookie-banner .cookie-text{margin-bottom:14px;color:#6B7280}
+#cookie-banner a{color:#425669;text-decoration:underline;text-underline-offset:3px}
+#cookie-banner .cookie-options{display:grid;gap:10px;margin-bottom:16px}
+#cookie-banner .cookie-options label{display:flex;align-items:center;gap:8px;margin:0;cursor:pointer}
+#cookie-banner .cookie-options input{flex:none;width:16px;height:16px;margin:0;accent-color:#425669}
+#cookie-banner .cookie-actions{display:flex;gap:8px}
+#cookie-banner .cookie-actions button{flex:1;min-width:0;min-height:44px;margin:0;padding:10px 14px;background:#425669;color:#fff;border:0;border-radius:999px;box-shadow:none;font-family:inherit;font-size:14px;font-weight:600;line-height:1.3;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#cookie-banner .cookie-actions button:active{background:#344757}
+#cookie-banner :is(a,button,input):focus-visible{outline:2px solid #425669;outline-offset:3px}
+@media (hover:hover) and (pointer:fine){#cookie-banner .cookie-actions button:hover{background:#344757}}
 @media (max-width: 480px) {
   #cookie-banner {
-    bottom: 0 !important;
-    right: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    border-radius: 16px 16px 0 0 !important;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    right: 16px;
+    left: 16px;
+    width: auto;
+    max-width: none;
   }
 }
 #searchView .reader-search-bar{position:relative;display:flex;align-items:center;gap:10px;width:auto;max-width:100%;margin:12px;padding:0 12px 0 14px;min-height:50px;height:50px;box-sizing:border-box;background:var(--gm-select-base,#FBFBFC);border:1px solid transparent;border-radius:16px;box-shadow:var(--gm-select-edge-fade);color:#6B6B6B}
