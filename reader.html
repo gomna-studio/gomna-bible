@@ -109,7 +109,7 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
 })();
 </script>
 
-<script src="/js/gomna-screen-transition.js?v=20261003-clean-entry-v3"></script>
+<script src="/js/gomna-screen-transition.js?v=20261009-hide-leaving-v1"></script>
 <script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script src="/js/gomna-ga4.js?v=20261001-analytics-v1"></script>
 <script>
@@ -476,6 +476,8 @@ html.playback-style-focus.is-verse-focus-play #verseList .verse-item:has(.gomna-
   -webkit-text-fill-color:#1F1F1F;
   font-weight:600;
 }
+html.playback-style-focus #commentaryContent .commentary-table tr[data-verse-ref]{transition:opacity .18s ease}
+html.playback-style-focus.is-commentary-focus-play #commentaryContent .commentary-table:has(tr.gomna-commentary-card-active) tr[data-verse-ref]:not(.gomna-commentary-card-active){opacity:.5}
 @media (prefers-reduced-motion:reduce){
   #verseList .verse-item{transition:background-color .08s ease,box-shadow .08s ease}
 }
@@ -967,7 +969,6 @@ html.reader-bible-audio-on #verseList .verse-item .gomna-audio-reading::after{
 .verse-item--selected .verse-num,.verse-item--chapter-selected .verse-num,.verse-item--entry-focus .verse-num{background:transparent;box-shadow:none;color:#355F9A}
 html.reader-hide-chrome .verse-item.verse-item--selected .verse-num,html.reader-hide-chrome .verse-item.verse-item--chapter-selected .verse-num,html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{background:transparent;box-shadow:none;color:#355F9A}
 .verse-text{flex:1;font-size:var(--font-size);line-height:1.75}
-html.is-daily-word-view .verse-range-box{display:none!important}
 html.is-daily-word-view .verse-item:not(.verse-item--daily-word-focus){display:none!important}
 html.is-daily-word-view #opt4BottomBar{display:none!important}
 html.is-daily-word-view .scripture-dock{display:none!important}
@@ -1696,17 +1697,6 @@ nav.tabs {
   display: none !important;
 }
 /* option-4-hybrid */
-.verse-range-box{width:100%;text-align:left;background:#fff;border:0.5px solid rgba(180,140,90,.55);border-radius:10px;padding:11px 14px;margin:0 -16px 16px;display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;cursor:default;font-family:inherit;-webkit-tap-highlight-color:transparent}
-.verse-range-box-inner{display:flex;flex-direction:column;align-items:flex-start;gap:2px;flex:1;min-width:0}
-.verse-range-label{font-size:13px;color:#5a3818;font-weight:600}
-.verse-range-main{font-size:15px;font-weight:600;color:#3d2818}
-.verse-range-change{font-size:14px;font-weight:700;color:#B8860B;white-space:nowrap;flex-shrink:0;margin-left:8px}
-.verse-range-circle{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;background:#B8860B;color:#fff;border-radius:50%;font-size:11px;font-weight:700;line-height:1;margin-right:4px;vertical-align:middle}
-.verse-range-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;margin-left:8px}
-.verse-range-action{display:inline-flex;align-items:center;gap:4px;padding:8px 12px;background:transparent;border:0.5px solid rgba(184,134,11,0.4);border-radius:8px;color:#B8860B;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;min-height:44px;-webkit-tap-highlight-color:transparent;transition:transform 0.15s ease,background-color 0.15s ease}
-.verse-range-action-primary{background:#B8860B;border-color:#B8860B;color:#fff;box-shadow:0 2px 8px rgba(184,134,11,0.24)}
-.verse-range-action:active{background:rgba(184,134,11,0.12);transform:scale(0.97)}
-#verseRangeBoxBtn{display:none}
 .opt4-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;width:100%;max-width:min(100%,480px);background:rgb(253,250,245);border-top:1px solid rgba(180,140,90,.22);padding:4px 8px;box-sizing:border-box;z-index:95;gap:0;align-items:center;min-height:58px;height:auto;overflow-x:visible;box-shadow:none}
 html.reader-verse-active .opt4-bottom-bar,
 html.reader-books-toolbar .opt4-bottom-bar{display:flex}
@@ -4382,7 +4372,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 </script>
 <link rel="manifest" href="manifest.json?v=20260910-app-icon-v1">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
-<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20260918-custom-hero-v43">
+<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20261010-commentary-listen-slate-v1">
 <style id="gomna-commentary-unified-scroll-css">
 /* After audio CSS: one native scroll for header→verse-nav; footer stays fixed.
  * pinch-zoom + pan-x restore browser zoom/pan; do not use pan-y alone.
@@ -4521,7 +4511,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
   .verse-num{width:3ch!important;min-width:3ch!important;max-width:3ch!important;height:auto!important;font-size:0.84em!important;padding:0.32em 0 0!important}
 }
 </style>
-<script src="gomna_category_feature.js?v=20261008-guide-v25" defer></script>
+<script src="gomna_category_feature.js?v=20261009-image-viewer-all-v28" defer></script>
 <script src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
 <script src="/js/gomna-bible-ref.js?v=20260725-multilang-structured-refs-v1"></script>
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
@@ -4541,9 +4531,9 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261008-account-unified-v1">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-08-startup-recovery-v84" data-release="2026-10-08-startup-recovery-v84" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-09-legacy-audio-card-v85" data-release="2026-10-09-legacy-audio-card-v85" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
-<link rel="stylesheet" href="js/gomna-guide-colorful.css?v=20261008-guide-v25">
+<link rel="stylesheet" href="js/gomna-guide-colorful.css?v=20261009-image-viewer-all-v27">
 <script>if(new URLSearchParams(location.search).get("homeGuide")==="1")document.documentElement.classList.add("gomna-home-guide-entering");</script><style>html.gomna-home-guide-entering body{visibility:hidden}</style>
 </head>
 <body data-gomna-page="reader">
@@ -8263,10 +8253,7 @@ function renderVerses(highlightVerse) {
   var localeFailed = !!(window.__gomnaBibleLocaleFail && window.__gomnaBibleLocaleFail[scriptureLang]);
   if (scriptureLang !== 'ko' && window.GomnaBibleLocale && !localeReady && !localeFailed) {
     var keepVerse = highlightVerse || (typeof getReaderCurrentVerseNum === 'function' ? getReaderCurrentVerseNum() : 1);
-    var loadingHtml = '<div class="verse-range-box" id="verseRangeBoxBtn"><span class="verse-range-box-inner"><span class="verse-range-label">' +
-      readerUiT('reader.range.label', '절 범위') + '</span><span class="verse-range-main" id="verseRangeMainText">' +
-      readerUiT('reader.loadingLocale', '성경 본문을 불러오는 중...') + '</span></span></div>' +
-      '<div class="verse-list" id="verseList"></div>';
+    var loadingHtml = '<div class="verse-list" id="verseList"></div>';
     document.getElementById('verseView').innerHTML = loadingHtml;
     var wantLang = scriptureLang;
     var wantGen = window.__gomnaLocaleGen || 0;
@@ -8293,11 +8280,7 @@ function renderVerses(highlightVerse) {
     locChapter = window.GomnaBibleLocale.getChapter(scriptureLang, bookNr, currentChapter);
   }
 
-  var html = '<div class="verse-range-box" id="verseRangeBoxBtn"><span class="verse-range-box-inner"><span class="verse-range-label">' +
-    readerUiT('reader.range.label', '절 범위') + '</span><span class="verse-range-main" id="verseRangeMainText"></span></span><span class="verse-range-actions"><button type="button" class="verse-range-action" onclick="openVerseRangeModal()">' +
-    readerUiT('reader.range.choose', '범위 선택 ▼') + '</button><button type="button" class="verse-range-action verse-range-action-primary" data-audio-action="play-range">' +
-    readerUiT('reader.range.listen', '▶ 선택 범위 듣기') + '</button></span></div>';
-  html += '<div class="verse-list" id="verseList">';
+  var html = '<div class="verse-list" id="verseList">';
 
   var verseOccurrenceCounts = {};
   verses.forEach(function(v) {
@@ -13093,6 +13076,13 @@ function isReaderCommentaryAudioCurrent() {
   return !!buttons.isCommentaryAudioId(audioId);
 }
 
+function isReaderCommentaryPlaybackFocus() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var state = engine && typeof engine.getState === 'function' ? engine.getState() : null;
+  if (!state || !state.isPlaying || state.isPaused) return false;
+  return isReaderCommentaryAudioCurrent();
+}
+
 function isReaderBiblePlaybackPaused() {
   var engine = window.GOMNA_AUDIO_ENGINE;
   var state = engine && typeof engine.getState === 'function' ? engine.getState() : null;
@@ -13107,6 +13097,7 @@ function syncReaderVerseFocusMode() {
   root.classList.toggle('playback-style-gold', style === 'gold');
   root.classList.toggle('playback-style-focus', style === 'focus');
   root.classList.toggle('is-verse-focus-play', play && style === 'focus');
+  root.classList.toggle('is-commentary-focus-play', style === 'focus' && isReaderCommentaryPlaybackFocus());
   /* 절 선택은 색상만으로 표시한다. 다른 절을 흐리게 하는 선택 모드는 쓰지 않는다. */
   root.classList.remove('is-verse-focus-select');
   if (typeof syncReaderPlaybackStyleChrome === 'function') syncReaderPlaybackStyleChrome();
@@ -16922,23 +16913,19 @@ function initVerseToolbarEvents() {
       var sameChapterQueue;
       e.stopPropagation();
       e.preventDefault();
-      if (window.gomnaLibraryListen && window.gomnaLibraryListen.play()) return;
+      if (window.gomnaLibraryListen && window.gomnaLibraryListen.directListen && window.gomnaLibraryListen.play()) return;
       if (window.gomnaBibleListenControlsHandleListen && window.gomnaBibleListenControlsHandleListen()) return;
       selCount = typeof getSelectedVerseCount === 'function' ? getSelectedVerseCount() : selectedVerseNums.length;
       if (verseListenMode === 'range') {
         closeVerseListenModeMenu();
         playRangeAudio();
-      } else if (selCount >= 1) {
-        closeVerseListenModeMenu();
-        if (window.gomnaReaderWaitForAudioManifest && window.gomnaReaderWaitForAudioManifest(playSelectedVersesQueue)) return;
-        playSelectedVersesQueue();
       } else if (isVerseListenModeMenuOpen()) {
         closeVerseListenModeMenu();
       } else {
         engine = window.GOMNA_AUDIO_ENGINE;
         state = engine && engine.getState ? engine.getState() : null;
         chapterIds = typeof getChapterAudioIds === 'function' ? getChapterAudioIds() : [];
-        sameChapterQueue = !!(
+        sameChapterQueue = !selCount && !!(
           state &&
           state.queueActive &&
           chapterIds.length &&
@@ -16976,6 +16963,12 @@ function initVerseToolbarEvents() {
     listenModeDailyBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       e.preventDefault();
+      if (getSelectedVerseCount() >= 1) {
+        closeVerseListenModeMenu();
+        if (window.gomnaReaderWaitForAudioManifest && window.gomnaReaderWaitForAudioManifest(playSelectedVersesQueue)) return;
+        playSelectedVersesQueue();
+        return;
+      }
       playHomeDailyVerseListen();
     });
   }
@@ -17123,7 +17116,7 @@ function getHomeDailyListenRange() {
   var allowed = typeof isHomeCardEntryFocusSource === 'function'
     ? isHomeCardEntryFocusSource(src)
     : (src === 'home-daily-read' || src === 'home-card-listen' || src === 'home-card-commentary' || src === 'home-life' || src === 'home-bible-person');
-  if (!allowed) return null;
+  if (!allowed && !(src === 'guide-related' && window.gomnaLibraryListen)) return null;
   if (!currentBook || currentBook.name !== parsed.book) return null;
   if (Number(currentChapter) !== Number(parsed.chapter)) return null;
   verses = parsed.verses || [];
@@ -17172,6 +17165,7 @@ function playHomeDailyVerseListen() {
   if (verseListenModePlayLockAt && now - verseListenModePlayLockAt < 650) return;
   verseListenModePlayLockAt = now;
   closeVerseListenModeMenu();
+  if (window.gomnaLibraryListen && window.gomnaLibraryListen.start()) return;
   range = getHomeDailyListenRange();
   engine = window.GOMNA_AUDIO_ENGINE;
   window.__gomnaBibleChapterListenMode = null;
@@ -17219,6 +17213,17 @@ function syncVerseListenModeMenuLabels() {
     dailyLabel = '';
   }
   showDaily = !!(dailyRange && dailyLabel);
+  var selected = getSortedUniqueSelectedVerseNums();
+  if (selected.length && !(dailyRange && selected.join() === (dailyRange.verses || []).join())) {
+    dailyLabel = readerUiFmt('reader.listen.selectedN', { n: selected.length }, '선택한 ' + selected.length + '절 듣기');
+    dailyRef = currentBook && currentBook.name && selected[selected.length - 1] - selected[0] + 1 === selected.length ? formatHomeDailyListenRef({
+      book: currentBook.name,
+      chapter: currentChapter,
+      start: selected[0],
+      end: selected[selected.length - 1]
+    }) : '';
+    showDaily = true;
+  }
   var listenNative = typeof isReaderNativeUiLang === 'function'
     ? isReaderNativeUiLang(typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko')
     : true;
@@ -17284,6 +17289,8 @@ function openVerseListenModeMenu() {
     document.body.appendChild(menu);
   }
   syncVerseListenModeMenuLabels();
+  var returnItem = document.getElementById('opt4VerseListenModeReturn');
+  if (returnItem) returnItem.remove();
   menu.classList.add('is-designed-card');
   menu.querySelector('.listen-completion-heading').textContent = '말씀 듣기';
   menu.querySelector('.listen-completion-sub').textContent = '듣기 방식을 선택해 주세요';
@@ -17587,8 +17594,9 @@ function playRangeAudio() {
   if (window.gomnaLibraryListen && window.gomnaLibraryListen.play()) return;
   window.__gomnaBibleChapterListenMode = null;
   clearBibleContinuousChapterPlayback();
-  var rangeBtn = document.querySelector('[data-audio-action="play-range"]');
-  if (rangeBtn) rangeBtn.click();
+  if (window.GOMNA_AUDIO_UI && typeof window.GOMNA_AUDIO_UI.playVisibleVerseRange === 'function') {
+    window.GOMNA_AUDIO_UI.playVisibleVerseRange(false);
+  }
 }
 
 /** One selected verse only: play that verse audioId and stop (no next verse/chapter). */
@@ -18899,6 +18907,7 @@ window.__gomnaRefreshReaderI18n = syncReaderLocaleUi;
 
 function getHomeSpecialListenLabel(parsed) {
   if (!parsed || !parsed.source) return '';
+  if (parsed.source === 'guide-related' && window.gomnaLibraryListen) return window.gomnaLibraryListen.label;
   if (parsed.source === 'home-life') {
     return typeof homeLifeListenLabel === 'function' ? homeLifeListenLabel(parsed.theme) : '';
   }
@@ -19156,7 +19165,7 @@ function changeFont(delta) {
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260919-stale-context-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
-<script src="/js/gomna-audio-ui.js?v=20261006-audio-v76" defer></script>
+<script src="/js/gomna-audio-ui.js?v=20261010-ui-release-v85" defer></script>
 <script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)
@@ -20270,7 +20279,7 @@ function loadAds() {
   if(document.readyState!=='loading')schedule();
 })();
 </script>
-<script src="/js/gomna-card-highlight-test.js?v=20260803-bible-follow-prod-v1"></script>
+<script src="/js/gomna-card-highlight-test.js?v=20261010-commentary-focus-v2"></script>
 <script>
 /* 로그인 상태를 Reader에 반영하는 얇은 연결. 새 계정 UI를 만들지 않고
    설정창 계정 문구, 보관함 안내, 하단 MY 표시만 기존 Auth setState에서 갱신한다. */
@@ -20552,9 +20561,9 @@ window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!match
 })();
 </script>
 
-<script src="js/gomna-bible-listen-controls.js?v=20261006-audio-v76"></script>
-<script src="js/gomna-library-return.js?v=20260928-34"></script>
-<script src="js/gomna-guide-home-entry.js?v=20261008-guide-v25"></script>
+<script src="js/gomna-bible-listen-controls.js?v=20261010-word-view-merge-v3"></script>
+<script src="js/gomna-library-return.js?v=20261010-word-view-merge-v2"></script>
+<script src="js/gomna-guide-home-entry.js?v=20261009-image-viewer-all-v27"></script>
 </body>
 </html>
 

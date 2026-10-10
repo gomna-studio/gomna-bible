@@ -13,6 +13,9 @@
       'html.gomna-route-leaving,html.gomna-route-leaving body{' +
         'pointer-events:none;' +
       '}' +
+      'html.gomna-route-leaving body{' +
+        'visibility:hidden;' +
+      '}' +
       'html.gomna-route-leaving::after{' +
         'content:"";position:fixed;inset:0;z-index:2147483646;' +
         'background:transparent;pointer-events:auto;' +

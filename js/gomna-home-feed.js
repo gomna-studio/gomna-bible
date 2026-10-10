@@ -1156,7 +1156,7 @@
   function cardOpenImage(card){
     if(!card)return '';
     var id=card.getAttribute('data-card');
-    if(id==='0')return 'assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74';
+    if(id==='0')return 'assets/images/home-card-today-message-calm-20261010.webp?v=20261010-calm-v1';
     if(id==='1')return LIFE_THEME_IMGS[lifeThemeId]||'';
     if(id==='2')return STORY_PERSON_IMGS[storyPersonId]||'';
     return '';
@@ -4124,6 +4124,7 @@
       ensureHomeImageReady(BASE_CARD_IMAGES[i], i===0?'high':'low').then(function(ok){
         card.classList.remove('ghd-image-pending');
         card.classList.toggle('ghd-image-failed',!ok);
+        if(i===0)ensureHomeImageReady(cardOpenImage(card), 'low');
       });
     });
     fillCopy();

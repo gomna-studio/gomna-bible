@@ -212,7 +212,6 @@
     if(model.isFuture)model=Data.resolve({date:Store.todayKey()});
     var rec=Store.dayRecord(model.date)||{};
     var readUrl=Data.readerUrl(model,'read');
-    var listenUrl=Data.readerUrl(model,'listen');
     var commUrl=commentaryUrl(model);
     var prose=model.reflectionParts.map(function(p){return '<p>'+esc(p)+'</p>';}).join('');
     var qs=model.questions.map(function(q){return '<p class="gmd-q">'+esc(q)+'</p>';}).join('');
@@ -225,8 +224,7 @@
         '<p class="gmd-ref">'+refHtml(model.verseRef)+'</p>'+
         '<p class="gmd-verse">'+esc(model.verseText)+'</p>'+
         '<div class="gmd-actions">'+
-          '<a class="gmd-btn" href="'+esc(readUrl)+'">말씀 읽기</a>'+
-          '<a class="gmd-btn" href="'+esc(listenUrl)+'">말씀 듣기</a>'+
+          '<a class="gmd-btn" href="'+esc(readUrl)+'">말씀 보기</a>'+
         '</div>'+
       '</section>'+
       '<section class="gmd-step gmd-pause">'+

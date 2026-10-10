@@ -30,14 +30,13 @@
     if (current && !current.id && scroll) states[current.kind].scroll = scroll.scrollTop;
     try { sessionStorage.setItem(key, JSON.stringify(states)); } catch (_) {}
   }
-  function readerUrl(item, listen) {
+  function readerUrl(item) {
     const p = new URLSearchParams({book:item.book, chapter:item.chapter, verse:item.start,
       verseStart:item.start, verseEnd:item.end, startVerse:item.start, endVerse:item.end,
-      source:listen ? 'home-main-listen' : 'guide-related'});
+      source:'guide-related'});
     p.set('libraryKind',item.kind);
     p.set('libraryId',item.id);
     p.set('libraryName',item.name);
-    if (listen) p.set('listen','1');
     return 'reader.html?' + p.toString();
   }
   function image(item, detail, eager) {
@@ -73,7 +72,7 @@
   }
   function detail(item) {
     const related=items.filter(i=>i.id!==item.id && i.book===item.book).slice(0,3);
-    scroll.innerHTML='<article class="gbl-detail '+(item.kind==='people'?'gbl-person-detail':'')+'"><div class="gbl-hero">'+image(item,true)+'</div><div class="gbl-article"><p class="gbl-eyebrow">'+esc(item.group)+' · '+esc(item.book)+'</p><h2>'+esc(item.title)+'</h2><p class="gbl-intro">'+esc(item.intro)+'</p><hr>'+storyContent(item)+'<section class="gbl-scripture"><p>함께 읽는 말씀</p><h3>'+esc(item.book)+' '+item.chapter+'장 '+item.start+'–'+item.end+'절</h3><div class="gbl-actions"><a href="'+esc(readerUrl(item,false))+'">본문 읽기</a><a href="'+esc(readerUrl(item,true))+'"><span aria-hidden="true">▷</span> 본문 듣기</a></div></section><section class="gbl-question"><h3>오늘 생각해 볼 질문</h3><p>'+esc(item.question)+'</p></section>'+(related.length?'<section class="gbl-related"><h3>함께 만나는 이야기</h3>'+related.map(i=>'<button data-gbl-related="'+i.id+'"><span>'+esc(i.name)+'</span><span aria-hidden="true">›</span></button>').join(''):'')+'</div></article>';
+    scroll.innerHTML='<article class="gbl-detail '+(item.kind==='people'?'gbl-person-detail':'')+'"><div class="gbl-hero">'+image(item,true)+'</div><div class="gbl-article"><p class="gbl-eyebrow">'+esc(item.group)+' · '+esc(item.book)+'</p><h2>'+esc(item.title)+'</h2><p class="gbl-intro">'+esc(item.intro)+'</p><hr>'+storyContent(item)+'<section class="gbl-scripture"><p>함께 읽는 말씀</p><h3>'+esc(item.book)+' '+item.chapter+'장 '+item.start+'–'+item.end+'절</h3><div class="gbl-actions"><a href="'+esc(readerUrl(item))+'">말씀 보기</a></div></section><section class="gbl-question"><h3>오늘 생각해 볼 질문</h3><p>'+esc(item.question)+'</p></section>'+(related.length?'<section class="gbl-related"><h3>함께 만나는 이야기</h3>'+related.map(i=>'<button data-gbl-related="'+i.id+'"><span>'+esc(i.name)+'</span><span aria-hidden="true">›</span></button>').join(''):'')+'</div></article>';
     scroll.scrollTop=0;
     revealWithImage(scroll.querySelector('.gbl-detail'),scroll.querySelector('.gbl-hero img'));
   }

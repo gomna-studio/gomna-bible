@@ -16,7 +16,8 @@ const items = context.window.GOMNA_BIBLE_LIBRARY_DATA;
 let urls = 0, readLinks = 0, listenLinks = 0;
 for (const item of items) {
   for (const listen of [false, true]) {
-    const url = new URL(context.window.readerUrlForTest(item, listen), 'https://example.test/');
+    const url = new URL(context.window.readerUrlForTest(item), 'https://example.test/');
+    if (listen) url.searchParams.set('listen', '1');
     for (const [param, expected] of Object.entries({ libraryKind: item.kind, libraryId: item.id, libraryName: item.name,
       book: item.book, chapter: item.chapter, verseStart: item.start, verseEnd: item.end,
       startVerse: item.start, endVerse: item.end })) {
@@ -38,7 +39,10 @@ for (const item of items) {
     assert.equal(nodes.anchor.after, box);
     assert.equal(box.hidden, listen);
     assert.equal(link.className, 'daily-word-return-btn');
-    assert.equal(link.textContent, '← ' + item.name + (item.kind === 'stories' ? ' 이야기' : '') + '로 돌아가기');
+    const target = item.name + (item.kind === 'stories' ? ' 이야기' : '');
+    const last = target.charCodeAt(target.length - 1) - 0xAC00;
+    const josa = last % 28 !== 0 && last % 28 !== 8 ? '으로' : '로';
+    assert.equal(link.textContent, '← ' + target + josa + ' 돌아가기');
     assert.equal(new URL(link.href, 'https://example.test/').hash, '#bible-library/' + item.kind + '/' + item.id);
     if (listen) listenLinks++; else readLinks++;
     urls++;

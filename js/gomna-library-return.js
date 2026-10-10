@@ -7,7 +7,7 @@
   var book = p.get('book'), chapter = Number(p.get('chapter'));
   var start = Number(p.get('verseStart')), end = Number(p.get('verseEnd'));
   if (!book || !Number.isInteger(chapter) || chapter < 1 || !Number.isInteger(start) || start < 1 || !Number.isInteger(end) || end < start) return;
-  var listening = p.get('listen') === '1', finished = false;
+  var listening = p.get('listen') === '1', hideUntilDone = listening, finished = false;
   function samePlace() {
     return typeof currentBook !== 'undefined' && currentBook && currentBook.name === book &&
       typeof currentChapter !== 'undefined' && Number(currentChapter) === chapter;
@@ -25,11 +25,14 @@
       link.href = './?v=bible-stories-34#bible-library/' + kind + '/' + id;
       link.className = 'daily-word-return-btn';
       link.setAttribute('data-daily-word-return', '1');
-      link.textContent = '← ' + name + (kind === 'stories' ? ' 이야기' : '') + '로 돌아가기';
+      var target = name + (kind === 'stories' ? ' 이야기' : '');
+      var last = target.charCodeAt(target.length - 1) - 0xAC00;
+      var josa = last >= 0 && last < 11172 && last % 28 !== 0 && last % 28 !== 8 ? '으로' : '로';
+      link.textContent = '← ' + target + josa + ' 돌아가기';
       link.style.cssText = 'text-decoration:none;';
       box.appendChild(link); anchor.insertAdjacentElement('afterend', box);
     }
-    box.hidden = !samePlace() || (listening && !finished);
+    box.hidden = !samePlace() || (hideUntilDone && !finished);
   }
   var source = 'bible-library:' + kind + ':' + id;
   function isActive() {
@@ -50,7 +53,14 @@
   }
   window.gomnaLibraryListen = {
     source: source,
+    label: name + ' 말씀 듣기',
+    directListen: hideUntilDone,
     isActive: isActive,
+    start: function () {
+      if (!samePlace()) return false;
+      listening = true;
+      return window.gomnaLibraryListen.play();
+    },
     range: function () { return isActive() ? {start:start, end:end} : null; },
     play: function () {
       if (!isActive()) return false;
