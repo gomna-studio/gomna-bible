@@ -5,7 +5,7 @@
 <style id="reader-panel-entry-style">
 /* Hide the default Reader chrome before the requested panel is initialized. */
 html.reader-panel-entry-pending body{visibility:hidden!important}
-html.reader-panel-entry-pending::after{content:'';position:fixed;inset:0;display:grid;place-items:center;background:#FCFAF6;color:#3D2817;font:14px sans-serif;z-index:2147483647}
+html.reader-panel-entry-pending::after{content:'화면을 준비하고 있습니다.';position:fixed;inset:0;display:grid;place-items:center;background:#FCFAF6;color:#3D2817;font:14px sans-serif;z-index:2147483647}
 html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다. 새로고침해 주세요.'}
 </style>
 <script id="reader-panel-entry-boot">
@@ -13,7 +13,8 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
   var p = new URLSearchParams(location.search);
   if (p.get('source') === 'home-bible-picker') return;
   /* Use the URL destination, never the default Reader shell. */
-  var target = p.get('book') ? (parseInt(p.get('chapter'), 10) >= 1 ? 'verseView' : 'chapterView') :
+  var guideEntry = p.get('homeGuide') === '1';
+  var target = guideEntry ? 'scriptureAllGuidesOverlay' : p.get('book') ? (parseInt(p.get('chapter'), 10) >= 1 ? 'verseView' : 'chapterView') :
     p.has('easy') ? 'easyView' : p.has('favorites') ? 'favView' :
     ((p.get('q') || '').trim() || p.get('focus') === 'search') ? 'searchView' : 'verseView';
   var root = document.documentElement;
@@ -23,8 +24,11 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
     navigationReady = true;
     return finished;
   };
+  if (guideEntry) window.__gomnaRevealGuideEntry = window.__gomnaRevealPanelEntry;
   function ready() {
     var view = document.getElementById(target);
+    if (guideEntry) return navigationReady && view && view.classList.contains('is-open') &&
+      view.querySelector('#scriptureAllGuidesBody') && view.querySelector('#scriptureAllGuidesBody').childElementCount ? view : false;
     if (!navigationReady || !view || !view.classList.contains('active') || !view.childElementCount) return false;
     if (root.classList.contains('scripture-entry-pending') || root.classList.contains('search-entry-pending') ||
         root.classList.contains('gomna-home-commentary-loading') || window.__gomnaScriptureLayoutPending) return false;
@@ -109,7 +113,7 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
 })();
 </script>
 
-<script src="/js/gomna-screen-transition.js?v=20261009-hide-leaving-v1"></script>
+<script src="/js/gomna-screen-transition.js?v=20261010-stable-navigation-v2"></script>
 <script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script src="/js/gomna-ga4.js?v=20261001-analytics-v1"></script>
 <script>
@@ -264,7 +268,7 @@ body[data-gomna-page="reader"] #gomnaReaderBootOverlay .gomna-reader-boot-btn{
 <meta name="description" content="개역한글 성경 본문을 장·절로 읽고 들으며, 각 절의 원어·역사·신학·예표·매튜헨리·설교·찬송·상담·교차참조 말씀풀이를 함께 살펴보세요.">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
-<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if(src==='home-bible-picker'){document.documentElement.classList.add('home-bible-picker');}else if(((src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='guide-related'||src==='bible-tab'||src==='home-resume-read'||src==='home-resume-listen'||src==='home-resume-recent')&&p.get('book'))||(!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&!(p.get('q')||'').trim()&&p.get('focus')!=='search'&&p.get('testament')!=='old'&&p.get('testament')!=='new'))document.documentElement.classList.add('scripture-entry-pending');if(p.get('commentary')==='1'&&(src==='home-card-commentary'||src==='home-main-commentary'))document.documentElement.classList.add('gomna-home-commentary-loading');var qEarly=(p.get('q')||'').trim();if(qEarly){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
+<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if(src==='home-bible-picker'){document.documentElement.classList.add('home-bible-picker');}else if(p.get('homeGuide')==='1'){/* The guide has its own readiness gate. */}else if(((src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='guide-related'||src==='bible-tab'||src==='home-resume-read'||src==='home-resume-listen'||src==='home-resume-recent')&&p.get('book'))||(!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&!(p.get('q')||'').trim()&&p.get('focus')!=='search'&&p.get('testament')!=='old'&&p.get('testament')!=='new'))document.documentElement.classList.add('scripture-entry-pending');if(p.get('commentary')==='1'&&(src==='home-card-commentary'||src==='home-main-commentary'))document.documentElement.classList.add('gomna-home-commentary-loading');var qEarly=(p.get('q')||'').trim();if(qEarly){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
 <meta name="theme-color" content="#FCFAF6">
 <link rel="canonical" href="https://gomnastudio.com/reader.html">
 <!-- Open Graph 메타 태그 (공유용) -->
@@ -2900,7 +2904,9 @@ html.plain-verse-gesture-active body{
   position:fixed;
   z-index:40;
   overflow:hidden;
-  touch-action:pan-y pinch-zoom;
+  /* This viewport pans with transform, not scrollTop. Let the browser own
+     pinch zoom only; native Y panning would cancel our pointer stream. */
+  touch-action:pinch-zoom;
   overscroll-behavior:none;
   box-sizing:border-box;
   background:var(--cream,#FCFAF6);
@@ -4511,7 +4517,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
   .verse-num{width:3ch!important;min-width:3ch!important;max-width:3ch!important;height:auto!important;font-size:0.84em!important;padding:0.32em 0 0!important}
 }
 </style>
-<script src="gomna_category_feature.js?v=20261009-image-viewer-all-v28" defer></script>
+<script src="gomna_category_feature.js?v=20261010-guide-navigation-v30" defer></script>
 <script src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
 <script src="/js/gomna-bible-ref.js?v=20260725-multilang-structured-refs-v1"></script>
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
@@ -4531,10 +4537,9 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261008-account-unified-v1">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-09-legacy-audio-card-v85" data-release="2026-10-09-legacy-audio-card-v85" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-10-clean-guide-navigation-v87" data-release="2026-10-10-clean-guide-navigation-v87" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
-<link rel="stylesheet" href="js/gomna-guide-colorful.css?v=20261009-image-viewer-all-v27">
-<script>if(new URLSearchParams(location.search).get("homeGuide")==="1")document.documentElement.classList.add("gomna-home-guide-entering");</script><style>html.gomna-home-guide-entering body{visibility:hidden}</style>
+<link rel="stylesheet" href="js/gomna-guide-colorful.css?v=20261010-guide-navigation-v30">
 </head>
 <body data-gomna-page="reader">
 <div id="gomnaReaderBootOverlay" class="gomna-reader-boot-overlay" aria-hidden="true">
@@ -5806,6 +5811,19 @@ function openBibleTabInReader() {
 
 function handleScriptureDock(action) {
   if (!action) return;
+  var guide = document.getElementById('scriptureAllGuidesOverlay');
+  var fromGuide = !!(guide && guide.classList.contains('is-open'));
+  /* Keep the guide visible if Bible data is still arriving. The destination
+     document initializes Find independently and never exposes the default Reader. */
+  if (fromGuide && !window.__gomnaBibleDataReady && (action === 'bible' || action === 'find')) {
+    location.href = action === 'find' ? 'reader.html?easy=1' : 'reader.html?testament=old';
+    return;
+  }
+  function finishGuideNavigation() {
+    if (fromGuide && typeof window.closeAllScriptureGuides === 'function') {
+      window.closeAllScriptureGuides({ restoreScroll: false });
+    }
+  }
   try {
     if (action === 'home') {
       goHome();
@@ -5813,21 +5831,25 @@ function handleScriptureDock(action) {
     }
     if (action === 'bible') {
       openBibleTabInReader();
+      finishGuideNavigation();
       return;
     }
     if (action === 'find') {
       switchTab('easy');
       if (typeof renderEasyFind === 'function') renderEasyFind();
       var easyView = document.getElementById('easyView');
-      if (easyView) easyView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (easyView) easyView.scrollIntoView({ behavior: 'auto', block: 'start' });
       syncScriptureDockActive('find');
+      finishGuideNavigation();
       return;
     }
     if (action === 'archive') {
+      renderFavorites();
       switchTab('fav');
       var favView = document.getElementById('favView');
-      if (favView) favView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (favView) favView.scrollIntoView({ behavior: 'auto', block: 'start' });
       syncScriptureDockActive('archive');
+      finishGuideNavigation();
       return;
     }
     if (action === 'my') {
@@ -6140,12 +6162,23 @@ function runDeferredUrlNavigation() {
 }
 
 var _gomnaEasyEntryEarly = false;
+var _gomnaStaticEntryEarly = false;
 window.__gomnaBibleDataReady = false;
 if (typeof oldTestamentData === 'undefined') window.oldTestamentData = null;
 if (typeof newTestamentData === 'undefined') window.newTestamentData = null;
 var _gomnaPendingEasyAction = null;
 document.addEventListener('DOMContentLoaded', function() {
   var p = new URLSearchParams(location.search);
+  if (p.get('homeGuide') === '1') _gomnaStaticEntryEarly = true;
+  else if (p.has('favorites') && !p.get('book') && !p.has('easy')) {
+    try {
+      renderFavorites();
+      switchTab('fav');
+      syncScriptureDockActive('archive');
+      window.__gomnaRevealPanelEntry();
+      _gomnaStaticEntryEarly = true;
+    } catch (e) { console.error('[GOMNA] early archive entry failed', e); }
+  }
   if (p.has('easy') && !p.get('book')) {
     try {
       renderEasyFind();
@@ -6361,7 +6394,7 @@ function initializeApp() {
   var entryStatus=document.getElementById('easyEntryDataStatus');
   if(entryStatus){ if(window.__gomnaBibleDataReady)entryStatus.remove(); else entryStatus.textContent='본문을 불러오지 못했습니다. 새로고침해 주세요.'; }
   window.dispatchEvent(new Event('gomna:bible-data-settled'));
-  if (!_gomnaEasyEntryEarly) runDeferredUrlNavigation();
+  if (!_gomnaEasyEntryEarly && !_gomnaStaticEntryEarly) runDeferredUrlNavigation();
   else if (window.__gomnaBibleDataReady && _gomnaPendingEasyAction) {
     var action = _gomnaPendingEasyAction; _gomnaPendingEasyAction = null; action();
   }
@@ -14798,6 +14831,9 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     var latest = (samples && samples.length) ? samples[samples.length - 1] : e;
     return { x: latest.clientX, y: latest.clientY };
   }
+  function isNativeViewportZoomed() {
+    return !!(window.visualViewport && window.visualViewport.scale > 1.01);
+  }
   function applyViewportBox(box) {
     vpLeft = box.left;
     vpTop = box.top;
@@ -14807,6 +14843,9 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     viewport.style.top = box.top + 'px';
     viewport.style.width = box.width + 'px';
     viewport.style.height = box.height + 'px';
+    /* After native pinch zoom, let the browser pan its magnified viewport.
+       At normal scale this engine owns Y, so Chrome must keep pointer events. */
+    viewport.style.touchAction = isNativeViewportZoomed() ? 'pan-x pan-y pinch-zoom' : '';
   }
   function isAudioPlayStabilizing() {
     return typeof window.__gomnaAudioPlayStabilizeUntil === 'number' &&
@@ -15106,6 +15145,10 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     suppressClick = false;
     cancelGestureLayerRelease();
     cancelInertia();
+    if (isNativeViewportZoomed()) {
+      notePlainVerseManualScroll();
+      return;
+    }
     var c = latestClient(e);
     pointers.set(e.pointerId, { id: e.pointerId, x: c.x, y: c.y });
     /* Finger contact itself blocks audio auto-center so a verse change cannot
@@ -15195,7 +15238,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     unbindDocPointerFollow();
     flushPaint();
     if (didDrag || didPinch) suppressClick = true;
-    var runInertia = didDrag && !didPinch;
+    var runInertia = e.type !== 'pointercancel' && didDrag && !didPinch;
     var wasGesture = didDrag || didPinch;
     mode = 'idle';
     dragStarted = false;
@@ -20563,7 +20606,7 @@ window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!match
 
 <script src="js/gomna-bible-listen-controls.js?v=20261010-word-view-merge-v3"></script>
 <script src="js/gomna-library-return.js?v=20261010-word-view-merge-v2"></script>
-<script src="js/gomna-guide-home-entry.js?v=20261009-image-viewer-all-v27"></script>
+<script src="js/gomna-guide-home-entry.js?v=20261010-guide-navigation-v30"></script>
 </body>
 </html>
 

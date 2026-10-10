@@ -1243,7 +1243,7 @@
     var item = document.querySelector('.verse-item[data-verse="' + pending.verse + '"]');
     if (!item) return false;
 
-    try { item.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (err) { item.scrollIntoView(); }
+    try { item.scrollIntoView({ behavior: 'auto', block: 'center' }); } catch (err) { item.scrollIntoView(); }
 
     applyGuideVerseHighlight(item, true);
     if (guideReturnState) attachGuideReturnTag(item, guideReturnState.testament, guideReturnState.catName);
@@ -1299,32 +1299,56 @@
     var chapter = Number(ref.chapter);
     var verse = Number(ref.verse);
     if (isNaN(chapter) || isNaN(verse) || chapter < 1 || verse < 1) return;
+    if (navigateGuideDocumentWhileLoading(ref.book, chapter, verse, ref.testament)) return;
     if (typeof goToVerse !== 'function') return;
 
     var testament = ref.testament || resolveGuideVerseTestament(ref.book);
     scriptureGuideState.verseNavigating = true;
 
     saveGuideReturnState(ref);
-    closeScriptureGuide();
-
     guideVersePending = { book: ref.book, chapter: chapter, verse: verse, testament: testament };
 
     ensureGuideVerseNavListeners();
     goToVerse(ref.book, chapter, verse, testament);
+    // Keep the guide covering the previous Reader view until the requested
+    // passage exists. A missing destination must not reveal a stale screen.
+    if (isGuideVerseDestinationReady(ref.book, chapter)) {
+      closeScriptureGuide();
+      closeAllScriptureGuides({ restoreScroll: false });
+    } else {
+      scriptureGuideState.verseNavigating = false;
+    }
     scheduleGuideVerseFocus();
+  }
+
+  function navigateGuideDocumentWhileLoading(book, chapter, verse, testament) {
+    if (window.__gomnaBibleDataReady !== false) return false;
+    var query = new URLSearchParams({ book: book, chapter: chapter, verse: verse, source: 'guide-related' });
+    if (testament) query.set('testament', testament);
+    window.location.href = 'reader.html?' + query.toString();
+    return true;
+  }
+
+  function isGuideVerseDestinationReady(book, chapter) {
+    var view = document.getElementById('verseView');
+    return !!(window.currentBook && window.currentBook.name === book &&
+      Number(window.currentChapter) === Number(chapter) && view && view.classList.contains('active'));
   }
 
   function navigateToGuideCategory(testament, catName) {
     var guide = getScriptureGuide(testament, catName);
     var book = getGuideFirstBookName(guide);
-    closeScriptureGuide();
-    if (typeof closeAllScriptureGuides === 'function') {
-      try { closeAllScriptureGuides(); } catch (err) {}
-    }
+    if (book && navigateGuideDocumentWhileLoading(book, 1, 1, testament)) return;
     if (book && typeof goToVerse === 'function') {
       goToVerse(book, 1, 1, testament);
+      if (isGuideVerseDestinationReady(book, 1)) {
+        closeScriptureGuide();
+        closeAllScriptureGuides({ restoreScroll: false });
+      }
       return;
     }
+    closeScriptureGuide();
+    closeAllScriptureGuides();
     returnToGuideCategoryList(testament, catName);
   }
 
@@ -1530,6 +1554,7 @@
   var allGuidesOverlay = null;
   var allGuidesBound = false;
   var allGuidesReturnScroll = 0;
+  var allGuidesDockHome = null;
   var ALL_GUIDE_ORDER = {
     old: ['모세오경', '역사서', '시가서', '대선지서', '소선지서'],
     new: ['복음서', '역사서', '바울서신', '공동서신', '예언서']
@@ -1631,21 +1656,55 @@
     return document.scrollingElement || document.documentElement;
   }
 
-  function closeAllScriptureGuides() {
+  function attachAllGuidesDock(overlay) {
+    var dock = document.getElementById('scriptureDock');
+    if (!dock || dock.parentNode === overlay) return;
+    // Reuse the real menu so its account state, translations, gestures and
+    // event listeners stay identical to the Reader menu.
+    allGuidesDockHome = { parent: dock.parentNode, next: dock.nextSibling };
+    overlay.appendChild(dock);
+  }
+
+  function restoreAllGuidesDock() {
+    var dock = document.getElementById('scriptureDock');
+    if (!dock || !allGuidesDockHome) return;
+    var parent = allGuidesDockHome.parent;
+    var next = allGuidesDockHome.next;
+    if (parent) parent.insertBefore(dock, next && next.parentNode === parent ? next : null);
+    allGuidesDockHome = null;
+  }
+
+  function returnAllGuidesToHomeCard() {
+    // Leave the complete guide visible until the next document replaces it.
+    window.location.href = 'index.html?source=home-guide';
+  }
+
+  function dismissAllScriptureGuides() {
+    if (new URLSearchParams(window.location.search).get('homeGuide') === '1') {
+      returnAllGuidesToHomeCard();
+    } else {
+      closeAllScriptureGuides();
+    }
+  }
+
+  function closeAllScriptureGuides(options) {
     if (!allGuidesOverlay || !allGuidesOverlay.classList.contains('is-open')) return;
+    restoreAllGuidesDock();
     allGuidesOverlay.classList.remove('is-open');
     allGuidesOverlay.setAttribute('aria-hidden', 'true');
     allGuidesOverlay.hidden = true;
     document.documentElement.classList.remove('scripture-all-guides-lock');
     var scrollEl = getAllGuidesScrollEl();
-    if (scrollEl) scrollEl.scrollTop = allGuidesReturnScroll;
+    if (scrollEl && (!options || options.restoreScroll !== false)) scrollEl.scrollTop = allGuidesReturnScroll;
   }
 
   function onAllGuidesKeydown(e) {
     if (!allGuidesOverlay || !allGuidesOverlay.classList.contains('is-open')) return;
     if (e.key !== 'Escape' && e.key !== 'Esc') return;
+    if (e.defaultPrevented || document.querySelector('#loginModal.show, .gomna-acc-overlay:not([hidden]), .guide-image-viewer[open]')) return;
     e.preventDefault();
-    closeAllScriptureGuides();
+    e.stopPropagation();
+    dismissAllScriptureGuides();
   }
 
   function ensureAllGuidesOverlay() {
@@ -1660,7 +1719,7 @@
     overlay.hidden = true;
     overlay.innerHTML =
       '<div class="scripture-guide-head">' +
-        '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
+        '<button type="button" class="scripture-guide-head-back" data-all-guides-back aria-label="성경 속 이야기와 인물 카드로 돌아가기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>' +
         '<div class="scripture-guide-head-copy">' +
           '<h1 class="scripture-guide-head-title" id="scriptureAllGuidesTitle">성경 길잡이</h1>' +
           '<p class="scripture-guide-head-sub" id="scriptureAllGuidesSub" hidden></p>' +
@@ -1669,12 +1728,12 @@
       '</div>' +
       '<div class="scripture-all-guides-body" id="scriptureAllGuidesBody"></div>';
     document.body.appendChild(overlay);
-    overlay.querySelector('[data-all-guides-close]').addEventListener('click', closeAllScriptureGuides);
+    overlay.querySelector('[data-all-guides-back]').addEventListener('click', returnAllGuidesToHomeCard);
+    overlay.querySelector('[data-all-guides-close]').addEventListener('click', dismissAllScriptureGuides);
     overlay.querySelector('#scriptureAllGuidesBody').addEventListener('click', function(e) {
       var verseBtn = e.target.closest('[data-guide-verse]');
       if (verseBtn) {
         e.preventDefault();
-        closeAllScriptureGuides();
         navigateToGuideRelatedVerse({
           book: verseBtn.getAttribute('data-book'),
           chapter: parseInt(verseBtn.getAttribute('data-chapter'), 10),
@@ -1693,7 +1752,7 @@
       }
     });
     if (!allGuidesBound) {
-      document.addEventListener('keydown', onAllGuidesKeydown);
+      document.addEventListener('keydown', onAllGuidesKeydown, true);
       allGuidesBound = true;
     }
     allGuidesOverlay = overlay;
@@ -1723,8 +1782,14 @@
     overlay.hidden = false;
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
+    attachAllGuidesDock(overlay);
     document.documentElement.classList.add('scripture-all-guides-lock');
     if (body) body.scrollTop = 0;
+    var heading = overlay.querySelector('#scriptureAllGuidesTitle');
+    if (heading) {
+      heading.tabIndex = -1;
+      try { heading.focus({ preventScroll: true }); } catch (e) {}
+    }
   }
 
   window.openAllScriptureGuides = openAllScriptureGuides;

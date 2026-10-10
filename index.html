@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<meta charset="UTF-8">
+<script id="home-guide-return-boot">
+(function(){
+  if(new URLSearchParams(location.search).get('source')!=='home-guide')return;
+  document.documentElement.classList.add('home-guide-return');
+  var preload=document.createElement('link');
+  preload.rel='preload';preload.as='image';preload.fetchPriority='high';
+  preload.href='assets/home/bible-discovery-journey-v5.webp';
+  document.head.appendChild(preload);
+})();
+</script>
+<style id="home-guide-return-style">
+html.home-guide-return .gomna-home-card:not([data-card="2"]){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+html.home-guide-return .gomna-home-card[data-card="2"]:not(.ghd-image-pending){visibility:visible;opacity:1;transform:translate3d(-50%,0,0)}
+</style>
 <script id="gomna-language-hard-off">
 (function () {
   'use strict';
@@ -55,9 +70,8 @@
   } catch (e) {}
 })();
 </script>
-<meta charset="UTF-8">
 <link rel="preload" as="image" href="assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74" fetchpriority="high">
-<script src="/js/gomna-screen-transition.js?v=20261009-hide-leaving-v1"></script>
+<script src="/js/gomna-screen-transition.js?v=20261010-stable-navigation-v2"></script>
 <link rel="preload" as="style" href="js/gomna-home-feed.css?v=20261010-today-message-calm-v88">
 <link rel="preload" as="style" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
 <script defer src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
@@ -1956,7 +1970,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 </style>
 <link rel="stylesheet" href="js/gomna-home-legal-footer-v1.css?v=20260917-v1">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261008-account-unified-v1">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-09-legacy-audio-card-v85" data-release="2026-10-09-legacy-audio-card-v85" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-10-clean-guide-navigation-v87" data-release="2026-10-10-clean-guide-navigation-v87" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
 <style id="gomna-home-card-no-selection">
 /* Home cards are touch controls: prevent iOS text handles/callouts on a hold. */
@@ -1976,9 +1990,9 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 <link rel="stylesheet" href="js/gomna-bible-library.css?v=20261007-buttons-down-10mm-v9">
 <link rel="stylesheet" href="js/gomna-coffee-steam.css?v=20261008-startup-v84">
 <script defer src="js/gomna-bible-library-data.js?v=20261005-home-approved-clean-v74"></script>
-<script defer src="js/gomna-bible-library.js?v=20261010-word-view-merge-v1"></script>
+<script defer src="js/gomna-bible-library.js?v=20261010-library-image-ready-v2"></script>
 <link rel="stylesheet" href="js/gomna-home-people-card.css?v=20261006-person-picker-size-v79">
-<link rel="stylesheet" href="js/gomna-guide-colorful.css?v=20261009-image-viewer-all-v27">
+<link rel="stylesheet" href="js/gomna-guide-colorful.css?v=20261010-guide-navigation-v30">
 </head>
 <body data-gomna-page="home" class="gomna-home-deck-on">
 <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
@@ -3686,7 +3700,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <script src="js/gomna-push-config.js?v=20260909-push-pref-v1"></script>
 <script src="js/gomna-push-prefs.js?v=20260914-notify-interval-v1"></script>
 <script src="js/gomna-mail-config.js?v=20260909-mail-mac-v1"></script>
-<script src="js/gomna-home-feed.js?v=20261010-today-message-calm-v88"></script>
+<script src="js/gomna-home-feed.js?v=20261010-guide-return-v89"></script>
 <script src="js/gomna-bible-stair-picker.js?v=20261008-clean-transition-v1"></script>
 <script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>
