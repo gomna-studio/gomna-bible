@@ -456,13 +456,15 @@
       'html[data-gomna-theme="dark"] .settings-toggle-knob,' +
       'html[data-gomna-theme="dark"] .gomna-audio-toggle-knob{background:' + TEXT + '!important}' +
       /* 인라인 style로 칠해 둔 자리(쿠키 안내·말씀풀이 본문 등) */
-      'html[data-gomna-theme="dark"] #cookie-banner{background:rgba(38,32,25,.97)!important;' +
-      'color:var(--gomna-text)!important;border-color:var(--gomna-border)!important}' +
+      'html[data-gomna-theme="dark"] #cookie-banner{background:#1F2937!important;' +
+      'color:var(--gomna-text)!important;border-color:#374151!important}' +
       'html[data-gomna-theme="dark"] #cookie-banner :where(div,label,span,p){color:var(--gomna-text)!important}' +
-      'html[data-gomna-theme="dark"] #cookie-banner a{color:#D9AE64!important}' +
-      'html[data-gomna-theme="dark"] #cookie-banner button[onclick*="reject"]' +
-      '{background:var(--gomna-surface-soft)!important;color:var(--gomna-text)!important;' +
-      'border-color:var(--gomna-border)!important}' +
+      'html[data-gomna-theme="dark"] #cookie-banner a{color:#CBD5E1!important}' +
+      'html[data-gomna-theme="dark"] #cookie-banner .cookie-actions button' +
+      '{background:#425669!important;color:#fff!important;-webkit-text-fill-color:#fff!important}' +
+      'html[data-gomna-theme="dark"] #cookie-banner .cookie-actions button:active' +
+      '{background:#344757!important}' +
+      '@media (hover:hover) and (pointer:fine){html[data-gomna-theme="dark"] #cookie-banner .cookie-actions button:hover{background:#344757!important}}' +
       /* 인라인 style 값은 브라우저가 rgb()로 다시 적어 두기도 해서 두 표기를 모두 본다 */
       inlineFix('background', ['#fff', 'rgb(255, 255, 255)', '#f5f5f5', 'rgb(245, 245, 245)'],
         'background:var(--gomna-surface-soft)!important') +
