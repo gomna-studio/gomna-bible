@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-10-10-verse-picker-soft-gray-v91';
+const CACHE_VERSION = '2026-10-11-touch-theme-v92';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const IMAGE_CACHE = 'gomna-images-v1';
@@ -33,10 +33,11 @@ const STATIC_URLS = [
   '/assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74',
   '/assets/images/home-card-today-message-calm-20261010.webp?v=20261010-calm-v1',
   '/assets/home/bible-discovery-journey-v5.webp',
-  '/js/gomna-guide-colorful.css?v=20261010-guide-navigation-v30',
-  '/js/gomna-guide-home-entry.js?v=20261010-guide-navigation-v30',
-  '/gomna_category_feature.js?v=20261010-guide-navigation-v30',
+  '/js/gomna-guide-colorful.css?v=20261011-touch-theme-v92',
+  '/js/gomna-guide-home-entry.js?v=20261011-touch-theme-v92',
+  '/gomna_category_feature.js?v=20261011-touch-theme-v92',
   '/js/gomna-auth.js?v=20261008-account-unified-v1',
+  '/js/gomna-login-entry.js?v=20261011-touch-theme-v92',
   '/js/gomna-account-white.css?v=20261008-account-unified-v1',
   '/js/gomna-nav-single-tap.js?v=20261008-resume-v1',
   '/js/gomna-nav-magnifier.js?v=20261008-resume-v1',
@@ -46,8 +47,8 @@ const STATIC_URLS = [
   '/index.html',
   '/reader.html',
   '/meditation.html',
-  '/js/gomna-theme.js?v=20261010-cookie-simple-v11',
-  '/js/gomna-pwa-recovery.js?v=2026-10-10-verse-picker-soft-gray-v91',
+  '/js/gomna-theme.js?v=20261011-touch-theme-v92',
+  '/js/gomna-pwa-recovery.js?v=2026-10-11-touch-theme-v92',
   '/js/gomna-easy-find.js?v=20261010-clean-transition-v90',
   '/js/gomna-seo-return.js?v=20261010-seo-return-v1',
   '/css/bible-seo-pages.css?v=20261010-seo-brand-listen-v1',
@@ -60,8 +61,8 @@ const STATIC_URLS = [
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
   '/js/gomna-account-white.css?v=20260925-account-white-preview-v5',
-  '/js/gomna-home-feed.js?v=20261010-guide-return-v89',
-  '/js/gomna-home-feed.css?v=20261010-today-message-calm-v88',
+  '/js/gomna-home-feed.js?v=20261011-touch-theme-v92',
+  '/js/gomna-home-feed.css?v=20261011-touch-theme-v92',
   '/gomna_category_feature.js',
   '/gomna_category_feature.js?v=20260927-reader-guide-width-v1',
   '/js/gomna-nav-magnifier.js?v=20261007-tap-v10',
@@ -82,7 +83,7 @@ const STATIC_URLS = [
   '/js/gomna-home-people-card.css?v=20261006-person-picker-size-v79',
   '/js/gomna-nav-single-tap.js?v=20261007-tap-v10',
   '/js/gomna-coffee-steam.css?v=20261008-startup-v84',
-  '/js/gomna-bible-library.css?v=20261007-buttons-down-10mm-v9',
+  '/js/gomna-bible-library.css?v=20261011-touch-theme-v92',
   '/assets/home/meditation-coffee.png?v=20261007-coffee-v1',
   '/js/gomna-bible-library.js?v=20261010-library-image-ready-v2',
   '/js/gomna-bible-library-data.js?v=20261005-home-approved-clean-v74',

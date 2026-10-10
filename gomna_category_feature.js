@@ -203,6 +203,7 @@
   var guideSheetW = 0;
   var guideSheetH = 0;
   var guideMoveBound = false;
+  var guideGestureCleanup = null;
   /* 이동 배율: 손가락을 거의 1:1로 즉시 따라오게 한다(감속 없음, 살짝만 앞서게 1.12) */
   var GUIDE_PAN_GAIN = 1.12;
 
@@ -722,7 +723,7 @@
           '<div class="scripture-guide-head">' +
             '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
             '<span class="scripture-guide-head-title">성경 길잡이</span>' +
-            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:#000!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
+            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
           '</div>' +
           '<div class="scripture-guide-body"></div>' +
         '</div>' +
@@ -731,7 +732,7 @@
           '<div class="scripture-guide-head">' +
             '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
             '<span class="scripture-guide-head-title">성경 길잡이</span>' +
-            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:#000!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
+            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
           '</div>' +
           '<div class="scripture-guide-body scripture-guide-detail-body"></div>' +
         '</div>' +
@@ -812,8 +813,8 @@
     window.scrollTo(0, y);
   }
 
-  /* v72: 길잡이 카드 전용 핀치 줌 — 두 손가락일 때만 카드(.scripture-guide-sheet)에 transform:scale 적용.
-     한 손가락 세로 스크롤/끌어내리기는 그대로 두고, 두 손가락 동작에만 preventDefault 한다. */
+  /* 길잡이 카드 전용 핀치 줌. 1배 스크롤·버튼 탭은 네이티브에 맡기고,
+     두 손가락 핀치 또는 확대한 배경의 분명한 이동에만 preventDefault 한다. */
   function getGuideSheetEl() {
     return scriptureGuideOverlay ? scriptureGuideOverlay.querySelector('.scripture-guide-sheet') : null;
   }
@@ -870,6 +871,7 @@
   }
 
   function resetGuidePinchZoom() {
+    if (guideGestureCleanup) guideGestureCleanup();
     guidePinchScale = 1;
     guidePinchStartDist = 0;
     guidePinchStartScale = 1;
@@ -886,6 +888,23 @@
     if (guidePinchBound || !sheet) return;
     guidePinchBound = true;
     guideSheetCache = sheet;
+    var panCandidate = false;
+    var suppressClick = false;
+
+    function isGuideControl(target) {
+      var control = target && target.closest && target.closest('button,a,input,select,textarea,summary,[role="button"],[role="link"],[contenteditable]:not([contenteditable="false"])');
+      return !!(control && sheet.contains(control));
+    }
+
+    function startPanCandidate(touch) {
+      panCandidate = true;
+      guidePanning = false;
+      guidePanStartX = guidePanX;
+      guidePanStartY = guidePanY;
+      guidePanStartTouchX = touch.clientX;
+      guidePanStartTouchY = touch.clientY;
+      addGuideMove();
+    }
 
     // 확대/이동 중에만 붙였다 떼는 touchmove 핸들러(1배 단일 손가락에서는 붙지 않아 네이티브 스크롤이 빠르게 반응)
     function onGuideTouchMove(e) {
@@ -901,10 +920,20 @@
         if (e.cancelable) e.preventDefault();
         return;
       }
-      // 한 손가락 + 확대 상태: 카드 이동(감속 없음, 매 이벤트 즉시 갱신)
-      if (guidePanning && e.touches.length === 1 && guidePinchScale > 1) {
-        guidePanX = guidePanStartX + (e.touches[0].clientX - guidePanStartTouchX) * GUIDE_PAN_GAIN;
-        guidePanY = guidePanStartY + (e.touches[0].clientY - guidePanStartTouchY) * GUIDE_PAN_GAIN;
+      // Only an intentional drag of the zoomed background becomes a pan.
+      // A small finger wobble must keep the browser's normal button click.
+      if ((panCandidate || guidePanning) && e.touches.length === 1 && guidePinchScale > 1) {
+        var dx = e.touches[0].clientX - guidePanStartTouchX;
+        var dy = e.touches[0].clientY - guidePanStartTouchY;
+        if (!guidePanning) {
+          if (dx * dx + dy * dy <= 144) return;
+          panCandidate = false;
+          guidePanning = true;
+          suppressClick = true;
+          beginGuideGesture();
+        }
+        guidePanX = guidePanStartX + dx * GUIDE_PAN_GAIN;
+        guidePanY = guidePanStartY + dy * GUIDE_PAN_GAIN;
         applyGuideTransform();
         if (e.cancelable) e.preventDefault();
       }
@@ -919,11 +948,25 @@
       guideMoveBound = false;
       sheet.removeEventListener('touchmove', onGuideTouchMove, { passive: false });
     }
+    function stopGuideGesture() {
+      guidePinchActive = false;
+      guidePinchStartDist = 0;
+      guidePanning = false;
+      panCandidate = false;
+      removeGuideMove();
+      endGuideGesture();
+    }
+    guideGestureCleanup = function() {
+      stopGuideGesture();
+      suppressClick = false;
+    };
 
     sheet.addEventListener('touchstart', function(e) {
       if (!e.touches) return;
       if (e.touches.length === 2) {
         // 두 손가락: 확대·축소 시작
+        panCandidate = false;
+        suppressClick = true;
         guidePinchActive = true;
         guidePanning = false;
         guidePinchStartDist = guideTouchDist(e.touches);
@@ -931,39 +974,46 @@
         beginGuideGesture();
         addGuideMove();
         if (e.cancelable) e.preventDefault();
-      } else if (e.touches.length === 1 && guidePinchScale > 1) {
-        // 한 손가락 + 확대 상태: 이동 시작 (touchstart에서는 preventDefault 하지 않아 버튼 탭은 정상)
-        guidePanning = true;
-        guidePanStartX = guidePanX;
-        guidePanStartY = guidePanY;
-        guidePanStartTouchX = e.touches[0].clientX;
-        guidePanStartTouchY = e.touches[0].clientY;
-        beginGuideGesture();
-        addGuideMove();
+      } else if (e.touches.length === 1) {
+        stopGuideGesture();
+        suppressClick = false;
+        // X, read/related links, and other controls retain native single-touch
+        // activation even when zoomed. Two-finger pinch still works over them.
+        if (guidePinchScale > 1 && !isGuideControl(e.target)) startPanCandidate(e.touches[0]);
+      } else {
+        stopGuideGesture();
+        suppressClick = true;
       }
       // 1배 단일 손가락: 아무 것도 하지 않음 → touchmove 리스너 없음 → 네이티브 세로 스크롤 즉시 반응
     }, { passive: false });
 
     function endGuidePinch(e) {
+      if (e.type === 'touchcancel') {
+        stopGuideGesture();
+        suppressClick = true;
+        return;
+      }
+      var wasGesture = guidePinchActive || guidePanning || panCandidate;
       if (!e.touches || e.touches.length < 2) {
         guidePinchActive = false;
         guidePinchStartDist = 0;
       }
-      if (e.touches && e.touches.length === 1 && guidePinchScale > 1) {
-        // 두 손가락에서 한 손가락으로 줄면 남은 손가락으로 이동을 이어서 시작(제스처·리스너 유지)
-        guidePanning = true;
-        guidePanStartX = guidePanX;
-        guidePanStartY = guidePanY;
-        guidePanStartTouchX = e.touches[0].clientX;
-        guidePanStartTouchY = e.touches[0].clientY;
+      if (e.touches && e.touches.length === 1 && guidePinchScale > 1 && wasGesture) {
+        // Pinch can continue as a background pan, with the same movement slop.
+        startPanCandidate(e.touches[0]);
       } else if (!e.touches || e.touches.length === 0) {
-        guidePanning = false;
-        removeGuideMove();
-        endGuideGesture();
+        stopGuideGesture();
       }
     }
     sheet.addEventListener('touchend', endGuidePinch);
     sheet.addEventListener('touchcancel', endGuidePinch);
+    sheet.addEventListener('click', function(e) {
+      if (e.detail === 0) { suppressClick = false; return; }
+      if (!suppressClick) return;
+      suppressClick = false;
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
   }
 
   /* v72: 성경 길잡이 한 손 조작. 모바일에서는 패널 자체가 스크롤러(헤더 앞 투명 스페이서 포함), 그 외에는 기존대로 본문이 스크롤러 */
@@ -1724,7 +1774,7 @@
           '<h1 class="scripture-guide-head-title" id="scriptureAllGuidesTitle">성경 길잡이</h1>' +
           '<p class="scripture-guide-head-sub" id="scriptureAllGuidesSub" hidden></p>' +
         '</div>' +
-        '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:#000!important;box-shadow:none!important;border:0!important" data-all-guides-close aria-label="닫기">✕</button>' +
+        '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;box-shadow:none!important;border:0!important" data-all-guides-close aria-label="닫기">✕</button>' +
       '</div>' +
       '<div class="scripture-all-guides-body" id="scriptureAllGuidesBody"></div>';
     document.body.appendChild(overlay);

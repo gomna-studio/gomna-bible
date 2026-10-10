@@ -103,6 +103,7 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
 </script>
 
 <script src="/js/gomna-screen-transition.js?v=20261010-stable-navigation-v2"></script>
+<script src="/js/gomna-login-entry.js?v=20261011-touch-theme-v92"></script>
 <script src="/js/gomna-seo-return.js?v=20261010-seo-return-v1"></script>
 <script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script src="/js/gomna-ga4.js?v=20261001-analytics-v1"></script>
@@ -2529,13 +2530,13 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 .unified-bc-dial-book-name{min-width:0;overflow:visible;white-space:normal;word-break:keep-all;overflow-wrap:break-word;line-height:1.25}
 .unified-bc-dial-book-caret{display:inline-block;vertical-align:middle;margin-left:2px;width:12px;height:12px;color:#1F1F1F}
 .unified-bc-dial-book-caret svg{display:block;width:12px;height:12px}
-.ubc-dial{--ubc-dial-h:220px;--ubc-dial-item:44px;position:relative;height:var(--ubc-dial-h)}
+.ubc-dial{--ubc-dial-h:220px;--ubc-dial-item:46px;position:relative;height:var(--ubc-dial-h)}
 /* 강제 스냅(scroll-snap-type)은 손가락을 붙잡으므로 쓰지 않고, 관성이 끝난 뒤 한 번만 JS로 중앙 정렬한다. */
 .ubc-dial-scroll{height:100%;box-sizing:border-box;padding:calc((var(--ubc-dial-h) - var(--ubc-dial-item))/2) 0;overflow-y:auto;overflow-x:hidden;touch-action:pan-y pinch-zoom;overscroll-behavior-y:contain;overscroll-behavior-x:none;-webkit-overflow-scrolling:touch;scrollbar-width:none;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 24%,#000 76%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 24%,#000 76%,transparent 100%)}
 .ubc-dial-scroll::-webkit-scrollbar{width:0;height:0}
 .ubc-dial-scroll:focus{outline:none}
 .ubc-dial-scroll:focus-visible{outline:2px solid rgba(200,152,73,.7);outline-offset:-2px;border-radius:12px}
-.ubc-dial-item{display:flex;align-items:center;justify-content:center;width:100%;height:var(--ubc-dial-item);padding:0;border:none;background:transparent;font-family:inherit;font-size:15px;font-weight:500;color:rgba(61,40,24,.34);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .16s ease,font-size .16s ease}
+.ubc-dial-item{display:flex;align-items:center;justify-content:center;width:100%;height:var(--ubc-dial-item);padding:0;border:none;background:transparent;font-family:inherit;font-size:15px;font-weight:500;color:rgba(61,40,24,.34);cursor:pointer;touch-action:pan-y pinch-zoom;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;transition:color .16s ease,font-size .16s ease}
 .ubc-dial-item.is-near{font-size:16px;color:rgba(61,40,24,.62)}
 .ubc-dial-item.is-center{font-size:22px;font-weight:600;color:#3d2818}
 .ubc-dial-line{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:170px;max-width:86%;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
@@ -2670,9 +2671,9 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
    넣어 줄을 나눈다(글자 크기는 그대로).
    좌우 7px = 테두리까지 합쳐 글자 앞 8px.
    overflow-wrap:normal = 줄바꿈은 표시용 이름에 넣은 \u200B 자리에서만 일어난다.
-   display:flex 중앙 정렬 = 두 줄 이름이 44px 행 아래로 흘러내리지 않게만 잡아주고
-   행 높이(44px)와 카드 사이 간격(4px)은 그대로 둔다. */
-.ubc-book-row{width:100%;min-height:44px;padding:8px 7px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-start;border:1px solid transparent;border-radius:0;background:transparent;color:#1F1F1F;font-family:inherit;font-size:16px;font-weight:600;text-align:left;white-space:normal;overflow:visible;text-overflow:clip;word-break:keep-all;overflow-wrap:normal;line-height:1.25;cursor:pointer;box-shadow:none;-webkit-tap-highlight-color:transparent}
+   display:flex 중앙 정렬로 긴 이름도 행 안에 두고, 모바일 터치 영역은 최소 46px로 둔다.
+   카드 사이 간격(4px)은 그대로 둔다. */
+.ubc-book-row{width:100%;min-height:46px;padding:8px 7px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-start;border:1px solid transparent;border-radius:0;background:transparent;color:#1F1F1F;font-family:inherit;font-size:16px;font-weight:600;text-align:left;white-space:normal;overflow:visible;text-overflow:clip;word-break:keep-all;overflow-wrap:normal;line-height:1.25;cursor:pointer;box-shadow:none;touch-action:pan-y pinch-zoom;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 .ubc-book-row.is-cur{position:relative;isolation:isolate;background:var(--gm-select-base);border:1px solid #D5D7DA;border-radius:6px;color:#252525;font-weight:700;box-shadow:var(--gm-select-edge-fade)}
 #unifiedBcBookList{
   --ubc-sel-bg:#E8F0FC;
@@ -2712,7 +2713,7 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 .ubc-chcard-label{flex:1 1 auto;min-width:0;color:#6B7280;font-family:inherit;font-size:12px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ubc-chcard-grid{flex:0 1 auto;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);gap:9px;max-height:var(--ubc-ch-grid-max);overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:auto;touch-action:pan-y pinch-zoom;scrollbar-width:none}
 .ubc-chcard-grid::-webkit-scrollbar{width:0;height:0;display:none}
-.ubc-book-chapter{min-width:0;height:46px;padding:0 2px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border:1px solid #D6DAE0;border-radius:10px;background:#FFFFFF;color:#1F1F1F;font-family:inherit;font-size:15px;font-weight:600;line-height:1;cursor:pointer;box-shadow:none;touch-action:pan-y pinch-zoom;-webkit-tap-highlight-color:transparent}
+.ubc-book-chapter{min-width:0;height:46px;padding:0 2px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border:1px solid #D6DAE0;border-radius:10px;background:#FFFFFF;color:#1F1F1F;font-family:inherit;font-size:15px;font-weight:600;line-height:1;cursor:pointer;box-shadow:none;touch-action:pan-y pinch-zoom;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 .ubc-book-chapter.is-cur{background:var(--gm-select-base);border-color:#D5D7DA;color:#252525;font-weight:700;box-shadow:var(--gm-select-edge-fade)}
 .ubc-book-chapter:hover,.ubc-book-chapter:focus-visible{background:#FFFFFF;border-color:#C9CFD6;color:#1F1F1F}
 .ubc-book-chapter.is-cur:hover,.ubc-book-chapter.is-cur:focus-visible{background:var(--gm-select-base);border-color:#D5D7DA;color:#252525;box-shadow:var(--gm-select-edge-fade)}
@@ -2780,7 +2781,7 @@ html.gomna-reader-ui-ja #opt4VerseToolbar .opt4-verse-list{
 html.unified-bc-lock-scroll{overflow:hidden;height:100%}
 html.unified-bc-lock-scroll body{overflow:hidden;height:100%}
 @media (max-width:390px) {
-  .ubc-dial{--ubc-dial-h:208px;--ubc-dial-item:42px}
+  .ubc-dial{--ubc-dial-h:208px;--ubc-dial-item:46px}
   .unified-bc-book-grid{gap:6px}
   .unified-bc-book{padding:6px 8px;font-size:13px}
 }
@@ -4510,7 +4511,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
   .verse-num{width:3ch!important;min-width:3ch!important;max-width:3ch!important;height:auto!important;font-size:0.84em!important;padding:0.32em 0 0!important}
 }
 </style>
-<script src="gomna_category_feature.js?v=20261010-guide-navigation-v30" defer></script>
+<script src="gomna_category_feature.js?v=20261011-touch-theme-v92" defer></script>
 <script src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
 <script src="/js/gomna-bible-ref.js?v=20260725-multilang-structured-refs-v1"></script>
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
@@ -4525,14 +4526,14 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <!-- 사용자 글자 크기(공용). 첫 그림 전에 저장된 비율을 적용하려고 head에서 바로 읽는다. -->
 <script src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
 <!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
-<script src="js/gomna-theme.js?v=20261010-cookie-simple-v11"></script>
+<script src="js/gomna-theme.js?v=20261011-touch-theme-v92"></script>
 <script src="js/gomna-ui-i18n.js?v=20260909-locale-runtime-sync-v1"></script>
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261008-account-unified-v1">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-10-verse-picker-soft-gray-v91" data-release="2026-10-10-verse-picker-soft-gray-v91" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-11-touch-theme-v92" data-release="2026-10-11-touch-theme-v92" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
-<link rel="stylesheet" href="js/gomna-guide-colorful.css?v=20261010-guide-navigation-v30">
+<link rel="stylesheet" href="js/gomna-guide-colorful.css?v=20261011-touch-theme-v92">
 </head>
 <body data-gomna-page="reader">
 <div id="gomnaReaderBootOverlay" class="gomna-reader-boot-overlay" aria-hidden="true">
@@ -10770,8 +10771,15 @@ function bindUnifiedBcDrawerSwipe() {
   var decided = false;
   var isHoriz = false;
   var pointerId = null;
+  var suppressClick = false;
   function onDown(e) {
+    if (e.isPrimary === false) {
+      if (tracking) unifiedBcResetDrawerTransform();
+      tracking = false;
+      return;
+    }
     if (e.pointerType === 'mouse' && e.button !== 0) return;
+    suppressClick = false;
     startX = e.clientX;
     startY = e.clientY;
     lastX = 0;
@@ -10779,17 +10787,20 @@ function bindUnifiedBcDrawerSwipe() {
     decided = false;
     isHoriz = false;
     pointerId = e.pointerId;
-    box.style.transition = 'none';
   }
   function onMove(e) {
     if (!tracking || e.pointerId !== pointerId) return;
     var dx = e.clientX - startX;
     var dy = e.clientY - startY;
     if (!decided) {
-      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      /* A small diagonal finger wobble is still a button tap. Capture only a
+         deliberate horizontal swipe, after native vertical scroll has priority. */
+      if (Math.abs(dx) < 16 && Math.abs(dy) < 16) return;
       decided = true;
-      isHoriz = dx > 0 && Math.abs(dx) > Math.abs(dy);
-      if (!isHoriz) return;
+      isHoriz = dx > 0 && Math.abs(dx) > Math.abs(dy) * 1.5;
+      if (!isHoriz) { tracking = false; return; }
+      suppressClick = true;
+      box.style.transition = 'none';
       try { box.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
     }
     if (!isHoriz) return;
@@ -10797,11 +10808,12 @@ function bindUnifiedBcDrawerSwipe() {
     lastX = dx < 0 ? 0 : dx;
     box.style.transform = 'translateX(' + lastX + 'px)';
   }
-  function finish() {
-    if (!tracking) return;
+  function finish(e) {
+    if (!tracking || e.pointerId !== pointerId) return;
     tracking = false;
+    try { box.releasePointerCapture(pointerId); } catch (err) { /* ignore */ }
     pointerId = null;
-    if (isHoriz && lastX >= 60) {
+    if (isHoriz && e.type !== 'pointercancel' && lastX >= 60) {
       unifiedBcSwipeClose(box);
     } else if (isHoriz) {
       box.style.transition = unifiedBcDrawerReduceMotion() ? 'none' : 'transform .2s ease-out';
@@ -10814,6 +10826,13 @@ function bindUnifiedBcDrawerSwipe() {
   box.addEventListener('pointermove', onMove);
   box.addEventListener('pointerup', finish);
   box.addEventListener('pointercancel', finish);
+  box.addEventListener('click', function(e) {
+    if (e.detail === 0) { suppressClick = false; return; }
+    if (!suppressClick) return;
+    suppressClick = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
 }
 
 function unifiedBcSwipeClose(box) {
@@ -11184,36 +11203,59 @@ function unifiedBcClearChapterPressed() {
   for (var i = 0; i < els.length; i++) els[i].classList.remove('is-pressed');
 }
 
-/* 그리드 안 세로 drag는 스크롤이고, 그 직후 click이 장 이동으로 새지 않게 한다.
-   pointerdown 때 is-pressed 를 켜서 iOS에서도 장/절 숫자 버튼의 연파랑 눌림이 보이게 한다. */
-function unifiedBcBindChapterGridScrollGuard() {
-  var grid = document.querySelector('#unifiedBcBookList .ubc-chcard-grid');
-  if (!grid || grid.getAttribute('data-ubc-scroll-guard') === '1') return;
-  grid.setAttribute('data-ubc-scroll-guard', '1');
-  var startX = 0;
-  var startY = 0;
-  grid.addEventListener('pointerdown', function(e) {
-    window.__ubcChGridDragged = false;
-    startX = e.clientX;
-    startY = e.clientY;
+/* Track one actual finger gesture across book/chapter/verse buttons. Layout
+   scrolls and idle pointer moves must not poison the next tap. Native scrolling
+   remains passive; only a click following a drag/cancel is consumed. */
+function unifiedBcBindBookListTapGuard() {
+  var list = document.getElementById('unifiedBcBookList');
+  if (!list || list.getAttribute('data-ubc-tap-guard') === '1') return;
+  list.setAttribute('data-ubc-tap-guard', '1');
+  var gesture = null;
+  var suppressClick = false;
+  list.addEventListener('pointerdown', function(e) {
+    if (e.isPrimary === false) {
+      if (gesture) gesture.dragged = true;
+      unifiedBcClearChapterPressed();
+      return;
+    }
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    suppressClick = false;
+    gesture = { id: e.pointerId, x: e.clientX, y: e.clientY, dragged: false };
+    list.__ubcTapTracking = true;
     unifiedBcClearChapterPressed();
     var btn = e.target && e.target.closest ? e.target.closest('.ubc-book-chapter') : null;
-    if (btn && grid.contains(btn)) btn.classList.add('is-pressed');
+    if (btn && list.contains(btn)) btn.classList.add('is-pressed');
   }, { passive: true });
-  grid.addEventListener('pointermove', function(e) {
-    if (Math.abs(e.clientY - startY) > 8 || Math.abs(e.clientX - startX) > 8) {
-      window.__ubcChGridDragged = true;
+  list.addEventListener('pointermove', function(e) {
+    if (!gesture || e.pointerId !== gesture.id) return;
+    if (Math.abs(e.clientY - gesture.y) > 12 || Math.abs(e.clientX - gesture.x) > 12) {
+      gesture.dragged = true;
       unifiedBcClearChapterPressed();
     }
   }, { passive: true });
-  grid.addEventListener('scroll', function() {
-    window.__ubcChGridDragged = true;
+  /* Programmatic scrollIntoView also emits scroll, so scroll alone is not
+     evidence of a drag. Browsers cancel the pointer when native pan takes over. */
+  list.addEventListener('scroll', function() {
     unifiedBcClearChapterPressed();
-  }, { passive: true });
-  grid.addEventListener('pointerup', function() {
+  }, { passive: true, capture: true });
+  function finish(e) {
+    if (!gesture || e.pointerId !== gesture.id) return;
+    suppressClick = gesture.dragged || e.type !== 'pointerup';
+    gesture = null;
+    list.__ubcTapTracking = false;
     requestAnimationFrame(unifiedBcClearChapterPressed);
-  }, { passive: true });
-  grid.addEventListener('pointercancel', unifiedBcClearChapterPressed, { passive: true });
+  }
+  list.addEventListener('pointerup', finish, { passive: true });
+  list.addEventListener('pointercancel', finish, { passive: true });
+  list.addEventListener('lostpointercapture', finish, { passive: true });
+  list.addEventListener('click', function(e) {
+    /* Keyboard and assistive activation have no preceding touch gesture. */
+    if (e.detail === 0) { suppressClick = false; return; }
+    if (!suppressClick) return;
+    suppressClick = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
 }
 
 function unifiedBcFitChapterGrid(list) {
@@ -11256,12 +11298,16 @@ function unifiedBcBindChapterGridFit() {
 }
 
 function unifiedBcAfterChapterCardReady(list, bookName) {
-  window.__ubcChGridDragged = false;
-  unifiedBcBindChapterGridScrollGuard();
+  unifiedBcBindBookListTapGuard();
   unifiedBcBindChapterGridFit();
   if (list && bookName) unifiedBcRevealOpenChapters(list, bookName);
   unifiedBcFitChapterGrid(list);
+  var readyCard = list && list.querySelector('.ubc-book-chapters');
   requestAnimationFrame(function() {
+    /* A newer chapter/verse card owns its own positioning. Do not move buttons
+       underneath a finger that has already started the next selection. */
+    if (!list || document.getElementById('unifiedBcBookList') !== list ||
+        list.__ubcTapTracking || list.querySelector('.ubc-book-chapters') !== readyCard) return;
     if (list && bookName) unifiedBcRevealOpenChapters(list, bookName);
     unifiedBcFitChapterGrid(list);
     unifiedBcScrollActiveChapterIntoView();
@@ -11270,7 +11316,6 @@ function unifiedBcAfterChapterCardReady(list, bookName) {
 
 /* 장 숫자를 누르면 Reader로 가지 않고, 그 장의 절 선택으로 넘어간다. */
 function unifiedBcGoChapter(ch) {
-  if (window.__ubcChGridDragged) { window.__ubcChGridDragged = false; return; }
   if (!unifiedBcState.selectedBook) return;
   unifiedBcOpenVersePick(parseInt(ch, 10) || 1);
 }
@@ -11310,7 +11355,6 @@ function unifiedBcCloseVersePick() {
 
 /* 절 번호 하나를 누르면 그 책·장·절로 Reader를 연다. */
 function unifiedBcPickCardVerse(v) {
-  if (window.__ubcChGridDragged) { window.__ubcChGridDragged = false; return; }
   var pick = unifiedBcState.versePick;
   var n = parseInt(v, 10) || 1;
   if (!pick || !pick.chapter) return;
@@ -20615,7 +20659,7 @@ window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!match
 
 <script src="js/gomna-bible-listen-controls.js?v=20261010-word-view-merge-v3"></script>
 <script src="js/gomna-library-return.js?v=20261010-word-view-merge-v2"></script>
-<script src="js/gomna-guide-home-entry.js?v=20261010-guide-navigation-v30"></script>
+<script src="js/gomna-guide-home-entry.js?v=20261011-touch-theme-v92"></script>
 <script>
 // All route markup and core functions are available now; optional deferred modules can finish later.
 initializeReaderRouteShell();

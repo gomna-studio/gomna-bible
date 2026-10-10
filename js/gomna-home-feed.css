@@ -1082,7 +1082,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   align-items:center;
   justify-content:center;
   gap:8px;
-  min-height:40px;
+  min-height:44px;
   padding:0 18px;
   border:0;
   border-radius:999px;
@@ -1093,6 +1093,7 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   letter-spacing:-.01em;
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
   box-shadow:none;
 }
 .gomna-home-leaf-btn svg{
@@ -1103,6 +1104,10 @@ html.login-modal-open .gomna-home-return-top{display:none !important}
   stroke-width:1.45;
   stroke-linecap:round;
   stroke-linejoin:round;
+}
+.gomna-home-card[data-card="1"].is-open .gomna-home-leaf-btn,
+.gomna-home-card[data-card="2"].is-open .gomna-home-leaf-btn{
+  touch-action:manipulation;
 }
 .gomna-home-leaf-btn-read{
   background:rgba(255,255,255,.52);
