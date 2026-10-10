@@ -1282,6 +1282,7 @@
     return !!(ev && ev.pointerType==='touch');
   }
   function markGestureStart(ev){
+    if(ev && isAction(ev.target))return;
     if(lifeDetailOpen())return;
     if(isTouchPointer(ev))return;
     if(ev && ev.touches && ev.touches.length>=2){
@@ -1295,6 +1296,7 @@
     if((card2Settled || card3Settled) && gestureEndedSinceSettle)awaitingDir=true;
   }
   function markGestureEnd(ev){
+    if(ev && isAction(ev.target))return;
     if(isTouchPointer(ev))return;
     if(ev && ev.touches && ev.touches.length>=1)return;
     if(pinching){
@@ -1582,6 +1584,9 @@
   function onSwipeStart(ev){
     if(ev.target.closest && ev.target.closest(".home-person-choices")){swipeDrag=null;return;}
     if(isHomeChromeHit(ev.target))return;
+    /* Keep taps on card controls native. Deck capture can retarget their click
+       to the stack, and a small finger movement must not cancel a button tap. */
+    if(isAction(ev.target))return;
     if(ev.touches && ev.touches.length!==1){
       swipeDrag=null;
       return;
@@ -1602,6 +1607,7 @@
   function onPtrStart(ev){
     if(ev.target.closest && ev.target.closest(".home-person-choices")){swipeDrag=null;return;}
     if(isHomeChromeHit(ev.target))return;
+    if(isAction(ev.target))return;
     if(lifeDetailOpen() && ev.pointerType==='touch')return;
     if(!ev.isPrimary){
       swipeDrag=null;

@@ -175,6 +175,10 @@
      카드 내부 규칙은 원래 조합을 통째로 보존한다. 헤더·탭바·시트 등 앱 바깥틀은
      계속 공용 다크 테마를 따른다. */
   var HOME_CARD_RE = /\.gomna-home-(?:card|poster|leaf|detail|open-msg|msg-title|kicker|ref|sub|lead|lines|goldline|related|story|life|act|after|step|prompt|full|back|ctrl)/i;
+  /* 길잡이와 인물·이야기 창은 바탕/본문/보조 글자/선택 버튼을 한 팔레트로
+     설계한다. 변수의 밝기만 보고 다시 칠하면 짙은 글자가 짙은 바탕에 남거나
+     선택 버튼의 흰 글자만 바뀌므로 해당 창은 자체 테마 규칙을 따른다. */
+  var CONTENT_THEME_RE = /#scripture(?:All)?Guide|#gomnaBibleLibrary|\.scripture-(?:guide|all-guides)-|\bbody\.gbl-open/i;
   /* 토글 손잡이처럼 흰색이어야 하는 부품은 배경을 바꾸지 않는다. */
   var KEEP_WHITE_RE = /knob|handle|thumb|switch-dot|toggle-dot/i;
   var COLOR_TOKEN_RE = /#[0-9a-fA-F]{3,8}\b|rgba?\([^()]*\)/g;
@@ -344,7 +348,7 @@
         continue;
       }
       if (!rule.style || typeof rule.selectorText !== 'string') continue;
-      if (HOME_CARD_RE.test(rule.selectorText)) continue;
+      if (HOME_CARD_RE.test(rule.selectorText) || CONTENT_THEME_RE.test(rule.selectorText)) continue;
       var decls = overridesFor(rule.style, rule.selectorText);
       if (!decls) continue;
       var selector = scopeSelector(rule.selectorText);
