@@ -10,31 +10,16 @@
   function revealWithImage(container, img) {
     container.style.visibility='hidden';
     container.setAttribute('aria-busy','true');
-    let deadline;
-    function current(){return container.isConnected && container.contains(img);}
-    function reveal(ready){
-      if(!current()){clearTimeout(deadline);return;}
-      img.hidden=!ready;
-      img.style.display=ready?'':'none';
+    const loaded = img.decode ? img.decode() : new Promise(resolve=>{
+      if(img.complete)return resolve();
+      img.onload=resolve;img.onerror=resolve;
+    });
+    Promise.resolve(loaded).catch(()=>{img.hidden=true;img.style.display='none';}).then(()=>{
+      if(!container.isConnected)return;
       requestAnimationFrame(()=>{
-        if(!current())return;
+        if(!container.isConnected)return;
         container.style.visibility='';container.removeAttribute('aria-busy');
       });
-    }
-    // A slow portrait must not keep its title or entire story blank.
-    // Healthy loads still reveal photo and text together; late photos can join.
-    deadline=setTimeout(()=>reveal(false),1500);
-    let loaded;
-    try{
-      loaded=img.decode ? img.decode() : new Promise((resolve,reject)=>{
-        if(img.complete)return img.naturalWidth>0?resolve():reject();
-        img.onload=resolve;img.onerror=reject;
-      });
-    }catch(_){loaded=Promise.reject();}
-    Promise.resolve(loaded).then(()=>{
-      clearTimeout(deadline);reveal(img.naturalWidth>0);
-    },()=>{
-      clearTimeout(deadline);reveal(false);
     });
   }
   function route() {

@@ -452,28 +452,12 @@
     theme=knownLifeThemeId((p.get('theme')||'').trim());
     person=knownStoryPersonId((p.get('person')||'').trim());
     if(src==='home-today')return {kind:'today'};
-    if(src==='home-guide')return {kind:'guide'};
     if(src==='home-life' && theme)return {kind:'life', id:theme};
     if(src==='home-bible-person' && person)return {kind:'person', id:person};
     return null;
   }
   function restoreHomeEntry(entry){
     if(!entry||!root)return false;
-    if(entry.kind==='guide'){
-      /* Return directly to the story/person poster, without scrolling through
-         Today or invoking openCard (which opens a person detail). */
-      card3Settled=true;
-      card2Settled=false;
-      allowCard3=allowCard1From2=allowCard2From3=false;
-      settleAnim=false;
-      gestureEndedSinceSettle=true;
-      lastP=2;
-      pinDeckScroll(lockY3());
-      setCard3WheelMask(false);
-      root.removeAttribute('data-ghd-card2');
-      apply(2,true);
-      return true;
-    }
     var card;
     var tries=0;
     function tryOpen(){
@@ -1116,7 +1100,7 @@
     if(busy)card.setAttribute('aria-busy','true');
     else card.removeAttribute('aria-busy');
   }
-  function ensureHomeImageReady(src, priority, deadlineMs){
+  function ensureHomeImageReady(src, priority){
     if(!src)return Promise.resolve(true);
     var cached=homeImageCache[src];
     if(cached){
@@ -1131,7 +1115,7 @@
     homeImageCache[src]=entry;
     entry.promise=new Promise(function(resolve){
       var settled=false;
-      var timer=window.setTimeout(function(){settle(false);},deadlineMs||8000);
+      var timer=window.setTimeout(function(){settle(false);},8000);
       function settle(ok){
         // A deadline releases text, but a late successful image is still usable.
         if(ok){
@@ -1282,7 +1266,6 @@
     return !!(ev && ev.pointerType==='touch');
   }
   function markGestureStart(ev){
-    if(ev && isAction(ev.target))return;
     if(lifeDetailOpen())return;
     if(isTouchPointer(ev))return;
     if(ev && ev.touches && ev.touches.length>=2){
@@ -1296,7 +1279,6 @@
     if((card2Settled || card3Settled) && gestureEndedSinceSettle)awaitingDir=true;
   }
   function markGestureEnd(ev){
-    if(ev && isAction(ev.target))return;
     if(isTouchPointer(ev))return;
     if(ev && ev.touches && ev.touches.length>=1)return;
     if(pinching){
@@ -1584,9 +1566,6 @@
   function onSwipeStart(ev){
     if(ev.target.closest && ev.target.closest(".home-person-choices")){swipeDrag=null;return;}
     if(isHomeChromeHit(ev.target))return;
-    /* Keep taps on card controls native. Deck capture can retarget their click
-       to the stack, and a small finger movement must not cancel a button tap. */
-    if(isAction(ev.target))return;
     if(ev.touches && ev.touches.length!==1){
       swipeDrag=null;
       return;
@@ -1607,7 +1586,6 @@
   function onPtrStart(ev){
     if(ev.target.closest && ev.target.closest(".home-person-choices")){swipeDrag=null;return;}
     if(isHomeChromeHit(ev.target))return;
-    if(isAction(ev.target))return;
     if(lifeDetailOpen() && ev.pointerType==='touch')return;
     if(!ev.isPrimary){
       swipeDrag=null;
@@ -4143,7 +4121,7 @@
     if(restoreEntry&&restoreEntry.kind==='person')storyPersonId=restoreEntry.id;
     cards.forEach(function(card,i){
       card.classList.add('ghd-image-pending');
-      ensureHomeImageReady(BASE_CARD_IMAGES[i], (restoreEntry&&restoreEntry.kind==='guide'?i===2:i===0)?'high':'low', restoreEntry&&restoreEntry.kind==='guide'&&i===2?1500:8000).then(function(ok){
+      ensureHomeImageReady(BASE_CARD_IMAGES[i], i===0?'high':'low').then(function(ok){
         card.classList.remove('ghd-image-pending');
         card.classList.toggle('ghd-image-failed',!ok);
         if(i===0)ensureHomeImageReady(cardOpenImage(card), 'low');
@@ -4203,7 +4181,6 @@
     }
     if(restoreEntry){
       restoreHomeEntry(restoreEntry);
-      document.documentElement.classList.remove('home-guide-return');
       window.requestAnimationFrame(function(){syncStepSize();});
     }else{
       pinDeckScroll(0);
@@ -4255,7 +4232,7 @@
       if(data.action==='close')closeHomeBiblePicker(false);
     });
     // Do not compete with the first card's image on a cold connection.
-    ensureHomeImageReady(BASE_CARD_IMAGES[restoreEntry&&restoreEntry.kind==='guide'?2:0], 'high').then(function(ok){
+    ensureHomeImageReady(BASE_CARD_IMAGES[0], 'high').then(function(ok){
       if(ok && document.visibilityState !== 'hidden')window.setTimeout(preloadHomeBiblePicker, 1200);
     });
     if('requestIdleCallback' in window)window.requestIdleCallback(preloadCurrentHomeImages,{timeout:1200});
