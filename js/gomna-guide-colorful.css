@@ -40,3 +40,8 @@ html[data-theme="dark"] #scriptureAllGuidesOverlay,body[data-theme="dark"] #scri
 .guide-image-viewer::backdrop{background:#000}
 .guide-image-viewer>img{display:block;width:100%;height:100%;object-fit:contain;opacity:0;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .guide-image-viewer.is-ready>img{opacity:1}
+
+#scriptureAllGuidesOverlay .scripture-all-guides-back{font-size:24px;line-height:1;color:var(--guide-ink)}
+/* Reuse the Reader dock at the same inner width as the guide's white cards. */
+#scriptureAllGuidesOverlay > #scriptureDock.scripture-dock{display:flex!important;position:relative!important;inset:auto!important;transform:none!important;visibility:visible!important;pointer-events:auto!important;flex:0 0 auto;width:calc(100% - 32px)!important;max-width:calc(var(--reader-frame-width,420px) - 32px)!important;min-width:0;box-sizing:border-box!important;margin:0 auto!important;z-index:1}
+@media(min-width:769px){#scriptureAllGuidesOverlay > #scriptureDock.scripture-dock{width:calc(100% - 48px)!important;max-width:calc(var(--reader-frame-width,420px) - 48px)!important}}

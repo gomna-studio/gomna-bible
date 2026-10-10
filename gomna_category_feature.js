@@ -1631,8 +1631,41 @@
     return document.scrollingElement || document.documentElement;
   }
 
-  function closeAllScriptureGuides() {
+  var allGuidesDockHome = null;
+  var allGuidesAddedReaderMode = false;
+
+  function isHomeGuideEntry() {
+    try { return new URLSearchParams(window.location.search).get('homeGuide') === '1'; }
+    catch (e) { return false; }
+  }
+
+  function returnAllGuidesToHomeCard() {
+    // Keep the guide visible until the home document replaces it.
+    window.location.assign('index.html?source=home-guide');
+  }
+
+  function mountAllGuidesDock(overlay) {
+    var dock = document.getElementById('scriptureDock');
+    if (!dock || allGuidesDockHome) return;
+    allGuidesDockHome = { node: dock, parent: dock.parentNode, next: dock.nextSibling };
+    allGuidesAddedReaderMode = !document.documentElement.classList.contains('reader-hide-chrome');
+    document.documentElement.classList.add('reader-hide-chrome');
+    overlay.appendChild(dock);
+  }
+
+  function restoreAllGuidesDock(keepReaderMode) {
+    if (!allGuidesDockHome) return;
+    var saved = allGuidesDockHome;
+    allGuidesDockHome = null;
+    if (saved.next && saved.next.parentNode === saved.parent) saved.parent.insertBefore(saved.node, saved.next);
+    else saved.parent.appendChild(saved.node);
+    if (allGuidesAddedReaderMode && !keepReaderMode) document.documentElement.classList.remove('reader-hide-chrome');
+    allGuidesAddedReaderMode = false;
+  }
+
+  function closeAllScriptureGuides(keepReaderMode) {
     if (!allGuidesOverlay || !allGuidesOverlay.classList.contains('is-open')) return;
+    restoreAllGuidesDock(keepReaderMode === true);
     allGuidesOverlay.classList.remove('is-open');
     allGuidesOverlay.setAttribute('aria-hidden', 'true');
     allGuidesOverlay.hidden = true;
@@ -1643,9 +1676,14 @@
 
   function onAllGuidesKeydown(e) {
     if (!allGuidesOverlay || !allGuidesOverlay.classList.contains('is-open')) return;
+    if (e.defaultPrevented) return;
     if (e.key !== 'Escape' && e.key !== 'Esc') return;
+    var login = document.getElementById('loginModal');
+    if ((login && login.classList.contains('show')) ||
+        document.querySelector('.guide-image-viewer[open], #gomnaProfileSheet:not([hidden]), #gomnaProfileEditSheet:not([hidden])')) return;
     e.preventDefault();
-    closeAllScriptureGuides();
+    if (isHomeGuideEntry()) returnAllGuidesToHomeCard();
+    else closeAllScriptureGuides();
   }
 
   function ensureAllGuidesOverlay() {
@@ -1660,7 +1698,7 @@
     overlay.hidden = true;
     overlay.innerHTML =
       '<div class="scripture-guide-head">' +
-        '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
+        '<button type="button" class="scripture-guide-head-btn scripture-all-guides-back" data-all-guides-back aria-label="성경 속 이야기와 인물 보기로 돌아가기">&lt;</button>' +
         '<div class="scripture-guide-head-copy">' +
           '<h1 class="scripture-guide-head-title" id="scriptureAllGuidesTitle">성경 길잡이</h1>' +
           '<p class="scripture-guide-head-sub" id="scriptureAllGuidesSub" hidden></p>' +
@@ -1669,7 +1707,19 @@
       '</div>' +
       '<div class="scripture-all-guides-body" id="scriptureAllGuidesBody"></div>';
     document.body.appendChild(overlay);
-    overlay.querySelector('[data-all-guides-close]').addEventListener('click', closeAllScriptureGuides);
+    overlay.querySelector('[data-all-guides-back]').addEventListener('click', returnAllGuidesToHomeCard);
+    overlay.querySelector('[data-all-guides-close]').addEventListener('click', function() {
+      if (isHomeGuideEntry()) returnAllGuidesToHomeCard();
+      else closeAllScriptureGuides();
+    });
+    // Original dock inline handlers run first; dismiss only after their target is selected.
+    // Login/account and document links retain the guide underneath them.
+    overlay.addEventListener('click', function(e) {
+      var button = e.target.closest('#scriptureDock [data-dock]');
+      if (!button || e.defaultPrevented) return;
+      var action = button.getAttribute('data-dock');
+      if (action === 'bible' || action === 'find' || action === 'archive') closeAllScriptureGuides(true);
+    });
     overlay.querySelector('#scriptureAllGuidesBody').addEventListener('click', function(e) {
       var verseBtn = e.target.closest('[data-guide-verse]');
       if (verseBtn) {
@@ -1693,7 +1743,7 @@
       }
     });
     if (!allGuidesBound) {
-      document.addEventListener('keydown', onAllGuidesKeydown);
+      document.addEventListener('keydown', onAllGuidesKeydown, true);
       allGuidesBound = true;
     }
     allGuidesOverlay = overlay;
@@ -1724,6 +1774,7 @@
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     document.documentElement.classList.add('scripture-all-guides-lock');
+    mountAllGuidesDock(overlay);
     if (body) body.scrollTop = 0;
   }
 
