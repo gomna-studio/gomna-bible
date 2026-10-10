@@ -114,6 +114,7 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
 </script>
 
 <script src="/js/gomna-screen-transition.js?v=20261010-stable-navigation-v2"></script>
+<script src="/js/gomna-seo-return.js?v=20261010-seo-return-v1"></script>
 <script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
 <script src="/js/gomna-ga4.js?v=20261001-analytics-v1"></script>
 <script>
@@ -268,7 +269,7 @@ body[data-gomna-page="reader"] #gomnaReaderBootOverlay .gomna-reader-boot-btn{
 <meta name="description" content="개역한글 성경 본문을 장·절로 읽고 들으며, 각 절의 원어·역사·신학·예표·매튜헨리·설교·찬송·상담·교차참조 말씀풀이를 함께 살펴보세요.">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
-<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if(src==='home-bible-picker'){document.documentElement.classList.add('home-bible-picker');}else if(p.get('homeGuide')==='1'){/* The guide has its own readiness gate. */}else if(((src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='guide-related'||src==='bible-tab'||src==='home-resume-read'||src==='home-resume-listen'||src==='home-resume-recent')&&p.get('book'))||(!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&!(p.get('q')||'').trim()&&p.get('focus')!=='search'&&p.get('testament')!=='old'&&p.get('testament')!=='new'))document.documentElement.classList.add('scripture-entry-pending');if(p.get('commentary')==='1'&&(src==='home-card-commentary'||src==='home-main-commentary'))document.documentElement.classList.add('gomna-home-commentary-loading');var qEarly=(p.get('q')||'').trim();if(qEarly){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
+<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if(src==='home-bible-picker'){document.documentElement.classList.add('home-bible-picker');}else if(p.get('homeGuide')==='1'){/* The guide has its own readiness gate. */}else if(((src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='seo-bible'||src==='guide-related'||src==='bible-tab'||src==='home-resume-read'||src==='home-resume-listen'||src==='home-resume-recent')&&p.get('book'))||(!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&!(p.get('q')||'').trim()&&p.get('focus')!=='search'&&p.get('testament')!=='old'&&p.get('testament')!=='new'))document.documentElement.classList.add('scripture-entry-pending');if(p.get('commentary')==='1'&&(src==='home-card-commentary'||src==='home-main-commentary'))document.documentElement.classList.add('gomna-home-commentary-loading');var qEarly=(p.get('q')||'').trim();if(qEarly){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
 <meta name="theme-color" content="#FCFAF6">
 <link rel="canonical" href="https://gomnastudio.com/reader.html">
 <!-- Open Graph 메타 태그 (공유용) -->
@@ -987,6 +988,9 @@ html.is-daily-word-view main.content > .view:not(#verseView){display:none!import
 .daily-word-return-btn{display:block;width:calc(100% - 4px);max-width:100%;margin:10px auto 14px;padding:10px 14px;min-height:46px;border:0.5px solid rgba(184,134,11,0.42);border-top:0.5px solid rgba(184,134,11,0.2);border-radius:0 0 10px 10px;background:rgba(255,250,244,0.96);color:#5a3818;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 .daily-word-return-btn[data-daily-word-return="1"]{border:0.5px solid #D7E0EC;background:#F7F9FC;color:#53657A}
 .daily-word-return-btn:active{transform:scale(0.99);opacity:0.9;background:rgba(255,245,225,1)}
+.daily-word-return-btn[data-seo-return="1"]{background:#425669;border-color:#425669;color:#fff}
+.daily-word-return-btn[data-seo-return="1"]:active{background:#344757;border-color:#344757;opacity:1}
+.daily-word-return-btn[data-seo-return="1"]:focus-visible{outline:2px solid #425669;outline-offset:3px}
 html.scripture-entry-pending #readerDockTop,
 html.scripture-entry-pending #mobileTopPullSpacer,
 html.scripture-entry-pending main.content,
@@ -4537,7 +4541,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261008-account-unified-v1">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-10-clean-guide-navigation-v87" data-release="2026-10-10-clean-guide-navigation-v87" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-10-external-search-return-v88" data-release="2026-10-10-external-search-return-v88" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
 <link rel="stylesheet" href="js/gomna-guide-colorful.css?v=20261010-guide-navigation-v30">
 </head>
@@ -4572,7 +4576,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 </div>
 <!-- haptic-tap-feedback -->
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
-<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function hasScriptureEntryQuery(){try{var p=new URLSearchParams(location.search);var src=p.get('source');return(src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='guide-related')&&!!(p.get('book')||'').trim();}catch(e){return false;}}function hasBookOrHomePickQuery(){try{var p=new URLSearchParams(location.search);var h=location.hash;return!!((p.get('book')||'').trim())||p.get('testament')==='old'||p.get('testament')==='new'||h==='#pick-old'||h==='#pick-new';}catch(e){return false;}}function hasBibleTabOrBareQuery(){try{var p=new URLSearchParams(location.search);if((p.get('source')||'').trim()==='bible-tab')return true;if((p.get('book')||'').trim())return false;if(p.has('easy')||p.has('favorites'))return false;if((p.get('q')||'').trim()||p.get('focus')==='search')return false;if(p.get('testament')==='old'||p.get('testament')==='new')return false;return true;}catch(e){return false;}}function prepScriptureEntryViewEarly(){try{if(!hasScriptureEntryQuery()&&!hasBookOrHomePickQuery()&&!hasBibleTabOrBareQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var vv=document.getElementById('verseView');if(vv)vv.classList.add('active');}catch(e){}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();prepScriptureEntryViewEarly();activateEasyViewEarly();});}else{prepScriptureEntryViewEarly();activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
+<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function hasScriptureEntryQuery(){try{var p=new URLSearchParams(location.search);var src=p.get('source');return(src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='seo-bible'||src==='guide-related')&&!!(p.get('book')||'').trim();}catch(e){return false;}}function hasBookOrHomePickQuery(){try{var p=new URLSearchParams(location.search);var h=location.hash;return!!((p.get('book')||'').trim())||p.get('testament')==='old'||p.get('testament')==='new'||h==='#pick-old'||h==='#pick-new';}catch(e){return false;}}function hasBibleTabOrBareQuery(){try{var p=new URLSearchParams(location.search);if((p.get('source')||'').trim()==='bible-tab')return true;if((p.get('book')||'').trim())return false;if(p.has('easy')||p.has('favorites'))return false;if((p.get('q')||'').trim()||p.get('focus')==='search')return false;if(p.get('testament')==='old'||p.get('testament')==='new')return false;return true;}catch(e){return false;}}function prepScriptureEntryViewEarly(){try{if(!hasScriptureEntryQuery()&&!hasBookOrHomePickQuery()&&!hasBibleTabOrBareQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var vv=document.getElementById('verseView');if(vv)vv.classList.add('active');}catch(e){}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();prepScriptureEntryViewEarly();activateEasyViewEarly();});}else{prepScriptureEntryViewEarly();activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
 <div class="phone-frame"><div id="appTopChrome"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
   <span class="gs-text">Gomna Studio, Inc.</span>
   <span class="gs-arrow">↗</span>
@@ -5999,7 +6003,7 @@ function applyNavigationFromQuery() {
       var entrySource = p.get('source');
       var isScriptureEntry = typeof isScriptureEntrySource === 'function'
         ? (isScriptureEntrySource(entrySource) || (typeof hasExplicitScriptureVerseQuery === 'function' && hasExplicitScriptureVerseQuery(p)))
-        : (entrySource === 'home-daily-read' || entrySource === 'home-life' || entrySource === 'home-bible-person' || entrySource === 'home-card-listen' || entrySource === 'home-card-commentary' || entrySource === 'search-related' || entrySource === 'guide-related');
+        : (entrySource === 'home-daily-read' || entrySource === 'home-life' || entrySource === 'home-bible-person' || entrySource === 'home-card-listen' || entrySource === 'home-card-commentary' || entrySource === 'search-related' || entrySource === 'seo-bible' || entrySource === 'guide-related');
       var verseRaw = p.get('verseStart') || p.get('verse');
       var verseNum = verseRaw != null && verseRaw !== '' ? parseInt(verseRaw, 10) : NaN;
       renderVerses(!isScriptureEntry && !resumeFallback && !isNaN(verseNum) && verseNum >= 1 ? verseNum : undefined);
@@ -8360,7 +8364,7 @@ function renderVerses(highlightVerse) {
     var entrySrc = new URLSearchParams(location.search).get('source');
     skipEntryScroll = typeof isScriptureEntrySource === 'function'
       ? isScriptureEntrySource(entrySrc)
-      : (entrySrc === 'home-daily-read' || entrySrc === 'home-life' || entrySrc === 'home-bible-person' || entrySrc === 'home-card-listen' || entrySrc === 'home-card-commentary' || entrySrc === 'search-related' || entrySrc === 'guide-related');
+      : (entrySrc === 'home-daily-read' || entrySrc === 'home-life' || entrySrc === 'home-bible-person' || entrySrc === 'home-card-listen' || entrySrc === 'home-card-commentary' || entrySrc === 'search-related' || entrySrc === 'seo-bible' || entrySrc === 'guide-related');
   } catch (e) {}
   // 진입/딥링크는 위치만 이동하고 선택 상태는 만들지 않는다 (scripture entry는 별도 경로)
   if (highlightVerse && !skipEntryScroll && Number(highlightVerse) > 1) {
@@ -18571,7 +18575,31 @@ function clearSearchReturnState() {
   } catch (e) {}
 }
 
+function getReaderSeoReturnContext() {
+  if (window.GomnaSeoReturn && window.GomnaSeoReturn.isReaderEntry) return window.GomnaSeoReturn;
+  try {
+    var params = new URLSearchParams(location.search);
+    var referrer = null;
+    try { if (document.referrer) referrer = new URL(document.referrer, location.href); } catch (eReferrer) {}
+    var biblePath = /^\/bible\/[a-z0-9]+\/(?:[1-9][0-9]*\/)?$/;
+    var seoReferrer = referrer && referrer.origin === location.origin && biblePath.test(referrer.pathname);
+    if (params.get('source') !== 'seo-bible' && !(params.get('source') === 'search-related' && seoReferrer)) return null;
+    var target = null;
+    try { if (params.get('returnPath')) target = new URL(params.get('returnPath'), location.href); } catch (eTarget) {}
+    var href = target && target.origin === location.origin && biblePath.test(target.pathname)
+      ? target.pathname : (seoReferrer ? referrer.pathname : '/');
+    return {
+      label: function() { return href === '/' ? '홈으로 돌아가기' : '성경 본문으로 돌아가기'; },
+      returnToOrigin: function() { window.location.href = href; return false; }
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
 function returnToSearchResults() {
+  var seoContext = getReaderSeoReturnContext();
+  if (seoContext) return seoContext.returnToOrigin();
   var state = readSearchReturnState();
   if (state && state.query) {
     try {
@@ -18728,6 +18756,7 @@ function isScriptureEntrySource(source) {
     source === 'home-card-listen' ||
     source === 'home-card-commentary' ||
     source === 'search-related' ||
+    source === 'seo-bible' ||
     source === 'guide-related';
 }
 
@@ -19800,6 +19829,8 @@ function loadAds() {
   var returnLock=false;
   var returnBtn=null;
   var entryRevealCompleted=false;
+  var seoReturnContext=getReaderSeoReturnContext();
+  var seoReturnEntry=!!seoReturnContext;
   try{
     pending=parseScriptureEntryFromSearchParams(new URLSearchParams(location.search));
   }catch(e){}
@@ -20014,14 +20045,15 @@ function loadAds() {
         return;
       }
     }
-    if(pending.source==='search-related'){
+    if(pending.source==='search-related'||pending.source==='seo-bible'){
       removeDailyReturnBtn();
       var searchBtn=document.createElement('button');
       searchBtn.type='button';
       searchBtn.className='daily-word-return-btn';
-      searchBtn.setAttribute('data-search-return','1');
-      searchBtn.textContent='← 검색 결과로 돌아가기';
-      searchBtn.setAttribute('aria-label','검색 결과로 돌아가기');
+      searchBtn.setAttribute(seoReturnEntry?'data-seo-return':'data-search-return','1');
+      var searchReturnLabel=seoReturnEntry?seoReturnContext.label():'검색 결과로 돌아가기';
+      searchBtn.textContent='← '+searchReturnLabel;
+      searchBtn.setAttribute('aria-label',searchReturnLabel);
       searchBtn.addEventListener('click',function(e){
         e.preventDefault();
         e.stopPropagation();
@@ -20136,6 +20168,14 @@ function loadAds() {
 
   window.addEventListener('gomna:verse_list_rendered',function(){
     activateScriptureEntryHighlight();
+    if(seoReturnEntry&&!pending){
+      var firstItem=document.querySelector('#verseList .verse-item');
+      if(firstItem){
+        attachHomeReturnButton(firstItem,seoReturnContext.label(),returnToSearchResults);
+        returnBtn.removeAttribute('data-daily-word-return');
+        returnBtn.setAttribute('data-seo-return','1');
+      }
+    }
   });
 })();
 </script>
