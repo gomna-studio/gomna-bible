@@ -78,20 +78,21 @@
     });
   }
   if(new URLSearchParams(location.search).get('homeGuide')!=='1')return;
+  function reveal(){
+    if(typeof window.__gomnaRevealGuideEntry==='function')window.__gomnaRevealGuideEntry();
+    document.documentElement.classList.remove('gomna-home-guide-entering');
+  }
   function open(){
-    try{
-      if(typeof window.openAllScriptureGuides!=='function')return;
-      window.openAllScriptureGuides();
-      var overlay=document.getElementById('scriptureAllGuidesOverlay');
-      var close=overlay&&overlay.querySelector('[data-all-guides-close]');
-      if(close)close.addEventListener('click',function(){location.href='index.html';});
-    }finally{
-      document.documentElement.classList.remove('gomna-home-guide-entering');
-    }
+    if(typeof window.openAllScriptureGuides!=='function')return;
+    window.openAllScriptureGuides();
+    var overlay=document.getElementById('scriptureAllGuidesOverlay');
+    if(!overlay||!overlay.classList.contains('is-open'))return;
+    reveal();
   }
   if(document.readyState!=='loading')open();
   else document.addEventListener('DOMContentLoaded',open,{once:true});
   window.addEventListener('pageshow',function(){
-    if(document.readyState==='complete')document.documentElement.classList.remove('gomna-home-guide-entering');
+    var overlay=document.getElementById('scriptureAllGuidesOverlay');
+    if(overlay&&overlay.classList.contains('is-open'))reveal();
   });
 })();

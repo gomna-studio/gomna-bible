@@ -30,6 +30,18 @@ for(const query of ['', '?book=창세기&chapter=1','?book=창세기&easy=1','?t
 for(const query of ['?source=home-bible-picker&easy=1']){
   const b=boot(query);assert.equal(b.classes.size,0);assert.equal(b.window.__gomnaRevealPanelEntry,undefined);
 }
+{
+  const b=boot('?homeGuide=1');
+  assert.equal(typeof b.window.__gomnaRevealGuideEntry,'function');
+  b.window.__gomnaRevealGuideEntry();
+  for(let i=0;i<5;i++)b.tick();
+  assert.ok(b.classes.has('reader-panel-entry-pending'),'guide stays hidden until its own content is open');
+  b.target.active=true;
+  b.classes.add('scripture-entry-pending');
+  b.window.__gomnaScriptureLayoutPending=true;
+  for(let i=0;i<5;i++)b.tick();
+  assert.ok(!b.classes.has('reader-panel-entry-pending'),'guide does not wait for background Bible rendering');
+}
 assert.ok(html.indexOf('reader-panel-entry-boot')<html.indexOf('<body'));
 assert.ok(html.indexOf('<meta charset="UTF-8">')<1024);
 console.log('12 route classification cases and readiness/failure recovery checks passed');
