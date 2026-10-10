@@ -138,7 +138,7 @@ function main() {
     if (!html.includes(`id="verse-${first.verse}"`)) fail(`${file}: first verse id`);
     if (!html.includes(`id="verse-${last.verse}"`)) fail(`${file}: last verse id`);
 
-    const readerPath = `/reader.html?book=${encodeURIComponent(meta.book)}&chapter=${target.chapter}&verse=1&source=search-related`;
+    const readerPath = `/reader.html?book=${encodeURIComponent(meta.book)}&chapter=${target.chapter}&verse=1&source=seo-bible&returnPath=${encodeURIComponent(`/bible/${target.bookId}/${target.chapter}/`)}`;
     const readerPathHtml = readerPath.replace(/&/g, '&amp;');
     if (!html.includes(readerPath) && !html.includes(readerPathHtml)) {
       fail(`${file}: reader deep-link ${readerPath}`);
@@ -177,7 +177,7 @@ function main() {
     canonicals.add(canonical);
     if (!html.includes('BreadcrumbList')) fail(`${file}: breadcrumb`);
     if (!html.includes('"@type": "WebPage"') && !html.includes('"@type":"WebPage"')) fail(`${file}: webpage`);
-    const readerPath = `/reader.html?book=${encodeURIComponent(meta.book)}&chapter=1&verse=1&source=search-related`;
+    const readerPath = `/reader.html?book=${encodeURIComponent(meta.book)}&chapter=1&verse=1&source=seo-bible&returnPath=${encodeURIComponent(`/bible/${bookId}/`)}`;
     const readerPathHtml = readerPath.replace(/&/g, '&amp;');
     if (!html.includes(readerPath) && !html.includes(readerPathHtml)) fail(`${file}: reader link`);
     const chapters = CHAPTER_TARGETS.filter((t) => t.bookId === bookId);

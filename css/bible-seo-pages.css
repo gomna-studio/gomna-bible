@@ -120,28 +120,33 @@ h1 {
   word-break: keep-all;
 }
 
-.btn-primary {
-  background: #D4A373;
-  border-color: #D4A373;
-  color: #3A261A;
+.btn-primary,
+.btn-secondary {
+  /* Same slate and white text as the app's 말씀 듣기 controls. */
+  background: #425669;
+  border-color: #425669;
+  color: #fff;
 }
 
 .btn-primary:hover,
-.btn-primary:focus {
-  background: #C58E60;
-  border-color: #C58E60;
-  color: #3A261A;
+.btn-primary:focus,
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background: #425669;
+  border-color: #425669;
+  color: #fff;
 }
 
-.btn-primary:active {
-  background: #B97F53;
-  border-color: #B97F53;
-  color: #3A261A;
+.btn-primary:active,
+.btn-secondary:active {
+  background: #344757;
+  border-color: #344757;
+  color: #fff;
 }
 
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--bible-ink);
+.btn:focus-visible {
+  outline: 2px solid #425669;
+  outline-offset: 3px;
 }
 
 .nav-links {
