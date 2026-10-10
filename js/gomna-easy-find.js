@@ -1041,9 +1041,16 @@
       return;
     }
     if (global.__gomnaBibleDataReady === false) {
-      host.hidden=false; body.hidden=true;
-      host.innerHTML='<div role="status">'+(_gomnaOldTestamentLoadState === 'error' || _gomnaNewTestamentLoadState === 'error' ? '본문을 불러오지 못했습니다. 새로고침해 주세요.' : '본문 검색을 준비하고 있습니다.')+'</div>';
       pendingDataQuery = query; pendingDataOpts = opts;
+      if (_gomnaOldTestamentLoadState === 'error' || _gomnaNewTestamentLoadState === 'error') {
+        host.innerHTML = '<div role="status">본문을 불러오지 못했습니다. 새로고침해 주세요.</div>';
+        host.hidden = false;
+        body.hidden = true;
+      } else {
+        // Keep the current find controls visible until the latest query can produce results.
+        host.hidden = true;
+        body.hidden = false;
+      }
       return;
     }
     if (body && !body.hidden) captureHomeScroll();
@@ -1117,7 +1124,7 @@
     }
     view.innerHTML = '<div class="easy-find-shell"><div class="easy-find-card" id="easyFindCard">' + inner + '</div></div>';
     bind(view);
-    setSearchActive(state.panel === 'home' && !!String(state.query || '').trim());
+    setSearchActive(state.panel === 'home' && global.__gomnaBibleDataReady !== false && !!String(state.query || '').trim());
     if (state.panel === 'home' && state.query) {
       var input = document.getElementById('easyFindSearchInput');
       if (input) input.value = state.query;

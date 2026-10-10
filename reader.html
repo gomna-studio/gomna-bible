@@ -5,7 +5,8 @@
 <style id="reader-panel-entry-style">
 /* Hide the default Reader chrome before the requested panel is initialized. */
 html.reader-panel-entry-pending body{visibility:hidden!important}
-html.reader-panel-entry-pending::after{content:'화면을 준비하고 있습니다.';position:fixed;inset:0;display:grid;place-items:center;background:#FCFAF6;color:#3D2817;font:14px sans-serif;z-index:2147483647}
+html.reader-panel-entry-pending::after{content:'';position:fixed;inset:0;background:#FCFAF6;z-index:2147483647}
+html.reader-panel-entry-failed::after{display:grid;place-items:center;color:#3D2817;font:14px sans-serif}
 html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다. 새로고침해 주세요.'}
 </style>
 <script id="reader-panel-entry-boot">
@@ -18,7 +19,7 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
     p.has('easy') ? 'easyView' : p.has('favorites') ? 'favView' :
     ((p.get('q') || '').trim() || p.get('focus') === 'search') ? 'searchView' : 'verseView';
   var root = document.documentElement;
-  var navigationReady = false, stableFrames = 0, previousLayout = '', finished = false;
+  var navigationReady = false, finished = false;
   root.classList.add('reader-panel-entry-pending');
   window.__gomnaRevealPanelEntry = function () {
     navigationReady = true;
@@ -30,8 +31,10 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
     if (guideEntry) return navigationReady && view && view.classList.contains('is-open') &&
       view.querySelector('#scriptureAllGuidesBody') && view.querySelector('#scriptureAllGuidesBody').childElementCount ? view : false;
     if (!navigationReady || !view || !view.classList.contains('active') || !view.childElementCount) return false;
-    if (root.classList.contains('scripture-entry-pending') || root.classList.contains('search-entry-pending') ||
-        root.classList.contains('gomna-home-commentary-loading') || window.__gomnaScriptureLayoutPending) return false;
+    if ((target === 'verseView' || target === 'chapterView') &&
+        (root.classList.contains('scripture-entry-pending') || window.__gomnaScriptureLayoutPending)) return false;
+    if (target === 'searchView' && root.classList.contains('search-entry-pending')) return false;
+    if (root.classList.contains('gomna-home-commentary-loading')) return false;
     if (target === 'verseView' && !view.querySelector('#verseList .verse-item')) return false;
     var src = p.get('source') || '';
     if (p.get('commentary') === '1' && /^(home-card-commentary|home-main-commentary|meditation-commentary)$/.test(src)) {
@@ -40,28 +43,14 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
     }
     return view;
   }
-  function layoutSignature(view) {
-    var nodes = [view, document.getElementById('verseReadHeader'), document.getElementById('opt4BottomBar'),
-      document.getElementById('scriptureDock'), view.querySelector('.verse-item--entry-focus')];
-    return nodes.map(function (node) {
-      if (!node) return '';
-      var r = node.getBoundingClientRect();
-      return [r.x,r.y,r.width,r.height,node.textContent.length].join(',');
-    }).join('|') + '|' + window.scrollY;
-  }
   function settle() {
     if (finished) return;
     var view = ready();
     if (view) {
-      var signature = layoutSignature(view);
-      stableFrames = signature === previousLayout ? stableFrames + 1 : 0;
-      previousLayout = signature;
-      if (stableFrames >= 3) {
-        finished = true;
-        root.classList.remove('reader-panel-entry-pending', 'reader-panel-entry-failed');
-        return;
-      }
-    } else { stableFrames = 0; previousLayout = ''; }
+      finished = true;
+      root.classList.remove('reader-panel-entry-pending', 'reader-panel-entry-failed');
+      return;
+    }
     if (root.classList.contains('reader-panel-entry-failed')) setTimeout(settle, 250);
     else requestAnimationFrame(settle);
   }
@@ -269,7 +258,7 @@ body[data-gomna-page="reader"] #gomnaReaderBootOverlay .gomna-reader-boot-btn{
 <meta name="description" content="개역한글 성경 본문을 장·절로 읽고 들으며, 각 절의 원어·역사·신학·예표·매튜헨리·설교·찬송·상담·교차참조 말씀풀이를 함께 살펴보세요.">
 <meta name="keywords" content="성경주석, 목회주석, 은혜의말씀, 성경앱, 시편, 잠언, 이사야">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
-<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if(src==='home-bible-picker'){document.documentElement.classList.add('home-bible-picker');}else if(p.get('homeGuide')==='1'){/* The guide has its own readiness gate. */}else if(((src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='seo-bible'||src==='guide-related'||src==='bible-tab'||src==='home-resume-read'||src==='home-resume-listen'||src==='home-resume-recent')&&p.get('book'))||(!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&!(p.get('q')||'').trim()&&p.get('focus')!=='search'&&p.get('testament')!=='old'&&p.get('testament')!=='new'))document.documentElement.classList.add('scripture-entry-pending');if(p.get('commentary')==='1'&&(src==='home-card-commentary'||src==='home-main-commentary'))document.documentElement.classList.add('gomna-home-commentary-loading');var qEarly=(p.get('q')||'').trim();if(qEarly){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
+<script>/* v72: reader.html always uses official dock */(function(){try{document.documentElement.classList.add('reader-dock-active');var p=new URLSearchParams(location.search);if(((p.get('dockPreview')||'').trim()==='1'))document.documentElement.classList.add('reader-dock-preview');var src=p.get('source');if(src==='home-bible-picker'){document.documentElement.classList.add('home-bible-picker');}else if(p.get('homeGuide')==='1'){/* The guide has its own readiness gate. */}else if(((src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='seo-bible'||src==='guide-related'||src==='bible-tab'||src==='home-resume-read'||src==='home-resume-listen'||src==='home-resume-recent')&&p.get('book'))||(!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&!(p.get('q')||'').trim()&&p.get('focus')!=='search'&&p.get('testament')!=='old'&&p.get('testament')!=='new'))document.documentElement.classList.add('scripture-entry-pending');if(p.get('commentary')==='1'&&(src==='home-card-commentary'||src==='home-main-commentary'))document.documentElement.classList.add('gomna-home-commentary-loading');var qEarly=(p.get('q')||'').trim();if(qEarly&&!p.get('book')&&!p.has('easy')&&!p.has('favorites')&&p.get('homeGuide')!=='1'&&src!=='home-bible-picker'){document.documentElement.classList.add('search-entry-pending');}else{document.documentElement.classList.remove('search-entry-pending');}}catch(e){}})();</script>
 <meta name="theme-color" content="#FCFAF6">
 <link rel="canonical" href="https://gomnastudio.com/reader.html">
 <!-- Open Graph 메타 태그 (공유용) -->
@@ -4527,7 +4516,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
 <script src="js/gomna-bible-stair-picker.js?v=20261008-clean-transition-v1"></script>
 <link rel="stylesheet" href="js/gomna-easy-find.css?v=20260918-topic-links-v1">
-<script src="js/gomna-easy-find.js?v=20261005-home-approved-clean-v74"></script>
+<script src="js/gomna-easy-find.js?v=20261010-clean-transition-v90"></script>
 <script src="/js/gomna-commentary-multilang-policy.js?v=20260725-multilang-structured-refs-v1"></script>
 <script>
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
@@ -4541,7 +4530,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261008-account-unified-v1">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-10-cookie-simple-listen-v89" data-release="2026-10-10-cookie-simple-listen-v89" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-10-clean-fast-transition-v90" data-release="2026-10-10-clean-fast-transition-v90" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
 <link rel="stylesheet" href="js/gomna-guide-colorful.css?v=20261010-guide-navigation-v30">
 </head>
@@ -4576,7 +4565,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 </div>
 <!-- haptic-tap-feedback -->
 <script>document.addEventListener('click',function(e){if(e.target.closest('.card, .book-item, .tab, .chip, .easy-key, .cons, .settings-btn, .sheet-close, .font-btn, .popup-close, .search-icon, .gs-link, button')){if(navigator.vibrate)navigator.vibrate(10)}},{passive:true})</script>
-<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function hasScriptureEntryQuery(){try{var p=new URLSearchParams(location.search);var src=p.get('source');return(src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='seo-bible'||src==='guide-related')&&!!(p.get('book')||'').trim();}catch(e){return false;}}function hasBookOrHomePickQuery(){try{var p=new URLSearchParams(location.search);var h=location.hash;return!!((p.get('book')||'').trim())||p.get('testament')==='old'||p.get('testament')==='new'||h==='#pick-old'||h==='#pick-new';}catch(e){return false;}}function hasBibleTabOrBareQuery(){try{var p=new URLSearchParams(location.search);if((p.get('source')||'').trim()==='bible-tab')return true;if((p.get('book')||'').trim())return false;if(p.has('easy')||p.has('favorites'))return false;if((p.get('q')||'').trim()||p.get('focus')==='search')return false;if(p.get('testament')==='old'||p.get('testament')==='new')return false;return true;}catch(e){return false;}}function prepScriptureEntryViewEarly(){try{if(!hasScriptureEntryQuery()&&!hasBookOrHomePickQuery()&&!hasBibleTabOrBareQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var vv=document.getElementById('verseView');if(vv)vv.classList.add('active');}catch(e){}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();prepScriptureEntryViewEarly();activateEasyViewEarly();});}else{prepScriptureEntryViewEarly();activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
+<script>/* v72: keep dock classes in sync — see syncReaderDockMode() */(function(){function isReaderDockPreviewMode(){try{var p=new URLSearchParams(location.search);return(p.get('dockPreview')||'').trim()==='1';}catch(e){return false;}}function syncReaderDockModeEarly(){try{var root=document.documentElement;root.classList.add('reader-dock-active');root.classList.toggle('reader-dock-preview',isReaderDockPreviewMode());}catch(e){}}function hasEasyQuery(){try{var p=new URLSearchParams(location.search);return p.has('easy');}catch(e){return false;}}function hasScriptureEntryQuery(){try{var p=new URLSearchParams(location.search);var src=p.get('source');return(src==='home-daily-read'||src==='home-life'||src==='home-bible-person'||src==='home-card-listen'||src==='home-card-commentary'||src==='search-related'||src==='seo-bible'||src==='guide-related')&&!!(p.get('book')||'').trim();}catch(e){return false;}}function hasBookOrHomePickQuery(){try{var p=new URLSearchParams(location.search);var h=location.hash;return!!((p.get('book')||'').trim())||p.get('testament')==='old'||p.get('testament')==='new'||h==='#pick-old'||h==='#pick-new';}catch(e){return false;}}function hasBibleTabOrBareQuery(){try{var p=new URLSearchParams(location.search);if((p.get('source')||'').trim()==='bible-tab')return true;if((p.get('book')||'').trim())return false;if(p.has('easy')||p.has('favorites'))return false;if((p.get('q')||'').trim()||p.get('focus')==='search')return false;if(p.get('testament')==='old'||p.get('testament')==='new')return false;return true;}catch(e){return false;}}function prepScriptureEntryViewEarly(){try{if(!hasScriptureEntryQuery()&&!hasBookOrHomePickQuery()&&!hasBibleTabOrBareQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var vv=document.getElementById('verseView');if(vv)vv.classList.add('active');}catch(e){}}function activateEasyViewEarly(){try{if(!hasEasyQuery())return;document.querySelectorAll('main.content .view').forEach(function(v){v.classList.remove('active');});var easy=document.getElementById('easyView');if(easy)easy.classList.add('active');document.documentElement.classList.add('reader-hide-chrome');}catch(e){}}syncReaderDockModeEarly();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){syncReaderDockModeEarly();if(typeof _gomnaReaderRouteShellInitialized!=='undefined'&&_gomnaReaderRouteShellInitialized)return;prepScriptureEntryViewEarly();activateEasyViewEarly();});}else{prepScriptureEntryViewEarly();activateEasyViewEarly();}window.addEventListener('resize',syncReaderDockModeEarly);try{var p=new URLSearchParams(location.search);var q=(p.get('q')||'').trim();if(p.get('book')||p.get('testament')==='old'||p.get('testament')==='new'||p.has('easy')||p.has('favorites')||q||p.get('focus')==='search')document.documentElement.classList.add('reader-hide-chrome');}catch(e){}})();</script>
 <div class="phone-frame"><div id="appTopChrome"><div style="background:transparent;padding:3px 12px;text-align:right"><a href="/studio" class="gs-link">
   <span class="gs-text">Gomna Studio, Inc.</span>
   <span class="gs-arrow">↗</span>
@@ -4771,8 +4760,8 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
     </div>
   </div>
   <main class="content">
-    <div class="view active" id="oldView"><div class="loading-state"><div class="spinner"></div><div data-i18n-key="reader.loading">성경 데이터 로딩중...</div></div></div>
-    <div class="view" id="newView"><div class="loading-state"><div class="spinner"></div><div data-i18n-key="reader.loading">성경 데이터 로딩중...</div></div></div>
+    <div class="view active" id="oldView"><div class="loading-state"></div></div>
+    <div class="view" id="newView"><div class="loading-state"></div></div>
     <div class="view" id="easyView"></div>
     <div class="view" id="searchView">
       <button type="button" id="readerBackToTextBtn" class="reader-back-to-text" onclick="returnToReader()" style="display:none" data-i18n-key="reader.backToText">← 본문으로</button>
@@ -4982,12 +4971,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
     window.__GOMNA_HOME_COMMENTARY_PENDING={book:book,chapter:chapter,verse:verse};
     if(src!=='meditation-commentary')document.documentElement.classList.add('gomna-home-commentary-loading');
     if(src!=='home-main-commentary'&&src!=='meditation-commentary')return;
-    var ttl=document.getElementById('commentaryTitle');
-    var cnt=document.getElementById('commentaryContent');
-    var pop=document.getElementById('commentaryPopup');
-    if(ttl)ttl.textContent='📖 말씀풀이';
-    if(cnt)cnt.innerHTML='<div class="empty-state"><div class="icon">📖</div><div class="msg">말씀풀이를 준비하는 중...</div></div>';
-    if(pop)pop.classList.add('show');
+    // The popup opens only when the requested commentary can be rendered.
   }catch(e){}
 })();
 </script>
@@ -6158,11 +6142,7 @@ function runDeferredUrlNavigation() {
       finishRun();
     }
   }
-  if (typeof requestAnimationFrame === 'function') {
-    requestAnimationFrame(function() { setTimeout(run, 0); });
-  } else {
-    setTimeout(run, 0);
-  }
+  run();
 }
 
 var _gomnaEasyEntryEarly = false;
@@ -6171,7 +6151,10 @@ window.__gomnaBibleDataReady = false;
 if (typeof oldTestamentData === 'undefined') window.oldTestamentData = null;
 if (typeof newTestamentData === 'undefined') window.newTestamentData = null;
 var _gomnaPendingEasyAction = null;
-document.addEventListener('DOMContentLoaded', function() {
+var _gomnaReaderRouteShellInitialized = false;
+function initializeReaderRouteShell() {
+  if (_gomnaReaderRouteShellInitialized) return;
+  _gomnaReaderRouteShellInitialized = true;
   var p = new URLSearchParams(location.search);
   if (p.get('homeGuide') === '1') _gomnaStaticEntryEarly = true;
   else if (p.has('favorites') && !p.get('book') && !p.has('easy')) {
@@ -6183,36 +6166,45 @@ document.addEventListener('DOMContentLoaded', function() {
       _gomnaStaticEntryEarly = true;
     } catch (e) { console.error('[GOMNA] early archive entry failed', e); }
   }
-  if (p.has('easy') && !p.get('book')) {
+  if (p.get('homeGuide') !== '1' && p.has('easy') && !p.get('book')) {
     try {
+      _gomnaEasyEntryEarly = true;
       renderEasyFind();
       switchTab('easy');
       syncScriptureDockActive('find');
       window.__gomnaRevealPanelEntry();
-      _gomnaEasyEntryEarly = true;
       var view = document.getElementById('easyView');
       // Keep typing responsive; replay only the latest requested action after data is ready.
       function deferAction(e) {
         if (window.__gomnaBibleDataReady) return;
         if (e.type === 'keydown' && e.key !== 'Enter') return;
-        var target = e.target.closest('button,a,input');
+        var target = e.type === 'keydown' ? e.target.closest('input') : e.target.closest('[data-easy-go],[data-easy-ref]');
         if (!target) return;
         e.preventDefault(); e.stopImmediatePropagation();
-        var note = document.getElementById('easyEntryDataStatus');
-        if (!note) { note=document.createElement('div'); note.id='easyEntryDataStatus'; note.setAttribute('role','status'); view.appendChild(note); }
-        note.textContent = _gomnaOldTestamentLoadState === 'error' || _gomnaNewTestamentLoadState === 'error' ? '본문을 불러오지 못했습니다. 새로고침해 주세요.' : '본문을 준비하고 있습니다.';
+        if (_gomnaOldTestamentLoadState === 'error' || _gomnaNewTestamentLoadState === 'error') {
+          var note = document.getElementById('easyEntryDataStatus');
+          if (!note) { note=document.createElement('div'); note.id='easyEntryDataStatus'; note.setAttribute('role','status'); view.appendChild(note); }
+          note.textContent = '본문을 불러오지 못했습니다. 새로고침해 주세요.';
+        }
+        var requestedValue = target.value;
         _gomnaPendingEasyAction = function() {
           if (!target.isConnected || !view.classList.contains('active')) return;
+          if (e.type === 'keydown' && target.value !== requestedValue) return;
           if (e.type === 'click') target.click();
           else target.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
         };
       }
       view.addEventListener('click',deferAction,true);
       view.addEventListener('keydown',deferAction,true);
+      view.addEventListener('input', function() { _gomnaPendingEasyAction = null; }, true);
+      view.addEventListener('click', function(e) {
+        if (e.target.closest('[data-easy-clear],[data-easy-back]')) _gomnaPendingEasyAction = null;
+      }, true);
     } catch (e) { console.error('[GOMNA] early find entry failed', e); }
   }
   loadBibleData();
-});
+}
+document.addEventListener('DOMContentLoaded', initializeReaderRouteShell, {once:true});
 
 var _gomnaBibleAppInitialized = false;
 var _gomnaOldTestamentLoadState = 'pending';
@@ -6321,9 +6313,7 @@ function initializeAppOnce() {
 }
 
 function initializeApp() {
-  if (window.GomnaBibleSearch && oldTestamentData && newTestamentData) {
-    GomnaBibleSearch.buildIndex(oldTestamentData, newTestamentData);
-  }
+  // The search callers build their index on demand; opening a page must not scan every verse.
   refreshTestamentListIfNeeded('old');
   refreshTestamentListIfNeeded('new');
   // First paint may have already rendered lists; force render when views still empty.
@@ -6413,6 +6403,8 @@ window.addEventListener('resize', function() {
 });
 
 function switchTab(tab) {
+  // Leaving or selecting a panel cancels any commentary still being fetched.
+  _gomnaCommentaryRequest += 1;
   if (typeof closeReaderLocationMenus === 'function') closeReaderLocationMenus();
   if (tab === 'search' || tab === 'fav') {
     var vvEl = document.getElementById('verseView');
@@ -8860,7 +8852,10 @@ function getCommentaryRenderKey(verseNum) {
   return bookName + '|' + currentChapter + '|' + verseNum + '|' + (currentCommentaryTab || '') + '|' + related + '|' + lang;
 }
 
+var _gomnaCommentaryRequest = 0;
 function showCommentary(verseNum) {
+  var request = ++_gomnaCommentaryRequest;
+  var requestedChapter = currentChapter;
   currentCommentaryVerseForRelated = verseNum;
   var bookName = currentBook.name;
   var cardLocale = getCommentaryCardLocale();
@@ -8877,17 +8872,14 @@ function showCommentary(verseNum) {
   }
 
   function showCommentaryLoadingState() {
-    if (_ttl) {
-      _ttl.textContent = '';
-      ensureCommentaryHeaderTitle();
-      if (window.GomnaCommentaryI18n) window.GomnaCommentaryI18n.apply(_ttl);
-    }
-    if (_cnt) {
-      _cnt.innerHTML = '<div class="empty-state"><div class="icon">📖</div><div class="msg"' +
-        commentaryI18nLeafAttrs('commentary.loading') + '>' + commentaryI18nT('commentary.loading') + '</div></div>';
-    }
-    if (_pop) _pop.classList.add('show');
+    // Keep the reader usable; do not display an intermediate card or the previous commentary.
+    if (_pop) _pop.classList.remove('show');
     _commentaryRenderKey = null;
+  }
+  function requestedCommentaryIsCurrent() {
+    return request === _gomnaCommentaryRequest && currentBook && currentBook.name === bookName &&
+      currentChapter === requestedChapter && getCommentaryCardLocale() === cardLocale &&
+      document.getElementById('verseView').classList.contains('active');
   }
 
   // ── Lazy-load guard: KO uses pastorCommentaryData scripts; EN/JA use locale JSON ──
@@ -8897,7 +8889,7 @@ function showCommentary(verseNum) {
     } else if (typeof _commentaryLoaded !== 'undefined' && !_commentaryLoaded[bookName] && bookId) {
       showCommentaryLoadingState();
       loadPastorCommentary(bookName).then(function() {
-        if (window.__gomnaCommentaryLoadAborted) return;
+        if (window.__gomnaCommentaryLoadAborted || !requestedCommentaryIsCurrent()) return;
         showCommentary(verseNum);
       });
       return;
@@ -8906,7 +8898,9 @@ function showCommentary(verseNum) {
     var localeEntry = peekLocaleCommentaryCards(cardLocale, bookId);
     if (!localeEntry || localeEntry.status === 'loading') {
       showCommentaryLoadingState();
-      loadLocaleCommentaryCards(cardLocale, bookId).then(function() { showCommentary(verseNum); });
+      loadLocaleCommentaryCards(cardLocale, bookId).then(function() {
+        if (requestedCommentaryIsCurrent()) showCommentary(verseNum);
+      });
       return;
     }
   }
@@ -9124,6 +9118,11 @@ function showCommentary(verseNum) {
   } else {
     var key = currentBook.name + '_' + currentChapter;
     var cached = commentaryCache[key];
+    if (!cached && typeof commentaryData !== 'undefined') {
+      var legacyKey = bookNumbers[bookName] + '_' + bookName + '_' + String(chapter).padStart(3, '0') + '장';
+      var legacyData = commentaryData[legacyKey];
+      if (legacyData && legacyData.verses) cached = commentaryCache[key] = legacyData.verses;
+    }
     if(cached) {
       var verseData = null;
       for(var k=0; k<cached.length; k++) { if(cached[k].verse === verseNum) { verseData = cached[k]; break; } }
@@ -9142,8 +9141,7 @@ function showCommentary(verseNum) {
         content += '<div class="empty-state"><div class="msg"' + commentaryI18nLeafAttrs('commentary.empty') + '>' + commentaryI18nT('commentary.empty') + '</div></div>';
       }
     } else {
-      content += '<div class="empty-state"><div class="icon">📖</div><div class="msg"' + commentaryI18nLeafAttrs('commentary.loading') + '>' + commentaryI18nT('commentary.loading') + '</div></div>';
-      loadCommentaryForVerse(currentBook.name, currentChapter, verseNum);
+      content += '<div class="empty-state"><div class="msg"' + commentaryI18nLeafAttrs('commentary.empty') + '>' + commentaryI18nT('commentary.empty') + '</div></div>';
     }
   }
   
@@ -9812,6 +9810,7 @@ function parseBibleRefs(text) {
 }
 
 function closeCommentary() {
+  _gomnaCommentaryRequest += 1;
   if (typeof window.__gomnaCommentaryGestureTeardown === 'function') {
     window.__gomnaCommentaryGestureTeardown();
   }
@@ -20617,6 +20616,10 @@ window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!match
 <script src="js/gomna-bible-listen-controls.js?v=20261010-word-view-merge-v3"></script>
 <script src="js/gomna-library-return.js?v=20261010-word-view-merge-v2"></script>
 <script src="js/gomna-guide-home-entry.js?v=20261010-guide-navigation-v30"></script>
+<script>
+// All route markup and core functions are available now; optional deferred modules can finish later.
+initializeReaderRouteShell();
+</script>
 </body>
 </html>
 
