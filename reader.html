@@ -16903,23 +16903,19 @@ function initVerseToolbarEvents() {
       var sameChapterQueue;
       e.stopPropagation();
       e.preventDefault();
-      if (window.gomnaLibraryListen && window.gomnaLibraryListen.play()) return;
+      if (window.gomnaLibraryListen && window.gomnaLibraryListen.directListen && window.gomnaLibraryListen.play()) return;
       if (window.gomnaBibleListenControlsHandleListen && window.gomnaBibleListenControlsHandleListen()) return;
       selCount = typeof getSelectedVerseCount === 'function' ? getSelectedVerseCount() : selectedVerseNums.length;
       if (verseListenMode === 'range') {
         closeVerseListenModeMenu();
         playRangeAudio();
-      } else if (selCount >= 1) {
-        closeVerseListenModeMenu();
-        if (window.gomnaReaderWaitForAudioManifest && window.gomnaReaderWaitForAudioManifest(playSelectedVersesQueue)) return;
-        playSelectedVersesQueue();
       } else if (isVerseListenModeMenuOpen()) {
         closeVerseListenModeMenu();
       } else {
         engine = window.GOMNA_AUDIO_ENGINE;
         state = engine && engine.getState ? engine.getState() : null;
         chapterIds = typeof getChapterAudioIds === 'function' ? getChapterAudioIds() : [];
-        sameChapterQueue = !!(
+        sameChapterQueue = !selCount && !!(
           state &&
           state.queueActive &&
           chapterIds.length &&
@@ -16957,6 +16953,12 @@ function initVerseToolbarEvents() {
     listenModeDailyBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       e.preventDefault();
+      if (getSelectedVerseCount() >= 1) {
+        closeVerseListenModeMenu();
+        if (window.gomnaReaderWaitForAudioManifest && window.gomnaReaderWaitForAudioManifest(playSelectedVersesQueue)) return;
+        playSelectedVersesQueue();
+        return;
+      }
       playHomeDailyVerseListen();
     });
   }
@@ -17104,7 +17106,7 @@ function getHomeDailyListenRange() {
   var allowed = typeof isHomeCardEntryFocusSource === 'function'
     ? isHomeCardEntryFocusSource(src)
     : (src === 'home-daily-read' || src === 'home-card-listen' || src === 'home-card-commentary' || src === 'home-life' || src === 'home-bible-person');
-  if (!allowed) return null;
+  if (!allowed && !(src === 'guide-related' && window.gomnaLibraryListen)) return null;
   if (!currentBook || currentBook.name !== parsed.book) return null;
   if (Number(currentChapter) !== Number(parsed.chapter)) return null;
   verses = parsed.verses || [];
@@ -17153,6 +17155,7 @@ function playHomeDailyVerseListen() {
   if (verseListenModePlayLockAt && now - verseListenModePlayLockAt < 650) return;
   verseListenModePlayLockAt = now;
   closeVerseListenModeMenu();
+  if (window.gomnaLibraryListen && window.gomnaLibraryListen.start()) return;
   range = getHomeDailyListenRange();
   engine = window.GOMNA_AUDIO_ENGINE;
   window.__gomnaBibleChapterListenMode = null;
@@ -17200,6 +17203,17 @@ function syncVerseListenModeMenuLabels() {
     dailyLabel = '';
   }
   showDaily = !!(dailyRange && dailyLabel);
+  var selected = getSortedUniqueSelectedVerseNums();
+  if (selected.length && !(dailyRange && selected.join() === (dailyRange.verses || []).join())) {
+    dailyLabel = readerUiFmt('reader.listen.selectedN', { n: selected.length }, '선택한 ' + selected.length + '절 듣기');
+    dailyRef = currentBook && currentBook.name && selected[selected.length - 1] - selected[0] + 1 === selected.length ? formatHomeDailyListenRef({
+      book: currentBook.name,
+      chapter: currentChapter,
+      start: selected[0],
+      end: selected[selected.length - 1]
+    }) : '';
+    showDaily = true;
+  }
   var listenNative = typeof isReaderNativeUiLang === 'function'
     ? isReaderNativeUiLang(typeof getReaderUiLangCode === 'function' ? getReaderUiLangCode() : 'ko')
     : true;
@@ -17265,6 +17279,8 @@ function openVerseListenModeMenu() {
     document.body.appendChild(menu);
   }
   syncVerseListenModeMenuLabels();
+  var returnItem = document.getElementById('opt4VerseListenModeReturn');
+  if (returnItem) returnItem.remove();
   menu.classList.add('is-designed-card');
   menu.querySelector('.listen-completion-heading').textContent = '말씀 듣기';
   menu.querySelector('.listen-completion-sub').textContent = '듣기 방식을 선택해 주세요';
@@ -18881,6 +18897,7 @@ window.__gomnaRefreshReaderI18n = syncReaderLocaleUi;
 
 function getHomeSpecialListenLabel(parsed) {
   if (!parsed || !parsed.source) return '';
+  if (parsed.source === 'guide-related' && window.gomnaLibraryListen) return window.gomnaLibraryListen.label;
   if (parsed.source === 'home-life') {
     return typeof homeLifeListenLabel === 'function' ? homeLifeListenLabel(parsed.theme) : '';
   }
@@ -20534,8 +20551,8 @@ window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!match
 })();
 </script>
 
-<script src="js/gomna-bible-listen-controls.js?v=20261006-audio-v76"></script>
-<script src="js/gomna-library-return.js?v=20260928-34"></script>
+<script src="js/gomna-bible-listen-controls.js?v=20261010-word-view-merge-v3"></script>
+<script src="js/gomna-library-return.js?v=20261010-word-view-merge-v2"></script>
 <script src="js/gomna-guide-home-entry.js?v=20261009-image-viewer-all-v27"></script>
 </body>
 </html>

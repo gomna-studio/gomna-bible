@@ -80,7 +80,7 @@ const STATIC_URLS = [
   '/js/gomna-coffee-steam.css?v=20261008-startup-v84',
   '/js/gomna-bible-library.css?v=20261007-buttons-down-10mm-v9',
   '/assets/home/meditation-coffee.png?v=20261007-coffee-v1',
-  '/js/gomna-bible-library.js?v=20261005-home-approved-clean-v74',
+  '/js/gomna-bible-library.js?v=20261010-word-view-merge-v1',
   '/js/gomna-bible-library-data.js?v=20261005-home-approved-clean-v74',
   '/assets/home/people/v1/mary.webp',
   '/favicon.ico',

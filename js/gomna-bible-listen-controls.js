@@ -20,6 +20,19 @@
         menu.prepend(close, heading, sub);
       }
       menu.querySelector('.listen-completion-heading').textContent = completedReference;
+      var origin = document.querySelector('#verseView .daily-word-return-btn');
+      if (origin && origin.closest('[hidden]')) origin = null;
+      var back = document.getElementById('opt4VerseListenModeReturn');
+      if (back) back.remove();
+      if (origin) {
+        var label = origin.textContent.replace(/^←\s*/, '');
+        back = document.createElement('button'); back.type = 'button'; back.id = 'opt4VerseListenModeReturn'; back.className = 'opt4-listen-mode-item';
+        back.innerHTML = '<span class="opt4-listen-mode-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="m11 6-6 6 6 6"></path></svg></span><span class="opt4-listen-mode-copy"><span class="opt4-listen-mode-title"></span></span>';
+        back.querySelector('.opt4-listen-mode-title').textContent = label;
+        back.setAttribute('aria-label', label);
+        back.onclick = function () { closeVerseListenModeMenu(); origin.click(); };
+        document.getElementById('opt4VerseListenModeDaily').after(back);
+      }
       document.getElementById('opt4VerseListenModeChapterLabel').textContent = '이 장 듣기';
       document.getElementById('opt4VerseListenModeContinuousLabel').textContent = completedVerse < currentVerseCount ? (completedVerse + 1) + '절부터 이어 듣기' : '다음 장부터 이어 듣기';
       menu.dataset.nextVerse = String(completedVerse + 1);
@@ -71,7 +84,7 @@
     var engine = window.GOMNA_AUDIO_ENGINE;
     var state = engine && engine.getState();
     var id = (event.detail || {}).audioId;
-    if (!state || !/^bible-(?:single-verse|multi-select):/.test(state.queueSource || '') ||
+    if (!state || !/^bible-(?:single-verse|multi-select|verse-range):/.test(state.queueSource || '') ||
         !state.queueAudioIds.length || state.queueAudioIds[state.queueIndex] !== id) return;
     var key = selectionKey();
     var epoch = engine._state.queueEpoch;
