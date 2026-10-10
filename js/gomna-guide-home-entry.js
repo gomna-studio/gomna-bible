@@ -82,9 +82,6 @@
     try{
       if(typeof window.openAllScriptureGuides!=='function')return;
       window.openAllScriptureGuides();
-      var overlay=document.getElementById('scriptureAllGuidesOverlay');
-      var close=overlay&&overlay.querySelector('[data-all-guides-close]');
-      if(close)close.addEventListener('click',function(){location.href='index.html';});
     }finally{
       document.documentElement.classList.remove('gomna-home-guide-entering');
     }

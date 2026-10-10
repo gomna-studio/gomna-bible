@@ -451,6 +451,7 @@
     src=(p.get('source')||'').trim();
     theme=knownLifeThemeId((p.get('theme')||'').trim());
     person=knownStoryPersonId((p.get('person')||'').trim());
+    if(src==='home-guide')return {kind:'discovery'};
     if(src==='home-today')return {kind:'today'};
     if(src==='home-life' && theme)return {kind:'life', id:theme};
     if(src==='home-bible-person' && person)return {kind:'person', id:person};
@@ -458,6 +459,12 @@
   }
   function restoreHomeEntry(entry){
     if(!entry||!root)return false;
+    if(entry.kind==='discovery'){
+      showStoryDiscovery(true);
+      startSettleTo3();
+      apply(2, true);
+      return true;
+    }
     var card;
     var tries=0;
     function tryOpen(){
@@ -621,6 +628,11 @@
     };
   }
   function cardFromEl(el){return el&&el.closest?el.closest('.gomna-home-card'):null;}
+  function isLifeReadAction(el){
+    var button=el&&el.closest&&el.closest('[data-ghd-read]');
+    var card=cardFromEl(button);
+    return !!(card && card.getAttribute('data-card')==='1' && card.classList.contains('is-open'));
+  }
   function isAction(el){
     return el&&el.closest&&el.closest('.gomna-home-act, .gomna-home-related, .gomna-home-ctrl, .gomna-home-ctrl-item, .gomna-home-link, .gomna-home-note-save, .gomna-home-life-rail, .gomna-home-life-chip, .gomna-home-poster-pills, .gomna-home-poster-pill, .gomna-home-leaf-cta, .gomna-home-leaf-btn, .gomna-home-tabbar, .gomna-home-tab, button, a, [role="button"], input, select, textarea');
   }
@@ -1280,6 +1292,8 @@
   }
   function markGestureEnd(ev){
     if(isTouchPointer(ev))return;
+    // Keep the life reader button's native click free of deck layout changes.
+    if(!pinching && ev && isLifeReadAction(ev.target))return;
     if(ev && ev.touches && ev.touches.length>=1)return;
     if(pinching){
       pinching=false;
@@ -1570,6 +1584,7 @@
       swipeDrag=null;
       return;
     }
+    if(isLifeReadAction(ev.target)){swipeDrag=null;return;}
     var p=swipePoint(ev);
     if(!p)return;
     beginSwipe(p.x, p.y, null);
