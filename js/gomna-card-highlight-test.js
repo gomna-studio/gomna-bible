@@ -2099,10 +2099,10 @@
   for (type in COMMENTARY_TYPE_CONFIG) {
     if (!Object.prototype.hasOwnProperty.call(COMMENTARY_TYPE_CONFIG, type)) continue;
     cssRules.push(
-      '#commentaryContent #' + COMMENTARY_TYPE_CONFIG[type].tabId +
+      'html:not(.playback-style-focus) #commentaryContent #' + COMMENTARY_TYPE_CONFIG[type].tabId +
       ' .commentary-table ' +
       COMMENTARY_TYPE_CONFIG[type].itemSelector.split('[')[0] + '.' + ACTIVE_CLASS + ' td{' +
-        'background-color:#D8C18A !important;' +
+        'background-color:#E1CFA6 !important;' +
         'transition:background-color 100ms ease;' +
       '}'
     );
@@ -2111,7 +2111,7 @@
   /* Same active color as commentary cards, reused for bible verse items. */
   cssRules.push(
     '#verseList .verse-item.' + ACTIVE_CLASS + '{' +
-      'background-color:#D8C18A !important;' +
+      'background-color:#E1CFA6 !important;' +
       'transition:background-color 100ms ease;' +
     '}'
   );

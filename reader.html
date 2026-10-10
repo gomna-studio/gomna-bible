@@ -476,6 +476,8 @@ html.playback-style-focus.is-verse-focus-play #verseList .verse-item:has(.gomna-
   -webkit-text-fill-color:#1F1F1F;
   font-weight:600;
 }
+html.playback-style-focus #commentaryContent .commentary-table tr[data-verse-ref]{transition:opacity .18s ease}
+html.playback-style-focus.is-commentary-focus-play #commentaryContent .commentary-table:has(tr.gomna-commentary-card-active) tr[data-verse-ref]:not(.gomna-commentary-card-active){opacity:.5}
 @media (prefers-reduced-motion:reduce){
   #verseList .verse-item{transition:background-color .08s ease,box-shadow .08s ease}
 }
@@ -4370,7 +4372,7 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
 </script>
 <link rel="manifest" href="manifest.json?v=20260910-app-icon-v1">
 <link rel="preload" as="image" href="assets/globe_3d_256.webp" type="image/webp">
-<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20261010-commentary-buttons-v2">
+<link rel="stylesheet" href="/css/gomna-audio-player.css?v=20261010-commentary-listen-slate-v1">
 <style id="gomna-commentary-unified-scroll-css">
 /* After audio CSS: one native scroll for header→verse-nav; footer stays fixed.
  * pinch-zoom + pan-x restore browser zoom/pan; do not use pan-y alone.
@@ -13074,6 +13076,13 @@ function isReaderCommentaryAudioCurrent() {
   return !!buttons.isCommentaryAudioId(audioId);
 }
 
+function isReaderCommentaryPlaybackFocus() {
+  var engine = window.GOMNA_AUDIO_ENGINE;
+  var state = engine && typeof engine.getState === 'function' ? engine.getState() : null;
+  if (!state || !state.isPlaying || state.isPaused) return false;
+  return isReaderCommentaryAudioCurrent();
+}
+
 function isReaderBiblePlaybackPaused() {
   var engine = window.GOMNA_AUDIO_ENGINE;
   var state = engine && typeof engine.getState === 'function' ? engine.getState() : null;
@@ -13088,6 +13097,7 @@ function syncReaderVerseFocusMode() {
   root.classList.toggle('playback-style-gold', style === 'gold');
   root.classList.toggle('playback-style-focus', style === 'focus');
   root.classList.toggle('is-verse-focus-play', play && style === 'focus');
+  root.classList.toggle('is-commentary-focus-play', style === 'focus' && isReaderCommentaryPlaybackFocus());
   /* 절 선택은 색상만으로 표시한다. 다른 절을 흐리게 하는 선택 모드는 쓰지 않는다. */
   root.classList.remove('is-verse-focus-select');
   if (typeof syncReaderPlaybackStyleChrome === 'function') syncReaderPlaybackStyleChrome();
@@ -19155,7 +19165,7 @@ function changeFont(delta) {
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
 <script src="/js/gomna-audio-commentary-buttons.js?v=20260919-stale-context-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
-<script src="/js/gomna-audio-ui.js?v=20261006-audio-v76" defer></script>
+<script src="/js/gomna-audio-ui.js?v=20261010-ui-release-v85" defer></script>
 <script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>
 <!-- ==========================
 쿠키 배너 (최종 v3 - 간결 + 모두 동의)
@@ -20269,7 +20279,7 @@ function loadAds() {
   if(document.readyState!=='loading')schedule();
 })();
 </script>
-<script src="/js/gomna-card-highlight-test.js?v=20260803-bible-follow-prod-v1"></script>
+<script src="/js/gomna-card-highlight-test.js?v=20261010-commentary-focus-v2"></script>
 <script>
 /* 로그인 상태를 Reader에 반영하는 얇은 연결. 새 계정 UI를 만들지 않고
    설정창 계정 문구, 보관함 안내, 하단 MY 표시만 기존 Auth setState에서 갱신한다. */

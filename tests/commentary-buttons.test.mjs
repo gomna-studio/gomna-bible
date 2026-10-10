@@ -7,7 +7,9 @@ const selected = css.match(
   /#commentaryContent\s+\.commentary-tab\.gomna-audio-commentary-tab--active:not\(\[data-gomna-commentary-sequence-button='true'\]\),\s*#commentaryContent \.commentary-tab\.active:not\(\[data-gomna-commentary-sequence-button='true'\]\) \{([^}]*)\}/
 );
 assert.ok(selected, 'selected and playing tabs share one rule');
-assert.match(selected[1], /background: #397fc4 !important/);
+assert.match(selected[1], /background: #425669 !important/);
+const html = fs.readFileSync(new URL('../reader.html', import.meta.url), 'utf8');
+assert.match(html, /#opt4VerseListenModeMenu\.is-designed-card \.opt4-listen-mode-item\{[^}]*background:#425669/);
 assert.match(selected[1], /color: #ffffff !important/);
 assert.match(css, /\.commentary-tabs:has\(\.gomna-audio-commentary-tab--active[^)]*\)\)\s*\.commentary-tab\.active:not\(\.gomna-audio-commentary-tab--active\)/);
 assert.doesNotMatch(css, /#commentaryContent \.commentary-tab\.active \{/);
@@ -17,7 +19,7 @@ assert.ok(track);
 assert.match(track[1], /border-radius: 999px !important/);
 assert.match(track[1], /background: #ffffff !important/);
 assert.match(track[1], /bottom: calc\(9\.11px \+ env\(safe-area-inset-bottom, 0px\)\)/);
-assert.match(css, /#gomnaCommentaryListenBtn::before \{\s*background: #397fc4 !important;/);
+assert.match(css, /#gomnaCommentaryListenBtn::before \{\s*background: #425669 !important;/);
 assert.match(css, /min-height: 40px !important;\s*height: 40px !important;/);
 
 console.log('commentary button regression checks passed');

@@ -1541,9 +1541,9 @@ body.gomna-audio-body-padding .opt4-bottom-bar {
   }
 }
 
-/* Playing verse row: same gold family as JS highlight, one step softer */
+/* Playing verse row: must match the commentary card active gold in gomna-card-highlight-test.js */
 html #verseList .verse-item.gomna-commentary-card-active {
-  background-color: #D8C18A !important;
+  background-color: #E1CFA6 !important;
 }
 
 /* =========================================================
@@ -3702,17 +3702,24 @@ body.gomna-audio-expanded-open #verseList {
  * gomna-audio-commentary-tab--active는 updateCommentaryButtonLabels()가
  * 재생 중인 audioId에만 붙이고 나머지에서는 떼므로, 재생이 넘어가면 블루도
  * 따라 이동하고 재생이 끝나면 선택한 탭에만 남는다.
- * #397FC4는 하단 듣기 알약(#gomnaCommentaryListenBtn::before)과
- * 미니 플레이어 재생 버튼(.gomna-audio-btn-play-pause)과 같은 값이므로
+ * #425669 / 누름 #344757은 말씀듣기 카드 버튼
+ * (#opt4VerseListenModeMenu.is-designed-card .opt4-listen-mode-item)과 같은 값이므로
  * 바꿀 때는 함께 맞춰야 한다.
  */
 #commentaryContent
   .commentary-tab.gomna-audio-commentary-tab--active:not([data-gomna-commentary-sequence-button='true']),
 #commentaryContent .commentary-tab.active:not([data-gomna-commentary-sequence-button='true']) {
-  background: #397fc4 !important;
-  border-color: #397fc4 !important;
+  background: #425669 !important;
+  border-color: #425669 !important;
   color: #ffffff !important;
   box-shadow: none !important;
+}
+
+#commentaryContent
+  .commentary-tab.gomna-audio-commentary-tab--active:not([data-gomna-commentary-sequence-button='true']):active,
+#commentaryContent .commentary-tab.active:not([data-gomna-commentary-sequence-button='true']):active {
+  background: #344757 !important;
+  border-color: #344757 !important;
 }
 
 /* 재생 중인 탭이 있으면 블루는 그 탭 하나만 가진다. */
@@ -5515,8 +5522,8 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
   z-index: 1 !important;
 }
 
-/* 듣기 알약 — 미니 플레이어 메인 ▶ 버튼과 같은 #397FC4 채움.
- * 값이 바뀌면 .gomna-audio-btn-play-pause 쪽과 함께 맞춰야 한다.
+/* 듣기 알약 — 상단 선택 탭·말씀듣기 카드 버튼과 같은 #425669 채움(누름 #344757).
+ * 값이 바뀌면 .commentary-tab.active 쪽과 함께 맞춰야 한다.
  */
 #commentaryPopup #gomnaCommentaryListenBtn {
   color: #ffffff !important;
@@ -5524,7 +5531,7 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
 }
 
 #commentaryPopup #gomnaCommentaryListenBtn::before {
-  background: #397fc4 !important;
+  background: #425669 !important;
 }
 
 /* 닫기 — 흰 트랙 배경 그대로 둔다. 듣기보다 시각적 우선순위를 낮춘다. */
@@ -5543,17 +5550,17 @@ body.gomna-commentary-popup-open.gomna-audio-body-padding #commentaryPopupBox {
 /* hover는 포인터 기기에서만. 터치에서 hover가 눌린 채 남는 것을 막는다. */
 @media (hover: hover) {
   #commentaryPopup #gomnaCommentaryListenBtn:hover::before {
-    background: #3273b4 !important;
+    background: #344757 !important;
   }
 
   #commentaryPopup #gomnaCommentaryInlineCloseBtn:hover::before {
-    background: #efe6d8 !important;
+    background: #f2f2f2 !important;
   }
 }
 
 /* 누름 피드백은 알약만 한 단계 진해진다. */
 #commentaryPopup #gomnaCommentaryListenBtn:active::before {
-  background: #2667a4 !important;
+  background: #344757 !important;
 }
 
 #commentaryPopup #gomnaCommentaryInlineCloseBtn:active::before {
