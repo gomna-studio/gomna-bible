@@ -4,7 +4,6 @@
   var root = document.documentElement;
   var leavingClass = 'gomna-route-leaving';
   var fallbackTimer = 0;
-  var clickTimer = 0;
 
   function installStyle() {
     if (document.getElementById('gomna-route-transition-css')) return;
@@ -14,18 +13,17 @@
       'html.gomna-route-leaving,html.gomna-route-leaving body{' +
         'pointer-events:none;' +
       '}' +
+      'html.gomna-route-leaving body{' +
+        'visibility:hidden;' +
+      '}' +
       'html.gomna-route-leaving::after{' +
         'content:"";position:fixed;inset:0;z-index:2147483646;' +
-        'background:transparent;pointer-events:auto;cursor:progress;' +
+        'background:transparent;pointer-events:auto;' +
       '}';
     (document.head || root).appendChild(style);
   }
 
   function reset() {
-    if (clickTimer) {
-      clearTimeout(clickTimer);
-      clickTimer = 0;
-    }
     if (fallbackTimer) {
       clearTimeout(fallbackTimer);
       fallbackTimer = 0;
@@ -33,21 +31,23 @@
     root.classList.remove(leavingClass);
   }
 
-  function begin(destination) {
-    if (destination && !isDocumentDestination(destination)) return false;
+  function begin() {
     installStyle();
     root.classList.add(leavingClass);
 
-    /* Keep the current screen intact while the next document loads. */
-    /* A cancelled or failed request must leave this page usable again. */
+    /* If a guarded control fails before navigation, never strand the page. */
     if (fallbackTimer) clearTimeout(fallbackTimer);
-    fallbackTimer = setTimeout(reset, 5000);
-    return true;
+    fallbackTimer = setTimeout(function () {
+      if (!document.hidden) reset();
+    }, 5000);
   }
 
-  function isDocumentDestination(destination) {
+  function isDocumentNavigation(anchor) {
+    if (!anchor || !anchor.href) return false;
+    if (anchor.hasAttribute('download')) return false;
+    if (anchor.target && anchor.target.toLowerCase() !== '_self') return false;
     try {
-      var next = new URL(destination, location.href);
+      var next = new URL(anchor.href, location.href);
       if (next.protocol !== 'http:' && next.protocol !== 'https:') return false;
       if (next.origin !== location.origin) return false;
       return next.pathname !== location.pathname ||
@@ -58,11 +58,17 @@
     }
   }
 
-  function isDocumentNavigation(anchor) {
-    if (!anchor || !anchor.href) return false;
-    if (anchor.hasAttribute('download')) return false;
-    if (anchor.target && anchor.target.toLowerCase() !== '_self') return false;
-    return isDocumentDestination(anchor.href);
+  function isKnownNavigationControl(control) {
+    if (!control || !control.matches) return false;
+    if (control.matches(
+      '[data-ghd-read],[data-ghd-listen],[data-ghd-commentary],[data-ghd-walk],' +
+      '#homeContinueMain,#homeContinueRead,#homeContinueListen,' +
+      '[data-home-recent-index],[data-stair-verse],' +
+      '.reader-home,.reader-close'
+    )) return true;
+
+    var inline = control.getAttribute('onclick') || '';
+    return /(?:location\.(?:href|assign|replace)|goHome\s*\(|openDailyVerse\s*\(|openContinue|openReadResume\s*\(|openBibleTab\s*\(|openEasy\s*\(|submitSearch\s*\(|openScriptureHighlightEntry\s*\(|returnTo(?:SearchResults|TodayWordCard|HomeLifeCard|HomePersonCard)\s*\()/i.test(inline);
   }
 
   installStyle();
@@ -78,19 +84,13 @@
     if (!target) return;
     var anchor = target.closest('a[href]');
     if (isDocumentNavigation(anchor)) {
-      /* Give all click handlers time to cancel a link or open an in-page panel. */
-      if (clickTimer) clearTimeout(clickTimer);
-      clickTimer = setTimeout(function () {
-        clickTimer = 0;
-        if (!event.defaultPrevented) begin(anchor.href);
-      }, 0);
+      begin();
+      return;
     }
-  });
+    var control = target.closest('button,[role="button"]');
+    if (isKnownNavigationControl(control)) begin();
+  }, true);
 
-  /* Clear locks before saving a back/forward snapshot and after restoring it. */
-  window.addEventListener('pagehide', reset);
+  window.addEventListener('beforeunload', begin);
   window.addEventListener('pageshow', reset);
-  document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) reset();
-  });
 })();

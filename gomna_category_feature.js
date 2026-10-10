@@ -203,7 +203,6 @@
   var guideSheetW = 0;
   var guideSheetH = 0;
   var guideMoveBound = false;
-  var guideGestureCleanup = null;
   /* 이동 배율: 손가락을 거의 1:1로 즉시 따라오게 한다(감속 없음, 살짝만 앞서게 1.12) */
   var GUIDE_PAN_GAIN = 1.12;
 
@@ -723,7 +722,7 @@
           '<div class="scripture-guide-head">' +
             '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
             '<span class="scripture-guide-head-title">성경 길잡이</span>' +
-            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
+            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:#000!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
           '</div>' +
           '<div class="scripture-guide-body"></div>' +
         '</div>' +
@@ -732,7 +731,7 @@
           '<div class="scripture-guide-head">' +
             '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
             '<span class="scripture-guide-head-title">성경 길잡이</span>' +
-            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
+            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:#000!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
           '</div>' +
           '<div class="scripture-guide-body scripture-guide-detail-body"></div>' +
         '</div>' +
@@ -813,8 +812,8 @@
     window.scrollTo(0, y);
   }
 
-  /* 길잡이 카드 전용 핀치 줌. 1배 스크롤·버튼 탭은 네이티브에 맡기고,
-     두 손가락 핀치 또는 확대한 배경의 분명한 이동에만 preventDefault 한다. */
+  /* v72: 길잡이 카드 전용 핀치 줌 — 두 손가락일 때만 카드(.scripture-guide-sheet)에 transform:scale 적용.
+     한 손가락 세로 스크롤/끌어내리기는 그대로 두고, 두 손가락 동작에만 preventDefault 한다. */
   function getGuideSheetEl() {
     return scriptureGuideOverlay ? scriptureGuideOverlay.querySelector('.scripture-guide-sheet') : null;
   }
@@ -871,7 +870,6 @@
   }
 
   function resetGuidePinchZoom() {
-    if (guideGestureCleanup) guideGestureCleanup();
     guidePinchScale = 1;
     guidePinchStartDist = 0;
     guidePinchStartScale = 1;
@@ -888,23 +886,6 @@
     if (guidePinchBound || !sheet) return;
     guidePinchBound = true;
     guideSheetCache = sheet;
-    var panCandidate = false;
-    var suppressClick = false;
-
-    function isGuideControl(target) {
-      var control = target && target.closest && target.closest('button,a,input,select,textarea,summary,[role="button"],[role="link"],[contenteditable]:not([contenteditable="false"])');
-      return !!(control && sheet.contains(control));
-    }
-
-    function startPanCandidate(touch) {
-      panCandidate = true;
-      guidePanning = false;
-      guidePanStartX = guidePanX;
-      guidePanStartY = guidePanY;
-      guidePanStartTouchX = touch.clientX;
-      guidePanStartTouchY = touch.clientY;
-      addGuideMove();
-    }
 
     // 확대/이동 중에만 붙였다 떼는 touchmove 핸들러(1배 단일 손가락에서는 붙지 않아 네이티브 스크롤이 빠르게 반응)
     function onGuideTouchMove(e) {
@@ -920,20 +901,10 @@
         if (e.cancelable) e.preventDefault();
         return;
       }
-      // Only an intentional drag of the zoomed background becomes a pan.
-      // A small finger wobble must keep the browser's normal button click.
-      if ((panCandidate || guidePanning) && e.touches.length === 1 && guidePinchScale > 1) {
-        var dx = e.touches[0].clientX - guidePanStartTouchX;
-        var dy = e.touches[0].clientY - guidePanStartTouchY;
-        if (!guidePanning) {
-          if (dx * dx + dy * dy <= 144) return;
-          panCandidate = false;
-          guidePanning = true;
-          suppressClick = true;
-          beginGuideGesture();
-        }
-        guidePanX = guidePanStartX + dx * GUIDE_PAN_GAIN;
-        guidePanY = guidePanStartY + dy * GUIDE_PAN_GAIN;
+      // 한 손가락 + 확대 상태: 카드 이동(감속 없음, 매 이벤트 즉시 갱신)
+      if (guidePanning && e.touches.length === 1 && guidePinchScale > 1) {
+        guidePanX = guidePanStartX + (e.touches[0].clientX - guidePanStartTouchX) * GUIDE_PAN_GAIN;
+        guidePanY = guidePanStartY + (e.touches[0].clientY - guidePanStartTouchY) * GUIDE_PAN_GAIN;
         applyGuideTransform();
         if (e.cancelable) e.preventDefault();
       }
@@ -948,25 +919,11 @@
       guideMoveBound = false;
       sheet.removeEventListener('touchmove', onGuideTouchMove, { passive: false });
     }
-    function stopGuideGesture() {
-      guidePinchActive = false;
-      guidePinchStartDist = 0;
-      guidePanning = false;
-      panCandidate = false;
-      removeGuideMove();
-      endGuideGesture();
-    }
-    guideGestureCleanup = function() {
-      stopGuideGesture();
-      suppressClick = false;
-    };
 
     sheet.addEventListener('touchstart', function(e) {
       if (!e.touches) return;
       if (e.touches.length === 2) {
         // 두 손가락: 확대·축소 시작
-        panCandidate = false;
-        suppressClick = true;
         guidePinchActive = true;
         guidePanning = false;
         guidePinchStartDist = guideTouchDist(e.touches);
@@ -974,46 +931,39 @@
         beginGuideGesture();
         addGuideMove();
         if (e.cancelable) e.preventDefault();
-      } else if (e.touches.length === 1) {
-        stopGuideGesture();
-        suppressClick = false;
-        // X, read/related links, and other controls retain native single-touch
-        // activation even when zoomed. Two-finger pinch still works over them.
-        if (guidePinchScale > 1 && !isGuideControl(e.target)) startPanCandidate(e.touches[0]);
-      } else {
-        stopGuideGesture();
-        suppressClick = true;
+      } else if (e.touches.length === 1 && guidePinchScale > 1) {
+        // 한 손가락 + 확대 상태: 이동 시작 (touchstart에서는 preventDefault 하지 않아 버튼 탭은 정상)
+        guidePanning = true;
+        guidePanStartX = guidePanX;
+        guidePanStartY = guidePanY;
+        guidePanStartTouchX = e.touches[0].clientX;
+        guidePanStartTouchY = e.touches[0].clientY;
+        beginGuideGesture();
+        addGuideMove();
       }
       // 1배 단일 손가락: 아무 것도 하지 않음 → touchmove 리스너 없음 → 네이티브 세로 스크롤 즉시 반응
     }, { passive: false });
 
     function endGuidePinch(e) {
-      if (e.type === 'touchcancel') {
-        stopGuideGesture();
-        suppressClick = true;
-        return;
-      }
-      var wasGesture = guidePinchActive || guidePanning || panCandidate;
       if (!e.touches || e.touches.length < 2) {
         guidePinchActive = false;
         guidePinchStartDist = 0;
       }
-      if (e.touches && e.touches.length === 1 && guidePinchScale > 1 && wasGesture) {
-        // Pinch can continue as a background pan, with the same movement slop.
-        startPanCandidate(e.touches[0]);
+      if (e.touches && e.touches.length === 1 && guidePinchScale > 1) {
+        // 두 손가락에서 한 손가락으로 줄면 남은 손가락으로 이동을 이어서 시작(제스처·리스너 유지)
+        guidePanning = true;
+        guidePanStartX = guidePanX;
+        guidePanStartY = guidePanY;
+        guidePanStartTouchX = e.touches[0].clientX;
+        guidePanStartTouchY = e.touches[0].clientY;
       } else if (!e.touches || e.touches.length === 0) {
-        stopGuideGesture();
+        guidePanning = false;
+        removeGuideMove();
+        endGuideGesture();
       }
     }
     sheet.addEventListener('touchend', endGuidePinch);
     sheet.addEventListener('touchcancel', endGuidePinch);
-    sheet.addEventListener('click', function(e) {
-      if (e.detail === 0) { suppressClick = false; return; }
-      if (!suppressClick) return;
-      suppressClick = false;
-      e.preventDefault();
-      e.stopPropagation();
-    }, true);
   }
 
   /* v72: 성경 길잡이 한 손 조작. 모바일에서는 패널 자체가 스크롤러(헤더 앞 투명 스페이서 포함), 그 외에는 기존대로 본문이 스크롤러 */
@@ -1293,7 +1243,7 @@
     var item = document.querySelector('.verse-item[data-verse="' + pending.verse + '"]');
     if (!item) return false;
 
-    try { item.scrollIntoView({ behavior: 'auto', block: 'center' }); } catch (err) { item.scrollIntoView(); }
+    try { item.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (err) { item.scrollIntoView(); }
 
     applyGuideVerseHighlight(item, true);
     if (guideReturnState) attachGuideReturnTag(item, guideReturnState.testament, guideReturnState.catName);
@@ -1349,56 +1299,32 @@
     var chapter = Number(ref.chapter);
     var verse = Number(ref.verse);
     if (isNaN(chapter) || isNaN(verse) || chapter < 1 || verse < 1) return;
-    if (navigateGuideDocumentWhileLoading(ref.book, chapter, verse, ref.testament)) return;
     if (typeof goToVerse !== 'function') return;
 
     var testament = ref.testament || resolveGuideVerseTestament(ref.book);
     scriptureGuideState.verseNavigating = true;
 
     saveGuideReturnState(ref);
+    closeScriptureGuide();
+
     guideVersePending = { book: ref.book, chapter: chapter, verse: verse, testament: testament };
 
     ensureGuideVerseNavListeners();
     goToVerse(ref.book, chapter, verse, testament);
-    // Keep the guide covering the previous Reader view until the requested
-    // passage exists. A missing destination must not reveal a stale screen.
-    if (isGuideVerseDestinationReady(ref.book, chapter)) {
-      closeScriptureGuide();
-      closeAllScriptureGuides({ restoreScroll: false });
-    } else {
-      scriptureGuideState.verseNavigating = false;
-    }
     scheduleGuideVerseFocus();
-  }
-
-  function navigateGuideDocumentWhileLoading(book, chapter, verse, testament) {
-    if (window.__gomnaBibleDataReady !== false) return false;
-    var query = new URLSearchParams({ book: book, chapter: chapter, verse: verse, source: 'guide-related' });
-    if (testament) query.set('testament', testament);
-    window.location.href = 'reader.html?' + query.toString();
-    return true;
-  }
-
-  function isGuideVerseDestinationReady(book, chapter) {
-    var view = document.getElementById('verseView');
-    return !!(window.currentBook && window.currentBook.name === book &&
-      Number(window.currentChapter) === Number(chapter) && view && view.classList.contains('active'));
   }
 
   function navigateToGuideCategory(testament, catName) {
     var guide = getScriptureGuide(testament, catName);
     var book = getGuideFirstBookName(guide);
-    if (book && navigateGuideDocumentWhileLoading(book, 1, 1, testament)) return;
+    closeScriptureGuide();
+    if (typeof closeAllScriptureGuides === 'function') {
+      try { closeAllScriptureGuides(); } catch (err) {}
+    }
     if (book && typeof goToVerse === 'function') {
       goToVerse(book, 1, 1, testament);
-      if (isGuideVerseDestinationReady(book, 1)) {
-        closeScriptureGuide();
-        closeAllScriptureGuides({ restoreScroll: false });
-      }
       return;
     }
-    closeScriptureGuide();
-    closeAllScriptureGuides();
     returnToGuideCategoryList(testament, catName);
   }
 
@@ -1604,7 +1530,6 @@
   var allGuidesOverlay = null;
   var allGuidesBound = false;
   var allGuidesReturnScroll = 0;
-  var allGuidesDockHome = null;
   var ALL_GUIDE_ORDER = {
     old: ['모세오경', '역사서', '시가서', '대선지서', '소선지서'],
     new: ['복음서', '역사서', '바울서신', '공동서신', '예언서']
@@ -1706,55 +1631,21 @@
     return document.scrollingElement || document.documentElement;
   }
 
-  function attachAllGuidesDock(overlay) {
-    var dock = document.getElementById('scriptureDock');
-    if (!dock || dock.parentNode === overlay) return;
-    // Reuse the real menu so its account state, translations, gestures and
-    // event listeners stay identical to the Reader menu.
-    allGuidesDockHome = { parent: dock.parentNode, next: dock.nextSibling };
-    overlay.appendChild(dock);
-  }
-
-  function restoreAllGuidesDock() {
-    var dock = document.getElementById('scriptureDock');
-    if (!dock || !allGuidesDockHome) return;
-    var parent = allGuidesDockHome.parent;
-    var next = allGuidesDockHome.next;
-    if (parent) parent.insertBefore(dock, next && next.parentNode === parent ? next : null);
-    allGuidesDockHome = null;
-  }
-
-  function returnAllGuidesToHomeCard() {
-    // Leave the complete guide visible until the next document replaces it.
-    window.location.href = 'index.html?source=home-guide';
-  }
-
-  function dismissAllScriptureGuides() {
-    if (new URLSearchParams(window.location.search).get('homeGuide') === '1') {
-      returnAllGuidesToHomeCard();
-    } else {
-      closeAllScriptureGuides();
-    }
-  }
-
-  function closeAllScriptureGuides(options) {
+  function closeAllScriptureGuides() {
     if (!allGuidesOverlay || !allGuidesOverlay.classList.contains('is-open')) return;
-    restoreAllGuidesDock();
     allGuidesOverlay.classList.remove('is-open');
     allGuidesOverlay.setAttribute('aria-hidden', 'true');
     allGuidesOverlay.hidden = true;
     document.documentElement.classList.remove('scripture-all-guides-lock');
     var scrollEl = getAllGuidesScrollEl();
-    if (scrollEl && (!options || options.restoreScroll !== false)) scrollEl.scrollTop = allGuidesReturnScroll;
+    if (scrollEl) scrollEl.scrollTop = allGuidesReturnScroll;
   }
 
   function onAllGuidesKeydown(e) {
     if (!allGuidesOverlay || !allGuidesOverlay.classList.contains('is-open')) return;
     if (e.key !== 'Escape' && e.key !== 'Esc') return;
-    if (e.defaultPrevented || document.querySelector('#loginModal.show, .gomna-acc-overlay:not([hidden]), .guide-image-viewer[open]')) return;
     e.preventDefault();
-    e.stopPropagation();
-    dismissAllScriptureGuides();
+    closeAllScriptureGuides();
   }
 
   function ensureAllGuidesOverlay() {
@@ -1769,21 +1660,21 @@
     overlay.hidden = true;
     overlay.innerHTML =
       '<div class="scripture-guide-head">' +
-        '<button type="button" class="scripture-guide-head-back" data-all-guides-back aria-label="성경 속 이야기와 인물 카드로 돌아가기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>' +
+        '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
         '<div class="scripture-guide-head-copy">' +
           '<h1 class="scripture-guide-head-title" id="scriptureAllGuidesTitle">성경 길잡이</h1>' +
           '<p class="scripture-guide-head-sub" id="scriptureAllGuidesSub" hidden></p>' +
         '</div>' +
-        '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;box-shadow:none!important;border:0!important" data-all-guides-close aria-label="닫기">✕</button>' +
+        '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:#000!important;box-shadow:none!important;border:0!important" data-all-guides-close aria-label="닫기">✕</button>' +
       '</div>' +
       '<div class="scripture-all-guides-body" id="scriptureAllGuidesBody"></div>';
     document.body.appendChild(overlay);
-    overlay.querySelector('[data-all-guides-back]').addEventListener('click', returnAllGuidesToHomeCard);
-    overlay.querySelector('[data-all-guides-close]').addEventListener('click', dismissAllScriptureGuides);
+    overlay.querySelector('[data-all-guides-close]').addEventListener('click', closeAllScriptureGuides);
     overlay.querySelector('#scriptureAllGuidesBody').addEventListener('click', function(e) {
       var verseBtn = e.target.closest('[data-guide-verse]');
       if (verseBtn) {
         e.preventDefault();
+        closeAllScriptureGuides();
         navigateToGuideRelatedVerse({
           book: verseBtn.getAttribute('data-book'),
           chapter: parseInt(verseBtn.getAttribute('data-chapter'), 10),
@@ -1802,7 +1693,7 @@
       }
     });
     if (!allGuidesBound) {
-      document.addEventListener('keydown', onAllGuidesKeydown, true);
+      document.addEventListener('keydown', onAllGuidesKeydown);
       allGuidesBound = true;
     }
     allGuidesOverlay = overlay;
@@ -1832,14 +1723,8 @@
     overlay.hidden = false;
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
-    attachAllGuidesDock(overlay);
     document.documentElement.classList.add('scripture-all-guides-lock');
     if (body) body.scrollTop = 0;
-    var heading = overlay.querySelector('#scriptureAllGuidesTitle');
-    if (heading) {
-      heading.tabIndex = -1;
-      try { heading.focus({ preventScroll: true }); } catch (e) {}
-    }
   }
 
   window.openAllScriptureGuides = openAllScriptureGuides;

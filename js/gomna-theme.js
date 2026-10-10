@@ -175,10 +175,6 @@
      카드 내부 규칙은 원래 조합을 통째로 보존한다. 헤더·탭바·시트 등 앱 바깥틀은
      계속 공용 다크 테마를 따른다. */
   var HOME_CARD_RE = /\.gomna-home-(?:card|poster|leaf|detail|open-msg|msg-title|kicker|ref|sub|lead|lines|goldline|related|story|life|act|after|step|prompt|full|back|ctrl)/i;
-  /* 길잡이와 인물·이야기 창은 바탕/본문/보조 글자/선택 버튼을 한 팔레트로
-     설계한다. 변수의 밝기만 보고 다시 칠하면 짙은 글자가 짙은 바탕에 남거나
-     선택 버튼의 흰 글자만 바뀌므로 해당 창은 자체 테마 규칙을 따른다. */
-  var CONTENT_THEME_RE = /#scripture(?:All)?Guide|#gomnaBibleLibrary|\.scripture-(?:guide|all-guides)-|\bbody\.gbl-open/i;
   /* 토글 손잡이처럼 흰색이어야 하는 부품은 배경을 바꾸지 않는다. */
   var KEEP_WHITE_RE = /knob|handle|thumb|switch-dot|toggle-dot/i;
   var COLOR_TOKEN_RE = /#[0-9a-fA-F]{3,8}\b|rgba?\([^()]*\)/g;
@@ -348,7 +344,7 @@
         continue;
       }
       if (!rule.style || typeof rule.selectorText !== 'string') continue;
-      if (HOME_CARD_RE.test(rule.selectorText) || CONTENT_THEME_RE.test(rule.selectorText)) continue;
+      if (HOME_CARD_RE.test(rule.selectorText)) continue;
       var decls = overridesFor(rule.style, rule.selectorText);
       if (!decls) continue;
       var selector = scopeSelector(rule.selectorText);
@@ -460,15 +456,13 @@
       'html[data-gomna-theme="dark"] .settings-toggle-knob,' +
       'html[data-gomna-theme="dark"] .gomna-audio-toggle-knob{background:' + TEXT + '!important}' +
       /* 인라인 style로 칠해 둔 자리(쿠키 안내·말씀풀이 본문 등) */
-      'html[data-gomna-theme="dark"] #cookie-banner{background:#1F2937!important;' +
-      'color:var(--gomna-text)!important;border-color:#374151!important}' +
+      'html[data-gomna-theme="dark"] #cookie-banner{background:rgba(38,32,25,.97)!important;' +
+      'color:var(--gomna-text)!important;border-color:var(--gomna-border)!important}' +
       'html[data-gomna-theme="dark"] #cookie-banner :where(div,label,span,p){color:var(--gomna-text)!important}' +
-      'html[data-gomna-theme="dark"] #cookie-banner a{color:#CBD5E1!important}' +
-      'html[data-gomna-theme="dark"] #cookie-banner .cookie-actions button' +
-      '{background:#425669!important;color:#fff!important;-webkit-text-fill-color:#fff!important}' +
-      'html[data-gomna-theme="dark"] #cookie-banner .cookie-actions button:active' +
-      '{background:#344757!important}' +
-      '@media (hover:hover) and (pointer:fine){html[data-gomna-theme="dark"] #cookie-banner .cookie-actions button:hover{background:#344757!important}}' +
+      'html[data-gomna-theme="dark"] #cookie-banner a{color:#D9AE64!important}' +
+      'html[data-gomna-theme="dark"] #cookie-banner button[onclick*="reject"]' +
+      '{background:var(--gomna-surface-soft)!important;color:var(--gomna-text)!important;' +
+      'border-color:var(--gomna-border)!important}' +
       /* 인라인 style 값은 브라우저가 rgb()로 다시 적어 두기도 해서 두 표기를 모두 본다 */
       inlineFix('background', ['#fff', 'rgb(255, 255, 255)', '#f5f5f5', 'rgb(245, 245, 245)'],
         'background:var(--gomna-surface-soft)!important') +

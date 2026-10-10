@@ -81,20 +81,19 @@ function chapterLabel(koName, bookId, chapter) {
 }
 
 function cssHref(depth) {
-  return '../'.repeat(depth) + 'css/bible-seo-pages.css?v=20261010-seo-brand-listen-v1';
+  return '../'.repeat(depth) + 'css/bible-seo-pages.css';
 }
 
 function logoHref(depth) {
-  return '../'.repeat(depth) + 'app-icon-180.png';
+  return '../'.repeat(depth) + 'logo-home.png';
 }
 
-function readerHref(koName, chapter, verse = 1, returnPath) {
+function readerHref(koName, chapter, verse = 1) {
   const params = new URLSearchParams({
     book: koName,
     chapter: String(chapter),
     verse: String(verse),
-    source: 'seo-bible',
-    returnPath,
+    source: 'search-related',
   });
   return `/reader.html?${params.toString()}`;
 }
@@ -205,7 +204,6 @@ ${renderWebPageJsonLd({ name: title, description, url: canonical })}
     <h1>${escapeHtml(h1)}</h1>
     ${bodyHtml}
   </main>
-  <script src="/js/gomna-seo-return.js?v=20261010-seo-return-v1"></script>
 </body>
 </html>
 `;
@@ -242,7 +240,7 @@ function renderChapterPage({ bookId, koName, chapter, verses, staticKeys, maxCha
     if (staticKeys.has(pageKey(bookId, targetChapter))) {
       return `/bible/${bookId}/${targetChapter}/`;
     }
-    return readerHref(koName, targetChapter, 1, canonicalPath);
+    return readerHref(koName, targetChapter, 1);
   }
 
   const prevHref = chapterNavHref(prevChapter);
@@ -251,7 +249,7 @@ function renderChapterPage({ bookId, koName, chapter, verses, staticKeys, maxCha
   const breadcrumbItems = [
     { name: '은혜의말씀', href: '/' },
     { name: '성경', href: '/' },
-    { name: koName, href: hubExists ? `/bible/${bookId}/` : readerHref(koName, 1, 1, canonicalPath) },
+    { name: koName, href: hubExists ? `/bible/${bookId}/` : readerHref(koName, 1, 1) },
     { name: label, href: canonicalPath },
   ];
 
@@ -269,7 +267,7 @@ function renderChapterPage({ bookId, koName, chapter, verses, staticKeys, maxCha
   const bodyHtml = `
     <p class="lead">${escapeHtml(lead)}</p>
     <div class="actions">
-      <a class="btn btn-primary" href="${escapeHtml(readerHref(koName, chapter, 1, canonicalPath))}">Reader에서 읽기·듣기·말씀풀이 열기</a>
+      <a class="btn btn-primary" href="${escapeHtml(readerHref(koName, chapter, 1))}">Reader에서 읽기·듣기·말씀풀이 열기</a>
       ${hubLink}
     </div>
     <div class="nav-links">
@@ -283,7 +281,7 @@ ${verseHtml}
     <div class="footer-nav">
       <a href="/">홈페이지</a>
       ${hubExists ? `<a href="/bible/${bookId}/">${escapeHtml(koName)} 허브</a>` : ''}
-      <a href="${escapeHtml(readerHref(koName, chapter, 1, canonicalPath))}">Reader에서 열기</a>
+      <a href="${escapeHtml(readerHref(koName, chapter, 1))}">Reader에서 열기</a>
     </div>
   `;
 
@@ -319,7 +317,7 @@ function renderHubPage({ bookId, koName, chapters, maxChapter }) {
   const bodyHtml = `
     <p class="lead">${escapeHtml(koName)}의 개역한글 대표 ${unit} 안내입니다. 아래 대표 ${unit}을 먼저 읽고, 책 전체는 Reader에서 열 수 있습니다.</p>
     <div class="actions">
-      <a class="btn btn-primary" href="${escapeHtml(readerHref(koName, 1, 1, canonicalPath))}">${escapeHtml(koName)} 전체를 Reader에서 열기</a>
+      <a class="btn btn-primary" href="${escapeHtml(readerHref(koName, 1, 1))}">${escapeHtml(koName)} 전체를 Reader에서 열기</a>
     </div>
     <h2 style="font-size:1.05rem;margin:0 0 .75rem;">이번에 열린 대표 ${unit}</h2>
     <ul class="hub-list">
@@ -328,7 +326,7 @@ function renderHubPage({ bookId, koName, chapters, maxChapter }) {
     <p class="lead" style="margin-top:0;">전체 ${maxChapter}${unit}은 Reader에서 이어서 읽을 수 있습니다.</p>
     <div class="footer-nav">
       <a href="/">홈페이지</a>
-      <a href="${escapeHtml(readerHref(koName, 1, 1, canonicalPath))}">Reader에서 ${escapeHtml(koName)} 열기</a>
+      <a href="${escapeHtml(readerHref(koName, 1, 1))}">Reader에서 ${escapeHtml(koName)} 열기</a>
     </div>
   `;
 
