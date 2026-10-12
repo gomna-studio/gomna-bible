@@ -30,11 +30,17 @@ class Preview(http.server.SimpleHTTPRequestHandler):
 handler = functools.partial(Preview, directory=str(root))
 server = http.server.ThreadingHTTPServer(('0.0.0.0', args.port), handler)
 print('시험본 경로:', root, flush=True)
-print(f'Mac: http://localhost:{args.port}/reader.html?homeGuide=1&previewTheme=dark', flush=True)
+print(f'Mac 인물: http://localhost:{args.port}/?previewTheme=dark#bible-library/people', flush=True)
+print(f'Mac 이야기: http://localhost:{args.port}/?previewTheme=dark#bible-library/stories', flush=True)
+print(f'Mac 묵상: http://localhost:{args.port}/meditation.html?previewTheme=dark', flush=True)
+print(f'Mac 길잡이: http://localhost:{args.port}/reader.html?homeGuide=1&previewTheme=dark', flush=True)
 try:
     import subprocess
     ip = subprocess.check_output(['ipconfig', 'getifaddr', 'en0'], text=True).strip()
-    if ip: print(f'iPhone (같은 Wi-Fi): http://{ip}:{args.port}/reader.html?homeGuide=1&previewTheme=dark', flush=True)
+    if ip:
+        print(f'iPhone 인물: http://{ip}:{args.port}/?previewTheme=dark#bible-library/people', flush=True)
+        print(f'iPhone 이야기: http://{ip}:{args.port}/?previewTheme=dark#bible-library/stories', flush=True)
+        print(f'iPhone 묵상: http://{ip}:{args.port}/meditation.html?previewTheme=dark', flush=True)
 except (OSError, subprocess.SubprocessError):
     print('iPhone: Mac의 Wi-Fi IP 주소와 위 포트를 사용하세요.', flush=True)
 print('라이트 모드: previewTheme=light / 종료: Ctrl+C', flush=True)

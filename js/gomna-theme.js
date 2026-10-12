@@ -431,6 +431,16 @@
       '--text:var(--gomna-text);--text-light:var(--gomna-text-muted);' +
       '--primary:var(--gomna-text);--primary-dark:var(--gomna-text);' +
       '--cream:var(--gomna-surface);--border:var(--gomna-border)}' +
+      /* Semantic ink variables skipped by the automatic color heuristic. */
+      'html[data-gomna-theme="dark"] #gomnaBibleLibrary{--gbl-navy:var(--gomna-text)!important;--gbl-gold:var(--gomna-text-muted)!important}' +
+      'html[data-gomna-theme="dark"] body.gmd-page{--gmd-ink:var(--gomna-text)!important;--gmd-muted:var(--gomna-text-muted)!important;--gmd-navy:#A9C7F2!important;--gmd-gold:var(--gomna-text-muted)!important}' +
+      'html[data-gomna-theme="dark"] #easyView.easy-find-ready{--easy-sel-fg:#A9C7F2!important}' +
+      'html[data-gomna-theme="dark"] #unifiedBcBookList{--ubc-sel-fg:#A9C7F2!important}' +
+      'html[data-gomna-theme="dark"].reader-hide-chrome .scripture-dock-item{--dock-sel-fg:#A9C7F2!important}' +
+      'html[data-gomna-theme="dark"]{--scripture-dock-inactive:var(--gomna-text-muted)!important}' +
+      'html[data-gomna-theme="dark"] #appTopChrome .gs-link,html[data-gomna-theme="dark"] #appTopChrome .gs-arrow,' +
+      'html[data-gomna-theme="dark"] #readerPlaybackStylePopover .reader-playback-style-sub,' +
+      'html[data-gomna-theme="dark"] .header-btn .btn-sub{color:var(--gomna-text-muted)!important}' +
       /* 큰 바탕 */
       'html[data-gomna-theme="dark"] .phone-frame{background:var(--gomna-bg)!important;box-shadow:none}' +
       'html[data-gomna-theme="dark"] .container{background:transparent}' +
