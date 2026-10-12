@@ -722,7 +722,7 @@
           '<div class="scripture-guide-head">' +
             '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
             '<span class="scripture-guide-head-title">성경 길잡이</span>' +
-            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:#000!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
+            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:var(--gomna-text,#000)!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
           '</div>' +
           '<div class="scripture-guide-body"></div>' +
         '</div>' +
@@ -731,7 +731,7 @@
           '<div class="scripture-guide-head">' +
             '<span class="scripture-guide-head-spacer" aria-hidden="true"></span>' +
             '<span class="scripture-guide-head-title">성경 길잡이</span>' +
-            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:#000!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
+            '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:var(--gomna-text,#000)!important;box-shadow:none!important;border:0!important" data-guide-close aria-label="닫기">✕</button>' +
           '</div>' +
           '<div class="scripture-guide-body scripture-guide-detail-body"></div>' +
         '</div>' +
@@ -1703,7 +1703,7 @@
           '<h1 class="scripture-guide-head-title" id="scriptureAllGuidesTitle">성경 길잡이</h1>' +
           '<p class="scripture-guide-head-sub" id="scriptureAllGuidesSub" hidden></p>' +
         '</div>' +
-        '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:#000!important;box-shadow:none!important;border:0!important" data-all-guides-close aria-label="닫기">✕</button>' +
+        '<button type="button" class="scripture-guide-head-close" style="background:transparent!important;color:var(--gomna-text,#000)!important;box-shadow:none!important;border:0!important" data-all-guides-close aria-label="닫기">✕</button>' +
       '</div>' +
       '<div class="scripture-all-guides-body" id="scriptureAllGuidesBody"></div>';
     document.body.appendChild(overlay);
