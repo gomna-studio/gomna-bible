@@ -170,21 +170,113 @@ async function findCachedAudioManifest(req) {
   return null;
 }
 
+function audioManifestByteLength(resp) {
+  if (!resp) return '';
+  return resp.headers.get('content-length') || '';
+}
+
+function audioManifestStoredDigest(resp) {
+  if (!resp) return '';
+  return resp.headers.get('x-gomna-manifest-sha256') || '';
+}
+
+async function audioManifestDigestHex(resp) {
+  if (!resp) return '';
+  try {
+    const digest = await crypto.subtle.digest('SHA-256', await resp.clone().arrayBuffer());
+    const bytes = new Uint8Array(digest);
+    let hex = '';
+    for (let i = 0; i < bytes.length; i += 1) {
+      hex += bytes[i].toString(16).padStart(2, '0');
+    }
+    return hex;
+  } catch (err) {
+    return '';
+  }
+}
+
+// Content-Length만 같으면 다른 문서를 놓친다. 길이가 다르면 그 차이로 판단하고,
+// 길이가 같거나 헤더가 없으면 본문 SHA-256을 비교한다. 같으면 알리지 않는다.
+async function audioManifestChanged(cached, resp) {
+  if (!cached || !resp) return { changed: false, digest: '' };
+  const previousLength = audioManifestByteLength(cached);
+  const nextLength = audioManifestByteLength(resp);
+  if (previousLength && nextLength && previousLength !== nextLength) {
+    return { changed: true, digest: '' };
+  }
+  const nextDigest = await audioManifestDigestHex(resp);
+  const previousDigest = audioManifestStoredDigest(cached) || await audioManifestDigestHex(cached);
+  return {
+    changed: !!(previousDigest && nextDigest && previousDigest !== nextDigest),
+    digest: nextDigest
+  };
+}
+
+async function storeAudioManifest(req, resp, digest) {
+  if (!resp || !resp.ok || (resp.type !== 'basic' && resp.type !== 'cors')) return;
+  let stored = resp;
+  if (digest) {
+    const headers = new Headers(resp.headers);
+    headers.set('x-gomna-manifest-sha256', digest);
+    stored = new Response(resp.clone().body, {
+      status: resp.status,
+      statusText: resp.statusText,
+      headers
+    });
+  }
+  const cache = await caches.open(AUDIO_MANIFEST_CACHE);
+  const url = new URL(req.url);
+  await cache.put(req, stored.clone());
+  await cache.put(new Request(url.origin + url.pathname), stored.clone());
+}
+
+async function notifyAudioManifestUpdated() {
+  const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+  clients.forEach(client => client.postMessage({ type: 'GOMNA_AUDIO_MANIFEST_UPDATED' }));
+}
+
+// 로컬 미리보기는 디스크의 manifest를 바로 쓴다.
+// 같은 주소에 남아 있는 이전 manifest 캐시 때문에 새 책만 '준비 중'으로 남지 않게 한다.
+async function audioManifestNetworkFirst(req) {
+  const cached = await findCachedAudioManifest(req);
+  try {
+    const resp = await fetch(req);
+    if (resp && resp.ok) {
+      await storeAudioManifest(req, resp);
+      return resp;
+    }
+  } catch (err) {
+    if (cached) return cached;
+    throw err;
+  }
+  if (cached) return cached;
+  return Response.error();
+}
+
 // audio-manifest.json:
 // 1) 전용 캐시 hit → 즉시 반환 + 백그라운드 갱신
 // 2) 캐시 miss → 네트워크를 timeout 없이 대기
 // 3) 네트워크 성공 → 전용 캐시 저장
-// 4) 네트워크 실패 → 다른 캐시 폴백
-// 5) 폴백도 없으면 실패
+// 4) 길이 또는 본문이 바뀌면 열린 화면에 한 번 알림 (같으면 알리지 않음, 캐시 전체 삭제는 하지 않음)
+// 5) 네트워크 실패 → 다른 캐시 폴백
+// 6) 폴백도 없으면 실패
 async function audioManifestStaleWhileRevalidate(req) {
   const url = new URL(req.url);
   const cache = await caches.open(AUDIO_MANIFEST_CACHE);
   const cached = (await cache.match(req)) || (await cache.match(new Request(url.origin + url.pathname)));
+  // 캐시 본문은 화면으로 바로 반환된다. 비교용 복사는 그 전에 만들어야 한다.
+  const cachedForCompare = cached ? cached.clone() : null;
 
   const fetching = fetch(req).then(async (resp) => {
     if (resp && resp.ok && (resp.type === 'basic' || resp.type === 'cors')) {
-      await cache.put(req, resp.clone());
-      await cache.put(new Request(url.origin + url.pathname), resp.clone());
+      if (!cachedForCompare) {
+        await storeAudioManifest(req, resp);
+      } else {
+        const comparison = await audioManifestChanged(cachedForCompare, resp);
+        await storeAudioManifest(req, resp, comparison.digest);
+        // 저장 후에만 알린다. 이어지는 재조회는 방금 저장한 문서와 같아서 다시 알리지 않는다.
+        if (comparison.changed) await notifyAudioManifestUpdated();
+      }
     }
     return resp;
   });
@@ -433,7 +525,8 @@ self.addEventListener('fetch', event => {
   // isFreshAppAsset보다 먼저 처리해야 한다.
   if (isAudioManifestJson(url)) {
     event.respondWith(
-      audioManifestStaleWhileRevalidate(req).catch(() => Response.error())
+      (IS_LOCAL_PREVIEW ? audioManifestNetworkFirst(req) : audioManifestStaleWhileRevalidate(req))
+        .catch(() => Response.error())
     );
     return;
   }

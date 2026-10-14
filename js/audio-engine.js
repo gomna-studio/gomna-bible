@@ -985,6 +985,25 @@
         state.isPaused = false;
         state.restoreStartTime = 0;
 
+        /* Commentary sequence errors stop here. A failed item is not a
+         * normal ending, so the next commentary type must not start. */
+        if (
+          options.fromQueue &&
+          state.queueActive &&
+          String(state.queueSource || '').indexOf('commentary:') === 0
+        ) {
+          engine._clearQueue();
+          state.currentAudioId = null;
+          engine._emit('audio:error', {
+            audioId: audioId,
+            reason: 'play_error',
+            entry: entry,
+            error: errorDetail
+          });
+          showOrLog('오디오 재생 오류가 발생했습니다.');
+          return;
+        }
+
         /* A network media error is recoverable. Retry the same verse and time
          * before considering a skip. Decode/source errors still skip safely. */
         if (options.fromQueue && state.queueActive) {

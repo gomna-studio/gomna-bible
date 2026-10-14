@@ -13035,9 +13035,17 @@ function applyVerseSelectionHighlight() {
 }
 
 var READER_PLAYBACK_STYLE_KEY = 'gomna_reader_playback_focus_style';
+var READER_COMMENTARY_PLAYBACK_STYLE_KEY = 'gomna_reader_commentary_playback_style';
 var readerPlaybackStyle = 'focus';
 
+function loadCommentaryPlaybackStyle() {
+  var raw = '';
+  try { raw = String(localStorage.getItem(READER_COMMENTARY_PLAYBACK_STYLE_KEY) || ''); } catch (e) { raw = ''; }
+  return raw === 'focus' ? 'focus' : 'gold';
+}
+
 function getReaderPlaybackStyle() {
+  if (isReaderCommentaryAudioCurrent()) return loadCommentaryPlaybackStyle();
   return readerPlaybackStyle === 'gold' ? 'gold' : 'focus';
 }
 
@@ -13049,7 +13057,12 @@ function loadReaderPlaybackStyle() {
 }
 
 function saveReaderPlaybackStyle(style) {
-  readerPlaybackStyle = style === 'gold' ? 'gold' : 'focus';
+  var next = style === 'gold' ? 'gold' : 'focus';
+  if (isReaderCommentaryAudioCurrent()) {
+    try { localStorage.setItem(READER_COMMENTARY_PLAYBACK_STYLE_KEY, next); } catch (e) { /* ignore */ }
+    return;
+  }
+  readerPlaybackStyle = next;
   try { localStorage.setItem(READER_PLAYBACK_STYLE_KEY, readerPlaybackStyle); } catch (e) { /* ignore */ }
 }
 
@@ -19158,12 +19171,12 @@ function changeFont(delta) {
   window.MutationObserver = GuardedMutationObserver;
 })();
 </script>
-<script src="/js/audio-config.js?v=20260724-manifest-shard-v1" defer></script>
+<script src="/js/audio-config.js?v=20261014-manifest-refresh-v1" defer></script>
 <script src="/js/gomna-audio-manifest-shards.js?v=20260724-manifest-shard-v1" defer></script>
-<script src="/js/audio-engine.js?v=20261006-audio-v76" defer></script>
+<script src="/js/audio-engine.js?v=20261014-commentary-error-stop-v1" defer></script>
 <script src="/js/gomna-audio-continuous.js?v=20261006-audio-v76" defer></script>
 <script src="/js/gomna-audio-listen-button.js?v=20260711-verse-toolbar-v106" defer></script>
-<script src="/js/gomna-audio-commentary-buttons.js?v=20260919-stale-context-v1" defer></script>
+<script src="/js/gomna-audio-commentary-buttons.js?v=20261014-commentary-continue-v1" defer></script>
 <script src="/js/gomna-audio-highlight.js?v=202608011605-desktop-scroll-mobile-v1" defer></script>
 <script src="/js/gomna-audio-ui.js?v=20261010-ui-release-v85" defer></script>
 <script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>

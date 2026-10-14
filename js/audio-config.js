@@ -121,8 +121,27 @@
   // iOS Safari 대응:
   // 사용자 클릭 전에 manifest를 미리 로드해서,
   // 나중에 audio.play()가 클릭 핸들러 안에서 바로 실행될 수 있게 준비한다.
-  (function preloadManifest() {
-    window.GOMNA_AUDIO_CONFIG.manifestLoadStatus = 'loading';
+  // generation은 늦게 도착한 이전 manifest가 갱신본을 덮지 않게 한다.
+  var manifestGeneration = 0;
+
+  function applyManifestDocument(data, generation) {
+    if (generation !== manifestGeneration || !data || !data.audios) return;
+    window.GOMNA_AUDIO_CONFIG.manifestData = data;
+    window.GOMNA_AUDIO_CONFIG.manifestLoadStatus = 'loaded';
+
+    console.log('[GOMNA_AUDIO] manifest preloaded:', data.totalAudios, 'items');
+
+    window.dispatchEvent(new CustomEvent('gomna:manifest_loaded', {
+      detail: {
+        totalAudios: data.totalAudios
+      }
+    }));
+  }
+
+  function requestManifest(generation) {
+    if (!window.GOMNA_AUDIO_CONFIG.manifestData) {
+      window.GOMNA_AUDIO_CONFIG.manifestLoadStatus = 'loading';
+    }
 
     fetch(window.GOMNA_AUDIO_CONFIG.MANIFEST_PATH, { cache: 'no-cache' })
       .then(function(res) {
@@ -132,22 +151,30 @@
         return res.json();
       })
       .then(function(data) {
-        window.GOMNA_AUDIO_CONFIG.manifestData = data;
-        window.GOMNA_AUDIO_CONFIG.manifestLoadStatus = 'loaded';
-
-        console.log('[GOMNA_AUDIO] manifest preloaded:', data.totalAudios, 'items');
-
-        window.dispatchEvent(new CustomEvent('gomna:manifest_loaded', {
-          detail: {
-            totalAudios: data.totalAudios
-          }
-        }));
+        applyManifestDocument(data, generation);
       })
       .catch(function(err) {
-        window.GOMNA_AUDIO_CONFIG.manifestLoadStatus = 'error';
+        if (generation !== manifestGeneration) return;
+        if (!window.GOMNA_AUDIO_CONFIG.manifestData) {
+          window.GOMNA_AUDIO_CONFIG.manifestLoadStatus = 'error';
+        }
         console.error('[GOMNA_AUDIO] manifest preload failed:', err);
       });
+  }
+
+  (function preloadManifest() {
+    manifestGeneration += 1;
+    requestManifest(manifestGeneration);
   })();
+
+  if (navigator.serviceWorker && navigator.serviceWorker.addEventListener) {
+    navigator.serviceWorker.addEventListener('message', function(event) {
+      var data = event && event.data;
+      if (!data || data.type !== 'GOMNA_AUDIO_MANIFEST_UPDATED') return;
+      manifestGeneration += 1;
+      requestManifest(manifestGeneration);
+    });
+  }
 
   console.log('[GOMNA_AUDIO] config loaded');
 })();

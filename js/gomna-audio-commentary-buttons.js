@@ -2722,8 +2722,8 @@
       return this.startSingleFromBeginning(item.baseAudioId || audioId);
     },
 
-    /* 하단 바 '듣기': 현재 선택한 풀이부터 그 절의 교차참조까지 재생하고,
-     * 절이 끝나면 다음 절의 원어분석부터 이어 읽는다(절 우선 재생).
+    /* 하단 바 '듣기': 현재 선택한 풀이부터 그 절의 교차참조까지 재생한다.
+     * 교차참조가 끝나면 멈춘다. 다음 절이나 처음부터 다시 재생하지 않는다.
      * 재생·재개만 하며 일시정지는 미니 플레이어 몫이다.
      */
     listenFromHere: function(audioId) {
@@ -2756,7 +2756,7 @@
       }
 
       if (started) {
-        armVerseChain();
+        clearVerseChain();
         setActionBarHidden(true);
       }
 
@@ -2821,7 +2821,11 @@
       currentCueKey = null;
       lastSequenceQueueIndex = -1;
       currentSelectedType = item.type;
-      armVerseChain();
+      clearVerseChain();
+      if (this.playSequenceFrom(item.audioId, { startTime: startTime, forceRestart: true })) {
+        updateCommentaryButtonLabels();
+        return true;
+      }
       this.stopForTransition(engine, state);
       engine.playAudioById(item.audioId, { startTime: startTime });
       updateCommentaryButtonLabels();
@@ -2895,11 +2899,12 @@
       return true;
     },
 
-    playSequenceFrom: function(audioId) {
+    playSequenceFrom: function(audioId, options) {
       var engine = this.getEngine();
       var state = this.getState();
       var ids = getPublishedSequenceAudioIds();
       var startIndex = ids.indexOf(audioId);
+      var startTime = options && isFinite(Number(options.startTime)) ? Number(options.startTime) : 0;
 
       if (!engine || !engine.playAudioSequence || startIndex < 0) return false;
       if (!canPlayCommentaryAudioId(audioId)) return false;
@@ -2912,7 +2917,8 @@
       engine.playAudioSequence(ids, {
         source: currentSequenceSource,
         startIndex: startIndex,
-        startTime: 0
+        startTime: startTime,
+        forceRestart: !!(options && options.forceRestart)
       });
       updateCommentaryButtonLabels();
       return true;
@@ -2998,22 +3004,6 @@
     }
   }
 
-  function armVerseChain() {
-    verseChainActive = true;
-    verseChainGeneration += 1;
-    return verseChainGeneration;
-  }
-
-  function totalVersesForChain(ctx) {
-    if (!ctx || typeof window.getTotalVersesInChapter !== 'function') return 0;
-
-    try {
-      return window.getTotalVersesInChapter(ctx.bookName, ctx.chapter) || 0;
-    } catch (e) {
-      return 0;
-    }
-  }
-
   /* 방금 끝난 풀이 다음에 같은 절에서 재생할 공개 오디오를 찾는다.
    * 순서는 COMMENTARY_TYPE_TEMPLATES(원어분석 → … → 교차참조)를 그대로 따르고,
    * 오디오가 없는 타입은 getPublishedSequenceAudioIds가 이미 걸러 준다.
@@ -3044,105 +3034,20 @@
     return ids[idx + 1];
   }
 
-  /* 절 우선 이어재생: 현재 절의 남은 풀이를 교차참조까지 먼저 다 읽고,
-   * 교차참조가 끝났을 때만 다음 절(장 끝이면 다음 장 1절)로 넘어가 항상 원어분석부터
-   * 다시 9개 순서로 읽는다. 이동·카드 렌더는 기존 goToVerseCommentary /
-   * goToChapterCommentary 경로를 그대로 쓰고, 재생만 이어 붙인다.
-   */
+  /* 같은 절의 다음 풀이만 이어 재생한다. 교차참조가 끝나면 멈춘다. */
   function advanceVerseChain(endedItem) {
-    var ctx = currentContext;
-    var chapterCount;
-    var target;
-    var generation;
     var nextInVerse;
 
-    if (!ctx || !verseChainActive) return;
+    if (!currentContext || !verseChainActive) return;
 
-    /* 1) 같은 절에 다음 풀이가 남아 있으면 절을 넘기지 않는다. */
     nextInVerse = nextPublishedAudioIdInVerse(endedItem);
     if (nextInVerse && CommentaryAudioController.playSequenceFrom(nextInVerse)) {
-      /* playSequenceFrom이 체인을 지우므로 다시 걸어 교차참조 뒤까지 이어지게 한다. */
-      armVerseChain();
+      clearVerseChain();
       setActionBarHidden(true);
       return;
     }
 
-    /* 2) 현재 절의 마지막 풀이까지 끝났으므로 다음 절로 넘어간다. */
-    if (ctx.verse + 1 <= totalVersesForChain(ctx)) {
-      if (typeof window.goToVerseCommentary !== 'function') {
-        clearVerseChain();
-        return;
-      }
-      target = { chapter: ctx.chapter, verse: ctx.verse + 1 };
-      generation = armVerseChain();
-      verseChainTargetKey = ctx.bookId + '.' + pad3(target.chapter) + '.' + pad3(target.verse);
-      window.goToVerseCommentary(target.verse);
-    } else {
-      chapterCount = window.currentBook && window.currentBook.chapters;
-      if (
-        !chapterCount ||
-        ctx.chapter + 1 > chapterCount ||
-        typeof window.goToChapterCommentary !== 'function'
-      ) {
-        clearVerseChain();
-        return;
-      }
-      target = { chapter: ctx.chapter + 1, verse: 1 };
-      generation = armVerseChain();
-      verseChainTargetKey = ctx.bookId + '.' + pad3(target.chapter) + '.' + pad3(target.verse);
-      window.goToChapterCommentary(target.chapter);
-    }
-
-    waitForVerseChainTarget(target, generation, 0);
-  }
-
-  /* 다음 절 렌더가 끝날 때까지 기다린 뒤 그 절 전체를 원어분석부터 재생한다. */
-  function waitForVerseChainTarget(target, generation, attempt) {
-    var content = getContent();
-    var ctx = getCommentaryContext();
-    var ids;
-
-    if (!verseChainActive || verseChainGeneration !== generation) return;
-
-    if (attempt > 40) {
-      clearVerseChain();
-      return;
-    }
-
-    if (
-      ctx &&
-      ctx.chapter === target.chapter &&
-      ctx.verse === target.verse &&
-      content &&
-      content.querySelector('.commentary-tabs')
-    ) {
-      syncCommentaryItemsForContext(ctx);
-      refreshPublishedFlags();
-      ids = getPublishedSequenceAudioIds();
-
-      if (ids.length) {
-        currentSelectedType = COMMENTARY_TYPE_TEMPLATES[0].type;
-
-        if (!CommentaryAudioController.playFullSequence()) {
-          clearVerseChain();
-          return;
-        }
-
-        /* playFullSequence가 체인을 지우므로 다시 걸어 다음 절까지 이어지게 한다. */
-        armVerseChain();
-        prewarmCardCues(getItemByAudioId(ids[0]));
-        setActionBarHidden(true);
-        return;
-      }
-
-      /* 절 전체에 공개 오디오가 없으면 기존 정책대로 이어재생을 멈춘다. */
-      clearVerseChain();
-      return;
-    }
-
-    verseChainTimer = setTimeout(function() {
-      waitForVerseChainTarget(target, generation, attempt + 1);
-    }, 150);
+    clearVerseChain();
   }
 
   function syncSequenceCompletedFromQueue(state) {
@@ -3893,7 +3798,7 @@
     lastSequenceQueueIndex = -1;
     updateCommentaryButtonLabels();
 
-    // 자연 종료만 다음 절로 이어 읽는다 (정지·오류는 제외).
+    // 자연 종료만 같은 절의 다음 풀이로 이어 읽는다. 정지·오류·다음 절 이동은 제외한다.
     if (detail.reason === 'queue_completed' && verseChainActive) {
       advanceVerseChain(getItemByAudioId(detail.audioId));
       return;
