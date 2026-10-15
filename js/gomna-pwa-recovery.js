@@ -4,7 +4,7 @@
   var script = document.currentScript;
   var pageVersion = script && script.getAttribute('data-release');
   var registration = null, pendingVersion = null, reloading = false;
-  var resumeToken = 0, lastSignature = '', lastBlur = 0, probe = null;
+  var resumeToken = 0, lastSignature = '', lastBlur = 0, probe = null, fixedProbe = null;
   var correctedTab = null, tabTop = '', tabBottom = '';
   function installedIOS() {
     var ios = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -36,11 +36,18 @@
     if (!probe && document.body) {
       probe = document.createElement('div');
       probe.setAttribute('aria-hidden', 'true');
-      probe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:100svh;visibility:hidden;pointer-events:none;contain:strict;';
+      probe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:100vh;height:100dvh;visibility:hidden;pointer-events:none;contain:strict;';
       document.body.appendChild(probe);
+      fixedProbe = document.createElement('div');
+      fixedProbe.setAttribute('aria-hidden', 'true');
+      fixedProbe.style.cssText = 'position:fixed;top:0;bottom:0;left:0;width:0;visibility:hidden;pointer-events:none;contain:strict;';
+      document.body.appendChild(fixedProbe);
     }
     var cssHeight = probe ? probe.getBoundingClientRect().height : 0;
-    var layout = window.innerHeight;
+    var fixedHeight = fixedProbe ? fixedProbe.getBoundingClientRect().height : 0;
+    // innerHeight can also be stale after returning to an installed app.
+    // Prefer agreement between dynamic CSS units and native fixed positioning.
+    var layout = cssHeight > 0 && Math.abs(cssHeight - fixedHeight) <= 3 ? fixedHeight : window.innerHeight;
     // Two independent layout readings must agree. Never stretch a real keyboard or pinch viewport.
     if (layout > 0 && cssHeight > 0 && Math.abs(cssHeight - layout) <= 3 &&
         (Math.abs(result.height - layout) > 80 || (vv && Math.abs(vv.offsetTop || 0) > 3))) {

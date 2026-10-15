@@ -80,7 +80,9 @@
     if (!panel || panel.hidden) return;
     const nav=document.getElementById('gomnaHomeTabbar');
     const v=window.visualViewport;
-    const height=v?v.height:innerHeight, top=v?v.offsetTop:0;
+    const box=window.GOMNA_PWA_VIEWPORT && window.GOMNA_PWA_VIEWPORT.read();
+    const height=box?box.height:(v?v.height:innerHeight);
+    const top=box&&box.corrected?0:(v?v.offsetTop:0);
     const navTop=nav?nav.getBoundingClientRect().top:height+top;
     panel.style.top=top+'px';
     panel.style.height=Math.max(180,Math.min(height,navTop-top))+'px';
@@ -150,6 +152,9 @@
     window.addEventListener('pagehide',save);
     window.addEventListener('pageshow',()=>{if(restored)render();restored=true;});
     window.addEventListener('resize',layout);
+    window.addEventListener('gomna:viewport-restored',layout);
+    window.addEventListener('focus',layout);
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')layout();});
     if(window.visualViewport){visualViewport.addEventListener('resize',layout);visualViewport.addEventListener('scroll',layout);}
     if(window.ResizeObserver){const nav=document.getElementById('gomnaHomeTabbar');if(nav)new ResizeObserver(layout).observe(nav);}
     render();

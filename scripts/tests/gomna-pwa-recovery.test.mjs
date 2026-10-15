@@ -5,7 +5,7 @@ import vm from 'node:vm';
 const helper = fs.readFileSync(new URL('../../js/gomna-pwa-recovery.js', import.meta.url), 'utf8');
 const swCode = fs.readFileSync(new URL('../../sw.js', import.meta.url), 'utf8');
 const version = swCode.match(/const CACHE_VERSION = '([^']+)'/)[1];
-function page({ ios=true, keyboard=false, scale=1, cssHeight=780, visualHeight=430, playing=false, pageVersion=version, meditation=false }={}) {
+function page({ ios=true, keyboard=false, scale=1, cssHeight=780, fixedHeight=780, layoutHeight=780, visualHeight=430, playing=false, pageVersion=version, meditation=false }={}) {
  const events={}, docEvents={}, timers=[], messages=[], reloads=[], storage=new Map();
  let now=10000;
  const tab={style:{top:'',bottom:''},getBoundingClientRect:()=>({height:60,bottom:430})};
@@ -18,9 +18,9 @@ function page({ ios=true, keyboard=false, scale=1, cssHeight=780, visualHeight=4
  const document={visibilityState:'visible',activeElement:keyboard?{tagName:'INPUT'}:null,
  currentScript:{getAttribute:()=>pageVersion},querySelectorAll:()=>[],
  body:{appendChild(){},getAttribute:()=>meditation?'meditation':'home'},
- createElement:()=>({style:{},setAttribute(){},getBoundingClientRect:()=>({height:cssHeight})}),
+ createElement:()=>({style:{},setAttribute(){},getBoundingClientRect(){return {height:this.style.cssText.includes("bottom:0")?fixedHeight:cssHeight};}}),
  getElementById:()=>tab,addEventListener:(n,f)=>docEvents[n]=f};
- const window={innerHeight:780,innerWidth:390,visualViewport:{height:visualHeight,offsetTop:0,scale,addEventListener(){}},
+ const window={innerHeight:layoutHeight,innerWidth:390,visualViewport:{height:visualHeight,offsetTop:0,scale,addEventListener(){}},
  GOMNA_AUDIO_ENGINE:{getState:()=>state},matchMedia:()=>({matches:ios}),
  setTimeout:(fn,ms)=>timers.push({fn,at:now+ms}),setInterval(){},addEventListener:(n,f)=>events[n]=f,
  dispatchEvent:e=>{if(events[e.type])events[e.type](e);}};
@@ -36,6 +36,11 @@ test('installed app rejects stale visual height only when layout and CSS reading
  const p=page();assert.equal(p.window.GOMNA_PWA_VIEWPORT.read().height,780);
  assert.equal(page({cssHeight:720}).window.GOMNA_PWA_VIEWPORT.read().height,430);
 });
+test('CSS and fixed layout recover even when both JavaScript viewport heights are stale',()=>{
+ const p=page({layoutHeight:430,visualHeight:430});
+ assert.equal(p.window.GOMNA_PWA_VIEWPORT.read().height,780);
+ assert.equal(p.window.GOMNA_PWA_VIEWPORT.read().corrected,true);
+});
 test('Safari, keyboard and pinch zoom preserve visual viewport',()=>{
  for(const options of [{ios:false},{keyboard:true},{scale:1.5}])assert.equal(page(options).window.GOMNA_PWA_VIEWPORT.read().height,430);
 });
@@ -50,20 +55,20 @@ test('meditation fixed navigation returns to bottom and input restores native pl
  p.document.activeElement={tagName:'INPUT'};p.advance(120);assert.equal(p.tab.style.top,'');assert.equal(p.tab.style.bottom,'');
 });
 test('incoming version reload preserves book and hash; old reload locks do not block it',()=>{
- const p=page();p.storage.set('gomna-sw-reloaded-'+version,'1');p.release('future-release');
- assert.equal(p.reloads.length,1);const u=new URL(p.reloads[0]);assert.equal(u.searchParams.get('book'),'john');assert.equal(u.hash,'#verse2');assert.equal(u.searchParams.get('appRelease'),'future-release');
+ const p=page();p.storage.set('gomna-sw-reloaded-'+version,'1');p.release('2099-01-01-test-v999');
+ assert.equal(p.reloads.length,1);const u=new URL(p.reloads[0]);assert.equal(u.searchParams.get('book'),'john');assert.equal(u.hash,'#verse2');assert.equal(u.searchParams.get('appRelease'),'2099-01-01-test-v999');
 });
 test('same version and duplicate incoming version do not cause reload loops',()=>{
- const p=page();p.release(version);assert.equal(p.reloads.length,0);p.storage.set('gomna-applied-release:future-release','1');p.release('future-release');assert.equal(p.reloads.length,0);
+ const p=page();p.release(version);assert.equal(p.reloads.length,0);p.storage.set('gomna-applied-release:2099-01-01-test-v999','1');p.release('2099-01-01-test-v999');assert.equal(p.reloads.length,0);
 });
 test('playing, paused, loading and queued audio defer new-page application until explicit stop',()=>{
  for(const flag of ['isPlaying','isPaused','isLoading','queueActive']){
-  const p=page();p.state[flag]=true;p.release('future-release');assert.equal(p.reloads.length,0);
+  const p=page();p.state[flag]=true;p.release('2099-01-01-test-v999');assert.equal(p.reloads.length,0);
   p.state[flag]=false;p.events['audio:end']();p.advance(0);assert.equal(p.reloads.length,1);
  }
 });
 test('hidden page and edited input defer update, spoofed release source ignored',()=>{
- const p=page({keyboard:true});p.release('future-release');assert.equal(p.reloads.length,0);
+ const p=page({keyboard:true});p.release('2099-01-01-test-v999');assert.equal(p.reloads.length,0);
  p.document.activeElement=null;p.document.visibilityState='hidden';p.events.pageshow();assert.equal(p.reloads.length,0);
  const other=page();other.workerEvents.message({source:{},data:{type:'GOMNA_RELEASE',version:'future'}});assert.equal(other.reloads.length,0);
 });
