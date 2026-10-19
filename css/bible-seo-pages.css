@@ -1,10 +1,10 @@
 /* Lightweight SEO entry pages for /bible/** — independent of reader/home CSS */
 :root {
-  --bible-ink: #2f251d;
-  --bible-muted: #6b5a48;
-  --bible-gold: #8b5e2c;
-  --bible-cream: #fff9ef;
-  --bible-border: rgba(184, 152, 100, 0.35);
+  --bible-ink: #1a2332;
+  --bible-muted: #5b6573;
+  --bible-accent: #425669;
+  --bible-cream: #ffffff;
+  --bible-border: rgba(66, 86, 105, 0.18);
   --bible-max: 40rem;
 }
 
@@ -22,18 +22,18 @@ body {
   margin: 0;
   font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
   color: var(--bible-ink);
-  background: linear-gradient(180deg, #f7f0e2 0%, var(--bible-cream) 40%, #fffdf8 100%);
+  background: #ffffff;
   line-height: 1.65;
 }
 
 a {
-  color: var(--bible-gold);
+  color: var(--bible-accent);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
 }
 
 a:hover {
-  color: #6e4a1f;
+  color: #354655;
 }
 
 .page {
@@ -53,13 +53,11 @@ a:hover {
   font-size: 0.95rem;
 }
 
-.site-brand img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-}
+.site-brand img { display: none; }
+.site-brand span { display: flex; flex-direction: column; color: #152033; font-size: 20px; font-weight: 800; letter-spacing: -.4px; line-height: 1.15; }
+.site-brand span::after { content: "Words of Grace"; margin-top: 3px; color: #5b6573; font: italic 12.5px Georgia, serif; letter-spacing: .35px; }
+.site-brand:focus:not(:focus-visible) { outline: none; }
+a:focus-visible { outline: 2px solid #425669; outline-offset: 4px; }
 
 .breadcrumb {
   display: flex;
@@ -110,7 +108,7 @@ h1 {
   justify-content: center;
   min-height: 48px;
   padding: 0.75rem 1rem;
-  border-radius: 10px;
+  border-radius: 999px;
   border: 1px solid var(--bible-border);
   font: inherit;
   font-size: 0.95rem;
@@ -121,27 +119,27 @@ h1 {
 }
 
 .btn-primary {
-  background: #D4A373;
-  border-color: #D4A373;
-  color: #3A261A;
+  background: #425669;
+  border-color: #425669;
+  color: #ffffff;
 }
 
 .btn-primary:hover,
 .btn-primary:focus {
-  background: #C58E60;
-  border-color: #C58E60;
-  color: #3A261A;
+  background: #354655;
+  border-color: #354655;
+  color: #ffffff;
 }
 
 .btn-primary:active {
-  background: #B97F53;
-  border-color: #B97F53;
-  color: #3A261A;
+  background: #2c3a47;
+  border-color: #2c3a47;
+  color: #ffffff;
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--bible-ink);
+  background: #425669;
+  color: #fff;
 }
 
 .nav-links {
@@ -190,7 +188,7 @@ h1 {
   grid-column: 1;
   font-size: 0.82em;
   font-weight: 700;
-  color: var(--bible-gold);
+  color: var(--bible-accent);
   text-align: left;
   line-height: 1.75;
 }
@@ -218,14 +216,14 @@ h1 {
   padding: 0.55rem 0.75rem;
   border: 1px solid var(--bible-border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--bible-ink);
+  background: #425669;
+  color: #fff;
   text-decoration: none;
   font-weight: 600;
 }
 
 .hub-list a:hover {
-  background: rgba(248, 235, 207, 0.9);
+  background: #354655;
 }
 
 .footer-nav {
@@ -245,3 +243,5 @@ h1 {
     grid-template-columns: 1fr;
   }
 }
+
+.btn-secondary:hover, .btn-secondary:focus-visible { background: #354655; color: #fff; }
