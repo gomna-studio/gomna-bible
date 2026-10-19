@@ -163,3 +163,7 @@ h1 {
 .related-topics a, .topic-cookie-banner button { background: #425669; color: #fff; border-color: #425669; }
 .related-topics a:hover, .topic-cookie-banner button:hover { background: #354655; color: #fff; }
 a:focus-visible, button:focus-visible { outline: 2px solid #425669; outline-offset: 4px; }
+
+
+.topic-grid > li, .topic-link-card { min-width: 0; }
+.topic-link-card strong, .topic-link-card span, .topic-lead { overflow-wrap: break-word; }

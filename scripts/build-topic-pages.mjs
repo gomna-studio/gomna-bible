@@ -222,6 +222,11 @@ function shell({ depth, title, description, canonicalPath, h1, body, breadcrumbs
 `;
 }
 
+
+function applyReviewedCopy(html, replacements) {
+  for (const [before, after] of replacements) html = html.split(before).join(after);
+  return html;
+}
 function renderHub() {
   const cards = TOPICS.map((topic) => `
     <li><a class="topic-link-card" href="/topics/${topic.slug}/">
@@ -232,7 +237,7 @@ function renderHub() {
   <p class="topic-lead">지금 마음과 삶의 상황에 맞는 말씀을 골라 읽고 들어 보세요. 각 페이지는 은혜의말씀 Reader의 정확한 장과 절로 연결됩니다.</p>
   <ul class="topic-grid">${cards}</ul>
   <footer class="topic-footer"><a href="/">은혜의말씀 홈</a><a href="/reader.html">성경 전체 열기</a></footer>`;
-  return shell({
+  const html = shell({
     depth: 1,
     title: '상황별 성경말씀 읽기·듣기',
     description: '불안, 잠, 위로, 감사, 기도, 가정과 회복 등 지금의 상황에 맞는 개역한글 성경말씀을 읽고 들어 보세요.',
@@ -242,6 +247,7 @@ function renderHub() {
     topicSlug: 'all',
     breadcrumbs: [{ name: '은혜의말씀', href: '/' }, { name: '상황별 말씀', href: '/topics/' }],
   });
+  return applyReviewedCopy(html, [["지금 필요한 말씀을 찾아보세요", "지금 내 삶에 필요한 말씀"], ["지금 마음과 삶의 상황에 맞는 말씀을 골라 읽고 들어 보세요. 각 페이지는 은혜의말씀 Reader의 정확한 장과 절로 연결됩니다.", "현재 마음과 상황에 어울리는 말씀을 찾아 차분히 묵상해 보세요. 각 카드를 누르시면 해당 성경 구절로 연결됩니다."], ["topic-pages.css\"", "topic-pages.css?v=20261019-reviewed-copy\""], ["불안하고 두려울 때 듣는 성경말씀", "불안하고 두려울 때"], ["불안과 두려움이 밀려올 때 마음을 붙들어 주는 개역한글 성경말씀을 읽고 들으며 묵상해 보세요.", "불안과 두려움이 밀려올 때, 마음의 평안을 되찾아 주는 말씀입니다."], ["잠이 오지 않을 때 듣는 평안의 말씀", "잠이 오지 않을 때"], ["잠이 오지 않는 밤, 걱정을 내려놓고 평안히 쉬도록 돕는 개역한글 성경말씀을 읽고 들어 보세요.", "걱정 많은 밤, 마음을 가라앉히고 편안한 쉼으로 인도하는 말씀입니다."], ["힘들고 지쳤을 때 위로가 되는 말씀", "힘들고 지쳤을 때"], ["마음과 몸이 지쳤을 때 다시 힘을 얻도록 돕는 개역한글 위로의 성경말씀을 읽고 들어 보세요.", "지친 몸과 마음을 다정하게 위로하고 다시 일어설 힘을 주는 말씀입니다."], ["새벽기도를 위한 성경말씀", "새벽기도를 위한 말씀"], ["하루를 하나님께 맡기며 기도할 때 읽고 듣기 좋은 개역한글 새벽기도 성경말씀을 모았습니다.", "새벽을 열며 하루를 온전히 내어 드릴 때 함께하기 좋은 말씀입니다."], ["감사할 때 읽고 듣는 성경말씀", "감사할 때"], ["일상의 은혜를 기억하고 하나님께 감사하도록 돕는 개역한글 성경말씀을 읽고 들어 보세요.", "일상의 순간 속에서 은혜와 감사를 깊이 느끼게 해 주는 말씀입니다."], ["중요한 결정을 앞두고 읽는 지혜의 말씀", "중요한 결정을 앞두고"], ["진로와 선택 앞에서 하나님의 인도하심을 구할 때 읽고 듣는 개역한글 지혜의 성경말씀입니다.", "선택의 갈림길에서 하나님의 지혜와 인도하심을 구하는 말씀입니다."], ["자녀와 가정을 위한 기도 말씀", "자녀와 가정을 위한 기도"], ["자녀의 믿음과 가정의 평안을 위해 기도할 때 읽고 듣는 개역한글 성경말씀을 모았습니다.", "가정의 평안과 자녀의 앞날을 위해 마음 모아 기도하는 말씀입니다."], ["아프고 회복이 필요할 때 듣는 말씀", "아프고 회복이 필요할 때"], ["몸과 마음이 아플 때 하나님의 돌보심과 회복을 바라보며 읽고 듣는 개역한글 성경말씀입니다.", "몸과 마음의 아픔 속에서 온전한 치유와 회복을 소망하는 말씀입니다."], ["새로운 시작을 앞두고 힘을 얻는 말씀", "새로운 시작을 앞두고"], ["새로운 일과 변화 앞에서 용기와 소망을 얻도록 돕는 개역한글 성경말씀을 읽고 들어 보세요.", "새로운 시작과 변화 앞에서 담대한 용기와 소망을 전하는 말씀입니다."], ["슬픔과 상실 가운데 위로가 되는 말씀", "슬픔과 상실 가운데"], ["이별과 상실로 마음이 무너질 때 곁을 지켜 주는 개역한글 위로의 성경말씀을 읽고 들어 보세요.", "깊은 슬픔과 상실의 순간, 따뜻한 위로로 곁을 지켜 주는 말씀입니다."]]);
 }
 
 function renderTopic(topic, byName, topicMap) {
@@ -266,7 +272,7 @@ function renderTopic(topic, byName, topicMap) {
   <section class="verse-list" aria-label="${escapeHtml(topic.shortTitle)} 성경말씀">${cards}</section>
   <section class="related-topics"><h2>함께 찾는 상황별 말씀</h2><ul>${related}</ul></section>
   <footer class="topic-footer"><a href="/topics/">상황별 말씀 전체</a><a href="/">은혜의말씀 홈</a></footer>`;
-  return shell({
+  const html = shell({
     depth: 2,
     title: topic.title,
     description: topic.description,
@@ -280,6 +286,7 @@ function renderTopic(topic, byName, topicMap) {
       { name: topic.shortTitle, href: `/topics/${topic.slug}/` },
     ],
   });
+  return topic.slug === "new-beginnings" ? applyReviewedCopy(html, [["새로운 시작에는 기대와 두려움이 함께 찾아옵니다. 앞길을 맡기고 하나님이 행하실 새 일을 바라보게 하는 말씀으로 첫걸음을 준비해 보세요.", "새로운 출발 앞에서는 기대와 두려움이 함께 찾아옵니다. 앞길을 인도하시는 하나님의 행하심을 바라보며, 믿음으로 첫걸음을 내딛는 말씀입니다."], ["아래 말씀은 모두 개역한글 본문이며, 버튼을 누르면 해당 절에서 읽기·듣기·말씀풀이를 이어갈 수 있습니다.", "본문은 개역한글 성경입니다. 버튼을 누르시면 해당 구절을 읽고 듣거나 깊은 말씀 풀이로 이어가실 수 있습니다."], [" 읽고 듣기</a>", " 말씀 묵상하기</a>"], ["함께 찾는 상황별 말씀", "함께 둘러보는 상황별 말씀"], ["topic-pages.css\"", "topic-pages.css?v=20261019-reviewed-copy\""]]) : html;
 }
 
 function updateSitemap(urls) {
@@ -316,3 +323,4 @@ function main() {
 }
 
 main();
+

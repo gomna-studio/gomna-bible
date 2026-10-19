@@ -296,6 +296,11 @@ ${verseHtml}
   });
 }
 
+
+function applyReviewedCopy(html, replacements) {
+  for (const [before, after] of replacements) html = html.split(before).join(after);
+  return html;
+}
 function renderHubPage({ bookId, koName, chapters, maxChapter }) {
   const unit = chapterUnit(bookId);
   const title = `${koName} 개역한글 대표 ${unit} 읽기·듣기·말씀풀이 | 은혜의말씀`;
@@ -330,7 +335,7 @@ function renderHubPage({ bookId, koName, chapters, maxChapter }) {
     </div>
   `;
 
-  return renderShell({
+  const html = renderShell({
     depth: 2,
     title,
     description,
@@ -339,6 +344,7 @@ function renderHubPage({ bookId, koName, chapters, maxChapter }) {
     breadcrumbItems,
     bodyHtml,
   });
+  return bookId === "psalms" ? applyReviewedCopy(html, [["시편 개역한글 대표 편 읽기·듣기·말씀풀이", "시편 읽기·듣기·말씀풀이"], ["시편 개역한글 대표 편 본문을 먼저 읽고, 은혜의말씀 Reader에서 해당 책의 듣기와 말씀풀이를 함께 살펴보세요.", "시편을 읽고 들으며 말씀풀이를 함께 살펴보세요."], ["시편 대표 편</h1>", "시편</h1>"], ["시편의 개역한글 대표 편 안내입니다. 아래 대표 편을 먼저 읽고, 책 전체는 Reader에서 열 수 있습니다.", "아래 시편을 바로 읽으시거나, 전체 읽기·듣기를 시작해 보세요"], ["시편 전체를 Reader에서 열기", "시편 묵상하기"], ["이번에 열린 대표 편", "시편 바로묵상하기"], ["    <p class=\"lead\" style=\"margin-top:0;\">전체 151편은 Reader에서 이어서 읽을 수 있습니다.</p>\n", ""], ["Reader에서 시편 열기", "시편 전체 보기"], ["bible-seo-pages.css\"", "bible-seo-pages.css?v=20261019-reviewed-copy\""]]) : html;
 }
 
 function updateSitemap(urls) {
@@ -437,3 +443,4 @@ function main() {
 }
 
 main();
+
