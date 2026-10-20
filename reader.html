@@ -2900,7 +2900,10 @@ html.plain-verse-gesture-active body{
   position:fixed;
   z-index:40;
   overflow:hidden;
-  touch-action:pan-y pinch-zoom;
+  /* This clipped viewport scrolls via Pointer Events, not native overflow.
+     Allowing pan-y makes Android cancel that stream before the surface moves.
+     Keep native two-finger zoom, but reserve one-finger pan for this engine. */
+  touch-action:pinch-zoom;
   overscroll-behavior:none;
   box-sizing:border-box;
   background:var(--cream,#FCFAF6);
@@ -4531,7 +4534,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261008-account-unified-v1">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-16-mobile-viewport-v99" data-release="2026-10-16-mobile-viewport-v99" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-16-mobile-viewport-v99" data-release="2026-10-20-reader-scroll-v100" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
 <link rel="stylesheet" href="js/gomna-guide-colorful.css?v=2026-10-16-mobile-viewport-v99">
 <script>if(new URLSearchParams(location.search).get("homeGuide")==="1")document.documentElement.classList.add("gomna-home-guide-entering");</script><style>html.gomna-home-guide-entering body{visibility:hidden}</style>
@@ -15208,7 +15211,7 @@ window.__gomnaShouldUseTouchGestureEngine = gomnaShouldUseTouchGestureEngine;
     unbindDocPointerFollow();
     flushPaint();
     if (didDrag || didPinch) suppressClick = true;
-    var runInertia = didDrag && !didPinch;
+    var runInertia = e.type !== 'pointercancel' && didDrag && !didPinch;
     var wasGesture = didDrag || didPinch;
     mode = 'idle';
     dragStarted = false;
