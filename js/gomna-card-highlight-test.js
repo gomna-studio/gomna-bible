@@ -2112,6 +2112,7 @@
   cssRules.push(
     '#verseList .verse-item.' + ACTIVE_CLASS + '{' +
       'background-color:#E1CFA6 !important;' +
+      'border-radius:8px !important;' +
       'transition:background-color 100ms ease;' +
     '}'
   );
