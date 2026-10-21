@@ -1544,6 +1544,7 @@ body.gomna-audio-body-padding .opt4-bottom-bar {
 /* Playing verse row: must match the commentary card active gold in gomna-card-highlight-test.js */
 html #verseList .verse-item.gomna-commentary-card-active {
   background-color: #E1CFA6 !important;
+  border-radius: 8px;
 }
 
 /* =========================================================
