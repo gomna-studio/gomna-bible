@@ -13112,7 +13112,7 @@ function syncReaderVerseFocusMode() {
   var play = isReaderBiblePlaybackFocus();
   root.classList.toggle('playback-style-gold', style === 'gold');
   root.classList.toggle('playback-style-focus', style === 'focus');
-  root.classList.toggle('is-verse-focus-play', play && style === 'focus');
+  root.classList.toggle('is-verse-focus-play', play);
   root.classList.toggle('is-commentary-focus-play', style === 'focus' && isReaderCommentaryPlaybackFocus());
   /* 절 선택은 색상만으로 표시한다. 다른 절을 흐리게 하는 선택 모드는 쓰지 않는다. */
   root.classList.remove('is-verse-focus-select');
