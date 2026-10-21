@@ -11235,11 +11235,11 @@ function unifiedBcAfterChapterCardReady(list, bookName) {
   });
 }
 
-/* 장 숫자를 누르면 Reader로 가지 않고, 그 장의 절 선택으로 넘어간다. */
+/* 장을 선택하면 절 선택 단계를 생략하고 해당 장의 1절부터 본문을 연다. */
 function unifiedBcGoChapter(ch) {
   if (window.__ubcChGridDragged) { window.__ubcChGridDragged = false; return; }
   if (!unifiedBcState.selectedBook) return;
-  unifiedBcOpenVersePick(parseInt(ch, 10) || 1);
+  unifiedBcApplyChapter(parseInt(ch, 10) || 1, 1);
 }
 
 /* 본문으로 나가기 전에 펼친 카드를 걷어내고 서랍 폭도 원래대로 돌린다. */
