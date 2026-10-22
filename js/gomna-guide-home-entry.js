@@ -1,5 +1,10 @@
 (function(){
   'use strict';
+  // Preserve previously shared home-guide links while using the image-only entry.
+  if(new URLSearchParams(location.search).get('homeGuide')==='1'){
+    location.replace('bible-images/');
+    return;
+  }
   function largeImageSrc(thumbnail){
     return thumbnail.src.replace(/\.webp(?=\?|$)/,'-large.webp');
   }
