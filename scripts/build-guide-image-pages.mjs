@@ -19,7 +19,7 @@ const selected = [
     return item;
   })
 ];
-const searchable = [...selected,
+const searchable = [...selected, ...people.filter(item => !selected.some(chosen => chosen.id === item.id)),
   guide('prayer-and-praise','기도와 찬양','guide-poetry-v15','시편',23),
   guide('prophecy-and-restoration','예언과 회복','guide-4-symbol-v16','이사야',40),
   guide('repentance-and-hope','회개와 소망','guide-5-symbol-v16','호세아',14),
@@ -32,12 +32,13 @@ const searchable = [...selected,
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const reader = item => '/reader.html?' + new URLSearchParams({book:item.book,chapter:item.chapter,
   verse:item.start,verseStart:item.start,verseEnd:item.end,source:'guide-related'});
-const description = item => `${item.name}${item.title ? ' — '+item.title : ''}. ${item.book} ${item.chapter}장 ${item.start}절 본문으로 연결되는 성경 이미지.`;
-const image = (item, index) => `<a class="scripture-image" href="${escape(reader(item))}" aria-label="${escape(item.name+' — '+item.book+' '+item.chapter+'장 본문 열기')}"><img src="/${item.image}" alt="${escape(description(item))}" width="${item.imageWidth||1024}" height="${item.imageHeight||1024}" ${index===0?'fetchpriority="high"':'loading="lazy"'} decoding="async"></a>`;
+const destination = item => item.kind ? '/index.html#bible-library/'+item.kind+'/'+item.id : reader(item);
+const description = item => `${item.name}${item.title ? ' — '+item.title : ''}. ${item.kind ? '인물과 이야기의 시대와 배경을 읽는 성경 이미지.' : item.book+' '+item.chapter+'장 관련 성경 이미지.'}`;
+const image = (item, index) => `<a class="scripture-image" href="${escape(destination(item))}" aria-label="${escape(item.name+(item.kind ? ' — 시대와 배경 열기' : ' — 관련 말씀 열기'))}"><img src="/${item.image}" alt="${escape(description(item))}" width="${item.imageWidth||1024}" height="${item.imageHeight||1024}" ${index===0?'fetchpriority="high"':'loading="lazy"'} decoding="async"></a>`;
 function page(items, item) {
   const title = item ? `${item.name} 성경 이미지 | 은혜의말씀` : '성경길잡이 이미지 | 은혜의말씀';
   const canonical = `${origin}/bible-images/${item ? item.id+'/' : ''}`;
-  const desc = item ? description(item) : '모세의 산, 이스라엘 왕국과 성경 속 인물의 이미지를 눌러 관련 성경본문을 읽습니다.';
+  const desc = item ? description(item) : '모세의 산, 이스라엘 왕국과 성경 속 인물의 이미지를 눌러 관련 이야기와 말씀을 읽습니다.';
   const schema = item ? {'@context':'https://schema.org','@type':'ImageObject',name:item.name,
     description:desc,contentUrl:`${origin}/${item.image}`,url:canonical} : null;
   return `<!doctype html>
