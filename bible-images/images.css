@@ -1,0 +1,8 @@
+:root{color-scheme:light dark;background:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+main{width:min(100%,780px);margin:0 auto;padding:clamp(12px,3vw,28px);display:flex;flex-direction:column;gap:32px}
+.scripture-image{display:block;border-radius:16px;text-decoration:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.scripture-image img{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain;border-radius:16px}
+.scripture-image:focus-visible{outline:3px solid #344757;outline-offset:5px}
+@media(prefers-color-scheme:dark){:root,body{background:#171717}.scripture-image:focus-visible{outline-color:#a4bacb}}

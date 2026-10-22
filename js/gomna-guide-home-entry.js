@@ -1,5 +1,10 @@
 (function(){
   'use strict';
+  // Preserve previously shared home-guide links while using the image-only entry.
+  if(new URLSearchParams(location.search).get('homeGuide')==='1'){
+    location.replace('bible-images/');
+    return;
+  }
   function largeImageSrc(thumbnail){
     return thumbnail.src.replace(/\.webp(?=\?|$)/,'-large.webp');
   }
@@ -77,11 +82,12 @@
       openImageOnlyViewer(trigger,thumbnail);
     });
   }
-  if(new URLSearchParams(location.search).get('homeGuide')!=='1')return;
+  var entryParams=new URLSearchParams(location.search);
+  if(entryParams.get('guideDetail')!=='1')return;
   function open(){
     try{
       if(typeof window.openAllScriptureGuides!=='function')return;
-      window.openAllScriptureGuides();
+      window.openAllScriptureGuides({testament:entryParams.get('guideTestament'),category:entryParams.get('guideCategory')});
     }finally{
       document.documentElement.classList.remove('gomna-home-guide-entering');
     }
