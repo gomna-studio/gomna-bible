@@ -1589,7 +1589,11 @@
     return '<article class="' + cls + '" data-guide-testament="' + testament + '" data-guide-cat="' + cat + '">' + page + '</article>';
   }
 
-  function buildAllGuidesHtml() {
+  function buildAllGuidesHtml(selection) {
+    if (selection) {
+      var selectedGuide = getScriptureGuide(selection.testament, selection.category);
+      if (selectedGuide) return '<div class="scripture-all-guides-inner"><p class="scripture-all-guides-testament">' + (selection.testament === 'old' ? '구약' : '신약') + '</p>' + buildGuideReadingArticleHtml(selectedGuide) + '</div>';
+    }
     var html = '<div class="scripture-all-guides-inner">';
     var place = getCurrentReaderGuidePlace();
     var current = place ? findGuideForBook(place.book) : null;
@@ -1750,7 +1754,7 @@
     return overlay;
   }
 
-  function openAllScriptureGuides() {
+  function openAllScriptureGuides(selection) {
     var overlay = ensureAllGuidesOverlay();
     var body = overlay.querySelector('#scriptureAllGuidesBody');
     var sub = overlay.querySelector('#scriptureAllGuidesSub');
@@ -1758,7 +1762,7 @@
     var place = getCurrentReaderGuidePlace();
     allGuidesReturnScroll = scrollEl ? scrollEl.scrollTop : 0;
     if (body) {
-      body.innerHTML = buildAllGuidesHtml();
+      body.innerHTML = buildAllGuidesHtml(selection);
       body.removeAttribute('data-guides-filled');
     }
     if (sub) {

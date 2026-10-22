@@ -82,11 +82,12 @@
       openImageOnlyViewer(trigger,thumbnail);
     });
   }
-  if(new URLSearchParams(location.search).get('homeGuide')!=='1')return;
+  var entryParams=new URLSearchParams(location.search);
+  if(entryParams.get('guideDetail')!=='1')return;
   function open(){
     try{
       if(typeof window.openAllScriptureGuides!=='function')return;
-      window.openAllScriptureGuides();
+      window.openAllScriptureGuides({testament:entryParams.get('guideTestament'),category:entryParams.get('guideCategory')});
     }finally{
       document.documentElement.classList.remove('gomna-home-guide-entering');
     }

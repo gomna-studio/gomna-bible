@@ -32,9 +32,20 @@ const searchable = [...selected, ...people.filter(item => !selected.some(chosen 
 const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const reader = item => '/reader.html?' + new URLSearchParams({book:item.book,chapter:item.chapter,
   verse:item.start,verseStart:item.start,verseEnd:item.end,source:'guide-related'});
-const destination = item => item.kind ? '/index.html#bible-library/'+item.kind+'/'+item.id : reader(item);
+const guideCategories = {
+  'mount-sinai':['old','모세오경'], 'israel-kingdom':['old','역사서'],
+  'prayer-and-praise':['old','시가서'], 'prophecy-and-restoration':['old','대선지서'],
+  'repentance-and-hope':['old','소선지서'], 'resurrection-and-gospel':['new','복음서'],
+  'journey-of-gospel':['new','역사서'], 'gospel-and-letters':['new','바울서신'],
+  'community-of-faith':['new','공동서신'], 'revelation-and-hope':['new','예언서']
+};
+const destination = item => {
+  if (item.kind) return '/index.html#bible-library/'+item.kind+'/'+item.id;
+  const [testament, category] = guideCategories[item.id];
+  return '/reader.html?' + new URLSearchParams({guideDetail:'1',guideTestament:testament,guideCategory:category});
+};
 const description = item => `${item.name}${item.title ? ' — '+item.title : ''}. ${item.kind ? '인물과 이야기의 시대와 배경을 읽는 성경 이미지.' : item.book+' '+item.chapter+'장 관련 성경 이미지.'}`;
-const image = (item, index) => `<a class="scripture-image" href="${escape(destination(item))}" aria-label="${escape(item.name+(item.kind ? ' — 시대와 배경 열기' : ' — 관련 말씀 열기'))}"><img src="/${item.image}" alt="${escape(description(item))}" width="${item.imageWidth||1024}" height="${item.imageHeight||1024}" ${index===0?'fetchpriority="high"':'loading="lazy"'} decoding="async"></a>`;
+const image = (item, index) => `<a class="scripture-image" href="${escape(destination(item))}" aria-label="${escape(item.name+(item.kind ? ' — 시대와 배경 열기' : ' — 성경길잡이 설명 열기'))}"><img src="/${item.image}" alt="${escape(description(item))}" width="${item.imageWidth||1024}" height="${item.imageHeight||1024}" ${index===0?'fetchpriority="high"':'loading="lazy"'} decoding="async"></a>`;
 function page(items, item) {
   const title = item ? `${item.name} 성경 이미지 | 은혜의말씀` : '성경길잡이 이미지 | 은혜의말씀';
   const canonical = `${origin}/bible-images/${item ? item.id+'/' : ''}`;

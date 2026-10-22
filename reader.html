@@ -13,7 +13,7 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
   var p = new URLSearchParams(location.search);
   if (p.get('source') === 'home-bible-picker') return;
   /* Use the URL destination, never the default Reader shell. */
-  var target = p.get('book') ? (parseInt(p.get('chapter'), 10) >= 1 ? 'verseView' : 'chapterView') :
+  var target = p.get('guideDetail') === '1' ? 'scriptureAllGuidesOverlay' : p.get('book') ? (parseInt(p.get('chapter'), 10) >= 1 ? 'verseView' : 'chapterView') :
     p.has('easy') ? 'easyView' : p.has('favorites') ? 'favView' :
     ((p.get('q') || '').trim() || p.get('focus') === 'search') ? 'searchView' : 'verseView';
   var root = document.documentElement;
@@ -25,6 +25,7 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
   };
   function ready() {
     var view = document.getElementById(target);
+    if (target === 'scriptureAllGuidesOverlay') return view && view.classList.contains('is-open') && view.querySelector('.scripture-all-guides-article') ? view : false;
     if (!navigationReady || !view || !view.classList.contains('active') || !view.childElementCount) return false;
     if (root.classList.contains('scripture-entry-pending') || root.classList.contains('search-entry-pending') ||
         root.classList.contains('gomna-home-commentary-loading') || window.__gomnaScriptureLayoutPending) return false;
@@ -4514,7 +4515,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
   .verse-num{width:3ch!important;min-width:3ch!important;max-width:3ch!important;height:auto!important;font-size:0.84em!important;padding:0.32em 0 0!important}
 }
 </style>
-<script src="gomna_category_feature.js?v=2026-10-16-mobile-viewport-v99" defer></script>
+<script src="gomna_category_feature.js?v=20261022-guide-details-v1" defer></script>
 <script src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
 <script src="/js/gomna-bible-ref.js?v=20260725-multilang-structured-refs-v1"></script>
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
@@ -20549,7 +20550,7 @@ window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!match
 
 <script src="js/gomna-bible-listen-controls.js?v=20261010-word-view-merge-v3"></script>
 <script src="js/gomna-library-return.js?v=20261010-word-view-merge-v2"></script>
-<script src="js/gomna-guide-home-entry.js?v=20261022-image-links-v1"></script>
+<script src="js/gomna-guide-home-entry.js?v=20261022-image-links-v2"></script>
 </body>
 </html>
 
