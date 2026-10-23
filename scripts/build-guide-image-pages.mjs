@@ -59,6 +59,9 @@ function page(items, item) {
 <meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(desc)}"><meta property="og:url" content="${canonical}"><meta property="og:type" content="website"><meta property="og:image" content="${origin}/${items[0].image}">
 <link rel="stylesheet" href="/bible-images/images.css">
 ${schema?'<script type="application/ld+json">'+JSON.stringify(schema).replace(/</g,'\\u003c')+'</script>':''}
+<script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
+<script defer src="/js/gomna-ga4.js?v=20261001-analytics-v1"></script>
+<script defer src="/js/gomna-usage-diagnostics.js?v=20261023-usage-v1"></script>
 </head><body><main aria-label="${escape(title)}">${items.map(image).join('\n')}</main></body></html>\n`;
 }
 const output = path.join(root, 'bible-images');

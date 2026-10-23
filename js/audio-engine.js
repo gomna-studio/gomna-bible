@@ -733,6 +733,8 @@
         }
       }
 
+      engine._emit('audio:request', { audioId: audioId, automatic: !!options.fromQueue });
+
       if (!options.fromQueue) {
         engine._clearQueue();
         state.playbackCancelled = false;
@@ -749,6 +751,7 @@
       }
 
       if (config.manifestLoadStatus === 'pending' || config.manifestLoadStatus === 'loading') {
+        engine._emit('audio:diagnostic-failure', { audioId: audioId, reason: 'manifest_loading' });
         showOrLog('오디오 데이터 로딩 중입니다. 잠시 후 다시 시도해주세요.');
         return false;
       }
@@ -775,12 +778,14 @@
       }
 
       if (entry.status !== 'published') {
+        engine._emit('audio:diagnostic-failure', { audioId: audioId, reason: 'not_published' });
         console.log('[GOMNA_AUDIO] not published:', audioId, entry.status);
         showOrLog('오디오 준비 중입니다.');
         return false;
       }
 
       if (!engine._isEntryAvailableForCurrentVoice(entry)) {
+        engine._emit('audio:diagnostic-failure', { audioId: audioId, reason: 'voice_unavailable' });
         console.log('[GOMNA_AUDIO] voice not available:', audioId, state.currentVoice);
         showOrLog('해당 목소리는 준비 중입니다.');
         return false;
