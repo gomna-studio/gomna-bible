@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-10-22-guide-images-v101';
+const CACHE_VERSION = '2026-10-23-usage-diagnostics-v102';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const IMAGE_CACHE = 'gomna-images-v1';
@@ -30,6 +30,7 @@ function isLocalPreviewHost(hostname) {
 const IS_LOCAL_PREVIEW = isLocalPreviewHost(self.location.hostname);
 
 const STATIC_URLS = [
+  '/js/gomna-usage-diagnostics.js?v=20261023-usage-v1',
   '/assets/images/home-card-dawn-sea.webp?v=20261005-home-approved-clean-v74',
   '/assets/images/home-card-today-message-calm-20261010.webp?v=20261010-calm-v1',
   '/assets/home/bible-discovery-journey-v5.webp',
