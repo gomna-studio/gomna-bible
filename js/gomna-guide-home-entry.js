@@ -1,10 +1,5 @@
 (function(){
   'use strict';
-  // Preserve previously shared home-guide links while using the image-only entry.
-  if(new URLSearchParams(location.search).get('homeGuide')==='1'){
-    location.replace('bible-images/');
-    return;
-  }
   function largeImageSrc(thumbnail){
     return thumbnail.src.replace(/\.webp(?=\?|$)/,'-large.webp');
   }
@@ -83,7 +78,7 @@
     });
   }
   var entryParams=new URLSearchParams(location.search);
-  if(entryParams.get('guideDetail')!=='1')return;
+  if(entryParams.get('homeGuide')!=='1'&&entryParams.get('guideDetail')!=='1')return;
   function open(){
     try{
       if(typeof window.openAllScriptureGuides!=='function')return;

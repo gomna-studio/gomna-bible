@@ -13,7 +13,7 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
   var p = new URLSearchParams(location.search);
   if (p.get('source') === 'home-bible-picker') return;
   /* Use the URL destination, never the default Reader shell. */
-  var target = p.get('guideDetail') === '1' ? 'scriptureAllGuidesOverlay' : p.get('book') ? (parseInt(p.get('chapter'), 10) >= 1 ? 'verseView' : 'chapterView') :
+  var target = (p.get('homeGuide') === '1' || p.get('guideDetail') === '1') ? 'scriptureAllGuidesOverlay' : p.get('book') ? (parseInt(p.get('chapter'), 10) >= 1 ? 'verseView' : 'chapterView') :
     p.has('easy') ? 'easyView' : p.has('favorites') ? 'favView' :
     ((p.get('q') || '').trim() || p.get('focus') === 'search') ? 'searchView' : 'verseView';
   var root = document.documentElement;
@@ -20550,7 +20550,7 @@ window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!match
 
 <script src="js/gomna-bible-listen-controls.js?v=20261010-word-view-merge-v3"></script>
 <script src="js/gomna-library-return.js?v=20261010-word-view-merge-v2"></script>
-<script src="js/gomna-guide-home-entry.js?v=20261022-image-links-v2"></script>
+<script src="js/gomna-guide-home-entry.js?v=20261025-restore-app-guide-v1"></script>
 </body>
 </html>
 
