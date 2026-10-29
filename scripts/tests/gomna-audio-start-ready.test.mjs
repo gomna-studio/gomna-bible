@@ -14,14 +14,14 @@ class DomTarget {
   listeners = new Map();
   addEventListener(name, fn, options = {}) {
     const list = this.listeners.get(name) || [];
-    if (!list.some(h => h.fn === fn)) list.push({ fn, once: !!options.once });
+    if (!list.some(h => h.fn === fn)) list.push({ fn, once: !!options.once, capture: options === true || !!options.capture });
     this.listeners.set(name, list);
   }
   removeEventListener(name, fn) {
     this.listeners.set(name, (this.listeners.get(name) || []).filter(h => h.fn !== fn));
   }
   dispatchEvent(event) {
-    for (const handler of [...(this.listeners.get(event.type) || [])]) {
+    for (const handler of [...(this.listeners.get(event.type) || [])].sort((a, b) => Number(b.capture) - Number(a.capture))) {
       if (!(this.listeners.get(event.type) || []).includes(handler)) continue;
       if (handler.once) this.removeEventListener(event.type, handler.fn);
       handler.fn.call(this, event);
@@ -281,5 +281,18 @@ test('real engine events produce one request and successful start without changi
   assert.equal(events.filter(e => e.name === 'audio_request').length, 1);
   assert.equal(events.filter(e => e.name === 'audio_play').length, 1);
   assert.equal(engine._state.currentAudio.paused, false);
+  engine.stopAudio();
+});
+
+
+test('media errors are observed before engine recovery replaces a track', async () => {
+  const { engine, events } = setup();
+  engine.playAudioQueue(ids.slice(0, 2));
+  await tick();
+  const audio = engine._state.currentAudio;
+  audio.error = { code: 2 };
+  audio.dispatchEvent(new Event('error'));
+  assert.equal(events.filter(e => e.name === 'audio_media_error').length, 1);
+  assert.equal(events.find(e => e.name === 'audio_media_error').properties.error_code, 2);
   engine.stopAudio();
 });

@@ -37,7 +37,7 @@
     if (!current) return;
     var s = current; flush(s, reason);
     clearTimeout(s.timer);
-    s.handlers.forEach(function (h) { s.audio.removeEventListener(h[0], h[1]); });
+    s.handlers.forEach(function (h) { s.audio.removeEventListener(h[0], h[1], true); });
     current = null;
   }
   function start(event) {
@@ -49,7 +49,8 @@
       props: props(d), requested: performance.now(), clock: performance.now(), pos: Number(st.currentAudio.currentTime) || 0,
       pending: 0, running: false, started: false, handlers: [] };
     send('audio_request', s.props);
-    function on(name, fn) { s.handlers.push([name, fn]); s.audio.addEventListener(name, fn); }
+    // Capture before the engine reuses the element or removes track listeners.
+    function on(name, fn) { s.handlers.push([name, fn]); s.audio.addEventListener(name, fn, true); }
     function playing() {
       if (!valid(s)) return;
       sample(s); s.running = true;
@@ -79,7 +80,7 @@
     // Continuous playback crosses verses without another native playing event.
     if (d.continuous && !s.audio.paused && !s.audio.seeking && s.audio.readyState >= 3) playing();
   }
-  window.GomnaAudioTelemetry = { version: '20261029-v1' };
+  window.GomnaAudioTelemetry = { version: '20261029-v2' };
   window.addEventListener('audio:start', start);
   window.addEventListener('audio:end', function () { dispose('end'); });
   window.addEventListener('audio:error', function (event) {
