@@ -198,9 +198,9 @@ function shell({ depth, title, description, canonicalPath, h1, body, breadcrumbs
 <meta property="og:url" content="${canonical}">
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="${prefix}css/topic-pages.css">
-<script src="/analytics-control.js?v=20260826-internal-exclusion-v1"></script>
-<script src="/js/gomna-ga4.js?v=20261001-analytics-v1"></script>
-<script src="/js/gomna-entry-analytics.js?v=20261001-analytics-v1" defer></script>
+<script src="/analytics-control.js?v=20261029-analytics-v1"></script>
+<script src="/js/gomna-ga4.js?v=20261029-analytics-v1"></script>
+<script src="/js/gomna-entry-analytics.js?v=20261029-analytics-v1" defer></script>
 <script type="application/ld+json">${jsonLd(breadcrumbJson)}</script>
 <script type="application/ld+json">${jsonLd(pageJson)}</script>
 </head>

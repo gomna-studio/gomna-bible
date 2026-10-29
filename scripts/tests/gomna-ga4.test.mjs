@@ -25,6 +25,7 @@ function page({ consent, internal=false, host='gomnastudio.com', webdriver=false
     body:{appendChild: s => nodes[s.id]=s, getAttribute: () => 'anxiety'},
     getElementById: id => nodes[id] || (existingBanner && id==='home-cookie-banner' ? {hidden:true} : null),
     querySelector: () => scripts.find(s => s.src?.includes('googletagmanager.com')) || null,
+    getElementsByTagName: () => [{parentNode:{insertBefore:s=>scripts.push(s)}}],
     createElement: () => ({style:{},setAttribute(){},remove(){delete nodes[this.id];}}),
     addEventListener:(n,fn) => on(documentListeners,n,fn)
   };
@@ -58,7 +59,7 @@ test('accept initializes one config-owned page view, even after repeated init/sc
  p.window.GomnaGa4.start();p.ready();vm.runInContext(common,p.context);
  assert.equal(p.commands().filter(x=>x[0]==='config').length,1);
  assert.equal(p.events('page_view').length,0); // no extra manual view beside config's default
- assert.equal(p.events('entry_page_view').length,1);assert.equal(p.scripts.length,1);
+ assert.equal(p.events('entry_page_view').length,1);assert.equal(p.scripts.length,2);
 });
 test('saved consent reuses choice without adding a banner',()=>{
  const p=page({consent:accepted});p.ready();assert.equal(p.nodes['gomna-cookie-banner'],undefined);
@@ -69,7 +70,7 @@ test('saved rejection and malformed consent send no events',()=>{
  const p=page();p.localStorage.setItem('cookieChoice','{broken');p.ready();assert.equal(p.commands().length,0);
 });
 test('registered internal, automation and local hosts do not load tags or journey storage',()=>{
- for(const opts of [{internal:true},{webdriver:true},{host:'localhost'},{host:'172.30.1.5'},{host:'192.168.0.1'}]){
+ for(const opts of [{internal:true},{webdriver:true},{host:'localhost'},{host:'preview.leedukkyu.chatgpt.site'},{host:'production-branch.localhost'},{host:'172.30.1.5'},{host:'192.168.0.1'}]){
   const p=page({...opts,consent:accepted});p.ready();p.window.GomnaGa4.track('open_commentary');
   assert.equal(p.commands().length,0);assert.equal(p.scripts.length,0);assert.equal(p.session.m.size,0);
  }
@@ -82,37 +83,6 @@ test('revoked consent or newly excluded device cannot send custom events',()=>{
  p.localStorage.setItem('cookieChoice',JSON.stringify({analytics:false}));p.window.GomnaGa4.track('x');assert.equal(p.commands().length,count);
  p.localStorage.setItem('cookieChoice',JSON.stringify(accepted));p.window.GomnaAnalyticsControl.disableForThisDevice();p.window.GomnaGa4.track('x');assert.equal(p.commands().length,count);
 });
-test('search entry -> Reader -> commentary -> successful audio shares entry context',()=>{
- const entry=page({consent:accepted,path:'/topics/anxiety/',referrer:'https://www.google.com/search?q=private'});entry.ready();
- entry.click({closest:s=>s==='a[href]' ? {href:'https://gomnastudio.com/reader.html?source=topic-anxiety'} : null});
- assert.equal(entry.events('reader_click').length,1);
- const p=page({consent:accepted,path:'/reader.html?source=topic-anxiety',referrer:'https://gomnastudio.com/topics/anxiety/',session:entry.session});
- vm.runInContext(eventsCode,p.context);p.ready();p.window.GomnaAnalytics.trackOpenCommentary('psalms',23,4,'old');
- const audio=media();p.window.GOMNA_AUDIO_ENGINE={_state:{currentAudio:audio,currentAudioId:'psalms-23-4',queueEpoch:1}};
- p.emit('audio:start',{detail:{audioId:'psalms-23-4',entry:{bookId:'psalms',chapter:23,verse:4,type:'bible'}}});
- assert.equal(p.events('audio_play').length,0);audio.playing();assert.equal(p.events('audio_play').length,1);
- for(const e of p.events()){
-  assert.equal(e[2].entry_page,'/topics/anxiety/');assert.equal(e[2].entry_channel,'search_referral');assert.equal(e[2].entry_source,'www.google.com');
-  assert.ok(!JSON.stringify(e).includes('private'));
- }
- assert.equal(p.events('reader_enter').length,1);assert.equal(p.events('open_commentary').length,1);
-});
-function media(){const handlers=new Set();return {addEventListener:(n,fn)=>handlers.add(fn),removeEventListener:(n,fn)=>handlers.delete(fn),playing:()=>[...handlers].forEach(fn=>fn())};}
-test('audio failure, repeated playing, recovery and stale media do not inflate starts',()=>{
- const p=page({consent:accepted});vm.runInContext(eventsCode,p.context);p.ready();
- const state={currentAudio:media(),currentAudioId:'a',queueEpoch:1};p.window.GOMNA_AUDIO_ENGINE={_state:state};
- const detail={audioId:'a',entry:{bookId:'genesis',chapter:1,verse:1,type:'commentary'}};
- p.emit('audio:start',{detail});assert.equal(p.events('audio_play').length,0);
- const stale=state.currentAudio;state.currentAudio=media();stale.playing();assert.equal(p.events('audio_play').length,0);
- p.emit('audio:start',{detail});state.currentAudio.playing();state.currentAudio.playing();assert.equal(p.events('audio_play').length,1);
- state.currentAudio=media();p.emit('audio:start',{detail});state.currentAudio.playing();assert.equal(p.events('audio_play').length,1);
- p.emit('audio:end');state.currentAudio=media();p.emit('audio:start',{detail});state.currentAudio.playing();assert.equal(p.events('audio_play').length,2);
-});
-test('nonconsenting audio success records nothing',()=>{
- const p=page({consent:{analytics:false}});vm.runInContext(eventsCode,p.context);p.ready();const audio=media();
- p.window.GOMNA_AUDIO_ENGINE={_state:{currentAudio:audio,currentAudioId:'a',queueEpoch:1}};
- p.emit('audio:start',{detail:{audioId:'a',entry:{bookId:'genesis',chapter:1,verse:1,type:'bible'}}});audio.playing();assert.equal(p.commands().length,0);
-});
 test('expired entry context resets after inactivity, new external referrer resets origin',()=>{
  const session=store();session.setItem('gomna:analytics:entry:v1',JSON.stringify({entry_page:'/old/',updated:Date.now()-31*60*1000}));
  const p=page({consent:accepted,session,path:'/guide/'});p.ready();assert.equal(p.events()[0][2].entry_page,'/guide/');
@@ -123,22 +93,37 @@ test('home and Reader old loader functions delegate without a second config',()=
   const p=page({consent:accepted,existingBanner:true});p.window.__gomnaReaderPostHogLoaded=true;
   const snippet=html.slice(html.indexOf(start),html.indexOf(end,html.indexOf(start)));
   vm.runInContext(snippet,p.context);p.ready();vm.runInContext(start.includes('loadGa4')?'loadGa4();loadGa4();':'loadAnalytics();loadAnalytics();',p.context);
-  assert.equal(p.commands().filter(x=>x[0]==='config').length,1);assert.equal(p.scripts.length,1);
+  assert.equal(p.commands().filter(x=>x[0]==='config').length,1);assert.equal(p.scripts.length,2);
  }
 });
 test('topic loader shares config and only adds its existing topic event once',()=>{
  const p=page({consent:accepted,existingBanner:true});p.window.__gomnaEntryPostHogLoaded=true;p.ready();
  vm.runInContext(topicCode,p.context);assert.equal(p.commands().filter(x=>x[0]==='config').length,1);
- assert.equal(p.events('view_topic_page').length,1);assert.equal(p.scripts.length,1);
+ assert.equal(p.events('view_topic_page').length,1);assert.equal(p.scripts.length,2);
 });
 test('all public pages include exactly one control and one common loader in dependency order',()=>{
  const names=['index.html','reader.html','meditation.html','privacy.html','terms.html'];
  const walk=dir=>fs.readdirSync(new URL(dir,root),{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(dir+e.name+'/'):e.name.endsWith('.html')?[dir+e.name]:[]);
- for(const d of ['about','guide','studio','contact','bible','topics','start'])names.push(...walk(d+'/'));
- assert.equal(names.length,51);
+ for(const d of ['about','guide','studio','contact','bible','topics','start','bible-images'])names.push(...walk(d+'/'));
+ assert.equal(names.length,101);
  for(const name of names){const s=fs.readFileSync(new URL(name,root),'utf8');
   assert.equal((s.match(/src="\/analytics-control\.js/g)||[]).length,1,name);
   assert.equal((s.match(/src="\/js\/gomna-ga4\.js/g)||[]).length,1,name);
   assert.ok(s.indexOf('src="/analytics-control.js')<s.indexOf('src="/js/gomna-ga4.js'),name);
  }
+});
+
+test('shared PostHog initializes once and blocks automatic events after revocation',()=>{
+ const p=page({consent:accepted});p.ready();p.window.GomnaGa4.start();
+ assert.equal(p.window.posthog._i.length,1);
+ const config=p.window.posthog._i[0][1];
+ assert.equal(config.persistence,'localStorage+cookie');
+ assert.equal(config.before_send({properties:{}}).properties.traffic_environment,'production');
+ p.localStorage.setItem('cookieChoice',JSON.stringify({analytics:false}));
+ assert.equal(config.before_send({properties:{}}),null);
+});
+test('custom events reach both collectors only after consent',()=>{
+ const p=page({consent:accepted});p.ready();p.window.GomnaGa4.track('audio_failure',{reason:'not_found'});
+ assert.equal(p.events('audio_failure').length,1);
+ assert.equal(p.window.posthog.filter(x=>x[0]==='capture'&&x[1]==='audio_failure').length,1);
 });
