@@ -58,6 +58,8 @@ function page(items, item) {
 <link rel="canonical" href="${canonical}"><meta name="robots" content="index,follow,max-image-preview:large">
 <meta property="og:title" content="${escape(title)}"><meta property="og:description" content="${escape(desc)}"><meta property="og:url" content="${canonical}"><meta property="og:type" content="website"><meta property="og:image" content="${origin}/${items[0].image}">
 <link rel="stylesheet" href="/bible-images/images.css">
+<script defer src="/analytics-control.js?v=20261029-analytics-v1"></script>
+<script defer src="/js/gomna-ga4.js?v=20261029-analytics-v1"></script>
 ${schema?'<script type="application/ld+json">'+JSON.stringify(schema).replace(/</g,'\\u003c')+'</script>':''}
 </head><body><main aria-label="${escape(title)}">${items.map(image).join('\n')}</main></body></html>\n`;
 }

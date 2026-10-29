@@ -56,6 +56,8 @@
   function isLocalOrPreviewHost() {
     var host = String(location.hostname || '').toLowerCase();
     if (!host) return true;
+    // Only the live canonical host collects production analytics.
+    if (host !== 'gomnastudio.com' && host !== 'www.gomnastudio.com') return true;
     if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0' || host === '::1') return true;
     if (/\.local$/.test(host)) return true;
     if (/^10(?:\.\d{1,3}){3}$/.test(host)) return true;

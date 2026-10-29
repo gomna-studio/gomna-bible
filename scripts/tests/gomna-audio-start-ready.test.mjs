@@ -4,12 +4,35 @@ import vm from 'node:vm';
 import test from 'node:test';
 
 const source = fs.readFileSync(new URL('../../js/audio-engine.js', import.meta.url), 'utf8');
+const telemetry = fs.readFileSync(new URL('../../js/gomna-audio-telemetry.js', import.meta.url), 'utf8');
 const tick = () => new Promise(resolve => setImmediate(resolve));
 const ids = ['john.002.001.bible', 'john.002.002.bible', 'john.003.001.bible'];
 
-function setup({ deferFetch = false, manualPlay = false } = {}) {
+// DOM dispatch snapshots listeners: a handler added during an event cannot receive that event.
+// Node EventTarget differs when listeners are removed/re-added on a reused media element.
+class DomTarget {
+  listeners = new Map();
+  addEventListener(name, fn, options = {}) {
+    const list = this.listeners.get(name) || [];
+    if (!list.some(h => h.fn === fn)) list.push({ fn, once: !!options.once });
+    this.listeners.set(name, list);
+  }
+  removeEventListener(name, fn) {
+    this.listeners.set(name, (this.listeners.get(name) || []).filter(h => h.fn !== fn));
+  }
+  dispatchEvent(event) {
+    for (const handler of [...(this.listeners.get(event.type) || [])]) {
+      if (!(this.listeners.get(event.type) || []).includes(handler)) continue;
+      if (handler.once) this.removeEventListener(event.type, handler.fn);
+      handler.fn.call(this, event);
+    }
+    return true;
+  }
+}
+
+function setup({ deferFetch = false, manualPlay = false, observe = true } = {}) {
   const instances = [], requests = [], revoked = [];
-  class Media extends EventTarget {
+  class Media extends DomTarget {
     constructor() {
       super(); instances.push(this);
       Object.assign(this, { src: '', paused: true, ended: false, error: null,
@@ -28,7 +51,9 @@ function setup({ deferFetch = false, manualPlay = false } = {}) {
       return Promise.resolve();
     }
   }
-  const win = new EventTarget(), doc = new EventTarget();
+  const win = new DomTarget(), doc = new DomTarget(), events = [];
+  win.GomnaGa4 = { allowed: () => true, track: (name, properties) => events.push({ name, properties }) };
+  if (observe) vm.runInNewContext(telemetry, { window: win, document: doc, performance, setTimeout, clearTimeout });
   win.setTimeout = setTimeout;
   win.GOMNA_AUDIO_CONFIG = {
     manifestLoadStatus: 'loaded', buildAudioUrl: value => value,
@@ -48,7 +73,7 @@ function setup({ deferFetch = false, manualPlay = false } = {}) {
     Blob, AbortController, CustomEvent, setTimeout, clearTimeout,
     URL: { createObjectURL: () => `blob:test-${++blobId}`, revokeObjectURL: u => revoked.push(u) },
     console: { log() {}, warn() {}, error() {} } });
-  return { engine: win.GOMNA_AUDIO_ENGINE, win, instances, requests, revoked };
+  return { engine: win.GOMNA_AUDIO_ENGINE, win, instances, requests, revoked, events };
 }
 
 test('first target is prepared silently and the first tap reuses its in-flight request', async () => {
@@ -156,13 +181,15 @@ test('next chapter Blob survives ended -> queue complete -> next chapter start',
   engine.stopAudio();
 });
 
-test('unfinished next fetch is aborted before native loading and stale completion cannot replace it', async () => {
+test('unfinished next fetch gets the existing 250ms grace, then aborts before native loading', async () => {
   const { engine, requests, revoked } = setup({ deferFetch: true });
   engine.playAudioQueue(ids.slice(0, 2));
   await tick();
   const first = engine._state.currentAudio;
   first.ended = true;
   first.dispatchEvent(new Event('ended'));
+  assert.equal(requests[0].options.signal.aborted, false);
+  await new Promise(resolve => setTimeout(resolve, 300));
   assert.equal(requests[0].options.signal.aborted, true);
   assert.equal(engine._state.currentAudio.src, 'https://audio.test/1.mp3');
   requests[0].finish();
@@ -244,4 +271,15 @@ test('Reader warms the selected occurrence, daily range start, or chapter start'
 test('Reader does not warm hidden scripture or interrupt an active queue', () => {
   assert.deepEqual(readerWarmup({ active: false }), []);
   assert.deepEqual(readerWarmup({ queueActive: true }), []);
+});
+
+
+test('real engine events produce one request and successful start without changing playback', async () => {
+  const { engine, events } = setup({ observe: true });
+  engine.playAudioQueue([ids[0]], { source: 'single' });
+  await tick();
+  assert.equal(events.filter(e => e.name === 'audio_request').length, 1);
+  assert.equal(events.filter(e => e.name === 'audio_play').length, 1);
+  assert.equal(engine._state.currentAudio.paused, false);
+  engine.stopAudio();
 });
