@@ -2663,28 +2663,4 @@ html[data-gomna-ui-lang="zh"] .gomna-home-poster-title{
 .gomna-home-card.ghd-image-pending:not(.is-open) > *{visibility:hidden!important}
 .gomna-home-card.ghd-image-pending:not(.is-open)::after{visibility:hidden}
 
-/* Preview: immediate actions and compact, genuine saved-location access. */
-.gomna-home-primary-actions{display:flex;gap:10px;flex:0 0 auto;padding:12px 0 2px;position:relative;z-index:4}
-.gomna-home-primary-actions button{flex:1;min-height:46px;padding:10px 12px;border:1px solid #344757;border-radius:8px;background:#344757;color:#fff;font:inherit;font-size:15px;font-weight:650;cursor:pointer;touch-action:manipulation}
-.gomna-home-card.is-open .gomna-home-primary-actions{display:none}
-.gomna-home-primary-actions button:focus-visible,.gomna-home-resume-quick:focus-visible,.gomna-home-explore button:focus-visible{outline:3px solid #79a8e8;outline-offset:3px}
-.gomna-home-resume-quick{display:flex;flex:0 0 auto;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px;padding:10px 12px;border:1px solid #d8e0e8;border-radius:8px;background:#fff;color:#233244;text-decoration:none;min-height:52px;box-sizing:border-box}
-.gomna-home-resume-quick[hidden]{display:none!important}
-.gomna-home-resume-copy{display:flex;flex-direction:column;min-width:0;gap:3px}
-.gomna-home-resume-copy>span{font-size:11px;color:#5c6977}
-.gomna-home-resume-copy>strong{font-size:14px;line-height:1.3;overflow-wrap:anywhere}
-.gomna-home-resume-go{font-size:13px;font-weight:650;white-space:nowrap;color:#344757}
-.gomna-home-explore{display:flex;flex:0 0 auto;gap:6px;margin:0 0 9px}
-.gomna-home-explore button{flex:1;min-width:0;min-height:38px;padding:7px 4px;border:1px solid #d8e0e8;border-radius:8px;background:#fff;color:#344757;font:inherit;font-size:12px;font-weight:600;cursor:pointer;touch-action:manipulation}
-html.gomna-home-card-open .gomna-home-explore,html.gomna-home-card-open .gomna-home-resume-quick{display:none}
-html[data-gomna-theme="dark"] body:has(.gomna-home-card) .gomna-home-resume-quick,html[data-gomna-theme="dark"] body:has(.gomna-home-card) .gomna-home-explore button{background:#202a35!important;color:#edf3fa!important;border-color:#455365!important}
-html[data-gomna-theme="dark"] body:has(.gomna-home-card) .gomna-home-resume-copy>span,html[data-gomna-theme="dark"] body:has(.gomna-home-card) .gomna-home-resume-go{color:#c3d1e2!important}
-@media(max-height:700px){.gomna-home-hello{margin-top:8px;margin-bottom:7px}.gomna-home-resume-quick{padding:7px 10px;margin-bottom:6px;min-height:46px}.gomna-home-explore{margin-bottom:6px}}
-
-.gomna-home-explore button[aria-current="true"]{background:#E8F0FC;border-color:#b7c9df;color:#233f61}
-
-/* Include the card selector so the legacy automatic color mapper leaves these explicit colors intact. */
-html[data-gomna-theme="dark"] .gomna-home-card .gomna-home-primary-actions button{background:#344757!important;border-color:#344757!important;color:#fff!important}
-html[data-gomna-theme="dark"] body:has(.gomna-home-card) .gomna-home-explore button[aria-current="true"]{background:#344757!important;color:#fff!important;border-color:#62788e!important}
-html[data-gomna-theme="dark"] body:has(.gomna-home-card) .gomna-home-resume-copy>strong{color:#edf3fa!important}
 .gomna-home-card[data-card="0"]:not(.is-open) .gomna-home-lines li{word-break:keep-all;overflow-wrap:anywhere}

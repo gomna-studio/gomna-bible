@@ -649,33 +649,7 @@
     return null;
   }
 
-  function renderQuickResume(){
-    var feed=document.getElementById('gomnaHomeFeed');
-    if(!feed)return;
-    var strip=document.getElementById('gomnaHomeResumeQuick');
-    var entry=getRead() || getListen();
-    if(!entry){if(strip)strip.hidden=true;return;}
-    if(!strip){
-      strip=document.createElement('a');
-      strip.id='gomnaHomeResumeQuick';strip.className='gomna-home-resume-quick';strip.setAttribute('data-gomna-exposure','resume_card');
-      strip.innerHTML='<span class="gomna-home-resume-copy"><span data-resume-label></span><strong data-resume-place></strong></span><span class="gomna-home-resume-go">이어 읽기 <span aria-hidden="true">›</span></span>';
-      feed.parentNode.insertBefore(strip,document.getElementById('gomnaHomeExplore')||feed);
-      strip.addEventListener('click',function(){
-        try{window.dispatchEvent(new CustomEvent('gomna:home-action',{detail:{action:'resume_read',placement:'resume_card',reference:strip.getAttribute('data-reference')||''}}));}catch(e){}
-      });
-    }
-    strip.hidden=false;
-    strip.href=readerUrl(entry,'home-resume-read');
-    strip.setAttribute('data-reference',entry.bookName+' '+entry.chapter+':'+entry.verse);
-    var copy={ko:['마지막으로 읽던 말씀','마지막으로 듣던 말씀','이어 읽기'],en:['Last read','Last listened','Continue reading'],ja:['前回読んだ聖句','前回聞いた聖句','続きを読む'],zh:['上次阅读','上次收听','继续阅读']}[uiLang()]||['마지막으로 읽던 말씀','마지막으로 듣던 말씀','이어 읽기'];
-    strip.querySelector('[data-resume-label]').textContent=copy[entry.mode==='listen'?1:0];
-    strip.querySelector('.gomna-home-resume-go').textContent=copy[2]+' ›';
-    strip.querySelector('[data-resume-place]').textContent=formatLocation(entry);
-    strip.setAttribute('aria-label',copy[2]+' · '+formatLocation(entry));
-  }
-
   function renderHomeCard() {
-    renderQuickResume();
     var root = document.getElementById('homeResumeCard');
     var mainBtn = document.getElementById('homeContinueMain');
     var mainLoc = document.getElementById('homeContinueLoc');

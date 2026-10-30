@@ -654,35 +654,8 @@
   }
   function installHomeQuickActions(){
     cards.forEach(function(card,i){card.setAttribute('data-gomna-exposure',['today_card','meditation_card','people_card'][i]);});
-    var first=root.querySelector('[data-card="0"] .gomna-home-card-inner');
-    if(first && !first.querySelector('.gomna-home-primary-actions')){
-      var actions=document.createElement('div');
-      actions.className='gomna-home-primary-actions';
-      actions.setAttribute('role','group');
-      actions.setAttribute('aria-label','오늘의 말씀 읽기와 듣기');
-      actions.innerHTML='<button type="button" data-ghd-read data-ghd-placement="front"><span>읽기</span></button><button type="button" data-ghd-listen data-ghd-placement="front"><span>듣기</span></button>';
-      first.appendChild(actions);
-    }
-    if(!document.getElementById('gomnaHomeExplore')){
-      var nav=document.createElement('nav');
-      nav.id='gomnaHomeExplore';nav.className='gomna-home-explore';
-      nav.setAttribute('aria-label','홈 콘텐츠 바로가기');
-      nav.innerHTML='<button type="button" data-home-discover="0">오늘의 말씀</button><button type="button" data-home-discover="1">묵상과 삶</button><button type="button" data-home-discover="2">인물·이야기</button>';
-      root.parentNode.insertBefore(nav,root);
-      nav.querySelectorAll('button').forEach(function(button){
-        button.addEventListener('click',function(ev){
-          ev.preventDefault();ev.stopPropagation();
-          var target=button.getAttribute('data-home-discover');
-          var open=root.querySelector('.gomna-home-card.is-open');
-          if(open)closeCard(open,true);
-          if(target==='0')resetHomeToFirstCard();
-          else if(target==='1')startSettleTo2();
-          else {showStoryDiscovery(true);startSettleTo3();}
-          reportHomeAction('home_more','home_navigation',target);
-        });
-      });
-    }
   }
+
   var dailyRefreshTimer=0, renderedDailyKey='';
   function refreshDailyContent(){
     var key=dateKey();
@@ -777,14 +750,6 @@
     var listenTitle=document.getElementById('gomnaHomeListenTitle');
     if(listenTitle)listenTitle.textContent=displayRef(view)||uiT('home.listen.today','오늘의 말씀 듣기');
     applyHomeChrome();
-    var primary=root.querySelector('.gomna-home-primary-actions');
-    if(primary){
-      setText(primary.querySelector('[data-ghd-read] span'),uiT('home.card.readScripture','읽기'));
-      setText(primary.querySelector('[data-ghd-listen] span'),uiT('home.card.listen','듣기'));
-    }
-    var nav=document.getElementById('gomnaHomeExplore');
-    var navText={ko:['오늘의 말씀','묵상과 삶','인물·이야기'],en:['Today’s verse','Meditation','People & stories'],ja:['今日の聖句','黙想と生活','人物・物語'],zh:['今日经文','默想与生活','人物与故事']}[uiLang()]||['오늘의 말씀','묵상과 삶','인물·이야기'];
-    if(nav)nav.querySelectorAll('button').forEach(function(button,i){button.textContent=navText[i];});
     syncSocial();
     refreshSocial();
     syncGreeting();
