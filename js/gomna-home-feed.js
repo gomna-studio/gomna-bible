@@ -333,6 +333,7 @@
   function pad2(n){return (n<10?'0':'')+n;}
   function dateKey(d){
     d=d||new Date();
+    if(window.GomnaDailyVerses && window.GomnaDailyVerses.kstDateKey)return window.GomnaDailyVerses.kstDateKey(d).replace(/-/g,'');
     return d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate());
   }
   function slugRef(ref){return String(ref||'').trim().replace(/\s+/g,'-').replace(/:/g,'-');}
@@ -500,6 +501,8 @@
     return false;
   }
   function extrasFor(key){
+    var shared=window.GomnaDailyVerses && window.GomnaDailyVerses.getReflection && window.GomnaDailyVerses.getReflection(key);
+    if(shared)return shared;
     var map={
       '베드로전서 5:7':{
         headline:'맡길 곳이 있습니다',
@@ -645,6 +648,53 @@
     var r=bar.getBoundingClientRect();
     return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
   }
+  function reportHomeAction(action, placement, reference){
+    // A local UI signal only; the shared collector owns consent and environment checks.
+    try{window.dispatchEvent(new CustomEvent('gomna:home-action',{detail:{action:action,placement:placement,reference:reference||''}}));}catch(e){}
+  }
+  function installHomeQuickActions(){
+    cards.forEach(function(card,i){card.setAttribute('data-gomna-exposure',['today_card','meditation_card','people_card'][i]);});
+    var first=root.querySelector('[data-card="0"] .gomna-home-card-inner');
+    if(first && !first.querySelector('.gomna-home-primary-actions')){
+      var actions=document.createElement('div');
+      actions.className='gomna-home-primary-actions';
+      actions.setAttribute('role','group');
+      actions.setAttribute('aria-label','오늘의 말씀 읽기와 듣기');
+      actions.innerHTML='<button type="button" data-ghd-read data-ghd-placement="front"><span>읽기</span></button><button type="button" data-ghd-listen data-ghd-placement="front"><span>듣기</span></button>';
+      first.appendChild(actions);
+    }
+    if(!document.getElementById('gomnaHomeExplore')){
+      var nav=document.createElement('nav');
+      nav.id='gomnaHomeExplore';nav.className='gomna-home-explore';
+      nav.setAttribute('aria-label','홈 콘텐츠 바로가기');
+      nav.innerHTML='<button type="button" data-home-discover="0">오늘의 말씀</button><button type="button" data-home-discover="1">묵상과 삶</button><button type="button" data-home-discover="2">인물·이야기</button>';
+      root.parentNode.insertBefore(nav,root);
+      nav.querySelectorAll('button').forEach(function(button){
+        button.addEventListener('click',function(ev){
+          ev.preventDefault();ev.stopPropagation();
+          var target=button.getAttribute('data-home-discover');
+          var open=root.querySelector('.gomna-home-card.is-open');
+          if(open)closeCard(open,true);
+          if(target==='0')resetHomeToFirstCard();
+          else if(target==='1')startSettleTo2();
+          else {showStoryDiscovery(true);startSettleTo3();}
+          reportHomeAction('home_more','home_navigation',target);
+        });
+      });
+    }
+  }
+  var dailyRefreshTimer=0, renderedDailyKey='';
+  function refreshDailyContent(){
+    var key=dateKey();
+    if(renderedDailyKey!==key){
+      renderedDailyKey=key;
+      fillCopy();
+    }
+    if(dailyRefreshTimer)window.clearTimeout(dailyRefreshTimer);
+    var data=window.GomnaDailyVerses;
+    var delay=data && data.millisecondsUntilNextDay ? data.millisecondsUntilNextDay(new Date()) : 60000;
+    dailyRefreshTimer=window.setTimeout(refreshDailyContent,Math.max(1000,delay+100));
+  }
   function hideLegacyHome(){
     var nodes=document.querySelectorAll('#homeResumeCard, #today-word-card, .container > .quick-menu, .container > .home-menu-card, .container > .imprint-bottom');
     Array.prototype.forEach.call(nodes, function(el){
@@ -727,6 +777,14 @@
     var listenTitle=document.getElementById('gomnaHomeListenTitle');
     if(listenTitle)listenTitle.textContent=displayRef(view)||uiT('home.listen.today','오늘의 말씀 듣기');
     applyHomeChrome();
+    var primary=root.querySelector('.gomna-home-primary-actions');
+    if(primary){
+      setText(primary.querySelector('[data-ghd-read] span'),uiT('home.card.readScripture','읽기'));
+      setText(primary.querySelector('[data-ghd-listen] span'),uiT('home.card.listen','듣기'));
+    }
+    var nav=document.getElementById('gomnaHomeExplore');
+    var navText={ko:['오늘의 말씀','묵상과 삶','인물·이야기'],en:['Today’s verse','Meditation','People & stories'],ja:['今日の聖句','黙想と生活','人物・物語'],zh:['今日经文','默想与生活','人物与故事']}[uiLang()]||['오늘의 말씀','묵상과 삶','인물·이야기'];
+    if(nav)nav.querySelectorAll('button').forEach(function(button,i){button.textContent=navText[i];});
     syncSocial();
     refreshSocial();
     syncGreeting();
@@ -1801,6 +1859,10 @@
       card.style.zIndex=String(10+i);
     });
     if(root)root.setAttribute('data-ghd-active', String(Math.round(p)));
+    var sectionNav=document.getElementById('gomnaHomeExplore');
+    if(sectionNav)sectionNav.querySelectorAll('button').forEach(function(button,i){
+      if(i===Math.round(p))button.setAttribute('aria-current','true');else button.removeAttribute('aria-current');
+    });
     if(returnTopButton)returnTopButton.hidden=p<=0.02;
   }
   function onScroll(){
@@ -3570,12 +3632,14 @@
     root.querySelectorAll('[data-ghd-listen]').forEach(function(el){
       el.addEventListener('click', function(ev){
         ev.preventDefault();ev.stopPropagation();
+        reportHomeAction('home_listen',el.getAttribute('data-ghd-placement')==='front'?'today_card':'detail_bottom',cardDetail(cardFromEl(el).getAttribute('data-card')).reference);
         openCardReader(cardFromEl(el),'listen');
       });
     });
     root.querySelectorAll('[data-ghd-read]').forEach(function(el){
       el.addEventListener('click', function(ev){
         ev.preventDefault();ev.stopPropagation();
+        reportHomeAction('home_read',el.getAttribute('data-ghd-placement')==='front'?'today_card':'detail_bottom',cardDetail(cardFromEl(el).getAttribute('data-card')).reference);
         openCardReader(cardFromEl(el),'read');
       });
     });
@@ -4131,6 +4195,13 @@
     reduce=reduced();
     cards=Array.prototype.slice.call(root.querySelectorAll('.gomna-home-card[data-ghd-deck="home"]'));
     count=3;
+    // Daily recommendations change without overriding an explicit return route.
+    var daily=window.GomnaDailyVerses;
+    if(daily && typeof daily.dayIndex==='function'){
+      var dailyIndex=daily.dayIndex(new Date());
+      lifeThemeId=LIFE_THEMES[((dailyIndex%LIFE_THEMES.length)+LIFE_THEMES.length)%LIFE_THEMES.length].id;
+      storyPersonId=STORY_PEOPLE[((dailyIndex%STORY_PEOPLE.length)+STORY_PEOPLE.length)%STORY_PEOPLE.length].id;
+    }
     var restoreEntry=readHomeRestoreEntry();
     if(restoreEntry&&restoreEntry.kind==='life')lifeThemeId=restoreEntry.id;
     if(restoreEntry&&restoreEntry.kind==='person')storyPersonId=restoreEntry.id;
@@ -4142,7 +4213,12 @@
         if(i===0)ensureHomeImageReady(cardOpenImage(card), 'low');
       });
     });
+    installHomeQuickActions();
+    renderedDailyKey=dateKey();
     fillCopy();
+    refreshDailyContent();
+    window.addEventListener('pageshow',refreshDailyContent);
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)refreshDailyContent();});
     syncGreeting();
     cards.forEach(bindCard);
     bindActions();

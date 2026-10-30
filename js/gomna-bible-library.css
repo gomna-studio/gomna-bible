@@ -156,3 +156,13 @@ body.gbl-open #gomnaHomeTabbar {z-index:1001!important}
 .gomna-home-card[data-card="2"] .gbl-discover-page .gbl-discover-buttons {
   transform: none;
 }
+
+/* Detail shortcuts precede the full portrait and long background text. */
+#gomnaBibleLibrary .gbl-entry {padding:20px 22px 4px;color:var(--gbl-navy)}
+#gomnaBibleLibrary .gbl-entry h2 {font-family:Georgia,"Noto Serif KR",serif;font-size:26px;line-height:1.4;letter-spacing:-.5px;margin:0 0 10px;word-break:keep-all;overflow-wrap:anywhere}
+#gomnaBibleLibrary .gbl-entry .gbl-eyebrow {margin-bottom:8px}
+#gomnaBibleLibrary .gbl-entry-reference {margin:0 0 12px;font-size:14px;line-height:1.6;color:var(--gbl-navy);opacity:.8}
+#gomnaBibleLibrary .gbl-entry-actions {display:flex;gap:8px;flex-wrap:wrap}
+#gomnaBibleLibrary .gbl-entry-actions a {flex:1 1 110px;display:flex;align-items:center;justify-content:center;min-height:44px;padding:10px 12px;border:1px solid #344757;border-radius:8px;background:#344757;color:#fff;text-decoration:none;font-size:15px;font-weight:600;line-height:1.5;text-align:center;word-break:keep-all}
+#gomnaBibleLibrary .gbl-entry-actions a:focus-visible {outline:3px solid #315F9E;outline-offset:3px}
+html[data-gomna-theme="dark"] #gomnaBibleLibrary .gbl-entry-actions a {background:#344757!important;border-color:#718596!important;color:#fff!important}

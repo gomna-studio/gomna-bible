@@ -733,6 +733,9 @@
         }
       }
 
+      // Observe accepted playback attempts, including failures before media exists.
+      engine._emit('audio:attempt', { audioId: audioId, fromQueue: !!options.fromQueue, source: state.queueSource || 'direct' });
+
       if (!options.fromQueue) {
         engine._clearQueue();
         state.playbackCancelled = false;
@@ -749,6 +752,8 @@
       }
 
       if (config.manifestLoadStatus === 'pending' || config.manifestLoadStatus === 'loading') {
+        engine._emit('audio:blocked', { audioId: audioId, reason: 'manifest_loading' });
+        if (typeof window.GOMNA_AUDIO_TOAST === 'function') window.GOMNA_AUDIO_TOAST('음성을 준비하고 있습니다. 잠시 후 다시 눌러주세요.');
         showOrLog('오디오 데이터 로딩 중입니다. 잠시 후 다시 시도해주세요.');
         return false;
       }
@@ -775,12 +780,14 @@
       }
 
       if (entry.status !== 'published') {
+        engine._emit('audio:blocked', { audioId: audioId, reason: 'not_published', entry: entry });
         console.log('[GOMNA_AUDIO] not published:', audioId, entry.status);
         showOrLog('오디오 준비 중입니다.');
         return false;
       }
 
       if (!engine._isEntryAvailableForCurrentVoice(entry)) {
+        engine._emit('audio:blocked', { audioId: audioId, reason: 'voice_unavailable', entry: entry });
         console.log('[GOMNA_AUDIO] voice not available:', audioId, state.currentVoice);
         showOrLog('해당 목소리는 준비 중입니다.');
         return false;
@@ -1116,6 +1123,17 @@
           state.isPlaying = false;
           state.restoreStartTime = 0;
 
+          // Autoplay permission is not a network fault. Retrying without a new
+          // user gesture cannot succeed and must not silently skip the passage.
+          if (errName === 'NotAllowedError') {
+            state.isPaused = true;
+            engine._clearStallWatch();
+            engine._clearRecoveryRetry();
+            engine._emit('audio:error', { audioId: audioId, reason: 'play_rejected', entry: entry, errorName: errName, needsUserGesture: true });
+            showOrLog('듣기 버튼을 눌러 음성을 시작해 주세요.');
+            return;
+          }
+
           /* Queue: soft-fail — retry, then skip verse. Never wipe the chapter queue. */
           if (options.fromQueue && state.queueActive && !state.playbackCancelled && !state.isPaused) {
             if (retryCount < maxRetry) {
@@ -1335,6 +1353,7 @@
       }
 
       if (state.currentAudio && state.isPaused) {
+        engine._emit('audio:resume-request', { audioId: state.currentAudioId });
         engine._applyCurrentSpeed(state.currentAudio);
         var playPromise = state.currentAudio.play();
 

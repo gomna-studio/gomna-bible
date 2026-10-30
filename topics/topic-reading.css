@@ -1,0 +1,28 @@
+/* Reading-first topic detail pages. Shared topic index styling is unchanged. */
+:root { --topic-accent: #344757; --topic-accent-dark: #263846; --topic-note-accent: #344757; }
+.verse-card { border-radius: 8px; box-shadow: none; }
+.verse-card h2 { color: var(--topic-ink); font-size: .95rem; line-height: 1.65; }
+.verse-card h2 span { color: var(--topic-muted); font-size: .86rem; font-weight: 500; }
+.topic-scripture { margin: 0; }
+.topic-scripture p { margin-bottom: 1rem; }
+.topic-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.topic-actions .topic-cta { border: 1px solid #344757; border-radius: 8px; min-height: 48px; padding: .7rem .5rem; }
+.topic-actions .topic-cta-listen { color: #344757; background: #fff; }
+.topic-actions .topic-cta-listen:hover { background: #E8F0FC; }
+.verse-card .topic-reflection { font-family: inherit; font-size: .9rem; line-height: 1.8; color: var(--topic-muted); margin: 1rem 0 0; }
+.topic-reflection strong { display: block; color: var(--topic-ink); font-size: .8rem; margin-bottom: .25rem; }
+.topic-listen-help { color: var(--topic-muted); font-size: .8rem; margin: -.4rem 0 1.25rem; }
+.topic-note { border-radius: 0 8px 8px 0; }
+.topic-practice { margin-top: 2rem; padding: 1.25rem 0; border-top: 1px solid var(--topic-line); }
+.topic-practice h2 { font-size: 1.15rem; margin: 0 0 .75rem; }
+.topic-practice h3 { font-size: .95rem; margin-top: 1.5rem; }
+.topic-practice p { font-size: .95rem; line-height: 1.85; word-break: keep-all; overflow-wrap: break-word; }
+.topic-practice .topic-practice-note { font-size: .8rem; color: var(--topic-muted); }
+.related-topics { margin-top: 0; }
+.related-topics ul { display: grid; gap: .6rem; }
+.related-topics a { display: flex; flex-direction: column; align-items: flex-start; gap: .15rem; background: #fff; color: #344757; border-color: var(--topic-line); border-radius: 8px; padding: .75rem 1rem; }
+.related-topics a span { color: var(--topic-muted); font-size: .8rem; font-weight: 400; }
+.related-topics a:hover { background: #E8F0FC; color: #344757; }
+.topic-cookie-banner button { background: #344757; border-color: #344757; }
+.topic-cookie-banner button:hover { background: #263846; }
+@media (max-width: 360px) { .topic-page { width: calc(100% - 24px); } .topic-actions { gap: 6px; } }

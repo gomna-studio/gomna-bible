@@ -30,10 +30,11 @@
     if (current && !current.id && scroll) states[current.kind].scroll = scroll.scrollTop;
     try { sessionStorage.setItem(key, JSON.stringify(states)); } catch (_) {}
   }
-  function readerUrl(item) {
+  function readerUrl(item, mode) {
     const p = new URLSearchParams({book:item.book, chapter:item.chapter, verse:item.start,
       verseStart:item.start, verseEnd:item.end, startVerse:item.start, endVerse:item.end,
       source:'guide-related'});
+    if (mode === 'listen') p.set('listen','1');
     p.set('libraryKind',item.kind);
     p.set('libraryId',item.id);
     p.set('libraryName',item.name);
@@ -70,11 +71,17 @@
     }
     return historyContext(item)+'<h3>'+esc(item.kind==='people'?item.name+'의 이야기':item.group==='비유'?'예수님이 들려주신 비유':'성경 속 이야기')+'</h3><p class="gbl-body">'+esc(item.body)+'</p>';
   }
+  function entryActions(item) {
+    const type=item.kind==='people'?'person':'story';
+    const reference=item.book+' '+item.chapter+'장 '+item.start+(item.end!==item.start?'–'+item.end:'')+'절';
+    return '<header class="gbl-entry"><p class="gbl-eyebrow">'+esc(item.group)+' · '+esc(item.book)+'</p><h2>'+esc(item.title)+'</h2><p class="gbl-entry-reference">'+esc(reference)+'</p><nav class="gbl-entry-actions" aria-label="'+esc(item.name)+' 말씀 바로가기"><a href="'+esc(readerUrl(item))+'" data-gomna-action="'+type+'_read" data-gomna-placement="detail_top">본문 읽기</a><a href="'+esc(readerUrl(item,'listen'))+'" data-gomna-action="'+type+'_listen" data-gomna-placement="detail_top">본문 듣기</a></nav></header>';
+  }
   function detail(item) {
     const related=items.filter(i=>i.id!==item.id && i.book===item.book).slice(0,3);
-    scroll.innerHTML='<article class="gbl-detail '+(item.kind==='people'?'gbl-person-detail':'')+'"><div class="gbl-hero">'+image(item,true)+'</div><div class="gbl-article"><p class="gbl-eyebrow">'+esc(item.group)+' · '+esc(item.book)+'</p><h2>'+esc(item.title)+'</h2><p class="gbl-intro">'+esc(item.intro)+'</p><hr>'+storyContent(item)+'<section class="gbl-scripture"><p>함께 읽는 말씀</p><h3>'+esc(item.book)+' '+item.chapter+'장 '+item.start+'–'+item.end+'절</h3><div class="gbl-actions"><a href="'+esc(readerUrl(item))+'">말씀 보기</a></div></section><section class="gbl-question"><h3>오늘 생각해 볼 질문</h3><p>'+esc(item.question)+'</p></section>'+(related.length?'<section class="gbl-related"><h3>함께 만나는 이야기</h3>'+related.map(i=>'<button data-gbl-related="'+i.id+'"><span>'+esc(i.name)+'</span><span aria-hidden="true">›</span></button>').join(''):'')+'</div></article>';
+    scroll.innerHTML='<article class="gbl-detail '+(item.kind==='people'?'gbl-person-detail':'')+'">'+entryActions(item)+'<div class="gbl-hero">'+image(item,true)+'</div><div class="gbl-article"><p class="gbl-intro">'+esc(item.intro)+'</p><hr>'+storyContent(item)+'<section class="gbl-scripture"><p>함께 읽는 말씀</p><h3>'+esc(item.book)+' '+item.chapter+'장 '+item.start+'–'+item.end+'절</h3><div class="gbl-actions"><a href="'+esc(readerUrl(item))+'" data-gomna-action="'+(item.kind==='people'?'person_read':'story_read')+'" data-gomna-placement="detail_bottom">말씀 보기</a></div></section><section class="gbl-question"><h3>오늘 생각해 볼 질문</h3><p>'+esc(item.question)+'</p></section>'+(related.length?'<section class="gbl-related"><h3>함께 만나는 이야기</h3>'+related.map(i=>'<button data-gbl-related="'+i.id+'"><span>'+esc(i.name)+'</span><span aria-hidden="true">›</span></button>').join(''):'')+'</div></article>';
     scroll.scrollTop=0;
-    revealWithImage(scroll.querySelector('.gbl-detail'),scroll.querySelector('.gbl-hero img'));
+    // Reading controls remain available even on a slow or failed image request.
+    revealWithImage(scroll.querySelector('.gbl-hero'),scroll.querySelector('.gbl-hero img'));
   }
   function layout() {
     if (!panel || panel.hidden) return;

@@ -45,3 +45,18 @@ test('stale media cannot create successful plays; failure before start is visibl
 test('2x speed reports elapsed listening time, not content duration',()=>{
  const p=setup(),a=p.start();a.playbackRate=2;a.emit('playing');p.advance(5000);a.currentTime=10;p.emit('audio:end');assert.equal(p.events.find(e=>e.n==='audio_listen').p.listen_seconds,5);
 });
+
+test('early engine attempts and preparation blocks are counted separately from playback',()=>{
+ const p=setup();p.emit('audio:attempt',{audioId:'john-1-1',source:'chapter',fromQueue:true});
+ p.emit('audio:blocked',{audioId:'john-1-1',reason:'manifest_loading'});
+ assert.equal(p.events.filter(e=>e.n==='audio_attempt').length,1);
+ assert.equal(p.events.find(e=>e.n==='audio_blocked').p.reason,'manifest_loading');
+ assert.equal(p.events.filter(e=>e.n==='audio_play').length,0);
+ p.consent(false);p.emit('audio:attempt',{audioId:'john-1-2'});p.emit('audio:blocked',{reason:'manifest_loading'});
+ assert.equal(p.events.length,2);
+});
+test('startup latency includes time from engine attempt until actual playing',()=>{
+ const p=setup();p.emit('audio:attempt',{audioId:'genesis-1-1'});p.advance(500);
+ const a=p.start();p.advance(300);a.emit('playing');
+ assert.equal(p.events.find(e=>e.n==='audio_play').p.startup_ms,800);
+});

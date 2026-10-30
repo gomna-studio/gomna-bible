@@ -3,6 +3,7 @@
   'use strict';
   if (window.GomnaAudioTelemetry) return;
   var current = null;
+  var latestAttempt = null;
   function allowed() { return !!(window.GomnaGa4 && window.GomnaGa4.allowed()); }
   function send(name, values) {
     try { if (allowed()) return window.GomnaGa4.track(name, values); } catch (e) {}
@@ -46,7 +47,7 @@
     if (current && current.audio === st.currentAudio && current.id === d.audioId && current.epoch === st.queueEpoch) return;
     dispose('track_change');
     var s = current = { audio: st.currentAudio, id: d.audioId, epoch: st.queueEpoch,
-      props: props(d), requested: performance.now(), clock: performance.now(), pos: Number(st.currentAudio.currentTime) || 0,
+      props: props(d), requested: latestAttempt && latestAttempt.id === d.audioId ? latestAttempt.at : performance.now(), clock: performance.now(), pos: Number(st.currentAudio.currentTime) || 0,
       pending: 0, running: false, started: false, handlers: [] };
     send('audio_request', s.props);
     // Capture before the engine reuses the element or removes track listeners.
@@ -80,13 +81,29 @@
     // Continuous playback crosses verses without another native playing event.
     if (d.continuous && !s.audio.paused && !s.audio.seeking && s.audio.readyState >= 3) playing();
   }
-  window.GomnaAudioTelemetry = { version: '20261029-v2' };
+  window.GomnaAudioTelemetry = { version: '20261030-v3' };
+  window.addEventListener('audio:attempt', function (event) {
+    var d = event.detail || {};
+    latestAttempt = { id: d.audioId, at: performance.now() };
+    send('audio_attempt', Object.assign({}, props(d), { from_queue: !!d.fromQueue, source: String(d.source || 'direct').slice(0, 80) }));
+  });
+  window.addEventListener('audio:blocked', function (event) {
+    var d = event.detail || {};
+    send('audio_blocked', Object.assign({}, props(d), { reason: String(d.reason || 'unknown').slice(0, 80) }));
+    latestAttempt = null;
+  });
   window.addEventListener('audio:start', start);
   window.addEventListener('audio:end', function () { dispose('end'); });
+  window.addEventListener('audio:resume-request', function (event) {
+    if (current && !current.started && current.id === (event.detail || {}).audioId) current.requested = performance.now();
+  });
   window.addEventListener('audio:error', function (event) {
     var d = event.detail || {};
     send('audio_failure', Object.assign({}, props(d), { reason: String(d.reason || 'unknown').slice(0, 80) }));
-    if (current && (!d.audioId || d.audioId === current.id)) dispose('failure');
+    if (current && (!d.audioId || d.audioId === current.id)) {
+      if (d.needsUserGesture) { clearTimeout(current.timer); current.running = false; current.pending = 0; }
+      else dispose('failure');
+    }
   });
   window.addEventListener('pagehide', function () { if (current) flush(current, 'pagehide'); });
   document.addEventListener('visibilitychange', function () { if (document.hidden && current) flush(current, 'background'); });
