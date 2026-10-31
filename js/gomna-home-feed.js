@@ -10,6 +10,8 @@
   var settleAnim=false, settleAnimTimer=0, wheelIdleTimer=0, wheelGesture=false, lastWheelAt=0, wheelStepDelta=0, lastP=0;
   var pinching=false, pinchScrollY=0, lifeImgsPreloaded=false, storyImgsPreloaded=false;
   var homeImageCache=Object.create(null), lifeImageRequest=0, storyImageRequest=0, cardOpenImageRequest=0;
+  var homeDeparting=false, homeDepartureTimer=0;
+  var homeBiblePickerHistoryPending=false, homeBiblePickerReopenRequested=false;
   var swipeDrag=null, swipeHandled=false, ignoreCardClickBefore=0;
   var relayoutQueued=false, relayoutPending=false;
   var vvResizeTimer=0;  var resumeRelayoutToken=0;
@@ -333,6 +335,7 @@
   function pad2(n){return (n<10?'0':'')+n;}
   function dateKey(d){
     d=d||new Date();
+    if(window.GomnaDailyVerses && window.GomnaDailyVerses.kstDateKey)return window.GomnaDailyVerses.kstDateKey(d).replace(/-/g,'');
     return d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate());
   }
   function slugRef(ref){return String(ref||'').trim().replace(/\s+/g,'-').replace(/:/g,'-');}
@@ -461,45 +464,31 @@
     if(!entry||!root)return false;
     if(entry.kind==='discovery'){
       showStoryDiscovery(true);
-      startSettleTo3();
-      apply(2, true);
+      startSettleTo3(true);
       return true;
     }
     var card;
-    var tries=0;
-    function tryOpen(){
-      if(!card||card.classList.contains('is-open'))return;
-      if(!card.classList.contains('is-active') && tries++<25){
-        window.setTimeout(tryOpen, 40);
-        return;
-      }
-      openCard(card, true);
-    }
     if(entry.kind==='life'){
       lifeThemeId=entry.id;
       fillCopy();
-      startSettleTo2();
+      startSettleTo2(true);
       card=root.querySelector('.gomna-home-card[data-card="1"]');
-      window.requestAnimationFrame(tryOpen);
-      return true;
-    }
-    if(entry.kind==='person'){
+    }else if(entry.kind==='person'){
       storyPersonId=entry.id;
       fillCopy();
-      startSettleTo3();
+      startSettleTo3(true);
       card=root.querySelector('.gomna-home-card[data-card="2"]');
-      window.requestAnimationFrame(tryOpen);
-      return true;
-    }
-    if(entry.kind==='today'){
-      apply(0, true);
+    }else if(entry.kind==='today'){
+      startSettleTo1(true);
       card=root.querySelector('.gomna-home-card[data-card="0"]');
-      window.requestAnimationFrame(tryOpen);
-      return true;
-    }
-    return false;
+    }else return false;
+    // Button/return routes select their destination in this paint; only swipes animate.
+    openCard(card, true);
+    return true;
   }
   function extrasFor(key){
+    var shared=window.GomnaDailyVerses && window.GomnaDailyVerses.getReflection && window.GomnaDailyVerses.getReflection(key);
+    if(shared)return shared;
     var map={
       '베드로전서 5:7':{
         headline:'맡길 곳이 있습니다',
@@ -637,13 +626,48 @@
     return el&&el.closest&&el.closest('.gomna-home-act, .gomna-home-related, .gomna-home-ctrl, .gomna-home-ctrl-item, .gomna-home-link, .gomna-home-note-save, .gomna-home-life-rail, .gomna-home-life-chip, .gomna-home-poster-pills, .gomna-home-poster-pill, .gomna-home-leaf-cta, .gomna-home-leaf-btn, .gomna-home-tabbar, .gomna-home-tab, button, a, [role="button"], input, select, textarea');
   }
   function isHomeChromeHit(el){
-    return !!(el&&el.closest&&el.closest('#gomnaHomeTabbar, .gomna-home-tabbar, #loginModal, #gomnaProfileSheet, #gomnaProfileEditSheet, .ghd-sheet, .home-account-panel, .home-account-scrim, .header-actions'));
+    return !!(el&&el.closest&&el.closest('#gomnaHomeTabbar, .gomna-home-tabbar, #loginModal, #gomnaProfileSheet, #gomnaProfileEditSheet, #settingsPopup, .gomna-acc-overlay, #overlay, .ghd-sheet, .home-account-panel, .home-account-scrim, .header-actions'));
+  }
+  function isHomeOverlayOpen(){
+    return !!document.querySelector('#settingsPopup.show, .gomna-acc-overlay:not([hidden]), #loginModal.show, #overlay.show, #homeAccountPanel:not([hidden]), #homeBiblePickerOverlay:not([hidden]), .ghd-sheet.is-open, #gomnaHomeViewer.is-open');
+  }
+  function ignoreDeckBehindOverlay(){
+    if(homeDeparting)return true;
+    if(!isHomeOverlayOpen())return false;
+    // A dialog may open after touchstart. Do not consume its native scroll or
+    // finish an old home gesture on pointerup/touchend behind the dialog.
+    swipeDrag=null;
+    gestureLive=false;
+    swipeHandled=false;
+    awaitingDir=false;
+    cancelDeckMotion();
+    return true;
   }
   function pointInHomeTabbar(x, y){
     var bar=document.getElementById('gomnaHomeTabbar');
     if(!bar)return false;
     var r=bar.getBoundingClientRect();
     return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
+  }
+  function reportHomeAction(action, placement, reference){
+    // A local UI signal only; the shared collector owns consent and environment checks.
+    try{window.dispatchEvent(new CustomEvent('gomna:home-action',{detail:{action:action,placement:placement,reference:reference||''}}));}catch(e){}
+  }
+  function installHomeQuickActions(){
+    cards.forEach(function(card,i){card.setAttribute('data-gomna-exposure',['today_card','meditation_card','people_card'][i]);});
+  }
+
+  var dailyRefreshTimer=0, renderedDailyKey='';
+  function refreshDailyContent(){
+    var key=dateKey();
+    if(renderedDailyKey!==key){
+      renderedDailyKey=key;
+      fillCopy();
+    }
+    if(dailyRefreshTimer)window.clearTimeout(dailyRefreshTimer);
+    var data=window.GomnaDailyVerses;
+    var delay=data && data.millisecondsUntilNextDay ? data.millisecondsUntilNextDay(new Date()) : 60000;
+    dailyRefreshTimer=window.setTimeout(refreshDailyContent,Math.max(1000,delay+100));
   }
   function hideLegacyHome(){
     var nodes=document.querySelectorAll('#homeResumeCard, #today-word-card, .container > .quick-menu, .container > .home-menu-card, .container > .imprint-bottom');
@@ -1197,6 +1221,53 @@
   function maybePreloadStory(){
     if(!storyImgsPreloaded && progressFromScroll()>=1.05)preloadStoryPersonImages();
   }
+  function cancelPendingCardOpens(){
+    lifeImageRequest++;
+    storyImageRequest++;
+    cardOpenImageRequest++;
+    cards.forEach(function(card){setCardImageBusy(card, false);});
+  }
+  function cancelDeckMotion(){
+    if(raf){window.cancelAnimationFrame(raf);raf=0;}
+    if(settleAnimTimer){clearTimeout(settleAnimTimer);settleAnimTimer=0;}
+    if(wheelIdleTimer){clearTimeout(wheelIdleTimer);wheelIdleTimer=0;}
+    settleAnim=false;
+    wheelGesture=false;
+    wheelStepDelta=0;
+  }
+  function freezeHomeDeparture(){
+    if(homeDeparting || !root)return;
+    homeDeparting=true;
+    homeBiblePickerReopenRequested=false;
+    cancelPendingCardOpens();
+    cancelDeckMotion();
+    swipeDrag=null;
+    swipeHandled=false;
+    gestureLive=false;
+    awaitingDir=false;
+    // Hold the actually painted positions, including a swipe already in flight.
+    // A slow next document must not let old image callbacks or deck animation
+    // replace the screen the user has just left.
+    cards.forEach(function(card){
+      var transform=window.getComputedStyle(card).transform;
+      card.style.transition='none';
+      if(transform && transform!=='none')card.style.transform=transform;
+    });
+    if(homeDepartureTimer)window.clearTimeout(homeDepartureTimer);
+    homeDepartureTimer=window.setTimeout(function(){
+      if(document.visibilityState!=='hidden')resumeHomeAfterDeparture();
+    },5000);
+  }
+  function resumeHomeAfterDeparture(){
+    if(homeDepartureTimer)window.clearTimeout(homeDepartureTimer);
+    homeDepartureTimer=0;
+    if(!homeDeparting)return;
+    homeDeparting=false;
+    // Browser back/BFCache (or a canceled navigation) restores a settled card.
+    if(progress>=1.5)startSettleTo3(true);
+    else if(progress>=.5)startSettleTo2(true);
+    else startSettleTo1(true);
+  }
   function resetStackGate(){
     card2Settled=false;
     card3Settled=false;
@@ -1217,7 +1288,9 @@
     if(card2Settled && !allowCard1From2 && p<1)return 1;
     return p;
   }
-  function startSettleTo1(){
+  function startSettleTo1(instant){
+    if(instant)cancelDeckMotion();
+    cancelPendingCardOpens();
     wheelStepDelta=0;
     card2Settled=false;
     card3Settled=false;
@@ -1226,16 +1299,18 @@
     allowCard2From3=false;
     awaitingDir=false;
     gestureEndedSinceSettle=!gestureLive;
-    settleAnim=true;
+    settleAnim=!instant;
     if(settleAnimTimer)clearTimeout(settleAnimTimer);
-    settleAnimTimer=setTimeout(function(){settleAnim=false;settleAnimTimer=0;}, SETTLE_MS+40);
+    settleAnimTimer=instant?0:setTimeout(function(){settleAnim=false;settleAnimTimer=0;}, SETTLE_MS+40);
     pinDeckScroll(0);
     lastP=0;
     setCard3WheelMask(false);
     if(root)root.removeAttribute('data-ghd-card2');
-    apply(0, false);
+    apply(0, !!instant);
   }
-  function startSettleTo2(){
+  function startSettleTo2(instant){
+    if(instant)cancelDeckMotion();
+    cancelPendingCardOpens();
     wheelStepDelta=0;
     card2Settled=true;
     card3Settled=false;
@@ -1244,9 +1319,9 @@
     allowCard2From3=false;
     awaitingDir=false;
     gestureEndedSinceSettle=!gestureLive;
-    settleAnim=true;
+    settleAnim=!instant;
     if(settleAnimTimer)clearTimeout(settleAnimTimer);
-    settleAnimTimer=setTimeout(function(){
+    settleAnimTimer=instant?0:setTimeout(function(){
       settleAnim=false;
       settleAnimTimer=0;
       setCard3WheelMask(false);
@@ -1254,9 +1329,11 @@
     pinDeckScroll(lockY());
     lastP=1;
     if(root)root.setAttribute('data-ghd-card2','settled');
-    apply(1, false);
+    apply(1, !!instant);
   }
-  function startSettleTo3(){
+  function startSettleTo3(instant){
+    if(instant)cancelDeckMotion();
+    cancelPendingCardOpens();
     wheelStepDelta=0;
     card3Settled=true;
     card2Settled=false;
@@ -1265,19 +1342,20 @@
     allowCard2From3=false;
     awaitingDir=false;
     gestureEndedSinceSettle=!gestureLive;
-    settleAnim=true;
+    settleAnim=!instant;
     if(settleAnimTimer)clearTimeout(settleAnimTimer);
-    settleAnimTimer=setTimeout(function(){settleAnim=false;settleAnimTimer=0;}, SETTLE_MS+40);
+    settleAnimTimer=instant?0:setTimeout(function(){settleAnim=false;settleAnimTimer=0;}, SETTLE_MS+40);
     pinDeckScroll(lockY3());
     lastP=2;
     setCard3WheelMask(false);
     if(root)root.removeAttribute('data-ghd-card2');
-    apply(2, false);
+    apply(2, !!instant);
   }
   function isTouchPointer(ev){
     return !!(ev && ev.pointerType==='touch');
   }
   function markGestureStart(ev){
+    if(ignoreDeckBehindOverlay())return;
     if(lifeDetailOpen())return;
     if(isTouchPointer(ev))return;
     if(ev && ev.touches && ev.touches.length>=2){
@@ -1291,6 +1369,7 @@
     if((card2Settled || card3Settled) && gestureEndedSinceSettle)awaitingDir=true;
   }
   function markGestureEnd(ev){
+    if(ignoreDeckBehindOverlay())return;
     if(isTouchPointer(ev))return;
     // Keep the life reader button's native click free of deck layout changes.
     if(!pinching && ev && isLifeReadAction(ev.target))return;
@@ -1341,6 +1420,7 @@
     wheelIdleTimer=setTimeout(markGestureEnd, 180);
   }
   function onWheelOutsideDeck(ev){
+    if(homeDeparting)return;
     if(ev.target.closest && ev.target.closest(".home-person-choices"))return;
     if(document.body.classList.contains('gbl-open'))return;
     if(!root || ev.defaultPrevented || ev.ctrlKey || ev.metaKey)return;
@@ -1450,6 +1530,7 @@
     return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom?page:null;
   }
   function beginSwipe(x, y, pointerId){
+    if(ignoreDeckBehindOverlay())return false;
     if(document.body.classList.contains('gbl-open'))return false;
     if(pinching || swipeDrag)return false;
     var zoomedInner=root&&root.querySelector('.gomna-home-card.is-active .gomna-home-card-inner');
@@ -1482,6 +1563,7 @@
     return true;
   }
   function applySwipeMove(x, y, ev){
+    if(ignoreDeckBehindOverlay())return false;
     if(!swipeDrag || pinching)return;
     var firstOpen=!!root.querySelector('.gomna-home-card.is-active.is-open[data-card="0"]');
     if(flipping && !swipeDrag.lifeOpen && !firstOpen)return;
@@ -1578,6 +1660,7 @@
     pinDeckScroll(clamp(swipeDrag.scroll-dy, 0, maxY));
   }
   function onSwipeStart(ev){
+    if(ignoreDeckBehindOverlay())return false;
     if(ev.target.closest && ev.target.closest(".home-person-choices")){swipeDrag=null;return;}
     if(isHomeChromeHit(ev.target))return;
     if(ev.touches && ev.touches.length!==1){
@@ -1599,6 +1682,7 @@
     applySwipeMove(p.x, p.y, ev);
   }
   function onPtrStart(ev){
+    if(ignoreDeckBehindOverlay())return false;
     if(ev.target.closest && ev.target.closest(".home-person-choices")){swipeDrag=null;return;}
     if(isHomeChromeHit(ev.target))return;
     if(lifeDetailOpen() && ev.pointerType==='touch')return;
@@ -1678,6 +1762,7 @@
     else if(i===1)startSettleTo3();
   }
   function endSwipe(ev){
+    if(ignoreDeckBehindOverlay())return false;
     try{
       if(pinching){
         swipeDrag=null;
@@ -1761,6 +1846,7 @@
     };
   }
   function apply(p, instant){
+    if(homeDeparting)return;
     p=gatedProgress(p);
     progress=p;
     var activeIndex=(allowCard2From3&&p>1)?1:Math.round(clamp(p, 0, count-1));
@@ -1770,6 +1856,7 @@
     var reserved=p*peek;
     var cardH=Math.max(280, L.stageH-reserved);
     var parkY=L.stageH+32;
+    if(root)root.classList.toggle('ghd-instant-navigation', !!instant);
     var dur=(instant||reduce)?'none':(settleAnim?'transform '+SETTLE_MS+'ms ease-out':'transform 80ms linear');
     cards.forEach(function(card,i){
       var behind=Math.max(0, p-i);
@@ -1801,9 +1888,14 @@
       card.style.zIndex=String(10+i);
     });
     if(root)root.setAttribute('data-ghd-active', String(Math.round(p)));
+    var sectionNav=document.getElementById('gomnaHomeExplore');
+    if(sectionNav)sectionNav.querySelectorAll('button').forEach(function(button,i){
+      if(i===Math.round(p))button.setAttribute('aria-current','true');else button.removeAttribute('aria-current');
+    });
     if(returnTopButton)returnTopButton.hidden=p<=0.02;
   }
   function onScroll(){
+    if(homeDeparting)return;
     if(pinching){
       pinDeckScroll(pinchScrollY);
       return;
@@ -1898,6 +1990,7 @@
     });
   }
   function closeCard(card, skipHistory){
+    cancelPendingCardOpens();
     if(!card||!card.classList.contains('is-open'))return;
     resetPinchSurface(card.querySelector('.gomna-home-card-inner'));
     card.classList.remove('is-open');
@@ -1916,6 +2009,8 @@
     if(card.getAttribute('data-card')==='0')schedulePlaceTodayVerse();
   }
   function resetHomeToFirstCard(){
+    cancelPendingCardOpens();
+    cancelDeckMotion();
     closeSheets();
     closeViewer(true);
     if(cards&&cards.length){
@@ -1933,6 +2028,8 @@
     }catch(e){}
   }
   function openCardNow(card, skipHistory){
+    if(homeDeparting)return;
+    if(isHomeOverlayOpen())return;
     if(!card||!card.classList.contains('is-active')||card.classList.contains('is-open'))return;
     if(Math.abs(progress-cards.indexOf(card))>0.12)return;
     openScrollY=deckScrollY();
@@ -1953,25 +2050,24 @@
     }
   }
   function openCard(card, skipHistory){
+    if(homeDeparting)return;
     if(!card||!card.classList.contains('is-active')||card.classList.contains('is-open'))return;
     if(Math.abs(progress-cards.indexOf(card))>0.12)return;
+    var request=++cardOpenImageRequest;
+    setCardImageBusy(card, false);
     var personLink=card.querySelector('[data-home-person-more]');
     if(card.getAttribute('data-card')==='2' && personLink){
       personLink.click();
       return;
     }
     var src=cardOpenImage(card);
-    if(!src||isHomeImageReady(src)){
-      openCardNow(card, skipHistory);
-      return;
-    }
-    var request=++cardOpenImageRequest;
-    setCardImageBusy(card, true);
+    // Text, the passage action and the selected detail must not wait for a photo.
+    // The existing card color remains readable during download or image failure.
+    openCardNow(card, skipHistory);
+    if(!src||isHomeImageReady(src))return;
     ensureHomeImageReady(src, 'high').then(function(ready){
       if(request!==cardOpenImageRequest)return;
-      setCardImageBusy(card, false);
-      if(!ready)return;
-      openCardNow(card, skipHistory);
+      card.classList.toggle('ghd-image-failed',!ready);
     });
   }
   function toggleOpen(card){
@@ -2550,6 +2646,7 @@
     try{return window.matchMedia('(min-width:700px)').matches;}catch(err){return false;}
   }
   function openSheet(id){
+    cancelPendingCardOpens();
     var sheet=document.getElementById(id);
     if(!sheet)return;
     var wasOpen=sheet.classList.contains('is-open') && !sheet.hidden;
@@ -3222,9 +3319,9 @@
   function openTodayFromPush(){
     if(!root)return;
     closeSheets();
-    apply(0, true);
+    resetHomeToFirstCard();
     var card=root.querySelector('.gomna-home-card[data-card="0"]');
-    window.setTimeout(function(){if(card)openCard(card, true);}, 80);
+    if(card)openCard(card, true);
   }
   function postPushProbe(extra){
     var env=notifyEnv();
@@ -3570,12 +3667,14 @@
     root.querySelectorAll('[data-ghd-listen]').forEach(function(el){
       el.addEventListener('click', function(ev){
         ev.preventDefault();ev.stopPropagation();
+        reportHomeAction('home_listen',el.getAttribute('data-ghd-placement')==='front'?'today_card':'detail_bottom',cardDetail(cardFromEl(el).getAttribute('data-card')).reference);
         openCardReader(cardFromEl(el),'listen');
       });
     });
     root.querySelectorAll('[data-ghd-read]').forEach(function(el){
       el.addEventListener('click', function(ev){
         ev.preventDefault();ev.stopPropagation();
+        reportHomeAction('home_read',el.getAttribute('data-ghd-placement')==='front'?'today_card':'detail_bottom',cardDetail(cardFromEl(el).getAttribute('data-card')).reference);
         openCardReader(cardFromEl(el),'read');
       });
     });
@@ -4005,9 +4104,8 @@
         else if(act==='commentary')openCardReader(cards[0],'commentary');
         else if(act==='listen')openCardReader(cards[0],'listen');
         else if(act==='respond'){
-          var dest=root.offsetTop + 2*stepH();
-          window.scrollTo({top:dest, behavior:reduce?'auto':'smooth'});
-          window.setTimeout(function(){openCard(cards[2]);}, reduce?0:420);
+          startSettleTo3(true);
+          openCard(cards[2]);
         }
       });
     });
@@ -4018,7 +4116,11 @@
     document.querySelectorAll('[data-ghd-nav]').forEach(function(el){
       el.addEventListener('click', function(ev){
         var act=el.getAttribute('data-ghd-nav');
-        if(act==='find'||act==='me'||act==='media'||act==='archive')return;
+        if(act==='find'||act==='media'||act==='archive'){
+          if(!ev.defaultPrevented && !ev.button && !ev.metaKey && !ev.ctrlKey && !ev.shiftKey && !ev.altKey)freezeHomeDeparture();
+          return;
+        }
+        if(act==='me')return;
         ev.preventDefault();
         if(act==='home')resetHomeToFirstCard();
         else if(act==='bible')openHomeBiblePicker();
@@ -4026,6 +4128,7 @@
     });
   }
   function openViewer(){
+    cancelPendingCardOpens();
     var v=document.getElementById('gomnaHomeViewer');
     if(!v||v.classList.contains('is-open'))return;
     v.hidden=false;
@@ -4079,6 +4182,13 @@
     }catch(e){ /* ignore */ }
   }
   function openHomeBiblePicker(){
+    // Closing consumes the picker history entry asynchronously. A second tap
+    // must wait for that popstate, otherwise it closes the newly opened drawer.
+    if(homeBiblePickerHistoryPending){
+      homeBiblePickerReopenRequested=true;
+      return;
+    }
+    cancelPendingCardOpens();
     var overlay=ensureHomeBiblePicker();
     overlay.hidden=false;
     overlay.classList.add('is-open');
@@ -4099,6 +4209,7 @@
     }catch(e){}
   }
   function closeHomeBiblePicker(skipHistory){
+    if(!skipHistory)homeBiblePickerReopenRequested=false;
     var overlay=document.getElementById('homeBiblePickerOverlay');
     if(!overlay||overlay.hidden){
       document.documentElement.classList.remove('home-bible-picker-open');
@@ -4110,8 +4221,23 @@
     document.documentElement.classList.remove('home-bible-picker-open');
     tellHomeBiblePicker('close-ui');
     if(!skipHistory && history.state && history.state.ghd==='bible-picker'){
-      try{history.back();}catch(e){}
+      homeBiblePickerHistoryPending=true;
+      try{history.back();}catch(e){homeBiblePickerHistoryPending=false;}
     }
+  }
+  function resetHomeBiblePickerHistory(){
+    homeBiblePickerHistoryPending=false;
+    homeBiblePickerReopenRequested=false;
+  }
+  function onHomeHistoryPop(){
+    var reopen=homeBiblePickerHistoryPending && homeBiblePickerReopenRequested;
+    resetHomeBiblePickerHistory();
+    closeHomeBiblePicker(true);
+    closeViewer(true);
+    var open=root.querySelector('.gomna-home-card.is-open');
+    if(open)closeCard(open, true);
+    closeSheets();
+    if(reopen && !homeDeparting)openHomeBiblePicker();
   }
   function init(){
     root=document.getElementById('gomnaHomeFeed');
@@ -4131,6 +4257,13 @@
     reduce=reduced();
     cards=Array.prototype.slice.call(root.querySelectorAll('.gomna-home-card[data-ghd-deck="home"]'));
     count=3;
+    // Daily recommendations change without overriding an explicit return route.
+    var daily=window.GomnaDailyVerses;
+    if(daily && typeof daily.dayIndex==='function'){
+      var dailyIndex=daily.dayIndex(new Date());
+      lifeThemeId=LIFE_THEMES[((dailyIndex%LIFE_THEMES.length)+LIFE_THEMES.length)%LIFE_THEMES.length].id;
+      storyPersonId=STORY_PEOPLE[((dailyIndex%STORY_PEOPLE.length)+STORY_PEOPLE.length)%STORY_PEOPLE.length].id;
+    }
     var restoreEntry=readHomeRestoreEntry();
     if(restoreEntry&&restoreEntry.kind==='life')lifeThemeId=restoreEntry.id;
     if(restoreEntry&&restoreEntry.kind==='person')storyPersonId=restoreEntry.id;
@@ -4142,7 +4275,16 @@
         if(i===0)ensureHomeImageReady(cardOpenImage(card), 'low');
       });
     });
+    installHomeQuickActions();
+    renderedDailyKey=dateKey();
     fillCopy();
+    refreshDailyContent();
+    window.addEventListener('pageshow',refreshDailyContent);
+    window.addEventListener('pageshow',resumeHomeAfterDeparture);
+    window.addEventListener('beforeunload',freezeHomeDeparture);
+    window.addEventListener('pagehide',cancelPendingCardOpens);
+    window.addEventListener('pagehide',resetHomeBiblePickerHistory);
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)refreshDailyContent();});
     syncGreeting();
     cards.forEach(bindCard);
     bindActions();
@@ -4232,13 +4374,7 @@
         closeSheets();
       }
     });
-    window.addEventListener('popstate', function(){
-      closeHomeBiblePicker(true);
-      closeViewer(true);
-      var open=root.querySelector('.gomna-home-card.is-open');
-      if(open)closeCard(open, true);
-      closeSheets();
-    });
+    window.addEventListener('popstate', onHomeHistoryPop);
     window.addEventListener('message', function(ev){
       var data=ev.data;
       if(ev.origin!==location.origin)return;

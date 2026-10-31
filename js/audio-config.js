@@ -118,11 +118,13 @@
     }
   };
 
-  // iOS Safari 대응:
-  // 사용자 클릭 전에 manifest를 미리 로드해서,
-  // 나중에 audio.play()가 클릭 핸들러 안에서 바로 실행될 수 있게 준비한다.
+  // Reading routes still prepare audio before a tap (important on iOS Safari).
+  // Find, Archive and the home picker do not need the large audio manifest.
+  // They request it only when an actual passage or audio action needs it.
   // generation은 늦게 도착한 이전 manifest가 갱신본을 덮지 않게 한다.
   var manifestGeneration = 0;
+  var manifestRequested = false;
+  var manifestRequest = null;
 
   function applyManifestDocument(data, generation) {
     if (generation !== manifestGeneration || !data || !data.audios) return;
@@ -143,7 +145,7 @@
       window.GOMNA_AUDIO_CONFIG.manifestLoadStatus = 'loading';
     }
 
-    fetch(window.GOMNA_AUDIO_CONFIG.MANIFEST_PATH, { cache: 'no-cache' })
+    manifestRequest = fetch(window.GOMNA_AUDIO_CONFIG.MANIFEST_PATH, { cache: 'no-cache' })
       .then(function(res) {
         if (!res.ok) {
           throw new Error('HTTP ' + res.status);
@@ -151,7 +153,9 @@
         return res.json();
       })
       .then(function(data) {
+        if (!data || !data.audios) throw new Error('Invalid audio manifest');
         applyManifestDocument(data, generation);
+        return data;
       })
       .catch(function(err) {
         if (generation !== manifestGeneration) return;
@@ -159,18 +163,51 @@
           window.GOMNA_AUDIO_CONFIG.manifestLoadStatus = 'error';
         }
         console.error('[GOMNA_AUDIO] manifest preload failed:', err);
+        return null;
+      })
+      .finally(function() {
+        if (generation === manifestGeneration) manifestRequest = null;
       });
+    return manifestRequest;
   }
 
-  (function preloadManifest() {
+  function ensureManifest() {
+    if (window.GOMNA_AUDIO_CONFIG.manifestData) {
+      return Promise.resolve(window.GOMNA_AUDIO_CONFIG.manifestData);
+    }
+    if (manifestRequest) return manifestRequest;
+    manifestRequested = true;
     manifestGeneration += 1;
-    requestManifest(manifestGeneration);
-  })();
+    return requestManifest(manifestGeneration);
+  }
+  window.GOMNA_AUDIO_CONFIG.ensureManifest = ensureManifest;
+
+  var homePicker = false;
+  function isLocalPanelEntry() {
+    try {
+      var p = new URLSearchParams(window.location.search);
+      homePicker = p.get('source') === 'home-bible-picker';
+      if (homePicker) return true;
+      return !p.get('book') && p.get('homeGuide') !== '1' && p.get('guideDetail') !== '1' &&
+        (p.has('easy') || p.has('favorites'));
+    } catch (e) { return false; }
+  }
+  function prepareActivePassage() {
+    if (homePicker) return;
+    var view = document.getElementById('verseView');
+    if (view && view.classList.contains('active') && view.querySelector('.verse-item')) ensureManifest();
+  }
+  window.addEventListener('gomna:verse_list_rendered', prepareActivePassage);
+  // Also covers a direct engine caller outside the Reader's normal wait helper.
+  window.addEventListener('audio:attempt', ensureManifest);
+  if (!isLocalPanelEntry()) ensureManifest();
+  else prepareActivePassage(); // The passage event may precede this deferred script.
 
   if (navigator.serviceWorker && navigator.serviceWorker.addEventListener) {
     navigator.serviceWorker.addEventListener('message', function(event) {
       var data = event && event.data;
       if (!data || data.type !== 'GOMNA_AUDIO_MANIFEST_UPDATED') return;
+      if (!manifestRequested) return;
       manifestGeneration += 1;
       requestManifest(manifestGeneration);
     });

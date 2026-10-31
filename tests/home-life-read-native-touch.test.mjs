@@ -55,11 +55,13 @@ function fixture({theme='new',cardId='1',open=true,read=true}={}){
   };
   root.setPointerCapture=()=>calls.push('capture');root.releasePointerCapture=()=>{};
   document.body={classList:{contains:()=>false}};document.documentElement={classList:{contains:()=>false}};
-  document.querySelector=()=>null;document.getElementById=()=>null;
+  let overlaySelector='';
+  document.querySelector=selector=>overlaySelector&&selector.split(',').some(part=>part.trim()===overlaySelector)?{}:null;document.getElementById=()=>null;
   const location={};Object.defineProperty(location,'href',{set:value=>urls.push(value)});
   const context=vm.createContext({document,window:{location},location,URLSearchParams,Date,Math,
     setTimeout:()=>1,clearTimeout:()=>{},localizedItem:value=>value,LIFE_THEME_I18N:{},
     deckScrollY:()=>400,pinDeckScroll:()=>calls.push('pin'),lockY:()=>400,lockY3:()=>800,
+    cancelDeckMotion:()=>calls.push('cancel-motion'),
     apply:()=>calls.push('layout'),scheduleRelayout:()=>calls.push('relayout'),toggleOpen:()=>calls.push('toggle'),
     startSettleTo1:()=>calls.push('settle-0'),startSettleTo2:()=>calls.push('settle-1'),startSettleTo3:()=>calls.push('settle-2')});
   vm.runInContext(handlers+navigation,context);
@@ -95,7 +97,7 @@ function fixture({theme='new',cardId='1',open=true,read=true}={}){
     if(!events.some(event=>event.defaultPrevented))dispatch('click',{target});
     return events;
   }
-  return {calls,urls,context,button,icon,dispatch,nativeTap};
+  return {calls,urls,context,button,icon,dispatch,nativeTap,setOverlay(selector){overlaySelector=selector;}};
 }
 
 for(const theme of ['new','prayer'])for(const pointer of [false,true])for(const icon of [false,true]){
@@ -141,3 +143,33 @@ for(const options of [{cardId:'0'},{cardId:'2'},{open:false},{read:false}]){
     f.dispatch('touchend');assert.ok(f.calls.includes('layout'),'Other controls retain their existing deck settlement.');
   });
 }
+
+for(const overlay of ['#settingsPopup.show', '.gomna-acc-overlay:not([hidden])', '#overlay.show', '#homeBiblePickerOverlay:not([hidden])']) {
+  test('modal scroll stays native and never moves the home deck: ' + overlay, () => {
+    const f=fixture({cardId:'0',open:false,read:false});
+    f.setOverlay(overlay);
+    for(const type of ['pointerdown','touchstart','pointermove','touchmove','pointerup','touchend']) {
+      const e=f.dispatch(type,{x:100,y:type.includes('move')?310:200});
+      assert.equal(e.defaultPrevented,false);
+    }
+    assert.equal(f.context.swipeDrag,null);
+    assert.ok(!f.calls.some(call=>['layout','pin','settle-0','settle-1','settle-2','capture'].includes(call)));
+    assert.equal(f.urls.length,0);
+  });
+}
+
+test('a dialog opening halfway through a swipe cancels the stale drag without consuming modal scroll',()=>{
+  const f=fixture({cardId:'0',open:false,read:false});
+  f.dispatch('touchstart');
+  assert.ok(f.context.swipeDrag);
+  f.setOverlay('#settingsPopup.show');
+  const moved=f.dispatch('touchmove',{y:340});
+  const ended=f.dispatch('touchend');
+  assert.equal(moved.defaultPrevented,false);
+  assert.equal(ended.defaultPrevented,false);
+  assert.equal(f.context.swipeDrag,null);
+  assert.ok(!f.calls.some(call=>['layout','pin','settle-0','settle-1','settle-2'].includes(call)));
+  f.setOverlay('');
+  f.dispatch('touchstart');
+  assert.ok(f.context.swipeDrag,'Home gestures work again after the dialog closes');
+});

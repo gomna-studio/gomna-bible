@@ -38,6 +38,9 @@ const BOOK_NAMES: Record<string, Record<string, string>> = {
 };
 
 function pad2(n: number) { return (n < 10 ? '0' : '') + String(n); }
+const DAY_MS = 86400000;
+const KST_OFFSET = 9 * 60 * 60 * 1000;
+const SCHEDULE_EPOCH = Date.UTC(2026, 9, 1);
 
 export function nativeLocale(raw: unknown): 'ko' | 'en' | 'ja' | 'zh' {
   const s = String(raw || 'ko').toLowerCase();
@@ -46,14 +49,22 @@ export function nativeLocale(raw: unknown): 'ko' | 'en' | 'ja' | 'zh' {
 }
 
 export function kstDateKey(d = new Date()): string {
-  const s = d.toLocaleString('en-US', { timeZone: 'Asia/Seoul' });
-  const x = new Date(s);
-  return x.getFullYear() + '-' + pad2(x.getMonth() + 1) + '-' + pad2(x.getDate());
+  if (!Number.isFinite(d.getTime())) throw new TypeError('Invalid daily verse date');
+  const x = new Date(d.getTime() + KST_OFFSET);
+  return x.getUTCFullYear() + '-' + pad2(x.getUTCMonth() + 1) + '-' + pad2(x.getUTCDate());
 }
 
 export function getVerseForDate(dateKey: string): Verse {
-  const day = Number(String(dateKey).slice(-2));
-  const idx = ((day - 1) % 30 + 30) % 30;
+  // Keep push/email on the same absolute 92-day schedule as the home card.
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateKey));
+  if (!match) throw new TypeError('Invalid daily verse date key');
+  const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() + 1 !== month || date.getUTCDate() !== day) {
+    throw new TypeError('Invalid daily verse date key');
+  }
+  const dayIndex = Math.floor((date.getTime() - SCHEDULE_EPOCH) / DAY_MS);
+  const idx = ((dayIndex % VERSES.length) + VERSES.length) % VERSES.length;
   return VERSES[idx];
 }
 

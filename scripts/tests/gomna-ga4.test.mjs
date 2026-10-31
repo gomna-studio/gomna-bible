@@ -93,7 +93,24 @@ test('home and Reader old loader functions delegate without a second config',()=
   const p=page({consent:accepted,existingBanner:true});p.window.__gomnaReaderPostHogLoaded=true;
   const snippet=html.slice(html.indexOf(start),html.indexOf(end,html.indexOf(start)));
   vm.runInContext(snippet,p.context);p.ready();vm.runInContext(start.includes('loadGa4')?'loadGa4();loadGa4();':'loadAnalytics();loadAnalytics();',p.context);
-  assert.equal(p.commands().filter(x=>x[0]==='config').length,1);assert.equal(p.scripts.length,2);
+  assert.equal(p.commands().filter(x=>x[0]==='config').length,1);
+  assert.equal(p.scripts.filter(s=>s.src?.includes('googletagmanager.com')).length,1);
+  assert.equal(p.window.posthog._i.length,1);
+  // Reader's existing Clarity provider now starts here, after consent, rather
+  // than unconditionally in the document head. Repeated calls must not add it.
+  const isReader=start==='function loadAnalytics() {';
+  assert.equal(p.scripts.filter(s=>s.src?.includes('clarity.ms/tag/')).length,isReader?1:0);
+  assert.equal(p.scripts.length,isReader?3:2);
+ }
+});
+test('Reader Clarity remains unloaded without consent or on excluded devices',()=>{
+ const start=readerCode.indexOf('function loadAnalytics() {');
+ const snippet=readerCode.slice(start,readerCode.indexOf('function loadAds()',start));
+ for(const opts of [{},{consent:{analytics:false}},{consent:accepted,internal:true},{consent:accepted,host:'localhost'}]){
+  const p=page({...opts,existingBanner:true});
+  vm.runInContext(snippet,p.context);p.ready();vm.runInContext('loadAnalytics();loadAnalytics();',p.context);
+  assert.equal(p.scripts.length,0);
+  assert.equal(p.commands().length,0);
  }
 });
 test('topic loader shares config and only adds its existing topic event once',()=>{

@@ -23,12 +23,15 @@ assert.ok(serviceWorker.includes(homeStyle));
 assert.doesNotMatch(indexHtml, /(?:^|,)button:active(?:\{|:)/m);
 assert.doesNotMatch(readerHtml, /(?:^|,)button:active(?:\{|:)/m);
 
+const transitionAsset = /gomna-screen-transition\.js\?v=[a-zA-Z0-9-]+/.exec(indexHtml)[0];
 for (const html of [indexHtml, readerHtml, meditationHtml]) {
-  assert.match(html, /gomna-screen-transition\.js\?v=20261009-hide-leaving-v1/);
-  assert.ok(html.includes('gomna-pwa-recovery.js?v=' + release));
+  assert.equal(/gomna-screen-transition\.js\?v=[a-zA-Z0-9-]+/.exec(html)[0], transitionAsset);
+  // Recovery code has its own asset revision; data-release tracks the app cache.
+  const recoveryAsset = /gomna-pwa-recovery\.js\?v=[a-zA-Z0-9-]+/.exec(html)[0];
+  assert.ok(serviceWorker.includes(recoveryAsset));
   assert.ok(html.includes('data-release="' + release + '"'));
 }
-assert.match(serviceWorker, /gomna-screen-transition\.js\?v=20261009-hide-leaving-v1/);
+assert.ok(serviceWorker.includes(transitionAsset));
 
 const classes = new Set();
 let clickHandler = null;
@@ -74,7 +77,7 @@ vm.runInContext(guardSource, context, { filename: 'gomna-screen-transition.js' }
 
 assert.ok(installedStyle);
 assert.match(installedStyle.textContent, /background:transparent/);
-assert.match(installedStyle.textContent, /html\.gomna-route-leaving body\{visibility:hidden;\}/);
+assert.doesNotMatch(installedStyle.textContent, /visibility\s*:\s*hidden|opacity\s*:\s*0/);
 assert.equal(typeof windowStub.GOMNA_SCREEN_TRANSITION.begin, 'function');
 assert.equal(typeof clickHandler, 'function');
 
@@ -102,4 +105,20 @@ clickHandler({
 assert.ok(classes.has('gomna-route-leaving'));
 windowStub.GOMNA_SCREEN_TRANSITION.reset();
 
+// Cancelled, modified, same-document, download and external links never lock the UI.
+for (const changes of [
+  {defaultPrevented:true}, {ctrlKey:true}, {button:1},
+  {anchor:{...anchor,href:'https://gomnastudio.com/index.html#bible-library/people'}},
+  {anchor:{...anchor,target:'_blank'}},
+  {anchor:{...anchor,hasAttribute:()=>true}},
+  {anchor:{...anchor,href:'https://example.com/'}}
+]) {
+  windowStub.GOMNA_SCREEN_TRANSITION.reset();
+  clickHandler({button:0,target:{closest:()=>changes.anchor || anchor},...changes});
+  assert.ok(!classes.has('gomna-route-leaving'));
+}
+// In-page controls (e.g. Find/Bible in Reader) must never be guessed to be departures.
+windowStub.GOMNA_SCREEN_TRANSITION.reset();
+clickHandler({button:0,target:{closest:selector=>selector==='a[href]'?null:{matches:()=>true,getAttribute:()=> 'openEasy()'}}});
+assert.ok(!classes.has('gomna-route-leaving'));
 console.log('transition stale-frame regression checks passed');

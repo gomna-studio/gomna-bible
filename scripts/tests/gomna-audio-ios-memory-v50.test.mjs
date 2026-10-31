@@ -30,8 +30,15 @@ test('Blob URLs are revoked instead of leaking across verses', () => {
   assert.match(engine, /engine\._revokeObjectUrl\(state\.nextPrefetchObjectUrl\)/);
 });
 
-test('reader requests the iPhone memory handoff engine version', () => {
-  assert.match(reader, /audio-engine\.js\?v=20260919-ios-memory-handoff-v50/);
+test('reader loads one versioned, deferred audio engine with the tested memory handoff', () => {
+  const tags = reader.match(/<script\b[^>]*\bsrc=["'][^"']*\/audio-engine\.js(?:\?[^"']*)?["'][^>]*>/g) || [];
+  assert.equal(tags.length, 1, 'Reader must load the audio engine only once');
+  assert.match(tags[0], /\bdefer(?:\s|>)/);
+  const src = tags[0].match(/\bsrc=["']([^"']+)["']/)[1];
+  const url = new URL(src, 'https://gomnastudio.com/');
+  assert.ok(url.searchParams.get('v'), 'Engine source must carry a cache-busting version');
+  assert.equal(url.pathname, '/js/audio-engine.js');
+  assert.equal(fs.readFileSync(path.join(root, url.pathname.slice(1)), 'utf8'), engine);
 });
 
 test('single-player recovery and playback-speed safeguards remain', () => {

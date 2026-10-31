@@ -777,6 +777,9 @@
 
   function initHome() {
     bindHomeLangEvents();
+    window.addEventListener('pageshow',renderHomeCard);
+    window.addEventListener('storage',function(e){if([READ_KEY,LISTEN_KEY,LEGACY_LAST_READ,LEGACY_AUDIO_RESUME].indexOf(e.key)!==-1)renderHomeCard();});
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)renderHomeCard();});
     renderHomeCard();
     bindHomeCard();
     // translate_feature.js is defer — one re-render after it exposes GomnaTranslateBookName.

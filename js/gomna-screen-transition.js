@@ -13,9 +13,6 @@
       'html.gomna-route-leaving,html.gomna-route-leaving body{' +
         'pointer-events:none;' +
       '}' +
-      'html.gomna-route-leaving body{' +
-        'visibility:hidden;' +
-      '}' +
       'html.gomna-route-leaving::after{' +
         'content:"";position:fixed;inset:0;z-index:2147483646;' +
         'background:transparent;pointer-events:auto;' +
@@ -58,19 +55,8 @@
     }
   }
 
-  function isKnownNavigationControl(control) {
-    if (!control || !control.matches) return false;
-    if (control.matches(
-      '[data-ghd-read],[data-ghd-listen],[data-ghd-commentary],[data-ghd-walk],' +
-      '#homeContinueMain,#homeContinueRead,#homeContinueListen,' +
-      '[data-home-recent-index],[data-stair-verse],' +
-      '.reader-home,.reader-close'
-    )) return true;
-
-    var inline = control.getAttribute('onclick') || '';
-    return /(?:location\.(?:href|assign|replace)|goHome\s*\(|openDailyVerse\s*\(|openContinue|openReadResume\s*\(|openBibleTab\s*\(|openEasy\s*\(|submitSearch\s*\(|openScriptureHighlightEntry\s*\(|returnTo(?:SearchResults|TodayWordCard|HomeLifeCard|HomePersonCard)\s*\()/i.test(inline);
-  }
-
+  // Keep the current screen painted until the next document replaces it.
+  // In-page buttons must not be treated as page departures.
   installStyle();
 
   window.GOMNA_SCREEN_TRANSITION = Object.freeze({
@@ -87,9 +73,7 @@
       begin();
       return;
     }
-    var control = target.closest('button,[role="button"]');
-    if (isKnownNavigationControl(control)) begin();
-  }, true);
+  });
 
   window.addEventListener('beforeunload', begin);
   window.addEventListener('pageshow', reset);

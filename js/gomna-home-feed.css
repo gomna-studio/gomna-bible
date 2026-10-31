@@ -2604,6 +2604,8 @@ html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
   .gomna-home-card{transition:none !important}
 }
 
+/* The picker is a drawer over the current home, not a replacement page.
+   Its Reader iframe provides the scrim once ready; keep that backdrop visible. */
 #homeBiblePickerOverlay{
   position:fixed;
   inset:0;
@@ -2658,7 +2660,28 @@ html[data-gomna-ui-lang="zh"] .gomna-home-poster-title{
   max-width:100%;
 }
 
-/* Text and background enter together, including cold first paint. */
-.gomna-home-card.ghd-image-pending:not(.is-open){visibility:hidden}
-.gomna-home-card.ghd-image-pending:not(.is-open) > *{visibility:hidden!important}
-.gomna-home-card.ghd-image-pending:not(.is-open)::after{visibility:hidden}
+/* A background download must never hide the card's text or controls. The
+   existing solid base remains visible if the photo is slow or unavailable. */
+.gomna-home-card.ghd-image-pending:not(.is-open),
+.gomna-home-card.ghd-image-failed:not(.is-open){background-color:#1b2433}
+
+.gomna-home-card[data-card="0"]:not(.is-open) .gomna-home-lines li{word-break:keep-all;overflow-wrap:anywhere}
+
+/* Compact only the login artwork; keep the dialog, provider buttons and carousel layout.
+   Artwork reduced further on request; dialog and controls retain their dimensions. */
+#loginModal .login-brand-visual{transform:scale(.74);transform-origin:50% 50%}
+
+/* Direct navigation paints only the selected card; gesture movement retains its slide. */
+#gomnaHomeFeed.ghd-instant-navigation .gomna-home-card:not(.is-active){visibility:hidden;pointer-events:none}
+
+/* Before the feed binds, explicit returns reserve only the requested card.
+   Its real detail is filled synchronously by init; no default teaser or other
+   card is shown while that local script is being parsed. */
+html[data-ghd-entry-card] #gomnaHomeFeed:not([data-ghd-bound]) .gomna-home-card{visibility:hidden;pointer-events:none}
+html[data-ghd-entry-card="0"] #gomnaHomeFeed:not([data-ghd-bound]) .gomna-home-card[data-card="0"],
+html[data-ghd-entry-card="1"] #gomnaHomeFeed:not([data-ghd-bound]) .gomna-home-card[data-card="1"],
+html[data-ghd-entry-card="2"] #gomnaHomeFeed:not([data-ghd-bound]) .gomna-home-card[data-card="2"]{
+  visibility:visible;transform:translate3d(-50%,0,0);background-color:#1b2433;
+}
+html[data-ghd-entry-kind="detail"] #gomnaHomeFeed:not([data-ghd-bound]) .gomna-home-card{background-image:none}
+html[data-ghd-entry-kind="detail"] #gomnaHomeFeed:not([data-ghd-bound]) .gomna-home-card > *{visibility:hidden}

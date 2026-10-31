@@ -30,7 +30,7 @@ class DomTarget {
   }
 }
 
-function setup({ deferFetch = false, manualPlay = false, observe = true } = {}) {
+function setup({ deferFetch = false, manualPlay = false, rejectPlay = false, observe = true } = {}) {
   const instances = [], requests = [], revoked = [];
   class Media extends DomTarget {
     constructor() {
@@ -46,6 +46,7 @@ function setup({ deferFetch = false, manualPlay = false, observe = true } = {}) 
     pause() { this.paused = true; }
     play() {
       this.playCount++; this.paused = false; this.ended = false;
+      if (rejectPlay) return Promise.reject(Object.assign(new Error('gesture required'), {name:'NotAllowedError'}));
       if (manualPlay) return new Promise(() => {});
       queueMicrotask(() => this.dispatchEvent(new Event('playing')));
       return Promise.resolve();
@@ -295,4 +296,30 @@ test('media errors are observed before engine recovery replaces a track', async 
   assert.equal(events.filter(e => e.name === 'audio_media_error').length, 1);
   assert.equal(events.find(e => e.name === 'audio_media_error').properties.error_code, 2);
   engine.stopAudio();
+});
+
+test('manifest preparation rejection emits an attempt and a block without falsely playing',()=>{
+ const {engine,win,events}=setup();const messages=[];win.GOMNA_AUDIO_TOAST=m=>messages.push(m);
+ win.GOMNA_AUDIO_CONFIG.manifestLoadStatus='loading';
+ assert.equal(engine.playAudioById(ids[0]),false);
+ assert.equal(events.filter(e=>e.name==='audio_attempt').length,1);
+ assert.equal(events.find(e=>e.name==='audio_blocked').properties.reason,'manifest_loading');
+ assert.equal(events.filter(e=>e.name==='audio_play').length,0);
+ assert.equal(messages.length,1);
+ engine.stopAudio();
+});
+
+test('autoplay rejection pauses the same queue without retrying or skipping the requested verse', async()=>{
+ const {engine,events,instances}=setup({rejectPlay:true});
+ engine.playAudioQueue(ids.slice(0,2),{source:'topic-comfort'});await tick();
+ assert.equal(engine._state.isPaused,true);assert.equal(engine._state.currentAudioId,ids[0]);
+ assert.equal(engine._state.queueIndex,0);assert.equal(instances[0].playCount,1);
+ assert.equal(events.find(e=>e.name==='audio_failure').properties.reason,'play_rejected');
+ assert.equal(engine._state.recoveryRetryTimer,null);
+ const audio=engine._state.currentAudio;
+ audio.play=function(){this.paused=false;queueMicrotask(()=>this.dispatchEvent(new Event('playing')));return Promise.resolve();};
+ engine.resumeAudio();await tick();
+ assert.equal(engine._state.isPlaying,true);assert.equal(engine._state.isPaused,false);
+ assert.equal(events.filter(e=>e.name==='audio_play').length,1);
+ engine.stopAudio();assert.equal(engine._state.currentAudio,null);
 });

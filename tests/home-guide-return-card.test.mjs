@@ -60,22 +60,23 @@ function fixture(search) {
     : cards.find(card => selector.includes('data-card="' + card.getAttribute('data-card') + '"')) || null;
   const frames = [], timers = [], opened = [], masks = [];
   const context = vm.createContext({
-    root, stage, cards, count: 3, progress: 0, reduce: false, returnTopButton: element(),
+    root, stage, cards, count: 3, progress: 0, reduce: false, returnTopButton: element(), homeDeparting: false, homeDepartureTimer: 0,
     card2Settled: false, card3Settled: false, allowCard3: false, allowCard1From2: false, allowCard2From3: false,
     awaitingDir: false, gestureLive: false, gestureEndedSinceSettle: false, settleAnim: false, settleAnimTimer: 0,
     wheelStepDelta: 0, SETTLE_MS: 180, lastP: 0, pinching: false, ignoreCardClickBefore: 0,
     lifeThemeId: 'new', storyPersonId: 'david',
+    lifeImageRequest: 0, storyImageRequest: 0, cardOpenImageRequest: 0, raf: 0, wheelIdleTimer: 0, wheelGesture: false,
     LIFE_THEMES: [{ id: 'new' }, { id: 'prayer' }], STORY_PEOPLE: [{ id: 'david' }, { id: 'lot' }],
     location: { search }, URLSearchParams, Date,
     document: { getElementById: () => null },
     window: { requestAnimationFrame: fn => frames.push(fn), setTimeout: fn => { timers.push(fn); return timers.length; } },
     setTimeout: fn => { timers.push(fn); return timers.length; }, clearTimeout() {},
     viewH: () => 800, setCard3WheelMask: value => masks.push(value), resetPinchSurface() {},
-    fillCopy() {}, openCard: (card, skipHistory) => opened.push({ card, skipHistory }),
+    setCardImageBusy() {}, fillCopy() {}, openCard: (card, skipHistory) => opened.push({ card, skipHistory }),
   });
   const names = ['knownLifeThemeId', 'knownStoryPersonId', 'readHomeRestoreEntry', 'restoreHomeEntry',
-    'showStoryDiscovery', 'startSettleTo3', 'gatedProgress', 'layoutNums', 'apply', 'clamp',
-    'pinDeckScroll', 'stepH', 'lockY3', 'syncStepSize'];
+    'showStoryDiscovery', 'cancelPendingCardOpens', 'cancelDeckMotion', 'resumeHomeAfterDeparture', 'startSettleTo1', 'startSettleTo2', 'startSettleTo3', 'gatedProgress', 'layoutNums', 'apply', 'clamp',
+    'pinDeckScroll', 'stepH', 'lockY', 'lockY3', 'syncStepSize'];
   vm.runInContext(names.map(shippedFunction).join('\n'), context);
   return { context, root, stage, cards, pages, frames, timers, opened, masks };
 }
@@ -133,4 +134,123 @@ test('ordinary home and the existing today/life/person return routes keep their 
     assert.equal(f.cards[0].classList.contains('is-active'), true);
     assert.equal(f.pages.discovery.hidden, true);
   }
+});
+
+for (const [search, index] of [['?source=home-life&theme=prayer', 1], ['?source=home-bible-person&person=david', 2], ['?source=home-today', 0]]) {
+  test('direct detail return paints only its target immediately: ' + search, () => {
+    const f = fixture(search);
+    f.context.restoreHomeEntry(f.context.readHomeRestoreEntry());
+    assert.equal(f.opened.length, 1);
+    assert.equal(f.opened[0].card, f.cards[index]);
+    assert.equal(f.root.getAttribute('data-ghd-active'), String(index));
+    assert.equal(f.root.classList.contains('ghd-instant-navigation'), true);
+    assert.equal(f.frames.length, 0);
+    assert.equal(f.timers.length, 0);
+    assert.equal(f.context.settleAnim, false);
+    f.cards.forEach(card => assert.equal(card.style.transition, 'none'));
+  });
+}
+
+test('a swipe still animates its adjacent card and cancels old pending opens', () => {
+  const f = fixture('');
+  f.context.startSettleTo2();
+  assert.equal(f.context.settleAnim, true);
+  assert.equal(f.root.classList.contains('ghd-instant-navigation'), false);
+  assert.match(f.cards[1].style.transition, /transform 180ms/);
+  assert.equal(f.context.cardOpenImageRequest, 1);
+  assert.equal(f.timers.length, 1);
+});
+
+for(const [progress,target] of [[.2,0],[.6,1],[1.6,2]]){
+  test('back or canceled navigation fully settles a half-finished swipe at '+progress,()=>{
+    const f=fixture('');
+    f.context.progress=progress;
+    f.context.homeDeparting=true;
+    f.context.resumeHomeAfterDeparture();
+    assert.equal(f.context.homeDeparting,false);
+    assert.equal(f.context.progress,target);
+    assert.equal(f.root.scrollTop,target*400);
+    assert.equal(f.cards[target].classList.contains('is-active'),true);
+    assert.equal(f.cards[target].style.transform,'translate3d(-50%,0px,0) translate3d(0px,0px,0) scale(1)');
+    assert.equal(f.cards[target].style.transition,'none');
+    assert.equal(f.root.classList.contains('ghd-instant-navigation'),true);
+    assert.equal(f.timers.length,0);
+  });
+}
+
+function delayedOpenFixture() {
+  const card = element(['is-active']);
+  card.setAttribute('data-card', '0');
+  card.querySelector = () => null;
+  const opened = [], pending = [];
+  let ready = false;
+  const context = vm.createContext({
+    cards: [card], progress: 0, homeDeparting: false,
+    lifeImageRequest: 0, storyImageRequest: 0, cardOpenImageRequest: 0,
+    cardOpenImage: () => 'detail.webp', isHomeImageReady: () => ready,
+    ensureHomeImageReady: () => new Promise(resolve => pending.push(resolve)),
+    setCardImageBusy(card, busy) { card.busy = busy; },
+    openCardNow: card => opened.push(card),
+  });
+  vm.runInContext(['cancelPendingCardOpens', 'openCard'].map(shippedFunction).join('\n'), context);
+  return { card, context, opened, pending, cached() { ready = true; } };
+}
+
+test('detail opens immediately and leaving it prevents a late image callback reopening it', async () => {
+  const f = delayedOpenFixture();
+  f.context.openCard(f.card);
+  assert.equal(f.card.busy, false);
+  assert.equal(f.opened.length, 1, 'The text is usable before the image settles');
+  f.context.cancelPendingCardOpens();
+  f.pending[0](true);
+  await Promise.resolve();
+  assert.equal(f.opened.length, 1);
+  assert.equal(f.card.busy, false);
+});
+
+test('a newer cached open wins over an older pending image request', async () => {
+  const f = delayedOpenFixture();
+  f.context.openCard(f.card);
+  f.cached();
+  f.context.openCard(f.card);
+  assert.equal(f.opened.length, 2);
+  assert.equal(f.card.busy, false);
+  f.pending[0](true);
+  await Promise.resolve();
+  assert.equal(f.opened.length, 2);
+});
+
+test('an image failure leaves the already opened detail usable', async () => {
+  const f=delayedOpenFixture();
+  f.context.openCard(f.card, true);
+  assert.equal(f.opened.length, 1);
+  f.pending[0](false);
+  await Promise.resolve();
+  assert.equal(f.opened.length, 1);
+  assert.equal(f.card.busy, false);
+  assert.equal(f.card.classList.contains('ghd-image-failed'), true);
+});
+
+test('instant selection cancels queued scroll animation and delayed settle callbacks', () => {
+  const f = fixture('');
+  const cancelledFrames = [], cancelledTimers = [];
+  f.context.window.cancelAnimationFrame = id => cancelledFrames.push(id);
+  f.context.clearTimeout = id => cancelledTimers.push(id);
+  f.context.raf = 42;
+  f.context.settleAnimTimer = 43;
+  f.context.wheelIdleTimer = 44;
+  f.context.startSettleTo3(true);
+  assert.deepEqual(cancelledFrames, [42]);
+  assert.deepEqual(cancelledTimers, [43, 44]);
+  assert.equal(f.context.raf, 0);
+  assert.equal(f.context.settleAnimTimer, 0);
+  assert.equal(f.context.wheelIdleTimer, 0);
+  assert.equal(f.root.getAttribute('data-ghd-active'), '2');
+});
+
+test('a late image completion cannot open a card underneath a newly opened dialog', () => {
+  const context=vm.createContext({isHomeOverlayOpen:()=>true, homeDeparting:false});
+  vm.runInContext(shippedFunction('openCardNow'), context);
+  const card=new Proxy({}, {get(){assert.fail('The covered card must remain untouched while a dialog is open');}});
+  context.openCardNow(card, true);
 });

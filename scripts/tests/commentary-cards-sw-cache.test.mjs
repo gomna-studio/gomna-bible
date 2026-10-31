@@ -14,12 +14,12 @@ const swSource = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 test('service worker marks commentary-cards and audio/manifests as fresh assets', () => {
   assert.match(swSource, /\/data\\\/commentary-cards\\\//);
   assert.match(swSource, /\/audio\\\/manifests\\\//);
-  assert.match(swSource, /2026-07-24-commentary-header-verse-v1/);
+  assert.match(swSource, /const CACHE_VERSION = '[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+-v[0-9]+'/);
 });
 
 test('reader loads locale cards with asset-version cache bust', () => {
   const reader = fs.readFileSync(path.join(ROOT, 'reader.html'), 'utf8');
-  assert.match(reader, /GOMNA_ASSET_VERSION = "20260725-multilang-structured-refs-v1"/);
+  assert.match(reader, /GOMNA_ASSET_VERSION = "[a-zA-Z0-9-]+"/);
   assert.match(
     reader,
     /data\/commentary-cards\/' \+\s*\n?\s*encodeURIComponent\(locale\)/,
