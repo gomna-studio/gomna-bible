@@ -54,7 +54,7 @@
 #loginModal .login-brand-visual.is-instant .login-brand-card{transition:none}
 
 /* Phone artwork uses a direct 104px coordinate box: each front logo is
-   75–78px wide. Reserve its real height so enlargement cannot cover the
+   67–70px wide. Reserve its real height so enlargement cannot cover the
    caption or indicator dots. Desktop geometry above remains unchanged. */
 @media (max-width:600px){
   #loginModal .login-brand-visual{
@@ -63,7 +63,7 @@
     --lv-front:104px;
     --login-scale-trim:0;
     padding-top:40px;
-    transform:translateY(-7mm) scale(.75);
+    transform:translateY(-7mm) scale(.67);
   }
 }
 
