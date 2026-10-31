@@ -10,9 +10,9 @@ const sw = read('sw.js');
 const release = sw.match(/const CACHE_VERSION = '([^']+)'/)[1];
 const version = release.replace(/^(\d{4})-(\d{2})-(\d{2})/, '$1$2$3');
 const precache = [...sw.match(/const STATIC_URLS = \[([\s\S]*?)\];/)[1].matchAll(/'([^']+)'/g)].map(match => match[1]);
-const latestAssets = ['/js/gomna-account-white.css'];
+const latestAssets = ['/js/gomna-account-white.css', '/js/gomna-login-brand-shuffle.js'];
 const versionedAssets = [
-  '/js/gomna-account-white.css',
+  '/js/gomna-account-white.css', '/js/gomna-login-brand-shuffle.js',
   '/js/audio-config.js', '/js/audio-engine.js', '/js/gomna-audio-telemetry.js',
   '/js/gomna-bible-library.js', '/js/gomna-daily-verses.js', '/js/gomna-home-feed.css',
   '/js/gomna-home-feed.js', '/js/gomna-home-resume.js', '/js/gomna-screen-transition.js',
@@ -27,7 +27,7 @@ test('core pages and active worker identify the same release', () => {
   }
 });
 
-test('asset URLs agree across pages and precache; changed CSS has a fresh revision', () => {
+test('asset URLs agree across pages and precache; changed assets have fresh revisions', () => {
   const seen = new Map();
   for (const page of pages) {
     const base = new URL(page, 'https://gomnastudio.com/');

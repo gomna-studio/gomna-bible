@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-11-01-login-overlap-v107';
+const CACHE_VERSION = '2026-11-01-login-mobile-v108';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const IMAGE_CACHE = 'gomna-images-v1';
@@ -37,7 +37,8 @@ const STATIC_URLS = [
   '/js/gomna-guide-home-entry.js?v=20261025-restore-app-guide-v1',
   '/gomna_category_feature.js?v=20261022-guide-details-v1',
   '/js/gomna-auth.js?v=20261008-account-unified-v1',
-  '/js/gomna-account-white.css?v=20261101-login-overlap-v107',
+  '/js/gomna-account-white.css?v=20261101-login-mobile-v108',
+  '/js/gomna-login-brand-shuffle.js?v=20261101-login-mobile-v108',
   '/js/gomna-nav-single-tap.js?v=20261008-resume-v1',
   '/js/gomna-nav-magnifier.js?v=20261008-resume-v1',
   '/js/gomna-bible-stair-picker.js?v=20261008-clean-transition-v1',

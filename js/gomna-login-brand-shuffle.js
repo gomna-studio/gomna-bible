@@ -47,13 +47,24 @@
 
     var front = 0;   /* 지금 가운데 앞에 있는 카드 */
     var timer = null;
+    var labelTimer = null;
+    var pageActive = true;
 
     function stop() {
       if (timer) { window.clearTimeout(timer); timer = null; }
     }
 
+    function pause() {
+      stop();
+      if (labelTimer) { window.clearTimeout(labelTimer); labelTimer = null; }
+    }
+
     function isOpen() {
       try { return !!(overlay && overlay.getClientRects().length); } catch (e) { return false; }
+    }
+
+    function canPlay() {
+      return pageActive && !document.hidden && isOpen();
     }
 
     /* 자리 배정 규칙:
@@ -77,6 +88,11 @@
           dots[i].classList.toggle('is-on', i === front);
         }
       }
+      if (reduceMotion()) {
+        lead.textContent = texts[front];
+        lead.style.opacity = '';
+        return;
+      }
       if (lead.textContent === texts[front]) return;
       lead.style.opacity = '.85';
       lead.textContent = texts[front];
@@ -87,19 +103,21 @@
 
     function schedule(wait) {
       stop();
-      if (reduceMotion()) return;
+      if (!canPlay()) return;
       timer = window.setTimeout(function () {
-        /* 창이 닫혀 있으면 넘기지 않고 기다리기만 한다 */
-        if (!isOpen()) { schedule(HOLD_MS); return; }
-        show(front + 1, HOLD_MS + MOVE_MS);
+        timer = null;
+        if (!canPlay()) return;
+        /* 동작 줄이기는 CSS 이동만 없앤다. 카드와 문구는 계속 즉시 바뀐다. */
+        show(front + 1, HOLD_MS + (reduceMotion() ? 0 : MOVE_MS));
       }, wait);
     }
 
     function show(next, wait) {
+      if (labelTimer) { window.clearTimeout(labelTimer); labelTimer = null; }
       front = ((next % cards.length) + cards.length) % cards.length;
       placeCards();
       if (reduceMotion()) syncLabel();
-      else window.setTimeout(syncLabel, MOVE_MS);
+      else labelTimer = window.setTimeout(function () { labelTimer = null; syncLabel(); }, MOVE_MS);
       schedule(wait);
     }
 
@@ -123,11 +141,20 @@
         var open = isOpen();
         if (open === wasOpen) return;
         wasOpen = open;
-        if (!open) { stop(); return; }
+        if (!open) { pause(); return; }
         resetInstantly();
         schedule(HOLD_MS);
       }).observe(overlay, { attributes: true, attributeFilter: ['class', 'aria-hidden', 'style'] });
     }
+
+    function resumeWhenVisible() {
+      if (!canPlay()) { pause(); return; }
+      syncLabel();
+      schedule(HOLD_MS);
+    }
+    document.addEventListener('visibilitychange', resumeWhenVisible);
+    window.addEventListener('pagehide', function () { pageActive = false; pause(); });
+    window.addEventListener('pageshow', function () { pageActive = true; resumeWhenVisible(); });
 
     for (var d = 0; d < dots.length; d++) {
       (function (idx) {

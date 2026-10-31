@@ -4358,8 +4358,8 @@ html.login-modal-open,html.login-modal-open body{overflow:hidden;overscroll-beha
   .login-box,
   .login-brand-visual,
   .login-brand-card{animation:none}
-  /* 교차 이동과 문구 페이드도 멈춘다. 카드·문구·점 내용은 그대로 보이고
-     자동 넘김은 스크립트가 하지 않는다. 점을 눌러 바꾸는 것만 남는다. */
+  /* 동작 줄이기: 교차 이동과 페이드를 생략한다.
+     카드·문구·점은 스크립트가 즉시 전환하며 자동 넘김은 유지한다. */
   .login-brand-card,
   .login-brand-lead{transition:none}
 }
@@ -4540,8 +4540,8 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <script src="js/gomna-ui-i18n.js?v=20260909-locale-runtime-sync-v1"></script>
 <script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
-<link rel="stylesheet" href="js/gomna-account-white.css?v=20261101-login-overlap-v107">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-16-mobile-viewport-v99" data-release="2026-11-01-login-overlap-v107" defer></script>
+<link rel="stylesheet" href="js/gomna-account-white.css?v=20261101-login-mobile-v108">
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-16-mobile-viewport-v99" data-release="2026-11-01-login-mobile-v108" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
 <link rel="stylesheet" href="js/gomna-guide-colorful.css?v=2026-10-16-mobile-viewport-v99">
 <script>if(new URLSearchParams(location.search).get("homeGuide")==="1")document.documentElement.classList.add("gomna-home-guide-entering");</script><style>html.gomna-home-guide-entering body{visibility:hidden}</style>
@@ -20504,7 +20504,7 @@ function loadAds() {
 <!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
 <script defer src="js/gomna-help.js?v=2026-09-18-help-commentary-v29"></script>
 <!-- 로컬 미리보기: 로그인 상단 카드 3장 교차 셔플(표시 전용). 되돌릴 때는 이 줄과 파일만 지운다. -->
-<script defer src="js/gomna-login-brand-shuffle.js?v=20260910-lead-rotate-v1"></script>
+<script defer src="js/gomna-login-brand-shuffle.js?v=20261101-login-mobile-v108"></script>
 <style>
 #opt4VerseListenModeMenu.is-designed-card{position:fixed!important;left:50%!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:calc(100% - 40px)!important;max-width:360px!important;padding:46px 24px 26px!important;box-sizing:border-box;background:#fff;border:1px solid #e1e5e9;border-radius:20px;box-shadow:0 12px 45px #0003;z-index:501}
 #opt4VerseListenModeMenu.is-designed-card::before,#opt4VerseListenModeMenu.is-designed-card::after{display:none}
