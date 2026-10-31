@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-10-31-navigation-v105';
+const CACHE_VERSION = '2026-10-31-login-layout-v106';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const IMAGE_CACHE = 'gomna-images-v1';
@@ -37,7 +37,7 @@ const STATIC_URLS = [
   '/js/gomna-guide-home-entry.js?v=20261025-restore-app-guide-v1',
   '/gomna_category_feature.js?v=20261022-guide-details-v1',
   '/js/gomna-auth.js?v=20261008-account-unified-v1',
-  '/js/gomna-account-white.css?v=20261008-account-unified-v1',
+  '/js/gomna-account-white.css?v=20261031-login-layout-v106',
   '/js/gomna-nav-single-tap.js?v=20261008-resume-v1',
   '/js/gomna-nav-magnifier.js?v=20261008-resume-v1',
   '/js/gomna-bible-stair-picker.js?v=20261008-clean-transition-v1',
@@ -56,9 +56,8 @@ const STATIC_URLS = [
   '/js/gomna-screen-transition.js?v=20261031-navigation-v105',
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
-  '/js/gomna-account-white.css?v=20260925-account-white-preview-v5',
   '/js/gomna-home-feed.js?v=20261031-navigation-v105',
-  '/js/gomna-home-feed.css?v=20261031-navigation-v105',
+  '/js/gomna-home-feed.css?v=20261031-login-layout-v106',
   '/js/gomna-daily-verses.js?v=20261031-navigation-v105',
   '/js/gomna-home-resume.js?v=20261031-navigation-v105',
   '/js/gomna-ux-telemetry.js?v=20261031-navigation-v105',

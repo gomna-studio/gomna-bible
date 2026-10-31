@@ -246,3 +246,49 @@ h1 {
 
 .btn-secondary:hover, .btn-secondary:focus-visible { background: #354655; color: #fff; }
 
+/* Chapter entries put the Scripture first; book hubs retain their existing layout. */
+.actions--chapter {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.actions--chapter .btn-primary {
+  min-height: 44px;
+  padding: 0.45rem 0.9rem;
+  border-radius: 10px;
+  background: #344757;
+  border-color: #344757;
+}
+
+.actions--chapter .btn-primary:hover,
+.actions--chapter .btn-primary:focus-visible {
+  background: #2c3a47;
+  border-color: #2c3a47;
+}
+
+.chapter-list-link,
+.chapter-nav > a,
+.chapter-nav > span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+  word-break: keep-all;
+}
+
+.chapter-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin: -0.75rem 0 1rem;
+}
+
+.chapter-nav [aria-disabled="true"] {
+  color: var(--bible-muted);
+}
+

@@ -10,7 +10,9 @@ const sw = read('sw.js');
 const release = sw.match(/const CACHE_VERSION = '([^']+)'/)[1];
 const version = release.replace(/^(\d{4})-(\d{2})-(\d{2})/, '$1$2$3');
 const precache = [...sw.match(/const STATIC_URLS = \[([\s\S]*?)\];/)[1].matchAll(/'([^']+)'/g)].map(match => match[1]);
-const changedAssets = [
+const latestAssets = ['/js/gomna-account-white.css', '/js/gomna-home-feed.css'];
+const versionedAssets = [
+  '/js/gomna-account-white.css',
   '/js/audio-config.js', '/js/audio-engine.js', '/js/gomna-audio-telemetry.js',
   '/js/gomna-bible-library.js', '/js/gomna-daily-verses.js', '/js/gomna-home-feed.css',
   '/js/gomna-home-feed.js', '/js/gomna-home-resume.js', '/js/gomna-screen-transition.js',
@@ -25,19 +27,21 @@ test('core pages and active worker identify the same release', () => {
   }
 });
 
-test('changed assets use one release URL everywhere and are precached under that URL', () => {
-  const seen = new Set();
+test('asset URLs agree across pages and precache; changed CSS has a fresh revision', () => {
+  const seen = new Map();
   for (const page of pages) {
     const base = new URL(page, 'https://gomnastudio.com/');
     for (const match of read(page).matchAll(/(?:src|href)="([^"]+)"/g)) {
       const url = new URL(match[1], base);
-      if (!changedAssets.includes(url.pathname)) continue;
-      assert.equal(url.searchParams.get('v'), version, `${page}: ${url.pathname}`);
+      if (!versionedAssets.includes(url.pathname)) continue;
+      assert.ok(url.searchParams.get('v'), `${page}: ${url.pathname}`);
+      if (latestAssets.includes(url.pathname)) assert.equal(url.searchParams.get('v'), version, `${page}: ${url.pathname}`);
+      if (seen.has(url.pathname)) assert.equal(url.search, seen.get(url.pathname), `${page}: inconsistent ${url.pathname}`);
       assert(precache.includes(url.pathname + url.search), `missing precache: ${url.pathname + url.search}`);
-      seen.add(url.pathname);
+      seen.set(url.pathname, url.search);
     }
   }
-  assert.deepEqual([...seen].sort(), [...changedAssets].sort());
+  assert.deepEqual([...seen.keys()].sort(), [...versionedAssets].sort());
 });
 
 test('precache has no missing local files or bulk audio/Bible downloads', () => {

@@ -157,6 +157,7 @@ function renderWebPageJsonLd({ name, description, url }) {
 
 function renderShell({
   depth,
+  cssVersion = '',
   title,
   description,
   canonicalPath,
@@ -165,7 +166,7 @@ function renderShell({
   bodyHtml,
 }) {
   const canonical = `${SITE}${canonicalPath}`;
-  const css = cssHref(depth);
+  const css = cssHref(depth) + (cssVersion ? `?v=${cssVersion}` : '');
   const logo = logoHref(depth);
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -254,30 +255,30 @@ function renderChapterPage({ bookId, koName, chapter, verses, staticKeys, maxCha
   ];
 
   const hubLink = hubExists
-    ? `<a class="btn btn-secondary" href="/bible/${bookId}/">${escapeHtml(koName)} 대표 ${unit} 목록</a>`
+    ? `<a class="chapter-list-link" href="/bible/${bookId}/">${escapeHtml(koName)} 대표 ${unit} 목록</a>`
     : '';
 
   const prevBtn = prevHref
-    ? `<a class="btn btn-secondary" href="${escapeHtml(prevHref)}">이전 ${unit} (${prevChapter}${unit})</a>`
-    : `<span class="btn btn-secondary" aria-disabled="true">이전 ${unit} 없음</span>`;
+    ? `<a href="${escapeHtml(prevHref)}">이전 ${unit} (${prevChapter}${unit})</a>`
+    : `<span aria-disabled="true">이전 ${unit} 없음</span>`;
   const nextBtn = nextHref
-    ? `<a class="btn btn-secondary" href="${escapeHtml(nextHref)}">다음 ${unit} (${nextChapter}${unit})</a>`
-    : `<span class="btn btn-secondary" aria-disabled="true">다음 ${unit} 없음</span>`;
+    ? `<a href="${escapeHtml(nextHref)}">다음 ${unit} (${nextChapter}${unit})</a>`
+    : `<span aria-disabled="true">다음 ${unit} 없음</span>`;
 
   const bodyHtml = `
     <p class="lead">${escapeHtml(lead)}</p>
-    <div class="actions">
-      <a class="btn btn-primary" href="${escapeHtml(readerHref(koName, chapter, 1))}">Reader에서 읽기·듣기·말씀풀이 열기</a>
+    <div class="actions actions--chapter">
+      <a class="btn btn-primary" href="${escapeHtml(readerHref(koName, chapter, 1))}">읽기·듣기</a>
       ${hubLink}
-    </div>
-    <div class="nav-links">
-      ${prevBtn}
-      ${nextBtn}
     </div>
     <section class="chapter-text" aria-labelledby="chapter-heading">
       <h2 id="chapter-heading">${escapeHtml(label)} 본문</h2>
 ${verseHtml}
     </section>
+    <nav class="chapter-nav" aria-label="${escapeHtml(unit)} 이동">
+      ${prevBtn}
+      ${nextBtn}
+    </nav>
     <div class="footer-nav">
       <a href="/">홈페이지</a>
       ${hubExists ? `<a href="/bible/${bookId}/">${escapeHtml(koName)} 허브</a>` : ''}
@@ -287,6 +288,7 @@ ${verseHtml}
 
   return renderShell({
     depth: 3,
+    cssVersion: '20261031-chapter-actions-v106',
     title,
     description,
     canonicalPath,
@@ -378,6 +380,7 @@ function main() {
   if (process.argv.includes('--all')) {
     throw new Error('--all is not allowed for this builder');
   }
+  const chaptersOnly = process.argv.includes('--chapters-only');
 
   const { byKoName } = loadTestamentData();
   const staticKeys = new Set(CHAPTER_TARGETS.map((t) => pageKey(t.bookId, t.chapter)));
@@ -410,7 +413,7 @@ function main() {
     sitemapUrls.push(`${SITE}/bible/${target.bookId}/${target.chapter}/`);
   }
 
-  for (const bookId of HUB_BOOK_IDS) {
+  for (const bookId of chaptersOnly ? [] : HUB_BOOK_IDS) {
     const meta = BOOKS[bookId];
     const book = byKoName.get(meta.book);
     const chapters = CHAPTER_TARGETS.filter((t) => t.bookId === bookId)
@@ -433,11 +436,11 @@ function main() {
     ...HUB_BOOK_IDS.map((id) => `${SITE}/bible/${id}/`),
     ...CHAPTER_TARGETS.map((t) => `${SITE}/bible/${t.bookId}/${t.chapter}/`),
   ];
-  updateSitemap(orderedSitemap);
+  if (!chaptersOnly) updateSitemap(orderedSitemap);
 
   console.log(`○ 생성한 장 페이지: ${createdChapters.length}`);
   console.log(`○ 생성한 책 허브: ${createdHubs.length}`);
-  console.log(`○ sitemap 신규 URL: ${orderedSitemap.length}`);
+  console.log(chaptersOnly ? '○ 책 허브·sitemap: 변경 없음' : `○ sitemap 신규 URL: ${orderedSitemap.length}`);
   console.log('○ 본문 원본 수정: 없음');
   for (const u of [...createdHubs, ...createdChapters]) console.log('  -', u);
 }

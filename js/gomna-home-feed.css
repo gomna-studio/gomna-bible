@@ -2667,10 +2667,6 @@ html[data-gomna-ui-lang="zh"] .gomna-home-poster-title{
 
 .gomna-home-card[data-card="0"]:not(.is-open) .gomna-home-lines li{word-break:keep-all;overflow-wrap:anywhere}
 
-/* Compact only the login artwork; keep the dialog, provider buttons and carousel layout.
-   Artwork reduced further on request; dialog and controls retain their dimensions. */
-#loginModal .login-brand-visual{transform:scale(.74);transform-origin:50% 50%}
-
 /* Direct navigation paints only the selected card; gesture movement retains its slide. */
 #gomnaHomeFeed.ghd-instant-navigation .gomna-home-card:not(.is-active){visibility:hidden;pointer-events:none}
 

@@ -1,3 +1,40 @@
+/* Shared login artwork geometry for Home, Reader and Meditation.
+   Keep the approved .74 artwork scale and move its center up by 7 CSS mm.
+   Each card loses 3 CSS mm at every edge; trim accounts for the parent scale
+   and the responsive 96/85/76/73/65px coordinate box. Only transforms change,
+   so provider buttons, dialog dimensions and the shuffle layout stay stable. */
+#loginModal .login-brand-visual{
+  --login-scale-trim:.319216855;
+  transform:translateY(-7mm) scale(.74);
+  transform-origin:50% 50%;
+}
+#loginModal .login-brand-card--slot-center{
+  transform:translateX(-50%) translateY(0) rotate(0deg)
+    scale(calc(var(--card-base) - var(--login-scale-trim)));
+}
+#loginModal .login-brand-card--slot-left{
+  transform:translateX(calc(-50% - var(--lv-front) * .62))
+    translateY(calc(var(--lv-front) * .903 - var(--lv-h))) rotate(-8deg)
+    scale(calc(.8224 * var(--card-base) - var(--login-scale-trim)));
+}
+#loginModal .login-brand-card--slot-right{
+  transform:translateX(calc(-50% + var(--lv-front) * .60))
+    translateY(calc(var(--lv-front) * .862 - var(--lv-h) * .93)) rotate(8deg)
+    scale(calc(.7542 * var(--card-base) - var(--login-scale-trim)));
+}
+@media (max-width:430px){
+  #loginModal .login-brand-visual{--login-scale-trim:.360527271}
+}
+@media (max-width:374px){
+  #loginModal .login-brand-visual{--login-scale-trim:.403221290}
+}
+@media (max-height:740px){
+  #loginModal .login-brand-visual{--login-scale-trim:.419792028}
+}
+@media (max-height:650px){
+  #loginModal .login-brand-visual{--login-scale-trim:.471458739}
+}
+
 /* Light theme: use white account surfaces and the existing icon shapes in black. */
 html:not([data-gomna-theme="dark"]) body .home-account-panel,
 html:not([data-gomna-theme="dark"]) body .home-account-switch,
