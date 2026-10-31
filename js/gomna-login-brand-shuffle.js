@@ -16,11 +16,6 @@
   var RESUME_MS = 6000; /* 사용자가 직접 넘긴 뒤 자동 진행이 다시 오기까지 */
   var SWIPE_MIN = 40;   /* 이보다 짧은 가로 움직임은 스와이프로 보지 않는다 */
 
-  function reduceMotion() {
-    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
-    catch (e) { return false; }
-  }
-
   function ready(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
     else fn();
@@ -88,11 +83,6 @@
           dots[i].classList.toggle('is-on', i === front);
         }
       }
-      if (reduceMotion()) {
-        lead.textContent = texts[front];
-        lead.style.opacity = '';
-        return;
-      }
       if (lead.textContent === texts[front]) return;
       lead.style.opacity = '.85';
       lead.textContent = texts[front];
@@ -107,8 +97,8 @@
       timer = window.setTimeout(function () {
         timer = null;
         if (!canPlay()) return;
-        /* 동작 줄이기는 CSS 이동만 없앤다. 카드와 문구는 계속 즉시 바뀐다. */
-        show(front + 1, HOLD_MS + (reduceMotion() ? 0 : MOVE_MS));
+        /* 이 로고 셔플은 요청된 부드러운 교차 이동과 문구 시점을 항상 함께 유지한다. */
+        show(front + 1, HOLD_MS + MOVE_MS);
       }, wait);
     }
 
@@ -116,8 +106,7 @@
       if (labelTimer) { window.clearTimeout(labelTimer); labelTimer = null; }
       front = ((next % cards.length) + cards.length) % cards.length;
       placeCards();
-      if (reduceMotion()) syncLabel();
-      else labelTimer = window.setTimeout(function () { labelTimer = null; syncLabel(); }, MOVE_MS);
+      labelTimer = window.setTimeout(function () { labelTimer = null; syncLabel(); }, MOVE_MS);
       schedule(wait);
     }
 

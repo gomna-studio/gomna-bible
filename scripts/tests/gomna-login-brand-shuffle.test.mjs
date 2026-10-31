@@ -88,18 +88,28 @@ test('closed modal has no autoplay timer; normal motion keeps the four-second ho
   f.advance(1); assert.equal(f.api.current(), 2);
 });
 
-test('reduced motion still advances cards and captions automatically without a caption fade', () => {
+test('the explicitly requested smooth logo shuffle retains 800ms movement even with reduced motion enabled', () => {
   const f = fixture({ reduced: true });
   f.setOpen(true); f.advance(4000);
-  assert.equal(f.api.current(), 1); assert.equal(f.lead.textContent, 'caption-2');
-  assert.equal(f.lead.style.opacity, ''); assert.equal(f.dots[1].classList.contains('is-on'), true);
-  f.advance(4000); assert.equal(f.api.current(), 2); assert.equal(f.lead.textContent, 'caption-3');
+  assert.equal(f.api.current(), 1); assert.equal(f.lead.textContent, 'caption-1');
+  assert.equal(f.dots[0].classList.contains('is-on'), true);
+  f.advance(799); assert.equal(f.lead.textContent, 'caption-1');
+  f.advance(1); assert.equal(f.lead.textContent, 'caption-2');
+  assert.equal(f.dots[1].classList.contains('is-on'), true);
+  f.advance(3999); assert.equal(f.api.current(), 1);
+  f.advance(1); assert.equal(f.api.current(), 2); assert.equal(f.lead.textContent, 'caption-2');
+  f.advance(800); assert.equal(f.lead.textContent, 'caption-3');
 });
 
-test('turning reduced motion off while open does not leave autoplay stopped', () => {
+test('changing the system preference mid-shuffle does not shorten or restart this component timing', () => {
   const f = fixture({ reduced: true });
-  f.setOpen(true); f.advance(4000); f.setReduced(false); f.advance(4000);
+  f.setOpen(true); f.advance(4200); f.setReduced(false);
+  assert.equal(f.lead.textContent, 'caption-1');
+  f.advance(600); assert.equal(f.lead.textContent, 'caption-2');
+  f.advance(3999); assert.equal(f.api.current(), 1);
+  f.setReduced(true); f.advance(1);
   assert.equal(f.api.current(), 2);
+  assert.equal(f.lead.textContent, 'caption-2');
   f.advance(800); assert.equal(f.lead.textContent, 'caption-3');
 });
 
@@ -108,6 +118,7 @@ test('close cancels pending work; reopening resets the first card even when DOM 
   f.setOpen(true); f.advance(4200); f.setOpen(false);
   assert.equal(f.timers.size, 0); f.advance(10000); assert.equal(f.api.current(), 1);
   f.setOpen(true); assert.equal(f.api.current(), 0); assert.equal(f.lead.textContent, 'caption-1');
+  assert.equal(f.visual.classList.contains('is-instant'), false, 'only initial reset disables movement');
   assert.equal(f.cards[2].classList.contains('login-brand-card--slot-center'), true);
   f.advance(4000); assert.equal(f.api.current(), 1);
 });
@@ -137,4 +148,12 @@ test('dots and horizontal swipes retain manual navigation and six-second resume;
   f.advance(1); assert.equal(f.api.current(), 0);
   f.swipe(-70); assert.equal(f.api.current(), 1); f.swipe(70); assert.equal(f.api.current(), 0);
   f.swipe(45, 80); assert.equal(f.api.current(), 0); f.swipe(20); assert.equal(f.api.current(), 0);
+});
+
+test('rapid manual changes synchronize the caption only after the final 800ms move', () => {
+  const f = fixture({ reduced: true }); f.setOpen(true); f.dot(2); f.advance(200); f.swipe(70);
+  assert.equal(f.api.current(), 1); assert.equal(f.lead.textContent, 'caption-1');
+  f.advance(600); assert.equal(f.lead.textContent, 'caption-1', 'the canceled move cannot update the caption early');
+  f.advance(200); assert.equal(f.lead.textContent, 'caption-2');
+  assert.equal(f.dots[1].classList.contains('is-on'), true);
 });

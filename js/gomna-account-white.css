@@ -45,23 +45,40 @@
 }
 
 
-/* Phones: add 4 CSS mm at each edge (+8mm per side length) to v107.
-   The desktop artwork remains unchanged. The shared slot-spacing expression
-   expands the overlapping group together with its cards. */
+/* The login artwork is explicitly requested to move smoothly, including on
+   devices with reduced motion. Keep this exception local to these three logos. */
+#loginModal .login-brand-card{
+  transition:transform 800ms cubic-bezier(.4,.03,.28,1);
+}
+#loginModal .login-brand-lead{transition:opacity 130ms ease}
+#loginModal .login-brand-visual.is-instant .login-brand-card{transition:none}
+
+/* Phone artwork uses a direct 104px coordinate box: each front logo is
+   100–104px wide. Reserve its real height so enlargement cannot cover the
+   caption or indicator dots. Desktop geometry above remains unchanged. */
 @media (max-width:600px){
-  #loginModal .login-brand-visual{--login-scale-trim:-.106405618}
+  #loginModal .login-brand-visual{
+    --lv-w:220px;
+    --lv-h:120px;
+    --lv-front:104px;
+    --login-scale-trim:0;
+    padding-top:40px;
+    transform:translateY(-7mm) scale(1);
+  }
 }
-@media (max-width:430px){
-  #loginModal .login-brand-visual{--login-scale-trim:-.120175757}
-}
+
+/* Keep long provider labels on one line on narrow phones. */
 @media (max-width:374px){
-  #loginModal .login-brand-visual{--login-scale-trim:-.134407097}
+  #loginModal .login-providers{padding-inline:12px}
 }
-@media (max-width:600px) and (max-height:740px){
-  #loginModal .login-brand-visual{--login-scale-trim:-.139930676}
-}
-@media (max-width:600px) and (max-height:650px){
-  #loginModal .login-brand-visual{--login-scale-trim:-.157152913}
+/* Short phones keep the enlarged artwork and all actions in reach by using
+   the spare vertical gaps; button hit areas remain 44px or taller. */
+@media (max-width:600px) and (max-height:600px){
+  #loginModal .login-brand-visual{margin-bottom:10px}
+  #loginModal .login-brand-dots{margin-bottom:12px}
+  #loginModal .login-providers{gap:10px}
+  #loginModal .login-skip{margin-top:8px}
+  #loginModal .login-box{padding-bottom:10px}
 }
 
 /* Light theme: use white account surfaces and the existing icon shapes in black. */
