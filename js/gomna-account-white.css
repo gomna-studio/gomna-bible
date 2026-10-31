@@ -2,24 +2,33 @@
    Keep the approved .74 artwork scale and move its center up by 7 CSS mm.
    Each card loses 3 CSS mm at every edge; trim accounts for the parent scale
    and the responsive 96/85/76/73/65px coordinate box. Only transforms change,
-   so provider buttons, dialog dimensions and the shuffle layout stay stable. */
+   so button sizes and dialog dimensions stay stable. Side-slot offsets
+   shrink with the cards to keep the original overlapping group intact. */
 #loginModal .login-brand-visual{
   --login-scale-trim:.319216855;
+  --login-slot-spacing:calc(1 - var(--login-scale-trim));
   transform:translateY(-7mm) scale(.74);
   transform-origin:50% 50%;
+}
+#loginModal .login-brand-dots,
+#loginModal .login-title,
+#loginModal .login-providers,
+#loginModal .login-next-step-notice,
+#loginModal .login-skip{
+  transform:translateY(-7mm);
 }
 #loginModal .login-brand-card--slot-center{
   transform:translateX(-50%) translateY(0) rotate(0deg)
     scale(calc(var(--card-base) - var(--login-scale-trim)));
 }
 #loginModal .login-brand-card--slot-left{
-  transform:translateX(calc(-50% - var(--lv-front) * .62))
-    translateY(calc(var(--lv-front) * .903 - var(--lv-h))) rotate(-8deg)
+  transform:translateX(calc(-50% - var(--lv-front) * .62 * var(--login-slot-spacing)))
+    translateY(calc((var(--lv-front) * .903 - var(--lv-h)) * var(--login-slot-spacing))) rotate(-8deg)
     scale(calc(.8224 * var(--card-base) - var(--login-scale-trim)));
 }
 #loginModal .login-brand-card--slot-right{
-  transform:translateX(calc(-50% + var(--lv-front) * .60))
-    translateY(calc(var(--lv-front) * .862 - var(--lv-h) * .93)) rotate(8deg)
+  transform:translateX(calc(-50% + var(--lv-front) * .60 * var(--login-slot-spacing)))
+    translateY(calc((var(--lv-front) * .862 - var(--lv-h) * .93) * var(--login-slot-spacing))) rotate(8deg)
     scale(calc(.7542 * var(--card-base) - var(--login-scale-trim)));
 }
 @media (max-width:430px){
