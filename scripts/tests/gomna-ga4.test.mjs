@@ -144,3 +144,37 @@ test('custom events reach both collectors only after consent',()=>{
  assert.equal(p.events('audio_failure').length,1);
  assert.equal(p.window.posthog.filter(x=>x[0]==='capture'&&x[1]==='audio_failure').length,1);
 });
+
+const qaReferrer = 'https://gomna-studio-design-review.leedukkyu.chatgpt.site/';
+test('owned QA preview to production is excluded for the same tab, not the device',()=>{
+ const session=store();
+ for(const referrer of [qaReferrer,'https://gomnastudio.com/']){
+  const p=page({session,referrer,consent:accepted});p.ready();
+  assert.equal(p.window.GomnaAnalyticsControl.isInternal(),true);
+  assert.equal(p.scripts.length,0);assert.equal(p.commands().length,0);
+  assert.equal(p.localStorage.getItem('gomna:analytics:internal'),null);
+  assert.equal(p.document.cookie,'');
+ }
+ // A separately opened visit and a subsequent external visit are ordinary visits.
+ const separate=page({consent:accepted});separate.ready();assert.equal(separate.scripts.length,2);
+ const organic=page({session,referrer:'https://www.google.com/',consent:accepted});organic.ready();assert.equal(organic.scripts.length,2);
+ const next=page({session,referrer:'https://gomnastudio.com/reader.html',consent:accepted});next.ready();assert.equal(next.scripts.length,2);
+});
+test('owned QA marker expires; ordinary AI referrals and lookalike hosts are not blocked',()=>{
+ for(const referrer of ['https://chatgpt.com/','https://other.chatgpt.site/',qaReferrer.replace('.site/', '.site.example.com/')]){
+  const p=page({referrer,consent:accepted});p.ready();assert.equal(p.scripts.length,2);
+ }
+ const session=store();session.setItem('gomna:analytics:qa-tab-until:v1',String(Date.now()-1));
+ const p=page({session,consent:accepted});p.ready();assert.equal(p.scripts.length,2);
+});
+test('audio queue names cannot leak into GA acquisition source; PostHog keeps its existing event field',()=>{
+ const p=page({consent:accepted,referrer:'https://www.google.com/'});p.ready();
+ for(const name of ['audio_attempt','audio_user_start']){
+  const params={source:'bible-chapter:psalms.022.001',book:'psalms'};
+  p.window.GomnaGa4.track(name,params);
+  const ga=p.events(name)[0][2];assert.equal(ga.source,undefined);
+  assert.equal(ga.audio_source,params.source);assert.equal(ga.entry_source,'www.google.com');
+  assert.equal(ga.traffic_environment,'production');assert.equal(ga.book,'psalms');
+  const ph=p.window.posthog.find(x=>x[0]==='capture'&&x[1]===name)[2];assert.equal(ph.source,params.source);
+ }
+});

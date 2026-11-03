@@ -62,7 +62,14 @@
     Object.keys(params || {}).forEach(function (key) { values[key] = params[key]; });
     values.traffic_environment = 'production';
     values.analytics_version = '20261029-v1';
-    window.gtag('event', name, values);
+    // Audio 'source' describes a playback queue, not the acquisition source.
+    // Preserve existing PostHog reports while keeping GA traffic attribution clean.
+    var gaValues = values;
+    if ((name === 'audio_attempt' || name === 'audio_user_start') && 'source' in values) {
+      gaValues = Object.assign({}, values, { audio_source: values.source });
+      delete gaValues.source;
+    }
+    window.gtag('event', name, gaValues);
     if (window.posthog && window.posthog.capture) window.posthog.capture(name, values);
     return true;
   }
