@@ -57,7 +57,7 @@ const STATIC_URLS = [
   '/js/gomna-screen-transition.js?v=20261031-navigation-v105',
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
-  '/js/gomna-home-feed.js?v=20261031-navigation-v105',
+  '/js/gomna-home-feed.js?v=20261104-reminder-v1',
   '/js/gomna-home-feed.css?v=20261031-login-layout-v106',
   '/js/gomna-daily-verses.js?v=20261031-navigation-v105',
   '/js/gomna-home-resume.js?v=20261031-navigation-v105',
@@ -621,7 +621,16 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 function openTodayWordFromPush(dest, data) {
-  const abs = new URL(dest, self.location.origin).href;
+  const target = new URL(dest, self.location.origin);
+  if (target.origin !== self.location.origin) return Promise.resolve();
+  // A closed app receives only this URL, not the notification's postMessage.
+  if (data && data.source === 'home-today' && target.searchParams.get('source') === 'home-today' &&
+      (target.pathname === '/' || target.pathname === '/index.html')) {
+    for (const [field, param] of [['date','date'],['book','book'],['chapter','chapter'],['startVerse','start'],['endVerse','end']]) {
+      if (data[field] != null) target.searchParams.set(param, String(data[field]));
+    }
+  }
+  const abs = target.href;
   return self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
     for (let i = 0; i < list.length; i++) {
       const client = list[i];
