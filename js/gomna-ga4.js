@@ -10,11 +10,53 @@
   var landingPath = location.pathname;
   var landingReferrer = document.referrer;
 
-  function allowed() {
-    // Missing exclusion control fails closed.
-    if (!window.GomnaAnalyticsControl || window.GomnaAnalyticsControl.isInternal()) return false;
+  var LAST_APP_DAY = 'gomna:analytics:last-visible-app-kst-day:v1';
+  var disabledAfterRevocation = false;
+
+  function analyticsConsent() {
     try { return JSON.parse(localStorage.getItem('cookieChoice') || 'null').analytics === true; }
     catch (error) { return false; }
+  }
+
+  function allowed() {
+    return !!(window.GomnaAnalyticsControl && !window.GomnaAnalyticsControl.isInternal() && analyticsConsent());
+  }
+
+  function forgetVisit() {
+    try { localStorage.removeItem(LAST_APP_DAY); } catch (error) {}
+    if (configured) {
+      window['ga-disable-' + ID] = true;
+      disabledAfterRevocation = true;
+    }
+  }
+
+  // A browser-local day, not a visitor ID. Excludes marketing, company, and
+  // search landing pages unless the visitor actually opens the app itself.
+  function visibleAppVisit(how) {
+    if (document.visibilityState !== 'visible' || !allowed() || !configured ||
+        !/^\/(?:index\.html|reader\.html|meditation\.html)?$/.test(location.pathname)) return;
+    function record() {
+      if (document.visibilityState !== 'visible' || !allowed()) return;
+      var day = Math.floor((Date.now() + 9 * 3600000) / 86400000);
+      var previous;
+      try {
+        var raw = localStorage.getItem(LAST_APP_DAY);
+        previous = raw && /^\d+$/.test(raw) ? Number(raw) : null;
+        if (previous === day) return;
+        localStorage.setItem(LAST_APP_DAY, String(day));
+      } catch (error) { return; }
+      // No historical inference: the first observation only establishes a baseline.
+      if (previous > 0 && previous < day) {
+        send('app_return_visit', { return_mode: how, return_metric_version: 1 });
+      }
+    }
+    // Multiple foreground windows may open at the same time. Where provided,
+    // a same-origin lock serializes the shared day marker across those windows.
+    if (navigator.locks && typeof navigator.locks.request === 'function') {
+      try { navigator.locks.request(LAST_APP_DAY, record).catch(record); return; }
+      catch (error) {}
+    }
+    record();
   }
 
   function entryContext() {
@@ -62,13 +104,27 @@
     Object.keys(params || {}).forEach(function (key) { values[key] = params[key]; });
     values.traffic_environment = 'production';
     values.analytics_version = '20261029-v1';
-    window.gtag('event', name, values);
+    // Audio 'source' describes a playback queue, not the acquisition source.
+    // Preserve existing PostHog reports while keeping GA traffic attribution clean.
+    var gaValues = values;
+    if ((name === 'audio_attempt' || name === 'audio_user_start') && 'source' in values) {
+      gaValues = Object.assign({}, values, { audio_source: values.source });
+      delete gaValues.source;
+    }
+    window.gtag('event', name, gaValues);
     if (window.posthog && window.posthog.capture) window.posthog.capture(name, values);
     return true;
   }
 
   function start() {
-    if (!allowed()) return false;
+    if (!allowed()) {
+      if (!analyticsConsent()) forgetVisit();
+      return false;
+    }
+    if (disabledAfterRevocation) {
+      window['ga-disable-' + ID] = false;
+      disabledAfterRevocation = false;
+    }
     if (!configured) {
       configured = true;
       window.dataLayer = window.dataLayer || [];
@@ -88,6 +144,7 @@
     if (!entered) {
       entered = true;
       send('entry_page_view');
+      visibleAppVisit('open');
       if (/\/reader\.html$/.test(location.pathname)) {
         var q = new URLSearchParams(location.search);
         var source = q.get('source') || '';
@@ -117,6 +174,21 @@
     }
     start();
   }
+
+  function onForeground() {
+    if (document.visibilityState !== 'visible') return;
+    if (start()) visibleAppVisit('resume');
+  }
+  document.addEventListener('visibilitychange', onForeground);
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) onForeground();
+  });
+  window.addEventListener('storage', function (event) {
+    if (event.key !== null && event.key !== 'cookieChoice') return;
+    var choice;
+    try { choice = JSON.parse(event.newValue || 'null'); } catch (error) {}
+    if (!choice || choice.analytics !== true) forgetVisit();
+  });
 
   document.addEventListener('click', function (event) {
     var target = event.target && event.target.closest ? event.target : null;

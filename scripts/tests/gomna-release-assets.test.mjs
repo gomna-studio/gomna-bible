@@ -10,8 +10,9 @@ const sw = read('sw.js');
 const release = sw.match(/const CACHE_VERSION = '([^']+)'/)[1];
 const version = release.replace(/^(\d{4})-(\d{2})-(\d{2})/, '$1$2$3');
 const precache = [...sw.match(/const STATIC_URLS = \[([\s\S]*?)\];/)[1].matchAll(/'([^']+)'/g)].map(match => match[1]);
-const latestAssets = ['/js/gomna-account-white.css', '/js/gomna-login-brand-shuffle.js'];
+const latestAssets = ['/analytics-control.js', '/js/gomna-ga4.js'];
 const versionedAssets = [
+  ...latestAssets,
   '/js/gomna-account-white.css', '/js/gomna-login-brand-shuffle.js',
   '/js/audio-config.js', '/js/audio-engine.js', '/js/gomna-audio-telemetry.js',
   '/js/gomna-bible-library.js', '/js/gomna-daily-verses.js', '/js/gomna-home-feed.css',

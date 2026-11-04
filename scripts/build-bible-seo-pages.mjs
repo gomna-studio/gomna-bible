@@ -192,8 +192,8 @@ ${renderBreadcrumbJsonLd(breadcrumbItems)}
 <script type="application/ld+json">
 ${renderWebPageJsonLd({ name: title, description, url: canonical })}
 </script>
-<script src="/analytics-control.js?v=20261029-analytics-v1"></script>
-<script src="/js/gomna-ga4.js?v=20261029-analytics-v1"></script>
+<script src="/analytics-control.js?v=20261103-qa-attribution-v115"></script>
+<script src="/js/gomna-ga4.js?v=20261103-qa-attribution-v115"></script>
 </head>
 <body>
   <main class="page">

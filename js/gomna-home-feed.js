@@ -3316,8 +3316,55 @@
       return Promise.reject(new Error('save-failed'));
     });
   }
-  function openTodayFromPush(){
+  function reminderReaderUrl(search, data) {
+    var daily=window.GomnaDailyVerses;
+    if (!daily || (!search && !data)) return '';
+    function positive(value, max) {
+      return /^[1-9]\d{0,2}$/.test(String(value || '')) && Number(value) <= max ? Number(value) : 0;
+    }
+    function originalRef(p) {
+      var book = p.get('book'), chapter = positive(p.get('chapter'), 150);
+      var start = positive(p.get('start'), 176), end = p.has('end') ? positive(p.get('end'), 176) : start;
+      if (!book || !chapter || !start || end < start) return null;
+      // Reuse the Reader/Home canonical list, including older mailed selections.
+      var known = oldData.concat(newData).some(function (group) {
+        return group.books.some(function (row) { return row[0] === book && chapter <= row[1]; });
+      });
+      return known ? {book:book, chapter:chapter, startVerse:start, endVerse:end} : null;
+    }
+    function destination(params) {
+      if (params.get('source') !== 'home-today') return '';
+      var date = params.get('date'), today = daily.kstDateKey();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '') || date > today) return '';
+      var fromDay;
+      try { fromDay = daily.parseRef(daily.getVerseForDate(date).r); } catch (error) { return ''; }
+      var original = originalRef(params), ref = original || fromDay;
+      if (date === today && (!original || (fromDay.book === ref.book && fromDay.chapter === ref.chapter &&
+          fromDay.startVerse === ref.startVerse && fromDay.endVerse === ref.endVerse))) return '';
+      var q = new URLSearchParams();
+      q.set('book',ref.book); q.set('chapter',ref.chapter); q.set('verse',ref.startVerse);
+      q.set('verseStart',ref.startVerse);
+      if (ref.endVerse > ref.startVerse) q.set('verseEnd',ref.endVerse);
+      q.set('source','home-daily-read');
+      ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','gomna_internal'].forEach(function (key) {
+        if (params.has(key)) q.set(key, params.get(key));
+      });
+      return '/reader.html?' + q;
+    }
+    if (!data) return destination(new URLSearchParams(search));
+    if (data.source !== 'home-today') return '';
+    var p;
+    try { p = new URL(data.url || '/', location.href).searchParams; } catch (error) { return ''; }
+    p.set('source','home-today');
+    [['date','date'],['book','book'],['chapter','chapter'],['startVerse','start'],['endVerse','end']].forEach(function (keys) {
+      if (data[keys[0]] != null) p.set(keys[1], data[keys[0]]);
+    });
+    return destination(p);
+  }
+  function openTodayFromPush(data){
     if(!root)return;
+    var archived=reminderReaderUrl('',data);
+    if(archived){location.assign(archived);return;}
     closeSheets();
     resetHomeToFirstCard();
     var card=root.querySelector('.gomna-home-card[data-card="0"]');
@@ -4243,6 +4290,9 @@
     root=document.getElementById('gomnaHomeFeed');
     stage=document.getElementById('gomnaHomeFeedStage');
     if(!root||!stage||root.getAttribute('data-ghd-bound')==='1')return;
+    // Do not paint today's card (or leave an extra Back entry) for an older reminder.
+    var archived=reminderReaderUrl(location.search,null);
+    if(archived){location.replace(archived);return;}
     returnTopButton=document.getElementById('gomnaHomeReturnTop');
     if(returnTopButton){
       returnTopButton.addEventListener('click', function(ev){
@@ -4314,7 +4364,7 @@
     if(navigator.serviceWorker){
       navigator.serviceWorker.addEventListener('message', function(ev){
         if(!ev.data || ev.data.type!=='gomna-open-today')return;
-        openTodayFromPush();
+        openTodayFromPush(ev.data.data);
       });
     }
     syncStepSize();

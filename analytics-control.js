@@ -67,6 +67,36 @@
     return !!(match && Number(match[1]) >= 16 && Number(match[1]) <= 31);
   }
 
+  // Owned QA site links may land on production. Keep that navigation out of
+  // both collectors without classifying all ChatGPT referrals as internal or
+  // permanently registering this browser as a staff device.
+  function previewReferralVisit() {
+    if (isLocalOrPreviewHost()) return false;
+    var key = 'gomna:analytics:qa-tab-until:v1';
+    var now = Date.now();
+    var expiry = now + 30 * 60 * 1000;
+    var ref;
+    try { ref = new URL(document.referrer); } catch (e) {}
+    if (ref && ref.origin === 'https://gomna-studio-design-review.leedukkyu.chatgpt.site') {
+      try { sessionStorage.setItem(key, String(expiry)); } catch (e) {}
+      return true;
+    }
+    try {
+      var marker = sessionStorage.getItem(key);
+      if (!marker) return false;
+      // A new external entry or idle interval starts a clean visit.
+      if (!(Number(marker) > now && Number(marker) <= expiry) ||
+          (ref && ref.hostname !== 'gomnastudio.com' && ref.hostname !== 'www.gomnastudio.com')) {
+        sessionStorage.removeItem(key);
+        return false;
+      }
+      sessionStorage.setItem(key, String(expiry));
+      return true;
+    } catch (e) { return false; }
+  }
+
+  var fromPreview = previewReferralVisit();
+
   function isAutomatedBrowser() {
     try {
       if (navigator.webdriver === true) return true;
@@ -77,7 +107,7 @@
   }
 
   function isInternal() {
-    if (isLocalOrPreviewHost() || isAutomatedBrowser()) return true;
+    if (isLocalOrPreviewHost() || isAutomatedBrowser() || fromPreview) return true;
     if (currentPageOverride !== null) return currentPageOverride;
     return readStoredFlag();
   }
