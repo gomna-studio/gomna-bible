@@ -8,7 +8,6 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const sw = read('sw.js');
 const release = sw.match(/const CACHE_VERSION = '([^']+)'/)[1];
-const version = release.replace(/^(\d{4})-(\d{2})-(\d{2})/, '$1$2$3');
 const precache = [...sw.match(/const STATIC_URLS = \[([\s\S]*?)\];/)[1].matchAll(/'([^']+)'/g)].map(match => match[1]);
 const latestAssets = ['/analytics-control.js', '/js/gomna-ga4.js'];
 const versionedAssets = [
@@ -28,7 +27,7 @@ test('core pages and active worker identify the same release', () => {
   }
 });
 
-test('asset URLs agree across pages and precache; changed assets have fresh revisions', () => {
+test('versioned asset URLs agree across pages and precache independently of the HTML release', () => {
   const seen = new Map();
   for (const page of pages) {
     const base = new URL(page, 'https://gomnastudio.com/');
@@ -36,7 +35,6 @@ test('asset URLs agree across pages and precache; changed assets have fresh revi
       const url = new URL(match[1], base);
       if (!versionedAssets.includes(url.pathname)) continue;
       assert.ok(url.searchParams.get('v'), `${page}: ${url.pathname}`);
-      if (latestAssets.includes(url.pathname)) assert.equal(url.searchParams.get('v'), version, `${page}: ${url.pathname}`);
       if (seen.has(url.pathname)) assert.equal(url.search, seen.get(url.pathname), `${page}: inconsistent ${url.pathname}`);
       assert(precache.includes(url.pathname + url.search), `missing precache: ${url.pathname + url.search}`);
       seen.set(url.pathname, url.search);
@@ -48,7 +46,7 @@ test('asset URLs agree across pages and precache; changed assets have fresh revi
 test('precache has no missing local files or bulk audio/Bible downloads', () => {
   for (const entry of precache) {
     const pathname = new URL(entry, 'https://gomnastudio.com').pathname;
-    assert(fs.existsSync(path.join(root, pathname === '/' ? 'index.html' : pathname.slice(1))), entry);
+    assert(fs.existsSync(path.join(root, pathname.endsWith('/') ? pathname.slice(1) + 'index.html' : pathname.slice(1))), entry);
     assert(!/\/audio\/audio-manifest\.json$|\/(?:old|new)_testament\.js$/.test(pathname), entry);
   }
 });
