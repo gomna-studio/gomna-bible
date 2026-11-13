@@ -2625,6 +2625,37 @@ html.gomna-home-viewer-open .gomna-home-tabbar{display:none}
   color-scheme:light;
 }
 #homeBiblePickerOverlay.is-ready iframe{opacity:1}
+#homeBiblePickerOverlay .home-picker-recovery[hidden],
+#homeBiblePickerOverlay .home-picker-status[hidden],
+#homeBiblePickerOverlay .home-picker-actions[hidden]{display:none!important}
+#homeBiblePickerOverlay .home-picker-recovery{position:absolute;inset:0;pointer-events:none}
+#homeBiblePickerOverlay .home-picker-close{
+  position:absolute;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));
+  width:44px;height:44px;border:1px solid #d5deea;border-radius:8px;
+  background:#fff;color:#27364a;font:28px/1 sans-serif;pointer-events:auto;
+}
+#homeBiblePickerOverlay .home-picker-status{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  box-sizing:border-box;width:min(340px,calc(100% - 40px));padding:22px 18px;
+  border:1px solid #d5deea;border-radius:8px;background:#fff;color:#27364a;
+  font-family:inherit;font-size:16px;line-height:1.6;text-align:center;pointer-events:auto;
+}
+#homeBiblePickerOverlay .home-picker-status p{margin:0;word-break:keep-all;overflow-wrap:anywhere}
+#homeBiblePickerOverlay .home-picker-actions{display:flex;gap:10px;margin-top:18px}
+#homeBiblePickerOverlay .home-picker-actions button{
+  flex:1;min-height:44px;padding:9px 10px;border:1px solid #bdcfe6;border-radius:8px;
+  background:#E8F0FC;color:#315F9E;font:inherit;font-weight:600;
+}
+#homeBiblePickerOverlay .home-picker-close:focus-visible,
+#homeBiblePickerOverlay .home-picker-actions button:focus-visible{outline:2px solid #315F9E;outline-offset:3px}
+
+html[data-gomna-theme="dark"] #homeBiblePickerOverlay .home-picker-close,
+html[data-gomna-theme="dark"] #homeBiblePickerOverlay .home-picker-status{
+  background:var(--gomna-surface,#202733);color:var(--gomna-text,#edf2f8);border-color:var(--gomna-border,#46546a);
+}
+html[data-gomna-theme="dark"] #homeBiblePickerOverlay .home-picker-actions button{
+  background:var(--gomna-surface-soft,#2b3748);color:var(--gomna-text,#edf2f8);border-color:var(--gomna-border,#46546a);
+}
 html.home-bible-picker-open,
 html.home-bible-picker-open body{
   overflow:hidden;

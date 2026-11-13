@@ -26,6 +26,7 @@ function fixture(){
     history,root:{querySelector:()=>null},
     document:{getElementById:()=>overlay,documentElement:{classList:{add:value=>rootClasses.add(value),remove:value=>rootClasses.delete(value)}}},
     ensureHomeBiblePicker:()=>overlay,cancelPendingCardOpens(){},
+    startHomeBiblePickerWait(){},pauseHomeBiblePickerWait(){},focusHomeBiblePicker(){},
     tellHomeBiblePicker:action=>messages.push(action),closeViewer(){},closeCard(){},closeSheets(){}
   });
   vm.runInContext(pickerSource,context);

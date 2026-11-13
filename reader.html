@@ -3,32 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <style id="reader-panel-entry-style">
-/* Hide the default Reader chrome before the requested panel is initialized. */
+/* Keep only the requested destination hidden until it is ready. Recovery is independent. */
 html.reader-panel-entry-pending body{visibility:hidden!important}
-html.reader-panel-entry-pending::after{content:'';position:fixed;inset:0;display:grid;place-items:center;background:#FCFAF6;color:#3D2817;font:14px sans-serif;z-index:2147483647}
-html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다. 새로고침해 주세요.'}
+html.reader-panel-entry-pending::after{content:'';position:fixed;inset:0;background:#fff;z-index:2147483646}
+#readerEntryRecovery{position:fixed;inset:0;z-index:2147483647;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;padding-bottom:max(24px,env(safe-area-inset-bottom));background:#fff;color:#24364B;font:16px/1.6 system-ui,-apple-system,sans-serif;text-align:center;visibility:visible!important;pointer-events:auto!important}
+#readerEntryRecovery[hidden]{display:none!important}
+#readerEntryRecovery p{margin:0;max-width:28em}
+#readerEntryRecovery .reader-entry-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+#readerEntryRecovery button,#readerEntryRecovery a{box-sizing:border-box;min-height:44px;min-width:88px;padding:9px 16px;border:1px solid #CBD5E1;border-radius:8px;background:#fff;color:#315F9E;font:inherit;text-decoration:none;cursor:pointer}
+#readerEntryRecovery button:focus-visible,#readerEntryRecovery a:focus-visible{outline:2px solid #315F9E;outline-offset:3px}
+#readerEntryRecovery [hidden]{display:none!important}
+html[data-gomna-theme="dark"].reader-panel-entry-pending::after,html[data-gomna-theme="dark"] #readerEntryRecovery{background:#151C26;color:#E8F0FC}
+html[data-gomna-theme="dark"] #readerEntryRecovery button,html[data-gomna-theme="dark"] #readerEntryRecovery a{background:#202C3B;color:#E8F0FC;border-color:#53657B}
 </style>
 <script id="reader-panel-entry-boot">
 (function () {
   var p = new URLSearchParams(location.search);
+  // Read only the existing theme preference before a theme script can be delayed.
+  try {
+    var theme = window.localStorage.getItem('gomna_theme_v1');
+    var dark = theme === 'dark' || (theme === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.setAttribute('data-gomna-theme', dark ? 'dark' : 'light');
+  } catch (eTheme) { /* Existing theme module remains authoritative. */ }
   if (p.get('source') === 'home-bible-picker') return;
-  /* Use the URL destination, never the default Reader shell. */
   var target = (p.get('homeGuide') === '1' || p.get('guideDetail') === '1') ? 'scriptureAllGuidesOverlay' : p.get('book') ? (parseInt(p.get('chapter'), 10) >= 1 ? 'verseView' : 'chapterView') :
     p.has('easy') ? 'easyView' : p.has('favorites') ? 'favView' :
     ((p.get('q') || '').trim() || p.get('focus') === 'search') ? 'searchView' : 'verseView';
-  var root = document.documentElement;
-  var navigationReady = false, stableFrames = 0, previousLayout = '', finished = false;
+  var screen = target === 'easyView' ? 'find' : target === 'favView' ? 'archive' : target === 'searchView' ? 'search' : target === 'scriptureAllGuidesOverlay' ? 'guide' : 'reader';
+  var label = { find:'찾기', archive:'보관함', search:'검색', guide:'성경 길잡이', reader:'성경 본문' }[screen];
+  var root = document.documentElement, navigationReady = false, stableFrames = 0, previousLayout = '', finished = false, leaving = false;
+  var shell = null, message = null, retryButton = null, timer = 0, frame = 0, poll = 0, elapsed = 0, visibleSince = document.visibilityState === 'hidden' ? null : Date.now();
+  var slowReported = false, startedReported = false, dirty = false, failedReason = '', departureTimer = 0, departed = false;
   root.classList.add('reader-panel-entry-pending');
-  window.__gomnaRevealPanelEntry = function () {
-    navigationReady = true;
-    // Local panels have no verse-position work. Once their own content and dock
-    // are selected, do not hold them behind unrelated downloads or layout frames.
-    if (!finished && (target === 'easyView' || target === 'favView') && ready()) {
-      finished = true;
-      root.classList.remove('reader-panel-entry-pending', 'reader-panel-entry-failed');
-    }
-    return finished;
-  };
+  function elapsedMs() { return Math.max(0, elapsed + (visibleSince === null ? 0 : Date.now() - visibleSince)); }
+  function track(name, reason) {
+    try {
+      var ga = window.GomnaGa4;
+      if (!ga || !ga.allowed || !ga.allowed()) return;
+      if (!startedReported) { startedReported = true; ga.track('screen_open_start', { screen:screen, elapsed_ms:0 }); }
+      ga.track(name, { screen:screen, elapsed_ms:Math.round(elapsedMs()), reason:reason || '' });
+    } catch (e) { /* Recovery must never depend on analytics. */ }
+  }
+  function stopScheduling() {
+    if (timer) clearTimeout(timer);
+    if (poll) clearTimeout(poll);
+    if (frame && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(frame);
+    timer = frame = poll = 0;
+  }
   function ready() {
     var view = document.getElementById(target);
     if (target === 'scriptureAllGuidesOverlay') return view && view.classList.contains('is-open') && view.querySelector('.scripture-all-guides-article') ? view : false;
@@ -36,13 +57,29 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
     if (root.classList.contains('scripture-entry-pending') || root.classList.contains('search-entry-pending') ||
         root.classList.contains('gomna-home-commentary-loading') || window.__gomnaScriptureLayoutPending) return false;
     if (target === 'verseView' && !view.querySelector('#verseList .verse-item')) return false;
-    var src = p.get('source') || '';
-    if (p.get('commentary') === '1' && /^(home-card-commentary|home-main-commentary|meditation-commentary)$/.test(src)) {
+    if (p.get('commentary') === '1' && /^(home-card-commentary|home-main-commentary|meditation-commentary)$/.test(p.get('source') || '')) {
       var popup = document.getElementById('commentaryPopup');
       if (!popup || !popup.classList.contains('show') || !popup.querySelector('.commentary-tabs')) return false;
     }
     return view;
   }
+  function finish() {
+    if (finished || leaving) return false;
+    finished = true;
+    if (departureTimer) clearTimeout(departureTimer);
+    departureTimer = 0;
+    stopScheduling();
+    track('screen_open_ready');
+    root.classList.remove('reader-panel-entry-pending', 'reader-panel-entry-failed');
+    if (shell) shell.hidden = true;
+    return true;
+  }
+  window.__gomnaRevealPanelEntry = function () {
+    if (leaving) return false;
+    navigationReady = true;
+    if (!finished && (target === 'easyView' || target === 'favView') && ready()) finish();
+    return finished;
+  };
   function layoutSignature(view) {
     var nodes = [view, document.getElementById('verseReadHeader'), document.getElementById('opt4BottomBar'),
       document.getElementById('scriptureDock'), view.querySelector('.verse-item--entry-focus')];
@@ -53,26 +90,149 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
     }).join('|') + '|' + window.scrollY;
   }
   function settle() {
-    if (finished) return;
+    frame = poll = 0;
+    if (finished || leaving || document.visibilityState === 'hidden') return;
     var view = ready();
     if (view) {
       var signature = layoutSignature(view);
       stableFrames = signature === previousLayout ? stableFrames + 1 : 0;
       previousLayout = signature;
-      if (stableFrames >= 3) {
-        finished = true;
-        root.classList.remove('reader-panel-entry-pending', 'reader-panel-entry-failed');
-        return;
-      }
+      if (stableFrames >= 3) { finish(); return; }
     } else { stableFrames = 0; previousLayout = ''; }
-    if (root.classList.contains('reader-panel-entry-failed')) setTimeout(settle, 250);
-    else requestAnimationFrame(settle);
+    // A slow/failed entry polls at a modest rate; it never reveals another panel.
+    if (elapsedMs() >= 5000) poll = setTimeout(settle, 250);
+    else frame = requestAnimationFrame(settle);
   }
-  requestAnimationFrame(settle);
-  /* Failure must not expose the wrong screen or leave an unexplained blank page. */
-  setTimeout(function () {
-    if (root.classList.contains('reader-panel-entry-pending')) root.classList.add('reader-panel-entry-failed');
-  }, 15000);
+  function updateStatus() {
+    if (timer) clearTimeout(timer);
+    timer = 0;
+    if (finished || leaving || document.visibilityState === 'hidden') return;
+    var age = elapsedMs();
+    if (shell && (age >= 500 || failedReason)) {
+      shell.hidden = false;
+      message.textContent = failedReason ? '화면을 열지 못했습니다. 다시 시도하거나 홈으로 돌아가 주세요.' : age < 5000 ? label + ' 화면을 준비하고 있습니다.' :
+        (navigator.onLine === false ? '인터넷 연결을 확인해 주세요. 연결되면 다시 시도할 수 있습니다.' : '화면을 여는 데 시간이 걸리고 있습니다. 다시 시도하거나 홈으로 돌아갈 수 있습니다.');
+      retryButton.hidden = age < 5000 && !failedReason;
+    }
+    if (age >= 5000) {
+      root.classList.add('reader-panel-entry-failed');
+      if (!slowReported) { slowReported = true; track('screen_open_slow', navigator.onLine === false ? 'offline' : 'not_ready'); }
+    }
+    if (age < 5000 && !failedReason) timer = setTimeout(updateStatus, Math.max(1, (age < 500 ? 500 : 5000) - age));
+  }
+  window.__gomnaPanelEntryError = function (reason) {
+    if (finished || leaving || failedReason) return;
+    failedReason = reason === 'dependency_error' ? reason : 'initialization_error';
+    root.classList.add('reader-panel-entry-failed');
+    track('screen_open_error', failedReason);
+    updateStatus();
+  };
+  window.addEventListener('error', function (event) {
+    var node = event.target;
+    if (node && node.tagName === 'SCRIPT' && node.hasAttribute('data-reader-entry-dependency')) {
+      window.__gomnaPanelEntryError('dependency_error');
+    }
+  }, true);
+  function protectedActivity() {
+    try {
+      var engine = window.GOMNA_AUDIO_ENGINE, state = engine && engine.getState && engine.getState();
+      if (state && (state.isPlaying || state.isLoading || state.isPaused || state.queueActive || state.isRecovering)) return true;
+      var media = document.querySelectorAll('audio,video');
+      for (var i = 0; i < media.length; i++) if (!media[i].paused && !media[i].ended) return true;
+      var active = document.activeElement;
+      return dirty || !!(active && (!shell || !shell.contains(active)) && (active.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)));
+    } catch (e) { return true; }
+  }
+  function canLeave(confirmExit) {
+    if (!protectedActivity()) return true;
+    if (confirmExit) {
+      try { if (window.confirm('재생 중이거나 작성 중인 내용이 있습니다. 현재 작업을 중단하고 이 화면을 나가시겠습니까?')) return true; }
+      catch (eConfirm) { /* Refuse an unconfirmed destructive departure. */ }
+    }
+    if (message) message.textContent = '재생 중이거나 작성 중인 내용이 있어 화면을 다시 열지 않았습니다. 뒤로 가기나 홈으로를 누르면 이동 여부를 확인할 수 있습니다.';
+    return false;
+  }
+  function cancel(reason) {
+    if (leaving) return;
+    leaving = true;
+    stopScheduling();
+    track('screen_open_cancel', reason);
+    if (reason === 'pagehide') return;
+    // A cancelled/blocked departure must not disable this recovery page forever.
+    departureTimer = setTimeout(function () {
+      departureTimer = 0;
+      if (departed || finished) return;
+      leaving = false;
+      updateStatus();
+      if (message) message.textContent = '다른 화면으로 이동하지 못했습니다. 다시 시도하거나 홈으로 돌아가 주세요.';
+      if (document.visibilityState !== 'hidden') frame = requestAnimationFrame(settle);
+    }, 5000);
+  }
+  function retry() {
+    if (finished || leaving || !canLeave()) return;
+    track('screen_open_retry', 'user');
+    // Local panels can recover without touching the document, audio, or stored data.
+    if ((target === 'easyView' || target === 'favView') && typeof window.initializeLocalPanelEntry === 'function') {
+      try { window.initializeLocalPanelEntry(); } catch (e) { /* The explicit reload below remains available. */ }
+      if (finished) return;
+    }
+    // Missing scripts cannot be safely re-evaluated piecemeal. Only this explicit,
+    // protected user action reloads the same URL; no storage or cache is cleared.
+    if (message) message.textContent = '화면을 다시 열고 있습니다.';
+    location.reload();
+  }
+  window.__gomnaMountPanelEntry = function () {
+    shell = document.getElementById('readerEntryRecovery');
+    if (!shell || shell.getAttribute('data-bound') === '1') return;
+    shell.setAttribute('data-bound', '1');
+    message = document.getElementById('readerEntryMessage');
+    retryButton = document.getElementById('readerEntryRetry');
+    retryButton.addEventListener('click', retry);
+    document.getElementById('readerEntryBack').addEventListener('click', function () {
+      if (!canLeave(true)) return;
+      cancel('back');
+      if (history.length > 1) history.back();
+      else location.href = './index.html';
+    });
+    document.getElementById('readerEntryHome').addEventListener('click', function (event) {
+      if (!canLeave(true)) { event.preventDefault(); return; }
+      cancel('home');
+    });
+    if (!finished) updateStatus();
+  };
+  document.addEventListener('input', function (event) {
+    if (!finished && event.target && (!shell || !shell.contains(event.target))) dirty = true;
+  }, true);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') {
+      if (visibleSince !== null) elapsed += Math.max(0, Date.now() - visibleSince);
+      visibleSince = null;
+      stopScheduling();
+    } else if (!finished && !leaving) {
+      visibleSince = Date.now();
+      updateStatus();
+      frame = requestAnimationFrame(settle);
+    }
+  });
+  window.addEventListener('pagehide', function () {
+    departed = true;
+    if (departureTimer) clearTimeout(departureTimer);
+    departureTimer = 0;
+    if (visibleSince !== null) { elapsed = elapsedMs(); visibleSince = null; }
+    if (!finished) cancel('pagehide');
+  });
+  window.addEventListener('pageshow', function (event) {
+    if (!event.persisted || finished) return;
+    departed = false;
+    if (departureTimer) clearTimeout(departureTimer);
+    departureTimer = 0;
+    leaving = false;
+    visibleSince = document.visibilityState === 'hidden' ? null : Date.now();
+    updateStatus();
+    frame = requestAnimationFrame(settle);
+  });
+  frame = requestAnimationFrame(settle);
+  timer = setTimeout(updateStatus, 500);
 })();
 </script>
 <script id="gomna-language-hard-off">
@@ -116,9 +276,9 @@ html.reader-panel-entry-failed::after{content:'화면을 열지 못했습니다.
 })();
 </script>
 
-<script src="/js/gomna-screen-transition.js?v=20261031-navigation-v105"></script>
-<script src="/analytics-control.js?v=20261103-qa-attribution-v115"></script>
-<script src="/js/gomna-ga4.js?v=20261103-qa-attribution-v115"></script>
+
+
+
 <script>
 /* Reader boot: show beige reading skeleton until Google Translate finishes (non-ko only). */
 (function () {
@@ -4522,31 +4682,48 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
 }
 </style>
 <script src="gomna_category_feature.js?v=20261022-guide-details-v1" defer></script>
-<script src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
-<script src="/js/gomna-bible-ref.js?v=20260725-multilang-structured-refs-v1"></script>
+
+
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
-<script src="js/gomna-bible-stair-picker.js?v=20261008-clean-transition-v1"></script>
+
 <link rel="stylesheet" href="js/gomna-easy-find.css?v=20260918-topic-links-v1">
-<script src="js/gomna-easy-find.js?v=20261005-home-approved-clean-v74"></script>
-<script src="/js/gomna-commentary-multilang-policy.js?v=20260725-multilang-structured-refs-v1"></script>
+
+
 <script>
 window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 </script>
-<!-- Clarity starts only inside consent-gated loadAnalytics(). -->
-<!-- 사용자 글자 크기(공용). 첫 그림 전에 저장된 비율을 적용하려고 head에서 바로 읽는다. -->
-<script src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
-<!-- 화면 테마(홈·Reader 공용). 첫 그림 전에 저장된 테마를 적용하려고 head 끝에서 읽는다. -->
-<script src="js/gomna-theme.js?v=2026-10-16-mobile-viewport-v99"></script>
-<script src="js/gomna-ui-i18n.js?v=20260909-locale-runtime-sync-v1"></script>
-<script src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
+<!-- Consent, text scale and theme scripts run after the independent recovery controls. -->
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261101-login-phone-size-v114">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-16-mobile-viewport-v99" data-release="2026-11-13-skip-start-v116" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-16-mobile-viewport-v99" data-release="2026-11-13-loading-recovery-v117" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
 <link rel="stylesheet" href="js/gomna-guide-colorful.css?v=2026-10-16-mobile-viewport-v99">
 <script>if(new URLSearchParams(location.search).get("homeGuide")==="1")document.documentElement.classList.add("gomna-home-guide-entering");</script><style>html.gomna-home-guide-entering body{visibility:hidden}</style>
 </head>
 <body data-gomna-page="reader">
+<div id="readerEntryRecovery" hidden aria-labelledby="readerEntryMessage">
+  <p id="readerEntryMessage" role="status" aria-live="polite"></p>
+  <div class="reader-entry-actions">
+    <button id="readerEntryRetry" type="button" hidden>다시 시도</button>
+    <button id="readerEntryBack" type="button">뒤로 가기</button>
+    <a id="readerEntryHome" href="./index.html">홈으로</a>
+  </div>
+</div>
+<script>if (typeof window.__gomnaMountPanelEntry === 'function') window.__gomnaMountPanelEntry();</script>
+<!-- The independent recovery controls precede every blocking app dependency. -->
+<script data-reader-entry-dependency src="/js/gomna-screen-transition.js?v=20261031-navigation-v105"></script>
+<script data-reader-entry-dependency src="/analytics-control.js?v=20261103-qa-attribution-v115"></script>
+<script data-reader-entry-dependency src="/js/gomna-ga4.js?v=20261103-qa-attribution-v115"></script>
+<script data-reader-entry-dependency src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
+<script data-reader-entry-dependency src="/js/gomna-bible-ref.js?v=20260725-multilang-structured-refs-v1"></script>
+<script data-reader-entry-dependency src="js/gomna-bible-stair-picker.js?v=20261008-clean-transition-v1"></script>
+<script data-reader-entry-dependency src="js/gomna-easy-find.js?v=20261005-home-approved-clean-v74"></script>
+<script data-reader-entry-dependency src="/js/gomna-commentary-multilang-policy.js?v=20260725-multilang-structured-refs-v1"></script>
+<script data-reader-entry-dependency src="js/gomna-text-scale.js?v=20260807-text-scale-v1"></script>
+<script data-reader-entry-dependency src="js/gomna-theme.js?v=2026-10-16-mobile-viewport-v99"></script>
+<script data-reader-entry-dependency src="js/gomna-ui-i18n.js?v=20260909-locale-runtime-sync-v1"></script>
+<script data-reader-entry-dependency src="js/gomna-bible-locale.js?v=20260909-locale-runtime-sync-v1"></script>
+
 <div id="gomnaReaderBootOverlay" class="gomna-reader-boot-overlay" aria-hidden="true">
   <div class="gomna-reader-boot-shell">
     <div class="gomna-reader-boot-header" aria-hidden="true"></div>
@@ -5733,6 +5910,7 @@ function postHomeBiblePicker(action, detail) {
     window.parent.postMessage({
       source: 'gomna-home-bible-picker',
       action: action,
+      requestId: new URLSearchParams(location.search).get('pickerRequest') || '',
       detail: detail || null
     }, location.origin);
   } catch (e) { /* ignore */ }
@@ -5791,8 +5969,10 @@ function bindHomeBiblePickerHost() {
   if (!isHomeBiblePickerMode() || window.__gomnaHomeBiblePickerBound) return;
   window.__gomnaHomeBiblePickerBound = true;
   window.addEventListener('message', function(e) {
-    if (e.origin !== location.origin) return;
+    if (e.origin !== location.origin || e.source !== window.parent) return;
     if (!e.data || e.data.source !== 'gomna-home-bible-picker') return;
+    var requestId = new URLSearchParams(location.search).get('pickerRequest') || '';
+    if (e.data.requestId && e.data.requestId !== requestId) return;
     if (e.data.action === 'open') openHomeBiblePickerPanel();
     if (e.data.action === 'close-ui') {
       window.__gomnaHomeBiblePickerNavigating = true;
@@ -6224,7 +6404,11 @@ function initializeLocalPanelEntry() {
       view.addEventListener('click',deferAction,true);
       view.addEventListener('keydown',deferAction,true);
       return true;
-  } catch (e) { console.error('[GOMNA] local panel entry failed', e); return false; }
+  } catch (e) {
+    console.error('[GOMNA] local panel entry failed', e);
+    if (typeof window.__gomnaPanelEntryError === 'function') window.__gomnaPanelEntryError('initialization_error');
+    return false;
+  }
 }
 function startLocalPanelDataAfterPaint() {
   if (_gomnaLocalPanelDataScheduled) return;
