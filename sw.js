@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-11-13-skip-start-v116';
+const CACHE_VERSION = '2026-11-13-loading-recovery-v117';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const IMAGE_CACHE = 'gomna-images-v1';
@@ -62,8 +62,8 @@ const STATIC_URLS = [
   '/js/gomna-screen-transition.js?v=20261031-navigation-v105',
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
-  '/js/gomna-home-feed.js?v=20261104-reminder-v1',
-  '/js/gomna-home-feed.css?v=20261031-login-layout-v106',
+  '/js/gomna-home-feed.js?v=20261113-loading-recovery-v117',
+  '/js/gomna-home-feed.css?v=20261113-loading-recovery-v117',
   '/js/gomna-daily-verses.js?v=20261031-navigation-v105',
   '/js/gomna-home-resume.js?v=20261031-navigation-v105',
   '/js/gomna-ux-telemetry.js?v=20261031-navigation-v105',

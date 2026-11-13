@@ -5,12 +5,12 @@ const html=fs.readFileSync(new URL('../reader.html',import.meta.url),'utf8');
 const source=html.match(/<script id="reader-panel-entry-boot">([\s\S]*?)<\/script>/)[1];
 function boot(search){
   const classes=new Set(),target={active:false,childElementCount:1,classList:{contains:()=>target.active}};
-  let timer;const frames=[];
+  let timer,now=0;const frames=[];
   target.textContent='본문';target.querySelector=()=>target;target.getBoundingClientRect=()=>({x:0,y:0,width:390,height:600});
   const root={classList:{add:(...names)=>names.forEach(n=>classes.add(n)),remove:(...names)=>names.forEach(n=>classes.delete(n)),contains:n=>classes.has(n)}};
-  const window={};
-  vm.runInNewContext(source,{window,document:{documentElement:root,getElementById:()=>target},location:{search},URLSearchParams,requestAnimationFrame:fn=>frames.push(fn),setTimeout:(fn,ms)=>{if(ms===15000)timer=fn;else frames.push(fn);}});
-  return {window,classes,target,timer,tick:()=>frames.shift()?.()};
+  const window={addEventListener:()=>{}};
+  vm.runInNewContext(source,{window,document:{documentElement:root,getElementById:()=>target,visibilityState:'visible',addEventListener:()=>{}},location:{search},navigator:{onLine:true},URLSearchParams,Date:{now:()=>now},requestAnimationFrame:fn=>frames.push(fn),cancelAnimationFrame:()=>{},clearTimeout:()=>{},setTimeout:(fn,ms)=>{if(ms===500||ms===5000)timer=fn;else frames.push(fn);}});
+  return {window,classes,target,timer:()=>{now=5000;timer();},tick:()=>frames.shift()?.()};
 }
 for(const query of ['', '?book=창세기&chapter=1','?book=창세기&easy=1','?testament=old','?easy','?easy=1','?easy=0','?easy=1&cb=abc','?favorites','?focus=search','?q=사랑']){
   const b=boot(query);

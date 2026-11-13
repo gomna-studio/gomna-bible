@@ -12,6 +12,7 @@
   var homeImageCache=Object.create(null), lifeImageRequest=0, storyImageRequest=0, cardOpenImageRequest=0;
   var homeDeparting=false, homeDepartureTimer=0;
   var homeBiblePickerHistoryPending=false, homeBiblePickerReopenRequested=false;
+  var homeBiblePickerRequest=0;
   var swipeDrag=null, swipeHandled=false, ignoreCardClickBefore=0;
   var relayoutQueued=false, relayoutPending=false;
   var vvResizeTimer=0;  var resumeRelayoutToken=0;
@@ -4195,36 +4196,159 @@
   }
   function ensureHomeBiblePicker(){
     var overlay=document.getElementById('homeBiblePickerOverlay');
-    var frame;
     if(overlay)return overlay;
     overlay=document.createElement('div');
     overlay.id='homeBiblePickerOverlay';
     overlay.hidden=true;
     overlay.setAttribute('aria-hidden','true');
-    frame=document.createElement('iframe');
+    overlay.setAttribute('role','dialog');
+    overlay.setAttribute('aria-modal','true');
+    overlay.setAttribute('aria-label','성경 선택');
+    overlay.innerHTML='<div class="home-picker-recovery" id="homeBiblePickerRecovery">'+
+      '<button type="button" class="home-picker-close" aria-label="성경 선택 닫기">×</button>'+
+      '<div class="home-picker-status" hidden><p role="status" aria-live="polite"></p>'+
+      '<div class="home-picker-actions" hidden><button type="button" data-picker-retry>다시 시도</button>'+
+      '<button type="button" data-picker-home>홈으로</button></div></div></div>';
+    overlay._gomnaRecovery={elapsed:0,since:null,timer:0,active:false,phase:'pending',requestId:'',focus:null,slowTracked:false};
+    overlay.querySelector('.home-picker-close').addEventListener('click',function(){closeHomeBiblePicker(false);});
+    overlay.querySelector('[data-picker-home]').addEventListener('click',function(){closeHomeBiblePicker(false);});
+    overlay.querySelector('[data-picker-retry]').addEventListener('click',retryHomeBiblePicker);
+    overlay.addEventListener('keydown',function(ev){
+      if(overlay.hidden||overlay.classList.contains('is-ready'))return;
+      if(ev.key==='Escape'){ev.preventDefault();closeHomeBiblePicker(false);return;}
+      if(ev.key!=='Tab')return;
+      var controls=Array.prototype.slice.call(overlay.querySelectorAll('.home-picker-recovery button')).filter(function(button){return !button.closest('[hidden]');});
+      var first=controls[0],last=controls[controls.length-1];
+      if(!first)return;
+      if(ev.shiftKey&&document.activeElement===first){ev.preventDefault();last.focus();}
+      else if(!ev.shiftKey&&document.activeElement===last){ev.preventDefault();first.focus();}
+    });
+    document.body.appendChild(overlay);
+    replaceHomeBiblePickerFrame(overlay);
+    return overlay;
+  }
+  function pickerElapsed(overlay){
+    var state=overlay&&overlay._gomnaRecovery;
+    return state?Math.max(0,state.elapsed+(state.since===null?0:Date.now()-state.since)):0;
+  }
+  function trackHomeBiblePicker(name,reason){
+    var overlay=document.getElementById('homeBiblePickerOverlay');
+    try{
+      var analytics=window.GomnaGa4;
+      if(analytics&&typeof analytics.allowed==='function'&&analytics.allowed()&&typeof analytics.track==='function'){
+        analytics.track(name,{screen:'bible_picker',elapsed_ms:Math.round(pickerElapsed(overlay)),reason:reason||''});
+      }
+    }catch(e){}
+  }
+  function pauseHomeBiblePickerWait(){
+    var overlay=document.getElementById('homeBiblePickerOverlay'),state=overlay&&overlay._gomnaRecovery;
+    if(!state)return;
+    state.elapsed=pickerElapsed(overlay);
+    state.since=null;
+    if(state.timer){window.clearTimeout(state.timer);state.timer=0;}
+  }
+  function updateHomeBiblePickerWait(){
+    var overlay=document.getElementById('homeBiblePickerOverlay'),state=overlay&&overlay._gomnaRecovery;
+    if(!state)return;
+    pauseHomeBiblePickerWait();
+    if(overlay.hidden||!state.active||state.phase==='ready'||document.visibilityState==='hidden')return;
+    var elapsed=state.elapsed,status=overlay.querySelector('.home-picker-status'),actions=overlay.querySelector('.home-picker-actions');
+    var failed=state.phase==='error',slow=elapsed>=5000;
+    status.hidden=!(failed||elapsed>=500);
+    actions.hidden=!(failed||slow);
+    status.querySelector('p').textContent=failed?'성경 화면을 열지 못했습니다. 다시 시도해 주세요.':slow?'성경 화면을 여는 데 시간이 걸리고 있습니다.':'성경을 여는 중입니다.';
+    if(slow&&!failed){
+      state.phase='slow';
+      if(!state.slowTracked){state.slowTracked=true;trackHomeBiblePicker('screen_open_slow','ready_timeout');}
+    }
+    state.since=Date.now();
+    if(!failed&&!slow)state.timer=window.setTimeout(updateHomeBiblePickerWait,Math.max(1,(elapsed<500?500:5000)-elapsed));
+  }
+  function startHomeBiblePickerWait(overlay){
+    var state=overlay._gomnaRecovery;
+    if(!state||state.active)return;
+    state.active=true;state.elapsed=0;state.since=null;state.slowTracked=false;
+    trackHomeBiblePicker('screen_open_start');
+    if(overlay.getAttribute('data-ready')==='1'){
+      state.phase='ready';trackHomeBiblePicker('screen_open_ready');
+    }else{
+      if(state.phase==='error')trackHomeBiblePicker('screen_open_error','frame_error');
+      updateHomeBiblePickerWait();
+    }
+  }
+  function replaceHomeBiblePickerFrame(overlay){
+    var old=document.getElementById('homeBiblePickerFrame'),state=overlay._gomnaRecovery;
+    pauseHomeBiblePickerWait();
+    var frame=document.createElement('iframe');
     frame.id='homeBiblePickerFrame';
     frame.title='성경 선택';
     frame.setAttribute('allowtransparency','true');
-    frame.src='reader.html?source=home-bible-picker';
-    overlay.appendChild(frame);
-    document.body.appendChild(overlay);
-    return overlay;
+    frame.setAttribute('tabindex','-1');
+    state.requestId=String(Date.now())+'-'+String(++homeBiblePickerRequest);
+    state.phase='pending';state.elapsed=0;state.since=null;state.slowTracked=false;
+    overlay.removeAttribute('data-ready');overlay.classList.remove('is-ready');
+    overlay.querySelector('.home-picker-recovery').hidden=false;
+    overlay.querySelector('.home-picker-status').hidden=true;
+    overlay.querySelector('.home-picker-actions').hidden=true;
+    frame.src='reader.html?source=home-bible-picker&pickerRequest='+encodeURIComponent(state.requestId);
+    frame.addEventListener('error',function(){
+      if(frame!==document.getElementById('homeBiblePickerFrame')||state.phase==='ready')return;
+      pauseHomeBiblePickerWait();state.phase='error';
+      if(state.active)trackHomeBiblePicker('screen_open_error','frame_error');
+      updateHomeBiblePickerWait();
+    });
+    if(old)old.replaceWith(frame);else overlay.insertBefore(frame,overlay.firstChild);
+  }
+  function retryHomeBiblePicker(){
+    var overlay=document.getElementById('homeBiblePickerOverlay'),state=overlay&&overlay._gomnaRecovery;
+    if(!overlay||overlay.hidden||!state||state.phase==='ready')return;
+    trackHomeBiblePicker('screen_open_retry');
+    replaceHomeBiblePickerFrame(overlay);
+    overlay.classList.add('is-loading');
+    state.active=false;
+    startHomeBiblePickerWait(overlay);
+    focusHomeBiblePicker(overlay);
+  }
+  function focusHomeBiblePicker(overlay){
+    var target=overlay.classList.contains('is-ready')?document.getElementById('homeBiblePickerFrame'):overlay.querySelector('.home-picker-close');
+    try{if(target)target.focus({preventScroll:true});}catch(e){}
   }
   function preloadHomeBiblePicker(){
     ensureHomeBiblePicker();
   }
   function markHomeBiblePickerReady(){
-    var overlay=document.getElementById('homeBiblePickerOverlay');
+    var overlay=document.getElementById('homeBiblePickerOverlay'),state=overlay&&overlay._gomnaRecovery;
     if(!overlay)return;
+    var alreadyReady=overlay.getAttribute('data-ready')==='1';
+    pauseHomeBiblePickerWait();
     overlay.setAttribute('data-ready','1');
     overlay.classList.add('is-ready');
     overlay.classList.remove('is-loading');
+    if(state)state.phase='ready';
+    var recovery=overlay.querySelector('.home-picker-recovery'),frame=document.getElementById('homeBiblePickerFrame');
+    if(recovery)recovery.hidden=true;
+    if(frame)frame.removeAttribute('tabindex');
+    if(state&&state.active&&!alreadyReady)trackHomeBiblePicker('screen_open_ready');
+    if(!overlay.hidden&&!alreadyReady)focusHomeBiblePicker(overlay);
+  }
+  function onHomeBiblePickerMessage(ev){
+    var data=ev.data,overlay=document.getElementById('homeBiblePickerOverlay'),frame=document.getElementById('homeBiblePickerFrame');
+    if(ev.origin!==location.origin||!frame||ev.source!==frame.contentWindow)return;
+    if(!data||data.source!=='gomna-home-bible-picker')return;
+    var state=overlay&&overlay._gomnaRecovery;
+    // A cached older Reader may omit the tag. It is accepted only from the
+    // current frame; retries replace the node, so an old frame cannot win.
+    if(data.requestId!=null&&String(data.requestId)!==(state&&state.requestId))return;
+    if(data.action==='ready')markHomeBiblePickerReady();
+    if(data.action==='close')closeHomeBiblePicker(false);
   }
   function tellHomeBiblePicker(action){
     var frame=document.getElementById('homeBiblePickerFrame');
     try{
       if(frame&&frame.contentWindow){
-        frame.contentWindow.postMessage({source:'gomna-home-bible-picker',action:action},location.origin);
+        var overlay=document.getElementById('homeBiblePickerOverlay');
+        var state=overlay&&overlay._gomnaRecovery;
+        frame.contentWindow.postMessage({source:'gomna-home-bible-picker',action:action,requestId:state?state.requestId:''},location.origin);
       }
     }catch(e){ /* ignore */ }
   }
@@ -4237,10 +4361,13 @@
     }
     cancelPendingCardOpens();
     var overlay=ensureHomeBiblePicker();
+    if(!overlay.hidden)return;
+    if(overlay._gomnaRecovery)overlay._gomnaRecovery.focus=document.activeElement;
     overlay.hidden=false;
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden','false');
     document.documentElement.classList.add('home-bible-picker-open');
+    startHomeBiblePickerWait(overlay);
     if(overlay.getAttribute('data-ready')==='1'){
       overlay.classList.add('is-ready');
       overlay.classList.remove('is-loading');
@@ -4254,6 +4381,7 @@
         history.pushState({ghd:'bible-picker'},'');
       }
     }catch(e){}
+    focusHomeBiblePicker(overlay);
   }
   function closeHomeBiblePicker(skipHistory){
     if(!skipHistory)homeBiblePickerReopenRequested=false;
@@ -4262,11 +4390,16 @@
       document.documentElement.classList.remove('home-bible-picker-open');
       return;
     }
+    pauseHomeBiblePickerWait();
+    var state=overlay._gomnaRecovery;
+    if(state&&state.active&&state.phase!=='ready')trackHomeBiblePicker('screen_open_cancel');
+    if(state)state.active=false;
     overlay.hidden=true;
     overlay.classList.remove('is-open','is-loading');
     overlay.setAttribute('aria-hidden','true');
     document.documentElement.classList.remove('home-bible-picker-open');
     tellHomeBiblePicker('close-ui');
+    try{if(state&&state.focus&&state.focus.isConnected&&!homeDeparting)state.focus.focus({preventScroll:true});}catch(e){}
     if(!skipHistory && history.state && history.state.ghd==='bible-picker'){
       homeBiblePickerHistoryPending=true;
       try{history.back();}catch(e){homeBiblePickerHistoryPending=false;}
@@ -4334,6 +4467,9 @@
     window.addEventListener('beforeunload',freezeHomeDeparture);
     window.addEventListener('pagehide',cancelPendingCardOpens);
     window.addEventListener('pagehide',resetHomeBiblePickerHistory);
+    window.addEventListener('pagehide',pauseHomeBiblePickerWait);
+    window.addEventListener('pageshow',updateHomeBiblePickerWait);
+    document.addEventListener('visibilitychange',updateHomeBiblePickerWait);
     document.addEventListener('visibilitychange',function(){if(!document.hidden)refreshDailyContent();});
     syncGreeting();
     cards.forEach(bindCard);
@@ -4425,13 +4561,7 @@
       }
     });
     window.addEventListener('popstate', onHomeHistoryPop);
-    window.addEventListener('message', function(ev){
-      var data=ev.data;
-      if(ev.origin!==location.origin)return;
-      if(!data||data.source!=='gomna-home-bible-picker')return;
-      if(data.action==='ready')markHomeBiblePickerReady();
-      if(data.action==='close')closeHomeBiblePicker(false);
-    });
+    window.addEventListener('message', onHomeBiblePickerMessage);
     // Do not compete with the first card's image on a cold connection.
     ensureHomeImageReady(BASE_CARD_IMAGES[0], 'high').then(function(ok){
       if(ok && document.visibilityState !== 'hidden')window.setTimeout(preloadHomeBiblePicker, 1200);
