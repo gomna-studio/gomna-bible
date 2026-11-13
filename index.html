@@ -1983,7 +1983,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 </style>
 <link rel="stylesheet" href="js/gomna-home-legal-footer-v1.css?v=20260917-v1">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261101-login-phone-size-v114">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-16-mobile-viewport-v99" data-release="2026-11-03-qa-attribution-v115" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-16-mobile-viewport-v99" data-release="2026-11-13-skip-start-v116" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
 <style id="gomna-home-card-no-selection">
 /* Home cards are touch controls: prevent iOS text handles/callouts on a hold. */
@@ -3560,7 +3560,6 @@ function setHomeAccountState(state,profile){
     }
   }
   setHomeAccountAvatar(signedIn?(info.avatar||''):'');
-  syncPreviewLoginFlow(signedIn);
   if(window.GomnaHomeFeed&&typeof window.GomnaHomeFeed.syncGreeting==='function')window.GomnaHomeFeed.syncGreeting();
 }
 window.GomnaHomeAccount={setAvatar:setHomeAccountAvatar,setState:setHomeAccountState};
@@ -3594,30 +3593,8 @@ document.addEventListener('click',function(e){
   }
 });
 
-/* Preview 첫 사용자 흐름만. 일반 index 로그인에는 키가 없어 기존 동작을 그대로 둔다. */
-var PREVIEW_FLOW_KEY='gomna.preview.flow';
-var previewLoginOpened=false;
-function isPreviewFlow(){
-  try{return sessionStorage.getItem(PREVIEW_FLOW_KEY)==='1';}catch(e){return false;}
-}
-function clearPreviewFlow(){
-  try{sessionStorage.removeItem(PREVIEW_FLOW_KEY);}catch(e){}
-}
-function leavePreviewFlowToHome(){
-  if(!isPreviewFlow())return false;
-  clearPreviewFlow();
-  return true;
-}
-function syncPreviewLoginFlow(signedIn){
-  if(!isPreviewFlow())return;
-  if(signedIn){
-    leavePreviewFlowToHome();
-    return;
-  }
-  if(previewLoginOpened||isLoginModalOpen())return;
-  previewLoginOpened=true;
-  openLoginModal('preview-flow');
-}
+/* Retired introduction links must never auto-open the login chooser. */
+try { sessionStorage.removeItem('gomna.preview.flow'); } catch(e) {}
 
 /* v73: 로그인 안내창 — 첫 방문에 자동으로 열지 않고, 계정 메뉴에서만 연다.
    실제 인증 연결은 다음 단계에서 붙인다. */
@@ -3688,15 +3665,9 @@ function closeLoginModal(){
     if(back)back.focus();
   }catch(e){}
   loginModalLastFocus=null;
-  leavePreviewFlowToHome();
   syncHomeAccountLabelFromAuth();
 }
-window.addEventListener('load',function(){
-  if(!isPreviewFlow()||previewLoginOpened||isLoginModalOpen())return;
-  if(window.GomnaAuth)return;
-  previewLoginOpened=true;
-  openLoginModal('preview-flow');
-});
+
 
 document.addEventListener('keydown',function(e){
   if(e.key!=='Escape')return;
