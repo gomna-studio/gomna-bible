@@ -1676,6 +1676,7 @@
     document.documentElement.classList.remove('scripture-all-guides-lock');
     var scrollEl = getAllGuidesScrollEl();
     if (scrollEl) scrollEl.scrollTop = allGuidesReturnScroll;
+    if (typeof window.queueReaderAnalyticsScreen === 'function') window.queueReaderAnalyticsScreen();
   }
 
   function onAllGuidesKeydown(e) {
@@ -1780,6 +1781,7 @@
     document.documentElement.classList.add('scripture-all-guides-lock');
     mountAllGuidesDock(overlay);
     if (body) body.scrollTop = 0;
+    if (typeof window.queueReaderAnalyticsScreen === 'function') window.queueReaderAnalyticsScreen();
   }
 
   window.openAllScriptureGuides = openAllScriptureGuides;

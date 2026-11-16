@@ -1650,6 +1650,22 @@
     else if (isSwitchOpen()) fillAccountSwitch();
   }
 
+  var accountAnalyticsQueued = false;
+  function queueAccountAnalyticsScreen() {
+    if (accountAnalyticsQueued) return;
+    accountAnalyticsQueued = true;
+    function flush() {
+      accountAnalyticsQueued = false;
+      try {
+        // Observe visible UI only; account names, IDs and credentials are never passed.
+        if (typeof window.syncReaderAnalyticsScreen === 'function') window.syncReaderAnalyticsScreen();
+        else if (typeof window.syncHomeAnalyticsScreen === 'function') window.syncHomeAnalyticsScreen();
+      } catch (e) { /* Account operations must not depend on analytics. */ }
+    }
+    if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(flush);
+    else setTimeout(flush, 0);
+  }
+
   function openProfile() {
     injectShared();
     if (!currentUser) { openLoginChooser(); return; }
@@ -1664,6 +1680,7 @@
     /* 첫 버튼에 초점을 주면 파란 초점 테두리가 눌린 것처럼 보이므로 창 자체에 초점을 준다. */
     var box = sheet.querySelector('.gomna-acc-box');
     if (box) { try { box.focus(); } catch (e) {} }
+    queueAccountAnalyticsScreen();
   }
 
   function closeProfile() {
@@ -1671,6 +1688,7 @@
     if (!sheet || sheet.hidden) return;
     sheet.hidden = true;
     document.documentElement.style.overflow = '';
+    queueAccountAnalyticsScreen();
   }
 
   /* ── 프로필 편집 ────────────────────────────────────────
@@ -1979,6 +1997,7 @@
     });
     var box = sheet.querySelector('.gomna-acc-box');
     if (box) { try { box.focus(); } catch (e) {} }
+    queueAccountAnalyticsScreen();
   }
 
   function closeProfileEdit(back) {
@@ -1990,6 +2009,7 @@
     peStatus('');
     var from = profileEditFrom;
     profileEditFrom = '';
+    queueAccountAnalyticsScreen();
     if (!back || !currentUser) return;
     /* 홈은 바깥 클릭으로 계정 패널을 닫는 처리기가 있어, 그 처리기가 끝난 뒤에 다시 연다. */
     setTimeout(function () {

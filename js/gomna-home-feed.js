@@ -13,6 +13,7 @@
   var homeDeparting=false, homeDepartureTimer=0;
   var homeBiblePickerHistoryPending=false, homeBiblePickerReopenRequested=false;
   var homeBiblePickerRequest=0;
+  var homeAnalyticsFrame=0, homeAnalyticsInitialized=false;
   var swipeDrag=null, swipeHandled=false, ignoreCardClickBefore=0;
   var relayoutQueued=false, relayoutPending=false;
   var vvResizeTimer=0;  var resumeRelayoutToken=0;
@@ -1990,6 +1991,49 @@
       apply(lastP, false);
     });
   }
+  // Home overlays already use History API entries. Record their visible screen
+  // separately without adding manual page_views beside GA's history tracking.
+  function currentHomeAnalyticsScreen(){
+    if(!root||homeDeparting||document.visibilityState==='hidden')return '';
+    var login=document.getElementById('loginModal');
+    if(login&&login.classList.contains('show')&&login.getAttribute('aria-hidden')!=='true')return 'account';
+    var accountIds=['homeAccountPanel','gomnaProfileSheet','gomnaProfileEditSheet','gomnaNameConfirmSheet'];
+    for(var a=0;a<accountIds.length;a++){
+      var account=document.getElementById(accountIds[a]);
+      if(account&&!account.hidden)return 'account';
+    }
+    var picker=document.getElementById('homeBiblePickerOverlay');
+    if(picker&&!picker.hidden){
+      return picker.getAttribute('data-ready')==='1'&&picker.classList.contains('is-ready')?'bible_picker':'';
+    }
+    var viewer=document.getElementById('gomnaHomeViewer');
+    if(viewer&&!viewer.hidden&&viewer.classList.contains('is-open'))return 'image_viewer';
+    var library=document.getElementById('gomnaBibleLibrary');
+    if(library&&!library.hidden&&document.body.classList.contains('gbl-open'))return 'guide';
+    var opened=root.querySelector('.gomna-home-card.is-open');
+    if(opened){
+      var names={'0':'today_detail','1':'meditation_detail','2':'story_detail'};
+      return names[opened.getAttribute('data-card')]||'home';
+    }
+    return 'home';
+  }
+  function syncHomeAnalyticsScreen(){
+    var screen=currentHomeAnalyticsScreen(),analytics=window.GomnaGa4;
+    if(!screen||!analytics||typeof analytics.screenView!=='function')return;
+    try{
+      analytics.screenView(screen,{pageView:false,screen_group:'home',initial:!homeAnalyticsInitialized});
+      homeAnalyticsInitialized=true;
+    }catch(e){}
+  }
+  function queueHomeAnalyticsScreen(){
+    if(homeAnalyticsFrame)return;
+    // Collapse close/reset/reopen work in the same frame, so an intermediate
+    // panel that was never painted does not become another screen visit.
+    homeAnalyticsFrame=window.requestAnimationFrame(function(){
+      homeAnalyticsFrame=0;
+      syncHomeAnalyticsScreen();
+    });
+  }
   function closeCard(card, skipHistory){
     cancelPendingCardOpens();
     if(!card||!card.classList.contains('is-open'))return;
@@ -2008,6 +2052,7 @@
     }
     apply(progressFromScroll(), true);
     if(card.getAttribute('data-card')==='0')schedulePlaceTodayVerse();
+    queueHomeAnalyticsScreen();
   }
   function resetHomeToFirstCard(){
     cancelPendingCardOpens();
@@ -2049,6 +2094,7 @@
     if(!skipHistory){
       try{history.pushState({ghd:'flip',card:card.getAttribute('data-card')}, '');}catch(e){}
     }
+    queueHomeAnalyticsScreen();
   }
   function openCard(card, skipHistory){
     if(homeDeparting)return;
@@ -4183,6 +4229,7 @@
     v.classList.add('is-open');
     document.documentElement.classList.add('gomna-home-viewer-open');
     try{history.pushState({ghd:'viewer'}, '');}catch(e){}
+    queueHomeAnalyticsScreen();
   }
   function closeViewer(skipHistory){
     var v=document.getElementById('gomnaHomeViewer');
@@ -4193,6 +4240,7 @@
     if(!skipHistory && history.state && history.state.ghd==='viewer'){
       try{history.back();}catch(e){}
     }
+    queueHomeAnalyticsScreen();
   }
   function ensureHomeBiblePicker(){
     var overlay=document.getElementById('homeBiblePickerOverlay');
@@ -4330,6 +4378,7 @@
     if(frame)frame.removeAttribute('tabindex');
     if(state&&state.active&&!alreadyReady)trackHomeBiblePicker('screen_open_ready');
     if(!overlay.hidden&&!alreadyReady)focusHomeBiblePicker(overlay);
+    if(!overlay.hidden)queueHomeAnalyticsScreen();
   }
   function onHomeBiblePickerMessage(ev){
     var data=ev.data,overlay=document.getElementById('homeBiblePickerOverlay'),frame=document.getElementById('homeBiblePickerFrame');
@@ -4382,6 +4431,7 @@
       }
     }catch(e){}
     focusHomeBiblePicker(overlay);
+    queueHomeAnalyticsScreen();
   }
   function closeHomeBiblePicker(skipHistory){
     if(!skipHistory)homeBiblePickerReopenRequested=false;
@@ -4404,6 +4454,7 @@
       homeBiblePickerHistoryPending=true;
       try{history.back();}catch(e){homeBiblePickerHistoryPending=false;}
     }
+    queueHomeAnalyticsScreen();
   }
   function resetHomeBiblePickerHistory(){
     homeBiblePickerHistoryPending=false;
@@ -4562,6 +4613,15 @@
     });
     window.addEventListener('popstate', onHomeHistoryPop);
     window.addEventListener('message', onHomeBiblePickerMessage);
+    // The shared collector is deferred and may become available after this
+    // script. Re-read only the current visible screen when consent or focus
+    // changes; never replay screens visited before consent.
+    document.addEventListener('DOMContentLoaded',queueHomeAnalyticsScreen,{once:true});
+    document.addEventListener('visibilitychange',queueHomeAnalyticsScreen);
+    window.addEventListener('pageshow',queueHomeAnalyticsScreen);
+    // Register synchronously before the collector flushes its initial screen.
+    window.addEventListener('gomna:analytics-ready',syncHomeAnalyticsScreen);
+    queueHomeAnalyticsScreen();
     // Do not compete with the first card's image on a cold connection.
     ensureHomeImageReady(BASE_CARD_IMAGES[0], 'high').then(function(ok){
       if(ok && document.visibilityState !== 'hidden')window.setTimeout(preloadHomeBiblePicker, 1200);
@@ -4578,6 +4638,7 @@
     });
   }
 
+  window.syncHomeAnalyticsScreen=queueHomeAnalyticsScreen;
   window.GomnaHomeFeed={init:init,sync:fillCopy,syncSocial:syncSocial,refreshSocial:refreshSocial,syncGreeting:syncGreeting,relayout:relayoutHome};
   // This script follows the home markup and daily verse data. Do not make the
   // first card wait for unrelated deferred downloads (including the auth CDN).

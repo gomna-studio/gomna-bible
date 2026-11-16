@@ -5,7 +5,7 @@
 //   - DATA  : 책별 commentary (gomna_data_*.js) — 한번 받으면 영구 (immutable)
 //   - AUDIO_MANIFEST: /audio/audio-manifest.json — 4초 timeout 없이 전용 영구 캐시
 
-const CACHE_VERSION = '2026-11-13-loading-recovery-v117';
+const CACHE_VERSION = '2026-11-16-analytics-coverage-v118';
 const CACHE_PREFIX = 'gomna-';
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
 const IMAGE_CACHE = 'gomna-images-v1';
@@ -35,8 +35,8 @@ const STATIC_URLS = [
   '/assets/home/bible-discovery-journey-v5.webp',
   '/js/gomna-guide-colorful.css?v=2026-10-16-mobile-viewport-v99',
   '/js/gomna-guide-home-entry.js?v=20261025-restore-app-guide-v1',
-  '/gomna_category_feature.js?v=20261022-guide-details-v1',
-  '/js/gomna-auth.js?v=20261008-account-unified-v1',
+  '/gomna_category_feature.js?v=20261116-analytics-coverage-v118',
+  '/js/gomna-auth.js?v=20261116-analytics-coverage-v118',
   '/js/gomna-account-white.css?v=20261101-login-phone-size-v114',
   '/js/gomna-login-brand-shuffle.js?v=20261101-login-phone-size-v114',
   '/js/gomna-nav-single-tap.js?v=20261008-resume-v1',
@@ -58,18 +58,18 @@ const STATIC_URLS = [
   '/analytics-control.js?v=20261103-qa-attribution-v115',
   '/analytics.js?v=20261029-analytics-v1',
   '/js/gomna-audio-telemetry.js?v=20261031-navigation-v105',
-  '/js/gomna-ga4.js?v=20261103-qa-attribution-v115',
+  '/js/gomna-ga4.js?v=20261116-analytics-coverage-v118',
+  '/js/gomna-entry-analytics.js?v=20261116-analytics-coverage-v118',
   '/js/gomna-screen-transition.js?v=20261031-navigation-v105',
   '/settings_guide.js',
   '/settings_guide.js?v=20260925-hide-language-settings-v1',
-  '/js/gomna-home-feed.js?v=20261113-loading-recovery-v117',
+  '/js/gomna-home-feed.js?v=20261116-analytics-coverage-v118',
   '/js/gomna-home-feed.css?v=20261113-loading-recovery-v117',
   '/js/gomna-daily-verses.js?v=20261031-navigation-v105',
   '/js/gomna-home-resume.js?v=20261031-navigation-v105',
   '/js/gomna-ux-telemetry.js?v=20261031-navigation-v105',
   '/topics/topic-reading.css?v=20261031-navigation-v105',
   '/gomna_category_feature.js',
-  '/gomna_category_feature.js?v=20260927-reader-guide-width-v1',
   '/js/gomna-nav-magnifier.js?v=20261007-tap-v10',
   '/style.css',
   '/css/gomna-audio-player.css?v=20261010-commentary-listen-slate-v1',
@@ -90,7 +90,7 @@ const STATIC_URLS = [
   '/js/gomna-coffee-steam.css?v=20261008-startup-v84',
   '/js/gomna-bible-library.css?v=20261007-buttons-down-10mm-v9',
   '/assets/home/meditation-coffee.png?v=20261007-coffee-v1',
-  '/js/gomna-bible-library.js?v=20261031-navigation-v105',
+  '/js/gomna-bible-library.js?v=20261116-analytics-coverage-v118',
   '/js/gomna-bible-library-data.js?v=20261005-home-approved-clean-v74',
   '/assets/home/people/v1/mary.webp',
   '/favicon.ico',

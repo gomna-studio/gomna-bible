@@ -11,7 +11,7 @@ function fixture(consent=true){
   w.Date.now=()=>now;w.setTimeout=(fn,ms)=>{const id=++seq;timers.set(id,{fn,at:now+ms});return id;};w.clearTimeout=id=>timers.delete(id);
   Object.defineProperty(w.document,'visibilityState',{get:()=>visible,configurable:true});
   Object.defineProperty(w,'history',{value:{get state(){return stack.at(-1)},pushState(s){stack.push(s)},back(){backPending=true}}});
-  Object.assign(w,{homeBiblePickerHistoryPending:false,homeBiblePickerReopenRequested:false,homeBiblePickerRequest:0,homeDeparting:false,root:w.document.getElementById('home'),cancelPendingCardOpens(){},closeViewer(){},closeCard(){},closeSheets(){},GomnaGa4:{allowed:()=>allowed,track:(name,values)=>events.push({name,values})}});
+  Object.assign(w,{homeBiblePickerHistoryPending:false,homeBiblePickerReopenRequested:false,homeBiblePickerRequest:0,homeDeparting:false,root:w.document.getElementById('home'),cancelPendingCardOpens(){},queueHomeAnalyticsScreen(){},closeViewer(){},closeCard(){},closeSheets(){},GomnaGa4:{allowed:()=>allowed,track:(name,values)=>events.push({name,values})}});
   w.eval(source.slice(start,end));
   w.document.getElementById('opener').focus();
   function advance(ms){const target=now+ms;while(true){const entries=[...timers].filter(([,t])=>t.at<=target).sort((a,b)=>a[1].at-b[1].at);if(!entries.length)break;const [id,t]=entries[0];timers.delete(id);now=t.at;t.fn();}now=target;}

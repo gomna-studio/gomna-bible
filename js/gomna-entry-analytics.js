@@ -14,7 +14,7 @@
       var raw = localStorage.getItem('cookieChoice');
       if (!raw) return null;
       var parsed = JSON.parse(raw);
-      return parsed && typeof parsed === 'object' ? parsed : null;
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
     } catch (error) {
       return null;
     }
@@ -25,6 +25,9 @@
     choice.analytics = analytics;
     choice.timestamp = new Date().toISOString();
     try { localStorage.setItem('cookieChoice', JSON.stringify(choice)); } catch (error) {}
+    if (window.GomnaGa4 && typeof window.GomnaGa4.consentChanged === 'function') {
+      window.GomnaGa4.consentChanged(analytics);
+    }
   }
 
   function hideBanner() {
@@ -38,17 +41,20 @@
   function loadGa4() {
     if (window.__gomnaEntryGa4Loaded || isInternal()) return;
     if (!window.GomnaGa4 || !window.GomnaGa4.start()) return;
+    // start() can synchronously notify the ready listener above this call.
+    if (window.__gomnaEntryGa4Loaded) return;
     window.__gomnaEntryGa4Loaded = true;
     window.GomnaGa4.track('view_topic_page', { topic_slug: topicSlug() });
   }
 
   function startAnalytics() {
     if (isInternal()) return;
-    var choice = readChoice();
-    if (!choice || choice.analytics !== true) return;
+    if (!window.GomnaGa4 || !window.GomnaGa4.allowed()) return;
     loadGa4();
 
   }
+
+  window.addEventListener('gomna:analytics-ready', startAnalytics);
 
   if (isInternal()) {
     hideBanner();
