@@ -76,7 +76,7 @@ html[data-gomna-theme="dark"].gomna-library-entering::before{background:var(--go
 
 <link rel="preload" as="style" href="js/gomna-home-feed.css?v=20261113-loading-recovery-v117">
 <link rel="preload" as="script" href="js/gomna-daily-verses.js?v=20261031-navigation-v105">
-<link rel="preload" as="script" href="js/gomna-home-feed.js?v=20261113-loading-recovery-v117">
+<link rel="preload" as="script" href="js/gomna-home-feed.js?v=20261116-analytics-coverage-v118">
 <link rel="preload" as="style" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
 <script id="gomna-home-entry-target">
 /* Select the return destination before markup paints; never flash today's card
@@ -96,7 +96,7 @@ html[data-gomna-theme="dark"].gomna-library-entering::before{background:var(--go
 })();
 </script>
 <script defer src="/analytics-control.js?v=20261103-qa-attribution-v115"></script>
-<script defer src="/js/gomna-ga4.js?v=20261103-qa-attribution-v115"></script>
+<script defer src="/js/gomna-ga4.js?v=20261116-analytics-coverage-v118"></script>
 <script defer src="/js/gomna-ux-telemetry.js?v=20261031-navigation-v105"></script>
 <script>
 (function () {
@@ -1918,6 +1918,7 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
     }
 
     function hasAnalyticsConsent() {
+        if (window.GomnaGa4 && typeof window.GomnaGa4.allowed === 'function') return window.GomnaGa4.allowed();
         const consent = getCookieChoice();
         return !!(consent && consent.analytics === true);
     }
@@ -1953,11 +1954,12 @@ html[data-gomna-ui-lang="zh"] .cards.home-menu-card .card-name{
         if (isInternalAnalytics()) return;
         if (!hasAnalyticsConsent()) return;
 
-        loadGa4();
+        if (!loadGa4()) return;
         trackViewHomeOnce();
     }
 
     window.GomnaHomeAnalyticsInit = initHomeAnalytics;
+    window.addEventListener('gomna:analytics-ready', initHomeAnalytics);
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initHomeAnalytics, { once: true });
     } else {
@@ -1983,7 +1985,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 </style>
 <link rel="stylesheet" href="js/gomna-home-legal-footer-v1.css?v=20260917-v1">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261101-login-phone-size-v114">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-16-mobile-viewport-v99" data-release="2026-11-13-loading-recovery-v117" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-16-mobile-viewport-v99" data-release="2026-11-16-analytics-coverage-v118" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
 <style id="gomna-home-card-no-selection">
 /* Home cards are touch controls: prevent iOS text handles/callouts on a hold. */
@@ -2003,7 +2005,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
 <link rel="stylesheet" href="js/gomna-bible-library.css?v=20261007-buttons-down-10mm-v9">
 <link rel="stylesheet" href="js/gomna-coffee-steam.css?v=20261008-startup-v84">
 <script defer src="js/gomna-bible-library-data.js?v=20261005-home-approved-clean-v74"></script>
-<script defer src="js/gomna-bible-library.js?v=20261031-navigation-v105"></script>
+<script defer src="js/gomna-bible-library.js?v=20261116-analytics-coverage-v118"></script>
 <link rel="stylesheet" href="js/gomna-home-people-card.css?v=20261006-person-picker-size-v79">
 <link rel="stylesheet" href="js/gomna-guide-colorful.css?v=2026-10-16-mobile-viewport-v99">
 </head>
@@ -2803,7 +2805,7 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
       var raw = localStorage.getItem('cookieChoice');
       if (!raw) return null;
       var parsed = JSON.parse(raw);
-      return parsed && typeof parsed === 'object' ? parsed : null;
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
     } catch (error) {
       return null;
     }
@@ -2822,7 +2824,10 @@ body[data-gomna-page="home"].gomna-home-deck-on .container{padding-bottom:calc(9
     var choice = readCookieChoice() || {};
     choice.analytics = analytics;
     choice.timestamp = new Date().toISOString();
-    localStorage.setItem('cookieChoice', JSON.stringify(choice));
+    try { localStorage.setItem('cookieChoice', JSON.stringify(choice)); } catch (error) {}
+    if (window.GomnaGa4 && typeof window.GomnaGa4.consentChanged === 'function') {
+      window.GomnaGa4.consentChanged(analytics);
+    }
   }
 
   function acceptAnalyticsCookies() {
@@ -3450,6 +3455,7 @@ function openHomeAccountPanel(){
     var first=panel.querySelector('[data-account-group]:not([hidden]) .home-account-cta, [data-account-group]:not([hidden]) .home-account-menu-item');
     if(first&&typeof first.focus==='function')first.focus();
   }catch(e){}
+  if(typeof window.syncHomeAnalyticsScreen==='function')window.syncHomeAnalyticsScreen();
 }
 function closeHomeAccountPanel(returnFocus){
   var panel=document.getElementById('homeAccountPanel');
@@ -3467,6 +3473,7 @@ function closeHomeAccountPanel(returnFocus){
     trigger.setAttribute('aria-expanded','false');
     if(returnFocus!==false&&hadFocus&&typeof trigger.focus==='function'){try{trigger.focus();}catch(e){}}
   }
+  if(typeof window.syncHomeAnalyticsScreen==='function')window.syncHomeAnalyticsScreen();
 }
 function toggleHomeAccountPanel(){
   if(isHomeAccountPanelOpen())closeHomeAccountPanel();
@@ -3651,6 +3658,7 @@ function openLoginModal(source){
     var box=overlay.querySelector('.login-box');
     if(box&&typeof box.focus==='function')box.focus({preventScroll:true});
   }catch(e){}
+  if(typeof window.syncHomeAnalyticsScreen==='function')window.syncHomeAnalyticsScreen();
 }
 
 function closeLoginModal(){
@@ -3666,6 +3674,7 @@ function closeLoginModal(){
   }catch(e){}
   loginModalLastFocus=null;
   syncHomeAccountLabelFromAuth();
+  if(typeof window.syncHomeAnalyticsScreen==='function')window.syncHomeAnalyticsScreen();
 }
 
 
@@ -3692,7 +3701,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 <script src="js/gomna-push-config.js?v=20260909-push-pref-v1"></script>
 <script src="js/gomna-push-prefs.js?v=20260914-notify-interval-v1"></script>
 <script src="js/gomna-mail-config.js?v=20260909-mail-mac-v1"></script>
-<script src="js/gomna-home-feed.js?v=20261113-loading-recovery-v117"></script>
+<script src="js/gomna-home-feed.js?v=20261116-analytics-coverage-v118"></script>
 <script src="js/gomna-bible-stair-picker.js?v=20261008-clean-transition-v1"></script>
 <script src="settings_guide.js?v=20260925-hide-language-settings-v1" defer></script>
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>
@@ -3856,7 +3865,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 </script>
 <!-- 로그인 연결: Supabase 공식 CDN이 먼저, 그 뒤에 gomna-auth.js. 순서를 바꾸지 않는다. -->
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="js/gomna-auth.js?v=20261008-account-unified-v1"></script>
+<script defer src="js/gomna-auth.js?v=20261116-analytics-coverage-v118"></script>
 <!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
 <script defer src="js/gomna-help.js?v=2026-09-18-help-commentary-v29"></script>
 <!-- 로컬 미리보기: 로그인 상단 카드 3장 교차 셔플(표시 전용). 되돌릴 때는 이 줄과 파일만 지운다. -->

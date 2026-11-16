@@ -89,6 +89,13 @@
     panel.style.top=top+'px';
     panel.style.height=Math.max(180,Math.min(height,navTop-top))+'px';
   }
+  function syncLibraryAnalytics() {
+    try {
+      // This route already changes browser history. The Home bridge records
+      // only the visible app screen, without another manual page_view.
+      if (typeof window.syncHomeAnalyticsScreen === 'function') window.syncHomeAnalyticsScreen();
+    } catch (_) { /* Library navigation must not depend on analytics. */ }
+  }
   function render() {
     const next=route();
     if (!next) { closeView(); return; }
@@ -105,6 +112,7 @@
     if(item)detail(item);else list();
     document.documentElement.classList.remove('gomna-library-entering');
     panel.querySelector('#gblTitle').focus({preventScroll:true});
+    syncLibraryAnalytics();
   }
   function navigate(kind,id,replace) {
     save();
@@ -120,6 +128,7 @@
     const feed=document.getElementById('gomnaHomeFeed');
     if(feed)feed.inert=false;
     current=null;
+    syncLibraryAnalytics();
   }
   function home() {
     save(); history.replaceState(Object.assign({},history.state,{gbl:false}),'',location.pathname+location.search); closeView();

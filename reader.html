@@ -72,6 +72,7 @@ html[data-gomna-theme="dark"] #readerEntryRecovery button,html[data-gomna-theme=
     track('screen_open_ready');
     root.classList.remove('reader-panel-entry-pending', 'reader-panel-entry-failed');
     if (shell) shell.hidden = true;
+    if (typeof syncReaderAnalyticsScreen === 'function') syncReaderAnalyticsScreen(true);
     return true;
   }
   window.__gomnaRevealPanelEntry = function () {
@@ -4681,7 +4682,7 @@ html.reader-hide-chrome .verse-item.verse-item--entry-focus .verse-num{
   .verse-num{width:3ch!important;min-width:3ch!important;max-width:3ch!important;height:auto!important;font-size:0.84em!important;padding:0.32em 0 0!important}
 }
 </style>
-<script src="gomna_category_feature.js?v=20261022-guide-details-v1" defer></script>
+<script src="gomna_category_feature.js?v=20261116-analytics-coverage-v118" defer></script>
 
 
 <link rel="stylesheet" href="js/gomna-bible-stair-picker.css?v=20260917-old-card-removed-v8">
@@ -4695,7 +4696,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <!-- Consent, text scale and theme scripts run after the independent recovery controls. -->
 <link rel="stylesheet" href="js/gomna-scripture-reading-ui-v1.css?v=20260917-v2">
 <link rel="stylesheet" href="js/gomna-account-white.css?v=20261101-login-phone-size-v114">
-<script src="/js/gomna-pwa-recovery.js?v=2026-10-16-mobile-viewport-v99" data-release="2026-11-13-loading-recovery-v117" defer></script>
+<script src="/js/gomna-pwa-recovery.js?v=2026-10-16-mobile-viewport-v99" data-release="2026-11-16-analytics-coverage-v118" defer></script>
 <script src="/js/gomna-nav-magnifier.js?v=20261008-resume-v1" defer></script>
 <link rel="stylesheet" href="js/gomna-guide-colorful.css?v=2026-10-16-mobile-viewport-v99">
 <script>if(new URLSearchParams(location.search).get("homeGuide")==="1")document.documentElement.classList.add("gomna-home-guide-entering");</script><style>html.gomna-home-guide-entering body{visibility:hidden}</style>
@@ -4713,7 +4714,7 @@ window.GOMNA_ASSET_VERSION = "2026-08-16-kakao-display-name-v1";
 <!-- The independent recovery controls precede every blocking app dependency. -->
 <script data-reader-entry-dependency src="/js/gomna-screen-transition.js?v=20261031-navigation-v105"></script>
 <script data-reader-entry-dependency src="/analytics-control.js?v=20261103-qa-attribution-v115"></script>
-<script data-reader-entry-dependency src="/js/gomna-ga4.js?v=20261103-qa-attribution-v115"></script>
+<script data-reader-entry-dependency src="/js/gomna-ga4.js?v=20261116-analytics-coverage-v118"></script>
 <script data-reader-entry-dependency src="/js/gomna-bible-search.js?v=20260720-loneliness-ranking-v4"></script>
 <script data-reader-entry-dependency src="/js/gomna-bible-ref.js?v=20260725-multilang-structured-refs-v1"></script>
 <script data-reader-entry-dependency src="js/gomna-bible-stair-picker.js?v=20261008-clean-transition-v1"></script>
@@ -5620,6 +5621,59 @@ function getActiveReaderViewId() {
   var active = document.querySelector('main.content .view.active');
   return active ? active.id : '';
 }
+
+/* Record the screen that is actually visible, independently of layout and playback.
+   The shared collector keeps consent/internal exclusions and deduplicates repeats. */
+function syncReaderAnalyticsScreen(initial) {
+  try {
+    var root = document.documentElement;
+    if (document.visibilityState === 'hidden' ||
+        root.classList.contains('reader-panel-entry-pending') ||
+        root.classList.contains('scripture-entry-pending') ||
+        root.classList.contains('search-entry-pending') ||
+        root.classList.contains('gomna-home-commentary-loading') ||
+        (typeof isHomeBiblePickerFrame === 'function' && isHomeBiblePickerFrame())) return false;
+    var guide = document.getElementById('scriptureAllGuidesOverlay');
+    var picker = document.getElementById('unifiedBookChapterModal');
+    var login = document.getElementById('loginModal');
+    var accountOpen = login && login.classList.contains('show');
+    ['gomnaProfileSheet', 'gomnaProfileEditSheet', 'gomnaNameConfirmSheet'].forEach(function (id) {
+      var sheet = document.getElementById(id);
+      if (sheet && !sheet.hidden) accountOpen = true;
+    });
+    var screen;
+    if (accountOpen) {
+      screen = 'account';
+    } else if (guide && guide.classList.contains('is-open') && guide.querySelector('.scripture-all-guides-article')) {
+      screen = 'guide';
+    } else if (picker && picker.classList.contains('active') && !picker.classList.contains('unified-bc-overlay--peek')) {
+      screen = 'bible_picker';
+    } else {
+      screen = { verseView:'reader', easyView:'find', favView:'archive', searchView:'search',
+        oldView:'bible-old', newView:'bible-new', chapterView:'chapter' }[getActiveReaderViewId()];
+      if (screen === 'reader' && !document.querySelector('#verseList .verse-item')) return false;
+    }
+    var ga = window.GomnaGa4;
+    return !!(screen && ga && typeof ga.screenView === 'function' && ga.screenView(screen, { initial:initial === true }));
+  } catch (e) { return false; } // Analytics must never interrupt navigation or audio.
+}
+
+var readerAnalyticsScreenQueued = false;
+function queueReaderAnalyticsScreen() {
+  if (readerAnalyticsScreenQueued) return;
+  readerAnalyticsScreenQueued = true;
+  function flush() {
+    readerAnalyticsScreenQueued = false;
+    syncReaderAnalyticsScreen();
+  }
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(flush);
+  else setTimeout(flush, 0);
+}
+window.addEventListener('pageshow', queueReaderAnalyticsScreen);
+window.addEventListener('gomna:analytics-ready', function () { syncReaderAnalyticsScreen(); });
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'visible') queueReaderAnalyticsScreen();
+});
 
 function isReaderVerseViewActive() {
   var vv = document.getElementById('verseView');
@@ -6707,6 +6761,7 @@ function switchTab(tab) {
     var backBtnFav = document.getElementById('readerBackToTextBtnFav');
     if (backBtnFav) backBtnFav.style.display = lastReaderReturn ? '' : 'none';
   }
+  syncReaderAnalyticsScreen();
 }
 
 function updateHeaderBtns(tab) {
@@ -8502,6 +8557,7 @@ function selectBook(name, chapters, testament) {
   syncScriptureDockActive('bible');
   // v72: 장 선택 화면도 대상이므로, pull 상태가 적용된 뒤 스페이서 오프셋만큼 내려 헤더가 상단에서 시작하도록 한다
   resetBibleListScroll();
+  syncReaderAnalyticsScreen();
 }
 
 function selectChapter(ch) {
@@ -8616,6 +8672,7 @@ function renderVerses(highlightVerse) {
       chapter: currentChapter
     }
   }));
+  syncReaderAnalyticsScreen();
   /* After Korean DOM rebuild, re-apply Google body translation when a non-KO lang is active. */
   if (typeof window.GomnaReaderRetranslateBody === 'function') {
     try { window.GomnaReaderRetranslateBody('renderVerses'); } catch (eRt) { /* ignore */ }
@@ -11199,6 +11256,7 @@ function bindUnifiedBcEdgeOpen() {
         box.style.transform = 'translateX(0)';
       }
       unifiedBcSyncRailState();
+      syncReaderAnalyticsScreen();
     } else {
       unifiedBcSwipeClose(box);
     }
@@ -12264,6 +12322,7 @@ function openUnifiedBookChapterModal(opts) {
   if (opts.expandCurrentBook && unifiedBcState.openBook && bookList) {
     unifiedBcRevealOpenChapters(bookList, unifiedBcState.openBook);
   }
+  syncReaderAnalyticsScreen();
 }
 
 /* 상단 현재 위치(책이름 장:절 + KRV) 탭 — 전체 성경 패널이 아니라 현재 장 전용 미니 팝오버. */
@@ -12926,6 +12985,9 @@ function closeUnifiedBookChapterModal() {
   if (typeof isHomeBiblePickerFrame === 'function' && isHomeBiblePickerFrame() && !window.__gomnaHomeBiblePickerNavigating) {
     postHomeBiblePicker('close');
   }
+  // Closing can be followed immediately by a book/tab choice in the same task.
+  // Observe the final destination instead of an unpainted underlying screen.
+  queueReaderAnalyticsScreen();
 }
 
 
@@ -14748,6 +14810,7 @@ function readerDockTopClose() {
   syncReaderChapterLayout();
   var scrollEl = typeof getBibleListScrollContainer === 'function' ? getBibleListScrollContainer() : null;
   if (scrollEl && place.scrollTop) scrollEl.scrollTop = place.scrollTop;
+  syncReaderAnalyticsScreen();
 }
 
 function resetVerseViewScroll() {
@@ -19383,6 +19446,7 @@ function openLoginModal(source) {
     var box = overlay.querySelector('.login-box');
     if (box && typeof box.focus === 'function') box.focus({ preventScroll: true });
   } catch (e) {}
+  queueReaderAnalyticsScreen();
 }
 
 function closeLoginModal() {
@@ -19397,6 +19461,7 @@ function closeLoginModal() {
     if (back) back.focus();
   } catch (e) {}
   loginModalLastFocus = null;
+  queueReaderAnalyticsScreen();
 }
 
 document.addEventListener('keydown', function(e) {
@@ -19561,16 +19626,16 @@ if (initializeLocalPanelEntry()) startLocalPanelDataAfterPaint();
 </style>
 
 <script>
-const savedConsent = localStorage.getItem('cookieChoice');
-if (!savedConsent) {
-  document.getElementById('cookie-banner').style.display = 'block';
+// A legacy or unreadable value is not a decision. Keep the choice available
+// instead of silently hiding the banner while the shared collector refuses it.
+var readerClarityConsent = null;
+var savedConsent = null;
+try { savedConsent = JSON.parse(localStorage.getItem('cookieChoice') || 'null'); } catch (error) {}
+if (savedConsent && typeof savedConsent === 'object' && typeof savedConsent.analytics === 'boolean') {
+  applyConsent(savedConsent);
 } else {
-  try {
-    applyConsent(JSON.parse(savedConsent));
-  } catch (error) {
-    localStorage.removeItem('cookieChoice');
-    document.getElementById('cookie-banner').style.display = 'block';
-  }
+  var readerCookieBanner = document.getElementById('cookie-banner');
+  if (readerCookieBanner) readerCookieBanner.style.display = 'block';
 }
 
 function acceptAllCookies() {
@@ -19592,22 +19657,68 @@ function rejectCookies() {
 }
 
 function saveAndApply(consent) {
-  localStorage.setItem('cookieChoice', JSON.stringify(consent));
-  document.getElementById('cookie-banner').style.display = 'none';
-  applyConsent(consent);
+  if (!consent || typeof consent.analytics !== 'boolean') return;
+  // Storage may be unavailable. The shared collector remembers this explicit
+  // choice only in this document; it never infers consent on the next visit.
+  try { localStorage.setItem('cookieChoice', JSON.stringify(consent)); } catch (error) {}
+  var banner = document.getElementById('cookie-banner');
+  if (banner) banner.style.display = 'none';
+  applyConsent(consent, true);
 }
 
-function applyConsent(consent) {
-  if (consent.analytics) loadAnalytics();
-  if (consent.marketing) loadAds();
+function applyConsent(consent, explicitChoice) {
+  if (!consent || typeof consent.analytics !== 'boolean') return;
+  readerClarityConsent = consent;
+  if (window.GomnaGa4) {
+    if (explicitChoice && typeof window.GomnaGa4.consentChanged === 'function') {
+      window.GomnaGa4.consentChanged(consent.analytics);
+    } else {
+      // Also reconcile a saved rejection: the shared GA stop flag must be
+      // updated immediately, rather than waiting for a tab visibility change.
+      window.GomnaGa4.start();
+    }
+  }
+  if (consent.analytics === true) loadAnalytics();
+  else syncReaderClarityConsent(consent);
+  if (consent.marketing === true) loadAds();
 }
 
 function loadAnalytics() {
   if (window.GomnaAnalyticsControl && window.GomnaAnalyticsControl.isInternal()) return;
-  if (window.analyticsLoaded) return;
   if (!window.GomnaGa4 || !window.GomnaGa4.start()) return;
+  var choice = typeof readerClarityConsent === 'object' && readerClarityConsent ? readerClarityConsent : { analytics: true, marketing: false };
+  if (window.analyticsLoaded) {
+    syncReaderClarityConsent(choice);
+    return;
+  }
   window.analyticsLoaded = true;
-  (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","vxpnb5ay5l");
+  window.clarity = window.clarity || function () { (window.clarity.q = window.clarity.q || []).push(arguments); };
+  syncReaderClarityConsent(choice);
+  var script = document.createElement('script');
+  script.async = true;
+  script.src = 'https://www.clarity.ms/tag/vxpnb5ay5l';
+  var firstScript = document.getElementsByTagName('script')[0];
+  firstScript.parentNode.insertBefore(script, firstScript);
+}
+
+function syncReaderClarityConsent(consent) {
+  if (typeof window.clarity !== 'function') return;
+  var allowed = !!(consent && consent.analytics === true && window.GomnaGa4 && window.GomnaGa4.allowed());
+  try {
+    window.clarity('consentv2', {
+      analytics_Storage: allowed ? 'granted' : 'denied',
+      ad_Storage: allowed && consent.marketing === true ? 'granted' : 'denied'
+    });
+    // Denied consent alone still permits Clarity's cookieless mode. Stop its
+    // collectors as well; any final flush contains previously collected data.
+    if (!allowed && !window.__gomnaClarityStopped) {
+      window.clarity('stop');
+      window.__gomnaClarityStopped = true;
+    } else if (allowed && window.__gomnaClarityStopped) {
+      window.clarity('start');
+      window.__gomnaClarityStopped = false;
+    }
+  } catch (error) {}
 }
 
 function loadAds() {
@@ -19615,6 +19726,24 @@ function loadAds() {
   window.adsLoaded = true;
   // 7월 AdSense 승인 후 광고 스크립트는 여기에만 삽입
 }
+
+window.addEventListener('storage', function (event) {
+  if (event.key !== null && event.key !== 'cookieChoice' && event.key !== 'gomna:analytics:internal') return;
+  var choice = null;
+  try { choice = JSON.parse(localStorage.getItem('cookieChoice') || 'null'); } catch (error) {}
+  if (choice && typeof choice.analytics === 'boolean') {
+    var chosenBanner = document.getElementById('cookie-banner');
+    if (chosenBanner) chosenBanner.style.display = 'none';
+    applyConsent(choice);
+    // Internal-device registration also stops a previously active recorder.
+    syncReaderClarityConsent(choice);
+  } else {
+    readerClarityConsent = null;
+    syncReaderClarityConsent({ analytics: false, marketing: false });
+    var banner = document.getElementById('cookie-banner');
+    if (banner) banner.style.display = 'block';
+  }
+});
 </script>
 <!-- GOMNA LANGUAGE HARD OFF: gomna-reader-lang-bridge.js disabled -->
 <script src="translate_feature.js?v=20260909-locale-runtime-sync-v1" defer></script>
@@ -20684,7 +20813,7 @@ function loadAds() {
 </script>
 <!-- 로그인 연결: Supabase 공식 CDN이 먼저, 그 뒤에 gomna-auth.js. 순서를 바꾸지 않는다. -->
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="js/gomna-auth.js?v=20261008-account-unified-v1"></script>
+<script defer src="js/gomna-auth.js?v=20261116-analytics-coverage-v118"></script>
 <!-- 앱 안 도움말(홈·Reader 공용). 홈페이지 /guide와는 별개 화면이다. -->
 <script defer src="js/gomna-help.js?v=2026-09-18-help-commentary-v29"></script>
 <!-- 로컬 미리보기: 로그인 상단 카드 3장 교차 셔플(표시 전용). 되돌릴 때는 이 줄과 파일만 지운다. -->
@@ -20885,4 +21014,3 @@ window.addEventListener('gomna:verse_list_rendered',function(){if(active&&!match
 <script src="js/gomna-guide-home-entry.js?v=20261025-restore-app-guide-v1"></script>
 </body>
 </html>
-

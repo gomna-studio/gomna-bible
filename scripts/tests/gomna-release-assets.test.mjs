@@ -12,6 +12,7 @@ const precache = [...sw.match(/const STATIC_URLS = \[([\s\S]*?)\];/)[1].matchAll
 const latestAssets = ['/analytics-control.js', '/js/gomna-ga4.js'];
 const versionedAssets = [
   ...latestAssets,
+  '/js/gomna-entry-analytics.js', '/js/gomna-auth.js', '/gomna_category_feature.js',
   '/js/gomna-account-white.css', '/js/gomna-login-brand-shuffle.js',
   '/js/audio-config.js', '/js/audio-engine.js', '/js/gomna-audio-telemetry.js',
   '/js/gomna-bible-library.js', '/js/gomna-daily-verses.js', '/js/gomna-home-feed.css',

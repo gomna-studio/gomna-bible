@@ -25,7 +25,7 @@ function fixture(){
     homeBiblePickerHistoryPending:false,homeBiblePickerReopenRequested:false,homeDeparting:false,
     history,root:{querySelector:()=>null},
     document:{getElementById:()=>overlay,documentElement:{classList:{add:value=>rootClasses.add(value),remove:value=>rootClasses.delete(value)}}},
-    ensureHomeBiblePicker:()=>overlay,cancelPendingCardOpens(){},
+    ensureHomeBiblePicker:()=>overlay,cancelPendingCardOpens(){},queueHomeAnalyticsScreen(){},
     startHomeBiblePickerWait(){},pauseHomeBiblePickerWait(){},focusHomeBiblePicker(){},
     tellHomeBiblePicker:action=>messages.push(action),closeViewer(){},closeCard(){},closeSheets(){}
   });

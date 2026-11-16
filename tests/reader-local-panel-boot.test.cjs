@@ -73,7 +73,14 @@ function boot(query, saved = true) {
       assert.equal(downloads.length, 2, 'one download per testament');
       for (const script of downloads) {
         const filename = new URL(script.src).pathname.slice(1);
-        w.eval(fs.readFileSync(path.join(root, filename), 'utf8'));
+        const scriptureSource = fs.readFileSync(path.join(root, filename), 'utf8');
+        assert.ok(scriptureSource.trim().length > 0, filename + ' must contain the actual downloaded dataset');
+        w.eval(scriptureSource);
+        const isOld = filename === 'old_testament.js';
+        const data = w.eval(isOld ? 'oldTestamentData' : 'newTestamentData');
+        assert.ok(data && Array.isArray(data.books), filename + ' must initialize its Bible data before load');
+        assert.equal(data.books.length, isOld ? 39 : 27, filename + ' must contain all testament books');
+        assert.ok(data.books.every(book => Array.isArray(book.chapters) && book.chapters.length > 0), filename + ' must include chapter data');
         script.dispatchEvent(new w.Event('load'));
       }
       for (let i = 0; i < 4; i++) { frame(); zeroTimers(); }
